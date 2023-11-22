@@ -17,9 +17,8 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
-  Tooltip,
-  Grid,
-  GridItem,
+  Flex,
+  FlexItem,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
@@ -844,7 +843,7 @@ export const ApplicationsTable: React.FC = () => {
                 const hasAssessedArchetype = applicationArchetypes?.some(
                   (archetype) => !!archetype?.assessments?.length
                 );
-
+                console.log("hasassessed", hasAssessedArchetype);
                 return (
                   <Tr
                     key={application.name}
@@ -874,35 +873,33 @@ export const ApplicationsTable: React.FC = () => {
                         )}
                       </Td>
                       <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
-                        <Grid>
-                          <GridItem span={10}>
+                        <Flex alignItems={{ default: "alignItemsCenter" }}>
+                          <FlexItem>
                             <ApplicationAssessmentStatus
                               application={application}
                             />
-                          </GridItem>
-                          <GridItem span={2}>
-                            {hasAssessedArchetype && (
-                              <Tooltip
-                                content={t("terms.assessedArchetype")}
-                                aria-label="assessment"
-                              >
-                                <QuestionCircleIcon />
-                              </Tooltip>
-                            )}
-                          </GridItem>
-                        </Grid>
+                          </FlexItem>
+                          <FlexItem>
+                            <ConditionalTooltip
+                              isTooltipEnabled={hasAssessedArchetype || false}
+                              content={t("message.archetypeAlreadyAssessed")}
+                            >
+                              <QuestionCircleIcon />
+                            </ConditionalTooltip>
+                          </FlexItem>
+                        </Flex>
                       </Td>
                       <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <Grid>
-                          <GridItem span={10}>
+                        <Flex alignItems={{ default: "alignItemsCenter" }}>
+                          <FlexItem>
                             <IconedStatus
                               preset={
                                 isAppReviewed || hasReviewedArchetype
@@ -910,18 +907,16 @@ export const ApplicationsTable: React.FC = () => {
                                   : "NotStarted"
                               }
                             />
-                          </GridItem>
-                          <GridItem span={2}>
-                            {hasReviewedArchetype ? (
-                              <Tooltip
-                                content={t("terms.reviewedArchetype")}
-                                aria-label="review"
-                              >
-                                <QuestionCircleIcon />
-                              </Tooltip>
-                            ) : null}
-                          </GridItem>
-                        </Grid>
+                          </FlexItem>
+                          <FlexItem>
+                            <ConditionalTooltip
+                              isTooltipEnabled={hasReviewedArchetype || false}
+                              content={t("message.archetypeAlreadyReviewed")}
+                            >
+                              <QuestionCircleIcon />
+                            </ConditionalTooltip>
+                          </FlexItem>
+                        </Flex>
                       </Td>
                       <Td
                         width={10}
