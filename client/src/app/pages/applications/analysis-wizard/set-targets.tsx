@@ -16,7 +16,7 @@ import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
 import { Target } from "@app/api/models";
-import { SimpleSelect } from "@app/components/SimpleSelect";
+import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 
 export const SetTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -135,20 +135,28 @@ export const SetTargets: React.FC = () => {
           {t("wizard.terms.setTargets")}
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
-        <SimpleSelect
-          width={200}
-          variant="typeahead"
-          id="action-select"
-          toggleId="action-select-toggle"
-          toggleAriaLabel="Action select dropdown toggle"
-          aria-label={"Select provider"}
-          value={provider}
-          options={["Java", "Go"]}
-          onChange={(selection) => {
-            setProvider(selection as string);
-          }}
-        />
       </TextContent>
+      <SimpleSelectTypeahead
+        width={200}
+        value={provider}
+        toggleAriaLabel="Action select dropdown toggle"
+        toggleId="action-select-toggle"
+        hideClearButton
+        id="action-select"
+        options={[
+          {
+            value: "Java",
+            children: "Java",
+          },
+          {
+            value: "Go",
+            children: "Go",
+          },
+        ]}
+        onChange={(selection) => {
+          setProvider(selection as string);
+        }}
+      />
       {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
@@ -158,7 +166,6 @@ export const SetTargets: React.FC = () => {
             title={t("wizard.label.skipTargets")}
           />
         )}
-
       <Gallery hasGutter>
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {

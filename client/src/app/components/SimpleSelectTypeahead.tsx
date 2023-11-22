@@ -25,7 +25,9 @@ export interface ISimpleSelectBasicProps {
   toggleId?: string;
   toggleAriaLabel?: string;
   selectMultiple?: boolean;
+  width?: number;
   noResultsFoundText?: string;
+  hideClearButton?: boolean;
 }
 
 export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
@@ -37,7 +39,9 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
   toggleId,
   toggleAriaLabel,
   selectMultiple = false,
+  width,
   noResultsFoundText,
+  hideClearButton = false,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<string | string[]>(
@@ -190,7 +194,8 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
       variant="typeahead"
       onClick={onToggleClick}
       isExpanded={isOpen}
-      isFullWidth
+      isFullWidth={!width}
+      style={{ width: width && width + "px" }}
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
@@ -199,7 +204,9 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
           onBlur={() => {
-            setInputValue("");
+            selectMultiple
+              ? setInputValue("")
+              : setInputValue(selected.toString());
           }}
           id="typeahead-select-input"
           autoComplete="off"
@@ -243,7 +250,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
               <TimesIcon aria-hidden />
             </Button>
           )}
-          {!selectMultiple && !!inputValue && (
+          {!hideClearButton && !selectMultiple && !!inputValue && (
             <Button
               variant="plain"
               onClick={() => {
@@ -264,13 +271,13 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
   );
   return (
     <>
-      <div>selected: {[selected].join(",")}</div>
       <Select
         id={id}
         isOpen={isOpen}
         selected={selected}
         onSelect={onSelect}
         onOpenChange={() => {
+          setFilterValue("");
           setIsOpen(false);
         }}
         toggle={toggle}
