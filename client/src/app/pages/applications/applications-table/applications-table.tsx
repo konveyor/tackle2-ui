@@ -340,12 +340,12 @@ export const ApplicationsTable: React.FC = () => {
         getItemValue: (item) => item?.name || "",
       },
       {
-        key: "archetype",
-        title: t("terms.archetype"),
+        key: "archetypes",
+        title: t("terms.archetypes"),
         type: FilterType.multiselect,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.archetype").toLowerCase(),
+            what: t("terms.archetypes").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
           const archetypeNames = item?.archetypes
