@@ -587,7 +587,6 @@ export const MigrationWaves: React.FC = () => {
         variant={ModalVariant.medium}
         isOpen={isWaveModalOpen}
         onClose={closeWaveModal}
-        style={{ minHeight: "62vh" }}
       >
         <WaveForm
           migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}

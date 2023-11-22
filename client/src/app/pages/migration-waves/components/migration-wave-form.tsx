@@ -306,11 +306,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
                 dateParse={(val) => dayjs(val).toDate()}
                 validators={[startDateRangeValidator]}
-                appendTo={() =>
-                  document.getElementById(
-                    "create-edit-migration-wave-modal"
-                  ) as HTMLElement
-                }
+                appendTo={() => document.body}
               />
             )}
           />
@@ -333,11 +329,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
                 dateParse={(val) => dayjs(val).toDate()}
                 validators={[endDateRangeValidator]}
-                appendTo={() =>
-                  document.getElementById(
-                    "create-edit-migration-wave-modal"
-                  ) as HTMLElement
-                }
+                appendTo={() => document.body}
                 isDisabled={!!formErrors.startDateStr}
               />
             )}
