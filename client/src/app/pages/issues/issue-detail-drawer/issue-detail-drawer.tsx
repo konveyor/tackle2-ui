@@ -10,7 +10,6 @@ import {
   Tabs,
   TabTitleText,
   Tab,
-  Truncate,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
@@ -50,21 +49,23 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
       focusKey={issueId || ""}
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
+      header={
+        <TextContent>
+          <Text component="small" className={spacing.mb_0}>
+            Issue
+          </Text>
+          <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
+            {issue ? getIssueTitle(issue) : ""}
+          </Title>
+        </TextContent>
+      }
     >
       {isFetching ? (
         <AppPlaceholder />
       ) : !issue ? (
         <StateNoData />
       ) : (
-        <>
-          <TextContent>
-            <Text component="small" className={spacing.mb_0}>
-              {applicationName}
-            </Text>
-            <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-              <Truncate content={getIssueTitle(issue)} />
-            </Title>
-          </TextContent>
+        <div>
           <Tabs
             activeKey={activeTabKey}
             onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
@@ -77,7 +78,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
               <IssueAffectedFilesTable issue={issue} />
             </Tab>
           </Tabs>
-        </>
+        </div>
       )}
     </PageDrawerContent>
   );
