@@ -873,27 +873,18 @@ export const ApplicationsTable: React.FC = () => {
                           />
                         )}
                       </Td>
-                      {/* <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "assessment" })}
-                      >
-                        <ApplicationAssessmentStatus
-                          application={application}
-                        />
-                      </Td> */}
                       <Td
                         width={10}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
                         <Grid>
-                          <GridItem span={8}>
+                          <GridItem span={10}>
                             <ApplicationAssessmentStatus
                               application={application}
                             />
                           </GridItem>
-                          <GridItem span={1}>
+                          <GridItem span={2}>
                             {hasAssessedArchetype && (
                               <Tooltip
                                 content={t("terms.assessedArchetype")}
@@ -911,7 +902,7 @@ export const ApplicationsTable: React.FC = () => {
                         {...getTdProps({ columnKey: "review" })}
                       >
                         <Grid>
-                          <GridItem span={8}>
+                          <GridItem span={10}>
                             <IconedStatus
                               preset={
                                 isAppReviewed || hasReviewedArchetype
@@ -920,7 +911,7 @@ export const ApplicationsTable: React.FC = () => {
                               }
                             />
                           </GridItem>
-                          <GridItem span={1}>
+                          <GridItem span={2}>
                             {hasReviewedArchetype ? (
                               <Tooltip
                                 content={t("terms.reviewedArchetype")}
