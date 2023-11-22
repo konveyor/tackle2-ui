@@ -24,6 +24,23 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
   const archivedQuestionnaires = questionnaires.filter(
     (questionnaire) => !questionnaire.required
   );
+
+  const nonRequiredQuestionnaireIds = questionnaires
+    .filter((q) => !q.required)
+    .map((q) => q.id);
+
+  const relevantAssessmentIds = (
+    application?.assessments ||
+    archetype?.assessments ||
+    []
+  ).map((a) => a.id);
+
+  const filteredArchivedAssessments = assessments.filter(
+    (assessment) =>
+      nonRequiredQuestionnaireIds.includes(assessment.questionnaire.id) &&
+      relevantAssessmentIds.includes(assessment.id)
+  );
+
   return (
     <>
       <QuestionnairesTable
@@ -34,16 +51,17 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
         isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
         tableName="Required questionnaires"
       />
-
-      <QuestionnairesTable
-        application={application}
-        archetype={archetype}
-        isReadonly
-        questionnaires={archivedQuestionnaires}
-        assessments={assessments}
-        isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
-        tableName="Archived questionnaires"
-      />
+      {filteredArchivedAssessments.length === 0 ? null : (
+        <QuestionnairesTable
+          application={application}
+          archetype={archetype}
+          isReadonly
+          questionnaires={archivedQuestionnaires}
+          assessments={filteredArchivedAssessments}
+          isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+          tableName="Archived questionnaires"
+        />
+      )}
     </>
   );
 };
