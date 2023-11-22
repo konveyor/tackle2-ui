@@ -5,12 +5,11 @@ import React from "react";
 export const ReviewedArchetypeItem = ({ id }: { id: number }) => {
   const { archetype } = useFetchArchetypeById(id);
 
-  if (!archetype) return null;
+  if (!archetype?.review) return null;
 
   return (
     <Label color="grey" key={id}>
       {archetype.name}
-      {archetype.review ? " (Reviewed)" : " (Not Reviewed)"}
     </Label>
   );
 };
