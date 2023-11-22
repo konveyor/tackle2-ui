@@ -584,7 +584,7 @@ export const MigrationWaves: React.FC = () => {
                 what: t("terms.migrationWave").toLowerCase(),
               })
         }
-        variant={ModalVariant.small}
+        variant={ModalVariant.medium}
         isOpen={isWaveModalOpen}
         onClose={closeWaveModal}
       >

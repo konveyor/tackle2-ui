@@ -11,8 +11,6 @@ import {
   Grid,
   GridItem,
   DatePicker,
-  Level,
-  LevelItem,
 } from "@patternfly/react-core";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
@@ -289,71 +287,65 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             fieldId="name"
           />
         </GridItem>
-        <Level>
-          <LevelItem>
-            <GridItem span={5}>
-              <HookFormPFGroupController
-                control={control}
-                name="startDateStr"
-                label="Potential Start Date"
-                fieldId="startDateStr"
-                isRequired
-                renderInput={({ field: { value, name, onChange } }) => (
-                  <DatePicker
-                    aria-label={name}
-                    onChange={(e, val) => {
-                      onChange(val);
-                      trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
-                    }}
-                    placeholder="MM/DD/YYYY"
-                    value={value}
-                    dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                    dateParse={(val) => dayjs(val).toDate()}
-                    validators={[startDateRangeValidator]}
-                    appendTo={() =>
-                      document.getElementById(
-                        "create-edit-migration-wave-modal"
-                      ) as HTMLElement
-                    }
-                  />
-                )}
+        <GridItem span={3}>
+          <HookFormPFGroupController
+            control={control}
+            name="startDateStr"
+            label="Potential Start Date"
+            fieldId="startDateStr"
+            isRequired
+            renderInput={({ field: { value, name, onChange } }) => (
+              <DatePicker
+                aria-label={name}
+                onChange={(e, val) => {
+                  onChange(val);
+                  trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
+                }}
+                placeholder="MM/DD/YYYY"
+                value={value}
+                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                dateParse={(val) => dayjs(val).toDate()}
+                validators={[startDateRangeValidator]}
+                appendTo={() => document.body}
               />
-            </GridItem>
-          </LevelItem>
-          <LevelItem>
-            <GridItem span={2}>to</GridItem>
-          </LevelItem>
-          <LevelItem>
-            <GridItem span={5}>
-              <HookFormPFGroupController
-                control={control}
-                name="endDateStr"
-                label="Potential End Date"
-                fieldId="endDateStr"
-                isRequired
-                renderInput={({ field: { value, name, onChange } }) => (
-                  <DatePicker
-                    aria-label={name}
-                    onChange={(e, val) => {
-                      onChange(val);
-                    }}
-                    placeholder="MM/DD/YYYY"
-                    value={value}
-                    dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                    dateParse={(val) => dayjs(val).toDate()}
-                    validators={[endDateRangeValidator]}
-                    appendTo={() =>
-                      document.getElementById(
-                        "create-edit-migration-wave-modal"
-                      ) as HTMLElement
-                    }
-                    isDisabled={!!formErrors.startDateStr}
-                  />
-                )}
+            )}
+          />
+        </GridItem>
+        <GridItem
+          span={1}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          to
+        </GridItem>
+
+        <GridItem span={8}>
+          <HookFormPFGroupController
+            control={control}
+            name="endDateStr"
+            label="Potential End Date"
+            fieldId="endDateStr"
+            isRequired
+            renderInput={({ field: { value, name, onChange } }) => (
+              <DatePicker
+                aria-label={name}
+                onChange={(e, val) => {
+                  onChange(val);
+                }}
+                placeholder="MM/DD/YYYY"
+                value={value}
+                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                dateParse={(val) => dayjs(val).toDate()}
+                validators={[endDateRangeValidator]}
+                appendTo={() => document.body}
+                isDisabled={!!formErrors.startDateStr}
               />
-            </GridItem>
-          </LevelItem>
-        </Level>
+            )}
+          />
+        </GridItem>
         <GridItem span={12}>
           <HookFormPFGroupController
             control={control}
