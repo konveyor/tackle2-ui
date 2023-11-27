@@ -19,7 +19,6 @@ import { AxiosError } from "axios";
 import {
   Assessment,
   AssessmentWithSectionOrder,
-  AssessmentWithArchetypeApplications,
   InitialAssessment,
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
@@ -234,20 +233,25 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
   });
 
   const isArchetypesLoading = archetypeQueries.some((query) => query.isLoading);
-  const archetypesData = archetypeQueries
-    .map((query) => query.data)
-    .filter(Boolean);
 
-  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
-    assessments.map((assessment, index) => {
-      const archetypeInfo = archetypesData[index];
-      return {
-        ...assessment,
-        archetypeApplications: archetypeInfo.applications
-          ? archetypeInfo.applications
-          : [],
-      };
-    });
+  const archetypeApplicationsMap = new Map();
+  archetypeQueries.forEach((query, index) => {
+    if (query.data && assessments[index].archetype?.id) {
+      archetypeApplicationsMap.set(
+        assessments[index]?.archetype?.id,
+        query.data.applications
+      );
+    }
+  });
+
+  const assessmentsWithArchetypeApplications = assessments.map(
+    (assessment) => ({
+      ...assessment,
+      archetypeApplications: assessment.archetype?.id
+        ? archetypeApplicationsMap.get(assessment.archetype.id) || []
+        : [],
+    })
+  );
 
   return {
     assessmentsWithArchetypeApplications,

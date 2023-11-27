@@ -67,8 +67,11 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
-import { useQueryClient } from "@tanstack/react-query";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import {
+  deserializeFilterUrlParams,
+  useLocalTableControls,
+} from "@app/hooks/table-controls";
 
 // Queries
 import { Application, Assessment, Ref, Task } from "@app/api/models";
@@ -110,6 +113,8 @@ export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const token = keycloak.tokenParsed;
+
+  const isFetching = useIsFetching();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -303,6 +308,11 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const filters = urlParams.get("filters");
+
+  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
+
   const tableControls = useLocalTableControls({
     idProperty: "id",
     items: applications || [],
@@ -321,6 +331,7 @@ export const ApplicationsTable: React.FC = () => {
     isActiveItemEnabled: true,
     sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
+    initialFilterValues: deserializedFilterValues,
     getSortValues: (app) => ({
       name: app.name,
       businessService: app.businessService?.name || "",
@@ -331,12 +342,17 @@ export const ApplicationsTable: React.FC = () => {
       {
         key: "name",
         title: t("terms.name"),
-        type: FilterType.search,
+        type: FilterType.multiselect,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
         getItemValue: (item) => item?.name || "",
+        selectOptions: [
+          ...new Set(
+            applications.map((application) => application.name).filter(Boolean)
+          ),
+        ].map((name) => ({ key: name, value: name })),
       },
       {
         key: "archetypes",
@@ -690,7 +706,7 @@ export const ApplicationsTable: React.FC = () => {
 
   return (
     <ConditionalRender
-      when={isFetchingApplications && !(applications || applicationsFetchError)}
+      when={!!isFetching && !(applications || applicationsFetchError)}
       then={<AppPlaceholder />}
     >
       <div

@@ -9,9 +9,14 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import {
+  serializeFilterUrlParams,
+  useLocalTableControls,
+} from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import { Link } from "react-router-dom";
+import { Paths } from "@app/Paths";
 
 export interface IIdentifiedRisksTableProps {}
 
@@ -47,7 +52,6 @@ export const IdentifiedRisksTable: React.FC<
     const uniqueApplications = combinedApplications.reduce(
       (acc: Ref[], current) => {
         if (!acc.find((item) => item?.id === current.id)) {
-          // Assuming 'id' is the unique identifier
           acc.push(current);
         }
         return acc;
@@ -85,9 +89,7 @@ export const IdentifiedRisksTable: React.FC<
                 section: section.name,
                 question: question.text,
                 answer: answer.text,
-                applications: assessment.application
-                  ? [assessment.application]
-                  : [],
+                applications: uniqueApplications ? uniqueApplications : [],
                 assessmentName: assessment.questionnaire.name,
                 questionId: itemId,
               });
@@ -200,7 +202,13 @@ export const IdentifiedRisksTable: React.FC<
                       {item.answer ?? "N/A"}
                     </Td>
                     <Td {...getTdProps({ columnKey: "applications" })}>
-                      {item?.applications.length ?? "N/A"}
+                      {item?.applications.length ? (
+                        <Link to={getApplicationsUrl(item?.applications)}>
+                          {item.applications.length}
+                        </Link>
+                      ) : (
+                        "N/A"
+                      )}
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
@@ -211,4 +219,17 @@ export const IdentifiedRisksTable: React.FC<
       </Table>
     </>
   );
+};
+
+const getApplicationsUrl = (applications: Ref[]) => {
+  const filterValues = {
+    name: applications.map((app) => app.name),
+  };
+
+  const serializedParams = serializeFilterUrlParams(filterValues);
+
+  const queryString = serializedParams.filters
+    ? `filters=${serializedParams.filters}`
+    : "";
+  return `${Paths.applications}?${queryString}`;
 };
