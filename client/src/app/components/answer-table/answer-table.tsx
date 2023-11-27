@@ -16,6 +16,7 @@ import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 import { List, ListItem } from "@patternfly/react-core";
+import RiskIcon from "../risk-icon/risk-icon";
 
 export interface IAnswerTableProps {
   answers: Answer[];
@@ -44,19 +45,6 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
     numRenderedColumns,
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
-
-  const getIconByRisk = (risk: string): React.ReactElement => {
-    switch (risk) {
-      case "green":
-        return <IconedStatus preset="Ok" />;
-      case "red":
-        return <IconedStatus icon={<TimesCircleIcon />} status="danger" />;
-      case "yellow":
-        return <IconedStatus icon={<WarningTriangleIcon />} status="warning" />;
-      default:
-        return <IconedStatus preset="Unknown" />;
-    }
-  };
 
   return (
     <>
@@ -126,7 +114,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                         {answer.text}
                       </Td>
                       <Td width={20} {...getTdProps({ columnKey: "choice" })}>
-                        {getIconByRisk(answer.risk)}
+                        <RiskIcon risk={answer.risk} />
                       </Td>
                     </TableRowContentWithControls>
                   </Tr>

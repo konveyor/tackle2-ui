@@ -25,6 +25,7 @@ import {
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import RiskIcon from "@app/components/risk-icon/risk-icon";
 
 export interface IIdentifiedRisksTableProps {}
 
@@ -116,6 +117,7 @@ export const IdentifiedRisksTable: React.FC<
       section: "Section",
       question: "Question",
       answer: "Answer",
+      risk: "Risk",
       applications: "Applications",
     },
     variant: "compact",
@@ -177,6 +179,7 @@ export const IdentifiedRisksTable: React.FC<
               <Th {...getThProps({ columnKey: "section" })}>Section</Th>
               <Th {...getThProps({ columnKey: "question" })}>Question</Th>
               <Th {...getThProps({ columnKey: "answer" })}>Answer</Th>
+              <Th {...getThProps({ columnKey: "risk" })}>Risk</Th>
               <Th {...getThProps({ columnKey: "applications" })}>
                 Application
               </Th>
@@ -213,6 +216,9 @@ export const IdentifiedRisksTable: React.FC<
                       </Td>
                       <Td {...getTdProps({ columnKey: "answer" })}>
                         {item.answer.text ?? "N/A"}
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "risk" })}>
+                        <RiskIcon risk={item.answer.risk} />
                       </Td>
                       <Td {...getTdProps({ columnKey: "applications" })}>
                         {item?.applications.length ? (
