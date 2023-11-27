@@ -8,6 +8,7 @@ import {
   standardURLRegex,
   formatPath,
   extractFirstSha,
+  collapseSpacesAndCompare,
 } from "./utils";
 import { Paths } from "@app/Paths";
 
@@ -218,4 +219,37 @@ describe("SHA extraction", () => {
     );
     expect(first).toBe("9c04cd6372077e9b11f70ca111c9807dc7137e4b");
   });
+});
+
+describe("space collapse string compare (using en-US compares)", () => {
+  it("both undefined matches", () => {
+    const result = collapseSpacesAndCompare(undefined, undefined, "en-US");
+    expect(result).toBe(0);
+  });
+
+  it("left undefined goes before right defined", () => {
+    const result = collapseSpacesAndCompare(undefined, "anything", "en-US");
+    expect(result).toBe(-1);
+  });
+
+  it("left defined goes after right undefined", () => {
+    const result = collapseSpacesAndCompare("anything", undefined, "en-US");
+    expect(result).toBe(1);
+  });
+
+  it.each([
+    ["alpha", "alpha", 0],
+    ["alpha", "bravo", -1],
+    ["bravo", "alpha", 1],
+    ["   alpha", "alpha     ", 0],
+    ["alpha bravo", "alpha       bravo", 0],
+    ["bravo    alpha", "bravo           bravo", -1],
+    ["The    quick brown    fox   ", "The quick brown fox", 0],
+  ])(
+    "mismatching spaces work as if spaces are collapsed (%s) to (%s) = %i",
+    (a, b, expected) => {
+      const result = collapseSpacesAndCompare(a, b, "en-US");
+      expect(result).toBe(expected);
+    }
+  );
 });

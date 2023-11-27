@@ -9,6 +9,7 @@ import {
   Text,
   TextInput,
 } from "@patternfly/react-core";
+import { collapseSpacesAndCompare } from "@app/utils/utils";
 
 import "./ConfirmDeleteDialog.css";
 
@@ -39,7 +40,12 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
 
   const [nameToDeleteInput, setNameToDeleteInput] = useState<string>("");
 
-  const isDisabled = nameToDeleteInput !== nameToDelete;
+  /*
+    Enable the delete button once the input name matches the `nameToDelete`, BUT
+    collapse spaces since that is the way the name is rendered
+   */
+  const isDisabled =
+    collapseSpacesAndCompare(nameToDeleteInput, nameToDelete) !== 0;
 
   const handleClose = () => {
     setNameToDeleteInput("");

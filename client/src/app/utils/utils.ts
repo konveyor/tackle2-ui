@@ -168,3 +168,24 @@ export const extractFirstSha = (str: string): string | undefined => {
   const match = str.match(SHA_REGEX);
   return match && match[0] ? match[0] : undefined;
 };
+
+export const collapseSpacesAndCompare = (
+  str1: string | undefined,
+  str2: string | undefined,
+  locale?: string
+): number => {
+  if (!str1 && !str2) {
+    return 0;
+  }
+  if (str1 && !str2) {
+    return 1;
+  }
+  if (!str1 && str2) {
+    return -1;
+  }
+
+  const a = str1?.trim().replace(/\s+/g, " ") ?? "";
+  const b = str2?.trim().replace(/\s+/g, " ") ?? "";
+
+  return a.localeCompare(b, locale);
+};
