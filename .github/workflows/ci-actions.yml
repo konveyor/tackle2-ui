@@ -53,3 +53,27 @@ jobs:
         with:
           flags: server
           directory: ./*/coverage
+
+  build-and-upload-for-global-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: save tackle2-ui image
+        run: |
+          docker build . -t quay.io/konveyor/tackle2-ui:latest
+          docker save -o /tmp/tackle2-ui.tar quay.io/konveyor/tackle2-ui:latest
+
+      - name: Upload tackle2-ui image as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: tackle2-ui
+          path: /tmp/tackle2-ui.tar
+          retention-days: 1
+
+  test-integration:
+    needs: build-and-upload-for-global-ci
+    uses: konveyor/ci/.github/workflows/global-ci.yml@main
+    with:
+      component_name: tackle2-ui
+      run_api_tests: false
