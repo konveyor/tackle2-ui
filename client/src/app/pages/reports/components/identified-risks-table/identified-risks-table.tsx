@@ -1,6 +1,6 @@
 import React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useFetchAssessments } from "@app/queries/assessments";
+import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useTranslation } from "react-i18next";
 import { Ref } from "@app/api/models";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
@@ -20,7 +20,8 @@ export const IdentifiedRisksTable: React.FC<
 > = () => {
   const { t } = useTranslation();
 
-  const { assessments } = useFetchAssessments();
+  const { assessmentsWithArchetypeApplications } =
+    useFetchAssessmentsWithArchetypeApplications();
 
   interface ITableRowData {
     assessmentName: string;
@@ -34,7 +35,25 @@ export const IdentifiedRisksTable: React.FC<
   const tableData: ITableRowData[] = [];
 
   // ...
-  assessments.forEach((assessment) => {
+  assessmentsWithArchetypeApplications.forEach((assessment) => {
+    let combinedApplications = assessment.application
+      ? [assessment.application]
+      : [];
+
+    combinedApplications = combinedApplications.concat(
+      assessment.archetypeApplications || []
+    );
+
+    const uniqueApplications = combinedApplications.reduce(
+      (acc: Ref[], current) => {
+        if (!acc.find((item) => item?.id === current.id)) {
+          // Assuming 'id' is the unique identifier
+          acc.push(current);
+        }
+        return acc;
+      },
+      []
+    );
     assessment.sections.forEach((section) => {
       section.questions.forEach((question) => {
         question.answers.forEach((answer) => {
@@ -52,14 +71,15 @@ export const IdentifiedRisksTable: React.FC<
 
             if (existingItemIndex !== -1) {
               const existingItem = tableData[existingItemIndex];
-              if (
-                assessment.application &&
-                !existingItem.applications
-                  .map((app) => app.name)
-                  .includes(assessment.application.name)
-              ) {
-                existingItem.applications.push(assessment.application);
-              }
+              uniqueApplications.forEach((application) => {
+                if (
+                  !existingItem.applications.some(
+                    (app) => app.id === application.id
+                  )
+                ) {
+                  existingItem.applications.push(application);
+                }
+              });
             } else {
               tableData.push({
                 section: section.name,
@@ -150,7 +170,7 @@ export const IdentifiedRisksTable: React.FC<
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={assessments?.length === 0}
+          isNoData={assessmentsWithArchetypeApplications?.length === 0}
           numRenderedColumns={numRenderedColumns}
           noDataEmptyState={
             <div>

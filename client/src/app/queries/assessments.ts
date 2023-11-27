@@ -1,9 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   createAssessment,
   deleteAssessment,
+  getArchetypeById,
   getAssessmentById,
   getAssessments,
   getAssessmentsByItemId,
@@ -13,6 +19,7 @@ import { AxiosError } from "axios";
 import {
   Assessment,
   AssessmentWithSectionOrder,
+  AssessmentWithArchetypeApplications,
   InitialAssessment,
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
@@ -208,5 +215,42 @@ const removeSectionOrderFromQuestions = (
       ...section,
       questions: section.questions.map(({ sectionOrder, ...rest }) => rest), // Destructure out sectionOrder
     })),
+  };
+};
+
+export const useFetchAssessmentsWithArchetypeApplications = () => {
+  const { assessments, isFetching: assessmentsLoading } = useFetchAssessments();
+
+  const archetypeQueries = useQueries({
+    queries:
+      assessments?.map((assessment) => ({
+        queryKey: ["archetype", assessment.archetype?.id],
+        queryFn: () =>
+          assessment.archetype?.id
+            ? getArchetypeById(assessment.archetype.id)
+            : undefined,
+        enabled: !!assessment.archetype?.id,
+      })) || [],
+  });
+
+  const isArchetypesLoading = archetypeQueries.some((query) => query.isLoading);
+  const archetypesData = archetypeQueries
+    .map((query) => query.data)
+    .filter(Boolean);
+
+  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
+    assessments.map((assessment, index) => {
+      const archetypeInfo = archetypesData[index];
+      return {
+        ...assessment,
+        archetypeApplications: archetypeInfo.applications
+          ? archetypeInfo.applications
+          : [],
+      };
+    });
+
+  return {
+    assessmentsWithArchetypeApplications,
+    isLoading: assessmentsLoading || isArchetypesLoading,
   };
 };
