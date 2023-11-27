@@ -56,9 +56,6 @@ import { ExportQuestionnaireDropdownItem } from "./components/export-questionnai
 import dayjs from "dayjs";
 import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
 import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresholds-column";
-import saveAs from "file-saver";
-import { load } from "js-yaml";
-import questionnaireTemplateFile from "./questionnaire-template.yaml";
 
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -157,14 +154,6 @@ const AssessmentSettings: React.FC = () => {
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
 
-  const downloadTemplate = () => {
-    const parsedContent = load(questionnaireTemplateFile);
-    const blob = new Blob([JSON.stringify(parsedContent, null, 2)], {
-      type: "application/x-yaml",
-    });
-    saveAs(blob, "questionnaire-template.yaml");
-  };
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -211,7 +200,9 @@ const AssessmentSettings: React.FC = () => {
                         id="download-yaml-template"
                         aria-label="Download questionnaire"
                         variant={ButtonVariant.link}
-                        onClick={downloadTemplate}
+                        component="a"
+                        download
+                        href="/templates/questionnaire-template.yaml"
                       >
                         {t("dialog.title.download", {
                           what: t("terms.YAMLTemplate"),

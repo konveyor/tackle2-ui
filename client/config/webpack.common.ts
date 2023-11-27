@@ -1,5 +1,5 @@
 import path from "path";
-import { Configuration, WatchIgnorePlugin } from "webpack";
+import { Configuration } from "webpack";
 // import CaseSensitivePathsWebpackPlugin from "case-sensitive-paths-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import Dotenv from "dotenv-webpack";
@@ -181,8 +181,8 @@ const config: Configuration = {
           to: pathTo("../dist/manifest.json"),
         },
         {
-          from: pathTo("../public/template_application_import.csv"),
-          to: pathTo("../dist/template_application_import.csv"),
+          from: pathTo("../public/templates"),
+          to: pathTo("../dist/templates"),
         },
       ],
     }),
