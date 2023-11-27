@@ -27,6 +27,8 @@ import { useHistory } from "react-router-dom";
 import { useFetchTickets } from "@app/queries/tickets";
 import { Paths } from "@app/Paths";
 import { TicketIssue } from "./ticket-issue";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import UnlinkIcon from "@patternfly/react-icons/dist/esm/icons/unlink-icon";
 
 export interface IWaveStatusTableProps {
   migrationWave: WaveWithStatus;
@@ -44,6 +46,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const history = useHistory();
 
   const { tickets } = useFetchTickets();
+  const { mutate: deleteTicket } = useDeleteTicketMutation();
 
   const tableControls = useLocalTableControls({
     idProperty: "name",
@@ -130,52 +133,63 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
           }
         >
           <Tbody>
-            {currentPageItems?.map((app, rowIndex) => (
-              <Tr key={app.name} {...getTrProps({ item: app })}>
-                <TableRowContentWithControls
-                  {...tableControls}
-                  item={app}
-                  rowIndex={rowIndex}
-                >
-                  <Td width={20} {...getTdProps({ columnKey: "appName" })}>
-                    {app.name}
-                  </Td>
-                  <Td width={20} {...getTdProps({ columnKey: "status" })}>
-                    {getTicketByApplication(tickets, app.id)?.error ? (
+            {currentPageItems?.map((app, rowIndex) => {
+              const ticket = getTicketByApplication(tickets, app.id);
+              return (
+                <Tr key={app.name} {...getTrProps({ item: app })}>
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={app}
+                    rowIndex={rowIndex}
+                  >
+                    <Td width={20} {...getTdProps({ columnKey: "appName" })}>
+                      {app.name}
+                    </Td>
+                    <Td width={20} {...getTdProps({ columnKey: "status" })}>
+                      {getTicketByApplication(tickets, app.id)?.error ? (
+                        <Button
+                          type="button"
+                          variant="plain"
+                          onClick={() =>
+                            setCodeModalState(
+                              getTicketByApplication(tickets, app.id)
+                                ? getTicketByApplication(tickets, app.id)
+                                    ?.message
+                                : ""
+                            )
+                          }
+                        >
+                          Error
+                        </Button>
+                      ) : (
+                        getTicketByApplication(tickets, app?.id)?.status || ""
+                      )}
+                    </Td>
+                    <Td width={30} {...getTdProps({ columnKey: "issue" })}>
+                      <TicketIssue
+                        ticket={getTicketByApplication(tickets, app.id)}
+                      />
+                    </Td>
+                    <Td className={alignment.textAlignRight}>
+                      {ticket?.id && (
+                        <Button
+                          variant="link"
+                          icon={<UnlinkIcon />}
+                          onClick={() => deleteTicket(ticket.id)}
+                        />
+                      )}
                       <Button
                         type="button"
                         variant="plain"
-                        onClick={() =>
-                          setCodeModalState(
-                            getTicketByApplication(tickets, app.id)
-                              ? getTicketByApplication(tickets, app.id)?.message
-                              : ""
-                          )
-                        }
+                        onClick={() => removeApplication(migrationWave, app.id)}
                       >
-                        Error
+                        <TrashIcon />
                       </Button>
-                    ) : (
-                      getTicketByApplication(tickets, app?.id)?.status || ""
-                    )}
-                  </Td>
-                  <Td width={20} {...getTdProps({ columnKey: "issue" })}>
-                    <TicketIssue
-                      ticket={getTicketByApplication(tickets, app.id)}
-                    />
-                  </Td>
-                  <Td className={alignment.textAlignRight}>
-                    <Button
-                      type="button"
-                      variant="plain"
-                      onClick={() => removeApplication(migrationWave, app.id)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                  </Td>
-                </TableRowContentWithControls>
-              </Tr>
-            ))}
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              );
+            })}
           </Tbody>
         </ConditionalTableBody>
       </Table>
