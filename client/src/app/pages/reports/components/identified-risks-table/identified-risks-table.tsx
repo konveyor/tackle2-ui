@@ -2,7 +2,7 @@ import React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useTranslation } from "react-i18next";
-import { Ref } from "@app/api/models";
+import { Answer, Question, Ref } from "@app/api/models";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   TableHeaderContentWithControls,
@@ -14,9 +14,17 @@ import {
   useLocalTableControls,
 } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import {
+  TextContent,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+  Text,
+  Divider,
+} from "@patternfly/react-core";
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export interface IIdentifiedRisksTableProps {}
 
@@ -32,8 +40,8 @@ export const IdentifiedRisksTable: React.FC<
     assessmentName: string;
     questionId: string;
     section: string;
-    question: string;
-    answer: string;
+    question: Question;
+    answer: Answer;
     applications: Ref[];
   }
 
@@ -87,8 +95,8 @@ export const IdentifiedRisksTable: React.FC<
             } else {
               tableData.push({
                 section: section.name,
-                question: question.text,
-                answer: answer.text,
+                question: question,
+                answer: answer,
                 applications: uniqueApplications ? uniqueApplications : [],
                 assessmentName: assessment.questionnaire.name,
                 questionId: itemId,
@@ -117,11 +125,13 @@ export const IdentifiedRisksTable: React.FC<
     getSortValues: (item) => ({
       assessmentName: item.assessmentName,
       section: item.section,
-      question: item.question,
-      answer: item.answer,
+      question: item.question.text,
+      answer: item.answer.text,
       applications: item.applications.length,
     }),
     sortableColumns: ["assessmentName", "section", "question", "answer"],
+    isExpansionEnabled: true,
+    expandableVariant: "single",
   });
 
   const {
@@ -135,7 +145,9 @@ export const IdentifiedRisksTable: React.FC<
       getThProps,
       getTrProps,
       getTdProps,
+      getExpandedContentTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
   return (
@@ -183,35 +195,60 @@ export const IdentifiedRisksTable: React.FC<
           <Tbody>
             {currentPageItems?.map((item, rowIndex) => {
               return (
-                <Tr key={item.questionId} {...getTrProps({ item: item })}>
-                  <TableRowContentWithControls
-                    {...tableControls}
-                    item={item}
-                    rowIndex={rowIndex}
-                  >
-                    <Td {...getTdProps({ columnKey: "assessmentName" })}>
-                      {item.assessmentName}
-                    </Td>
-                    <Td {...getTdProps({ columnKey: "section" })}>
-                      {item?.section ?? "N/A"}
-                    </Td>
-                    <Td {...getTdProps({ columnKey: "question" })}>
-                      {item?.question ?? "N/A"}
-                    </Td>
-                    <Td {...getTdProps({ columnKey: "answer" })}>
-                      {item.answer ?? "N/A"}
-                    </Td>
-                    <Td {...getTdProps({ columnKey: "applications" })}>
-                      {item?.applications.length ? (
-                        <Link to={getApplicationsUrl(item?.applications)}>
-                          {item.applications.length}
-                        </Link>
-                      ) : (
-                        "N/A"
-                      )}
-                    </Td>
-                  </TableRowContentWithControls>
-                </Tr>
+                <>
+                  <Tr key={item.questionId} {...getTrProps({ item: item })}>
+                    <TableRowContentWithControls
+                      {...tableControls}
+                      item={item}
+                      rowIndex={rowIndex}
+                    >
+                      <Td {...getTdProps({ columnKey: "assessmentName" })}>
+                        {item.assessmentName}
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "section" })}>
+                        {item?.section ?? "N/A"}
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "question" })}>
+                        {item?.question.text ?? "N/A"}
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "answer" })}>
+                        {item.answer.text ?? "N/A"}
+                      </Td>
+                      <Td {...getTdProps({ columnKey: "applications" })}>
+                        {item?.applications.length ? (
+                          <Link to={getApplicationsUrl(item?.applications)}>
+                            {item.applications.length}
+                          </Link>
+                        ) : (
+                          "N/A"
+                        )}
+                      </Td>
+                    </TableRowContentWithControls>
+                  </Tr>
+                  {isCellExpanded(item) ? (
+                    <Tr isExpanded>
+                      <Td />
+                      <Td {...getExpandedContentTdProps({ item: item })}>
+                        <TextContent style={{ margin: 5 }}>
+                          <Text component="h6">Rationale</Text>
+                          <Text component="small">
+                            {item?.answer?.rationale
+                              ? item.answer.rationale
+                              : "N/A"}
+                          </Text>
+                          <Divider className={spacing.mtMd}></Divider>
+
+                          <Text component="h6">Mitigation</Text>
+                          <Text component="small">
+                            {item?.answer?.mitigation
+                              ? item.answer.mitigation
+                              : "N/A"}
+                          </Text>
+                        </TextContent>
+                      </Td>
+                    </Tr>
+                  ) : null}
+                </>
               );
             })}
           </Tbody>
