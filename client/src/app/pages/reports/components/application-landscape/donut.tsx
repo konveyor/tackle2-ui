@@ -27,7 +27,6 @@ export const Donut: React.FC<IDonutProps> = ({
   total,
   color,
   riskLabel,
-  riskDescription,
 }) => {
   const { t } = useTranslation();
 
@@ -38,7 +37,7 @@ export const Donut: React.FC<IDonutProps> = ({
           <ChartDonut
             ariaDesc="risk-donut-chart"
             title={value.toString()}
-            subTitle={t("composed.ofTotalAssessments", {
+            subTitle={t("composed.ofTotalApplications", {
               count: total,
             }).toLocaleLowerCase()}
             constrainToVisibleArea={true}
@@ -54,7 +53,6 @@ export const Donut: React.FC<IDonutProps> = ({
       <StackItem style={{ width: "100%" }}>
         <TextContent className="pf-v5-u-text-align-center">
           <Text component="h3">{riskLabel}</Text>
-          <Text component="small">{riskDescription}</Text>
         </TextContent>
       </StackItem>
     </Stack>

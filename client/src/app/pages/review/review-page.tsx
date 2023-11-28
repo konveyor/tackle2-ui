@@ -112,17 +112,6 @@ const ReviewPage: React.FC = () => {
                     </FormSection>
                   </div>
                 </GridItem>
-                <GridItem md={6}>
-                  {(application?.assessments?.length ||
-                    archetype?.assessments?.length) && (
-                    <AssessmentLandscape
-                      questionnaire={null}
-                      assessmentRefs={
-                        application?.assessments || archetype?.assessments
-                      }
-                    />
-                  )}
-                </GridItem>
               </Grid>
             </ConditionalRender>
           </CardBody>

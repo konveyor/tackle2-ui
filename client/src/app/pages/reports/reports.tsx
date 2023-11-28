@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
@@ -70,10 +70,6 @@ export const Reports: React.FC = () => {
 
   const [selectedQuestionnaireId, setSelectedQuestionnaireId] =
     React.useState<number>(ALL_QUESTIONNAIRES);
-
-  const [isAdoptionPlanOpen, setAdoptionPlanOpen] = useState(false);
-
-  const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
   const pageHeaderSection = (
     <PageSection variant={PageSectionVariants.light}>

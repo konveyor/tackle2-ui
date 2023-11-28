@@ -3,10 +3,17 @@ import { useTranslation } from "react-i18next";
 import { Flex, FlexItem, Skeleton } from "@patternfly/react-core";
 
 import { RISK_LIST } from "@app/Constants";
-import { Assessment, IdRef, Questionnaire } from "@app/api/models";
+import {
+  Application,
+  AssessmentWithArchetypeApplications,
+  IdRef,
+  Questionnaire,
+  Ref,
+} from "@app/api/models";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { Donut } from "./donut";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
+import { useFetchApplications } from "@app/queries/applications";
 
 interface IAggregateRiskData {
   green: number;
@@ -14,39 +21,70 @@ interface IAggregateRiskData {
   red: number;
   unknown: number;
   unassessed: number;
-  assessmentCount: number;
+  applicationsCount: number;
 }
 
-const aggregateRiskData = (assessments: Assessment[]): IAggregateRiskData => {
+const aggregateRiskData = (
+  assessments: AssessmentWithArchetypeApplications[],
+  applications: Application[]
+): IAggregateRiskData => {
   let low = 0;
   let medium = 0;
   let high = 0;
   let unknown = 0;
+  const processedAppIds = new Set(); // Set to track processed application IDs
+
+  const findFullApplication = (ref: Ref) => {
+    return applications.find((app) => app.id === ref.id);
+  };
 
   assessments?.forEach((assessment) => {
-    switch (assessment.risk) {
-      case "green":
-        low++;
-        break;
-      case "yellow":
-        medium++;
-        break;
-      case "red":
-        high++;
-        break;
-      case "unknown":
-        unknown++;
-        break;
-    }
+    const combinedApplications = [
+      ...(assessment.application ? [assessment.application] : []),
+      ...(assessment.archetypeApplications || []),
+    ];
+
+    const uniqueApplications = combinedApplications.reduce(
+      (acc: Ref[], current) => {
+        if (!acc.find((item) => item?.id === current.id)) {
+          acc.push(current);
+        }
+        return acc;
+      },
+      []
+    );
+
+    uniqueApplications.forEach((appRef) => {
+      const fullApp = findFullApplication(appRef);
+      if (fullApp && fullApp.risk && !processedAppIds.has(fullApp.id)) {
+        processedAppIds.add(fullApp.id);
+
+        switch (fullApp.risk) {
+          case "green":
+            low++;
+            break;
+          case "yellow":
+            medium++;
+            break;
+          case "red":
+            high++;
+            break;
+          case "unknown":
+            unknown++;
+            break;
+        }
+      }
+    });
   });
+  const unassessed = applications.length - processedAppIds.size;
 
   return {
     green: low,
     yellow: medium,
     red: high,
     unknown,
-    unassessed: assessments.length - low - medium - high,
-    assessmentCount: assessments.length,
+    unassessed,
+    applicationsCount: processedAppIds.size,
   };
 };
 
@@ -71,14 +109,15 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
 
   const { assessmentsWithArchetypeApplications } =
     useFetchAssessmentsWithArchetypeApplications();
+  const { data: applications } = useFetchApplications();
 
   const filteredAssessments = assessmentsWithArchetypeApplications.filter(
     (assessment) => assessmentRefs?.some((ref) => ref.id === assessment.id)
   );
 
   const landscapeData = useMemo(
-    () => aggregateRiskData(filteredAssessments),
-    [filteredAssessments]
+    () => aggregateRiskData(filteredAssessments, applications),
+    [filteredAssessments, applications]
   );
 
   return (
@@ -100,7 +139,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
             <Donut
               id="landscape-donut-red"
               value={landscapeData.red}
-              total={landscapeData.assessmentCount}
+              total={landscapeData.applicationsCount}
               color={RISK_LIST.red.hexColor}
               riskLabel={t("terms.highRisk")}
               riskDescription={questionnaire?.riskMessages?.red ?? ""}
@@ -110,7 +149,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
             <Donut
               id="landscape-donut-yellow"
               value={landscapeData.yellow}
-              total={landscapeData.assessmentCount}
+              total={landscapeData.applicationsCount}
               color={RISK_LIST.yellow.hexColor}
               riskLabel={t("terms.mediumRisk")}
               riskDescription={questionnaire?.riskMessages?.yellow ?? ""}
@@ -120,7 +159,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
             <Donut
               id="landscape-donut-green"
               value={landscapeData.green}
-              total={landscapeData.assessmentCount}
+              total={landscapeData.applicationsCount}
               color={RISK_LIST.green.hexColor}
               riskLabel={t("terms.lowRisk")}
               riskDescription={questionnaire?.riskMessages?.green ?? ""}
@@ -130,7 +169,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
             <Donut
               id="landscape-donut-unassessed"
               value={landscapeData.unassessed}
-              total={landscapeData.assessmentCount}
+              total={landscapeData.applicationsCount}
               color={RISK_LIST.unknown.hexColor}
               riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
               riskDescription={questionnaire?.riskMessages?.unknown ?? ""}
