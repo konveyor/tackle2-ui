@@ -18,6 +18,7 @@ import {
 import { AxiosError } from "axios";
 import {
   Assessment,
+  AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
   InitialAssessment,
 } from "@app/api/models";
@@ -244,14 +245,13 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
     }
   });
 
-  const assessmentsWithArchetypeApplications = assessments.map(
-    (assessment) => ({
+  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
+    assessments.map((assessment) => ({
       ...assessment,
       archetypeApplications: assessment.archetype?.id
         ? archetypeApplicationsMap.get(assessment.archetype.id) || []
         : [],
-    })
-  );
+    }));
 
   return {
     assessmentsWithArchetypeApplications,

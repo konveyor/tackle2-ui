@@ -2,7 +2,12 @@ import React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useTranslation } from "react-i18next";
-import { Answer, Question, Ref } from "@app/api/models";
+import {
+  Answer,
+  AssessmentWithArchetypeApplications,
+  Question,
+  Ref,
+} from "@app/api/models";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   TableHeaderContentWithControls,
@@ -27,11 +32,13 @@ import { Paths } from "@app/Paths";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import RiskIcon from "@app/components/risk-icon/risk-icon";
 
-export interface IIdentifiedRisksTableProps {}
+export interface IIdentifiedRisksTableProps {
+  assessmentRefs?: Ref[];
+}
 
-export const IdentifiedRisksTable: React.FC<
-  IIdentifiedRisksTableProps
-> = () => {
+export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
+  assessmentRefs,
+}) => {
   const { t } = useTranslation();
 
   const { assessmentsWithArchetypeApplications } =
@@ -48,8 +55,24 @@ export const IdentifiedRisksTable: React.FC<
 
   const tableData: ITableRowData[] = [];
 
-  // ...
-  assessmentsWithArchetypeApplications.forEach((assessment) => {
+  const filterAssessmentsByRefs = (
+    assessments: AssessmentWithArchetypeApplications[],
+    refs: Ref[]
+  ) => {
+    if (refs && refs.length > 0) {
+      return assessments.filter((assessment) =>
+        refs.some((ref) => ref.id === assessment.id)
+      );
+    }
+    return assessments;
+  };
+
+  const filteredAssessments = filterAssessmentsByRefs(
+    assessmentsWithArchetypeApplications,
+    assessmentRefs || []
+  );
+
+  filteredAssessments.forEach((assessment) => {
     let combinedApplications = assessment.application
       ? [assessment.application]
       : [];
@@ -260,6 +283,11 @@ export const IdentifiedRisksTable: React.FC<
           </Tbody>
         </ConditionalTableBody>
       </Table>
+      <SimplePagination
+        idPrefix={`${"identified-risks-table"}}`}
+        isTop={false}
+        paginationProps={paginationProps}
+      />
     </>
   );
 };

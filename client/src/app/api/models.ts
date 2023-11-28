@@ -774,6 +774,7 @@ export interface AssessmentWithSectionOrder extends Assessment {
   sections: SectionWithQuestionOrder[];
 }
 
-export interface AssessmentWithArchetypeApplications extends Assessment {
+export interface AssessmentWithArchetypeApplications
+  extends AssessmentWithSectionOrder {
   archetypeApplications: Ref[];
 }
