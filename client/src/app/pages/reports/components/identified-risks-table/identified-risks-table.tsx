@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   Answer,
   AssessmentWithArchetypeApplications,
+  IdRef,
   Question,
   Ref,
 } from "@app/api/models";
@@ -33,7 +34,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import RiskIcon from "@app/components/risk-icon/risk-icon";
 
 export interface IIdentifiedRisksTableProps {
-  assessmentRefs?: Ref[];
+  assessmentRefs?: IdRef[];
 }
 
 export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
@@ -57,7 +58,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
 
   const filterAssessmentsByRefs = (
     assessments: AssessmentWithArchetypeApplications[],
-    refs: Ref[]
+    refs: IdRef[]
   ) => {
     if (refs && refs.length > 0) {
       return assessments.filter((assessment) =>
@@ -73,13 +74,10 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
   );
 
   filteredAssessments.forEach((assessment) => {
-    let combinedApplications = assessment.application
-      ? [assessment.application]
-      : [];
-
-    combinedApplications = combinedApplications.concat(
-      assessment.archetypeApplications || []
-    );
+    const combinedApplications = [
+      ...(assessment.application ? [assessment.application] : []),
+      ...(assessment.archetypeApplications || []),
+    ];
 
     const uniqueApplications = combinedApplications.reduce(
       (acc: Ref[], current) => {
@@ -90,6 +88,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
       },
       []
     );
+
     assessment.sections.forEach((section) => {
       section.questions.forEach((question) => {
         question.answers.forEach((answer) => {

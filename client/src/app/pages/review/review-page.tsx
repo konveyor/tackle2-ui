@@ -26,7 +26,7 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { IdentifiedRisksTable } from "../reports/components/identified-risks-table";
-import { Landscape } from "../reports/components/landscape";
+import { AssessmentLandscape } from "../reports/components/assessment-landscape";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
@@ -115,7 +115,7 @@ const ReviewPage: React.FC = () => {
                 <GridItem md={6}>
                   {(application?.assessments?.length ||
                     archetype?.assessments?.length) && (
-                    <Landscape
+                    <AssessmentLandscape
                       questionnaire={null}
                       assessmentRefs={
                         application?.assessments || archetype?.assessments
@@ -136,7 +136,7 @@ const ReviewPage: React.FC = () => {
                 <Text component="h3">{t("terms.assessmentSummary")}</Text>
               </TextContent>
             </CardHeader>
-            <Landscape
+            <AssessmentLandscape
               questionnaire={null}
               assessmentRefs={
                 application?.assessments || archetype?.assessments

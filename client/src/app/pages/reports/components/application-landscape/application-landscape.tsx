@@ -50,7 +50,7 @@ const aggregateRiskData = (assessments: Assessment[]): IAggregateRiskData => {
   };
 };
 
-interface ILandscapeProps {
+interface IApplicationLandscapeProps {
   /**
    * The selected questionnaire or `null` if _all questionnaires_ is selected.
    */
@@ -63,7 +63,7 @@ interface ILandscapeProps {
   assessmentRefs?: IdRef[];
 }
 
-export const Landscape: React.FC<ILandscapeProps> = ({
+export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
   questionnaire,
   assessmentRefs,
 }) => {

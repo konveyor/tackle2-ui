@@ -2,17 +2,13 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
-  Button,
-  ButtonVariant,
   Card,
   CardBody,
-  CardExpandableContent,
   CardHeader,
   CardTitle,
   MenuToggle,
   PageSection,
   PageSectionVariants,
-  Popover,
   Select,
   SelectOption,
   Split,
@@ -22,7 +18,6 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons";
 
 import { Questionnaire } from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
@@ -34,11 +29,9 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
-import { Landscape } from "./components/landscape";
-import AdoptionCandidateTable from "./components/adoption-candidate-table/adoption-candidate-table";
-import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { toIdRef } from "@app/utils/model-utils";
+import { ApplicationLandscape } from "./components/application-landscape";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -225,7 +218,7 @@ export const Reports: React.FC = () => {
                     </TextContent>
                   </CardHeader>
                   <CardBody>
-                    <Landscape
+                    <ApplicationLandscape
                       questionnaire={questionnaire}
                       assessmentRefs={assessmentRefs}
                     />
@@ -233,64 +226,8 @@ export const Reports: React.FC = () => {
                 </Card>
               </StackItem>
               <StackItem>
-                <Card isClickable isSelectable>
+                <Card>
                   <CardHeader>
-                    <CardTitle>
-                      <TextContent>
-                        <Text component="h3">
-                          {t("terms.adoptionCandidateDistribution")}
-                        </Text>
-                      </TextContent>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardBody>
-                    <AdoptionCandidateTable />
-                  </CardBody>
-                </Card>
-              </StackItem>
-              <StackItem>
-                <Card isExpanded={isAdoptionPlanOpen}>
-                  <CardHeader
-                    onExpand={() => setAdoptionPlanOpen((current) => !current)}
-                  >
-                    <CardTitle style={{ marginTop: -6 }}>
-                      <TextContent>
-                        <Text component="h3">
-                          {t("terms.suggestedAdoptionPlan")}
-                          <Popover
-                            bodyContent={
-                              <div>
-                                {t("message.suggestedAdoptionPlanHelpText")}
-                              </div>
-                            }
-                            position="right"
-                          >
-                            <Button
-                              type="button"
-                              aria-label="More info"
-                              onClick={(e) => e.preventDefault()}
-                              isInline
-                              variant={ButtonVariant.plain}
-                            >
-                              <HelpIcon />
-                            </Button>
-                          </Popover>
-                        </Text>
-                      </TextContent>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardExpandableContent>
-                    <CardBody style={{ maxHeight: 700, overflowY: "auto" }}>
-                      {isAdoptionPlanOpen && <AdoptionPlan />}
-                    </CardBody>
-                  </CardExpandableContent>
-                </Card>
-              </StackItem>
-              <StackItem>
-                <Card isExpanded={isRiskCardOpen}>
-                  <CardHeader
-                    onExpand={() => setIsRiskCardOpen((current) => !current)}
-                  >
                     <CardTitle>
                       <Split style={{ marginTop: -3 }}>
                         <SplitItem>
@@ -305,11 +242,9 @@ export const Reports: React.FC = () => {
                       </Split>
                     </CardTitle>
                   </CardHeader>
-                  <CardExpandableContent>
-                    <CardBody>
-                      {isRiskCardOpen && <IdentifiedRisksTable />}
-                    </CardBody>
-                  </CardExpandableContent>
+                  <CardBody>
+                    <IdentifiedRisksTable />
+                  </CardBody>
                 </Card>
               </StackItem>
             </Stack>

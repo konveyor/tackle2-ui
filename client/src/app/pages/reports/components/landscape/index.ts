@@ -1,1 +1,0 @@
-export { Landscape } from "./landscape";
