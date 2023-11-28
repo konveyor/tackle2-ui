@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,11 +26,10 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { IdentifiedRisksTable } from "../reports/components/identified-risks-table";
+import { Landscape } from "../reports/components/landscape";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
-
-  const [isRiskCardOpen, setIsRiskCardOpen] = useState(false);
 
   const { applicationId, archetypeId } = useParams<ReviewRoute>();
   const isArchetype = useIsArchetype();
@@ -113,12 +112,17 @@ const ReviewPage: React.FC = () => {
                     </FormSection>
                   </div>
                 </GridItem>
-                {/* <GridItem md={6}>
-              <ApplicationAssessmentDonutChart
-                application={application}
-                archetype={archetype}
-              />
-            </GridItem> */}
+                <GridItem md={6}>
+                  {(application?.assessments?.length ||
+                    archetype?.assessments?.length) && (
+                    <Landscape
+                      questionnaire={null}
+                      assessmentRefs={
+                        application?.assessments || archetype?.assessments
+                      }
+                    />
+                  )}
+                </GridItem>
               </Grid>
             </ConditionalRender>
           </CardBody>
@@ -132,6 +136,12 @@ const ReviewPage: React.FC = () => {
                 <Text component="h3">{t("terms.assessmentSummary")}</Text>
               </TextContent>
             </CardHeader>
+            <Landscape
+              questionnaire={null}
+              assessmentRefs={
+                application?.assessments || archetype?.assessments
+              }
+            />
             <IdentifiedRisksTable
               assessmentRefs={
                 application?.assessments || archetype?.assessments

@@ -38,6 +38,7 @@ import { Landscape } from "./components/landscape";
 import AdoptionCandidateTable from "./components/adoption-candidate-table/adoption-candidate-table";
 import { AdoptionPlan } from "./components/adoption-plan";
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
+import { toIdRef } from "@app/utils/model-utils";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -115,12 +116,40 @@ export const Reports: React.FC = () => {
   const answeredQuestionnaires: Questionnaire[] =
     isAssessmentsFetching || isQuestionnairesFetching
       ? []
-      : assessments
-          .map((assessment) => assessment?.questionnaire?.id)
-          .filter((id) => id > 0)
+      : Array.from(
+          new Set(
+            assessments
+              .map((assessment) => assessment?.questionnaire?.id)
+              .filter((id) => id > 0)
+          )
+        )
           .map((id) => questionnairesById[id])
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .filter((questionnaire) => questionnaire !== undefined);
+          .filter((questionnaire) => questionnaire !== undefined)
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+  const isAllQuestionnairesSelected =
+    selectedQuestionnaireId === ALL_QUESTIONNAIRES;
+
+  const questionnaire = isAllQuestionnairesSelected
+    ? null
+    : questionnairesById[selectedQuestionnaireId];
+
+  const assessmentRefs = isAllQuestionnairesSelected
+    ? assessments
+        .map((assessment) => {
+          const assessmentRef = toIdRef(assessment);
+          return assessmentRef;
+        })
+        .filter(Boolean)
+    : assessments
+        .filter(
+          ({ questionnaire }) => questionnaire.id === selectedQuestionnaireId
+        )
+        .map((assessment) => {
+          const assessmentRef = toIdRef(assessment);
+          return assessmentRef;
+        })
+        .filter(Boolean);
 
   return (
     <>
@@ -197,19 +226,8 @@ export const Reports: React.FC = () => {
                   </CardHeader>
                   <CardBody>
                     <Landscape
-                      questionnaire={
-                        selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                          ? null
-                          : questionnairesById[selectedQuestionnaireId]
-                      }
-                      assessments={
-                        selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                          ? assessments
-                          : assessments.filter(
-                              ({ questionnaire }) =>
-                                questionnaire.id === selectedQuestionnaireId
-                            )
-                      }
+                      questionnaire={questionnaire}
+                      assessmentRefs={assessmentRefs}
                     />
                   </CardBody>
                 </Card>

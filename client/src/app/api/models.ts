@@ -72,6 +72,9 @@ export interface Ref {
   id: number;
   name: string;
 }
+export interface IdRef {
+  id: number;
+}
 
 export interface JobFunction {
   id: number;

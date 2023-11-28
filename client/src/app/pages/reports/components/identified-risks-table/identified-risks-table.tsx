@@ -246,7 +246,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       <Td {...getTdProps({ columnKey: "applications" })}>
                         {item?.applications.length ? (
                           <Link to={getApplicationsUrl(item?.applications)}>
-                            {item.applications.length}
+                            {item.applications.length} Application(s)
                           </Link>
                         ) : (
                           "N/A"
