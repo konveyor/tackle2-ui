@@ -192,6 +192,7 @@
     "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideArchetypeReviewDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
     "overrideArchetypeReviewConfirmation": "Do you want to create a dedicated review for this application and override the inherited archetype review?",
+    "editApplicationReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "editArchetypeReviewConfirmation": "This archetype has already been reviewed. Do you want to continue?",
     "reasonForError": "The reported reason for the error:",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
