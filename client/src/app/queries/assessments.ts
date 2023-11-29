@@ -223,13 +223,17 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
 
   const archetypeQueries = useQueries({
     queries:
-      assessments?.map((assessment) => ({
-        queryKey: ["archetype", assessment.archetype?.id],
+      [
+        ...new Set(
+          assessments
+            .map((assessment) => assessment?.archetype?.id)
+            .filter(Boolean)
+        ),
+      ].map((archetypeId) => ({
+        queryKey: ["archetype", archetypeId],
         queryFn: () =>
-          assessment.archetype?.id
-            ? getArchetypeById(assessment.archetype.id)
-            : undefined,
-        enabled: !!assessment.archetype?.id,
+          archetypeId ? getArchetypeById(archetypeId) : undefined,
+        enabled: !!archetypeId,
       })) || [],
   });
 
