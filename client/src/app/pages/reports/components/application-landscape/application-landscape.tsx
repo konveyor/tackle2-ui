@@ -11,9 +11,9 @@ import {
   Ref,
 } from "@app/api/models";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { Donut } from "./donut";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
+import { Donut } from "../donut/donut";
 
 interface IAggregateRiskData {
   green: number;
@@ -137,6 +137,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
         >
           <FlexItem>
             <Donut
+              isAssessment={false}
               id="landscape-donut-red"
               value={landscapeData.red}
               total={landscapeData.applicationsCount}
@@ -147,6 +148,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={false}
               id="landscape-donut-yellow"
               value={landscapeData.yellow}
               total={landscapeData.applicationsCount}
@@ -157,6 +159,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={false}
               id="landscape-donut-green"
               value={landscapeData.green}
               total={landscapeData.applicationsCount}
@@ -167,6 +170,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={false}
               id="landscape-donut-unassessed"
               value={landscapeData.unassessed}
               total={landscapeData.applicationsCount}

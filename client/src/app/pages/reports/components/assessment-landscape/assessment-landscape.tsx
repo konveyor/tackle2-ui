@@ -5,7 +5,7 @@ import { Flex, FlexItem, Skeleton } from "@patternfly/react-core";
 import { RISK_LIST } from "@app/Constants";
 import { Assessment, IdRef, Questionnaire } from "@app/api/models";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { Donut } from "./donut";
+import { Donut } from "../donut/donut";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 
 interface IAggregateRiskData {
@@ -98,6 +98,7 @@ export const AssessmentLandscape: React.FC<IAssessmentLandscapeProps> = ({
         >
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-red"
               value={landscapeData.red}
               total={landscapeData.assessmentCount}
@@ -108,6 +109,7 @@ export const AssessmentLandscape: React.FC<IAssessmentLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-yellow"
               value={landscapeData.yellow}
               total={landscapeData.assessmentCount}
@@ -118,6 +120,7 @@ export const AssessmentLandscape: React.FC<IAssessmentLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-green"
               value={landscapeData.green}
               total={landscapeData.assessmentCount}
@@ -128,6 +131,7 @@ export const AssessmentLandscape: React.FC<IAssessmentLandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-unassessed"
               value={landscapeData.unassessed}
               total={landscapeData.assessmentCount}

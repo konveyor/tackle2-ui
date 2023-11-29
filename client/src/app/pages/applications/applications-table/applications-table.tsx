@@ -67,7 +67,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   deserializeFilterUrlParams,
   useLocalTableControls,
@@ -113,8 +113,6 @@ export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const token = keycloak.tokenParsed;
-
-  const isFetching = useIsFetching();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -706,7 +704,9 @@ export const ApplicationsTable: React.FC = () => {
 
   return (
     <ConditionalRender
-      when={!!isFetching && !(applications || applicationsFetchError)}
+      when={
+        !!isFetchingApplications && !(applications || applicationsFetchError)
+      }
       then={<AppPlaceholder />}
     >
       <div
