@@ -123,22 +123,14 @@ export const Reports: React.FC = () => {
     ? null
     : questionnairesById[selectedQuestionnaireId];
 
-  const assessmentRefs = isAllQuestionnairesSelected
-    ? assessments
-        .map((assessment) => {
-          const assessmentRef = toIdRef(assessment);
-          return assessmentRef;
-        })
-        .filter(Boolean)
-    : assessments
-        .filter(
-          ({ questionnaire }) => questionnaire.id === selectedQuestionnaireId
-        )
-        .map((assessment) => {
-          const assessmentRef = toIdRef(assessment);
-          return assessmentRef;
-        })
-        .filter(Boolean);
+  const assessmentRefs = assessments
+    .filter(
+      (assessment) =>
+        isAllQuestionnairesSelected ||
+        assessment.questionnaire.id === selectedQuestionnaireId
+    )
+    .map((assessment) => toIdRef(assessment))
+    .filter(Boolean);
 
   return (
     <>
