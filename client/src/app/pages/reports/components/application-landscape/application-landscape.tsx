@@ -41,7 +41,7 @@ const aggregateRiskData = (
   assessments?.forEach((assessment) => {
     const combinedApplications = [
       ...(assessment.application ? [assessment.application] : []),
-      ...(assessment.archetypeApplications || []),
+      ...(assessment.archetypeApplications ?? []),
     ];
 
     const uniqueApplications = combinedApplications.reduce(

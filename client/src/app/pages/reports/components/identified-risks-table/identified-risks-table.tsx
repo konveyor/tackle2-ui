@@ -76,7 +76,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
   filteredAssessments.forEach((assessment) => {
     const combinedApplications = [
       ...(assessment.application ? [assessment.application] : []),
-      ...(assessment.archetypeApplications || []),
+      ...(assessment.archetypeApplications ?? []),
     ];
 
     const uniqueApplications = combinedApplications.reduce(
@@ -94,7 +94,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         question.answers.forEach((answer) => {
           if (answer.selected) {
             const itemId = [
-              assessment.id,
+              assessment.questionnaire.id,
               section.order,
               question.order,
               answer.order,
@@ -245,7 +245,9 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       <Td {...getTdProps({ columnKey: "applications" })}>
                         {item?.applications.length ? (
                           <Link to={getApplicationsUrl(item?.applications)}>
-                            {item.applications.length} Application(s)
+                            {t("composed.totalApplications", {
+                              count: item.applications.length,
+                            })}
                           </Link>
                         ) : (
                           "N/A"

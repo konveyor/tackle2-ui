@@ -63,8 +63,10 @@ export const useFilterState = <
     IFeaturePersistenceArgs<TPersistenceKeyPrefix>
 ): IFilterState<TFilterCategoryKey> => {
   const { isFilterEnabled, persistTo = "state", persistenceKeyPrefix } = args;
-  const initialFilterValues: IFilterValues<TFilterCategoryKey> =
-    (isFilterEnabled && args.initialFilterValues) || {};
+
+  const initialFilterValues: IFilterValues<TFilterCategoryKey> = isFilterEnabled
+    ? args?.initialFilterValues ?? {}
+    : {};
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
