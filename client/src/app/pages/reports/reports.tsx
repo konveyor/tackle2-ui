@@ -6,6 +6,8 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Flex,
+  FlexItem,
   MenuToggle,
   PageSection,
   PageSectionVariants,
@@ -150,59 +152,61 @@ export const Reports: React.FC = () => {
             <Stack hasGutter>
               <StackItem>
                 <Card isClickable isSelectable>
-                  <CardHeader
-                    actions={{
-                      hasNoOffset: false,
-                      actions: (
-                        <Select
-                          id="select-questionnaires"
-                          isOpen={isQuestionnaireSelectOpen}
-                          selected={selectedQuestionnaireId}
-                          onSelect={onSelectQuestionnaire}
-                          onOpenChange={(_isOpen) =>
-                            setIsQuestionnaireSelectOpen(false)
-                          }
-                          toggle={(toggleRef) => (
-                            <MenuToggle
-                              ref={toggleRef}
-                              aria-label="select questionnaires dropdown toggle"
-                              onClick={() => {
-                                setIsQuestionnaireSelectOpen(
-                                  !isQuestionnaireSelectOpen
-                                );
-                              }}
-                              isExpanded={isQuestionnaireSelectOpen}
-                            >
-                              {selectedQuestionnaireId === ALL_QUESTIONNAIRES
-                                ? "All questionnaires"
-                                : questionnairesById[selectedQuestionnaireId]
-                                    ?.name}
-                            </MenuToggle>
-                          )}
-                          shouldFocusToggleOnSelect
-                        >
-                          <SelectOption
-                            key={ALL_QUESTIONNAIRES}
-                            value={ALL_QUESTIONNAIRES}
-                          >
-                            All questionnaires
-                          </SelectOption>
-                          {...answeredQuestionnaires.map(
-                            (answeredQuestionnaire) => (
-                              <SelectOption
-                                key={answeredQuestionnaire.id}
-                                value={answeredQuestionnaire.id}
-                              >
-                                {answeredQuestionnaire.name}
-                              </SelectOption>
-                            )
-                          )}
-                        </Select>
-                      ),
-                    }}
-                  >
+                  <CardHeader>
                     <TextContent>
-                      <Text component="h3">{t("terms.currentLandscape")}</Text>
+                      <Flex>
+                        <FlexItem>
+                          <Text component="h3">
+                            {t("terms.currentLandscape")}
+                          </Text>
+                        </FlexItem>
+                        <FlexItem>
+                          <Select
+                            id="select-questionnaires"
+                            isOpen={isQuestionnaireSelectOpen}
+                            selected={selectedQuestionnaireId}
+                            onSelect={onSelectQuestionnaire}
+                            onOpenChange={(_isOpen) =>
+                              setIsQuestionnaireSelectOpen(false)
+                            }
+                            toggle={(toggleRef) => (
+                              <MenuToggle
+                                ref={toggleRef}
+                                aria-label="select questionnaires dropdown toggle"
+                                onClick={() => {
+                                  setIsQuestionnaireSelectOpen(
+                                    !isQuestionnaireSelectOpen
+                                  );
+                                }}
+                                isExpanded={isQuestionnaireSelectOpen}
+                              >
+                                {selectedQuestionnaireId === ALL_QUESTIONNAIRES
+                                  ? "All questionnaires"
+                                  : questionnairesById[selectedQuestionnaireId]
+                                      ?.name}
+                              </MenuToggle>
+                            )}
+                            shouldFocusToggleOnSelect
+                          >
+                            <SelectOption
+                              key={ALL_QUESTIONNAIRES}
+                              value={ALL_QUESTIONNAIRES}
+                            >
+                              All questionnaires
+                            </SelectOption>
+                            {...answeredQuestionnaires.map(
+                              (answeredQuestionnaire) => (
+                                <SelectOption
+                                  key={answeredQuestionnaire.id}
+                                  value={answeredQuestionnaire.id}
+                                >
+                                  {answeredQuestionnaire.name}
+                                </SelectOption>
+                              )
+                            )}
+                          </Select>
+                        </FlexItem>
+                      </Flex>
                     </TextContent>
                   </CardHeader>
                   <CardBody>
