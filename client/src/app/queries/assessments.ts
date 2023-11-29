@@ -221,7 +221,7 @@ const removeSectionOrderFromQuestions = (
 export const useFetchAssessmentsWithArchetypeApplications = () => {
   const { assessments, isFetching: assessmentsLoading } = useFetchAssessments();
 
-  const archetypeQueries = useQueries({
+  const archetypesUsedInAnAssessmentQueries = useQueries({
     queries:
       [
         ...new Set(
@@ -237,10 +237,12 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
       })) || [],
   });
 
-  const isArchetypesLoading = archetypeQueries.some((query) => query.isLoading);
+  const isArchetypesLoading = archetypesUsedInAnAssessmentQueries.some(
+    (query) => query.isLoading
+  );
 
   const archetypeApplicationsMap = new Map();
-  archetypeQueries.forEach((query, index) => {
+  archetypesUsedInAnAssessmentQueries.forEach((query, index) => {
     if (query.data && assessments[index].archetype?.id) {
       archetypeApplicationsMap.set(
         assessments[index]?.archetype?.id,
@@ -252,9 +254,8 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
   const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
     assessments.map((assessment) => ({
       ...assessment,
-      archetypeApplications: assessment.archetype?.id
-        ? archetypeApplicationsMap.get(assessment.archetype.id) || []
-        : [],
+      archetypeApplications:
+        archetypeApplicationsMap.get(assessment?.archetype?.id) ?? [],
     }));
 
   return {
