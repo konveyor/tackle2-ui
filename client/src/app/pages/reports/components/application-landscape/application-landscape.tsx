@@ -14,6 +14,9 @@ import { ConditionalRender } from "@app/components/ConditionalRender";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useFetchApplications } from "@app/queries/applications";
 import { Donut } from "../donut/donut";
+import { serializeFilterUrlParams } from "@app/hooks/table-controls";
+import { Paths } from "@app/Paths";
+import { Link } from "react-router-dom";
 
 interface IAggregateRiskData {
   green: number;
@@ -142,7 +145,9 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               value={landscapeData.red}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.red.hexColor}
-              riskLabel={t("terms.highRisk")}
+              riskLabel={
+                <Link to={getRisksUrl(["red"])}>{t("terms.highRisk")}</Link>
+              }
               riskDescription={questionnaire?.riskMessages?.red ?? ""}
             />
           </FlexItem>
@@ -153,7 +158,11 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               value={landscapeData.yellow}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.yellow.hexColor}
-              riskLabel={t("terms.mediumRisk")}
+              riskLabel={
+                <Link to={getRisksUrl(["yellow"])}>
+                  {t("terms.mediumRisk")}
+                </Link>
+              }
               riskDescription={questionnaire?.riskMessages?.yellow ?? ""}
             />
           </FlexItem>
@@ -164,7 +173,9 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               value={landscapeData.green}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.green.hexColor}
-              riskLabel={t("terms.lowRisk")}
+              riskLabel={
+                <Link to={getRisksUrl(["green"])}>{t("terms.lowRisk")}</Link>
+              }
               riskDescription={questionnaire?.riskMessages?.green ?? ""}
             />
           </FlexItem>
@@ -175,12 +186,28 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               value={landscapeData.unassessed}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.unknown.hexColor}
-              riskLabel={`${t("terms.unassessed")}/${t("terms.unknown")}`}
-              riskDescription={questionnaire?.riskMessages?.unknown ?? ""}
+              riskLabel={
+                <Link to={getRisksUrl(["unknown"])}>
+                  {`${t("terms.unassessed")}/${t("terms.unknown")}`}
+                </Link>
+              }
             />
           </FlexItem>
         </Flex>
       )}
     </ConditionalRender>
   );
+};
+
+const getRisksUrl = (risks: string[]) => {
+  const filterValues = {
+    risk: risks,
+  };
+
+  const serializedParams = serializeFilterUrlParams(filterValues);
+
+  const queryString = serializedParams.filters
+    ? `filters=${serializedParams.filters}`
+    : "";
+  return `${Paths.applications}?${queryString}`;
 };

@@ -482,6 +482,22 @@ export const ApplicationsTable: React.FC = () => {
           return matchString;
         },
       },
+      {
+        key: "risk",
+        title: t("terms.risk"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.risk").toLowerCase(),
+          }) + "...",
+        selectOptions: [
+          { key: "green", value: "Green" },
+          { key: "yellow", value: "Yellow" },
+          { key: "red", value: "Red" },
+          { key: "unknown", value: "Unknown" },
+        ],
+        getItemValue: (item) => item.risk || "",
+      },
     ],
     initialItemsPerPage: 10,
     hasActionsColumn: true,

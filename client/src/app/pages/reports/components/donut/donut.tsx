@@ -17,8 +17,8 @@ export interface IDonutProps {
   value: number;
   total: number;
   color: string;
-  riskLabel: string;
-  riskDescription?: string;
+  riskLabel: string | React.ReactElement;
+  riskDescription?: string | React.ReactElement;
   isAssessment: boolean;
 }
 
