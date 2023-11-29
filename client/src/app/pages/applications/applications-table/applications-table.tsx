@@ -491,9 +491,9 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.risk").toLowerCase(),
           }) + "...",
         selectOptions: [
-          { key: "green", value: "Green" },
-          { key: "yellow", value: "Yellow" },
-          { key: "red", value: "Red" },
+          { key: "green", value: "Low" },
+          { key: "yellow", value: "Medium" },
+          { key: "red", value: "High" },
           { key: "unknown", value: "Unknown" },
         ],
         getItemValue: (item) => item.risk || "",
