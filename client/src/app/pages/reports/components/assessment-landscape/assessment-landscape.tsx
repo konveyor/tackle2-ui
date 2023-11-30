@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Flex, FlexItem, Skeleton } from "@patternfly/react-core";
 
 import { RISK_LIST } from "@app/Constants";
-import { Assessment, Questionnaire } from "@app/api/models";
+import { Assessment, IdRef, Questionnaire } from "@app/api/models";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { Donut } from "./donut";
+import { Donut } from "../donut/donut";
+import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 
 interface IAggregateRiskData {
   green: number;
@@ -49,7 +50,7 @@ const aggregateRiskData = (assessments: Assessment[]): IAggregateRiskData => {
   };
 };
 
-interface ILandscapeProps {
+interface IAssessmentLandscapeProps {
   /**
    * The selected questionnaire or `null` if _all questionnaires_ is selected.
    */
@@ -59,23 +60,30 @@ interface ILandscapeProps {
    * The set of assessments for the selected questionnaire.  Risk values will be
    * aggregated from the individual assessment risks.
    */
-  assessments: Assessment[];
+  assessmentRefs?: IdRef[];
 }
 
-export const Landscape: React.FC<ILandscapeProps> = ({
+export const AssessmentLandscape: React.FC<IAssessmentLandscapeProps> = ({
   questionnaire,
-  assessments,
+  assessmentRefs,
 }) => {
   const { t } = useTranslation();
 
+  const { assessmentsWithArchetypeApplications } =
+    useFetchAssessmentsWithArchetypeApplications();
+
+  const filteredAssessments = assessmentsWithArchetypeApplications.filter(
+    (assessment) => assessmentRefs?.some((ref) => ref.id === assessment.id)
+  );
+
   const landscapeData = useMemo(
-    () => aggregateRiskData(assessments),
-    [assessments]
+    () => aggregateRiskData(filteredAssessments),
+    [filteredAssessments]
   );
 
   return (
     <ConditionalRender
-      when={!questionnaire && !assessments}
+      when={!questionnaire && !filteredAssessments}
       then={
         <div style={{ height: 200, width: 400 }}>
           <Skeleton height="75%" width="100%" />
@@ -90,6 +98,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
         >
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-red"
               value={landscapeData.red}
               total={landscapeData.assessmentCount}
@@ -100,6 +109,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-yellow"
               value={landscapeData.yellow}
               total={landscapeData.assessmentCount}
@@ -110,6 +120,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-green"
               value={landscapeData.green}
               total={landscapeData.assessmentCount}
@@ -120,6 +131,7 @@ export const Landscape: React.FC<ILandscapeProps> = ({
           </FlexItem>
           <FlexItem>
             <Donut
+              isAssessment={true}
               id="landscape-donut-unassessed"
               value={landscapeData.unassessed}
               total={landscapeData.assessmentCount}

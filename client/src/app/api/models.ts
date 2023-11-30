@@ -72,6 +72,9 @@ export interface Ref {
   id: number;
   name: string;
 }
+export interface IdRef {
+  id: number;
+}
 
 export interface JobFunction {
   id: number;
@@ -772,4 +775,9 @@ export interface SectionWithQuestionOrder extends Section {
 
 export interface AssessmentWithSectionOrder extends Assessment {
   sections: SectionWithQuestionOrder[];
+}
+
+export interface AssessmentWithArchetypeApplications
+  extends AssessmentWithSectionOrder {
+  archetypeApplications: Ref[];
 }
