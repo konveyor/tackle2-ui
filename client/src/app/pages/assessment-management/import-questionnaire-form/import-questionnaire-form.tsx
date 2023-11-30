@@ -132,7 +132,6 @@ export const ImportQuestionnaireForm: React.FC<
       <HookFormPFGroupController
         control={control}
         name="yamlFile"
-        label={t("terms.uploadYamlFile")}
         fieldId="yamlFile"
         helperText={t("dialog.message.uploadYamlFile")}
         renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
