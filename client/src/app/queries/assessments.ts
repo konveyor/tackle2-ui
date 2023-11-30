@@ -1,9 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   createAssessment,
   deleteAssessment,
+  getArchetypeById,
   getAssessmentById,
   getAssessments,
   getAssessmentsByItemId,
@@ -12,6 +18,7 @@ import {
 import { AxiosError } from "axios";
 import {
   Assessment,
+  AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
   InitialAssessment,
 } from "@app/api/models";
@@ -208,5 +215,51 @@ const removeSectionOrderFromQuestions = (
       ...section,
       questions: section.questions.map(({ sectionOrder, ...rest }) => rest), // Destructure out sectionOrder
     })),
+  };
+};
+
+export const useFetchAssessmentsWithArchetypeApplications = () => {
+  const { assessments, isFetching: assessmentsLoading } = useFetchAssessments();
+
+  const archetypesUsedInAnAssessmentQueries = useQueries({
+    queries:
+      [
+        ...new Set(
+          assessments
+            .map((assessment) => assessment?.archetype?.id)
+            .filter(Boolean)
+        ),
+      ].map((archetypeId) => ({
+        queryKey: ["archetype", archetypeId],
+        queryFn: () =>
+          archetypeId ? getArchetypeById(archetypeId) : undefined,
+        enabled: !!archetypeId,
+      })) || [],
+  });
+
+  const isArchetypesLoading = archetypesUsedInAnAssessmentQueries.some(
+    (query) => query.isLoading
+  );
+
+  const archetypeApplicationsMap = new Map();
+  archetypesUsedInAnAssessmentQueries.forEach((query, index) => {
+    if (query.data && assessments[index].archetype?.id) {
+      archetypeApplicationsMap.set(
+        assessments[index]?.archetype?.id,
+        query.data.applications
+      );
+    }
+  });
+
+  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
+    assessments.map((assessment) => ({
+      ...assessment,
+      archetypeApplications:
+        archetypeApplicationsMap.get(assessment?.archetype?.id) ?? [],
+    }));
+
+  return {
+    assessmentsWithArchetypeApplications,
+    isLoading: assessmentsLoading || isArchetypesLoading,
   };
 };

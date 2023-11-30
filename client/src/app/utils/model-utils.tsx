@@ -3,6 +3,7 @@ import React from "react";
 import {
   Application,
   BusinessService,
+  IdRef,
   Identity,
   IdentityKind,
   IssueManagerKind,
@@ -212,6 +213,14 @@ export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [
     toString: () => "Jira Server/Datacenter",
   },
 ];
+
+export const toIdRef = <RefLike extends IdRef>(
+  source: RefLike | undefined
+): IdRef | undefined => {
+  if (!source || !source.id) return undefined;
+
+  return { id: source.id };
+};
 
 /**
  * Convert any object that looks like a `Ref` into a `Ref`.  If the source object
