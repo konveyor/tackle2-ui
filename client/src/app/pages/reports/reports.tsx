@@ -1,11 +1,9 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Bullseye,
   Card,
   CardBody,
   CardHeader,
-  CardTitle,
   Flex,
   FlexItem,
   MenuToggle,
@@ -13,8 +11,6 @@ import {
   PageSectionVariants,
   Select,
   SelectOption,
-  Split,
-  SplitItem,
   Stack,
   StackItem,
   Text,
@@ -220,19 +216,9 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <CardTitle>
-                      <Split style={{ marginTop: -3 }}>
-                        <SplitItem>
-                          <Bullseye>
-                            <TextContent>
-                              <Text component="h3">
-                                {t("terms.identifiedRisks")}
-                              </Text>
-                            </TextContent>
-                          </Bullseye>
-                        </SplitItem>
-                      </Split>
-                    </CardTitle>
+                    <TextContent>
+                      <Text component="h3">{t("terms.identifiedRisks")}</Text>
+                    </TextContent>
                   </CardHeader>
                   <CardBody>
                     <IdentifiedRisksTable />
