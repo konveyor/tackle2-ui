@@ -1240,7 +1240,7 @@ export const ApplicationsTable: React.FC = () => {
           })}
           titleIconVariant={"warning"}
           isOpen={reviewToEdit !== null}
-          message={t("message.overrideReviewConfirmation")}
+          message={t("message.editApplicationReviewConfirmation")}
           confirmBtnVariant={ButtonVariant.primary}
           confirmBtnLabel={t("actions.continue")}
           cancelBtnLabel={t("actions.cancel")}
