@@ -231,9 +231,7 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
         ),
       ].map((archetypeId) => ({
         queryKey: ["archetype", archetypeId],
-        queryFn: () =>
-          archetypeId ? getArchetypeById(archetypeId) : undefined,
-        enabled: !!archetypeId,
+        queryFn: () => getArchetypeById(archetypeId),
       })) || [],
   });
 
