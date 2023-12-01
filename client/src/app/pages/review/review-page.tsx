@@ -125,17 +125,19 @@ const ReviewPage: React.FC = () => {
                 <Text component="h3">{t("terms.assessmentSummary")}</Text>
               </TextContent>
             </CardHeader>
-            <AssessmentLandscape
-              questionnaire={null}
-              assessmentRefs={
-                application?.assessments || archetype?.assessments
-              }
-            />
-            <IdentifiedRisksTable
-              assessmentRefs={
-                application?.assessments || archetype?.assessments
-              }
-            />
+            <CardBody>
+              <AssessmentLandscape
+                questionnaire={null}
+                assessmentRefs={
+                  application?.assessments || archetype?.assessments
+                }
+              />
+              <IdentifiedRisksTable
+                assessmentRefs={
+                  application?.assessments || archetype?.assessments
+                }
+              />
+            </CardBody>
           </Card>
         </PageSection>
       )}
