@@ -40,6 +40,12 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
       nonRequiredQuestionnaireIds.includes(assessment.questionnaire.id) &&
       relevantAssessmentIds.includes(assessment.id)
   );
+  const filteredArchivedQuestionnaires = archivedQuestionnaires.filter(
+    (questionnaire) =>
+      filteredArchivedAssessments.some(
+        (assessment) => assessment.questionnaire.id === questionnaire.id
+      )
+  );
 
   return (
     <>
@@ -56,7 +62,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
           application={application}
           archetype={archetype}
           isReadonly
-          questionnaires={archivedQuestionnaires}
+          questionnaires={filteredArchivedQuestionnaires}
           assessments={filteredArchivedAssessments}
           isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
           tableName="Archived questionnaires"
