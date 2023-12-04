@@ -232,6 +232,4 @@ export const parseReportLabels = (
 export const getIssueTitle = (
   issueReport: AnalysisRuleReport | AnalysisIssue | AnalysisIssueReport
 ) =>
-  issueReport?.description?.split("\n")[0] ||
-  issueReport?.name?.split("\n")[0] ||
-  "*Unnamed*";
+  issueReport?.description || issueReport?.name?.split("\n")[0] || "*Unnamed*";
