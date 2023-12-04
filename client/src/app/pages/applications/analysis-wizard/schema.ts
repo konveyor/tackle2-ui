@@ -155,7 +155,6 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
 };
 
 export interface OptionsStepValues {
-  diva: boolean;
   excludedRulesTags: string[];
   autoTaggingEnabled: boolean;
   selectedSourceLabels: TargetLabel[];
@@ -164,7 +163,6 @@ export interface OptionsStepValues {
 const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
   const { t } = useTranslation();
   return yup.object({
-    diva: yup.bool().defined(),
     excludedRulesTags: yup.array().of(yup.string().defined()),
     autoTaggingEnabled: yup.bool().defined(),
     selectedSourceLabels: yup.array().of(

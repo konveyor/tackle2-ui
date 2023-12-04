@@ -32,7 +32,7 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const { formLabels, diva, excludedRulesTags, autoTaggingEnabled } = watch();
+  const { formLabels, excludedRulesTags, autoTaggingEnabled } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -243,16 +243,6 @@ export const SetOptions: React.FC = () => {
         itemNotUniqueMessage="This rule tag is already excluded" // TODO translation here
         removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
         className={spacing.mtMd}
-      />
-      <Checkbox
-        className={spacing.mtMd}
-        label={t("wizard.composed.enable", {
-          what: t("wizard.terms.transactionReport").toLowerCase(),
-        })}
-        isChecked={diva}
-        onChange={() => setValue("diva", !diva)}
-        id="enable-transaction-report-checkbox"
-        name="enableTransactionReport"
       />
       <Checkbox
         className={spacing.mtMd}

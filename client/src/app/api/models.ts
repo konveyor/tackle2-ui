@@ -328,7 +328,6 @@ export interface TaskData {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
-    diva: boolean;
     csv?: boolean;
   };
   targets?: string[];

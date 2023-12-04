@@ -50,7 +50,6 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
-    diva,
     autoTaggingEnabled,
   } = watch();
 
@@ -197,9 +196,6 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListTerm>
             {t("wizard.terms.transactionReport")}
           </DescriptionListTerm>
-          <DescriptionListDescription id="diva">
-            {diva ? t("wizard.terms.enabled") : t("wizard.terms.disabled")}
-          </DescriptionListDescription>
         </DescriptionListGroup>{" "}
         <DescriptionListGroup>
           <DescriptionListTerm>
