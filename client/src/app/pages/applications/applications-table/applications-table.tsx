@@ -916,12 +916,14 @@ export const ApplicationsTable: React.FC = () => {
                             />
                           </FlexItem>
                           <FlexItem>
-                            <ConditionalTooltip
-                              isTooltipEnabled={hasAssessedArchetype || false}
-                              content={t("message.archetypeAlreadyAssessed")}
-                            >
-                              <QuestionCircleIcon />
-                            </ConditionalTooltip>
+                            {hasAssessedArchetype ? (
+                              <ConditionalTooltip
+                                isTooltipEnabled={hasAssessedArchetype || false}
+                                content={t("message.archetypeAlreadyAssessed")}
+                              >
+                                <QuestionCircleIcon />
+                              </ConditionalTooltip>
+                            ) : null}
                           </FlexItem>
                         </Flex>
                       </Td>
@@ -941,12 +943,14 @@ export const ApplicationsTable: React.FC = () => {
                             />
                           </FlexItem>
                           <FlexItem>
-                            <ConditionalTooltip
-                              isTooltipEnabled={hasReviewedArchetype || false}
-                              content={t("message.archetypeAlreadyReviewed")}
-                            >
-                              <QuestionCircleIcon />
-                            </ConditionalTooltip>
+                            {hasReviewedArchetype ? (
+                              <ConditionalTooltip
+                                isTooltipEnabled={hasReviewedArchetype || false}
+                                content={t("message.archetypeAlreadyReviewed")}
+                              >
+                                <QuestionCircleIcon />
+                              </ConditionalTooltip>
+                            ) : null}
                           </FlexItem>
                         </Flex>
                       </Td>
