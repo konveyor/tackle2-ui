@@ -57,7 +57,6 @@ const defaultTaskData: TaskData = {
     binary: false,
     withDeps: false,
     artifact: "",
-    diva: false,
   },
   targets: [],
   sources: [],
@@ -171,7 +170,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
-      diva: false,
       hasExcludedPackages: false,
       associatedCredentials: "",
       rulesKind: "manual",
@@ -238,7 +236,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           artifact: fieldValues.artifact?.name
             ? `/binary/${fieldValues.artifact.name}`
             : "",
-          diva: fieldValues.diva,
         },
         scope: {
           withKnownLibs: fieldValues.withKnownLibs.includes("oss")

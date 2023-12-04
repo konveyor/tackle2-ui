@@ -875,7 +875,7 @@ export const ApplicationsTable: React.FC = () => {
                 const hasAssessedArchetype = applicationArchetypes?.some(
                   (archetype) => !!archetype?.assessments?.length
                 );
-                console.log("hasassessed", hasAssessedArchetype);
+
                 return (
                   <Tr
                     key={application.name}
