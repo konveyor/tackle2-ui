@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import yaml from "js-yaml";
 
 import {
   QUESTIONNAIRES,
@@ -9,7 +10,7 @@ import {
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
-import { Questionnaire } from "@app/api/models";
+import { LooseQuestionnaire, Questionnaire } from "@app/api/models";
 import saveAs from "file-saver";
 
 export const QuestionnairesQueryKey = "questionnaires";
@@ -121,7 +122,7 @@ export const downloadQuestionnaire = async (
 
   try {
     const response = await axios.get(url, {
-      responseType: "blob",
+      responseType: "text",
       headers: {
         Accept: "application/x-yaml",
       },
@@ -131,13 +132,24 @@ export const downloadQuestionnaire = async (
       throw new Error("Network response was not ok when downloading file.");
     }
 
-    const blob = new Blob([response.data]);
+    const yamlData = yaml.load(response.data) as LooseQuestionnaire;
+
+    delete yamlData.createUser;
+    delete yamlData.updateUser;
+    delete yamlData.createTime;
+    delete yamlData.id;
+
+    const newYamlData = yaml.dump(yamlData);
+
+    const blob = new Blob([newYamlData], { type: "application/x-yaml" });
+
     saveAs(blob, `questionnaire-${id}.yaml`);
   } catch (error) {
     console.error("There was an error downloading the file:", error);
     throw error;
   }
 };
+
 export const useDownloadQuestionnaire = () => {
   return useMutation({ mutationFn: downloadQuestionnaire });
 };

@@ -10,11 +10,7 @@ export const ExportQuestionnaireDropdownItem: React.FC<
   IExportQuestionnaireDropdownItemProps
 > = ({ id }) => {
   const { t } = useTranslation();
-  const {
-    mutate: downloadFile,
-    isLoading,
-    isError,
-  } = useDownloadQuestionnaire();
+  const { mutate: downloadFile } = useDownloadQuestionnaire();
 
   const handleDownload = () => {
     downloadFile(id);
