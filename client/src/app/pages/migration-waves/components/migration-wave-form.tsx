@@ -256,9 +256,13 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const startDateRangeValidator = (date: Date) => {
-    if (date < dayjs().toDate()) {
-      return "Date is before allowable range.";
+    const selectedDate = dayjs(date);
+    const currentDate = dayjs();
+
+    if (selectedDate.isBefore(currentDate, "day")) {
+      return "Start date cannot be in the past.";
     }
+
     return "";
   };
 
@@ -341,7 +345,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                 dateParse={(val) => dayjs(val).toDate()}
                 validators={[endDateRangeValidator]}
                 appendTo={() => document.body}
-                isDisabled={!!formErrors.startDateStr}
               />
             )}
           />
