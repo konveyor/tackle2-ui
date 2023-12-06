@@ -108,6 +108,7 @@ import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer"
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { useLocalStorage } from "@app/hooks/useStorage";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -117,6 +118,14 @@ export const ApplicationsTable: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { identities } = useFetchIdentities();
+
+  const [shownWarnings, setShownWarnings] = useLocalStorage<{
+    [key: string]: boolean;
+  }>({
+    key: "shownWarnings",
+    defaultValue: {},
+  });
+
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
 
@@ -646,29 +655,38 @@ export const ApplicationsTable: React.FC = () => {
     setApplicationToAssess(application);
 
     if (application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          const assessments = await getAssessmentsByItemId(
-            true,
-            archetypeRef.id
-          );
+      let shouldWarnUser = false;
 
-          if (assessments && assessments.length > 0) {
-            setArchetypeRefsToOverride(application.archetypes);
-            break;
-          } else {
-            handleNavToAssessment(application);
+      if (!shownWarnings[application.id]) {
+        for (const archetypeRef of application.archetypes) {
+          try {
+            const assessments = await getAssessmentsByItemId(
+              true,
+              archetypeRef.id
+            );
+
+            if (assessments && assessments.length > 0) {
+              shouldWarnUser = true;
+              break;
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching archetype with ID ${archetypeRef.id}:`,
+              error
+            );
+            pushNotification({
+              title: t("terms.error"),
+              variant: "danger",
+            });
           }
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
         }
+      }
+
+      if (shouldWarnUser) {
+        setArchetypeRefsToOverride(application.archetypes);
+        setShownWarnings({ ...shownWarnings, [application.id]: true });
+      } else {
+        handleNavToAssessment(application);
       }
     } else {
       handleNavToAssessment(application);
@@ -677,41 +695,51 @@ export const ApplicationsTable: React.FC = () => {
 
   const reviewSelectedApp = async (application: Application) => {
     setApplicationToReview(application);
-    if (application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          const archetype = await getArchetypeById(archetypeRef.id);
 
-          if (archetype?.review) {
-            setArchetypeRefsToOverrideReview(application.archetypes);
-            break;
-          } else if (application.review) {
-            setReviewToEdit(application.id);
-          } else {
-            history.push(
-              formatPath(Paths.applicationsReview, {
-                applicationId: application.id,
-              })
+    if (application?.archetypes?.length) {
+      let overrideReview = false;
+
+      if (!shownWarnings[application.id]) {
+        for (const archetypeRef of application.archetypes) {
+          try {
+            const archetype = await getArchetypeById(archetypeRef.id);
+
+            if (archetype?.review) {
+              overrideReview = true;
+              break;
+            } else if (application.review) {
+              setReviewToEdit(application.id);
+              return;
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching archetype with ID ${archetypeRef.id}:`,
+              error
             );
+            pushNotification({
+              title: t("terms.error"),
+              variant: "danger",
+            });
+            return;
           }
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
         }
+      }
+
+      if (overrideReview) {
+        setArchetypeRefsToOverrideReview(application.archetypes);
+        setShownWarnings({ ...shownWarnings, [application.id]: true });
+      } else {
+        history.push(
+          formatPath(Paths.applicationsReview, {
+            applicationId: application.id,
+          })
+        );
       }
     } else if (application.review) {
       setReviewToEdit(application.id);
     } else {
       history.push(
-        formatPath(Paths.applicationsReview, {
-          applicationId: application.id,
-        })
+        formatPath(Paths.applicationsReview, { applicationId: application.id })
       );
     }
   };
