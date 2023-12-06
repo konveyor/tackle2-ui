@@ -328,7 +328,6 @@ export interface TaskData {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
-    diva: boolean;
     csv?: boolean;
   };
   targets?: string[];
@@ -646,6 +645,10 @@ export type HubFile = {
   path: string;
 };
 
+export interface LooseQuestionnaire {
+  [key: string]: any;
+}
+
 export interface Questionnaire {
   id: number;
   name: string;
@@ -653,12 +656,15 @@ export interface Questionnaire {
   revision: number;
   questions: number;
   rating: string;
-  createTime: string;
   required: boolean;
-  builtin?: boolean;
   sections: Section[];
   thresholds: Thresholds;
   riskMessages: RiskMessages;
+  builtin?: boolean;
+  createTime?: string;
+  createUser?: string;
+  updateTime?: string;
+  updateUser?: string;
 }
 
 export interface RiskMessages {
