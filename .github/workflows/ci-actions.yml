@@ -15,17 +15,15 @@ on:
 jobs:
   unit-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      # Note: This should match the node version used in the base Dockerfile
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18.x
 
       - name: Verify package-lock.json
         run: ./scripts/verify_lock.mjs
@@ -43,13 +41,13 @@ jobs:
         run: npm run test -- --coverage --watchAll=false
 
       - name: Upload to codecov (client)
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           flags: client
           directory: ./*/coverage
 
       - name: Upload to codecov (server)
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           flags: server
           directory: ./*/coverage
@@ -57,7 +55,7 @@ jobs:
   build-and-upload-for-global-ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: save tackle2-ui image
         run: |
