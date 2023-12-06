@@ -138,8 +138,18 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
             what: t("terms.source").toLowerCase(),
           }) + "...",
         serverFilterField: "labels",
-        getServerFilterValue: (value) =>
-          value?.length === 1 ? [`konveyor.io/source=*${value}*`] : undefined,
+        getServerFilterValue: (value) => {
+          if (
+            (value && value[0] === "None") ||
+            (value && value[0] === "none")
+          ) {
+            return [`konveyor.io/source`];
+          } else if (value && value.length > 0) {
+            return [`konveyor.io/source=*${value}*`];
+          } else {
+            return undefined;
+          }
+        },
       },
       {
         key: "target",
