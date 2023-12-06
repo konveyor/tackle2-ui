@@ -26,7 +26,7 @@ import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { IdentifiedRisksTable } from "../reports/components/identified-risks-table";
-import { AssessmentLandscape } from "../reports/components/assessment-landscape";
+import { ApplicationAssessmentDonutChart } from "../../components/application-assessment-donut-chart/application-assessment-donut-chart";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
@@ -112,12 +112,22 @@ const ReviewPage: React.FC = () => {
                     </FormSection>
                   </div>
                 </GridItem>
+                {application?.assessments?.length ||
+                archetype?.assessments?.length ? (
+                  <GridItem md={6}>
+                    <ApplicationAssessmentDonutChart
+                      assessmentRefs={
+                        application?.assessments || archetype?.assessments
+                      }
+                    />
+                  </GridItem>
+                ) : null}
               </Grid>
             </ConditionalRender>
           </CardBody>
         </Card>
       </PageSection>
-      {(application?.assessments?.length || archetype?.assessments?.length) && (
+      {application?.assessments?.length || archetype?.assessments?.length ? (
         <PageSection>
           <Card>
             <CardHeader>
@@ -126,21 +136,16 @@ const ReviewPage: React.FC = () => {
               </TextContent>
             </CardHeader>
             <CardBody>
-              <AssessmentLandscape
-                questionnaire={null}
-                assessmentRefs={
-                  application?.assessments || archetype?.assessments
-                }
-              />
               <IdentifiedRisksTable
                 assessmentRefs={
                   application?.assessments || archetype?.assessments
                 }
+                isReviewPage
               />
             </CardBody>
           </Card>
         </PageSection>
-      )}
+      ) : null}
     </>
   );
 };

@@ -35,10 +35,18 @@ import RiskIcon from "@app/components/risk-icon/risk-icon";
 
 export interface IIdentifiedRisksTableProps {
   assessmentRefs?: IdRef[];
+  isReviewPage?: boolean;
 }
+const riskLevelMapping = {
+  red: 3,
+  yellow: 2,
+  green: 1,
+  unknown: 0,
+};
 
 export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
   assessmentRefs,
+  isReviewPage = false,
 }) => {
   const { t } = useTranslation();
 
@@ -152,8 +160,17 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
       question: item.question.text,
       answer: item.answer.text,
       applications: item.applications.length,
+      risk:
+        riskLevelMapping[item.answer.risk as keyof typeof riskLevelMapping] ||
+        riskLevelMapping["unknown"],
     }),
-    sortableColumns: ["assessmentName", "section", "question", "answer"],
+    sortableColumns: [
+      "assessmentName",
+      "section",
+      "question",
+      "answer",
+      "risk",
+    ],
     isExpansionEnabled: true,
     expandableVariant: "single",
   });
@@ -171,6 +188,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
       getTdProps,
       getExpandedContentTdProps,
     },
+    sortState,
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
@@ -202,9 +220,14 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
               <Th {...getThProps({ columnKey: "question" })}>Question</Th>
               <Th {...getThProps({ columnKey: "answer" })}>Answer</Th>
               <Th {...getThProps({ columnKey: "risk" })}>Risk</Th>
-              <Th {...getThProps({ columnKey: "applications" })}>
-                Application
-              </Th>
+              {
+                /* Only show the applications column on the reports page */
+                !isReviewPage && (
+                  <Th {...getThProps({ columnKey: "applications" })}>
+                    Application
+                  </Th>
+                )
+              }
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -242,17 +265,19 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       <Td {...getTdProps({ columnKey: "risk" })}>
                         <RiskIcon risk={item.answer.risk} />
                       </Td>
-                      <Td {...getTdProps({ columnKey: "applications" })}>
-                        {item?.applications.length ? (
-                          <Link to={getApplicationsUrl(item?.applications)}>
-                            {t("composed.totalApplications", {
-                              count: item.applications.length,
-                            })}
-                          </Link>
-                        ) : (
-                          "N/A"
-                        )}
-                      </Td>
+                      {!isReviewPage && (
+                        <Td {...getTdProps({ columnKey: "applications" })}>
+                          {item?.applications.length ? (
+                            <Link to={getApplicationsUrl(item?.applications)}>
+                              {t("composed.totalApplications", {
+                                count: item.applications.length,
+                              })}
+                            </Link>
+                          ) : (
+                            "N/A"
+                          )}
+                        </Td>
+                      )}
                     </TableRowContentWithControls>
                   </Tr>
                   {isCellExpanded(item) ? (
