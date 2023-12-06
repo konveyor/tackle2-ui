@@ -98,49 +98,67 @@ describe("utils", () => {
     expect(result).toBe("myKey");
   });
 
-  //URL Regex tests
-  it("Regex should validate git URLs", () => {
-    const testGitURLs: string[] = [
-      "git@github.com:konveyor/tackle2-ui",
-      "http://git@github.com:konveyor/tackle2-ui",
-    ];
+  describe("URL Regex tests", () => {
+    // Define your regex patterns here
 
-    for (const url of testGitURLs) {
-      const gitTestResult = gitUrlRegex.test(url);
-      expect(gitTestResult).toBe(true);
-    }
-  });
+    it("Regex should validate git URLs", () => {
+      const testGitURLs = [
+        "git@github.com:konveyor/tackle2-ui.git",
+        "http://github.com/konveyor/tackle2-ui.git",
+      ];
 
-  it("Regex should validate standard URLs", () => {
-    const testStandardURLs: string[] = [
-      "http://www.foo.bar",
-      "www.foo.bar",
-      "https://www.github.com/ibolton336/tackle-testapp.git",
-    ];
+      for (const url of testGitURLs) {
+        expect(gitUrlRegex.test(url)).toBe(true);
+      }
+    });
 
-    for (const url of testStandardURLs) {
-      const standardTestResult = standardURLRegex.test(url);
-      expect(standardTestResult).toBe(true);
-    }
-  });
+    it("Regex should fail when validating incorrect git URLs", () => {
+      const testIncorrectGitURLs = [
+        "https://",
+        "git@",
+        "http://github.com/konveyor",
+      ];
 
-  it("Regex should fail when validating broken standard URLs", () => {
-    const testBrokenURLs: string[] = [
-      "",
-      " http://www.foo.bar ",
-      " http://www.foo",
-      " http://wrong",
-      "wwwfoo.bar",
-      "foo.bar",
-      "www.foo.b",
-      "foo.ba",
-      "git@github.com:konveyor/tackle2-ui",
-    ];
+      for (const url of testIncorrectGitURLs) {
+        const result = gitUrlRegex.test(url);
+        console.log(`Testing URL: ${url}, Result: ${result}`);
 
-    for (const url of testBrokenURLs) {
-      const testResult = standardURLRegex.test(url);
-      expect(testResult).toBe(false);
-    }
+        expect(result).toBe(false);
+      }
+    });
+
+    it("Regex should validate standard URLs", () => {
+      const testStandardURLs = [
+        "http://www.foo.bar",
+        "www.foo.bar",
+        "https://www.github.com/ibolton336/tackle-testapp.git",
+      ];
+
+      for (const url of testStandardURLs) {
+        expect(standardURLRegex.test(url)).toBe(true);
+      }
+    });
+
+    it("Regex should fail when validating broken standard URLs", () => {
+      const testBrokenURLs = [
+        "",
+        "http://",
+        "https://",
+        "http:",
+        "http://www.foo",
+        "http://wrong",
+        "wwwfoo.bar",
+        "foo.bar",
+        "www.foo.b",
+      ];
+
+      for (const url of testBrokenURLs) {
+        const result = standardURLRegex.test(url);
+        console.log(`Testing URL: ${url}, Result: ${result}`);
+
+        expect(result).toBe(false);
+      }
+    });
   });
 
   it("URL should match the same multiple times in a row", () => {
