@@ -54,7 +54,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     useFetchAssessmentsWithArchetypeApplications();
 
   interface ITableRowData {
-    assessmentName: string;
+    questionnaireName: string;
     questionId: string;
     section: string;
     question: Question;
@@ -129,7 +129,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                 question: question,
                 answer: answer,
                 applications: uniqueApplications ? uniqueApplications : [],
-                assessmentName: assessment.questionnaire.name,
+                questionnaireName: assessment.questionnaire.name,
                 questionId: itemId,
               });
             }
@@ -143,7 +143,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     idProperty: "questionId",
     items: tableData || [],
     columnNames: {
-      assessmentName: "Assessment Name",
+      questionnaireName: "Questionnaire Name",
       section: "Section",
       question: "Question",
       answer: "Answer",
@@ -155,7 +155,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     isSortEnabled: true,
     hasActionsColumn: false,
     getSortValues: (item) => ({
-      assessmentName: item.assessmentName,
+      questionnaireName: item.questionnaireName,
       section: item.section,
       question: item.question.text,
       answer: item.answer.text,
@@ -165,7 +165,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         riskLevelMapping["unknown"],
     }),
     sortableColumns: [
-      "assessmentName",
+      "questionnaireName",
       "section",
       "question",
       "answer",
@@ -213,8 +213,8 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "assessmentName" })}>
-                Assessment name
+              <Th {...getThProps({ columnKey: "questionnaireName" })}>
+                Questionnaire name
               </Th>
               <Th {...getThProps({ columnKey: "section" })}>Section</Th>
               <Th {...getThProps({ columnKey: "question" })}>Question</Th>
@@ -250,8 +250,8 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       item={item}
                       rowIndex={rowIndex}
                     >
-                      <Td {...getTdProps({ columnKey: "assessmentName" })}>
-                        {item.assessmentName}
+                      <Td {...getTdProps({ columnKey: "questionnaireName" })}>
+                        {item.questionnaireName}
                       </Td>
                       <Td {...getTdProps({ columnKey: "section" })}>
                         {item?.section ?? "N/A"}
