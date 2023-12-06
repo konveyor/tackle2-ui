@@ -249,32 +249,11 @@ export const ApplicationsTable: React.FC = () => {
     queryClient.invalidateQueries([ApplicationsQueryKey]);
   };
 
-  const onDeleteAssessmentSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.assessmentDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-    queryClient.invalidateQueries([ApplicationsQueryKey]);
-  };
-
-  const onDeleteError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
   const { mutate: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess,
-    onDeleteError
+    onDeleteReviewSuccess
   );
 
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
 
   const discardAssessment = async (application: Application) => {
     try {
@@ -286,10 +265,22 @@ export const ApplicationsTable: React.FC = () => {
               applicationName: application.name,
             });
           })
-        );
+        ).then(() => {
+          pushNotification({
+            title: t("toastr.success.assessmentDiscarded", {
+              application: application.name,
+            }),
+            variant: "success",
+          });
+          queryClient.invalidateQueries([ApplicationsQueryKey]);
+        });
       }
     } catch (error) {
       console.error("Error while deleting assessments:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 
@@ -303,6 +294,10 @@ export const ApplicationsTable: React.FC = () => {
       }
     } catch (error) {
       console.error("Error while deleting review:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 

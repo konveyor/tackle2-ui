@@ -104,26 +104,8 @@ const Archetypes: React.FC = () => {
       }),
     onError
   );
-  const onDeleteAssessmentSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.assessmentDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-  };
 
-  const onDeleteError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
 
   const discardAssessment = async (archetype: Archetype) => {
     try {
@@ -135,10 +117,21 @@ const Archetypes: React.FC = () => {
               archetypeId: archetype.id,
             });
           })
-        );
+        ).then(() => {
+          pushNotification({
+            title: t("toastr.success.assessmentDiscarded", {
+              application: archetype.name,
+            }),
+            variant: "success",
+          });
+        });
       }
     } catch (error) {
       console.error("Error while deleting assessments:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 
@@ -152,8 +145,7 @@ const Archetypes: React.FC = () => {
   };
 
   const { mutate: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess,
-    onDeleteError
+    onDeleteReviewSuccess
   );
 
   const discardReview = async (archetype: Archetype) => {
@@ -166,6 +158,10 @@ const Archetypes: React.FC = () => {
       }
     } catch (error) {
       console.error("Error while deleting review:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 
