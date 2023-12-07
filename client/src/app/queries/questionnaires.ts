@@ -16,11 +16,31 @@ import saveAs from "file-saver";
 export const QuestionnairesQueryKey = "questionnaires";
 export const QuestionnaireByIdQueryKey = "questionnaireById";
 
+/**
+ * For a Questionnaire, walk the structure and sort lists by order if the items
+ * in that list have an order.  Hub stores things in the document order not logical
+ * order.  UI needs to have things in logical order.
+ */
+function inPlaceSortByOrder(q: Questionnaire) {
+  q.sections.sort((a, b) => a.order - b.order);
+  q.sections.forEach((s) => {
+    s.questions.sort((a, b) => a.order - b.order);
+    s.questions.forEach((q) => {
+      q.answers.sort((a, b) => a.order - b.order);
+    });
+  });
+  return q;
+}
+
 export const useFetchQuestionnaires = () => {
   const { isLoading, data, error } = useQuery({
     queryKey: [QuestionnairesQueryKey],
     queryFn: getQuestionnaires,
     onError: (error: AxiosError) => console.log("error, ", error),
+    select: (questionnaires) => {
+      questionnaires.forEach((q) => inPlaceSortByOrder(q));
+      return questionnaires;
+    },
   });
   return {
     questionnaires: data || [],
@@ -72,7 +92,9 @@ export const useFetchQuestionnaireById = (id: number | string) => {
     queryKey: [QuestionnaireByIdQueryKey, id],
     queryFn: () => getQuestionnaireById<Questionnaire>(id),
     onError: (error: AxiosError) => console.log("error, ", error),
+    select: (q) => inPlaceSortByOrder(q),
   });
+
   return {
     questionnaire: data,
     isFetching: isLoading,
