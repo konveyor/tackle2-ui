@@ -99,7 +99,7 @@ const QuestionsTable: React.FC<{
                 section.questions.includes(question)
               )?.name || "";
             return (
-              <>
+              <React.Fragment key={rowIndex}>
                 <Tr key={question.text} {...getTrProps({ item: question })}>
                   <TableRowContentWithControls
                     {...tableControls}
@@ -140,7 +140,7 @@ const QuestionsTable: React.FC<{
                     </Td>
                   </Tr>
                 ) : null}
-              </>
+              </React.Fragment>
             );
           })}
         </Tbody>
