@@ -1,0 +1,6 @@
+.actions-row {
+  min-height: 5vh;
+}
+.actions-col {
+  vertical-align: middle !important;
+}

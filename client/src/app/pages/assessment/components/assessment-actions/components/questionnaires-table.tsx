@@ -1,3 +1,4 @@
+import "./questionnaires-table.css";
 import React, { useState } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -98,7 +99,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
               );
 
               return (
-                <Tr key={questionnaire.name}>
+                <Tr key={questionnaire.name} className="actions-row">
                   <TableRowContentWithControls
                     {...tableControls}
                     item={questionnaire}
@@ -107,6 +108,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
                     <Td
                       width={20}
                       {...getTdProps({ columnKey: "questionnaires" })}
+                      className="actions-col"
                     >
                       {questionnaire.name}
                     </Td>
