@@ -182,7 +182,6 @@ export const useFetchAssessmentsByItemId = (
   };
   const assessmentsWithOrder: AssessmentWithSectionOrder[] =
     data?.map(addSectionOrderToQuestions) || [];
-
   return {
     assessments: assessmentsWithOrder,
     isFetching: isLoading,
