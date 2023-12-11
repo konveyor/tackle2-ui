@@ -208,7 +208,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
   return (
     <>
-      <Td>
+      <Td className="actions-col">
         <div>
           {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
             <Button
@@ -253,7 +253,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
         </div>
       </Td>
       {assessment ? (
-        <Td isActionCell>
+        <Td isActionCell className="actions-col">
           <Button
             type="button"
             variant="plain"
