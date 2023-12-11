@@ -157,6 +157,7 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
 export interface OptionsStepValues {
   excludedRulesTags: string[];
   autoTaggingEnabled: boolean;
+  advancedAnalysisEnabled: boolean;
   selectedSourceLabels: TargetLabel[];
 }
 
@@ -165,6 +166,7 @@ const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
   return yup.object({
     excludedRulesTags: yup.array().of(yup.string().defined()),
     autoTaggingEnabled: yup.bool().defined(),
+    advancedAnalysisEnabled: yup.bool().defined(),
     selectedSourceLabels: yup.array().of(
       yup.object().shape({
         name: yup.string().defined(),

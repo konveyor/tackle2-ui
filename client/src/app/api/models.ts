@@ -324,6 +324,7 @@ export interface TaskData {
   tagger: {
     enabled: boolean;
   };
+  verbosity: number;
   mode: {
     binary: boolean;
     withDeps: boolean;

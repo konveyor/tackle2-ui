@@ -53,6 +53,7 @@ const defaultTaskData: TaskData = {
   tagger: {
     enabled: true,
   },
+  verbosity: 0,
   mode: {
     binary: false,
     withDeps: false,
@@ -178,6 +179,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       branch: "",
       rootPath: "",
       autoTaggingEnabled: true,
+      advancedAnalysisEnabled: false,
     },
     resolver: yupResolver(allFieldsSchema),
     mode: "all",
@@ -227,6 +229,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
+        verbosity: fieldValues.advancedAnalysisEnabled ? 1 : 0,
         tagger: {
           enabled: fieldValues.autoTaggingEnabled,
         },
