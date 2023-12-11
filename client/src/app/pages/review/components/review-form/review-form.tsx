@@ -135,7 +135,6 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
 
     try {
       if (review) {
-        // This is an update action
         await updateReviewMutation.mutateAsync({
           ...review,
           ...payload,
@@ -145,10 +144,9 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           variant: "info",
         });
       } else {
-        // This is a save action
         await createReviewMutation.mutateAsync(payload);
         pushNotification({
-          title: "Review has been updated.",
+          title: "Review has been created.",
           variant: "info",
         });
       }
