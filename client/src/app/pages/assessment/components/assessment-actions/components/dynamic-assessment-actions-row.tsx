@@ -102,7 +102,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     onDeleteError
   );
 
-  const determineAction = () => {
+  const determineAction = React.useCallback(() => {
     if (!assessment) {
       return AssessmentAction.Take;
     } else if (assessment.status === "started") {
@@ -110,7 +110,13 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     } else {
       return AssessmentAction.Retake;
     }
-  };
+  }, [assessment]);
+
+  const [action, setAction] = React.useState(determineAction());
+
+  React.useEffect(() => {
+    setAction(determineAction());
+  }, [determineAction, assessment]);
 
   const determineButtonClassName = () => {
     const action = determineAction();
@@ -213,7 +219,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 onHandleAssessmentAction();
               }}
             >
-              {determineAction()}
+              {action}
             </Button>
           ) : (
             <Spinner role="status" size="md">
