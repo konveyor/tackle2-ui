@@ -7,3 +7,7 @@
   background-color: var(--pf-v5-global--warning-color--100) !important  ;
   margin-right: 10px;
 }
+
+.actions-col {
+  vertical-align: middle !important;
+}
