@@ -103,7 +103,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
           <Tbody>
             {currentPageItems?.map((answer, rowIndex) => {
               return (
-                <>
+                <React.Fragment key={rowIndex}>
                   <Tr key={answer.text} {...getTrProps({ item: answer })}>
                     <TableRowContentWithControls
                       {...tableControls}
@@ -141,23 +141,21 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                   </Tr>
                   <Tr>
                     {!!answer?.applyTags?.length && (
-                      <>
-                        <div style={{ display: "flex" }}>
-                          <Text className={spacing.mrSm}>
-                            Apply Tags for this answer choice:
-                          </Text>
-                          {answer?.applyTags?.map((tag, index) => {
-                            return (
-                              <div key={index} style={{ flex: "0 0 6em" }}>
-                                <Label color="grey">{tag.tag}</Label>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </>
+                      <div style={{ display: "flex" }}>
+                        <Text className={spacing.mrSm}>
+                          Apply Tags for this answer choice:
+                        </Text>
+                        {answer?.applyTags?.map((tag, index) => {
+                          return (
+                            <div key={index} style={{ flex: "0 0 6em" }}>
+                              <Label color="grey">{tag.tag}</Label>
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
                   </Tr>
-                </>
+                </React.Fragment>
               );
             })}
           </Tbody>
