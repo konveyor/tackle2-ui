@@ -1,11 +1,11 @@
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { TextContent, List, ListItem, Button } from "@patternfly/react-core";
+import { TextContent, List, ListItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import ExternalLinkSquareAltIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
 
 import { AnalysisIssueLink } from "@app/api/models";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
+import ExternalLink from "@app/components/ExternalLink";
 
 export interface IIssueDescriptionAndLinksProps {
   description: string;
@@ -26,17 +26,7 @@ export const IssueDescriptionAndLinks: React.FC<
       <List isPlain>
         {links.map((link) => (
           <ListItem key={link.url}>
-            <Button
-              variant="link"
-              component="a"
-              icon={<ExternalLinkSquareAltIcon />}
-              iconPosition="right"
-              href={link.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {link.title}
-            </Button>
+            <ExternalLink href={link.url}>{link.title}</ExternalLink>
           </ListItem>
         ))}
       </List>
