@@ -49,6 +49,7 @@ import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels
 import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
+import { AssessedArchetypeItem } from "./assessed-archetype-item";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -175,6 +176,23 @@ export const ApplicationDetailDrawer: React.FC<
                       <ArchetypeLabels
                         archetypeRefs={application?.archetypes}
                       />
+                    ) : (
+                      <EmptyTextMessage message={t("terms.none")} />
+                    )}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.archetypesAssessed")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {application?.archetypes?.length ?? 0 > 0 ? (
+                      application?.archetypes?.map((archetypeRef) => (
+                        <AssessedArchetypeItem
+                          key={archetypeRef.id}
+                          id={archetypeRef.id}
+                        />
+                      ))
                     ) : (
                       <EmptyTextMessage message={t("terms.none")} />
                     )}
