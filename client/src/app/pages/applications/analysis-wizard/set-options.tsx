@@ -1,10 +1,13 @@
 import * as React from "react";
 import {
   Checkbox,
+  Flex,
+  FlexItem,
   Form,
   Text,
   TextContent,
   Title,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   SelectVariant,
@@ -25,6 +28,7 @@ import { getParsedLabel } from "@app/utils/rules-utils";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
 import defaultSources from "./sources";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -32,7 +36,12 @@ export const SetOptions: React.FC = () => {
   const { watch, control, setValue } =
     useFormContext<AnalysisWizardFormValues>();
 
-  const { formLabels, excludedRulesTags, autoTaggingEnabled } = watch();
+  const {
+    formLabels,
+    excludedRulesTags,
+    autoTaggingEnabled,
+    advancedAnalysisEnabled,
+  } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -254,6 +263,30 @@ export const SetOptions: React.FC = () => {
         id="enable-auto-tagging-checkbox"
         name="autoTaggingEnabled"
       />
+      <Flex>
+        <FlexItem>
+          <Checkbox
+            className={spacing.mtMd}
+            label={t("wizard.composed.enable", {
+              what: t("wizard.terms.advancedAnalysisDetails").toLowerCase(),
+            })}
+            isChecked={advancedAnalysisEnabled}
+            onChange={() =>
+              setValue("advancedAnalysisEnabled", !advancedAnalysisEnabled)
+            }
+            id="enable-advanced-analysis-details-checkbox"
+            name="advancedAnalysisDetailsEnabled"
+          />
+        </FlexItem>
+        <FlexItem>
+          <Tooltip
+            position="right"
+            content={t("wizard.tooltip.advancedAnalysisDetails")}
+          >
+            <QuestionCircleIcon className={spacing.mlSm} />
+          </Tooltip>
+        </FlexItem>
+      </Flex>
     </Form>
   );
 };
