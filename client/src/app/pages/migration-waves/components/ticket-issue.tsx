@@ -17,7 +17,9 @@ export const TicketIssue: React.FC<ITicketIssueProps> = ({ ticket }) => {
   return (
     <Text component={TextVariants.p}>
       {ticket?.link ? (
-        <ExternalLink href={ticket.link}>{ticketIssue}</ExternalLink>
+        <ExternalLink isInline href={ticket.link}>
+          {ticketIssue}
+        </ExternalLink>
       ) : (
         t("terms.unassigned")
       )}

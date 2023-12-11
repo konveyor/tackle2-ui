@@ -269,7 +269,9 @@ const DependencyVersionColumn = ({
   return (
     <TextContent>
       {mavenCentralLink ? (
-        <ExternalLink href={mavenCentralLink}>{version}</ExternalLink>
+        <ExternalLink isInline href={mavenCentralLink}>
+          {version}
+        </ExternalLink>
       ) : (
         <Text>{version}</Text>
       )}
