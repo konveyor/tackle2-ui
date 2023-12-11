@@ -32,6 +32,7 @@ import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import RiskIcon from "@app/components/risk-icon/risk-icon";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 
 export interface IIdentifiedRisksTableProps {
   assessmentRefs?: IdRef[];
@@ -152,6 +153,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     },
     variant: "compact",
     isPaginationEnabled: true,
+    isFilterEnabled: true,
     isSortEnabled: true,
     hasActionsColumn: false,
     getSortValues: (item) => ({
@@ -173,6 +175,86 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     ],
     isExpansionEnabled: true,
     expandableVariant: "single",
+    filterCategories: [
+      {
+        key: "questionnaireName",
+        title: t("terms.questionnaire"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.questionnaire").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.questionnaireName || "",
+        selectOptions: [
+          ...new Set(
+            tableData.map((item) => item.questionnaireName).filter(Boolean)
+          ),
+        ].map((name) => ({ key: name, value: name })),
+      },
+      {
+        key: "section",
+        title: t("terms.section"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.section").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.section || "",
+        selectOptions: [
+          ...new Set(tableData.map((item) => item.section).filter(Boolean)),
+        ].map((name) => ({ key: name, value: name })),
+      },
+      {
+        key: "question",
+        title: t("terms.question"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.question").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.question.text || "",
+        selectOptions: [
+          ...new Set(
+            tableData.map((item) => item.question.text).filter(Boolean)
+          ),
+        ].map((name) => ({ key: name, value: name })),
+      },
+      {
+        key: "answer",
+        title: t("terms.answer"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.answer").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => item.answer.text || "",
+        selectOptions: [
+          ...new Set(tableData.map((item) => item.answer.text).filter(Boolean)),
+        ].map((name) => ({ key: name, value: name })),
+      },
+      {
+        key: "risk",
+        title: t("terms.risk"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", { what: t("terms.risk").toLowerCase() }) +
+          "...",
+        getItemValue: (item: ITableRowData) => {
+          const riskKey = item.answer.risk;
+          const riskValue =
+            riskLevelMapping[riskKey as keyof typeof riskLevelMapping];
+          return riskValue.toString();
+        },
+        selectOptions: [
+          { key: "3", value: "High" },
+          { key: "2", value: "Medium" },
+          { key: "1", value: "Low" },
+          { key: "0", value: "Unknown" },
+        ],
+      },
+    ],
+    initialItemsPerPage: 10,
+    isSelectionEnabled: false,
   });
 
   const {
@@ -181,6 +263,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     propHelpers: {
       toolbarProps,
       paginationToolbarItemProps,
+      filterToolbarProps,
       paginationProps,
       tableProps,
       getThProps,
@@ -196,6 +279,8 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     <>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
+          <FilterToolbar<ITableRowData, string> {...filterToolbarProps} />
+
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
               idPrefix={`${"identified-risks-table"}}`}
