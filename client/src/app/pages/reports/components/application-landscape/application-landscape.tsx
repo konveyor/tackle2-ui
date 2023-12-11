@@ -148,6 +148,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               riskLabel={
                 <Link to={getRisksUrl(["red"])}>{t("terms.highRisk")}</Link>
               }
+              riskTitle={t("terms.highRisk")}
               riskDescription={questionnaire?.riskMessages?.red ?? ""}
             />
           </FlexItem>
@@ -163,6 +164,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
                   {t("terms.mediumRisk")}
                 </Link>
               }
+              riskTitle={t("terms.mediumRisk")}
               riskDescription={questionnaire?.riskMessages?.yellow ?? ""}
             />
           </FlexItem>
@@ -176,6 +178,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
               riskLabel={
                 <Link to={getRisksUrl(["green"])}>{t("terms.lowRisk")}</Link>
               }
+              riskTitle={t("terms.lowRisk")}
               riskDescription={questionnaire?.riskMessages?.green ?? ""}
             />
           </FlexItem>
@@ -191,6 +194,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
                   {`${t("terms.unassessed")}/${t("terms.unknown")}`}
                 </Link>
               }
+              riskTitle={t("terms.unassessed")}
             />
           </FlexItem>
         </Flex>

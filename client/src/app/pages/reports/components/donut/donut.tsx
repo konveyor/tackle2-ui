@@ -18,7 +18,8 @@ export interface IDonutProps {
   total: number;
   color: string;
   riskLabel: string | React.ReactElement;
-  riskDescription?: string | React.ReactElement;
+  riskDescription?: string;
+  riskTitle: string;
   isAssessment: boolean;
 }
 
@@ -29,6 +30,7 @@ export const Donut: React.FC<IDonutProps> = ({
   color,
   riskLabel,
   isAssessment,
+  riskTitle,
 }) => {
   const { t } = useTranslation();
 
@@ -50,7 +52,7 @@ export const Donut: React.FC<IDonutProps> = ({
             }
             constrainToVisibleArea={true}
             data={[
-              { x: riskLabel, y: value },
+              { x: riskTitle, y: value },
               { x: t("terms.other"), y: total - value },
             ]}
             labels={({ datum }) => `${datum.x}: ${datum.y}`}
