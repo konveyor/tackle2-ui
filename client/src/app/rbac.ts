@@ -20,7 +20,7 @@ export const RBAC = ({
   if (isAuthRequired) {
     const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {
-      let userRoles = token?.realm_access?.roles || [],
+      const userRoles = token?.realm_access?.roles || [],
         access = checkAccess(userRoles, allowedPermissions);
       return access && children;
     } else if (rbacType === RBAC_TYPE.Scope) {
@@ -104,6 +104,32 @@ export const applicationsWriteScopes = [
   "applications:delete",
 ];
 
+export const analysisWriteScopes = [
+  "applications.analysis:put",
+  "applications.analysis:post",
+  "applications.analysis:delete",
+  "archetypes.analysis:put",
+  "archetypes.analysis:post",
+  "archetypes.analysis:delete",
+];
+export const analysisReadScopes = [
+  "applications.analysis:get",
+  "archetypes.analysis:get",
+];
+
+export const assessmentWriteScopes = [
+  "applications.assessments:put",
+  "applications.assessments:post",
+  "applications.assessments:delete",
+  "archetypes.assessments:put",
+  "archetypes.assessments:post",
+  "archetypes.assessments:delete",
+];
+export const assessmentReadScopes = [
+  "applications.assessments:get",
+  "archetypes.assessments:get",
+];
+
 export const modifiedPathfinderWriteScopes = [
   "assessments:put",
   "assessments:patch",
@@ -126,3 +152,17 @@ export const tasksWriteScopes = [
   "taskgroups:put",
   "taskgroups:delete",
 ];
+
+export const credentialsWriteScopes = [
+  "identities:put",
+  "identities:post",
+  "identities:delete",
+];
+export const credentialsReadScopes = ["identities:get"];
+
+export const reviewsWriteScopes = [
+  "reviews:put",
+  "reviews:post",
+  "reviews:delete",
+];
+export const reviewsReadScopes = ["reviews:get"];

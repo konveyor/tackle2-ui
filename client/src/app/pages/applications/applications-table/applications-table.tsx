@@ -58,8 +58,16 @@ import keycloak from "@app/keycloak";
 import {
   RBAC,
   RBAC_TYPE,
+  analysisReadScopes,
+  analysisWriteScopes,
   applicationsWriteScopes,
+  assessmentReadScopes,
+  assessmentWriteScopes,
+  credentialsWriteScopes,
+  dependenciesWriteScopes,
   importsWriteScopes,
+  reviewsReadScopes,
+  reviewsWriteScopes,
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/rbac";
@@ -542,8 +550,16 @@ export const ApplicationsTable: React.FC = () => {
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
+    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
+    analysisWriteAccess = checkAccess(userScopes, analysisWriteScopes),
+    assessmentReadAccess = checkAccess(userScopes, assessmentReadScopes),
+    credentialsWriteAccess = checkAccess(userScopes, credentialsWriteScopes),
+    dependenciesWriteAccess = checkAccess(userScopes, dependenciesWriteScopes),
+    analysisReadAccess = checkAccess(userScopes, analysisReadScopes),
     tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
-    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes);
+    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
+    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes),
+    reviewsReadAccess = checkAccess(userScopes, reviewsReadScopes);
 
   const areAppsInWaves = selectedRows.some(
     (application) => application.migrationWave !== null
@@ -973,27 +989,41 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         {application?.effort ?? "-"}
                       </Td>
+
                       <Td isActionCell id="pencil-action">
-                        <Button
-                          variant="plain"
-                          icon={<PencilAltIcon />}
-                          onClick={() =>
-                            setSaveApplicationModalState(application)
-                          }
-                        />
+                        {applicationWriteAccess && (
+                          <Button
+                            variant="plain"
+                            icon={<PencilAltIcon />}
+                            onClick={() =>
+                              setSaveApplicationModalState(application)
+                            }
+                          />
+                        )}
                       </Td>
                       <Td isActionCell id="row-actions">
                         <ActionsColumn
                           items={[
-                            {
-                              title: t("actions.assess"),
-                              onClick: () => assessSelectedApp(application),
-                            },
-                            {
-                              title: t("actions.review"),
-                              onClick: () => reviewSelectedApp(application),
-                            },
-                            ...(application?.assessments?.length
+                            ...(assessmentWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.assess"),
+                                    onClick: () =>
+                                      assessSelectedApp(application),
+                                  },
+                                ]
+                              : []),
+                            ...(reviewsWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.review"),
+                                    onClick: () =>
+                                      reviewSelectedApp(application),
+                                  },
+                                ]
+                              : []),
+                            ...(application?.assessments?.length &&
+                            assessmentWriteAccess
                               ? [
                                   {
                                     title: t("actions.discardAssessment"),
@@ -1002,7 +1032,7 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            ...(application?.review
+                            ...(application?.review && reviewsWriteAccess
                               ? [
                                   {
                                     title: t("actions.discardReview"),
@@ -1011,32 +1041,52 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            {
-                              title: t("actions.delete"),
-                              onClick: () =>
-                                setApplicationsToDelete([application]),
-                              isDisabled: application.migrationWave !== null,
-                            },
-                            {
-                              title: t("actions.manageDependencies"),
-                              onClick: () =>
-                                setApplicationDependenciesToManage(application),
-                            },
-                            {
-                              title: t("actions.manageCredentials"),
-                              onClick: () =>
-                                setSaveApplicationsCredentialsModalState([
-                                  application,
-                                ]),
-                            },
-                            {
-                              title: t("actions.analysisDetails"),
-                              onClick: () =>
-                                setTaskToView({
-                                  name: application.name,
-                                  task: getTask(application)?.id,
-                                }),
-                            },
+                            ...(applicationWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.delete"),
+                                    onClick: () =>
+                                      setApplicationsToDelete([application]),
+                                    isDisabled:
+                                      application.migrationWave !== null,
+                                  },
+                                ]
+                              : []),
+                            ...(dependenciesWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.manageDependencies"),
+                                    onClick: () =>
+                                      setApplicationDependenciesToManage(
+                                        application
+                                      ),
+                                  },
+                                ]
+                              : []),
+
+                            ...(credentialsWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.manageCredentials"),
+                                    onClick: () =>
+                                      setSaveApplicationsCredentialsModalState([
+                                        application,
+                                      ]),
+                                  },
+                                ]
+                              : []),
+                            ...(analysisReadAccess
+                              ? [
+                                  {
+                                    title: t("actions.analysisDetails"),
+                                    onClick: () =>
+                                      setTaskToView({
+                                        name: application.name,
+                                        task: getTask(application)?.id,
+                                      }),
+                                  },
+                                ]
+                              : []),
                             ...(isTaskCancellable(application) &&
                             tasksReadAccess &&
                             tasksWriteAccess
