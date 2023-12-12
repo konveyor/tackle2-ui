@@ -87,7 +87,7 @@ const aggregateRiskData = (
     red: high,
     unknown,
     unassessed,
-    applicationsCount: processedAppIds.size,
+    applicationsCount: applications.length,
   };
 };
 
