@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  AnalysisAppDependency,
   AnalysisDependency,
   HubPaginatedResult,
   HubRequestParams,
@@ -12,46 +11,36 @@ import { useWithUiId } from "@app/utils/query-utils";
 export const DependenciesQueryKey = "dependencies";
 export const AppDependenciesQueryKey = "appDependencies";
 
-export interface IFetchDependenciesState {
-  result: HubPaginatedResult<WithUiId<AnalysisDependency>>;
-  isFetching: boolean;
-  fetchError: unknown;
-  refetch: () => void;
-}
-
-export const useFetchDependencies = (
-  params: HubRequestParams = {}
-): IFetchDependenciesState => {
-  const { data, isLoading, error, refetch } = useQuery({
+export const useFetchDependencies = (params: HubRequestParams = {}) => {
+  const {
+    data: dependencies,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: [DependenciesQueryKey, params],
     queryFn: async () => await getDependencies(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
   });
 
-  const withUiId = useWithUiId(data?.data, (d) => `${d.name}/${d.provider}`);
+  const withUiId = useWithUiId(
+    dependencies?.data,
+    (d) => `${d.name}/${d.provider}`
+  );
   return {
     result: {
       data: withUiId,
-      total: data?.total ?? 0,
-      params: data?.params ?? params,
-    },
+      total: dependencies?.total ?? 0,
+      params: dependencies?.params ?? params,
+    } as HubPaginatedResult<WithUiId<AnalysisDependency>>,
     isFetching: isLoading,
     fetchError: error,
     refetch,
   };
 };
 
-export interface IFetchAppDependenciesState {
-  result: HubPaginatedResult<AnalysisAppDependency>;
-  isFetching: boolean;
-  fetchError: unknown;
-  refetch: () => void;
-}
-
-export const useFetchAppDependencies = (
-  params: HubRequestParams = {}
-): IFetchAppDependenciesState => {
+export const useFetchAppDependencies = (params: HubRequestParams = {}) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [AppDependenciesQueryKey, params],
     queryFn: async () => await getAppDependencies(params),
