@@ -34,6 +34,7 @@ import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { matchItemsToRefs } from "@app/utils/model-utils";
+import { useRef } from "react";
 
 const stakeholderGroupToOption = (
   value: StakeholderGroup
@@ -280,6 +281,8 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
     matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
 
+  const dateRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <Grid hasGutter>
@@ -292,28 +295,30 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           />
         </GridItem>
         <GridItem span={3}>
-          <HookFormPFGroupController
-            control={control}
-            name="startDateStr"
-            label="Potential Start Date"
-            fieldId="startDateStr"
-            isRequired
-            renderInput={({ field: { value, name, onChange } }) => (
-              <DatePicker
-                aria-label={name}
-                onChange={(e, val) => {
-                  onChange(val);
-                  trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
-                }}
-                placeholder="MM/DD/YYYY"
-                value={value}
-                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                dateParse={(val) => dayjs(val).toDate()}
-                validators={[startDateRangeValidator]}
-                appendTo={() => document.body}
-              />
-            )}
-          />
+          <div ref={dateRef}>
+            <HookFormPFGroupController
+              control={control}
+              name="startDateStr"
+              label="Potential Start Date"
+              fieldId="startDateStr"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <DatePicker
+                  aria-label={name}
+                  onChange={(e, val) => {
+                    onChange(val);
+                    trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
+                  }}
+                  placeholder="MM/DD/YYYY"
+                  value={value}
+                  dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                  dateParse={(val) => dayjs(val).toDate()}
+                  validators={[startDateRangeValidator]}
+                  appendTo={() => dateRef.current || document.body}
+                />
+              )}
+            />
+          </div>
         </GridItem>
         <GridItem
           span={1}
