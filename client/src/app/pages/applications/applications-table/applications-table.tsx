@@ -1015,6 +1015,7 @@ export const ApplicationsTable: React.FC = () => {
                               title: t("actions.delete"),
                               onClick: () =>
                                 setApplicationsToDelete([application]),
+                              isDisabled: application.migrationWave !== null,
                             },
                             {
                               title: t("actions.manageDependencies"),
