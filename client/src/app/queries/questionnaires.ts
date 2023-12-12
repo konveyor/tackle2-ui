@@ -160,6 +160,7 @@ export const downloadQuestionnaire = async (
     delete yamlData.updateUser;
     delete yamlData.createTime;
     delete yamlData.id;
+    delete yamlData.required;
 
     const newYamlData = yaml.dump(yamlData);
 
