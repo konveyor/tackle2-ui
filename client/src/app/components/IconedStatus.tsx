@@ -111,7 +111,6 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     },
   };
   const presetProps = preset && presets[preset];
-  console.log("presetProps", presetProps);
   const IconWithOptionalTooltip: React.FC<{ children: React.ReactElement }> = ({
     children,
   }) =>
