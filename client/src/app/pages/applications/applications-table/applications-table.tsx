@@ -44,7 +44,6 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { IconedStatus } from "@app/components/IconedStatus";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -116,6 +115,7 @@ import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer"
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -870,17 +870,12 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
-                const isAppReviewed = !!application.review;
                 const applicationArchetypes = application.archetypes?.map(
                   (archetypeRef) => {
                     return archetypes.find(
                       (archetype) => archetype.id === archetypeRef.id
                     );
                   }
-                );
-
-                const hasReviewedArchetype = applicationArchetypes?.some(
-                  (archetype) => !!archetype?.review
                 );
 
                 const hasAssessedArchetype = applicationArchetypes?.some(
@@ -943,7 +938,12 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <Flex alignItems={{ default: "alignItemsCenter" }}>
+                        <ApplicationReviewStatus
+                          application={application}
+                          archetypes={archetypes}
+                        />
+
+                        {/* <Flex alignItems={{ default: "alignItemsCenter" }}>
                           <FlexItem>
                             <IconedStatus
                               preset={
@@ -963,7 +963,7 @@ export const ApplicationsTable: React.FC = () => {
                               </ConditionalTooltip>
                             ) : null}
                           </FlexItem>
-                        </Flex>
+                        </Flex> */}
                       </Td>
                       <Td
                         width={10}
