@@ -45,7 +45,8 @@ export const SSOMenu: React.FC = () => {
                 id="sso-actions-toggle"
                 onClick={() => onDropdownToggle(!isDropdownOpen)}
               >
-                {(keycloak?.idTokenParsed as any)["preferred_username"]}
+                {(keycloak?.idTokenParsed as any)?.["preferred_username"] ??
+                  "DefaultUsername"}
               </MenuToggle>
             )}
           >
@@ -63,8 +64,6 @@ export const SSOMenu: React.FC = () => {
                   id="logout"
                   key="sso_logout"
                   onClick={() => {
-                    // Clears selected persona from storage without updating it in React state so we don't re-render the persona selector while logging out.
-                    // We have to clear it before logout because the redirect can happen before the logout promise resolves.
                     window.localStorage.removeItem(
                       LocalStorageKey.selectedPersona
                     );
