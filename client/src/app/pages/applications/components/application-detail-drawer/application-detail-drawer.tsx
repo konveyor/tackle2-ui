@@ -20,9 +20,17 @@ import {
   DescriptionListTerm,
   Divider,
   Tooltip,
+  Label,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Application, Identity, Task, MimeType, Ref } from "@app/api/models";
+import {
+  Application,
+  Identity,
+  Task,
+  MimeType,
+  Ref,
+  Archetype,
+} from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -46,10 +54,9 @@ import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclam
 import { ApplicationFacts } from "./application-facts";
 import { ReviewFields } from "./review-fields";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
-import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
-import { AssessedArchetypeItem } from "./assessed-archetype-item";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -78,7 +85,9 @@ export const ApplicationDetailDrawer: React.FC<
   const isTaskRunning = task?.state === "Running";
 
   const { identities } = useFetchIdentities();
+  const { archetypes } = useFetchArchetypes();
   const { facts, isFetching } = useFetchFacts(application?.id);
+
   const [taskIdToView, setTaskIdToView] = React.useState<number>();
 
   let matchingSourceCredsRef: Identity | undefined;
@@ -91,6 +100,22 @@ export const ApplicationDetailDrawer: React.FC<
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
   const enableDownloadSetting = useSetting("download.html.enabled");
+
+  const assessedArchetypes =
+    application?.archetypes
+      ?.map((archetypeRef) =>
+        archetypes.find((archetype) => archetype.id === archetypeRef.id)
+      )
+      .filter((fullArchetype) => fullArchetype?.assessed)
+      .filter(Boolean) || [];
+
+  const reviewedArchetypes =
+    application?.archetypes
+      ?.map((archetypeRef) =>
+        archetypes.find((archetype) => archetype.id === archetypeRef.id)
+      )
+      .filter((fullArchetype) => fullArchetype?.review)
+      .filter(Boolean) || [];
 
   return (
     <PageDrawerContent
@@ -186,11 +211,11 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      application?.archetypes?.map((archetypeRef) => (
-                        <AssessedArchetypeItem
-                          key={archetypeRef.id}
-                          id={archetypeRef.id}
+                    {assessedArchetypes?.length ? (
+                      assessedArchetypes.map((assessedArchetype) => (
+                        <ArchetypeItem
+                          key={assessedArchetype?.id}
+                          archetype={assessedArchetype}
                         />
                       ))
                     ) : (
@@ -198,16 +223,17 @@ export const ApplicationDetailDrawer: React.FC<
                     )}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
+
                 <DescriptionListGroup>
                   <DescriptionListTerm>
                     {t("terms.archetypesReviewed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      application?.archetypes?.map((archetypeRef) => (
-                        <ReviewedArchetypeItem
-                          key={archetypeRef.id}
-                          id={archetypeRef.id}
+                    {reviewedArchetypes?.length ? (
+                      reviewedArchetypes.map((reviewedArchetype) => (
+                        <ArchetypeItem
+                          key={reviewedArchetype?.id}
+                          archetype={reviewedArchetype}
                         />
                       ))
                     ) : (
@@ -426,3 +452,7 @@ export const ApplicationDetailDrawer: React.FC<
 const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
   archetypeRefs,
 }) => <LabelsFromItems items={archetypeRefs} />;
+
+const ArchetypeItem: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
+  return <Label color="grey">{archetype.name}</Label>;
+};
