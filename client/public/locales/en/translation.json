@@ -186,6 +186,8 @@
     "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",
     "inheritedReviewTooltip_singular": "This application is inheriting a review from an archetype.",
     "inheritedReviewTooltip_plural": "This application is inheriting reviews from {{count}} archetypes.",
+    "inheritedAssessmentTooltip_singular": "This application is inheriting an assessment from an archetype.",
+    "inheritedAssessmentTooltip_plural": "This application is inheriting assessments from {{count}} archetypes.",
     "jiraInstanceNotConnected": "Jira instance {{name}} is not connected.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
     "noDataAvailableBody": "No data available to be shown here.",

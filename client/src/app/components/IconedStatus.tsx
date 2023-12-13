@@ -9,7 +9,8 @@ import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import QuestionCircleIcon from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 
 export type IconedStatusPreset =
-  | "Inherited"
+  | "InheritedReviews"
+  | "InheritedAssessments"
   | "Canceled"
   | "Completed"
   | "Error"
@@ -51,11 +52,19 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
 }: IIconedStatusProps) => {
   const { t } = useTranslation();
   const presets: IconedStatusPresetType = {
-    Inherited: {
+    InheritedReviews: {
       icon: <QuestionCircleIcon />,
       status: "info",
       label: t("terms.inherited"),
       tooltipMessage: t("message.inheritedReviewTooltip", {
+        count: tooltipCount,
+      }),
+    },
+    InheritedAssessments: {
+      icon: <QuestionCircleIcon />,
+      status: "info",
+      label: t("terms.inherited"),
+      tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
     },
@@ -102,7 +111,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     },
   };
   const presetProps = preset && presets[preset];
-
+  console.log("presetProps", presetProps);
   const IconWithOptionalTooltip: React.FC<{ children: React.ReactElement }> = ({
     children,
   }) =>

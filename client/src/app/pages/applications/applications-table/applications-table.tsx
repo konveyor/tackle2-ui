@@ -17,8 +17,6 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
-  Flex,
-  FlexItem,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
@@ -30,7 +28,6 @@ import {
   ActionsColumn,
   Tbody,
 } from "@patternfly/react-table";
-import { QuestionCircleIcon } from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 
 // @app components and utilities
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -107,7 +104,6 @@ import {
   getTaskById,
 } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useState } from "react";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
@@ -220,8 +216,6 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
-
-  const { archetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -870,18 +864,6 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
-                const applicationArchetypes = application.archetypes?.map(
-                  (archetypeRef) => {
-                    return archetypes.find(
-                      (archetype) => archetype.id === archetypeRef.id
-                    );
-                  }
-                );
-
-                const hasAssessedArchetype = applicationArchetypes?.some(
-                  (archetype) => !!archetype?.assessments?.length
-                );
-
                 return (
                   <Tr
                     key={application.name}
@@ -915,23 +897,10 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
-                        <Flex alignItems={{ default: "alignItemsCenter" }}>
-                          <FlexItem>
-                            <ApplicationAssessmentStatus
-                              application={application}
-                            />
-                          </FlexItem>
-                          <FlexItem>
-                            {hasAssessedArchetype ? (
-                              <ConditionalTooltip
-                                isTooltipEnabled={hasAssessedArchetype || false}
-                                content={t("message.archetypeAlreadyAssessed")}
-                              >
-                                <QuestionCircleIcon />
-                              </ConditionalTooltip>
-                            ) : null}
-                          </FlexItem>
-                        </Flex>
+                        <ApplicationAssessmentStatus
+                          application={application}
+                          key={`${application?.id}-assessment-status`}
+                        />
                       </Td>
                       <Td
                         width={15}
@@ -940,30 +909,8 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationReviewStatus
                           application={application}
-                          archetypes={archetypes}
+                          key={`${application?.id}-review-status`}
                         />
-
-                        {/* <Flex alignItems={{ default: "alignItemsCenter" }}>
-                          <FlexItem>
-                            <IconedStatus
-                              preset={
-                                isAppReviewed || hasReviewedArchetype
-                                  ? "Completed"
-                                  : "NotStarted"
-                              }
-                            />
-                          </FlexItem>
-                          <FlexItem>
-                            {hasReviewedArchetype ? (
-                              <ConditionalTooltip
-                                isTooltipEnabled={hasReviewedArchetype || false}
-                                content={t("message.archetypeAlreadyReviewed")}
-                              >
-                                <QuestionCircleIcon />
-                              </ConditionalTooltip>
-                            ) : null}
-                          </FlexItem>
-                        </Flex> */}
                       </Td>
                       <Td
                         width={10}

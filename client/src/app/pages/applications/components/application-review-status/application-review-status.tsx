@@ -1,20 +1,22 @@
 import React from "react";
-import { Application, Archetype } from "@app/api/models";
+import { Application } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
 import { Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useTranslation } from "react-i18next";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export interface ApplicationReviewStatusProps {
   application: Application;
-  archetypes?: Archetype[];
   isLoading?: boolean;
 }
 
 export const ApplicationReviewStatus: React.FC<
   ApplicationReviewStatusProps
-> = ({ application, archetypes, isLoading = false }) => {
+> = ({ application }) => {
   const { t } = useTranslation();
+
+  const { archetypes, isFetching } = useFetchArchetypes();
   const isAppReviewed = !!application.review;
 
   const applicationArchetypes = application.archetypes?.map((archetypeRef) => {
@@ -25,20 +27,20 @@ export const ApplicationReviewStatus: React.FC<
     applicationArchetypes?.filter((archetype) => !!archetype?.review).length ||
     0;
 
+  if (isFetching) {
+    return <Spinner size="md" />;
+  }
+
   let statusPreset: IconedStatusPreset;
   let tooltipCount = 0;
 
   if (isAppReviewed) {
     statusPreset = "Completed";
   } else if (reviewedArchetypeCount > 0) {
-    statusPreset = "Inherited";
+    statusPreset = "InheritedReviews";
     tooltipCount = reviewedArchetypeCount;
   } else {
     statusPreset = "NotStarted";
-  }
-
-  if (isLoading) {
-    return <Spinner size="md" />;
   }
 
   if (!applicationArchetypes || applicationArchetypes.length === 0) {
