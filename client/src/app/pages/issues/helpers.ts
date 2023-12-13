@@ -3,6 +3,7 @@ import {
   AnalysisIssue,
   AnalysisIssueReport,
   AnalysisRuleReport,
+  Archetype,
 } from "@app/api/models";
 import {
   FilterCategory,
@@ -62,16 +63,30 @@ export const useSharedAffectedApplicationFilterCategories = <
         t("actions.filterBy", {
           what: t("terms.archetype").toLowerCase(),
         }) + "...",
-      selectOptions: archetypes.map(({ name }) => ({ key: name, value: name })),
-      getServerFilterValue: (selectedOptions) =>
-        selectedOptions
-          ?.map((option) => archetypes.find((item) => item.name === option))
+      selectOptions: archetypes.map(({ name }) => ({
+        key: name,
+        value: name,
+      })),
+
+      getServerFilterValue: (selectedOptions) => {
+        const findArchetypeByName = (name: string) => {
+          return archetypes.find((item) => item.name === name);
+        };
+
+        const getApplicationIds = (archetype: Archetype) => {
+          return archetype.applications?.map((app) => String(app.id));
+        };
+
+        if (!selectedOptions) return ["-1"];
+
+        const archetypeIds = selectedOptions
+          .map((option) => findArchetypeByName(option))
           .filter(Boolean)
-          .flatMap(
-            ({ applications }) =>
-              applications?.map(({ id }) => String(id)) ?? []
-          )
-          .filter(Boolean),
+          .flatMap((archetype) => getApplicationIds(archetype))
+          .filter(Boolean);
+
+        return archetypeIds.length === 0 ? ["-1"] : archetypeIds;
+      },
     },
     {
       key: "businessService.name",
