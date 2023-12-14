@@ -59,6 +59,13 @@ import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
+import {
+  assessmentWriteScopes,
+  reviewsWriteScopes,
+  archetypesWriteScopes,
+} from "@app/rbac";
+import { checkAccess } from "@app/utils/rbac-utils";
+import keycloak from "@app/keycloak";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -272,6 +279,12 @@ const Archetypes: React.FC = () => {
     }
   };
 
+  const token = keycloak.tokenParsed;
+  const userScopes: string[] = token?.scope.split(" ") || [],
+    archetypeWriteAccess = checkAccess(userScopes, archetypesWriteScopes),
+    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
+    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -367,26 +380,44 @@ const Archetypes: React.FC = () => {
                         <Td isActionCell>
                           <ActionsColumn
                             items={[
-                              {
-                                title: t("actions.duplicate"),
-                                onClick: () =>
-                                  setArchetypeToDuplicate(archetype),
-                              },
-                              {
-                                title: t("actions.assess"),
-                                onClick: () =>
-                                  assessSelectedArchetype(archetype),
-                              },
-                              {
-                                title: t("actions.review"),
-                                onClick: () =>
-                                  reviewSelectedArchetype(archetype),
-                              },
-                              {
-                                title: t("actions.edit"),
-                                onClick: () => setArchetypeToEdit(archetype),
-                              },
-                              ...(archetype?.assessments?.length
+                              ...(archetypeWriteAccess
+                                ? [
+                                    {
+                                      title: t("actions.duplicate"),
+                                      onClick: () =>
+                                        setArchetypeToDuplicate(archetype),
+                                    },
+                                  ]
+                                : []),
+                              ...(assessmentWriteAccess
+                                ? [
+                                    {
+                                      title: t("actions.assess"),
+                                      onClick: () =>
+                                        assessSelectedArchetype(archetype),
+                                    },
+                                  ]
+                                : []),
+                              ...(reviewsWriteAccess
+                                ? [
+                                    {
+                                      title: t("actions.review"),
+                                      onClick: () =>
+                                        reviewSelectedArchetype(archetype),
+                                    },
+                                  ]
+                                : []),
+                              ...(archetypeWriteAccess
+                                ? [
+                                    {
+                                      title: t("actions.edit"),
+                                      onClick: () =>
+                                        setArchetypeToEdit(archetype),
+                                    },
+                                  ]
+                                : []),
+                              ...(archetype?.assessments?.length &&
+                              assessmentWriteAccess
                                 ? [
                                     {
                                       title: t("actions.discardAssessment"),
@@ -395,7 +426,7 @@ const Archetypes: React.FC = () => {
                                     },
                                   ]
                                 : []),
-                              ...(archetype?.review
+                              ...(archetype?.review && reviewsWriteAccess
                                 ? [
                                     {
                                       title: t("actions.discardReview"),
@@ -405,11 +436,16 @@ const Archetypes: React.FC = () => {
                                   ]
                                 : []),
                               { isSeparator: true },
-                              {
-                                title: t("actions.delete"),
-                                onClick: () => setArchetypeToDelete(archetype),
-                                isDanger: true,
-                              },
+                              ...(archetypeWriteAccess
+                                ? [
+                                    {
+                                      title: t("actions.delete"),
+                                      onClick: () =>
+                                        setArchetypeToDelete(archetype),
+                                      isDanger: true,
+                                    },
+                                  ]
+                                : []),
                             ]}
                           />
                         </Td>
