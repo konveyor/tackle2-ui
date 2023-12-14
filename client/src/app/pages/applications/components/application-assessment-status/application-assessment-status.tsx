@@ -1,50 +1,65 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Spinner } from "@patternfly/react-core";
-
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Application } from "@app/api/models";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
 import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
-
-export interface ApplicationAssessmentStatusProps {
+import { useFetchArchetypes } from "@app/queries/archetypes";
+interface ApplicationAssessmentStatusProps {
   application: Application;
   isLoading?: boolean;
 }
 
 export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
-> = ({ application, isLoading = false }) => {
+> = ({ application }) => {
   const { t } = useTranslation();
+
+  const { archetypes, isFetching } = useFetchArchetypes();
+
+  const applicationArchetypes = application.archetypes?.map((archetypeRef) => {
+    return archetypes?.find((archetype) => archetype.id === archetypeRef.id);
+  });
+
+  const hasAssessedArchetype = applicationArchetypes?.some(
+    (archetype) => !!archetype?.assessments?.length ?? 0 > 0
+  );
 
   const {
     assessments,
     isFetching: isFetchingAssessmentsById,
     fetchError,
   } = useFetchAssessmentsByItemId(false, application.id);
-  const { questionnaires } = useFetchQuestionnaires();
-  const requiredQuestionnaireExists = questionnaires?.some(
-    (q) => q.required === true
-  );
-  //NOTE: Application.assessed is true if an app is assigned to an archetype and no required questionnaires exist
-  if (application?.assessed && requiredQuestionnaireExists) {
-    return <IconedStatus preset="Completed" />;
-  }
 
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;
   }
 
-  if (isLoading || isFetchingAssessmentsById) {
+  if (isFetching || isFetchingAssessmentsById) {
     return <Spinner size="md" />;
   }
 
-  if (
-    assessments?.some((a) => a.status === "started" || a.status === "complete")
+  let statusPreset: IconedStatusPreset = "NotStarted"; // Default status
+  let tooltipCount: number = 0;
+  const isDirectlyAssessed =
+    application.assessed && (application.assessments?.length ?? 0) > 0;
+  if (isDirectlyAssessed) {
+    statusPreset = "Completed";
+  } else if (hasAssessedArchetype) {
+    statusPreset = "InheritedAssessments";
+    const assessedArchetypeCount =
+      applicationArchetypes?.filter(
+        (archetype) => archetype?.assessments?.length ?? 0 > 0
+      ).length || 0;
+    tooltipCount = assessedArchetypeCount;
+  } else if (
+    assessments?.some(
+      (assessment) =>
+        assessment.status === "started" || assessment.status === "complete"
+    )
   ) {
-    return <IconedStatus preset="InProgress" />;
+    statusPreset = "InProgress";
   }
-
-  return <IconedStatus preset="NotStarted" />;
+  return <IconedStatus preset={statusPreset} tooltipCount={tooltipCount} />;
 };

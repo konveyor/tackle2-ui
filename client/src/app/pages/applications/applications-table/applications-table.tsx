@@ -17,8 +17,6 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
-  Flex,
-  FlexItem,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
@@ -30,7 +28,6 @@ import {
   ActionsColumn,
   Tbody,
 } from "@patternfly/react-table";
-import { QuestionCircleIcon } from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 
 // @app components and utilities
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -44,7 +41,6 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { IconedStatus } from "@app/components/IconedStatus";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -108,7 +104,6 @@ import {
   getTaskById,
 } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useState } from "react";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
@@ -116,6 +111,7 @@ import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer"
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
+import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -220,8 +216,6 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications();
-
-  const { archetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -870,23 +864,6 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
-                const isAppReviewed = !!application.review;
-                const applicationArchetypes = application.archetypes?.map(
-                  (archetypeRef) => {
-                    return archetypes.find(
-                      (archetype) => archetype.id === archetypeRef.id
-                    );
-                  }
-                );
-
-                const hasReviewedArchetype = applicationArchetypes?.some(
-                  (archetype) => !!archetype?.review
-                );
-
-                const hasAssessedArchetype = applicationArchetypes?.some(
-                  (archetype) => !!archetype?.assessments?.length
-                );
-
                 return (
                   <Tr
                     key={application.name}
@@ -920,50 +897,20 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
-                        <Flex alignItems={{ default: "alignItemsCenter" }}>
-                          <FlexItem>
-                            <ApplicationAssessmentStatus
-                              application={application}
-                            />
-                          </FlexItem>
-                          <FlexItem>
-                            {hasAssessedArchetype ? (
-                              <ConditionalTooltip
-                                isTooltipEnabled={hasAssessedArchetype || false}
-                                content={t("message.archetypeAlreadyAssessed")}
-                              >
-                                <QuestionCircleIcon />
-                              </ConditionalTooltip>
-                            ) : null}
-                          </FlexItem>
-                        </Flex>
+                        <ApplicationAssessmentStatus
+                          application={application}
+                          key={`${application?.id}-assessment-status`}
+                        />
                       </Td>
                       <Td
                         width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <Flex alignItems={{ default: "alignItemsCenter" }}>
-                          <FlexItem>
-                            <IconedStatus
-                              preset={
-                                isAppReviewed || hasReviewedArchetype
-                                  ? "Completed"
-                                  : "NotStarted"
-                              }
-                            />
-                          </FlexItem>
-                          <FlexItem>
-                            {hasReviewedArchetype ? (
-                              <ConditionalTooltip
-                                isTooltipEnabled={hasReviewedArchetype || false}
-                                content={t("message.archetypeAlreadyReviewed")}
-                              >
-                                <QuestionCircleIcon />
-                              </ConditionalTooltip>
-                            ) : null}
-                          </FlexItem>
-                        </Flex>
+                        <ApplicationReviewStatus
+                          application={application}
+                          key={`${application?.id}-review-status`}
+                        />
                       </Td>
                       <Td
                         width={10}
