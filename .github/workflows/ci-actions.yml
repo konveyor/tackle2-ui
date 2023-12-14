@@ -4,26 +4,27 @@ on:
   push:
     branches:
       - main
-      - "v[0-9]+.[0-9]+.[0-9]+"
       - "release-*"
   pull_request:
     branches:
       - main
-      - "v[0-9]+.[0-9]+.[0-9]+"
       - "release-*"
 
 jobs:
   unit-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Note: This should match the node version(s) used in the base Dockerfile
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v4
 
-      # Note: This should match the node version used in the base Dockerfile
-      - name: Use Node.js 18.x
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: ${{ matrix.node-version }}
 
       - name: Verify package-lock.json
         run: ./scripts/verify_lock.mjs
