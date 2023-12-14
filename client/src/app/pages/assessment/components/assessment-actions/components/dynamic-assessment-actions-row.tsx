@@ -189,6 +189,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             assessmentId: assessment.id,
             applicationName: application?.name,
             applicationId: application?.id,
+            archetypeName: archetype?.name,
             archetypeId: archetype?.id,
           }).then(() => {
             createAssessment();
@@ -262,6 +263,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 assessmentId: assessment.id,
                 applicationName: application?.name,
                 applicationId: application?.id,
+                archetypeName: archetype?.name,
                 archetypeId: archetype?.id,
               });
             }}
