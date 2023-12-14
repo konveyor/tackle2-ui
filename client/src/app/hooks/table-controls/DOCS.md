@@ -514,7 +514,9 @@ Table columns are identified by unique keys which are statically inferred from t
 
 #### Item IDs
 
-Item objects must contain some unique identifier which is either a string or number. The property key of this identifier is a required config argument called `idProperty`, which will usually be `"id"`. If no unique identifier is present in the API data, an artificial one can be injected before passing the data into these hooks, which can be done in the useQuery `select` callback (see instances where we have used `"_ui_unique_id"`). Any state which keeps track of something by item (i.e. by row) makes use of `item[idProperty]` as an identifier. Examples of this include selected rows, expanded rows and active rows. Valid `idProperty` values are also enforced by TypeScript generics; if an `idProperty` is provided that is not a property on the `TItem` type, you should get a type error.
+Item objects must contain some unique identifier which is either a string or number. The property key of this identifier is a required config argument called `idProperty`, which will usually be `"id"`. If no unique identifier is present in the API data, an artificial one can be injected before passing the data into these hooks. This can be done in the useQuery `select` callback (see instances where we have used `"_ui_unique_id"`). Another option is to use the query hook `useWithUiId()` on the react-query fetched data. Since `select` modified data is not part of the query cache, it does not matter if transforms are done in react-query, `useWithUiId` hook, or other means.
+
+Any state which keeps track of something by item (i.e. by row) makes use of `item[idProperty]` as an identifier. Examples of this include selected rows, expanded rows and active rows. Valid `idProperty` values are also enforced by TypeScript generics. If an `idProperty` is provided that is not a property on the `TItem` type, you should get a type error.
 
 > ⚠️ TECH DEBT NOTE: Things specific to `useQuery` and `_ui_unique_id` here are Konveyor-specific notes that should be removed after moving this to table-batteries.
 

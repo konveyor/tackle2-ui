@@ -33,7 +33,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
@@ -226,7 +226,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "_ui_unique_id",
+    idProperty: UI_UNIQUE_ID,
     currentPageItems: currentPageReports,
     totalItemCount: totalReportCount,
     isLoading,

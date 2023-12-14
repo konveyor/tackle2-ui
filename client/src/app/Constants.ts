@@ -24,6 +24,12 @@ export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
 
 export const DEFAULT_SELECT_MAX_HEIGHT = 200;
 
+/**
+ * The name of the client generated id field inserted in a object marked with mixin type
+ * `WithUiId`.
+ */
+export const UI_UNIQUE_ID = "_ui_unique_id";
+
 // Colors
 
 // t('colors.red')

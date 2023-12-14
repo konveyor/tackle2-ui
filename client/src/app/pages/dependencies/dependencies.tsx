@@ -18,7 +18,7 @@ import {
   useTableControlProps,
   getHubRequestParams,
 } from "@app/hooks/table-controls";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -97,7 +97,7 @@ export const Dependencies: React.FC = () => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "_ui_unique_id",
+    idProperty: UI_UNIQUE_ID,
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,

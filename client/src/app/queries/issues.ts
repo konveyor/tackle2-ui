@@ -2,8 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import {
   AnalysisIssueReport,
   AnalysisRuleReport,
-  BaseAnalysisIssueReport,
-  BaseAnalysisRuleReport,
   HubPaginatedResult,
   HubRequestParams,
   WithUiId,
@@ -17,6 +15,7 @@ import {
   getIssueReports,
   getIssue,
 } from "@app/api/rest";
+import { useWithUiId } from "@app/utils/query-utils";
 
 export const RuleReportsQueryKey = "rulereports";
 export const AppReportsQueryKey = "appreports";
@@ -26,37 +25,33 @@ export const IssuesQueryKey = "issues";
 export const IssueQueryKey = "issue";
 export const IncidentsQueryKey = "incidents";
 
-const injectUiUniqueIds = <
-  T extends BaseAnalysisRuleReport | BaseAnalysisIssueReport,
->(
-  result: HubPaginatedResult<T>
-): HubPaginatedResult<WithUiId<T>> => {
-  // There is no single unique id property on some of the hub's composite report objects.
-  // We need to create one for table hooks to work.
-  const processedData = result.data.map(
-    (baseReport): WithUiId<T> => ({
-      ...baseReport,
-      _ui_unique_id: `${baseReport.ruleset}/${baseReport.rule}`,
-    })
-  );
-  return { ...result, data: processedData };
-};
-
 export const useFetchRuleReports = (
   enabled: boolean,
   params: HubRequestParams = {}
 ) => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const {
+    data: ruleReport,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: [RuleReportsQueryKey, params],
     queryFn: () => getRuleReports(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
-    select: (result): HubPaginatedResult<AnalysisRuleReport> =>
-      injectUiUniqueIds(result),
     enabled,
   });
+
+  const withUiId = useWithUiId(
+    ruleReport?.data,
+    (r) => `${r.ruleset}/${r.rule}`
+  );
   return {
-    result: data || { data: [], total: 0, params },
+    result: {
+      data: withUiId,
+      total: ruleReport?.total ?? 0,
+      params: ruleReport?.params ?? params,
+    } as HubPaginatedResult<WithUiId<AnalysisRuleReport>>,
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -82,17 +77,29 @@ export const useFetchIssueReports = (
   applicationId?: number,
   params: HubRequestParams = {}
 ) => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const {
+    data: issueReport,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     enabled: applicationId !== undefined,
     queryKey: [IssueReportsQueryKey, applicationId, params],
     queryFn: () => getIssueReports(applicationId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
-    select: (result): HubPaginatedResult<AnalysisIssueReport> =>
-      injectUiUniqueIds(result),
   });
+
+  const withUiId = useWithUiId(
+    issueReport?.data,
+    (r) => `${r.ruleset}/${r.rule}`
+  );
   return {
-    result: data || { data: [], total: 0, params },
+    result: {
+      data: withUiId,
+      total: issueReport?.total ?? 0,
+      params: issueReport?.params ?? params,
+    } as HubPaginatedResult<AnalysisIssueReport>,
     isFetching: isLoading,
     fetchError: error,
     refetch,

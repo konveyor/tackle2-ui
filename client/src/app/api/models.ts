@@ -578,8 +578,14 @@ export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
   files: number;
 }
 
-// After fetching from the hub, we inject a unique id composed of ruleset+rule for convenience
+/**
+ * Mark an object as having a unique client generated id field.  Use this type if
+ * an objects from hub does not have a single field with a unique key AND the object
+ * is to be used in a table.  Our table handlers assume a single field with a unique
+ * value across all objects in a set to properly handle row selections.
+ */
 export type WithUiId<T> = T & { _ui_unique_id: string };
+
 export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
 export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 
