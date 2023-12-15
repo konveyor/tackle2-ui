@@ -45,6 +45,7 @@ const QuestionsTable: React.FC<{
       section: "Section",
     },
     isExpansionEnabled: true,
+    isPaginationEnabled: false,
     expandableVariant: "single",
     forceNumRenderedColumns: isAllQuestionsTab ? 3 : 2, // columns+1 for expand control
   });
