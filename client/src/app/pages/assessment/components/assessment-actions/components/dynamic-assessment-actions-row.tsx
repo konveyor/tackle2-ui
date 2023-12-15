@@ -28,6 +28,7 @@ import {
 } from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 enum AssessmentAction {
   Take = "Take",
@@ -189,6 +190,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             assessmentId: assessment.id,
             applicationName: application?.name,
             applicationId: application?.id,
+            archetypeName: archetype?.name,
             archetypeId: archetype?.id,
           }).then(() => {
             createAssessment();
@@ -222,7 +224,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
               {action}
             </Button>
           ) : (
-            <Spinner role="status" size="md">
+            <Spinner role="status" size="md" className={spacing.mxLg}>
               <span className="sr-only">Loading...</span>
             </Spinner>
           )}
@@ -262,6 +264,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 assessmentId: assessment.id,
                 applicationName: application?.name,
                 applicationId: application?.id,
+                archetypeName: archetype?.name,
                 archetypeId: archetype?.id,
               });
             }}
