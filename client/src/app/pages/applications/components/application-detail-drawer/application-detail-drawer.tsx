@@ -189,7 +189,7 @@ export const ApplicationDetailDrawer: React.FC<
                 isCompact
                 columnModifier={{ default: "1Col" }}
                 horizontalTermWidthModifier={{
-                  default: "14ch",
+                  default: "15ch",
                 }}
               >
                 <DescriptionListGroup>
