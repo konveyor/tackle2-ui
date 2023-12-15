@@ -447,6 +447,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
             applicationId: assessment.application?.id,
+            archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
       } else {
@@ -455,6 +456,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
             applicationId: assessment.application?.id,
+            archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
       }

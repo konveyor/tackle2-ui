@@ -107,7 +107,7 @@ export const useUpdateAssessmentMutation = (
 };
 
 export const useDeleteAssessmentMutation = (
-  onSuccess?: (applicationName: string) => void,
+  onSuccess?: (name: string) => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -117,6 +117,7 @@ export const useDeleteAssessmentMutation = (
       assessmentId: number;
       applicationName?: string;
       applicationId?: number;
+      archetypeName?: string;
       archetypeId?: number;
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
@@ -138,7 +139,8 @@ export const useDeleteAssessmentMutation = (
       return deletedAssessment;
     },
     onSuccess: (_, args) => {
-      onSuccess && onSuccess(args?.applicationName || "Unknown");
+      onSuccess &&
+        onSuccess(args?.applicationName || args?.archetypeName || "Unknown");
     },
     onError: onError,
   });
