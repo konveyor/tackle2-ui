@@ -48,7 +48,7 @@ export const getLocalTableControlDerivedState = <
     items: sortedItems,
   });
   return {
-    totalItemCount: items.length,
+    totalItemCount: filteredItems.length,
     currentPageItems: isPaginationEnabled ? currentPageItems : sortedItems,
   };
 };
