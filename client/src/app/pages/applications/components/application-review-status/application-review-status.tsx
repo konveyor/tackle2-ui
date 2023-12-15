@@ -16,7 +16,7 @@ export const ApplicationReviewStatus: React.FC<
 > = ({ application }) => {
   const { t } = useTranslation();
 
-  const { archetypes, isFetching } = useFetchArchetypes();
+  const { archetypes, isFetching, error } = useFetchArchetypes();
   const isAppReviewed = !!application.review;
 
   const applicationArchetypes = application.archetypes?.map((archetypeRef) => {
@@ -26,6 +26,10 @@ export const ApplicationReviewStatus: React.FC<
   const reviewedArchetypeCount =
     applicationArchetypes?.filter((archetype) => !!archetype?.review).length ||
     0;
+
+  if (error) {
+    return <EmptyTextMessage message={t("terms.notAvailable")} />;
+  }
 
   if (isFetching) {
     return <Spinner size="md" />;
@@ -41,10 +45,6 @@ export const ApplicationReviewStatus: React.FC<
     tooltipCount = reviewedArchetypeCount;
   } else {
     statusPreset = "NotStarted";
-  }
-
-  if (!applicationArchetypes || applicationArchetypes.length === 0) {
-    return <EmptyTextMessage message={t("terms.notAvailable")} />;
   }
 
   return <IconedStatus preset={statusPreset} tooltipCount={tooltipCount} />;
