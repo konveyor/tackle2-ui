@@ -59,6 +59,7 @@ import {
   applicationsWriteScopes,
   assessmentReadScopes,
   assessmentWriteScopes,
+  credentialsReadScopes,
   credentialsWriteScopes,
   dependenciesWriteScopes,
   importsWriteScopes,
@@ -547,6 +548,7 @@ export const ApplicationsTable: React.FC = () => {
     assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
     analysisWriteAccess = checkAccess(userScopes, analysisWriteScopes),
     assessmentReadAccess = checkAccess(userScopes, assessmentReadScopes),
+    credentialsReadAccess = checkAccess(userScopes, credentialsReadScopes),
     credentialsWriteAccess = checkAccess(userScopes, credentialsWriteScopes),
     dependenciesWriteAccess = checkAccess(userScopes, dependenciesWriteScopes),
     analysisReadAccess = checkAccess(userScopes, analysisReadScopes),
@@ -578,6 +580,7 @@ export const ApplicationsTable: React.FC = () => {
         </DropdownItem>,
       ]
     : [];
+
   const applicationDropdownItems = applicationWriteAccess
     ? [
         <ConditionalTooltip
@@ -597,17 +600,22 @@ export const ApplicationsTable: React.FC = () => {
             {t("actions.delete")}
           </DropdownItem>
         </ConditionalTooltip>,
-        <DropdownItem
-          key="manage-applications-credentials"
-          isDisabled={selectedRows.length < 1}
-          onClick={() => {
-            setSaveApplicationsCredentialsModalState(selectedRows);
-          }}
-        >
-          {t("actions.manageCredentials")}
-        </DropdownItem>,
+        ...(credentialsReadAccess
+          ? [
+              <DropdownItem
+                key="manage-applications-credentials"
+                isDisabled={selectedRows.length < 1}
+                onClick={() => {
+                  setSaveApplicationsCredentialsModalState(selectedRows);
+                }}
+              >
+                {t("actions.manageCredentials")}
+              </DropdownItem>,
+            ]
+          : []),
       ]
     : [];
+
   const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
 
   const isAnalyzingAllowed = () => {
@@ -1011,7 +1019,7 @@ export const ApplicationsTable: React.FC = () => {
                                 ]
                               : []),
 
-                            ...(credentialsWriteAccess
+                            ...(credentialsReadAccess && applicationWriteAccess
                               ? [
                                   {
                                     title: t("actions.manageCredentials"),
