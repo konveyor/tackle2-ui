@@ -10,6 +10,7 @@ import {
   StackItem,
   Text,
   TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
 
 export interface IDonutProps {
@@ -31,6 +32,7 @@ export const Donut: React.FC<IDonutProps> = ({
   riskLabel,
   isAssessment,
   riskTitle,
+  riskDescription,
 }) => {
   const { t } = useTranslation();
 
@@ -63,6 +65,12 @@ export const Donut: React.FC<IDonutProps> = ({
       <StackItem style={{ width: "100%" }}>
         <TextContent className="pf-v5-u-text-align-center">
           <Text component="h3">{riskLabel}</Text>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {riskDescription}
+          </Text>
         </TextContent>
       </StackItem>
     </Stack>
