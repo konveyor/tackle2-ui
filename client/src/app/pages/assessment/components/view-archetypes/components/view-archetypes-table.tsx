@@ -24,6 +24,24 @@ const ViewArchetypesTable: React.FC<ViewArchetypesTableProps> = ({
   const archivedQuestionnaires = questionnaires.filter(
     (questionnaire) => !questionnaire.required
   );
+
+  const nonRequiredQuestionnaireIds = questionnaires
+    .filter((q) => !q.required)
+    .map((q) => q.id);
+
+  const relevantAssessmentIds = (archetype?.assessments || []).map((a) => a.id);
+
+  const filteredArchivedAssessments = assessments.filter(
+    (assessment) =>
+      nonRequiredQuestionnaireIds.includes(assessment.questionnaire.id) &&
+      relevantAssessmentIds.includes(assessment.id)
+  );
+  const filteredArchivedQuestionnaires = archivedQuestionnaires.filter(
+    (questionnaire) =>
+      filteredArchivedAssessments.some(
+        (assessment) => assessment.questionnaire.id === questionnaire.id
+      )
+  );
   return (
     <>
       <QuestionnairesTable
@@ -34,15 +52,16 @@ const ViewArchetypesTable: React.FC<ViewArchetypesTableProps> = ({
         isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
         tableName="Required questionnaires"
       />
-
-      <QuestionnairesTable
-        isReadonly
-        archetype={archetype}
-        questionnaires={archivedQuestionnaires}
-        assessments={assessments}
-        isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
-        tableName="Archived questionnaires"
-      />
+      {filteredArchivedAssessments.length === 0 ? null : (
+        <QuestionnairesTable
+          archetype={archetype}
+          isReadonly
+          questionnaires={filteredArchivedQuestionnaires}
+          assessments={filteredArchivedAssessments}
+          isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+          tableName="Archived questionnaires"
+        />
+      )}
     </>
   );
 };
