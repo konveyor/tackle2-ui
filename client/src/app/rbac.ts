@@ -104,6 +104,12 @@ export const applicationsWriteScopes = [
   "applications:delete",
 ];
 
+export const archetypesWriteScopes = [
+  "archetypes:put",
+  "archetypes:post",
+  "archetypes:delete",
+];
+
 export const analysisWriteScopes = [
   "applications.analysis:put",
   "applications.analysis:post",
