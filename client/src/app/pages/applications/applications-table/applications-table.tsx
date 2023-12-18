@@ -99,11 +99,7 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import {
-  getArchetypeById,
-  getAssessmentsByItemId,
-  getTaskById,
-} from "@app/api/rest";
+import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { useState } from "react";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
@@ -631,6 +627,7 @@ export const ApplicationsTable: React.FC = () => {
     if (candidateTasks.length === selectedRows.length) return true;
     return false;
   };
+
   const hasExistingAnalysis = selectedRows.some((app) =>
     tasks.some((task) => task.application?.id === app.id)
   );
@@ -872,6 +869,10 @@ export const ApplicationsTable: React.FC = () => {
           >
             <Tbody>
               {currentPageItems?.map((application, rowIndex) => {
+                const hasExistingAnalysis = tasks.some(
+                  (task) => task.application?.id === application.id
+                );
+
                 return (
                   <Tr
                     key={application.name}
@@ -1030,7 +1031,7 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            ...(analysisReadAccess
+                            ...(analysisReadAccess && hasExistingAnalysis
                               ? [
                                   {
                                     title: t("actions.analysisDetails"),
@@ -1111,9 +1112,8 @@ export const ApplicationsTable: React.FC = () => {
             onClose={() => setSaveApplicationModalState(null)}
           />
         </Modal>
-        <SimpleDocumentViewerModal<Task | string>
+        <SimpleDocumentViewerModal
           title={`Analysis details for ${taskToView?.name}`}
-          fetch={getTaskById}
           documentId={taskToView?.task}
           onClose={() => setTaskToView(undefined)}
         />

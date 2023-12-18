@@ -41,7 +41,6 @@ import {
 } from "@app/pages/issues/helpers";
 import { ApplicationTags } from "../application-tags";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
-import { getTaskById } from "@app/api/rest";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { useFetchFacts } from "@app/queries/facts";
@@ -425,9 +424,8 @@ export const ApplicationDetailDrawer: React.FC<
                   )}
                 </>
               )}
-              <SimpleDocumentViewerModal<Task | string>
+              <SimpleDocumentViewerModal
                 title={`Analysis details for ${application?.name}`}
-                fetch={getTaskById}
                 documentId={taskIdToView}
                 onClose={() => {
                   setTaskIdToView(undefined);

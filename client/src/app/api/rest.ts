@@ -322,21 +322,28 @@ export const getApplicationImports = (
     .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
 
-export function getTaskById(id: number, format: "json"): Promise<Task>;
-export function getTaskById(id: number, format: "yaml"): Promise<string>;
 export function getTaskById(
   id: number,
-  format: "json" | "yaml"
+  format: string,
+  merged: boolean = false
 ): Promise<Task | string> {
-  if (format === "yaml") {
-    return axios
-      .get<Task>(`${TASKS}/${id}`, yamlHeaders)
-      .then((response) => response.data);
-  } else {
-    return axios
-      .get<string>(`${TASKS}/${id}`, jsonHeaders)
-      .then((response) => response.data);
+  const headers =
+    format === "yaml" ? { ...yamlHeaders.headers } : { ...jsonHeaders.headers };
+  const responseType = format === "yaml" ? "text" : "json";
+
+  let url = `${TASKS}/${id}`;
+  if (merged) {
+    url += "?merged=1";
   }
+
+  return axios
+    .get(url, {
+      headers: headers,
+      responseType: responseType,
+    })
+    .then((response) => {
+      return response.data;
+    });
 }
 
 export const getTasks = () =>
