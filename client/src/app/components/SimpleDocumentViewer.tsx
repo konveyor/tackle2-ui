@@ -6,6 +6,7 @@ import {
 } from "@patternfly/react-code-editor";
 import {
   Button,
+  Checkbox,
   EmptyState,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -22,16 +23,9 @@ import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 import UndoIcon from "@patternfly/react-icons/dist/esm/icons/undo-icon";
 
 import "./SimpleDocumentViewer.css";
+import { useFetchTaskByID } from "@app/queries/tasks";
 
 export { Language } from "@patternfly/react-code-editor";
-
-interface FetchFunction<FetchType> {
-  /** Fetch a yaml document for the given document */
-  (documentId: number, format: Language.yaml): Promise<string>;
-
-  /** Fetch a JSON document as a `FetchType` object for the given document */
-  (documentId: number, format: Language.json): Promise<FetchType>;
-}
 
 /** The subset of MonacoEditor component functions we want to use. */
 type ControlledEditor = {
@@ -39,7 +33,7 @@ type ControlledEditor = {
   setPosition: (position: object) => void;
 };
 
-export interface ISimpleDocumentViewerProps<FetchType> {
+export interface ISimpleDocumentViewerProps {
   /** The id of the document to display, or `undefined` to display the empty state. */
   documentId: number | undefined;
 
@@ -57,45 +51,45 @@ export interface ISimpleDocumentViewerProps<FetchType> {
    * vertical space.  Defaults to "450px".
    */
   height?: string | "full";
-
-  /** Function that will fetch the document to display. */
-  fetch: FetchFunction<FetchType>;
 }
 
 /**
  * Fetch and then use the `@patternfly/react-code-editor` to display a document in
  * read-only mode with language highlighting applied.
  */
-export const SimpleDocumentViewer = <FetchType,>({
+export const SimpleDocumentViewer = ({
   documentId,
   downloadFilename,
   language = Language.yaml,
   height = "450px",
-  fetch,
-}: ISimpleDocumentViewerProps<FetchType>) => {
+}: ISimpleDocumentViewerProps) => {
   const editorRef = React.useRef<ControlledEditor>();
-
-  const [code, setCode] = React.useState<string | undefined>(undefined);
   const [currentLanguage, setCurrentLanguage] = React.useState(language);
+  const [code, setCode] = React.useState<string>();
+  const [merged, setMerged] = React.useState(false);
+
+  const { task, isFetching, fetchError, refetch } = useFetchTaskByID(
+    documentId,
+    currentLanguage === Language.yaml ? "yaml" : "json",
+    merged
+  );
+
+  const onMergedChange = (checked: boolean) => {
+    setMerged(checked);
+    refetch();
+  };
 
   React.useEffect(() => {
-    setCode(undefined);
-    documentId && fetchDocument(documentId);
-  }, [documentId, currentLanguage]);
+    if (task) {
+      const formattedCode =
+        currentLanguage === Language.yaml
+          ? task.toString()
+          : JSON.stringify(task, undefined, 2);
 
-  const fetchDocument = (documentId: number) => {
-    if (currentLanguage === Language.yaml) {
-      fetch(documentId, currentLanguage).then((yaml) => {
-        setCode(yaml.toString());
-        focusAndHomePosition();
-      });
-    } else {
-      fetch(documentId, currentLanguage).then((json) => {
-        setCode(JSON.stringify(json, undefined, 2));
-        focusAndHomePosition();
-      });
+      setCode(formattedCode);
+      focusAndHomePosition();
     }
-  };
+  }, [task, currentLanguage]);
 
   const focusAndHomePosition = () => {
     if (editorRef.current) {
@@ -103,13 +97,14 @@ export const SimpleDocumentViewer = <FetchType,>({
       editorRef.current.setPosition({ column: 0, lineNumber: 1 });
     }
   };
+
   const refreshControl = (
     <CodeEditorControl
       icon={<UndoIcon />}
       aria-label="refresh-task"
       tooltipProps={{ content: "Refresh" }}
       onClick={() => {
-        documentId && fetchDocument(documentId);
+        refetch();
       }}
       isVisible={code !== ""}
     />
@@ -147,6 +142,15 @@ export const SimpleDocumentViewer = <FetchType,>({
       }
       customControls={[
         refreshControl,
+        <Checkbox
+          className="merged-checkbox"
+          key="merged"
+          id="merged"
+          label="Merged"
+          isChecked={merged}
+          onChange={(e, checked) => onMergedChange(checked)}
+          aria-label="Merged Checkbox"
+        />,
         <div
           className={css(
             editorStyles.codeEditorTab,
@@ -193,8 +197,8 @@ export const SimpleDocumentViewer = <FetchType,>({
   );
 };
 
-export interface ISimpleDocumentViewerModalProps<FetchType>
-  extends ISimpleDocumentViewerProps<FetchType> {
+export interface ISimpleDocumentViewerModalProps
+  extends ISimpleDocumentViewerProps {
   /** Simple text content of the modal header. */
   title?: string;
 
@@ -220,14 +224,14 @@ export interface ISimpleDocumentViewerModalProps<FetchType>
  * displayed if the `documentId` is set.  If `documentId` is `undefined`, the modal is
  * closed.
  */
-export const SimpleDocumentViewerModal = <FetchType,>({
+export const SimpleDocumentViewerModal = ({
   title,
   documentId,
   onClose,
   position = "top",
   isFullHeight = true,
   ...rest
-}: ISimpleDocumentViewerModalProps<FetchType>) => {
+}: ISimpleDocumentViewerModalProps) => {
   const isOpen = documentId !== undefined;
 
   return (
@@ -248,7 +252,7 @@ export const SimpleDocumentViewerModal = <FetchType,>({
         </Button>,
       ]}
     >
-      <SimpleDocumentViewer<FetchType>
+      <SimpleDocumentViewer
         documentId={documentId}
         height={isFullHeight ? "full" : undefined}
         {...rest}
