@@ -365,7 +365,10 @@ const Archetypes: React.FC = () => {
                         <Td {...getTdProps({ columnKey: "name" })}>
                           {archetype.name}
                         </Td>
-                        <Td {...getTdProps({ columnKey: "description" })}>
+                        <Td
+                          {...getTdProps({ columnKey: "description" })}
+                          modifier="truncate"
+                        >
                           <ArchetypeDescriptionColumn archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "tags" })}>
