@@ -156,23 +156,25 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   };
 
   const takeAssessment = async () => {
-    if (!isArchetype && application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          createAssessment();
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-        }
-      }
-    } else {
+    try {
       createAssessment();
+    } catch (error) {
+      if (isArchetype) {
+        console.error(
+          `Error fetching archetype with ID ${archetype?.id}:`,
+          error
+        );
+      } else {
+        console.error(
+          `Error fetching application with ID ${application?.id}:`,
+          error
+        );
+      }
+
+      pushNotification({
+        title: t("terms.error"),
+        variant: "danger",
+      });
     }
   };
 
