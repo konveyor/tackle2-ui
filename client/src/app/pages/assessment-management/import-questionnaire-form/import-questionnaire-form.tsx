@@ -116,6 +116,12 @@ export const ImportQuestionnaireForm: React.FC<
           createQuestionnaire(questionnaireData);
         } else {
           console.error("Invalid JSON data.");
+          pushNotification({
+            title: "Failed",
+            message: "Invalid JSON data.",
+            variant: "danger",
+            timeout: 30000,
+          });
         }
       } catch (error) {
         pushNotification({
