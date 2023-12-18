@@ -3,7 +3,6 @@ import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  ButtonVariant,
   CodeBlock,
   CodeBlockCode,
   Modal,
@@ -22,22 +21,34 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { useHistory } from "react-router-dom";
 import { useFetchTickets } from "@app/queries/tickets";
-import { Paths } from "@app/Paths";
 import { TicketIssue } from "./ticket-issue";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import UnlinkIcon from "@patternfly/react-icons/dist/esm/icons/unlink-icon";
 
+type SetCellExpandedArgs = {
+  item: WaveWithStatus;
+  isExpanding?: boolean;
+  columnKey?:
+    | "stakeholders"
+    | "applications"
+    | "name"
+    | "startDate"
+    | "endDate"
+    | "status";
+};
+
 export interface IWaveStatusTableProps {
   migrationWave: WaveWithStatus;
   removeApplication: (migrationWave: MigrationWave, id: number) => void;
+  setCellExpanded: (args: SetCellExpandedArgs) => void;
 }
 
 export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   migrationWave,
   removeApplication,
+  setCellExpanded,
 }) => {
   const { t } = useTranslation();
   const [codeModalState, setCodeModalState] = useState<
@@ -113,24 +124,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         <ConditionalTableBody
           isNoData={migrationWave.applications.length === 0}
           numRenderedColumns={numRenderedColumns}
-          noDataEmptyState={
-            <div>
-              <NoDataEmptyState title="Create a tracker and/or add applications to the migration wave." />
-              <div className="pf-v5-u-text-align-center">
-                <Button
-                  type="button"
-                  id="create-tracker"
-                  aria-label="Create Tracker"
-                  variant={ButtonVariant.primary}
-                  onClick={() => {
-                    history.push(Paths.jira);
-                  }}
-                >
-                  Create Tracker
-                </Button>
-              </div>
-            </div>
-          }
         >
           <Tbody>
             {currentPageItems?.map((app, rowIndex) => {
@@ -181,7 +174,27 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                       <Button
                         type="button"
                         variant="plain"
-                        onClick={() => removeApplication(migrationWave, app.id)}
+                        onClick={() => {
+                          const updatedApplications =
+                            migrationWave.applications.filter(
+                              (application) => application.id !== app.id
+                            );
+
+                          const updatedMigrationWave = {
+                            ...migrationWave,
+                            applications: updatedApplications,
+                          };
+                          if (updatedApplications.length === 0) {
+                            removeApplication(migrationWave, app.id);
+                            setCellExpanded({
+                              item: updatedMigrationWave,
+                              isExpanding: false,
+                              columnKey: "status",
+                            });
+                          } else {
+                            removeApplication(migrationWave, app.id);
+                          }
+                        }}
                       >
                         <TrashIcon />
                       </Button>
