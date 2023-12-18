@@ -10,13 +10,14 @@ import {
 } from "@app/components/TableControls";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { Answer } from "@app/api/models";
-import { Label, Text } from "@patternfly/react-core";
+import { Label, Text, Tooltip } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IconedStatus } from "@app/components/IconedStatus";
 import { TimesCircleIcon } from "@patternfly/react-icons";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 import { List, ListItem } from "@patternfly/react-core";
 import RiskIcon from "../risk-icon/risk-icon";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 
 export interface IAnswerTableProps {
   answers: Answer[];
@@ -101,63 +102,74 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
           }
         >
           <Tbody>
-            {currentPageItems?.map((answer, rowIndex) => {
-              return (
-                <React.Fragment key={rowIndex}>
-                  <Tr key={answer.text} {...getTrProps({ item: answer })}>
-                    <TableRowContentWithControls
-                      {...tableControls}
-                      item={answer}
-                      rowIndex={rowIndex}
-                    >
-                      <Td width={40} {...getTdProps({ columnKey: "choice" })}>
-                        {answer.text}
-                      </Td>
-                      <Td width={20} {...getTdProps({ columnKey: "choice" })}>
-                        <RiskIcon risk={answer.risk} />
-                      </Td>
-                    </TableRowContentWithControls>
-                  </Tr>
-                  <Tr>
-                    {!!answer?.autoAnswerFor?.length && (
-                      <>
-                        <div style={{ display: "flex" }}>
-                          <Text
-                            className={spacing.mrSm}
-                            style={{ flex: "0 0 5em" }}
-                          >
-                            Auto answer if the following tags are present:
-                          </Text>
-                          {answer?.autoAnswerFor?.map((tag, index) => {
-                            return (
-                              <div key={index} style={{ flex: "0 0 6em" }}>
-                                <Label color="grey">{tag.tag}</Label>
+            {currentPageItems?.map((answer, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                <Tr {...getTrProps({ item: answer })}>
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={answer}
+                    rowIndex={rowIndex}
+                  >
+                    <Td width={40} {...getTdProps({ columnKey: "choice" })}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span>{answer.text}</span>
+                        {(!!answer?.autoAnswerFor?.length ||
+                          !!answer?.applyTags?.length) && (
+                          <Tooltip
+                            content={
+                              <div
+                                className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                                id="conditional-tooltip-content"
+                              >
+                                {!!answer?.autoAnswerFor?.length && (
+                                  <>
+                                    <Text>
+                                      {t("message.autoSelectTooltip")}
+                                    </Text>
+                                    <List isPlain>
+                                      {answer.autoAnswerFor.map(
+                                        (tag, index) => (
+                                          <ListItem key={index}>
+                                            <Label color="blue">
+                                              {tag.tag}
+                                            </Label>
+                                          </ListItem>
+                                        )
+                                      )}
+                                    </List>
+                                  </>
+                                )}
+                                {!!answer?.applyTags?.length && (
+                                  <>
+                                    <Text>{t("message.autoTagTooltip")}</Text>
+                                    <List isPlain>
+                                      {answer.applyTags.map((tag, index) => (
+                                        <ListItem key={index}>
+                                          <Label color="blue">{tag.tag}</Label>
+                                        </ListItem>
+                                      ))}
+                                    </List>
+                                  </>
+                                )}
                               </div>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </Tr>
-                  <Tr>
-                    {!!answer?.applyTags?.length && (
-                      <div style={{ display: "flex" }}>
-                        <Text className={spacing.mrSm}>
-                          Apply Tags for this answer choice:
-                        </Text>
-                        {answer?.applyTags?.map((tag, index) => {
-                          return (
-                            <div key={index} style={{ flex: "0 0 6em" }}>
-                              <Label color="grey">{tag.tag}</Label>
-                            </div>
-                          );
-                        })}
+                            }
+                          >
+                            <span className={spacing.mlXs}>
+                              <InfoCircleIcon />
+                            </span>
+                          </Tooltip>
+                        )}
                       </div>
-                    )}
-                  </Tr>
-                </React.Fragment>
-              );
-            })}
+                    </Td>
+
+                    <Td width={20} {...getTdProps({ columnKey: "weight" })}>
+                      <RiskIcon risk={answer.risk} />
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+                {/* ... other rows ... */}
+              </React.Fragment>
+            ))}
           </Tbody>
         </ConditionalTableBody>
       </Table>
