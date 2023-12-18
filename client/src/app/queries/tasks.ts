@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { cancelTask, deleteTask, getTasks } from "@app/api/rest";
+import { cancelTask, deleteTask, getTaskById, getTasks } from "@app/api/rest";
 
 interface FetchTasksFilters {
   addon?: string;
@@ -79,4 +79,26 @@ export const useCancelTaskMutation = (
       onError && onError(err);
     },
   });
+};
+
+export const TaskByIDQueryKey = "taskByID";
+
+export const useFetchTaskByID = (
+  taskId?: number,
+  format = "json",
+  merged = false
+) => {
+  console.log("useFetchTaskByID", taskId, format, merged);
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: [TaskByIDQueryKey, taskId, format, merged],
+    queryFn: () => (taskId ? getTaskById(taskId, format, merged) : null),
+    enabled: !!taskId,
+  });
+
+  return {
+    task: data,
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
 };
