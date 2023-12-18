@@ -234,7 +234,7 @@ export const MigrationWaves: React.FC = () => {
       getTdProps,
       getExpandedContentTdProps,
     },
-    expansionDerivedState: { isCellExpanded },
+    expansionDerivedState: { isCellExpanded, setCellExpanded },
   } = tableControls;
 
   // TODO: Check RBAC access
@@ -437,7 +437,7 @@ export const MigrationWaves: React.FC = () => {
                         >
                           {migrationWave.applications.length
                             ? migrationWave.status
-                            : "N/A"}
+                            : "--"}
                         </Td>
                         <Td isActionCell id="row-actions">
                           <Dropdown
@@ -554,6 +554,7 @@ export const MigrationWaves: React.FC = () => {
                                 <WaveStatusTable
                                   migrationWave={migrationWave}
                                   removeApplication={removeApplication}
+                                  setCellExpanded={setCellExpanded}
                                 />
                               )
                             )}
