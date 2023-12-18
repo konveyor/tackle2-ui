@@ -21,26 +21,27 @@ export const QuestionnaireByIdQueryKey = "questionnaireById";
  * in that list have an order.  Hub stores things in the document order not logical
  * order.  UI needs to have things in logical order.
  */
-function inPlaceSortByOrder(q: Questionnaire) {
-  q.sections.sort((a, b) => a.order - b.order);
-  q.sections.forEach((s) => {
-    s.questions.sort((a, b) => a.order - b.order);
-    s.questions.forEach((q) => {
-      q.answers.sort((a, b) => a.order - b.order);
-    });
-  });
-  return q;
-}
+//TODO: this is not working, need to figure out why https://issues.redhat.com/browse/MTA-1907
+// function inPlaceSortByOrder(q: Questionnaire) {
+//   q.sections.sort((a, b) => a.order - b.order);
+//   q.sections.forEach((s) => {
+//     s.questions.sort((a, b) => a.order - b.order);
+//     s.questions.forEach((q) => {
+//       q.answers.sort((a, b) => a.order - b.order);
+//     });
+//   });
+//   return q;
+// }
 
 export const useFetchQuestionnaires = () => {
   const { isLoading, data, error } = useQuery({
     queryKey: [QuestionnairesQueryKey],
     queryFn: getQuestionnaires,
     onError: (error: AxiosError) => console.log("error, ", error),
-    select: (questionnaires) => {
-      questionnaires.forEach((q) => inPlaceSortByOrder(q));
-      return questionnaires;
-    },
+    // select: (questionnaires) => {
+    //   questionnaires.forEach((q) => inPlaceSortByOrder(q));
+    //   return questionnaires;
+    // },
   });
   return {
     questionnaires: data || [],
@@ -92,7 +93,7 @@ export const useFetchQuestionnaireById = (id: number | string) => {
     queryKey: [QuestionnaireByIdQueryKey, id],
     queryFn: () => getQuestionnaireById<Questionnaire>(id),
     onError: (error: AxiosError) => console.log("error, ", error),
-    select: (q) => inPlaceSortByOrder(q),
+    // select: (q) => inPlaceSortByOrder(q),
   });
 
   return {

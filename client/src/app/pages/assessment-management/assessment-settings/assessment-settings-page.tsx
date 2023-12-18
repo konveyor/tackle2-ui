@@ -153,7 +153,6 @@ const AssessmentSettings: React.FC = () => {
 
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
-
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
