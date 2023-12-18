@@ -8,6 +8,7 @@ import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -15,6 +16,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
+dayjs.extend(isSameOrBefore);
 
 const queryClient = new QueryClient();
 
