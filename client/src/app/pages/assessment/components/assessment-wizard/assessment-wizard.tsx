@@ -198,11 +198,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       return section.questions.every((question) => !questionHasValue(question));
     });
 
-    const allQuestionsAnswered = sections.every((section) =>
-      areAllQuestionsAnswered(section)
-    );
-
-    return noAnswers || allQuestionsAnswered;
+    return noAnswers;
   };
 
   const shouldNextBtnBeEnabled = (
