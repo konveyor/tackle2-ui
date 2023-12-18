@@ -20,6 +20,7 @@ import {
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
 import dayjs from "dayjs";
+
 import {
   Stakeholder,
   StakeholderGroup,
@@ -268,10 +269,16 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const endDateRangeValidator = (date: Date) => {
-    const sDate = startDate || new Date();
-    if (sDate >= date) {
-      return "Date is before allowable range.";
+    const selectedEndDate = dayjs(date);
+    const selectedStartDate = startDate ? dayjs(startDate) : null;
+
+    if (
+      !selectedStartDate ||
+      selectedEndDate.isSameOrBefore(selectedStartDate, "day")
+    ) {
+      return "End date must be at least one day after the start date.";
     }
+
     return "";
   };
 
@@ -281,7 +288,8 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
     matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
 
-  const dateRef = useRef<HTMLDivElement | null>(null);
+  const startDateRef = useRef<HTMLDivElement | null>(null);
+  const endDateRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -295,7 +303,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           />
         </GridItem>
         <GridItem span={3}>
-          <div ref={dateRef}>
+          <div ref={startDateRef}>
             <HookFormPFGroupController
               control={control}
               name="startDateStr"
@@ -307,14 +315,14 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   aria-label={name}
                   onChange={(e, val) => {
                     onChange(val);
-                    trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
+                    trigger("endDateStr");
                   }}
                   placeholder="MM/DD/YYYY"
                   value={value}
                   dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
                   dateParse={(val) => dayjs(val).toDate()}
                   validators={[startDateRangeValidator]}
-                  appendTo={() => dateRef.current || document.body}
+                  appendTo={() => startDateRef.current || document.body}
                 />
               )}
             />
@@ -330,30 +338,31 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         >
           to
         </GridItem>
-
         <GridItem span={8}>
-          <HookFormPFGroupController
-            control={control}
-            name="endDateStr"
-            label="Potential End Date"
-            fieldId="endDateStr"
-            isRequired
-            renderInput={({ field: { value, name, onChange } }) => (
-              <DatePicker
-                aria-label={name}
-                onChange={(e, val) => {
-                  onChange(val);
-                }}
-                placeholder="MM/DD/YYYY"
-                value={value}
-                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                dateParse={(val) => dayjs(val).toDate()}
-                validators={[endDateRangeValidator]}
-                appendTo={() => document.body}
-              />
-            )}
-          />
+          <div ref={endDateRef}>
+            <HookFormPFGroupController
+              control={control}
+              name="endDateStr"
+              label="Potential End Date"
+              fieldId="endDateStr"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <DatePicker
+                  isDisabled={!startDate}
+                  aria-label={name}
+                  onChange={(e, val) => onChange(val)}
+                  placeholder="MM/DD/YYYY"
+                  value={value && startDate ? value : ""}
+                  dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                  dateParse={(val) => dayjs(val).toDate()}
+                  validators={[endDateRangeValidator]}
+                  appendTo={() => endDateRef.current || document.body}
+                />
+              )}
+            />
+          </div>
         </GridItem>
+
         <GridItem span={12}>
           <HookFormPFGroupController
             control={control}
