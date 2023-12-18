@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Assessment, Question, Questionnaire } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { Label } from "@patternfly/react-core";
+import { Label, Tooltip } from "@patternfly/react-core";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import AnswerTable from "@app/components/answer-table/answer-table";
 import { AxiosError } from "axios";
@@ -99,6 +99,35 @@ const QuestionsTable: React.FC<{
               data?.sections.find((section) =>
                 section.questions.includes(question)
               )?.name || "";
+
+            const getConditionalTooltipContent = (question: Question) => {
+              const includeTags = question?.includeFor
+                ?.map((tag) => tag.tag)
+                .join(", ");
+              const excludeTags = question?.excludeFor
+                ?.map((tag) => tag.tag)
+                .join(", ");
+
+              return (
+                <div
+                  className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                  id="conditional-tooltip-content"
+                >
+                  <div>{t("message.dependentQuestionTooltip")}</div>
+                  {includeTags && (
+                    <div>
+                      {t("terms.include")}: {includeTags}
+                    </div>
+                  )}
+                  {excludeTags && (
+                    <div>
+                      {t("terms.exclude")}: {excludeTags}
+                    </div>
+                  )}
+                </div>
+              );
+            };
+
             return (
               <React.Fragment key={rowIndex}>
                 <Tr key={question.text} {...getTrProps({ item: question })}>
@@ -113,7 +142,13 @@ const QuestionsTable: React.FC<{
                     >
                       {(!!question?.includeFor?.length ||
                         !!question?.excludeFor?.length) && (
-                        <Label className={spacing.mrSm}>Conditional</Label>
+                        <Tooltip
+                          content={getConditionalTooltipContent(question)}
+                        >
+                          <Label className={spacing.mrSm}>
+                            {t("terms.dependentQuestion")}
+                          </Label>
+                        </Tooltip>
                       )}
                       {question.text}
                     </Td>
