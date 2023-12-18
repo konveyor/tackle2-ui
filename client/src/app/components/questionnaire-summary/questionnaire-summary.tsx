@@ -82,10 +82,6 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     filteredSummaryData?.sections?.flatMap((section) => section.questions) ||
     [];
 
-  if (!summaryData) {
-    return <div>No data available.</div>;
-  }
-
   const dynamicPath = isArchetype
     ? formatPath(Paths.archetypeAssessmentActions, {
         archetypeId: (summaryData as Assessment)?.archetype?.id,
