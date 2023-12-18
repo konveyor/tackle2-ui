@@ -8,6 +8,9 @@ sections:
       - order: 1
         text: What is the main technology in your application?
         explanation: Identify the main framework or technology used in your application.
+        includeFor:
+          - category: Language
+            tag: Java
         answers:
           - order: 1
             text: Quarkus
@@ -15,7 +18,10 @@ sections:
             rationale: Quarkus is a modern, container-friendly framework.
             mitigation: No mitigation needed.
             applyTags:
-              - category: Technology
+              - category: Runtime
+                tag: Quarkus
+            autoAnswerFor:
+              - category: Runtime
                 tag: Quarkus
           - order: 2
             text: Spring Boot
@@ -23,16 +29,16 @@ sections:
             rationale: Spring Boot is versatile and widely used.
             mitigation: Ensure container compatibility.
             applyTags:
-              - category: Technology
+              - category: Runtime
+                tag: Spring Boot
+            autoAnswerFor:
+              - category: Runtime
                 tag: Spring Boot
           - order: 3
             text: Legacy Monolithic Application
             risk: red
             rationale: Legacy monoliths are challenging for cloud adaptation.
             mitigation: Consider refactoring into microservices.
-            applyTags:
-              - category: Architecture
-                tag: Monolith
       - order: 2
         text: Does your application use a microservices architecture?
         explanation: Assess if the application is built using a microservices architecture.
@@ -42,9 +48,6 @@ sections:
             risk: green
             rationale: Microservices are well-suited for cloud environments.
             mitigation: Continue monitoring service dependencies.
-            applyTags:
-              - category: Architecture
-                tag: Microservices
           - order: 2
             text: No
             risk: yellow
@@ -59,6 +62,9 @@ sections:
       - order: 3
         text: Is your application's data storage cloud-optimized?
         explanation: Evaluate if the data storage solution is optimized for cloud usage.
+        includeFor:
+          - category: Language
+            tag: Java
         answers:
           - order: 1
             text: Cloud-Native Storage Solution
