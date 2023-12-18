@@ -82,7 +82,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
           </Tr>
         </Thead>
         <ConditionalTableBody
-          isNoData={migrationWave.stakeholders.length === 0}
+          isNoData={migrationWave.allStakeholders.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
