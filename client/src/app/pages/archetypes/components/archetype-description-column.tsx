@@ -1,11 +1,15 @@
 import React from "react";
-import { Text } from "@patternfly/react-core";
-
+import { Text, Tooltip } from "@patternfly/react-core";
 import type { Archetype } from "@app/api/models";
 
-// TODO: Truncate length and add tooltip with full text
 const ArchetypeDescriptionColumn: React.FC<{ archetype: Archetype }> = ({
   archetype,
-}) => <Text>{archetype.description}</Text>;
+}) => {
+  return (
+    <Tooltip content={archetype.description}>
+      <Text>{archetype.description}</Text>
+    </Tooltip>
+  );
+};
 
 export default ArchetypeDescriptionColumn;
