@@ -9,6 +9,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
@@ -165,11 +166,17 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                     </Td>
                     <Td className={alignment.textAlignRight}>
                       {ticket?.id && (
-                        <Button
-                          variant="link"
-                          icon={<UnlinkIcon />}
-                          onClick={() => deleteTicket(ticket.id)}
-                        />
+                        <Tooltip
+                          content={t("message.unlinkTicket")}
+                          position="top"
+                          entryDelay={1000}
+                        >
+                          <Button
+                            variant="link"
+                            icon={<UnlinkIcon />}
+                            onClick={() => deleteTicket(ticket.id)}
+                          />
+                        </Tooltip>
                       )}
                       <Button
                         type="button"
