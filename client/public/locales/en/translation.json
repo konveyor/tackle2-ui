@@ -214,7 +214,8 @@
     "taskInProgressForTags": "A new analysis is in-progress.  Tags may be updated upon completion.",
     "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag.",
     "unsavedChanges": "Are you sure you want to close the assessment? Any unsaved changes will be lost.",
-    "noAnswers": "Are you sure you want to close the assessment? There are no answers to save."
+    "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
+    "unlinkTicket": "Unlink from Jira"
   },
   "proposedActions": {
     "refactor": "Refactor",
@@ -308,7 +309,7 @@
     "date": "Date",
     "decision": "Decision",
     "dependencies": "Dependencies",
-    "dependentQuestion": "Dependent question",
+    "dependentQuestion": "Conditional question",
     "description": "Description",
     "details": "Details",
     "displayName": "Display name",
