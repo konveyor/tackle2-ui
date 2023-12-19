@@ -9,6 +9,7 @@ import {
   Grid,
   GridItem,
   Spinner,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -187,11 +188,17 @@ export const ApplicationDetailFields: React.FC<{
           isLoading ? (
             <Spinner role="status" size="sm" />
           ) : (
-            <Button
-              variant="link"
-              icon={<UnlinkIcon />}
-              onClick={() => deleteTicket(matchingTicket.id)}
-            />
+            <Tooltip
+              content={t("message.unlinkTicket")}
+              position="top"
+              entryDelay={1000}
+            >
+              <Button
+                variant="link"
+                icon={<UnlinkIcon />}
+                onClick={() => deleteTicket(matchingTicket.id)}
+              />
+            </Tooltip>
           )
         ) : null}
       </Text>
