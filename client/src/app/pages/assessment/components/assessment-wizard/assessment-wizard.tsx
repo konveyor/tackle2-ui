@@ -198,7 +198,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       return section.questions.every((question) => !questionHasValue(question));
     });
 
-    return noAnswers;
+    const allQuestionsAnswered = sections.every((section) =>
+      areAllQuestionsAnswered(section)
+    );
+
+    return noAnswers || allQuestionsAnswered;
   };
 
   const shouldNextBtnBeEnabled = (
@@ -435,6 +439,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
   };
 
+  const haveAnyQuestionBeenAnswered = () => {
+    const questions = values[QUESTIONS_KEY];
+    return Object.values(questions).some(
+      (answer) => answer !== null && answer !== ""
+    );
+  };
+
   const handleCancelAssessment = () => {
     if (assessment) {
       if (isArchetype) {
@@ -562,7 +573,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               onCancel={() => setAssessmentToCancel(null)}
               onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => handleCancelAssessment()}
-              message="Are you sure you want to close the assessment? Any unsaved changes will be lost."
+              message={
+                haveAnyQuestionBeenAnswered()
+                  ? t("message.unsavedChanges")
+                  : t("message.noAnswers")
+              }
             />
           )}
         </FormProvider>
