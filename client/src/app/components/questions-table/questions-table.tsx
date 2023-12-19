@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Assessment, Question, Questionnaire } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { Label, Tooltip } from "@patternfly/react-core";
+import { Label, List, ListItem, Tooltip } from "@patternfly/react-core";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import AnswerTable from "@app/components/answer-table/answer-table";
 import { AxiosError } from "axios";
@@ -101,28 +101,39 @@ const QuestionsTable: React.FC<{
               )?.name || "";
 
             const getConditionalTooltipContent = (question: Question) => {
-              const includeTags = question?.includeFor
-                ?.map((tag) => tag.tag)
-                .join(", ");
-              const excludeTags = question?.excludeFor
-                ?.map((tag) => tag.tag)
-                .join(", ");
-
               return (
                 <div
                   className="pf-v5-c-tooltip__content pf-m-text-align-left"
                   id="conditional-tooltip-content"
                 >
                   <div>{t("message.dependentQuestionTooltip")}</div>
-                  {includeTags && (
-                    <div>
-                      {t("terms.include")}: {includeTags}
-                    </div>
+                  {!!question.includeFor?.length && (
+                    <>
+                      <div>{t("terms.include")}:</div>
+                      <List isPlain>
+                        {question.includeFor.map((tag, index) => (
+                          <ListItem key={index}>
+                            <Label color="blue">
+                              {tag.category} / {tag.tag}
+                            </Label>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </>
                   )}
-                  {excludeTags && (
-                    <div>
-                      {t("terms.exclude")}: {excludeTags}
-                    </div>
+                  {!!question.excludeFor?.length && (
+                    <>
+                      <div>{t("terms.exclude")}:</div>
+                      <List isPlain>
+                        {question.excludeFor.map((tag, index) => (
+                          <ListItem key={index}>
+                            <Label color="blue">
+                              {tag.category} / {tag.tag}
+                            </Label>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </>
                   )}
                 </div>
               );
