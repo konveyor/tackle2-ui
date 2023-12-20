@@ -242,7 +242,8 @@ export const Tags: React.FC = () => {
   const getSortValues = (item: TagCategory) => [
     "",
     item?.name || "",
-    item?.rank || "",
+    typeof item?.rank === "number" ? item.rank : Number.MAX_VALUE,
+
     "",
     item?.tags?.length || 0,
     "", // Action column
