@@ -216,7 +216,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mode, withKnownLibs, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnownLibs.includes("select");
-
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
     fieldValues: AnalysisWizardFormValues
