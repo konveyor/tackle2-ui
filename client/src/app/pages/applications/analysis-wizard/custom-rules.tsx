@@ -222,7 +222,7 @@ export const CustomRules: React.FC = () => {
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      {values.formLabels.length === 0 &&
+      {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
           <Alert

@@ -125,10 +125,14 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
       })
-      .when(["formLabels", "rulesKind"], {
-        is: (labels: TargetLabel[], rulesKind: string) =>
-          labels.length === 0 && rulesKind === "manual",
-        then: (schema) => schema.min(1, "At least 1 Rule File is required"), // TODO translation here
+      .when(["formLabels", "rulesKind", "selectedTargets"], {
+        is: (
+          labels: TargetLabel[],
+          rulesKind: string,
+          selectedTargets: number
+        ) =>
+          labels.length === 0 && rulesKind === "manual" && selectedTargets <= 0,
+        then: (schema) => schema.min(1, "At least 1 Rule File is required"),
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {
       is: "repository",
