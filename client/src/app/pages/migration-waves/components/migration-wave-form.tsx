@@ -222,8 +222,12 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   });
 
   const startDateStr = watch("startDateStr");
+  const endDateStr = watch("endDateStr");
   const startDate = dateStrFormatValidator(startDateStr)
     ? dayjs(startDateStr).toDate()
+    : null;
+  const endDate = dateStrFormatValidator(endDateStr)
+    ? dayjs(endDateStr).toDate()
     : null;
 
   const onSubmit = (formValues: WaveFormValues) => {
@@ -315,7 +319,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   aria-label={name}
                   onChange={(e, val) => {
                     onChange(val);
-                    trigger("endDateStr");
+                    if (endDate) trigger("endDateStr");
                   }}
                   placeholder="MM/DD/YYYY"
                   value={value}
@@ -356,6 +360,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
                   dateParse={(val) => dayjs(val).toDate()}
                   validators={[endDateRangeValidator]}
+                  rangeStart={startDate ? startDate : undefined}
                   appendTo={() => endDateRef.current || document.body}
                 />
               )}
