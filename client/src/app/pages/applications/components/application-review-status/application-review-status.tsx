@@ -38,10 +38,18 @@ export const ApplicationReviewStatus: React.FC<
   let statusPreset: IconedStatusPreset;
   let tooltipCount = 0;
 
+  const areAllArchetypesReviewed =
+    applicationArchetypes?.every((archetype) => !!archetype?.review) ?? false;
+  const someArchetypesReviewed =
+    applicationArchetypes?.some((archetype) => !!archetype?.review) ?? false;
+
   if (isAppReviewed) {
     statusPreset = "Completed";
-  } else if (reviewedArchetypeCount > 0) {
+  } else if (areAllArchetypesReviewed) {
+    tooltipCount = reviewedArchetypeCount;
     statusPreset = "InheritedReviews";
+  } else if (someArchetypesReviewed) {
+    statusPreset = "InProgressInheritedReviews";
     tooltipCount = reviewedArchetypeCount;
   } else {
     statusPreset = "NotStarted";
