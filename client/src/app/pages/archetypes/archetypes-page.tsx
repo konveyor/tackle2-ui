@@ -307,7 +307,7 @@ const Archetypes: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    <CreateButton />
+                    {archetypeWriteAccess && <CreateButton />}
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
@@ -381,76 +381,83 @@ const Archetypes: React.FC = () => {
                           <ArchetypeApplicationsColumn archetype={archetype} />
                         </Td>
                         <Td isActionCell>
-                          <ActionsColumn
-                            items={[
-                              ...(archetypeWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.duplicate"),
-                                      onClick: () =>
-                                        setArchetypeToDuplicate(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(assessmentWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.assess"),
-                                      onClick: () =>
-                                        assessSelectedArchetype(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(reviewsWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.review"),
-                                      onClick: () =>
-                                        reviewSelectedArchetype(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(archetypeWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.edit"),
-                                      onClick: () =>
-                                        setArchetypeToEdit(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(archetype?.assessments?.length &&
-                              assessmentWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.discardAssessment"),
-                                      onClick: () =>
-                                        setAssessmentToDiscard(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(archetype?.review && reviewsWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.discardReview"),
-                                      onClick: () =>
-                                        setReviewToDiscard(archetype),
-                                    },
-                                  ]
-                                : []),
-                              { isSeparator: true },
-                              ...(archetypeWriteAccess
-                                ? [
-                                    {
-                                      title: t("actions.delete"),
-                                      onClick: () =>
-                                        setArchetypeToDelete(archetype),
-                                      isDanger: true,
-                                    },
-                                  ]
-                                : []),
-                            ]}
-                          />
+                          {(archetypeWriteAccess ||
+                            assessmentWriteAccess ||
+                            reviewsWriteAccess ||
+                            (archetype?.assessments?.length &&
+                              assessmentWriteAccess) ||
+                            (archetype?.review && reviewsWriteAccess)) && (
+                            <ActionsColumn
+                              items={[
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.duplicate"),
+                                        onClick: () =>
+                                          setArchetypeToDuplicate(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(assessmentWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.assess"),
+                                        onClick: () =>
+                                          assessSelectedArchetype(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(reviewsWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.review"),
+                                        onClick: () =>
+                                          reviewSelectedArchetype(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.edit"),
+                                        onClick: () =>
+                                          setArchetypeToEdit(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetype?.assessments?.length &&
+                                assessmentWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.discardAssessment"),
+                                        onClick: () =>
+                                          setAssessmentToDiscard(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetype?.review && reviewsWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.discardReview"),
+                                        onClick: () =>
+                                          setReviewToDiscard(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                { isSeparator: true },
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.delete"),
+                                        onClick: () =>
+                                          setArchetypeToDelete(archetype),
+                                        isDanger: true,
+                                      },
+                                    ]
+                                  : []),
+                              ]}
+                            />
+                          )}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
