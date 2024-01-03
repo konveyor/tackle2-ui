@@ -212,7 +212,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
           </Tab>
           <Tab
             eventKey={TabKey.Reviews}
-            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
             <ReviewFields archetype={archetype} />
           </Tab>
