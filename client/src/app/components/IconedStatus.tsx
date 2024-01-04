@@ -10,6 +10,8 @@ import TopologyIcon from "@patternfly/react-icons/dist/esm/icons/topology-icon";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
+  | "InProgressInheritedReviews"
+  | "InProgressInheritedAssessments"
   | "InheritedAssessments"
   | "Canceled"
   | "Completed"
@@ -52,6 +54,22 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
 }: IIconedStatusProps) => {
   const { t } = useTranslation();
   const presets: IconedStatusPresetType = {
+    InProgressInheritedReviews: {
+      icon: <InProgressIcon />,
+      status: "info",
+      label: t("terms.inProgress"),
+      tooltipMessage: t("message.inheritedReviewTooltip", {
+        count: tooltipCount,
+      }),
+    },
+    InProgressInheritedAssessments: {
+      icon: <InProgressIcon />,
+      status: "info",
+      label: t("terms.inProgress"),
+      tooltipMessage: t("message.inheritedAssessmentTooltip", {
+        count: tooltipCount,
+      }),
+    },
     InheritedReviews: {
       icon: <CheckCircleIcon />,
       status: "success",
@@ -131,6 +149,15 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
         return t("message.inheritedAssessmentTooltip", {
           count: tooltipCount,
         });
+      case "InProgressInheritedReviews":
+        return t("message.inheritedReviewTooltip", {
+          count: tooltipCount,
+        });
+      case "InProgressInheritedAssessments":
+        return t("message.inheritedAssessmentTooltip", {
+          count: tooltipCount,
+        });
+
       default:
         return "";
     }
@@ -149,7 +176,10 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
         </IconWithOptionalTooltip>
       </FlexItem>
       <FlexItem>{label || presetProps?.label}</FlexItem>
-      {(preset === "InheritedReviews" || preset === "InheritedAssessments") && (
+      {(preset === "InheritedReviews" ||
+        preset === "InheritedAssessments" ||
+        preset === "InProgressInheritedAssessments" ||
+        preset === "InProgressInheritedReviews") && (
         <FlexItem>
           <Tooltip content={getTooltipContent()}>
             <TopologyIcon />
