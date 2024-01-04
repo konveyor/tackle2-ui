@@ -22,9 +22,13 @@ export const ApplicationAssessmentStatus: React.FC<
     return archetypes?.find((archetype) => archetype.id === archetypeRef.id);
   });
 
-  const hasAssessedArchetype = applicationArchetypes?.some(
+  const someArchetypesAssessed = applicationArchetypes?.some(
     (archetype) => !!archetype?.assessments?.length ?? 0 > 0
   );
+  const areAllArchetypesAssessed =
+    applicationArchetypes?.every(
+      (archetype) => archetype?.assessments?.length ?? 0 > 0
+    ) ?? false;
 
   const {
     assessments,
@@ -42,16 +46,22 @@ export const ApplicationAssessmentStatus: React.FC<
 
   let statusPreset: IconedStatusPreset = "NotStarted"; // Default status
   let tooltipCount: number = 0;
+
+  const assessedArchetypeCount =
+    applicationArchetypes?.filter(
+      (archetype) => archetype?.assessments?.length ?? 0 > 0
+    ).length || 0;
+
   const isDirectlyAssessed =
     application.assessed && (application.assessments?.length ?? 0) > 0;
+
   if (isDirectlyAssessed) {
     statusPreset = "Completed";
-  } else if (hasAssessedArchetype) {
+  } else if (areAllArchetypesAssessed) {
     statusPreset = "InheritedAssessments";
-    const assessedArchetypeCount =
-      applicationArchetypes?.filter(
-        (archetype) => archetype?.assessments?.length ?? 0 > 0
-      ).length || 0;
+    tooltipCount = assessedArchetypeCount;
+  } else if (someArchetypesAssessed) {
+    statusPreset = "InProgressInheritedAssessments";
     tooltipCount = assessedArchetypeCount;
   } else if (
     assessments?.some(
