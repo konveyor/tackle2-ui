@@ -136,13 +136,25 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     criteria: yup
       .array()
       .of(yup.object({ id: yup.number(), name: yup.string() }))
-      .min(1)
+      .min(1, ({ min }) =>
+        t("validation.minCount", {
+          count: min,
+          type: t("terms.tag").toLocaleLowerCase(),
+          types: t("terms.tags").toLocaleLowerCase(),
+        })
+      )
       .required(t("validation.required")),
 
     tags: yup
       .array()
       .of(yup.object({ id: yup.number(), name: yup.string() }))
-      .min(1)
+      .min(1, ({ min }) =>
+        t("validation.minCount", {
+          count: min,
+          type: t("terms.tag").toLocaleLowerCase(),
+          types: t("terms.tags").toLocaleLowerCase(),
+        })
+      )
       .required(t("validation.required")),
 
     stakeholders: yup

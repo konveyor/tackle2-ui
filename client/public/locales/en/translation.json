@@ -391,7 +391,6 @@
     "repositoryType": "Repository type",
     "review": "Review",
     "reviewedArchetype": "Archetype reviewed",
-
     "reviews": "Reviews",
     "reviewComments": "Review comments",
     "risk": "Risk",
@@ -422,6 +421,7 @@
     "suggestedAdoptionPlan": "Suggested adoption plan",
     "svnConfig": "Subversion configuration",
     "tableView": "Table view",
+    "tag": "Tag",
     "tag(s)": "Tag(s)",
     "tagCount": "Tag count",
     "tagDeleted": "Tag deleted",
@@ -446,7 +446,6 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "tag": "Tag",
     "YAMLTemplate": "YAML template"
   },
   "titles": {
@@ -479,6 +478,8 @@
     "max": "This field must be less than {{value}}.",
     "maxLength": "This field must contain fewer than {{length}} characters.",
     "min": "This field must be greater than {{value}}.",
+    "minCount": "At least one {{type}} must be selected.",
+    "minCount_plural": "At least {{count}} {{types}} must be selected.",
     "minLength": "This field must contain at least {{length}} characters.",
     "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
     "required": "This field is required."
