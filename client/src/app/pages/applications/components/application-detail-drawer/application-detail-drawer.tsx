@@ -21,6 +21,7 @@ import {
   Divider,
   Tooltip,
   Label,
+  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
@@ -210,16 +211,18 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {assessedArchetypes?.length ? (
-                      assessedArchetypes.map((assessedArchetype) => (
-                        <ArchetypeItem
-                          key={assessedArchetype?.id}
-                          archetype={assessedArchetype}
-                        />
-                      ))
-                    ) : (
-                      <EmptyTextMessage message={t("terms.none")} />
-                    )}
+                    <LabelGroup>
+                      {assessedArchetypes?.length ? (
+                        assessedArchetypes.map((assessedArchetype) => (
+                          <ArchetypeItem
+                            key={assessedArchetype?.id}
+                            archetype={assessedArchetype}
+                          />
+                        ))
+                      ) : (
+                        <EmptyTextMessage message={t("terms.none")} />
+                      )}
+                    </LabelGroup>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 
@@ -228,16 +231,18 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.archetypesReviewed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {reviewedArchetypes?.length ? (
-                      reviewedArchetypes.map((reviewedArchetype) => (
-                        <ArchetypeItem
-                          key={reviewedArchetype?.id}
-                          archetype={reviewedArchetype}
-                        />
-                      ))
-                    ) : (
-                      <EmptyTextMessage message={t("terms.none")} />
-                    )}
+                    <LabelGroup>
+                      {reviewedArchetypes?.length ? (
+                        reviewedArchetypes.map((reviewedArchetype) => (
+                          <ArchetypeItem
+                            key={reviewedArchetype?.id}
+                            archetype={reviewedArchetype}
+                          />
+                        ))
+                      ) : (
+                        <EmptyTextMessage message={t("terms.none")} />
+                      )}
+                    </LabelGroup>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               </DescriptionList>
