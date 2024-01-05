@@ -35,6 +35,7 @@ export const ApplicationAssessmentStatus: React.FC<
     isFetching: isFetchingAssessmentsById,
     fetchError,
   } = useFetchAssessmentsByItemId(false, application.id);
+  console.log("assessments", assessments);
 
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;

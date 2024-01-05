@@ -13,6 +13,7 @@ import {
   getAssessmentById,
   getAssessments,
   getAssessmentsByItemId,
+  getQuestionnaires,
   updateAssessment,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
@@ -21,6 +22,7 @@ import {
   AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
   InitialAssessment,
+  Questionnaire,
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
 import { ARCHETYPE_QUERY_KEY } from "./archetypes";
@@ -161,34 +163,98 @@ export const useFetchAssessmentById = (id?: number | string) => {
   };
 };
 
+// export const useFetchAssessmentsByItemId = (
+//   isArchetype: boolean,
+//   itemId?: number | string
+// ) => {
+//   const { data, isLoading, error } = useQuery({
+//     queryKey: [assessmentsByItemIdQueryKey, itemId, isArchetype],
+//     queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
+//     onError: (error: AxiosError) => console.log("error, ", error),
+//     onSuccess: (_data) => {},
+//     enabled: !!itemId,
+//   });
+
+//   const queryClient = useQueryClient();
+
+//   const invalidateAssessmentsQuery = () => {
+//     queryClient.invalidateQueries([
+//       assessmentsByItemIdQueryKey,
+//       itemId,
+//       isArchetype,
+//     ]);
+//   };
+//   const assessmentsWithOrder: AssessmentWithSectionOrder[] =
+//     data?.map(addSectionOrderToQuestions) || [];
+//   return {
+//     assessments: assessmentsWithOrder,
+//     isFetching: isLoading,
+//     fetchError: error,
+//     invalidateAssessmentsQuery,
+//   };
+// };
+
 export const useFetchAssessmentsByItemId = (
   isArchetype: boolean,
   itemId?: number | string
 ) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: [assessmentsByItemIdQueryKey, itemId, isArchetype],
-    queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
-    onError: (error: AxiosError) => console.log("error, ", error),
-    onSuccess: (_data) => {},
-    enabled: !!itemId,
-  });
-
   const queryClient = useQueryClient();
 
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: ["assessmentsByItemId", itemId, isArchetype],
+        queryFn: () => getAssessmentsByItemId(isArchetype, itemId),
+        onError: (error: unknown) => console.log("error, ", error),
+        enabled: !!itemId,
+      },
+      {
+        queryKey: ["allQuestionnaires"],
+        queryFn: getQuestionnaires,
+      },
+    ],
+  });
+
+  const [assessmentsResult, questionnairesResult] = results;
+  const assessmentsData = assessmentsResult.data || [];
+  const questionnairesData = questionnairesResult.data || [];
+
+  const enrichedAssessments = assessmentsData.map((assessment) => {
+    return enrichAssessment(assessment, questionnairesData);
+  });
+
   const invalidateAssessmentsQuery = () => {
-    queryClient.invalidateQueries([
-      assessmentsByItemIdQueryKey,
-      itemId,
-      isArchetype,
-    ]);
+    queryClient.invalidateQueries(["assessmentsByItemId", itemId, isArchetype]);
+    queryClient.invalidateQueries(["allQuestionnaires"]);
   };
-  const assessmentsWithOrder: AssessmentWithSectionOrder[] =
-    data?.map(addSectionOrderToQuestions) || [];
+
   return {
-    assessments: assessmentsWithOrder,
-    isFetching: isLoading,
-    fetchError: error,
+    assessments: enrichedAssessments,
+    isFetching: assessmentsResult.isLoading || questionnairesResult.isLoading,
+    fetchError: assessmentsResult.error || questionnairesResult.error,
     invalidateAssessmentsQuery,
+  };
+};
+
+export const enrichAssessment = (
+  assessment: Assessment,
+  questionnaires: Questionnaire[]
+): AssessmentWithSectionOrder => {
+  const questionnaireRef = assessment.questionnaire; // Adjust to your data structure
+  const matchedQuestionnaire = questionnaires.find(
+    (q) => q.id === questionnaireRef.id || q.name === questionnaireRef.name
+  );
+
+  return {
+    ...assessment,
+    required: matchedQuestionnaire ? matchedQuestionnaire.required : false,
+    sections: assessment.sections.map((section) => ({
+      ...section,
+      questions: section.questions.map((question) => ({
+        ...question,
+        sectionOrder: section.order,
+      })),
+    })),
   };
 };
 

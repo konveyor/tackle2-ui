@@ -788,6 +788,7 @@ export interface SectionWithQuestionOrder extends Section {
 
 export interface AssessmentWithSectionOrder extends Assessment {
   sections: SectionWithQuestionOrder[];
+  required?: boolean;
 }
 
 export interface AssessmentWithArchetypeApplications
