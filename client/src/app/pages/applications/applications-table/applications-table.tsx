@@ -54,16 +54,12 @@ import keycloak from "@app/keycloak";
 import {
   RBAC,
   RBAC_TYPE,
-  analysisReadScopes,
-  analysisWriteScopes,
+  analysesReadScopes,
   applicationsWriteScopes,
-  assessmentReadScopes,
   assessmentWriteScopes,
   credentialsReadScopes,
-  credentialsWriteScopes,
   dependenciesWriteScopes,
   importsWriteScopes,
-  reviewsReadScopes,
   reviewsWriteScopes,
   tasksReadScopes,
   tasksWriteScopes,
@@ -542,16 +538,12 @@ export const ApplicationsTable: React.FC = () => {
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
     assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
-    analysisWriteAccess = checkAccess(userScopes, analysisWriteScopes),
-    assessmentReadAccess = checkAccess(userScopes, assessmentReadScopes),
     credentialsReadAccess = checkAccess(userScopes, credentialsReadScopes),
-    credentialsWriteAccess = checkAccess(userScopes, credentialsWriteScopes),
     dependenciesWriteAccess = checkAccess(userScopes, dependenciesWriteScopes),
-    analysisReadAccess = checkAccess(userScopes, analysisReadScopes),
+    analysesReadAccess = checkAccess(userScopes, analysesReadScopes),
     tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
-    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes),
-    reviewsReadAccess = checkAccess(userScopes, reviewsReadScopes);
+    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
   const areAppsInWaves = selectedRows.some(
     (application) => application.migrationWave !== null
@@ -1031,7 +1023,7 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            ...(analysisReadAccess && hasExistingAnalysis
+                            ...(analysesReadAccess && hasExistingAnalysis
                               ? [
                                   {
                                     title: t("actions.analysisDetails"),
