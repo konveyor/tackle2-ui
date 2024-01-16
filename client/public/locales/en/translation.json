@@ -91,6 +91,8 @@
     "noDataStateBody": "Create a new {{what}} to start seeing data here.",
     "noDataStateTitle": "No {{what}} available",
     "Nquestions": "{{n}} questions",
+    "ofTotalApplications": "Of {{count}} application",
+    "ofTotalApplications_plural": "Of {{count}} applications",
     "ofTotalAssessments": "Of {{count}} assessment",
     "ofTotalAssessments_plural": "Of {{count}} assessments",
     "selectMany": "Select {{what}}",
@@ -113,7 +115,7 @@
       "maxfileSize": "Max file size of 1MB exceeded. Upload a smaller file.",
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
-      "deleteQuestionnire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
+      "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
       "confirmDeletion": "Confirm deletion by typing <1>{{nameToDelete}}</1> below:"
     },
     "title": {
@@ -163,8 +165,11 @@
     "archetypeNoApplications": "No applications currently match the criteria tags.",
     "archetypeAlreadyAssessed": "An assessment for one or more of the archetypes this application is associated with exists.",
     "archetypeAlreadyReviewed": "A review for one or more of the archetypes this application is associated with exists. Open the details drawer to view the review(s).",
+    "autoSelectTagsLabel": "Automatically select tags based on the answers to the questionnaire. ",
     "appNotAssesedTitle": "Assessment has not been completed",
     "appNotAssessedBody": "In order to review an application it must be assessed first. Assess the application and try again.",
+    "autoSelectTooltip": "Automatically select this answer based on tags associated with the application(s) or archetype.",
+    "autoTagTooltip": "Automatically tag this application or archetype with these tags based on this answer to the questionnaire.",
     "assessmentStakeholderHeader": "Select the stakeholder(s) or stakeholder group(s) associated with this assessment.",
     "binaryPackaging": "Packaging will default to JAR if left empty.",
     "blockedDeleteTracker": "Cannot delete {{what}} because it is associated with a tracker.",
@@ -182,6 +187,11 @@
     "duplicateWave": "The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
     "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",
+    "inheritedReviewTooltip": "This application is inheriting a review from an archetype.",
+    "inheritedReviewTooltip_plural": "This application is inheriting reviews from {{count}} archetypes.",
+    "inheritedAssessmentTooltip": "This application is inheriting an assessment from an archetype.",
+    "inheritedAssessmentTooltip_plural": "This application is inheriting assessments from {{count}} archetypes.",
+    "dependentQuestionTooltip": "This question is conditionally included or excluded based on tags:",
     "jiraInstanceNotConnected": "Jira instance {{name}} is not connected.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
     "noDataAvailableBody": "No data available to be shown here.",
@@ -192,6 +202,7 @@
     "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideArchetypeReviewDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
     "overrideArchetypeReviewConfirmation": "Do you want to create a dedicated review for this application and override the inherited archetype review?",
+    "editApplicationReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "editArchetypeReviewConfirmation": "This archetype has already been reviewed. Do you want to continue?",
     "reasonForError": "The reported reason for the error:",
     "reviewInstructions": "Use this section to provide your assessment of the possible migration/modernization plan and effort estimation.",
@@ -201,7 +212,10 @@
     "selectOwnerFromStakeholdersList": "Select owner from list of stakeholders",
     "suggestedAdoptionPlanHelpText": "The suggested approach to migration based on effort, priority, and dependencies.",
     "taskInProgressForTags": "A new analysis is in-progress.  Tags may be updated upon completion.",
-    "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag."
+    "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag.",
+    "unsavedChanges": "Are you sure you want to close the assessment? Any unsaved changes will be lost.",
+    "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
+    "unlinkTicket": "Unlink from Jira"
   },
   "proposedActions": {
     "refactor": "Refactor",
@@ -234,6 +248,7 @@
     "associatedApplications": "Associated applications",
     "associatedArchetypes": "Associated archetypes",
     "archetypesReviewed": "Archetypes reviewed",
+    "archetypesAssessed": "Archetypes assessed",
     "add": "Add",
     "additionalNotesOrComments": "Additional notes or comments",
     "adoptionCandidateDistribution": "Application confidence and risk",
@@ -294,6 +309,7 @@
     "date": "Date",
     "decision": "Decision",
     "dependencies": "Dependencies",
+    "dependentQuestion": "Conditional question",
     "description": "Description",
     "details": "Details",
     "displayName": "Display name",
@@ -302,6 +318,7 @@
     "email": "Email",
     "error": "Error",
     "errorReport": "Error report",
+    "exclude": "Exclude",
     "exportToIssue": "Export to Issue Manager",
     "facts": "Facts",
     "failed": "Failed",
@@ -319,11 +336,14 @@
     "impactfulButNotAdvisableToMove": "Impactful but not advisable to move",
     "image": "Image",
     "imports": "Imports",
+    "include": "Include",
+    "importSummary": "Import summary",
     "importSummaryDeleted": "Import summary deleted",
     "inadvisable": "Inadvisable",
     "inProgress": "In-progress",
     "instanceType": "Instance type",
     "instance": "Instance",
+    "inherited": "Inherited",
     "issueType": "Issue type",
     "jiraConfig": "Jira configuration",
     "issue": "Issue",
@@ -371,7 +391,6 @@
     "repositoryType": "Repository type",
     "review": "Review",
     "reviewedArchetype": "Archetype reviewed",
-
     "reviews": "Reviews",
     "reviewComments": "Review comments",
     "risk": "Risk",
@@ -380,6 +399,7 @@
     "rootPath": "Root path",
     "scheduled": "Scheduled",
     "select": "Select",
+    "section": "Section",
     "settingsAllowApps": "Allow reviewing applications without running an assessment first",
     "showLess": "Show less",
     "showMore": "Show more",
@@ -401,6 +421,7 @@
     "suggestedAdoptionPlan": "Suggested adoption plan",
     "svnConfig": "Subversion configuration",
     "tableView": "Table view",
+    "tag": "Tag",
     "tag(s)": "Tag(s)",
     "tagCount": "Tag count",
     "tagDeleted": "Tag deleted",
@@ -416,6 +437,7 @@
     "teamMember": "team member",
     "ticket": "Ticket",
     "trivialButMigratable": "Trivial but migratable",
+    "unassessedOrUnknown": "Unassessed or unknown",
     "unassessed": "Unassessed",
     "unassigned": "Not yet assigned",
     "unknown": "Unknown",
@@ -425,7 +447,6 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "tag": "Tag",
     "YAMLTemplate": "YAML template"
   },
   "titles": {
@@ -458,6 +479,8 @@
     "max": "This field must be less than {{value}}.",
     "maxLength": "This field must contain fewer than {{length}} characters.",
     "min": "This field must be greater than {{value}}.",
+    "minCount": "At least one {{type}} must be selected.",
+    "minCount_plural": "At least {{count}} {{types}} must be selected.",
     "minLength": "This field must contain at least {{length}} characters.",
     "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
     "required": "This field is required."
@@ -491,6 +514,7 @@
     },
     "terms": {
       "advanced": "Advanced",
+      "advancedAnalysisDetails": "Enhanced analysis details",
       "analysisMode": "Analysis mode",
       "configureAnalysis": "Configure analysis",
       "customRules": "Custom rules",
@@ -502,7 +526,7 @@
       "packages": "Packages",
       "review": "Review",
       "rules": "Rules",
-      "rulesTags": "rules tags",
+      "rulesTags": "rules labels",
       "scope": "Scope",
       "setTargets": "Set targets",
       "source": "Source",
@@ -515,6 +539,9 @@
     "title": {
       "advancedOptions": "Advanced options",
       "review": "Review analysis details"
+    },
+    "tooltip": {
+      "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
     }
   }
 }

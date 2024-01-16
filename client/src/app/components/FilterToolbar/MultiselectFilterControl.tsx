@@ -138,8 +138,6 @@ export const MultiselectFilterControl = <TItem,>({
     const input = textInput?.toLowerCase();
 
     return renderSelectOptions((optionProps, groupName) => {
-      if (!input) return false;
-
       // TODO: Checking for a filter match against the key or the value may not be desirable.
       return (
         groupName?.toLowerCase().includes(input) ||

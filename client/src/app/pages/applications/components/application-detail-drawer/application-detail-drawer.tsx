@@ -20,9 +20,18 @@ import {
   DescriptionListTerm,
   Divider,
   Tooltip,
+  Label,
+  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Application, Identity, Task, MimeType, Ref } from "@app/api/models";
+import {
+  Application,
+  Identity,
+  Task,
+  MimeType,
+  Ref,
+  Archetype,
+} from "@app/api/models";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -33,7 +42,6 @@ import {
 } from "@app/pages/issues/helpers";
 import { ApplicationTags } from "../application-tags";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
-import { getTaskById } from "@app/api/rest";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { useFetchFacts } from "@app/queries/facts";
@@ -46,9 +54,9 @@ import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclam
 import { ApplicationFacts } from "./application-facts";
 import { ReviewFields } from "./review-fields";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
-import { ReviewedArchetypeItem } from "./reviewed-archetype-item";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -77,7 +85,9 @@ export const ApplicationDetailDrawer: React.FC<
   const isTaskRunning = task?.state === "Running";
 
   const { identities } = useFetchIdentities();
+  const { archetypes } = useFetchArchetypes();
   const { facts, isFetching } = useFetchFacts(application?.id);
+
   const [taskIdToView, setTaskIdToView] = React.useState<number>();
 
   let matchingSourceCredsRef: Identity | undefined;
@@ -90,6 +100,22 @@ export const ApplicationDetailDrawer: React.FC<
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
   const enableDownloadSetting = useSetting("download.html.enabled");
+
+  const assessedArchetypes =
+    application?.archetypes
+      ?.map((archetypeRef) =>
+        archetypes.find((archetype) => archetype.id === archetypeRef.id)
+      )
+      .filter((fullArchetype) => fullArchetype?.assessed)
+      .filter(Boolean) || [];
+
+  const reviewedArchetypes =
+    application?.archetypes
+      ?.map((archetypeRef) =>
+        archetypes.find((archetype) => archetype.id === archetypeRef.id)
+      )
+      .filter((fullArchetype) => fullArchetype?.review)
+      .filter(Boolean) || [];
 
   return (
     <PageDrawerContent
@@ -163,7 +189,7 @@ export const ApplicationDetailDrawer: React.FC<
                 isCompact
                 columnModifier={{ default: "1Col" }}
                 horizontalTermWidthModifier={{
-                  default: "14ch",
+                  default: "15ch",
                 }}
               >
                 <DescriptionListGroup>
@@ -182,19 +208,41 @@ export const ApplicationDetailDrawer: React.FC<
                 </DescriptionListGroup>
                 <DescriptionListGroup>
                   <DescriptionListTerm>
+                    {t("terms.archetypesAssessed")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    <LabelGroup>
+                      {assessedArchetypes?.length ? (
+                        assessedArchetypes.map((assessedArchetype) => (
+                          <ArchetypeItem
+                            key={assessedArchetype?.id}
+                            archetype={assessedArchetype}
+                          />
+                        ))
+                      ) : (
+                        <EmptyTextMessage message={t("terms.none")} />
+                      )}
+                    </LabelGroup>
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
                     {t("terms.archetypesReviewed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      application?.archetypes?.map((archetypeRef) => (
-                        <ReviewedArchetypeItem
-                          key={archetypeRef.id}
-                          id={archetypeRef.id}
-                        />
-                      ))
-                    ) : (
-                      <EmptyTextMessage message={t("terms.none")} />
-                    )}
+                    <LabelGroup>
+                      {reviewedArchetypes?.length ? (
+                        reviewedArchetypes.map((reviewedArchetype) => (
+                          <ArchetypeItem
+                            key={reviewedArchetype?.id}
+                            archetype={reviewedArchetype}
+                          />
+                        ))
+                      ) : (
+                        <EmptyTextMessage message={t("terms.none")} />
+                      )}
+                    </LabelGroup>
                   </DescriptionListDescription>
                 </DescriptionListGroup>
               </DescriptionList>
@@ -381,9 +429,8 @@ export const ApplicationDetailDrawer: React.FC<
                   )}
                 </>
               )}
-              <SimpleDocumentViewerModal<Task | string>
+              <SimpleDocumentViewerModal
                 title={`Analysis details for ${application?.name}`}
-                fetch={getTaskById}
                 documentId={taskIdToView}
                 onClose={() => {
                   setTaskIdToView(undefined);
@@ -408,3 +455,7 @@ export const ApplicationDetailDrawer: React.FC<
 const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
   archetypeRefs,
 }) => <LabelsFromItems items={archetypeRefs} />;
+
+const ArchetypeItem: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
+  return <Label color="grey">{archetype.name}</Label>;
+};

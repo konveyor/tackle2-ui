@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Assessment, Question, Questionnaire } from "@app/api/models";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { Label } from "@patternfly/react-core";
+import { Label, List, ListItem, Tooltip } from "@patternfly/react-core";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import AnswerTable from "@app/components/answer-table/answer-table";
 import { AxiosError } from "axios";
@@ -45,6 +45,7 @@ const QuestionsTable: React.FC<{
       section: "Section",
     },
     isExpansionEnabled: true,
+    isPaginationEnabled: false,
     expandableVariant: "single",
     forceNumRenderedColumns: isAllQuestionsTab ? 3 : 2, // columns+1 for expand control
   });
@@ -98,8 +99,48 @@ const QuestionsTable: React.FC<{
               data?.sections.find((section) =>
                 section.questions.includes(question)
               )?.name || "";
+
+            const getConditionalTooltipContent = (question: Question) => {
+              return (
+                <div
+                  className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                  id="conditional-tooltip-content"
+                >
+                  <div>{t("message.dependentQuestionTooltip")}</div>
+                  {!!question.includeFor?.length && (
+                    <>
+                      <div>{t("terms.include")}:</div>
+                      <List isPlain>
+                        {question.includeFor.map((tag, index) => (
+                          <ListItem key={index}>
+                            <Label color="blue">
+                              {tag.category} / {tag.tag}
+                            </Label>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </>
+                  )}
+                  {!!question.excludeFor?.length && (
+                    <>
+                      <div>{t("terms.exclude")}:</div>
+                      <List isPlain>
+                        {question.excludeFor.map((tag, index) => (
+                          <ListItem key={index}>
+                            <Label color="blue">
+                              {tag.category} / {tag.tag}
+                            </Label>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </>
+                  )}
+                </div>
+              );
+            };
+
             return (
-              <>
+              <React.Fragment key={rowIndex}>
                 <Tr key={question.text} {...getTrProps({ item: question })}>
                   <TableRowContentWithControls
                     {...tableControls}
@@ -112,7 +153,13 @@ const QuestionsTable: React.FC<{
                     >
                       {(!!question?.includeFor?.length ||
                         !!question?.excludeFor?.length) && (
-                        <Label className={spacing.mrSm}>Conditional</Label>
+                        <Tooltip
+                          content={getConditionalTooltipContent(question)}
+                        >
+                          <Label className={spacing.mrSm}>
+                            {t("terms.dependentQuestion")}
+                          </Label>
+                        </Tooltip>
                       )}
                       {question.text}
                     </Td>
@@ -140,7 +187,7 @@ const QuestionsTable: React.FC<{
                     </Td>
                   </Tr>
                 ) : null}
-              </>
+              </React.Fragment>
             );
           })}
         </Tbody>

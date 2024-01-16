@@ -20,6 +20,7 @@ import {
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
 import dayjs from "dayjs";
+
 import {
   Stakeholder,
   StakeholderGroup,
@@ -34,6 +35,7 @@ import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { matchItemsToRefs } from "@app/utils/model-utils";
+import { useRef } from "react";
 
 const stakeholderGroupToOption = (
   value: StakeholderGroup
@@ -204,7 +206,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     watch,
     trigger,
   } = useForm<WaveFormValues>({
-    mode: "all",
+    mode: "onChange",
     defaultValues: {
       name: migrationWave?.name || "",
       startDateStr: migrationWave?.startDate
@@ -220,8 +222,12 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   });
 
   const startDateStr = watch("startDateStr");
+  const endDateStr = watch("endDateStr");
   const startDate = dateStrFormatValidator(startDateStr)
     ? dayjs(startDateStr).toDate()
+    : null;
+  const endDate = dateStrFormatValidator(endDateStr)
+    ? dayjs(endDateStr).toDate()
     : null;
 
   const onSubmit = (formValues: WaveFormValues) => {
@@ -256,17 +262,27 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   };
 
   const startDateRangeValidator = (date: Date) => {
-    if (date < dayjs().toDate()) {
-      return "Date is before allowable range.";
+    const selectedDate = dayjs(date);
+    const currentDate = dayjs();
+
+    if (selectedDate.isBefore(currentDate, "day")) {
+      return "Start date cannot be in the past.";
     }
+
     return "";
   };
 
   const endDateRangeValidator = (date: Date) => {
-    const sDate = startDate || new Date();
-    if (sDate >= date) {
-      return "Date is before allowable range.";
+    const selectedEndDate = dayjs(date);
+    const selectedStartDate = startDate ? dayjs(startDate) : null;
+
+    if (
+      !selectedStartDate ||
+      selectedEndDate.isSameOrBefore(selectedStartDate, "day")
+    ) {
+      return "End date must be at least one day after the start date.";
     }
+
     return "";
   };
 
@@ -275,6 +291,9 @@ export const WaveForm: React.FC<WaveFormProps> = ({
 
   const stakeholderGroupsToRefs = (names: string[] | undefined | null) =>
     matchItemsToRefs(stakeholderGroups, (i) => i.name, names);
+
+  const startDateRef = useRef<HTMLDivElement | null>(null);
+  const endDateRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -288,28 +307,30 @@ export const WaveForm: React.FC<WaveFormProps> = ({
           />
         </GridItem>
         <GridItem span={3}>
-          <HookFormPFGroupController
-            control={control}
-            name="startDateStr"
-            label="Potential Start Date"
-            fieldId="startDateStr"
-            isRequired
-            renderInput={({ field: { value, name, onChange } }) => (
-              <DatePicker
-                aria-label={name}
-                onChange={(e, val) => {
-                  onChange(val);
-                  trigger("endDateStr"); // Validation of endDateStr depends on startDateStr
-                }}
-                placeholder="MM/DD/YYYY"
-                value={value}
-                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                dateParse={(val) => dayjs(val).toDate()}
-                validators={[startDateRangeValidator]}
-                appendTo={() => document.body}
-              />
-            )}
-          />
+          <div ref={startDateRef}>
+            <HookFormPFGroupController
+              control={control}
+              name="startDateStr"
+              label="Potential Start Date"
+              fieldId="startDateStr"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <DatePicker
+                  aria-label={name}
+                  onChange={(e, val) => {
+                    onChange(val);
+                    if (endDate) trigger("endDateStr");
+                  }}
+                  placeholder="MM/DD/YYYY"
+                  value={value}
+                  dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                  dateParse={(val) => dayjs(val).toDate()}
+                  validators={[startDateRangeValidator]}
+                  appendTo={() => startDateRef.current || document.body}
+                />
+              )}
+            />
+          </div>
         </GridItem>
         <GridItem
           span={1}
@@ -321,31 +342,32 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         >
           to
         </GridItem>
-
         <GridItem span={8}>
-          <HookFormPFGroupController
-            control={control}
-            name="endDateStr"
-            label="Potential End Date"
-            fieldId="endDateStr"
-            isRequired
-            renderInput={({ field: { value, name, onChange } }) => (
-              <DatePicker
-                aria-label={name}
-                onChange={(e, val) => {
-                  onChange(val);
-                }}
-                placeholder="MM/DD/YYYY"
-                value={value}
-                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                dateParse={(val) => dayjs(val).toDate()}
-                validators={[endDateRangeValidator]}
-                appendTo={() => document.body}
-                isDisabled={!!formErrors.startDateStr}
-              />
-            )}
-          />
+          <div ref={endDateRef}>
+            <HookFormPFGroupController
+              control={control}
+              name="endDateStr"
+              label="Potential End Date"
+              fieldId="endDateStr"
+              isRequired
+              renderInput={({ field: { value, name, onChange } }) => (
+                <DatePicker
+                  isDisabled={!startDate}
+                  aria-label={name}
+                  onChange={(e, val) => onChange(val)}
+                  placeholder="MM/DD/YYYY"
+                  value={value && startDate ? value : ""}
+                  dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                  dateParse={(val) => dayjs(val).toDate()}
+                  validators={[endDateRangeValidator]}
+                  rangeStart={startDate ? startDate : undefined}
+                  appendTo={() => endDateRef.current || document.body}
+                />
+              )}
+            />
+          </div>
         </GridItem>
+
         <GridItem span={12}>
           <HookFormPFGroupController
             control={control}

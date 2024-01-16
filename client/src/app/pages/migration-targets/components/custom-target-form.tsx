@@ -285,7 +285,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: formValues?.description?.trim() || "",
       ...(formValues.imageID && { image: { id: formValues.imageID } }),
       custom: true,
-      labels: labels.length ? labels : [{ name: "custom", label: "custom" }],
+      labels: labels.length ? labels : [],
       ruleset: {
         id: target && target.custom ? target.ruleset.id : undefined,
         name: formValues.name.trim(),

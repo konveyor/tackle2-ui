@@ -116,6 +116,12 @@ export const ImportQuestionnaireForm: React.FC<
           createQuestionnaire(questionnaireData);
         } else {
           console.error("Invalid JSON data.");
+          pushNotification({
+            title: "Failed",
+            message: "Invalid JSON data.",
+            variant: "danger",
+            timeout: 30000,
+          });
         }
       } catch (error) {
         pushNotification({
@@ -132,7 +138,6 @@ export const ImportQuestionnaireForm: React.FC<
       <HookFormPFGroupController
         control={control}
         name="yamlFile"
-        label={t("terms.uploadYamlFile")}
         fieldId="yamlFile"
         helperText={t("dialog.message.uploadYamlFile")}
         renderInput={({ field: { onChange, name }, fieldState: { error } }) => (

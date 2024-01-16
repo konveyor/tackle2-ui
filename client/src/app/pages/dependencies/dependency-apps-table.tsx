@@ -250,7 +250,7 @@ const DependencyManagementColumn = ({
   const isJavaFile = appDependency.dependency.name.endsWith(".jar");
   const isJavaDependency = hasJavaLabel && isJavaFile;
 
-  return <TextContent>{isJavaDependency ? "Managed" : "Embedded"}</TextContent>;
+  return <TextContent>{isJavaDependency ? "Embedded" : "Managed"}</TextContent>;
 };
 
 const DependencyVersionColumn = ({
@@ -269,7 +269,9 @@ const DependencyVersionColumn = ({
   return (
     <TextContent>
       {mavenCentralLink ? (
-        <ExternalLink href={mavenCentralLink}>{version}</ExternalLink>
+        <ExternalLink isInline href={mavenCentralLink}>
+          {version}
+        </ExternalLink>
       ) : (
         <Text>{version}</Text>
       )}

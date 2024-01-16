@@ -8,6 +8,7 @@ import {
   standardURLRegex,
   formatPath,
   extractFirstSha,
+  collapseSpacesAndCompare,
 } from "./utils";
 import { Paths } from "@app/Paths";
 
@@ -97,49 +98,67 @@ describe("utils", () => {
     expect(result).toBe("myKey");
   });
 
-  //URL Regex tests
-  it("Regex should validate git URLs", () => {
-    const testGitURLs: string[] = [
-      "git@github.com:konveyor/tackle2-ui",
-      "http://git@github.com:konveyor/tackle2-ui",
-    ];
+  describe("URL Regex tests", () => {
+    // Define your regex patterns here
 
-    for (const url of testGitURLs) {
-      const gitTestResult = gitUrlRegex.test(url);
-      expect(gitTestResult).toBe(true);
-    }
-  });
+    it("Regex should validate git URLs", () => {
+      const testGitURLs = [
+        "git@github.com:konveyor/tackle2-ui.git",
+        "http://github.com/konveyor/tackle2-ui.git",
+      ];
 
-  it("Regex should validate standard URLs", () => {
-    const testStandardURLs: string[] = [
-      "http://www.foo.bar",
-      "www.foo.bar",
-      "https://www.github.com/ibolton336/tackle-testapp.git",
-    ];
+      for (const url of testGitURLs) {
+        expect(gitUrlRegex.test(url)).toBe(true);
+      }
+    });
 
-    for (const url of testStandardURLs) {
-      const standardTestResult = standardURLRegex.test(url);
-      expect(standardTestResult).toBe(true);
-    }
-  });
+    it("Regex should fail when validating incorrect git URLs", () => {
+      const testIncorrectGitURLs = [
+        "https://",
+        "git@",
+        "http://github.com/konveyor",
+      ];
 
-  it("Regex should fail when validating broken standard URLs", () => {
-    const testBrokenURLs: string[] = [
-      "",
-      " http://www.foo.bar ",
-      " http://www.foo",
-      " http://wrong",
-      "wwwfoo.bar",
-      "foo.bar",
-      "www.foo.b",
-      "foo.ba",
-      "git@github.com:konveyor/tackle2-ui",
-    ];
+      for (const url of testIncorrectGitURLs) {
+        const result = gitUrlRegex.test(url);
+        console.log(`Testing URL: ${url}, Result: ${result}`);
 
-    for (const url of testBrokenURLs) {
-      const testResult = standardURLRegex.test(url);
-      expect(testResult).toBe(false);
-    }
+        expect(result).toBe(false);
+      }
+    });
+
+    it("Regex should validate standard URLs", () => {
+      const testStandardURLs = [
+        "http://www.foo.bar",
+        "www.foo.bar",
+        "https://www.github.com/ibolton336/tackle-testapp.git",
+      ];
+
+      for (const url of testStandardURLs) {
+        expect(standardURLRegex.test(url)).toBe(true);
+      }
+    });
+
+    it("Regex should fail when validating broken standard URLs", () => {
+      const testBrokenURLs = [
+        "",
+        "http://",
+        "https://",
+        "http:",
+        "http://www.foo",
+        "http://wrong",
+        "wwwfoo.bar",
+        "foo.bar",
+        "www.foo.b",
+      ];
+
+      for (const url of testBrokenURLs) {
+        const result = standardURLRegex.test(url);
+        console.log(`Testing URL: ${url}, Result: ${result}`);
+
+        expect(result).toBe(false);
+      }
+    });
   });
 
   it("URL should match the same multiple times in a row", () => {
@@ -218,4 +237,37 @@ describe("SHA extraction", () => {
     );
     expect(first).toBe("9c04cd6372077e9b11f70ca111c9807dc7137e4b");
   });
+});
+
+describe("space collapse string compare (using en-US compares)", () => {
+  it("both undefined matches", () => {
+    const result = collapseSpacesAndCompare(undefined, undefined, "en-US");
+    expect(result).toBe(0);
+  });
+
+  it("left undefined goes before right defined", () => {
+    const result = collapseSpacesAndCompare(undefined, "anything", "en-US");
+    expect(result).toBe(-1);
+  });
+
+  it("left defined goes after right undefined", () => {
+    const result = collapseSpacesAndCompare("anything", undefined, "en-US");
+    expect(result).toBe(1);
+  });
+
+  it.each([
+    ["alpha", "alpha", 0],
+    ["alpha", "bravo", -1],
+    ["bravo", "alpha", 1],
+    ["   alpha", "alpha     ", 0],
+    ["alpha bravo", "alpha       bravo", 0],
+    ["bravo    alpha", "bravo           bravo", -1],
+    ["The    quick brown    fox   ", "The quick brown fox", 0],
+  ])(
+    "mismatching spaces work as if spaces are collapsed (%s) to (%s) = %i",
+    (a, b, expected) => {
+      const result = collapseSpacesAndCompare(a, b, "en-US");
+      expect(result).toBe(expected);
+    }
+  );
 });

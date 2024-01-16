@@ -10,6 +10,7 @@ import {
   StackItem,
   Text,
   TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
 
 export interface IDonutProps {
@@ -17,8 +18,10 @@ export interface IDonutProps {
   value: number;
   total: number;
   color: string;
-  riskLabel: string;
+  riskLabel: string | React.ReactElement;
   riskDescription?: string;
+  riskTitle: string;
+  isAssessment: boolean;
 }
 
 export const Donut: React.FC<IDonutProps> = ({
@@ -27,6 +30,8 @@ export const Donut: React.FC<IDonutProps> = ({
   total,
   color,
   riskLabel,
+  isAssessment,
+  riskTitle,
   riskDescription,
 }) => {
   const { t } = useTranslation();
@@ -38,12 +43,18 @@ export const Donut: React.FC<IDonutProps> = ({
           <ChartDonut
             ariaDesc="risk-donut-chart"
             title={value.toString()}
-            subTitle={t("composed.ofTotalAssessments", {
-              count: total,
-            }).toLocaleLowerCase()}
+            subTitle={
+              isAssessment
+                ? t("composed.ofTotalAssessments", {
+                    count: total,
+                  }).toLocaleLowerCase()
+                : t("composed.ofTotalApplications", {
+                    count: total,
+                  }).toLocaleLowerCase()
+            }
             constrainToVisibleArea={true}
             data={[
-              { x: riskLabel, y: value },
+              { x: riskTitle, y: value },
               { x: t("terms.other"), y: total - value },
             ]}
             labels={({ datum }) => `${datum.x}: ${datum.y}`}
@@ -54,7 +65,12 @@ export const Donut: React.FC<IDonutProps> = ({
       <StackItem style={{ width: "100%" }}>
         <TextContent className="pf-v5-u-text-align-center">
           <Text component="h3">{riskLabel}</Text>
-          <Text component="small">{riskDescription}</Text>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {riskDescription}
+          </Text>
         </TextContent>
       </StackItem>
     </Stack>

@@ -231,7 +231,7 @@ export type ITableControlDerivedState<TItem> = {
    */
   currentPageItems: TItem[];
   /**
-   * The total number of items in the entire un-filtered, un-paginated table (the size of the entire API collection being tabulated).
+   * The total number of items after filtering but before pagination.
    */
   totalItemCount: number;
 };

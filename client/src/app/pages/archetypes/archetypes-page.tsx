@@ -59,6 +59,13 @@ import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
+import {
+  assessmentWriteScopes,
+  reviewsWriteScopes,
+  archetypesWriteScopes,
+} from "@app/rbac";
+import { checkAccess } from "@app/utils/rbac-utils";
+import keycloak from "@app/keycloak";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
@@ -104,26 +111,8 @@ const Archetypes: React.FC = () => {
       }),
     onError
   );
-  const onDeleteAssessmentSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.assessmentDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-  };
 
-  const onDeleteError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
 
   const discardAssessment = async (archetype: Archetype) => {
     try {
@@ -135,10 +124,21 @@ const Archetypes: React.FC = () => {
               archetypeId: archetype.id,
             });
           })
-        );
+        ).then(() => {
+          pushNotification({
+            title: t("toastr.success.assessmentDiscarded", {
+              application: archetype.name,
+            }),
+            variant: "success",
+          });
+        });
       }
     } catch (error) {
       console.error("Error while deleting assessments:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 
@@ -152,8 +152,7 @@ const Archetypes: React.FC = () => {
   };
 
   const { mutate: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess,
-    onDeleteError
+    onDeleteReviewSuccess
   );
 
   const discardReview = async (archetype: Archetype) => {
@@ -166,6 +165,10 @@ const Archetypes: React.FC = () => {
       }
     } catch (error) {
       console.error("Error while deleting review:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
     }
   };
 
@@ -276,6 +279,12 @@ const Archetypes: React.FC = () => {
     }
   };
 
+  const token = keycloak.tokenParsed;
+  const userScopes: string[] = token?.scope.split(" ") || [],
+    archetypeWriteAccess = checkAccess(userScopes, archetypesWriteScopes),
+    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
+    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -298,7 +307,7 @@ const Archetypes: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    <CreateButton />
+                    {archetypeWriteAccess && <CreateButton />}
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
@@ -356,7 +365,10 @@ const Archetypes: React.FC = () => {
                         <Td {...getTdProps({ columnKey: "name" })}>
                           {archetype.name}
                         </Td>
-                        <Td {...getTdProps({ columnKey: "description" })}>
+                        <Td
+                          {...getTdProps({ columnKey: "description" })}
+                          modifier="truncate"
+                        >
                           <ArchetypeDescriptionColumn archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "tags" })}>
@@ -369,53 +381,83 @@ const Archetypes: React.FC = () => {
                           <ArchetypeApplicationsColumn archetype={archetype} />
                         </Td>
                         <Td isActionCell>
-                          <ActionsColumn
-                            items={[
-                              {
-                                title: t("actions.duplicate"),
-                                onClick: () =>
-                                  setArchetypeToDuplicate(archetype),
-                              },
-                              {
-                                title: t("actions.assess"),
-                                onClick: () =>
-                                  assessSelectedArchetype(archetype),
-                              },
-                              {
-                                title: t("actions.review"),
-                                onClick: () =>
-                                  reviewSelectedArchetype(archetype),
-                              },
-                              {
-                                title: t("actions.edit"),
-                                onClick: () => setArchetypeToEdit(archetype),
-                              },
-                              ...(archetype?.assessments?.length
-                                ? [
-                                    {
-                                      title: t("actions.discardAssessment"),
-                                      onClick: () =>
-                                        setAssessmentToDiscard(archetype),
-                                    },
-                                  ]
-                                : []),
-                              ...(archetype?.review
-                                ? [
-                                    {
-                                      title: t("actions.discardReview"),
-                                      onClick: () =>
-                                        setReviewToDiscard(archetype),
-                                    },
-                                  ]
-                                : []),
-                              { isSeparator: true },
-                              {
-                                title: t("actions.delete"),
-                                onClick: () => setArchetypeToDelete(archetype),
-                                isDanger: true,
-                              },
-                            ]}
-                          />
+                          {(archetypeWriteAccess ||
+                            assessmentWriteAccess ||
+                            reviewsWriteAccess ||
+                            (archetype?.assessments?.length &&
+                              assessmentWriteAccess) ||
+                            (archetype?.review && reviewsWriteAccess)) && (
+                            <ActionsColumn
+                              items={[
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.duplicate"),
+                                        onClick: () =>
+                                          setArchetypeToDuplicate(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(assessmentWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.assess"),
+                                        onClick: () =>
+                                          assessSelectedArchetype(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(reviewsWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.review"),
+                                        onClick: () =>
+                                          reviewSelectedArchetype(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.edit"),
+                                        onClick: () =>
+                                          setArchetypeToEdit(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetype?.assessments?.length &&
+                                assessmentWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.discardAssessment"),
+                                        onClick: () =>
+                                          setAssessmentToDiscard(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                ...(archetype?.review && reviewsWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.discardReview"),
+                                        onClick: () =>
+                                          setReviewToDiscard(archetype),
+                                      },
+                                    ]
+                                  : []),
+                                { isSeparator: true },
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t("actions.delete"),
+                                        onClick: () =>
+                                          setArchetypeToDelete(archetype),
+                                        isDanger: true,
+                                      },
+                                    ]
+                                  : []),
+                              ]}
+                            />
+                          )}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

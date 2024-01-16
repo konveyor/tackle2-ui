@@ -75,18 +75,18 @@ export interface IReviewMutation {
 }
 
 export const useDeleteReviewMutation = (
-  onSuccess: (name: string) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (name: string) => void,
+  onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (args: IReviewMutation) => deleteReview(args.id),
     onSuccess: (_, args) => {
-      onSuccess(args.name);
+      onSuccess && onSuccess(args.name);
       queryClient.invalidateQueries([reviewsQueryKey]);
     },
-    onError: onError,
+    onError: onError && onError,
   });
 };
 

@@ -28,6 +28,7 @@ import {
 } from "@tanstack/react-query";
 import { TrashIcon } from "@patternfly/react-icons";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 enum AssessmentAction {
   Take = "Take",
@@ -102,7 +103,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     onDeleteError
   );
 
-  const determineAction = () => {
+  const determineAction = React.useCallback(() => {
     if (!assessment) {
       return AssessmentAction.Take;
     } else if (assessment.status === "started") {
@@ -110,7 +111,13 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     } else {
       return AssessmentAction.Retake;
     }
-  };
+  }, [assessment]);
+
+  const [action, setAction] = React.useState(determineAction());
+
+  React.useEffect(() => {
+    setAction(determineAction());
+  }, [determineAction, assessment]);
 
   const determineButtonClassName = () => {
     const action = determineAction();
@@ -149,23 +156,25 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   };
 
   const takeAssessment = async () => {
-    if (!isArchetype && application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          createAssessment();
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-        }
-      }
-    } else {
+    try {
       createAssessment();
+    } catch (error) {
+      if (isArchetype) {
+        console.error(
+          `Error fetching archetype with ID ${archetype?.id}:`,
+          error
+        );
+      } else {
+        console.error(
+          `Error fetching application with ID ${application?.id}:`,
+          error
+        );
+      }
+
+      pushNotification({
+        title: t("terms.error"),
+        variant: "danger",
+      });
     }
   };
 
@@ -183,6 +192,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
             assessmentId: assessment.id,
             applicationName: application?.name,
             applicationId: application?.id,
+            archetypeName: archetype?.name,
             archetypeId: archetype?.id,
           }).then(() => {
             createAssessment();
@@ -202,7 +212,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
 
   return (
     <>
-      <Td>
+      <Td className="actions-col">
         <div>
           {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
             <Button
@@ -213,10 +223,10 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 onHandleAssessmentAction();
               }}
             >
-              {determineAction()}
+              {action}
             </Button>
           ) : (
-            <Spinner role="status" size="md">
+            <Spinner role="status" size="md" className={spacing.mxLg}>
               <span className="sr-only">Loading...</span>
             </Spinner>
           )}
@@ -247,7 +257,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
         </div>
       </Td>
       {assessment ? (
-        <Td isActionCell>
+        <Td isActionCell className="actions-col">
           <Button
             type="button"
             variant="plain"
@@ -256,6 +266,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 assessmentId: assessment.id,
                 applicationName: application?.name,
                 applicationId: application?.id,
+                archetypeName: archetype?.name,
                 archetypeId: archetype?.id,
               });
             }}

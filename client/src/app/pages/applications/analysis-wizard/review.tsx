@@ -50,8 +50,8 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
     excludedPackages,
     customRulesFiles,
     excludedRulesTags,
-    diva,
     autoTaggingEnabled,
+    advancedAnalysisEnabled,
   } = watch();
 
   const hasIncludedPackages = withKnownLibs.includes("select");
@@ -195,18 +195,20 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {t("wizard.terms.transactionReport")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="diva">
-            {diva ? t("wizard.terms.enabled") : t("wizard.terms.disabled")}
-          </DescriptionListDescription>
-        </DescriptionListGroup>{" "}
-        <DescriptionListGroup>
-          <DescriptionListTerm>
             {t("wizard.terms.autoTagging")}
           </DescriptionListTerm>
           <DescriptionListDescription id="autoTagging">
             {autoTaggingEnabled
+              ? t("wizard.terms.enabled")
+              : t("wizard.terms.disabled")}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.terms.advancedAnalysisDetails")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="advanced-analysis-details">
+            {advancedAnalysisEnabled
               ? t("wizard.terms.enabled")
               : t("wizard.terms.disabled")}
           </DescriptionListDescription>

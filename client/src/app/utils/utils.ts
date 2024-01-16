@@ -119,7 +119,7 @@ export const standardURLRegex =
   /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/;
 
 export const gitUrlRegex =
-  /^(?:git|ssh|https?|git@[-\w.]+):(\/\/)?(.*?)(\/?|#[-\d\w._]+?)$/;
+  /^(https?:\/\/[-\w.]+\/[-\w._]+\/[-\w._]+|git@[-\w.]+:[-\w._]+\/[-\w._]+)(\.git)?(\/?|#[-\d\w._]+)?$/;
 
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
@@ -167,4 +167,25 @@ const SHA_REGEX =
 export const extractFirstSha = (str: string): string | undefined => {
   const match = str.match(SHA_REGEX);
   return match && match[0] ? match[0] : undefined;
+};
+
+export const collapseSpacesAndCompare = (
+  str1: string | undefined,
+  str2: string | undefined,
+  locale?: string
+): number => {
+  if (!str1 && !str2) {
+    return 0;
+  }
+  if (str1 && !str2) {
+    return 1;
+  }
+  if (!str1 && str2) {
+    return -1;
+  }
+
+  const a = str1?.trim().replace(/\s+/g, " ") ?? "";
+  const b = str2?.trim().replace(/\s+/g, " ") ?? "";
+
+  return a.localeCompare(b, locale);
 };

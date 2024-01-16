@@ -53,11 +53,11 @@ const defaultTaskData: TaskData = {
   tagger: {
     enabled: true,
   },
+  verbosity: 0,
   mode: {
     binary: false,
     withDeps: false,
     artifact: "",
-    diva: false,
   },
   targets: [],
   sources: [],
@@ -171,7 +171,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       excludedPackages: [],
       customRulesFiles: [],
       excludedRulesTags: [],
-      diva: false,
       hasExcludedPackages: false,
       associatedCredentials: "",
       rulesKind: "manual",
@@ -180,6 +179,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       branch: "",
       rootPath: "",
       autoTaggingEnabled: true,
+      advancedAnalysisEnabled: false,
     },
     resolver: yupResolver(allFieldsSchema),
     mode: "all",
@@ -216,7 +216,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mode, withKnownLibs, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnownLibs.includes("select");
-
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
     fieldValues: AnalysisWizardFormValues
@@ -229,6 +228,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
+        verbosity: fieldValues.advancedAnalysisEnabled ? 1 : 0,
         tagger: {
           enabled: fieldValues.autoTaggingEnabled,
         },
@@ -238,7 +238,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           artifact: fieldValues.artifact?.name
             ? `/binary/${fieldValues.artifact.name}`
             : "",
-          diva: fieldValues.diva,
         },
         scope: {
           withKnownLibs: fieldValues.withKnownLibs.includes("oss")

@@ -33,7 +33,7 @@ import { useSelectionState } from "@migtools/lib-ui";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
 import {
   FilterType,
@@ -138,8 +138,18 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
             what: t("terms.source").toLowerCase(),
           }) + "...",
         serverFilterField: "labels",
-        getServerFilterValue: (value) =>
-          value?.length === 1 ? [`konveyor.io/source=*${value}*`] : undefined,
+        getServerFilterValue: (value) => {
+          if (
+            (value && value[0] === "None") ||
+            (value && value[0] === "none")
+          ) {
+            return [`konveyor.io/source`];
+          } else if (value && value.length > 0) {
+            return [`konveyor.io/source=*${value}*`];
+          } else {
+            return undefined;
+          }
+        },
       },
       {
         key: "target",
@@ -216,7 +226,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
-    idProperty: "_ui_unique_id",
+    idProperty: UI_UNIQUE_ID,
     currentPageItems: currentPageReports,
     totalItemCount: totalReportCount,
     isLoading,
