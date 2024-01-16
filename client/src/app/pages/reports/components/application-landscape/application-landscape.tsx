@@ -186,7 +186,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
             <Donut
               isAssessment={false}
               id="landscape-donut-unassessed"
-              value={landscapeData.unassessed}
+              value={landscapeData.unassessed + landscapeData.unknown}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.unknown.hexColor}
               riskLabel={
@@ -194,7 +194,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
                   {`${t("terms.unassessed")}/${t("terms.unknown")}`}
                 </Link>
               }
-              riskTitle={t("terms.unassessed")}
+              riskTitle={t("terms.unassessedOrUnknown")}
             />
           </FlexItem>
         </Flex>
