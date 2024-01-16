@@ -58,7 +58,7 @@ export const AffectedApplications: React.FC = () => {
     columnNames: {
       name: "Name",
       description: "Description",
-      businessService: "Business serice",
+      businessService: "Business service",
       effort: "Effort",
       incidents: "Incidents",
     },
