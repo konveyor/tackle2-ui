@@ -110,18 +110,7 @@ export const archetypesWriteScopes = [
   "archetypes:delete",
 ];
 
-export const analysisWriteScopes = [
-  "applications.analysis:put",
-  "applications.analysis:post",
-  "applications.analysis:delete",
-  "archetypes.analysis:put",
-  "archetypes.analysis:post",
-  "archetypes.analysis:delete",
-];
-export const analysisReadScopes = [
-  "applications.analysis:get",
-  "archetypes.analysis:get",
-];
+export const analysesReadScopes = ["applications.analyses:get"];
 
 export const assessmentWriteScopes = [
   "applications.assessments:put",
