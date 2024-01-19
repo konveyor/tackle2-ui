@@ -5,9 +5,6 @@ import { AppRoutes } from "./Routes";
 import { DefaultLayout } from "./layout";
 import { NotificationsProvider } from "./components/NotificationsContext";
 
-import "@patternfly/patternfly/patternfly.css";
-import "@patternfly/patternfly/patternfly-addons.css";
-
 import "./app.css";
 
 const App: React.FC = () => {

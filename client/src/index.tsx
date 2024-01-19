@@ -1,3 +1,6 @@
+import "@patternfly/patternfly/patternfly.css";
+import "@patternfly/patternfly/patternfly-addons.css";
+
 import React from "react";
 import ReactDOM from "react-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,16 +10,9 @@ import ENV from "@app/env";
 import App from "@app/App";
 import reportWebVitals from "@app/reportWebVitals";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
-import dayjs from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
-dayjs.extend(isSameOrBefore);
+import "@app/dayjs";
+import "@app/i18n";
 
 const queryClient = new QueryClient();
 
