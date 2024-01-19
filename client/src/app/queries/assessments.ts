@@ -216,7 +216,7 @@ const removeSectionOrderFromQuestions = (
     ...assessmentWithOrder,
     sections: assessmentWithOrder.sections.map((section) => ({
       ...section,
-      questions: section.questions.map(({ sectionOrder, ...rest }) => rest), // Destructure out sectionOrder
+      questions: section.questions.map(({ sectionOrder, ...rest }) => rest),
     })),
   };
 };
@@ -266,12 +266,12 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
 };
 
 export const useFetchAllAssessmentsWithArchetypes = (
-  archetypes: Archetype[]
+  archetypes: Archetype[] = []
 ) => {
   const assessmentQueries = useQueries({
     queries: archetypes.map((archetype) => ({
       queryKey: ["assessmentsForArchetype", archetype.id],
-      queryFn: () => getAssessmentsByItemId(true, archetype.id), // Replace with actual API call
+      queryFn: () => getAssessmentsByItemId(true, archetype.id),
     })),
   });
 

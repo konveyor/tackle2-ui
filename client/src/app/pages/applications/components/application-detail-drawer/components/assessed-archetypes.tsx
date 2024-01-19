@@ -22,8 +22,9 @@ export const AssessedArchetypes: React.FC<IAssessedArchetypesProps> = ({
   const {
     assessmentsWithArchetypes,
     isLoading: isFetchingAllAssessmentsWithArchetypesLoading,
-  } = useFetchAllAssessmentsWithArchetypes(applicationArchetypes || []);
-  const filteredArchetypes = assessmentsWithArchetypes
+  } = useFetchAllAssessmentsWithArchetypes(applicationArchetypes);
+
+  const assessedArchetypesWithARequiredAssessment = assessmentsWithArchetypes
     ?.filter((assessmentsWithArchetype) => {
       return (
         assessmentsWithArchetype.archetype.assessed &&
@@ -39,8 +40,8 @@ export const AssessedArchetypes: React.FC<IAssessedArchetypesProps> = ({
   }
   return (
     <LabelGroup>
-      {filteredArchetypes?.length ? (
-        filteredArchetypes?.map((archetype) => (
+      {assessedArchetypesWithARequiredAssessment?.length ? (
+        assessedArchetypesWithARequiredAssessment?.map((archetype) => (
           <Label key={archetype?.id}>{archetype?.name}</Label>
         ))
       ) : (
