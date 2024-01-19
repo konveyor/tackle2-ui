@@ -17,6 +17,9 @@ export interface AppAboutModalProps {
   onClose: () => void;
 }
 
+const TRANSPARENT_1x1_GIF =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw== ";
+
 export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   isOpen,
   onClose,
@@ -29,18 +32,21 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       trademark="COPYRIGHT © 2022."
-      brandImageSrc={about.imageSrc ?? undefined}
+      brandImageSrc={about.imageSrc ?? TRANSPARENT_1x1_GIF}
       brandImageAlt="Logo"
       productName={about.displayName}
     >
       <TextContent>
         <Text component={TextVariants.h4}>{t("about.about")}</Text>
+
         <Text component={TextVariants.p}>
           {t("about.introduction", { brandType: about.displayName })}
         </Text>
+
         <Text component={TextVariants.p}>
           {t("about.description", { brandType: about.displayName })}
         </Text>
+
         <Text component={TextVariants.p}>
           <Trans i18nKey={"about.bottom1"}>
             {{ brandType: about.displayName }} is a project within the
@@ -54,19 +60,23 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
             .
           </Trans>
         </Text>
-        <Text component={TextVariants.p}>
-          <Trans i18nKey={"about.bottom2"}>
-            For more information, refer to
-            <Text
-              component={TextVariants.a}
-              href={about.documentationUrl}
-              target="_blank"
-            >
-              {{ brandType: about.displayName }} documentation
-            </Text>
-            .
-          </Trans>
-        </Text>
+
+        {about.documentationUrl ? (
+          <Text component={TextVariants.p}>
+            <Trans i18nKey={"about.bottom2"}>
+              For more information, refer to
+              <Text
+                component={TextVariants.a}
+                href={about.documentationUrl}
+                target="_blank"
+              >
+                {{ brandType: about.displayName }} documentation
+              </Text>
+              .
+            </Trans>
+          </Text>
+        ) : null}
+
         <Text component={TextVariants.p}>
           <Trans i18nKey="about.iconLibrary">
             The Icon Library used in this project is a derivative of the{" "}

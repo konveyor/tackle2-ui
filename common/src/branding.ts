@@ -13,14 +13,14 @@ export interface MastheadTitle {
 export interface BrandingStrings {
   application: {
     title: string;
-    name: string;
-    description: string;
+    name?: string;
+    description?: string;
   };
 
   about: {
     displayName: string;
-    imageSrc: string;
-    documentationUrl: string;
+    imageSrc?: string;
+    documentationUrl?: string;
   };
 
   masthead: {
