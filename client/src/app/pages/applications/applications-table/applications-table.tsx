@@ -515,6 +515,14 @@ export const ApplicationsTable: React.FC = () => {
     selectionState: { selectedItems: selectedRows },
   } = tableControls;
 
+  const clearFilters = () => {
+    const currentPath = history.location.pathname;
+    const newSearch = new URLSearchParams(history.location.search);
+    newSearch.delete("filters");
+    history.push(`${currentPath}`);
+    filterToolbarProps.setFilterValues({});
+  };
+
   const [
     saveApplicationsCredentialsModalState,
     setSaveApplicationsCredentialsModalState,
@@ -732,7 +740,7 @@ export const ApplicationsTable: React.FC = () => {
           backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
         }}
       >
-        <Toolbar {...toolbarProps}>
+        <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
           <ToolbarContent>
             <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
             <FilterToolbar<Application, string> {...filterToolbarProps} />

@@ -77,26 +77,17 @@ export const SidebarApp: React.FC = () => {
           {selectedPersona === PersonaKey.MIGRATION ? (
             <NavList title="Global">
               <NavItem>
-                <NavLink
-                  to={Paths.applications + search}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.applications} activeClassName="pf-m-current">
                   {t("sidebar.applicationInventory")}
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink
-                  to={Paths.archetypes + search}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.archetypes} activeClassName="pf-m-current">
                   {t("sidebar.archetypes")}
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink
-                  to={Paths.reports + search}
-                  activeClassName="pf-m-current"
-                >
+                <NavLink to={Paths.reports} activeClassName="pf-m-current">
                   {t("sidebar.reports")}
                 </NavLink>
               </NavItem>

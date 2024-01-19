@@ -17,6 +17,7 @@ import {
   useTableControlState,
   useTableControlProps,
   getHubRequestParams,
+  deserializeFilterUrlParams,
 } from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -30,12 +31,17 @@ import { useSelectionState } from "@migtools/lib-ui";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import { getParsedLabel } from "@app/utils/rules-utils";
+import { useHistory } from "react-router-dom";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
 
   const allAffectedApplicationsFilterCategories =
     useSharedAffectedApplicationFilterCategories();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const filters = urlParams.get("filters");
+  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
@@ -46,6 +52,7 @@ export const Dependencies: React.FC = () => {
       provider: "Language",
       labels: "Labels",
     },
+    initialFilterValues: deserializedFilterValues,
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
@@ -122,6 +129,15 @@ export const Dependencies: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
+  const history = useHistory();
+
+  const clearFilters = () => {
+    const currentPath = history.location.pathname;
+    const newSearch = new URLSearchParams(history.location.search);
+    newSearch.delete("filters");
+    history.push(`${currentPath}`);
+  };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -135,7 +151,7 @@ export const Dependencies: React.FC = () => {
             backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
           }}
         >
-          <Toolbar {...toolbarProps}>
+          <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarItem {...paginationToolbarItemProps}>
