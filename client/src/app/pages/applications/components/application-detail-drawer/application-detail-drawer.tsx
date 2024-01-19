@@ -204,9 +204,7 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    <AssessedArchetypes
-                      archetypeRefs={application?.archetypes}
-                    />
+                    <AssessedArchetypes application={application} />
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 

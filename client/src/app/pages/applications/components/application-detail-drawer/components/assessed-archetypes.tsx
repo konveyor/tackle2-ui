@@ -1,5 +1,5 @@
 import React from "react";
-import { Ref } from "@app/api/models";
+import { Application } from "@app/api/models";
 import { Label, LabelGroup, Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useTranslation } from "react-i18next";
@@ -7,17 +7,17 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAllAssessmentsWithArchetypes } from "@app/queries/assessments";
 
 interface IAssessedArchetypesProps {
-  archetypeRefs: Ref[] | undefined;
+  application: Application | null;
 }
 
 export const AssessedArchetypes: React.FC<IAssessedArchetypesProps> = ({
-  archetypeRefs,
+  application,
 }) => {
   const { t } = useTranslation();
-  const { archetypes, isFetching: isFetchingArchetypes } = useFetchArchetypes();
-  const applicationArchetypes = archetypes.filter(
-    (archetype) => archetypeRefs?.some((ref) => ref.id === archetype.id)
-  );
+  const {
+    archetypes: applicationArchetypes,
+    isFetching: isFetchingArchetypes,
+  } = useFetchArchetypes(application);
 
   const {
     assessmentsWithArchetypes,
