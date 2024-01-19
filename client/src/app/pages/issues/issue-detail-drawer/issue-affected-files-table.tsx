@@ -152,7 +152,11 @@ export const IssueAffectedFilesTable: React.FC<
                   item={fileReport}
                   rowIndex={rowIndex}
                 >
-                  <Td width={70} {...getTdProps({ columnKey: "file" })}>
+                  <Td
+                    width={70}
+                    {...getTdProps({ columnKey: "file" })}
+                    modifier="truncate"
+                  >
                     <Button
                       variant="link"
                       isInline
