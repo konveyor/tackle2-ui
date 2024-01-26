@@ -42,6 +42,7 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
       } else {
         setFilteredArchetypes([]);
       }
+
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);

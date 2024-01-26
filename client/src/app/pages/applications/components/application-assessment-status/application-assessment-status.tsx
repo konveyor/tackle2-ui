@@ -4,7 +4,10 @@ import { Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Application } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
-import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import {
+  useFetchAllAssessmentsWithArchetypes,
+  useFetchAssessmentsByItemId,
+} from "@app/queries/assessments";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 interface ApplicationAssessmentStatusProps {
   application: Application;
@@ -16,19 +19,55 @@ export const ApplicationAssessmentStatus: React.FC<
 > = ({ application }) => {
   const { t } = useTranslation();
 
-  const { archetypes, isFetching } = useFetchArchetypes();
+  const { archetypes, isFetching } = useFetchArchetypes(application);
 
-  const applicationArchetypes = application.archetypes?.map((archetypeRef) => {
-    return archetypes?.find((archetype) => archetype.id === archetypeRef.id);
-  });
+  const {
+    assessmentsWithArchetypes,
+    isLoading: isFetchingAllAssessmentsWithArchetypesLoading,
+  } = useFetchAllAssessmentsWithArchetypes(archetypes);
 
-  const someArchetypesAssessed = applicationArchetypes?.some(
-    (archetype) => !!archetype?.assessments?.length ?? 0 > 0
-  );
-  const areAllArchetypesAssessed =
-    applicationArchetypes?.every(
-      (archetype) => archetype?.assessments?.length ?? 0 > 0
-    ) ?? false;
+  const assessedArchetypesWithARequiredAssessment = assessmentsWithArchetypes
+    ?.filter((assessmentsWithArchetype) => {
+      return (
+        assessmentsWithArchetype.archetype.assessed &&
+        assessmentsWithArchetype.assessments.some(
+          (assessment) => assessment?.required === true
+        )
+      );
+    })
+    .map((assessmentsWithArchetype) => assessmentsWithArchetype.archetype);
+
+  const allArchetypesAssessed =
+    assessmentsWithArchetypes.length > 0 &&
+    assessmentsWithArchetypes?.every((assessmentsWithArchetype) => {
+      const requiredAssessments = assessmentsWithArchetype.assessments.filter(
+        (assessment) => assessment?.required === true
+      );
+      return (
+        assessmentsWithArchetype.archetype.assessed &&
+        assessmentsWithArchetype.assessments.length > 0 &&
+        requiredAssessments.length > 0 &&
+        requiredAssessments.every(
+          (assessment) => assessment?.status === "complete"
+        )
+      );
+    });
+
+  const hasInProgressOrNotStartedRequiredAssessments = () => {
+    return (
+      assessmentsWithArchetypes?.some(
+        (assessmentsWithArchetype) =>
+          !assessmentsWithArchetype.archetype.assessed &&
+          assessmentsWithArchetype.assessments.some(
+            (assessment) =>
+              assessment?.required === true &&
+              (assessment.status === "empty" ||
+                assessment.status === "started" ||
+                assessment.status === "complete")
+          )
+      ) ?? false
+    );
+  };
 
   const {
     assessments,
@@ -47,27 +86,19 @@ export const ApplicationAssessmentStatus: React.FC<
   let statusPreset: IconedStatusPreset = "NotStarted"; // Default status
   let tooltipCount: number = 0;
 
-  const assessedArchetypeCount =
-    applicationArchetypes?.filter(
-      (archetype) => archetype?.assessments?.length ?? 0 > 0
-    ).length || 0;
-
   const isDirectlyAssessed =
     application.assessed && (application.assessments?.length ?? 0) > 0;
 
   if (isDirectlyAssessed) {
     statusPreset = "Completed";
-  } else if (areAllArchetypesAssessed) {
+  } else if (allArchetypesAssessed) {
     statusPreset = "InheritedAssessments";
-    tooltipCount = assessedArchetypeCount;
-  } else if (someArchetypesAssessed) {
+    tooltipCount = assessedArchetypesWithARequiredAssessment?.length ?? 0;
+  } else if (hasInProgressOrNotStartedRequiredAssessments()) {
     statusPreset = "InProgressInheritedAssessments";
-    tooltipCount = assessedArchetypeCount;
+    tooltipCount = assessedArchetypesWithARequiredAssessment?.length ?? 0;
   } else if (
-    assessments?.some(
-      (assessment) =>
-        assessment.status === "started" || assessment.status === "complete"
-    )
+    assessments?.some((assessment) => assessment.status === "started")
   ) {
     statusPreset = "InProgress";
   }
