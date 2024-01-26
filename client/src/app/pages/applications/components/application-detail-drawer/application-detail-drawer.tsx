@@ -57,6 +57,7 @@ import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { AssessedArchetypes } from "./components/assessed-archetypes";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -100,14 +101,6 @@ export const ApplicationDetailDrawer: React.FC<
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
   const enableDownloadSetting = useSetting("download.html.enabled");
-
-  const assessedArchetypes =
-    application?.archetypes
-      ?.map((archetypeRef) =>
-        archetypes.find((archetype) => archetype.id === archetypeRef.id)
-      )
-      .filter((fullArchetype) => fullArchetype?.assessed)
-      .filter(Boolean) || [];
 
   const reviewedArchetypes =
     application?.archetypes
@@ -211,18 +204,7 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    <LabelGroup>
-                      {assessedArchetypes?.length ? (
-                        assessedArchetypes.map((assessedArchetype) => (
-                          <ArchetypeItem
-                            key={assessedArchetype?.id}
-                            archetype={assessedArchetype}
-                          />
-                        ))
-                      ) : (
-                        <EmptyTextMessage message={t("terms.none")} />
-                      )}
-                    </LabelGroup>
+                    <AssessedArchetypes application={application} />
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 

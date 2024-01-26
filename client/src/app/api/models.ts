@@ -735,6 +735,7 @@ export interface Assessment
   confidence?: number;
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
+  required?: boolean;
 }
 export interface CategorizedTag {
   category: TagCategory;
@@ -793,4 +794,8 @@ export interface AssessmentWithSectionOrder extends Assessment {
 export interface AssessmentWithArchetypeApplications
   extends AssessmentWithSectionOrder {
   archetypeApplications: Ref[];
+}
+export interface AssessmentsWithArchetype {
+  archetype: Archetype;
+  assessments: Assessment[];
 }
