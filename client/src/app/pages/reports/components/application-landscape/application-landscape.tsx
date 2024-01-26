@@ -122,6 +122,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
     () => aggregateRiskData(filteredAssessments, applications),
     [filteredAssessments, applications]
   );
+  console.log("landscapeData", landscapeData);
 
   return (
     <ConditionalRender

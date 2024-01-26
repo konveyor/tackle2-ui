@@ -30,7 +30,12 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
     queryFn: getArchetypes,
     refetchInterval: 5000,
     onSuccess: (fetchedArchetypes) => {
-      if (forApplication && forApplication.archetypes) {
+      if (!forApplication) {
+        setFilteredArchetypes(fetchedArchetypes);
+      } else if (
+        Array.isArray(forApplication.archetypes) &&
+        forApplication.archetypes.length > 0
+      ) {
         const archetypeIds = forApplication.archetypes.map(
           (archetype) => archetype.id
         );
@@ -39,8 +44,10 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
         );
         setFilteredArchetypes(filtered);
       } else {
-        setFilteredArchetypes(fetchedArchetypes);
+        setFilteredArchetypes([]);
       }
+
+      // Invalidate queries as needed
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
