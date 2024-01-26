@@ -17,9 +17,11 @@ import {
 } from "@app/api/rest";
 import { AxiosError } from "axios";
 import {
+  Archetype,
   Assessment,
   AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
+  AssessmentsWithArchetype,
   InitialAssessment,
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
@@ -214,7 +216,7 @@ const removeSectionOrderFromQuestions = (
     ...assessmentWithOrder,
     sections: assessmentWithOrder.sections.map((section) => ({
       ...section,
-      questions: section.questions.map(({ sectionOrder, ...rest }) => rest), // Destructure out sectionOrder
+      questions: section.questions.map(({ sectionOrder, ...rest }) => rest),
     })),
   };
 };
@@ -260,5 +262,35 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
   return {
     assessmentsWithArchetypeApplications,
     isLoading: assessmentsLoading || isArchetypesLoading,
+  };
+};
+
+export const useFetchAllAssessmentsWithArchetypes = (
+  archetypes: Archetype[] = []
+) => {
+  const assessmentQueries = useQueries({
+    queries: archetypes.map((archetype) => ({
+      queryKey: ["assessmentsForArchetype", archetype.id],
+      queryFn: () => getAssessmentsByItemId(true, archetype.id),
+    })),
+  });
+
+  const assessmentsWithArchetypes: AssessmentsWithArchetype[] =
+    assessmentQueries
+      .map((query, index) => {
+        if (query.isSuccess) {
+          return {
+            archetype: archetypes[index],
+            assessments: query.data,
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+  return {
+    assessmentsWithArchetypes,
+    isLoading: assessmentQueries.some((query) => query.isLoading),
+    isError: assessmentQueries.some((query) => query.isError),
   };
 };
