@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AxiosError } from "axios";
-import { Archetype } from "@app/api/models";
+import { Application, Archetype } from "@app/api/models";
 import {
   createArchetype,
   deleteArchetype,
@@ -14,18 +14,33 @@ import {
   assessmentsByItemIdQueryKey,
 } from "./assessments";
 import { reviewsQueryKey } from "./reviews";
+import { useState } from "react";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
 
-export const useFetchArchetypes = () => {
+export const useFetchArchetypes = (forApplication?: Application | null) => {
+  const [filteredArchetypes, setFilteredArchetypes] = useState<Archetype[]>([]);
+
   const queryClient = useQueryClient();
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     initialData: [],
-    queryKey: [ARCHETYPES_QUERY_KEY],
+    queryKey: [ARCHETYPES_QUERY_KEY, forApplication?.id],
+
     queryFn: getArchetypes,
     refetchInterval: 5000,
-    onSuccess: () => {
+    onSuccess: (fetchedArchetypes) => {
+      if (forApplication && forApplication.archetypes) {
+        const archetypeIds = forApplication.archetypes.map(
+          (archetype) => archetype.id
+        );
+        const filtered = fetchedArchetypes.filter((archetype) =>
+          archetypeIds.includes(archetype.id)
+        );
+        setFilteredArchetypes(filtered);
+      } else {
+        setFilteredArchetypes(fetchedArchetypes);
+      }
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
@@ -35,7 +50,7 @@ export const useFetchArchetypes = () => {
   });
 
   return {
-    archetypes: data || [],
+    archetypes: filteredArchetypes || [],
     isFetching: isLoading,
     isSuccess,
     error,
