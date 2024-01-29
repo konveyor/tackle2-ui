@@ -58,6 +58,8 @@ import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { AssessedArchetypes } from "./components/assessed-archetypes";
+import { serializeFilterUrlParams } from "@app/hooks/table-controls";
+import { Paths } from "@app/Paths";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -190,15 +192,25 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.associatedArchetypes")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      <ArchetypeLabels
-                        archetypeRefs={application?.archetypes}
-                      />
+                    {application?.archetypes?.length ? (
+                      <>
+                        <Link to={getArchetypesUrl(application?.name)}>
+                          {application.archetypes.length}{" "}
+                          {t("terms.archetypes", {
+                            count: application.archetypes.length,
+                            context:
+                              application.archetypes.length > 1
+                                ? "plural"
+                                : "singular",
+                          }).toLocaleLowerCase()}{" "}
+                        </Link>
+                      </>
                     ) : (
                       <EmptyTextMessage message={t("terms.none")} />
                     )}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
+
                 <DescriptionListGroup>
                   <DescriptionListTerm>
                     {t("terms.archetypesAssessed")}
@@ -440,4 +452,17 @@ const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
 
 const ArchetypeItem: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
   return <Label color="grey">{archetype.name}</Label>;
+};
+
+const getArchetypesUrl = (applicationName: string) => {
+  const filterValues = {
+    "application.name": [applicationName],
+  };
+
+  const serializedParams = serializeFilterUrlParams(filterValues);
+
+  const queryString = serializedParams.filters
+    ? `filters=${serializedParams.filters}`
+    : "";
+  return `${Paths.archetypes}?${queryString}`;
 };

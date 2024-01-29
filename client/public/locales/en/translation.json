@@ -265,6 +265,8 @@
     "applications": "Applications",
     "archetype": "Archetype",
     "archetypes": "Archetypes",
+    "archetypes_singular": "Archetype",
+    "archetypes_plural": "Archetypes",
     "artifact": "Artifact",
     "artifactAssociated": "Associated artifact",
     "artifactNotAssociated": "No associated artifact",
