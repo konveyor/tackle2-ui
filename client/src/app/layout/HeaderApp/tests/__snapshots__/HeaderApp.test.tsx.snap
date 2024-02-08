@@ -106,14 +106,6 @@ exports[`Test snapshot 1`] = `
                   </div>
                 </div>
               </div>
-              <div
-                class="pf-v5-c-toolbar__expandable-content"
-                id="pf-random-id-0-expandable-content-0"
-              >
-                <div
-                  class="pf-v5-c-toolbar__group"
-                />
-              </div>
             </div>
             <div
               class="pf-v5-c-toolbar__content pf-m-hidden"
@@ -229,14 +221,6 @@ exports[`Test snapshot 1`] = `
                   </button>
                 </div>
               </div>
-            </div>
-            <div
-              class="pf-v5-c-toolbar__expandable-content"
-              id="pf-random-id-0-expandable-content-0"
-            >
-              <div
-                class="pf-v5-c-toolbar__group"
-              />
             </div>
           </div>
           <div
