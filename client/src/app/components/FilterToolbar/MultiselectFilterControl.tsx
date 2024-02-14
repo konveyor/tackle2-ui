@@ -8,7 +8,6 @@ import {
   SelectGroup,
   SelectList,
   SelectOption,
-  SelectOptionProps,
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
@@ -49,18 +48,24 @@ export const MultiselectFilterControl = <TItem,>({
   const [selectOptions, setSelectOptions] = React.useState<
     FilterSelectOptionProps[]
   >(Array.isArray(category.selectOptions) ? category.selectOptions : []);
+
   const hasGroupings = !Array.isArray(selectOptions);
+
   const flatOptions: FilterSelectOptionProps[] = !hasGroupings
     ? selectOptions
     : (Object.values(selectOptions).flatMap(
         (i) => i
       ) as FilterSelectOptionProps[]);
 
-  React.useEffect(() => {
-    if (Array.isArray(category.selectOptions)) {
-      setSelectOptions(category.selectOptions);
-    }
-  }, [category.selectOptions]);
+  const getOptionKeyFromOptionValue = (optionValue: string) =>
+    flatOptions.find(({ value }) => value === optionValue)?.key;
+
+  const getOptionValueFromOptionKey = (optionKey: string) =>
+    flatOptions.find(({ key }) => key === optionKey)?.value;
+
+  const getOptionKeyFromChip = (chipDisplayValue: string) => {
+    return flatOptions.find(({ value }) => value === chipDisplayValue)?.key;
+  };
 
   const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(
     null
@@ -70,32 +75,24 @@ export const MultiselectFilterControl = <TItem,>({
   const textInputRef = React.useRef<HTMLInputElement>();
   const [inputValue, setInputValue] = React.useState<string>("");
 
-  const getOptionKeyFromOptionValue = (
-    optionValue: string | SelectOptionProps
-  ) => flatOptions.find((option) => option?.value === optionValue)?.key;
-
-  const getOptionValueFromOptionKey = (optionKey: string) =>
-    flatOptions.find(({ key }) => key === optionKey)?.value;
-
   const onFilterClear = (chip: string | ToolbarChip) => {
-    const chipKey = typeof chip === "string" ? chip : chip.key;
-    const newFilterValue = filterValue
-      ? filterValue.filter((selection) => selection !== chipKey)
-      : filterValue;
+    const displayValue = typeof chip === "string" ? chip : chip.key;
+    const optionKey = getOptionKeyFromChip(displayValue);
 
-    setFilterValue(newFilterValue);
+    if (optionKey) {
+      const newValue = filterValue?.filter((val) => val !== optionKey) ?? [];
+      setFilterValue(newValue.length > 0 ? newValue : null);
+    }
   };
-
-  // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue?.map(getOptionValueFromOptionKey) ?? [];
 
   /*
    * Note: Chips can be a `ToolbarChip` or a plain `string`.  Use a hack to split a
    *       selected option in 2 parts.  Assuming the option is in the format "Group / Item"
    *       break the text and show a chip with the Item and the Group as a tooltip.
    */
-  const chips = selections.map((s, index) => {
-    const chip: string = s?.toString() ?? "";
+  const chips = filterValue?.map((s, index) => {
+    const displayValue = getOptionValueFromOptionKey(s);
+    const chip: string = displayValue?.toString() ?? "";
     const idx = chip.indexOf(CHIP_BREAK_DELINEATOR);
 
     if (idx > 0) {
@@ -124,69 +121,98 @@ export const MultiselectFilterControl = <TItem,>({
           .map(([group, options], index) => {
             const groupFiltered =
               options?.filter((o) => filter(o, group)) ?? [];
-            return groupFiltered.length == 0 ? undefined : (
+            return groupFiltered.length === 0 ? undefined : (
               <SelectGroup key={`group-${index}`} label={group}>
-                {groupFiltered.map((optionProps) => (
-                  <SelectOption {...optionProps} key={optionProps.key} />
-                ))}
+                {groupFiltered.map((optionProps) => {
+                  const optionKey = getOptionKeyFromOptionValue(
+                    optionProps.value
+                  );
+                  if (!optionKey) return null;
+                  return (
+                    <SelectOption
+                      {...optionProps}
+                      key={optionProps.key}
+                      isSelected={filterValue?.includes(optionKey)}
+                    />
+                  );
+                })}
               </SelectGroup>
             );
           })
           .filter(Boolean)
       : flatOptions
           .filter((o) => filter(o))
-          .map((optionProps, index) => (
-            <SelectOption
-              {...optionProps}
-              {...(!optionProps.isDisabled && { hasCheckbox: true })}
-              key={optionProps.value || optionProps.children}
-              isFocused={focusedItemIndex === index}
-              id={`select-multi-typeahead-${optionProps.value.replace(
-                " ",
-                "-"
-              )}`}
-              ref={null}
-              isSelected={filterValue?.includes(optionProps.value)}
-            >
-              {optionProps.value}
-            </SelectOption>
-          ));
+          .map((optionProps, index) => {
+            const optionKey = getOptionKeyFromOptionValue(optionProps.value);
+            if (!optionKey) return null;
+            return (
+              <SelectOption
+                {...optionProps}
+                {...(!optionProps.isDisabled && { hasCheckbox: true })}
+                key={optionProps.value || optionProps.children}
+                value={optionProps.value}
+                isFocused={focusedItemIndex === index}
+                isSelected={filterValue?.includes(optionKey)}
+              >
+                {optionProps.value}
+              </SelectOption>
+            );
+          });
 
   const onSelect = (value: string | undefined) => {
     if (value && value !== "No results") {
-      const newFilterValue = filterValue ? [...filterValue, value] : [value];
-      setFilterValue(newFilterValue);
-    }
+      const optionKey = getOptionKeyFromOptionValue(value);
 
+      if (optionKey) {
+        let newFilterValue: string[];
+
+        if (filterValue && filterValue.includes(optionKey)) {
+          newFilterValue = filterValue.filter((item) => item !== optionKey);
+        } else {
+          newFilterValue = filterValue
+            ? [...filterValue, optionKey]
+            : [optionKey];
+        }
+
+        setFilterValue(newFilterValue);
+      }
+    }
     textInputRef.current?.focus();
   };
 
   const handleMenuArrowKeys = (key: string) => {
-    if (isFilterDropdownOpen && Array.isArray(selectOptions)) {
-      let indexToFocus: number = focusedItemIndex ?? -1;
+    let indexToFocus = 0;
 
+    if (isFilterDropdownOpen) {
       if (key === "ArrowUp") {
-        indexToFocus =
-          indexToFocus <= 0 ? selectOptions.length - 1 : indexToFocus - 1;
-      } else if (key === "ArrowDown") {
-        indexToFocus =
-          indexToFocus >= selectOptions.length - 1 ? 0 : indexToFocus + 1;
+        if (focusedItemIndex === null || focusedItemIndex === 0) {
+          indexToFocus = selectOptions.length - 1;
+        } else {
+          indexToFocus = focusedItemIndex - 1;
+        }
       }
 
-      while (selectOptions[indexToFocus].isDisabled) {
-        indexToFocus = key === "ArrowUp" ? indexToFocus - 1 : indexToFocus + 1;
-        if (indexToFocus < 0) {
-          indexToFocus = selectOptions.length - 1;
-        } else if (indexToFocus >= selectOptions.length) {
+      if (key === "ArrowDown") {
+        if (
+          focusedItemIndex === null ||
+          focusedItemIndex === selectOptions.length - 1
+        ) {
           indexToFocus = 0;
+        } else {
+          indexToFocus = focusedItemIndex + 1;
         }
       }
 
       setFocusedItemIndex(indexToFocus);
-      const focusedItem = selectOptions[indexToFocus];
-      setActiveItem(`select-typeahead-${focusedItem.value.replace(" ", "-")}`);
+      const focusedItem = selectOptions.filter((option) => !option.isDisabled)[
+        indexToFocus
+      ];
+      setActiveItem(
+        `select-multi-typeahead-checkbox-${focusedItem.value.replace(" ", "-")}`
+      );
     }
   };
+
   React.useEffect(() => {
     let newSelectOptions = Array.isArray(category.selectOptions)
       ? category.selectOptions
@@ -197,7 +223,7 @@ export const MultiselectFilterControl = <TItem,>({
         ? category.selectOptions?.filter((menuItem) =>
             String(menuItem.value)
               .toLowerCase()
-              .includes(inputValue.toLowerCase())
+              .includes(inputValue.trim().toLowerCase())
           )
         : [];
 
@@ -205,7 +231,7 @@ export const MultiselectFilterControl = <TItem,>({
         newSelectOptions = [
           {
             key: "no-results",
-            isDisabled: true,
+            isDisabled: false,
             children: `No results found for "${inputValue}"`,
             value: "No results",
           },
@@ -220,7 +246,7 @@ export const MultiselectFilterControl = <TItem,>({
     setSelectOptions(newSelectOptions);
     setFocusedItemIndex(null);
     setActiveItem(null);
-  }, [inputValue, isFilterDropdownOpen, category.selectOptions]);
+  }, [inputValue]);
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const enabledMenuItems = Array.isArray(selectOptions)
@@ -241,31 +267,11 @@ export const MultiselectFilterControl = <TItem,>({
 
     switch (event.key) {
       case "Enter":
-        event.preventDefault();
-        setSelectOptions(newSelectOptions);
-        setIsFilterDropdownOpen(true);
-
-        if (
-          isFilterDropdownOpen &&
-          selectedItem &&
-          selectedItem.value !== "no results"
-        ) {
-          setInputValue("");
-
-          const newFilterValue = [...(filterValue || [])];
-          const optionValue = getOptionValueFromOptionKey(selectedItem.value);
-
-          if (newFilterValue.includes(optionValue)) {
-            const indexToRemove = newFilterValue.indexOf(optionValue);
-            newFilterValue.splice(indexToRemove, 1);
-          } else {
-            newFilterValue.push(optionValue);
-          }
-
-          setFilterValue(newFilterValue);
-          setIsFilterDropdownOpen(false);
+        if (!isFilterDropdownOpen) {
+          setIsFilterDropdownOpen((prev) => !prev);
+        } else if (selectedItem && selectedItem.value !== "No results") {
+          onSelect(selectedItem.value);
         }
-
         break;
       case "Tab":
       case "Escape":
@@ -276,6 +282,8 @@ export const MultiselectFilterControl = <TItem,>({
       case "ArrowDown":
         event.preventDefault();
         handleMenuArrowKeys(event.key);
+        break;
+      default:
         break;
     }
   };
@@ -295,6 +303,7 @@ export const MultiselectFilterControl = <TItem,>({
         setIsFilterDropdownOpen(!isFilterDropdownOpen);
       }}
       isExpanded={isFilterDropdownOpen}
+      isDisabled={isDisabled || !category.selectOptions.length}
       isFullWidth
     >
       <TextInputGroup isPlain>
