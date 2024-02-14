@@ -58,7 +58,6 @@ sections:
             risk: unknown
             rationale: Lack of clarity on architecture can lead to unplanned issues.
             mitigation: Conduct an architectural review.
-
       - order: 3
         text: Is your application's data storage cloud-optimized?
         explanation: Evaluate if the data storage solution is optimized for cloud usage.
@@ -81,6 +80,30 @@ sections:
             risk: yellow
             rationale: Hybrid solutions may have integration complexities.
             mitigation: Evaluate and optimize cloud integration points.
+      - order: 4
+        text: Are you currently using any form of container orchestration?
+        explanation: Determine if the application utilizes container orchestration tools like Kubernetes, Docker Swarm, etc.
+        excludeFor:
+          - category: Deployment
+            tag: Serverless
+          - category: Architecture
+            tag: Monolith
+        answers:
+          - order: 1
+            text: Kubernetes
+            risk: green
+            rationale: Kubernetes is a robust orchestrator for container management.
+            mitigation: Ensure Kubernetes configurations are optimized for cloud.
+          - order: 2
+            text: Docker Swarm
+            risk: green
+            rationale: Docker Swarm provides a simpler, yet effective, orchestration.
+            mitigation: Validate that Docker Swarm meets all cloud scalability requirements.
+          - order: 3
+            text: No Container Orchestration
+            risk: yellow
+            rationale: Lack of container orchestration can hinder cloud adaptability.
+            mitigation: Explore container orchestration options for better cloud integration.
 thresholds:
   red: 1
   yellow: 30
