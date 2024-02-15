@@ -59,7 +59,7 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business service",
-      effort: "Effort",
+      effort: "Total Effort",
       incidents: "Incidents",
     },
     isFilterEnabled: true,
