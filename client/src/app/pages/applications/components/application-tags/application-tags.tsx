@@ -29,6 +29,7 @@ import {
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useHistory } from "react-router-dom";
 import { ItemTagLabel } from "../../../../components/labels/item-tag-label/item-tag-label";
+import { capitalizeFirstLetter } from "@app/utils/utils";
 
 interface TagWithSource extends Tag {
   source?: string;
@@ -216,7 +217,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                   component="h3"
                   className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
                 >
-                  {source === "" ? "Manual" : source}
+                  {source === "" ? "Manual" : capitalizeFirstLetter(source)}
                 </Text>
               </TextContent>
               {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
