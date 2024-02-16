@@ -58,11 +58,14 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <ToolbarItem {...paginationToolbarItemProps}>
-            <SimplePagination
-              idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
-              isTop
-              paginationProps={paginationProps}
-            />
+            {migrationWave.allStakeholders.length > 9 && (
+              <SimplePagination
+                idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
+                isTop
+                paginationProps={paginationProps}
+                isCompact
+              />
+            )}
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
@@ -116,6 +119,14 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
           </Tbody>
         </ConditionalTableBody>
       </Table>
+      {migrationWave.allStakeholders.length > 9 && (
+        <SimplePagination
+          idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
+          isTop={false}
+          paginationProps={paginationProps}
+          isCompact
+        />
+      )}
     </>
   );
 };
