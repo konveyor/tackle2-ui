@@ -73,11 +73,14 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <ToolbarItem {...paginationToolbarItemProps}>
-            <SimplePagination
-              idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
-              isTop
-              paginationProps={paginationProps}
-            />
+            {migrationWave.fullApplications.length > 9 && (
+              <SimplePagination
+                idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
+                isTop
+                paginationProps={paginationProps}
+                isCompact
+              />
+            )}
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
@@ -155,6 +158,14 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
           </Tbody>
         </ConditionalTableBody>
       </Table>
+      {migrationWave.fullApplications.length > 9 && (
+        <SimplePagination
+          idPrefix={`expanded-migration-wave-${migrationWave.name}-apps-table`}
+          isTop={false}
+          paginationProps={paginationProps}
+          isCompact
+        />
+      )}
     </>
   );
 };
