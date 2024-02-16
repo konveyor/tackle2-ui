@@ -189,3 +189,6 @@ export const collapseSpacesAndCompare = (
 
   return a.localeCompare(b, locale);
 };
+
+export const capitalizeFirstLetter = (str: string) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
