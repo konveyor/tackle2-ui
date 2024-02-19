@@ -17,6 +17,7 @@ import {
   MenuToggle,
   MenuToggleElement,
   Modal,
+  Tooltip,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import {
@@ -359,9 +360,8 @@ export const ApplicationsTable: React.FC = () => {
         selectOptions: [
           ...new Set(
             applications
-              .flatMap(
-                (application) =>
-                  application?.archetypes?.map((archetype) => archetype.name)
+              .flatMap((application) =>
+                application?.archetypes?.map((archetype) => archetype.name)
               )
               .filter(Boolean)
           ),
@@ -948,13 +948,15 @@ export const ApplicationsTable: React.FC = () => {
 
                       <Td isActionCell id="pencil-action">
                         {applicationWriteAccess && (
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
                         )}
                       </Td>
                       <Td isActionCell id="row-actions">
