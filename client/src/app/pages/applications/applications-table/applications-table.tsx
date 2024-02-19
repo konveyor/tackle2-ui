@@ -945,7 +945,7 @@ export const ApplicationsTable: React.FC = () => {
 
                       <Td isActionCell id="pencil-action">
                         {applicationWriteAccess && (
-                          <Tooltip content="Edit">
+                          <Tooltip content={t("actions.edit")}>
                             <Button
                               variant="plain"
                               icon={<PencilAltIcon />}
