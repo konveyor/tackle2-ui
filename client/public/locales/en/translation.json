@@ -486,6 +486,12 @@
     "required": "This field is required."
   },
   "wizard": {
+    "alert": {
+      "sourceMode": {
+        "title": "Source Code Mode",
+        "description": "This mode focuses on analyzing the source code. Language-specific dependency configurations, like in Java's POM files, are not the primary focus and may not be fully analyzed."
+      }
+    },
     "composed": {
       "enable": "Enable {{what}}",
       "excluded": "Excluded {{what}}",

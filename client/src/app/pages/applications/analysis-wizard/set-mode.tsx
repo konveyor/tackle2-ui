@@ -85,6 +85,15 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
           <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
       )}
+      {mode === "source-code" && (
+        <Alert
+          variant="info"
+          isInline
+          title={t("wizard.alert.sourceMode.title")}
+        >
+          <p>{t("wizard.alert.sourceMode.description")}</p>
+        </Alert>
+      )}
       {mode === "binary-upload" && <UploadBinary />}
     </Form>
   );
