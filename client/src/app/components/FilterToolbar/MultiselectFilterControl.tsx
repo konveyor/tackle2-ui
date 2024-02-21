@@ -1,19 +1,27 @@
 import * as React from "react";
-import { ToolbarChip, ToolbarFilter, Tooltip } from "@patternfly/react-core";
 import {
+  Badge,
+  Button,
+  MenuToggle,
+  MenuToggleElement,
   Select,
-  SelectOption,
-  SelectOptionObject,
-  SelectVariant,
-  SelectProps,
   SelectGroup,
-} from "@patternfly/react-core/deprecated";
+  SelectList,
+  SelectOption,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
+  ToolbarChip,
+  ToolbarFilter,
+  Tooltip,
+} from "@patternfly/react-core";
 import { IFilterControlProps } from "./FilterControl";
 import {
   IMultiselectFilterCategory,
   FilterSelectOptionProps,
 } from "./FilterToolbar";
 import { css } from "@patternfly/react-styles";
+import { TimesIcon } from "@patternfly/react-icons";
 
 import "./select-overrides.css";
 
@@ -37,58 +45,54 @@ export const MultiselectFilterControl = <TItem,>({
 >): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
-  const { selectOptions } = category;
+  const [selectOptions, setSelectOptions] = React.useState<
+    FilterSelectOptionProps[]
+  >(Array.isArray(category.selectOptions) ? category.selectOptions : []);
+
   const hasGroupings = !Array.isArray(selectOptions);
-  const flatOptions = !hasGroupings
+
+  const flatOptions: FilterSelectOptionProps[] = !hasGroupings
     ? selectOptions
-    : Object.values(selectOptions).flatMap((i) => i);
+    : (Object.values(selectOptions).flatMap(
+        (i) => i
+      ) as FilterSelectOptionProps[]);
 
-  const getOptionKeyFromOptionValue = (
-    optionValue: string | SelectOptionObject
-  ) => flatOptions.find(({ value }) => value === optionValue)?.key;
-
-  const getOptionKeyFromChip = (chip: string) =>
-    flatOptions.find(({ value }) => value.toString() === chip)?.key;
+  const getOptionKeyFromOptionValue = (optionValue: string) =>
+    flatOptions.find(({ value }) => value === optionValue)?.key;
 
   const getOptionValueFromOptionKey = (optionKey: string) =>
     flatOptions.find(({ key }) => key === optionKey)?.value;
 
-  const onFilterSelect = (value: string | SelectOptionObject) => {
-    const optionKey = getOptionKeyFromOptionValue(value);
-    if (optionKey && filterValue?.includes(optionKey)) {
-      const updatedValues = filterValue.filter(
-        (item: string) => item !== optionKey
-      );
-      setFilterValue(updatedValues);
-    } else {
-      if (filterValue) {
-        const updatedValues = [...filterValue, optionKey];
-        setFilterValue(updatedValues as string[]);
-      } else {
-        setFilterValue([optionKey || ""]);
-      }
-    }
+  const getOptionKeyFromChip = (chipDisplayValue: string) => {
+    return flatOptions.find(({ value }) => value === chipDisplayValue)?.key;
   };
+
+  const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(
+    null
+  );
+
+  const [activeItem, setActiveItem] = React.useState<string | null>(null);
+  const textInputRef = React.useRef<HTMLInputElement>();
+  const [inputValue, setInputValue] = React.useState<string>("");
 
   const onFilterClear = (chip: string | ToolbarChip) => {
-    const chipKey = typeof chip === "string" ? chip : chip.key;
-    const optionKey = getOptionKeyFromChip(chipKey);
-    const newValue = filterValue
-      ? filterValue.filter((val) => val !== optionKey)
-      : [];
-    setFilterValue(newValue.length > 0 ? newValue : null);
-  };
+    const displayValue = typeof chip === "string" ? chip : chip.key;
+    const optionKey = getOptionKeyFromChip(displayValue);
 
-  // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue?.map(getOptionValueFromOptionKey) ?? [];
+    if (optionKey) {
+      const newValue = filterValue?.filter((val) => val !== optionKey) ?? [];
+      setFilterValue(newValue.length > 0 ? newValue : null);
+    }
+  };
 
   /*
    * Note: Chips can be a `ToolbarChip` or a plain `string`.  Use a hack to split a
    *       selected option in 2 parts.  Assuming the option is in the format "Group / Item"
    *       break the text and show a chip with the Item and the Group as a tooltip.
    */
-  const chips = selections.map((s, index) => {
-    const chip: string = s?.toString() ?? "";
+  const chips = filterValue?.map((s, index) => {
+    const displayValue = getOptionValueFromOptionKey(s);
+    const chip: string = displayValue?.toString() ?? "";
     const idx = chip.indexOf(CHIP_BREAK_DELINEATOR);
 
     if (idx > 0) {
@@ -110,42 +114,237 @@ export const MultiselectFilterControl = <TItem,>({
     filter: (option: FilterSelectOptionProps, groupName?: string) => boolean
   ) =>
     hasGroupings
-      ? Object.entries(selectOptions)
+      ? Object.entries(
+          selectOptions as Record<string, FilterSelectOptionProps[]>
+        )
           .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
           .map(([group, options], index) => {
             const groupFiltered =
               options?.filter((o) => filter(o, group)) ?? [];
-            return groupFiltered.length == 0 ? undefined : (
+            return groupFiltered.length === 0 ? undefined : (
               <SelectGroup key={`group-${index}`} label={group}>
-                {groupFiltered.map((optionProps) => (
-                  <SelectOption {...optionProps} key={optionProps.key} />
-                ))}
+                {groupFiltered.map((optionProps) => {
+                  const optionKey = getOptionKeyFromOptionValue(
+                    optionProps.value
+                  );
+                  if (!optionKey) return null;
+                  return (
+                    <SelectOption
+                      {...optionProps}
+                      key={optionProps.key}
+                      isSelected={filterValue?.includes(optionKey)}
+                    />
+                  );
+                })}
               </SelectGroup>
             );
           })
           .filter(Boolean)
       : flatOptions
           .filter((o) => filter(o))
-          .map((optionProps) => (
-            <SelectOption {...optionProps} key={optionProps.key} />
-          ));
+          .map((optionProps, index) => {
+            const optionKey = getOptionKeyFromOptionValue(optionProps.value);
+            if (!optionKey) return null;
+            return (
+              <SelectOption
+                {...optionProps}
+                {...(!optionProps.isDisabled && { hasCheckbox: true })}
+                key={optionProps.value || optionProps.children}
+                value={optionProps.value}
+                isFocused={focusedItemIndex === index}
+                isSelected={filterValue?.includes(optionKey)}
+              >
+                {optionProps.value}
+              </SelectOption>
+            );
+          });
 
-  /**
-   * Render options (with categories if available) where the option value OR key includes
-   * the filterInput.
-   */
-  const onOptionsFilter: SelectProps["onFilter"] = (_event, textInput) => {
-    const input = textInput?.toLowerCase();
+  const onSelect = (value: string | undefined) => {
+    if (value && value !== "No results") {
+      const optionKey = getOptionKeyFromOptionValue(value);
 
-    return renderSelectOptions((optionProps, groupName) => {
-      // TODO: Checking for a filter match against the key or the value may not be desirable.
-      return (
-        groupName?.toLowerCase().includes(input) ||
-        optionProps?.key?.toLowerCase().includes(input) ||
-        optionProps?.value?.toString().toLowerCase().includes(input)
-      );
-    });
+      if (optionKey) {
+        let newFilterValue: string[];
+
+        if (filterValue && filterValue.includes(optionKey)) {
+          newFilterValue = filterValue.filter((item) => item !== optionKey);
+        } else {
+          newFilterValue = filterValue
+            ? [...filterValue, optionKey]
+            : [optionKey];
+        }
+
+        setFilterValue(newFilterValue);
+      }
+    }
+    textInputRef.current?.focus();
   };
+
+  const handleMenuArrowKeys = (key: string) => {
+    let indexToFocus = 0;
+
+    if (isFilterDropdownOpen) {
+      if (key === "ArrowUp") {
+        if (focusedItemIndex === null || focusedItemIndex === 0) {
+          indexToFocus = selectOptions.length - 1;
+        } else {
+          indexToFocus = focusedItemIndex - 1;
+        }
+      }
+
+      if (key === "ArrowDown") {
+        if (
+          focusedItemIndex === null ||
+          focusedItemIndex === selectOptions.length - 1
+        ) {
+          indexToFocus = 0;
+        } else {
+          indexToFocus = focusedItemIndex + 1;
+        }
+      }
+
+      setFocusedItemIndex(indexToFocus);
+      const focusedItem = selectOptions.filter((option) => !option.isDisabled)[
+        indexToFocus
+      ];
+      setActiveItem(
+        `select-multi-typeahead-checkbox-${focusedItem.value.replace(" ", "-")}`
+      );
+    }
+  };
+
+  React.useEffect(() => {
+    let newSelectOptions = Array.isArray(category.selectOptions)
+      ? category.selectOptions
+      : [];
+
+    if (inputValue) {
+      newSelectOptions = Array.isArray(category.selectOptions)
+        ? category.selectOptions?.filter((menuItem) =>
+            String(menuItem.value)
+              .toLowerCase()
+              .includes(inputValue.trim().toLowerCase())
+          )
+        : [];
+
+      if (!newSelectOptions.length) {
+        newSelectOptions = [
+          {
+            key: "no-results",
+            isDisabled: false,
+            children: `No results found for "${inputValue}"`,
+            value: "No results",
+          },
+        ];
+      }
+
+      if (!isFilterDropdownOpen) {
+        setIsFilterDropdownOpen(true);
+      }
+    }
+
+    setSelectOptions(newSelectOptions);
+    setFocusedItemIndex(null);
+    setActiveItem(null);
+  }, [inputValue]);
+
+  const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const enabledMenuItems = Array.isArray(selectOptions)
+      ? selectOptions.filter((option) => !option.isDisabled)
+      : [];
+    const [firstMenuItem] = enabledMenuItems;
+    const focusedItem = focusedItemIndex
+      ? enabledMenuItems[focusedItemIndex]
+      : firstMenuItem;
+
+    const newSelectOptions = flatOptions.filter((menuItem) =>
+      menuItem.value.toLowerCase().includes(inputValue.toLowerCase())
+    );
+    const selectedItem =
+      newSelectOptions.find(
+        (option) => option.value.toLowerCase() === inputValue.toLowerCase()
+      ) || focusedItem;
+
+    switch (event.key) {
+      case "Enter":
+        if (!isFilterDropdownOpen) {
+          setIsFilterDropdownOpen((prev) => !prev);
+        } else if (selectedItem && selectedItem.value !== "No results") {
+          onSelect(selectedItem.value);
+        }
+        break;
+      case "Tab":
+      case "Escape":
+        setIsFilterDropdownOpen(false);
+        setActiveItem(null);
+        break;
+      case "ArrowUp":
+      case "ArrowDown":
+        event.preventDefault();
+        handleMenuArrowKeys(event.key);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const onTextInputChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    value: string
+  ) => {
+    setInputValue(value);
+  };
+
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+    <MenuToggle
+      ref={toggleRef}
+      variant="typeahead"
+      onClick={() => {
+        setIsFilterDropdownOpen(!isFilterDropdownOpen);
+      }}
+      isExpanded={isFilterDropdownOpen}
+      isDisabled={isDisabled || !category.selectOptions.length}
+      isFullWidth
+    >
+      <TextInputGroup isPlain>
+        <TextInputGroupMain
+          value={inputValue}
+          onClick={() => {
+            setIsFilterDropdownOpen(!isFilterDropdownOpen);
+          }}
+          onChange={onTextInputChange}
+          onKeyDown={onInputKeyDown}
+          id="typeahead-select-input"
+          autoComplete="off"
+          innerRef={textInputRef}
+          placeholder={category.placeholderText}
+          {...(activeItem && { "aria-activedescendant": activeItem })}
+          role="combobox"
+          isExpanded={isFilterDropdownOpen}
+          aria-controls="select-typeahead-listbox"
+        />
+
+        <TextInputGroupUtilities>
+          {!!inputValue && (
+            <Button
+              variant="plain"
+              onClick={() => {
+                setInputValue("");
+                setFilterValue(null);
+                textInputRef?.current?.focus();
+              }}
+              aria-label="Clear input value"
+            >
+              <TimesIcon aria-hidden />
+            </Button>
+          )}
+          {filterValue?.length ? (
+            <Badge isRead>{filterValue.length}</Badge>
+          ) : null}
+        </TextInputGroupUtilities>
+      </TextInputGroup>
+    </MenuToggle>
+  );
 
   return (
     <ToolbarFilter
@@ -158,18 +357,15 @@ export const MultiselectFilterControl = <TItem,>({
       <Select
         className={css(isScrollable && "isScrollable")}
         aria-label={category.title}
-        toggleId={`${category.key}-filter-value-select`}
-        onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-        selections={selections || []}
-        onSelect={(_, value) => onFilterSelect(value)}
+        toggle={toggle}
+        selected={filterValue}
+        onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
+        onSelect={(_, selection) => onSelect(selection as string)}
         isOpen={isFilterDropdownOpen}
-        placeholderText={category.placeholderText}
-        isDisabled={isDisabled || category.selectOptions.length === 0}
-        variant={SelectVariant.checkbox}
-        hasInlineFilter
-        onFilter={onOptionsFilter}
       >
-        {renderSelectOptions(() => true)}
+        <SelectList id="select-multi-typeahead-checkbox-listbox">
+          {renderSelectOptions(() => true)}
+        </SelectList>
       </Select>
     </ToolbarFilter>
   );
