@@ -14,7 +14,10 @@ interface INotificationsProvider {
 }
 
 interface INotificationsContext {
-  pushNotification: (notification: INotification) => void;
+  pushNotification: (
+    notification: INotification,
+    clearNotificationDelay?: number
+  ) => void;
   dismissNotification: (key: string) => void;
   notifications: INotification[];
 }
@@ -38,11 +41,18 @@ export const NotificationsProvider: React.FunctionComponent<
     notification: INotification,
     clearNotificationDelay?: number
   ) => {
-    setNotifications([
-      ...notifications,
+    setNotifications((prevNotifications) => [
+      ...prevNotifications,
       { ...notificationDefault, ...notification },
     ]);
-    setTimeout(() => setNotifications([]), clearNotificationDelay || 10000);
+
+    setTimeout(() => {
+      setNotifications((prevNotifications) => {
+        return prevNotifications.filter(
+          (notif) => notif.title !== notification.title
+        );
+      });
+    }, clearNotificationDelay || 8000);
   };
 
   const dismissNotification = (title: string) => {
