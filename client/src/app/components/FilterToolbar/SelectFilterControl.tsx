@@ -1,15 +1,14 @@
 import * as React from "react";
-import { ToolbarFilter } from "@patternfly/react-core";
 import {
+  MenuToggle,
+  MenuToggleElement,
   Select,
+  SelectList,
   SelectOption,
-  SelectOptionObject,
-} from "@patternfly/react-core/deprecated";
+  ToolbarFilter,
+} from "@patternfly/react-core";
 import { IFilterControlProps } from "./FilterControl";
-import {
-  ISelectFilterCategory,
-  FilterSelectOptionProps,
-} from "./FilterToolbar";
+import { ISelectFilterCategory } from "./FilterToolbar";
 import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
@@ -34,51 +33,52 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
 >): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
-  const getOptionKeyFromOptionValue = (
-    optionValue: string | SelectOptionObject
-  ) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value === optionValue
-    )?.key;
-
-  const getChipFromOptionValue = (
-    optionValue: string | SelectOptionObject | undefined
-  ) => (optionValue ? optionValue.toString() : "");
-
-  const getOptionKeyFromChip = (chip: string) =>
-    category.selectOptions.find(
-      (optionProps) => optionProps.value.toString() === chip
-    )?.key;
+  const getOptionKeyFromOptionValue = (optionValue: string) =>
+    category.selectOptions.find(({ value }) => value === optionValue)?.key;
 
   const getOptionValueFromOptionKey = (optionKey: string) =>
-    category.selectOptions.find((optionProps) => optionProps.key === optionKey)
-      ?.value;
+    category.selectOptions.find(({ key }) => key === optionKey)?.value;
 
-  const onFilterSelect = (value: string | SelectOptionObject) => {
+  const chips = filterValue?.map((key) => {
+    const displayValue = getOptionValueFromOptionKey(key);
+    return displayValue ? displayValue : key;
+  });
+
+  const onFilterSelect = (value: string) => {
     const optionKey = getOptionKeyFromOptionValue(value);
     setFilterValue(optionKey ? [optionKey] : null);
     setIsFilterDropdownOpen(false);
   };
 
   const onFilterClear = (chip: string) => {
-    const optionKey = getOptionKeyFromChip(chip);
-    const newValue = filterValue
-      ? filterValue.filter((val) => val !== optionKey)
-      : [];
-    setFilterValue(newValue.length > 0 ? newValue : null);
+    const newValue = filterValue?.filter((val) => val !== chip);
+    setFilterValue(newValue?.length ? newValue : null);
   };
 
-  // Select expects "selections" to be an array of the "value" props from the relevant optionProps
-  const selections = filterValue
-    ? filterValue.map(getOptionValueFromOptionKey)
-    : null;
+  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => {
+    let displayText = "Any";
+    if (filterValue && filterValue.length > 0) {
+      const selectedKey = filterValue[0];
+      const selectedDisplayValue = getOptionValueFromOptionKey(selectedKey);
+      displayText = selectedDisplayValue ? selectedDisplayValue : selectedKey;
+    }
 
-  const chips = selections ? selections.map(getChipFromOptionValue) : [];
-
-  const renderSelectOptions = (options: FilterSelectOptionProps[]) =>
-    options.map((optionProps) => (
-      <SelectOption {...optionProps} key={optionProps.key} />
-    ));
+    return (
+      <MenuToggle
+        aria-label={"Select"}
+        id={"select-filter-value-select"}
+        isFullWidth
+        ref={toggleRef}
+        onClick={() => {
+          setIsFilterDropdownOpen(!isFilterDropdownOpen);
+        }}
+        isExpanded={isFilterDropdownOpen}
+        isDisabled={isDisabled || category.selectOptions.length === 0}
+      >
+        {displayText}
+      </MenuToggle>
+    );
+  };
 
   return (
     <ToolbarFilter
@@ -91,15 +91,31 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
       <Select
         className={css(isScrollable && "isScrollable")}
         aria-label={category.title}
-        toggleId={`${category.key}-filter-value-select`}
-        onToggle={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-        selections={selections || []}
-        onSelect={(_, value) => onFilterSelect(value)}
+        toggle={toggle}
+        onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
+        selected={filterValue}
+        onSelect={(_, value) => {
+          onFilterSelect(value as string);
+          setIsFilterDropdownOpen(false);
+        }}
         isOpen={isFilterDropdownOpen}
-        placeholderText="Any"
-        isDisabled={isDisabled || category.selectOptions.length === 0}
+        placeholder="Any"
+        shouldFocusToggleOnSelect
       >
-        {renderSelectOptions(category.selectOptions)}
+        <SelectList>
+          {category.selectOptions.map((o, index) => {
+            const isSelected = filterValue?.includes(o.key);
+            return (
+              <SelectOption
+                {...o}
+                key={`${index}-${o.value}`}
+                isSelected={isSelected}
+              >
+                {o.value}
+              </SelectOption>
+            );
+          })}
+        </SelectList>
       </Select>
     </ToolbarFilter>
   );
