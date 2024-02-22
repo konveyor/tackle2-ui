@@ -360,8 +360,9 @@ export const ApplicationsTable: React.FC = () => {
         selectOptions: [
           ...new Set(
             applications
-              .flatMap((application) =>
-                application?.archetypes?.map((archetype) => archetype.name)
+              .flatMap(
+                (application) =>
+                  application?.archetypes?.map((archetype) => archetype.name)
               )
               .filter(Boolean)
           ),
