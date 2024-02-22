@@ -38,7 +38,10 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import {
+  deserializeFilterUrlParams,
+  useLocalTableControls,
+} from "@app/hooks/table-controls";
 import {
   useDeleteArchetypeMutation,
   useFetchArchetypes,
@@ -171,6 +174,10 @@ const Archetypes: React.FC = () => {
       });
     }
   };
+  const urlParams = new URLSearchParams(window.location.search);
+  const filters = urlParams.get("filters");
+
+  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControls = useLocalTableControls({
     persistTo: "urlParams",
@@ -206,15 +213,47 @@ const Archetypes: React.FC = () => {
           return archetype?.name ?? "";
         },
       },
+      {
+        key: "application.name",
+        title: t("terms.applicationName"),
+        type: FilterType.multiselect,
+        logicOperator: "OR",
+        selectOptions: [
+          ...new Set(
+            archetypes.flatMap(
+              (archetype) =>
+                archetype?.applications
+                  ?.map((app) => app.name)
+                  .filter(Boolean) || []
+            )
+          ),
+        ].map((applicationName) => ({
+          key: applicationName,
+          value: applicationName,
+        })),
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.application").toLowerCase(),
+          }) + "...",
+        getItemValue: (archetype) => {
+          const appNames = archetype.applications
+            ?.map((app) => app.name)
+            .join("");
+          return appNames || "";
+        },
+      },
+
       // TODO: Add filter for archetype tags
     ],
 
     sortableColumns: ["name"],
+    initialFilterValues: deserializedFilterValues,
     getSortValues: (archetype) => ({
       name: archetype.name ?? "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
   });
+
   const {
     currentPageItems,
     numRenderedColumns,
@@ -285,6 +324,14 @@ const Archetypes: React.FC = () => {
     assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
+  const clearFilters = () => {
+    const currentPath = history.location.pathname;
+    const newSearch = new URLSearchParams(history.location.search);
+    newSearch.delete("filters");
+    history.push(`${currentPath}`);
+    filterToolbarProps.setFilterValues({});
+  };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -302,7 +349,7 @@ const Archetypes: React.FC = () => {
               backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
             }}
           >
-            <Toolbar {...toolbarProps}>
+            <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
