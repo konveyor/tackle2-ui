@@ -13,13 +13,10 @@ import {
   ToolbarGroup,
   ButtonVariant,
   DropdownItem,
-  Dropdown,
-  MenuToggle,
-  MenuToggleElement,
   Modal,
   Tooltip,
 } from "@patternfly/react-core";
-import { PencilAltIcon, TagIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
 import {
   Table,
   Thead,
@@ -106,6 +103,7 @@ import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
+import { KebabDropdown } from "@app/components/KebabDropdown";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -115,8 +113,6 @@ export const ApplicationsTable: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { identities } = useFetchIdentities();
-  const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
-    React.useState<boolean>(false);
 
   const [saveApplicationModalState, setSaveApplicationModalState] =
     React.useState<"create" | Application | null>(null);
@@ -799,27 +795,10 @@ export const ApplicationsTable: React.FC = () => {
               </ToolbarItem>
               {dropdownItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
-                  <Dropdown
-                    isOpen={isToolbarKebabOpen}
-                    onSelect={() => setIsToolbarKebabOpen(false)}
-                    onOpenChange={(_isOpen) => setIsToolbarKebabOpen(false)}
-                    toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                      <MenuToggle
-                        ref={toggleRef}
-                        aria-label="kebab dropdown toggle"
-                        variant="plain"
-                        onClick={() =>
-                          setIsToolbarKebabOpen(!isToolbarKebabOpen)
-                        }
-                        isExpanded={isToolbarKebabOpen}
-                      >
-                        <EllipsisVIcon />
-                      </MenuToggle>
-                    )}
-                    shouldFocusToggleOnSelect
-                  >
-                    {dropdownItems}
-                  </Dropdown>
+                  <KebabDropdown
+                    dropdownItems={dropdownItems}
+                    ariaLabel="Application actions"
+                  />
                 </ToolbarItem>
               ) : (
                 <></>
