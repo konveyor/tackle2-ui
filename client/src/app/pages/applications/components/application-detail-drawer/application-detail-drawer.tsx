@@ -425,7 +425,7 @@ export const ApplicationDetailDrawer: React.FC<
           </Tab>
           <Tab
             eventKey={TabKey.Reviews}
-            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
             <ReviewFields application={application} />
           </Tab>
