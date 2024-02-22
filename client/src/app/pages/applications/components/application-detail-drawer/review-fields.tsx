@@ -4,11 +4,8 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
-  Title,
-  TextContent,
 } from "@patternfly/react-core";
 import { Application, Archetype, Review } from "@app/api/models";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
@@ -75,11 +72,6 @@ export const ReviewFields: React.FC<{
 
   return (
     <>
-      <TextContent className={spacing.mtLg}>
-        <Title headingLevel="h3" size="md">
-          {t("terms.review")}
-        </Title>
-      </TextContent>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.proposedAction")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="proposed-action">
