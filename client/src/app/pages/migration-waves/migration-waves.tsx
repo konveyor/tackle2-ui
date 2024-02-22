@@ -42,7 +42,7 @@ import {
   useFetchMigrationWaves,
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
-import { MigrationWave, Ref } from "@app/api/models";
+import { MigrationWave, Ref, Ticket } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -68,6 +68,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { toRefs } from "@app/utils/model-utils";
+import { useFetchTickets } from "@app/queries/tickets";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -76,6 +77,7 @@ export const MigrationWaves: React.FC = () => {
   const currentTimezone = dayjs.tz.guess();
 
   const { migrationWaves, isFetching, fetchError } = useFetchMigrationWaves();
+  const { tickets } = useFetchTickets();
   const { trackers: trackers } = useFetchTrackers();
   const { data: applications } = useFetchApplications();
 
@@ -495,16 +497,24 @@ export const MigrationWaves: React.FC = () => {
                             <ConditionalTooltip
                               key="export-to-issue-manager"
                               isTooltipEnabled={
-                                migrationWave.applications?.length < 1
+                                migrationWave.applications?.length < 1 ||
+                                !hasExportableApplications(
+                                  tickets,
+                                  migrationWave?.applications
+                                )
                               }
                               content={
-                                "There are no applications assigned to this migration wave to export."
+                                "No applications are available for export."
                               }
                             >
                               <DropdownItem
                                 key="export-to-issue-manager"
-                                isDisabled={
-                                  migrationWave.applications?.length < 1
+                                isAriaDisabled={
+                                  migrationWave.applications?.length < 1 ||
+                                  !hasExportableApplications(
+                                    tickets,
+                                    migrationWave?.applications
+                                  )
                                 }
                                 onClick={() =>
                                   setApplicationsToExport(
@@ -666,3 +676,11 @@ export const MigrationWaves: React.FC = () => {
     </>
   );
 };
+
+const hasExportableApplications = (tickets: Ticket[], applicationRefs: Ref[]) =>
+  applicationRefs.some(
+    (applicationRef) =>
+      !tickets
+        ?.map((ticket) => ticket?.application?.id)
+        .includes(applicationRef.id)
+  );
