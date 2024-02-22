@@ -24,6 +24,7 @@ export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
       popperProps={{ position: "right" }}
       isOpen={isOpen}
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
+      shouldFocusToggleOnSelect
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
         <MenuToggle
           ref={toggleRef}
