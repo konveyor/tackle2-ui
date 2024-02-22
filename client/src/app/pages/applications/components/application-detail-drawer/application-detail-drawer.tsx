@@ -190,15 +190,24 @@ export const ApplicationDetailDrawer: React.FC<
                     {t("terms.associatedArchetypes")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {application?.archetypes?.length ?? 0 > 0 ? (
-                      <ArchetypeLabels
-                        archetypeRefs={application?.archetypes}
-                      />
+                    {application?.archetypes?.length ? (
+                      <>
+                        <DescriptionListDescription>
+                          {application.archetypes.length ?? 0 > 0 ? (
+                            <ArchetypeLabels
+                              archetypeRefs={application.archetypes as Ref[]}
+                            />
+                          ) : (
+                            <EmptyTextMessage message={t("terms.none")} />
+                          )}
+                        </DescriptionListDescription>
+                      </>
                     ) : (
                       <EmptyTextMessage message={t("terms.none")} />
                     )}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
+
                 <DescriptionListGroup>
                   <DescriptionListTerm>
                     {t("terms.archetypesAssessed")}
@@ -425,7 +434,7 @@ export const ApplicationDetailDrawer: React.FC<
           </Tab>
           <Tab
             eventKey={TabKey.Reviews}
-            title={<TabTitleText>{t("terms.reviews")}</TabTitleText>}
+            title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
             <ReviewFields application={application} />
           </Tab>

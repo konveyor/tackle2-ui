@@ -14,6 +14,7 @@ import {
   ButtonVariant,
   DropdownItem,
   Modal,
+  Tooltip,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
 import {
@@ -927,13 +928,15 @@ export const ApplicationsTable: React.FC = () => {
 
                       <Td isActionCell id="pencil-action">
                         {applicationWriteAccess && (
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
                         )}
                       </Td>
                       <Td isActionCell id="row-actions">

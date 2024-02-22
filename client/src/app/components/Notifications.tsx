@@ -10,12 +10,12 @@ export const Notifications: React.FunctionComponent = () => {
   const appContext = React.useContext(NotificationsContext);
   return (
     <AlertGroup isToast aria-live="polite">
-      {appContext.notifications.map((notification) => {
+      {appContext.notifications.map((notification, index) => {
         return (
           <Alert
             title={notification.title}
             variant={notification.variant}
-            key={notification.title}
+            key={`${notification.title}-${index}`}
             {...(!notification.hideCloseButton && {
               actionClose: (
                 <AlertActionCloseButton
@@ -25,7 +25,6 @@ export const Notifications: React.FunctionComponent = () => {
                 />
               ),
             })}
-            timeout={notification.timeout ? notification.timeout : 4000}
           >
             {notification.message}
           </Alert>
