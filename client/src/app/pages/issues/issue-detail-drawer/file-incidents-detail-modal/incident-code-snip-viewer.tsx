@@ -4,6 +4,15 @@ import { AnalysisIncident } from "@app/api/models";
 
 import "./incident-code-snip-viewer.css";
 import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
+import {
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
+} from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
+import { useTranslation } from "react-i18next";
 
 const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/; // Pattern: leading whitespace (line number) (2 spaces)? (code)
 
@@ -16,6 +25,22 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
   issueTitle,
   incident,
 }) => {
+  const { t } = useTranslation();
+
+  if (!incident?.codeSnip.trim()) {
+    return (
+      <EmptyState variant={EmptyStateVariant.sm}>
+        <EmptyStateHeader
+          titleText={t("message.noCodesSnippetAvailableTitle")}
+          headingLevel="h4"
+          icon={<EmptyStateIcon icon={CubesIcon} />}
+        />
+        <EmptyStateBody>
+          {t("message.noCodesSnippetAvailableBody")}
+        </EmptyStateBody>
+      </EmptyState>
+    );
+  }
   const codeSnipNumberedLines = incident.codeSnip.split("\n");
   const codeSnipTrimmedLines: string[] = [];
   let codeSnipStartLine = 1;

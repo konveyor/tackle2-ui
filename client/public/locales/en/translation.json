@@ -198,6 +198,8 @@
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
+    "noCodesSnippetAvailableTitle": "No code snippet available",
+    "noCodesSnippetAvailableBody": "No code snippet was created for this incident.",
     "overrideAssessmentDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
     "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideArchetypeReviewDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
