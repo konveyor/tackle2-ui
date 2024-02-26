@@ -4,6 +4,7 @@ import { usePersistentState } from "@app/hooks/usePersistentState";
 import { serializeFilterUrlParams } from "./helpers";
 import { deserializeFilterUrlParams } from "./helpers";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
+import { useEffect, useState } from "react";
 
 /**
  * The "source of truth" state for the filter feature.
@@ -64,9 +65,22 @@ export const useFilterState = <
 ): IFilterState<TFilterCategoryKey> => {
   const { isFilterEnabled, persistTo = "state", persistenceKeyPrefix } = args;
 
-  const initialFilterValues: IFilterValues<TFilterCategoryKey> = isFilterEnabled
-    ? args?.initialFilterValues ?? {}
-    : {};
+  // We need to know if it's the initial load to avoid overwriting changes to the filter values
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  let initialFilterValues = {};
+
+  if (isInitialLoad) {
+    initialFilterValues = isFilterEnabled
+      ? args?.initialFilterValues ?? {}
+      : {};
+  }
+
+  useEffect(() => {
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [isInitialLoad]);
 
   // We won't need to pass the latter two type params here if TS adds support for partial inference.
   // See https://github.com/konveyor/tackle2-ui/issues/1456
