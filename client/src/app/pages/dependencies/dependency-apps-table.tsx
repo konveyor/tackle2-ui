@@ -15,6 +15,7 @@ import {
   useTableControlState,
   useTableControlProps,
   getHubRequestParams,
+  deserializeFilterUrlParams,
 } from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
@@ -30,6 +31,7 @@ import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { getParsedLabel } from "@app/utils/rules-utils";
 import { extractFirstSha } from "@app/utils/utils";
+import { useHistory } from "react-router-dom";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;
@@ -39,8 +41,14 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   dependency,
 }) => {
   const { t } = useTranslation();
+  const history = useHistory();
+
   const { businessServices } = useFetchBusinessServices();
   const { tagItems } = useFetchTagsWithTagItems();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const filters = urlParams.get("filters");
+  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
     persistTo: "urlParams",
@@ -56,9 +64,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
     isPaginationEnabled: true,
     sortableColumns: ["name", "version"],
     initialSort: { columnKey: "name", direction: "asc" },
+    initialFilterValues: deserializedFilterValues,
     filterCategories: [
       {
-        key: "name",
+        key: "application.name",
         title: "Application Name",
         type: FilterType.search,
         placeholderText:
@@ -147,9 +156,19 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
     },
   } = tableControls;
 
+  const clearFilters = () => {
+    const currentPath = history.location.pathname;
+    const newSearch = new URLSearchParams(history.location.search);
+    newSearch.delete("filters");
+    history.push(`${currentPath}`);
+  };
   return (
     <>
-      <Toolbar {...toolbarProps} className={spacing.mtSm}>
+      <Toolbar
+        {...toolbarProps}
+        className={spacing.mtSm}
+        clearAllFilters={clearFilters}
+      >
         <ToolbarContent>
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
