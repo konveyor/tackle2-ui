@@ -163,6 +163,10 @@ export const CustomRules: React.FC = () => {
   filteredItems?.forEach((item) => {
     const { source, target, total } = parseRules(item);
 
+    const sourceLabelName = source ? getParsedLabel(source)?.labelValue : "";
+    const targetLabelName = target ? getParsedLabel(target)?.labelValue : "";
+    const sourceTargetLabel = `${sourceLabelName} / ${targetLabelName}`;
+
     rows.push({
       entity: item,
       cells: [
@@ -171,9 +175,7 @@ export const CustomRules: React.FC = () => {
         },
         {
           title: (
-            <TableText wrapModifier="truncate">
-              {source} / {target}
-            </TableText>
+            <TableText wrapModifier="truncate">{sourceTargetLabel}</TableText>
           ),
         },
         {
