@@ -104,16 +104,25 @@ interface ParsedLabel {
   labelValue: string;
 }
 
-export const getParsedLabel = (label: string): ParsedLabel => {
+export const getParsedLabel = (label: string | null): ParsedLabel => {
+  if (label === null) {
+    return {
+      labelType: "",
+      labelValue: "",
+    };
+  }
+
   const char1 = label.indexOf("/") + 1;
   const char2 = label.lastIndexOf("=");
   const type = label.substring(char1, char2);
   const value = label.split("=").pop();
+
   return {
     labelType: type || "",
     labelValue: value || "",
   };
 };
+
 export const getLabels = (labels: string[]) =>
   labels.reduce(
     (map: ILabelMap, label) => {
