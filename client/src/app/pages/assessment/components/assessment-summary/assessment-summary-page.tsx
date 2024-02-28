@@ -1,6 +1,5 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import "./assessment-summary-page.css";
 import QuestionnaireSummary, {
   SummaryType,
 } from "@app/components/questionnaire-summary/questionnaire-summary";
