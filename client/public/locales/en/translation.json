@@ -176,6 +176,7 @@
     "blockedDeleteApplication": "Cannot delete {{what}} because it is associated with an application.",
     "blockedDeleteTarget": "Cannot delete {{what}} because it is associated with a target.",
     "defaultBlockedDelete": "Cannot delete {{what}} because it is associated with another object.",
+    "cannotDeleteApplicationsAssignedToMigrationWave": "Cannot delete applications that are assigned to a migration wave.",
     "continueConfirmation": "Yes, continue",
     "copyAssessmentAndReviewBody": "Some of the selected target applications have an in-progress or complete assessment/review. By continuing, the existing assessment(s)/review(s) will be replaced by the copied assessment/review. Do you wish to continue?",
     "copyAssessmentAndReviewQuestion": "Copy assessment and review?",
