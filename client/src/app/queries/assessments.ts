@@ -19,7 +19,6 @@ import { AxiosError } from "axios";
 import {
   Archetype,
   Assessment,
-  AssessmentWithArchetypeApplications,
   AssessmentWithSectionOrder,
   AssessmentsWithArchetype,
   InitialAssessment,
@@ -224,18 +223,19 @@ const removeSectionOrderFromQuestions = (
 export const useFetchAssessmentsWithArchetypeApplications = () => {
   const { assessments, isFetching: assessmentsLoading } = useFetchAssessments();
 
+  const archetypeQueries = assessments
+    .map((assessment) => assessment?.archetype?.id)
+    .filter(Boolean)
+    .map((archetypeId) => ({
+      queryKey: ["archetype", archetypeId],
+      queryFn: async () => {
+        const data = await getArchetypeById(archetypeId);
+        return { archetypeId, applications: data.applications };
+      },
+    }));
+
   const archetypesUsedInAnAssessmentQueries = useQueries({
-    queries:
-      [
-        ...new Set(
-          assessments
-            .map((assessment) => assessment?.archetype?.id)
-            .filter(Boolean)
-        ),
-      ].map((archetypeId) => ({
-        queryKey: ["archetype", archetypeId],
-        queryFn: () => getArchetypeById(archetypeId),
-      })) || [],
+    queries: archetypeQueries,
   });
 
   const isArchetypesLoading = archetypesUsedInAnAssessmentQueries.some(
@@ -243,21 +243,19 @@ export const useFetchAssessmentsWithArchetypeApplications = () => {
   );
 
   const archetypeApplicationsMap = new Map();
-  archetypesUsedInAnAssessmentQueries.forEach((query, index) => {
-    if (query.data && assessments[index].archetype?.id) {
-      archetypeApplicationsMap.set(
-        assessments[index]?.archetype?.id,
-        query.data.applications
-      );
+  archetypesUsedInAnAssessmentQueries.forEach(({ data }) => {
+    if (data) {
+      archetypeApplicationsMap.set(data.archetypeId, data.applications);
     }
   });
 
-  const assessmentsWithArchetypeApplications: AssessmentWithArchetypeApplications[] =
-    assessments.map((assessment) => ({
+  const assessmentsWithArchetypeApplications = assessments.map(
+    (assessment) => ({
       ...assessment,
       archetypeApplications:
         archetypeApplicationsMap.get(assessment?.archetype?.id) ?? [],
-    }));
+    })
+  );
 
   return {
     assessmentsWithArchetypeApplications,

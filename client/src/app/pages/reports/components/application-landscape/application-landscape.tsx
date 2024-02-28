@@ -112,6 +112,7 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
 
   const { assessmentsWithArchetypeApplications } =
     useFetchAssessmentsWithArchetypeApplications();
+  console.log(assessmentsWithArchetypeApplications);
   const { data: applications } = useFetchApplications();
 
   const filteredAssessments = assessmentsWithArchetypeApplications.filter(
