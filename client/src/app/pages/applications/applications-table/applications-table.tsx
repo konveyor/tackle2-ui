@@ -143,7 +143,10 @@ export const ApplicationsTable: React.FC = () => {
   const getTask = (application: Application) =>
     tasks.find((task: Task) => task.application?.id === application.id);
 
-  const { tasks } = useFetchTasks({ addon: "analyzer" }, isAnalyzeModalOpen);
+  const { tasks, hasActiveTasks } = useFetchTasks(
+    { addon: "analyzer" },
+    isAnalyzeModalOpen
+  );
 
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
@@ -205,7 +208,7 @@ export const ApplicationsTable: React.FC = () => {
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
     refetch: fetchApplications,
-  } = useFetchApplications();
+  } = useFetchApplications(!hasActiveTasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
