@@ -27,7 +27,6 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
     initialData: [],
     queryKey: [ARCHETYPES_QUERY_KEY, forApplication?.id],
     queryFn: getArchetypes,
-    refetchInterval: 5000,
     onSuccess: (fetchedArchetypes) => {
       if (!forApplication) {
         setFilteredArchetypes(fetchedArchetypes);
@@ -42,6 +41,7 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
       } else {
         setFilteredArchetypes([]);
       }
+
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
