@@ -26,11 +26,12 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     initialData: [],
     queryKey: [ARCHETYPES_QUERY_KEY, forApplication?.id],
-
     queryFn: getArchetypes,
     refetchInterval: 5000,
     onSuccess: (fetchedArchetypes) => {
-      if (forApplication && forApplication.archetypes) {
+      if (!forApplication) {
+        setFilteredArchetypes(fetchedArchetypes);
+      } else if (Array.isArray(forApplication.archetypes)) {
         const archetypeIds = forApplication.archetypes.map(
           (archetype) => archetype.id
         );
@@ -39,18 +40,17 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
         );
         setFilteredArchetypes(filtered);
       } else {
-        setFilteredArchetypes(fetchedArchetypes);
+        setFilteredArchetypes([]);
       }
       queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
     },
-
     onError: (error: AxiosError) => console.log(error),
   });
 
   return {
-    archetypes: filteredArchetypes || [],
+    archetypes: filteredArchetypes,
     isFetching: isLoading,
     isSuccess,
     error,
