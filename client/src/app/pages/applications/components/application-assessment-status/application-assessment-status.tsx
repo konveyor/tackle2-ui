@@ -2,9 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { Application } from "@app/api/models";
+import { Application, Assessment } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
-import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import { useFetchAssessments } from "@app/queries/assessments";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 interface ApplicationAssessmentStatusProps {
   application: Application;
@@ -17,6 +17,11 @@ export const ApplicationAssessmentStatus: React.FC<
   const { t } = useTranslation();
 
   const { archetypes, isFetching } = useFetchArchetypes();
+  const { assessments, fetchError } = useFetchAssessments();
+
+  const filteredAssessments = assessments?.filter(
+    (assessment: Assessment) => assessment.application?.id === application.id
+  );
 
   const applicationArchetypes = application.archetypes?.map((archetypeRef) => {
     return archetypes?.find((archetype) => archetype.id === archetypeRef.id);
@@ -30,17 +35,11 @@ export const ApplicationAssessmentStatus: React.FC<
       (archetype) => archetype?.assessments?.length ?? 0 > 0
     ) ?? false;
 
-  const {
-    assessments,
-    isFetching: isFetchingAssessmentsById,
-    fetchError,
-  } = useFetchAssessmentsByItemId(false, application.id);
-
   if (fetchError) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;
   }
 
-  if (isFetching || isFetchingAssessmentsById) {
+  if (isFetching || isFetching) {
     return <Spinner size="md" />;
   }
 
@@ -64,7 +63,7 @@ export const ApplicationAssessmentStatus: React.FC<
     statusPreset = "InProgressInheritedAssessments";
     tooltipCount = assessedArchetypeCount;
   } else if (
-    assessments?.some(
+    filteredAssessments?.some(
       (assessment) =>
         assessment.status === "started" || assessment.status === "complete"
     )
