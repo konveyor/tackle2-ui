@@ -166,6 +166,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                 isVertical
                 aria-label="Tabs for summaryData sections"
                 role="region"
+                className="tabs-vertical-container__tabs"
               >
                 {[
                   <Tab

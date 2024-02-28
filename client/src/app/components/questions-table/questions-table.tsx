@@ -178,11 +178,14 @@ const QuestionsTable: React.FC<{
                       className={spacing.pyLg}
                     >
                       <ExpandableRowContent>
-                        {question.explanation}
-                        <AnswerTable
-                          hideAnswerKey={hideAnswerKey}
-                          answers={question.answers}
-                        />
+                        <div className={spacing.mlMd}>
+                          <strong>{t("terms.explanation")}: &nbsp;</strong>
+                          <span>{question.explanation}</span>
+                          <AnswerTable
+                            hideAnswerKey={hideAnswerKey}
+                            answers={question.answers}
+                          />
+                        </div>
                       </ExpandableRowContent>
                     </Td>
                   </Tr>
