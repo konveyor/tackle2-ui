@@ -1,5 +1,10 @@
 .tabs-vertical-container {
   display: flex;
+  margin-top: 1.5em;
+}
+
+.tabs-vertical-container__tabs {
+  margin-top: 1.5em;
 }
 
 .tabs-vertical-container .pf-v5-c-tabs {
