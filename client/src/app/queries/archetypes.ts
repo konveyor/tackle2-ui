@@ -9,10 +9,7 @@ import {
   getArchetypes,
   updateArchetype,
 } from "@app/api/rest";
-import {
-  assessmentsQueryKey,
-  assessmentsByItemIdQueryKey,
-} from "./assessments";
+import { assessmentsByItemIdQueryKey } from "./assessments";
 import { reviewsQueryKey } from "./reviews";
 import { useState } from "react";
 
@@ -43,7 +40,6 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
       }
 
       queryClient.invalidateQueries([reviewsQueryKey]);
-      queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
     },
     onError: (error: AxiosError) => console.log(error),

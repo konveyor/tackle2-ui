@@ -1,23 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { Application, Assessment } from "@app/api/models";
+import { Application, Archetype, Assessment } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
-import { useFetchAssessments } from "@app/queries/assessments";
-import { useFetchArchetypes } from "@app/queries/archetypes";
 interface ApplicationAssessmentStatusProps {
   application: Application;
+  assessments: Assessment[];
+  archetypes: Archetype[];
   isLoading?: boolean;
 }
 
 export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
-> = ({ application }) => {
+> = ({ application, assessments, archetypes }) => {
   const { t } = useTranslation();
-
-  const { archetypes, isFetching } = useFetchArchetypes(application);
-  const { assessments, fetchError } = useFetchAssessments();
 
   const filteredAssessments = assessments?.filter(
     (assessment: Assessment) => assessment.application?.id === application.id
@@ -84,12 +80,8 @@ export const ApplicationAssessmentStatus: React.FC<
     };
   }, [archetypes, assessments]);
 
-  if (fetchError) {
+  if (archetypes?.length === 0 || assessments?.length === 0) {
     return <EmptyTextMessage message={t("terms.notAvailable")} />;
-  }
-
-  if (isFetching || isFetching) {
-    return <Spinner size="md" />;
   }
 
   let statusPreset: IconedStatusPreset = "NotStarted"; // Default status
