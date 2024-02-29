@@ -49,6 +49,12 @@ export const MultiselectFilterControl = <TItem,>({
     FilterSelectOptionProps[]
   >(Array.isArray(category.selectOptions) ? category.selectOptions : []);
 
+  React.useEffect(() => {
+    setSelectOptions(
+      Array.isArray(category.selectOptions) ? category.selectOptions : []
+    );
+  }, [category.selectOptions]);
+
   const hasGroupings = !Array.isArray(selectOptions);
 
   const flatOptions: FilterSelectOptionProps[] = !hasGroupings
