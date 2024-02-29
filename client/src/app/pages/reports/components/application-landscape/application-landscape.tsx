@@ -29,7 +29,8 @@ interface IAggregateRiskData {
 
 const aggregateRiskData = (
   assessments: AssessmentWithArchetypeApplications[],
-  applications: Application[]
+  applications: Application[],
+  questionnaire: Questionnaire | null
 ): IAggregateRiskData => {
   let low = 0;
   let medium = 0;
@@ -61,8 +62,12 @@ const aggregateRiskData = (
       const fullApp = findFullApplication(appRef);
       if (fullApp && fullApp.risk && !processedAppIds.has(fullApp.id)) {
         processedAppIds.add(fullApp.id);
+        let risk = fullApp.risk;
+        if (questionnaire?.id === assessment.questionnaire.id) {
+          risk = assessment.risk;
+        }
 
-        switch (fullApp.risk) {
+        switch (risk) {
           case "green":
             low++;
             break;
@@ -119,8 +124,8 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
   );
 
   const landscapeData = useMemo(
-    () => aggregateRiskData(filteredAssessments, applications),
-    [filteredAssessments, applications]
+    () => aggregateRiskData(filteredAssessments, applications, questionnaire),
+    [filteredAssessments, applications, questionnaire]
   );
 
   return (
