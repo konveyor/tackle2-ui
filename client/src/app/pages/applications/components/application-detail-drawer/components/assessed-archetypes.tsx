@@ -4,20 +4,19 @@ import { Label, LabelGroup, Spinner } from "@patternfly/react-core";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useTranslation } from "react-i18next";
 import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchAssessments } from "@app/queries/assessments";
 
 interface IAssessedArchetypesProps {
   application: Application | null;
+  assessments: AssessmentWithSectionOrder[] | null;
 }
 
 export const AssessedArchetypes: React.FC<IAssessedArchetypesProps> = ({
   application,
+  assessments,
 }) => {
   const { t } = useTranslation();
   const { archetypes, isFetching: isFetchingArchetypes } =
     useFetchArchetypes(application);
-  const { assessments, isFetching: isFetchingAssessments } =
-    useFetchAssessments();
 
   const assessedArchetypes = React.useMemo(() => {
     if (!archetypes || !assessments) return [];
@@ -32,7 +31,7 @@ export const AssessedArchetypes: React.FC<IAssessedArchetypesProps> = ({
     );
   }, [archetypes, assessments]);
 
-  if (isFetchingArchetypes || isFetchingAssessments) {
+  if (isFetchingArchetypes) {
     return <Spinner size="md" />;
   }
 
