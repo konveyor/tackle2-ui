@@ -31,6 +31,7 @@ import {
   MimeType,
   Ref,
   Archetype,
+  AssessmentWithSectionOrder,
 } from "@app/api/models";
 import {
   IPageDrawerContentProps,
@@ -64,6 +65,7 @@ export interface IApplicationDetailDrawerProps
   application: Application | null;
   task: Task | undefined | null;
   applications?: Application[];
+  assessments?: AssessmentWithSectionOrder[];
   onEditClick: () => void;
 }
 
@@ -77,7 +79,7 @@ enum TabKey {
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
-> = ({ onCloseClick, application, task, onEditClick }) => {
+> = ({ onCloseClick, application, assessments, task, onEditClick }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -212,9 +214,16 @@ export const ApplicationDetailDrawer: React.FC<
                   <DescriptionListTerm>
                     {t("terms.archetypesAssessed")}
                   </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    <AssessedArchetypes application={application} />
-                  </DescriptionListDescription>
+                  {assessments && assessments.length ? (
+                    <DescriptionListDescription>
+                      <AssessedArchetypes
+                        application={application}
+                        assessments={assessments}
+                      />
+                    </DescriptionListDescription>
+                  ) : (
+                    <EmptyTextMessage message={t("terms.none")} />
+                  )}
                 </DescriptionListGroup>
 
                 <DescriptionListGroup>

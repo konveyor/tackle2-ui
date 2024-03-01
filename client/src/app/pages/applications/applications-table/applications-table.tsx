@@ -80,7 +80,10 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
-import { useDeleteAssessmentMutation } from "@app/queries/assessments";
+import {
+  useDeleteAssessmentMutation,
+  useFetchAssessments,
+} from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
@@ -104,6 +107,7 @@ import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContex
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
 import { KebabDropdown } from "@app/components/KebabDropdown";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -209,6 +213,9 @@ export const ApplicationsTable: React.FC = () => {
     error: applicationsFetchError,
     refetch: fetchApplications,
   } = useFetchApplications(!hasActiveTasks);
+
+  const { assessments } = useFetchAssessments();
+  const { archetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -888,6 +895,8 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
+                          assessments={assessments}
+                          archetypes={archetypes}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
@@ -1062,6 +1071,7 @@ export const ApplicationsTable: React.FC = () => {
         <ApplicationDetailDrawer
           application={activeItem}
           applications={applications}
+          assessments={assessments}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
