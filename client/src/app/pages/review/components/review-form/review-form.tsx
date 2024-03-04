@@ -55,7 +55,6 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   application,
   review,
 }) => {
-  console.log("existing review", review);
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
