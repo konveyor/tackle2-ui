@@ -1,8 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { Application, Archetype, Assessment } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
+import { Spinner } from "@patternfly/react-core";
 interface ApplicationAssessmentStatusProps {
   application: Application;
   assessments: Assessment[];
@@ -12,7 +12,7 @@ interface ApplicationAssessmentStatusProps {
 
 export const ApplicationAssessmentStatus: React.FC<
   ApplicationAssessmentStatusProps
-> = ({ application, assessments, archetypes }) => {
+> = ({ application, assessments, archetypes, isLoading }) => {
   const { t } = useTranslation();
 
   const filteredAssessments = assessments?.filter(
@@ -80,8 +80,8 @@ export const ApplicationAssessmentStatus: React.FC<
     };
   }, [archetypes, assessments]);
 
-  if (archetypes?.length === 0 || assessments?.length === 0) {
-    return <EmptyTextMessage message={t("terms.notAvailable")} />;
+  if (isLoading) {
+    return <Spinner size="sm" />;
   }
 
   let statusPreset: IconedStatusPreset = "NotStarted"; // Default status
