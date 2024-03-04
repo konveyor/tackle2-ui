@@ -42,12 +42,14 @@ export const useFetchTasks = (
     },
     onError: (err) => console.log(err),
   });
+  const hasActiveTasks = data && data.length > 0;
 
   return {
     tasks: data || [],
     isFetching: isLoading,
     fetchError: error,
     refetch,
+    hasActiveTasks,
   };
 };
 
