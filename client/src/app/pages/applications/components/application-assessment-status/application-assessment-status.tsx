@@ -15,16 +15,22 @@ export const ApplicationAssessmentStatus: React.FC<
 > = ({ application, assessments, archetypes, isLoading }) => {
   const { t } = useTranslation();
 
-  const filteredAssessments = assessments?.filter(
+  const applicationAssessments = assessments?.filter(
     (assessment: Assessment) => assessment.application?.id === application.id
   );
+  const inheritedArchetypes = archetypes?.filter(
+    (archetype: Archetype) =>
+      archetype.applications?.map((app) => app.id).includes(application.id)
+  );
   const assessmentStatusInfo = React.useMemo(() => {
-    const assessmentsWithArchetypes = archetypes.map((archetype) => ({
-      archetype,
-      assessments: assessments.filter(
-        (assessment) => assessment.archetype?.id === archetype.id
-      ),
-    }));
+    const assessmentsWithArchetypes = inheritedArchetypes.map(
+      (inheritedArchetype) => ({
+        inheritedArchetype,
+        assessments: assessments.filter(
+          (assessment) => assessment.archetype?.id === inheritedArchetype.id
+        ),
+      })
+    );
 
     const someArchetypesAssessed = assessmentsWithArchetypes.some(
       ({ assessments }) => assessments.length > 0
@@ -32,12 +38,12 @@ export const ApplicationAssessmentStatus: React.FC<
 
     const allArchetypesAssessed =
       assessmentsWithArchetypes.length > 0 &&
-      assessmentsWithArchetypes.every(({ archetype, assessments }) => {
+      assessmentsWithArchetypes.every(({ inheritedArchetype, assessments }) => {
         const requiredAssessments = assessments.filter(
           (assessment) => assessment.required
         );
         return (
-          archetype.assessed &&
+          inheritedArchetype.assessed &&
           assessments.length > 0 &&
           requiredAssessments.length > 0 &&
           requiredAssessments.every(
@@ -56,18 +62,19 @@ export const ApplicationAssessmentStatus: React.FC<
       );
 
     const assessedArchetypesWithARequiredAssessment =
-      assessmentsWithArchetypes.filter(({ assessments, archetype }) =>
+      assessmentsWithArchetypes.filter(({ assessments, inheritedArchetype }) =>
         assessments.some(
           (assessment) =>
             assessment.required &&
             assessment.status === "complete" &&
-            archetype.assessed
+            inheritedArchetype.assessed
         )
       );
     const assessedArchetypeCount =
-      archetypes?.filter(
-        (archetype) =>
-          archetype?.assessments?.length ?? (0 > 0 && archetype.assessed)
+      inheritedArchetypes?.filter(
+        (inheritedArchetype) =>
+          inheritedArchetype?.assessments?.length ??
+          (0 > 0 && inheritedArchetype.assessed)
       ).length || 0;
 
     return {
@@ -78,7 +85,7 @@ export const ApplicationAssessmentStatus: React.FC<
       assessedArchetypesWithARequiredAssessment,
       assessedArchetypeCount,
     };
-  }, [archetypes, assessments]);
+  }, [inheritedArchetypes, assessments]);
 
   if (isLoading) {
     return <Spinner size="sm" />;
@@ -89,6 +96,7 @@ export const ApplicationAssessmentStatus: React.FC<
 
   const isDirectlyAssessed =
     application.assessed && (application.assessments?.length ?? 0) > 0;
+
   const {
     allArchetypesAssessed,
     assessedArchetypesWithARequiredAssessment,
@@ -104,7 +112,9 @@ export const ApplicationAssessmentStatus: React.FC<
     statusPreset = "InProgressInheritedAssessments";
     tooltipCount = assessedArchetypesWithARequiredAssessment.length;
   } else if (
-    filteredAssessments?.some((assessment) => assessment.status === "started")
+    applicationAssessments?.some(
+      (assessment) => assessment.status === "started"
+    )
   ) {
     statusPreset = "InProgress";
   }
