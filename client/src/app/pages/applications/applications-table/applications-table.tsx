@@ -211,8 +211,9 @@ export const ApplicationsTable: React.FC = () => {
     refetch: fetchApplications,
   } = useFetchApplications();
 
-  const { assessments } = useFetchAssessments();
-  const { archetypes } = useFetchArchetypes();
+  const { assessments, isFetching: isFetchingAssesments } =
+    useFetchAssessments();
+  const { archetypes, isFetching: isFetchingArchetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -894,6 +895,11 @@ export const ApplicationsTable: React.FC = () => {
                           application={application}
                           assessments={assessments}
                           archetypes={archetypes}
+                          isLoading={
+                            isFetchingApplications ||
+                            isFetchingArchetypes ||
+                            isFetchingAssesments
+                          }
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
