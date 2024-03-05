@@ -25,9 +25,6 @@ export type KonveyorEnvType = {
   /** SSO / Keycloak client id */
   KEYCLOAK_CLIENT_ID: string;
 
-  /** Branding to apply to the UI */
-  PROFILE: "konveyor" | "mta";
-
   /** UI upload file size limit in megabytes (MB), suffixed with "m" */
   UI_INGRESS_PROXY_BODY_SIZE: string;
 
@@ -42,6 +39,9 @@ export type KonveyorEnvType = {
 
   /** Target URL for the UI server's `/hub` proxy */
   TACKLE_HUB_URL?: string;
+
+  /** Location of branding files (relative paths computed from the project source root) */
+  BRANDING?: string;
 };
 
 /**
@@ -52,6 +52,7 @@ export const SERVER_ENV_KEYS = [
   "PORT",
   "KEYCLOAK_SERVER_URL",
   "TACKLE_HUB_URL",
+  "BRANDING",
 ];
 
 /**
@@ -68,10 +69,10 @@ export const buildKonveyorEnv = ({
   KEYCLOAK_REALM = "tackle",
   KEYCLOAK_CLIENT_ID = "tackle-ui",
 
-  PROFILE = "konveyor",
   UI_INGRESS_PROXY_BODY_SIZE = "500m",
   RWX_SUPPORTED = "true",
   TACKLE_HUB_URL,
+  BRANDING,
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
   PORT,
@@ -83,10 +84,10 @@ export const buildKonveyorEnv = ({
   KEYCLOAK_REALM,
   KEYCLOAK_CLIENT_ID,
 
-  PROFILE,
   UI_INGRESS_PROXY_BODY_SIZE,
   RWX_SUPPORTED,
   TACKLE_HUB_URL,
+  BRANDING,
 });
 
 /**

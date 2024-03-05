@@ -17,16 +17,19 @@ import {
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
+
+import useBranding from "@app/hooks/useBranding";
 import { AppAboutModalState } from "../AppAboutModalState";
 import { SSOMenu } from "./SSOMenu";
 import { MobileDropdown } from "./MobileDropdown";
 
-import konveyorBrandImage from "@app/images/Konveyor-white-logo.svg";
-import { APP_BRAND, BrandType } from "@app/Constants";
-import logoRedHat from "@app/images/logoRedHat.svg";
 import "./header.css";
 
 export const HeaderApp: React.FC = () => {
+  const {
+    masthead: { leftBrand, leftTitle, rightBrand },
+  } = useBranding();
+
   const toolbar = (
     <Toolbar isFullHeight isStatic>
       <ToolbarContent>
@@ -69,16 +72,21 @@ export const HeaderApp: React.FC = () => {
           </ToolbarItem>
           <SSOMenu />
         </ToolbarGroup>
-        {APP_BRAND === BrandType.MTA && (
+        {rightBrand ? (
           <ToolbarGroup>
             <ToolbarItem>
-              <img src={logoRedHat} alt="Logo" className="redhat-logo-style" />
+              <Brand
+                src={rightBrand.src}
+                alt={rightBrand.alt}
+                heights={{ default: rightBrand.height }}
+              />
             </ToolbarItem>
           </ToolbarGroup>
-        )}
+        ) : null}
       </ToolbarContent>
     </Toolbar>
   );
+
   return (
     <Masthead>
       <MastheadToggle>
@@ -88,17 +96,22 @@ export const HeaderApp: React.FC = () => {
       </MastheadToggle>
       <MastheadMain>
         <MastheadBrand>
-          {APP_BRAND === BrandType.Konveyor ? (
+          {leftBrand ? (
             <Brand
-              src={konveyorBrandImage}
-              alt="brand"
-              heights={{ default: "60px" }}
+              src={leftBrand.src}
+              alt={leftBrand.alt}
+              heights={{ default: leftBrand.height }}
             />
-          ) : (
-            <Title className="logo-pointer" headingLevel="h1" size="2xl">
-              Migration Toolkit for Applications
+          ) : null}
+          {leftTitle ? (
+            <Title
+              className="logo-pointer"
+              headingLevel={leftTitle?.heading ?? "h1"}
+              size={leftTitle?.size ?? "2xl"}
+            >
+              {leftTitle.text}
             </Title>
-          )}
+          ) : null}
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>{toolbar}</MastheadContent>
