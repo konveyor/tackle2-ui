@@ -10,7 +10,6 @@ import {
   updateArchetype,
 } from "@app/api/rest";
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import { reviewsQueryKey } from "./reviews";
 import { useState } from "react";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
@@ -39,7 +38,6 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
         setFilteredArchetypes([]);
       }
 
-      queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
     },
     onError: (error: AxiosError) => console.log(error),

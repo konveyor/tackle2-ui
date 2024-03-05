@@ -20,7 +20,6 @@ import {
   updateAllApplications,
   updateApplication,
 } from "@app/api/rest";
-import { reviewsQueryKey } from "./reviews";
 import { assessmentsByItemIdQueryKey } from "./assessments";
 import saveAs from "file-saver";
 
@@ -41,7 +40,6 @@ export const useFetchApplications = (refetchDisabled: boolean = false) => {
     queryFn: getApplications,
     refetchInterval: !refetchDisabled ? 5000 : false,
     onSuccess: () => {
-      queryClient.invalidateQueries([reviewsQueryKey]);
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
     },
     onError: (error: AxiosError) => console.log(error),

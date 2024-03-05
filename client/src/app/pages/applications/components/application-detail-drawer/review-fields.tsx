@@ -6,11 +6,12 @@ import {
   DescriptionListDescription,
 } from "@patternfly/react-core";
 import { Application, Archetype, Review } from "@app/api/models";
-import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
+import { useFetchReviewById } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 import { ReviewLabel } from "./review-label";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export type ReviewDrawerLabelItem = {
   review?: Review | null;
@@ -21,9 +22,9 @@ export type ReviewDrawerLabelItem = {
 export const ReviewFields: React.FC<{
   application?: Application | null;
   archetype?: Archetype | null;
-}> = ({ application, archetype }) => {
+  reviews?: Review[];
+}> = ({ application, archetype, reviews }) => {
   const { archetypes } = useFetchArchetypes();
-  const { reviews } = useFetchReviews();
   const { t } = useTranslation();
 
   const { review: appReview } = useFetchReviewById(application?.review?.id);
@@ -41,7 +42,7 @@ export const ReviewFields: React.FC<{
 
   const matchedArchetypeReviews: Review[] = (applicationArchetypes || [])
     .map((archetype) => {
-      return reviews.find((review) => review.id === archetype?.review?.id);
+      return reviews?.find((review) => review.id === archetype?.review?.id);
     })
     .filter(Boolean);
 
@@ -71,7 +72,7 @@ export const ReviewFields: React.FC<{
   ].filter((item) => item.review?.proposedAction);
 
   return (
-    <>
+    <div className={spacing.mtMd}>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.proposedAction")}</DescriptionListTerm>
         <DescriptionListDescription cy-data="proposed-action">
@@ -150,6 +151,6 @@ export const ReviewFields: React.FC<{
               })}
         </DescriptionListDescription>
       </DescriptionListGroup>
-    </>
+    </div>
   );
 };
