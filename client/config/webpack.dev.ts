@@ -2,7 +2,6 @@ import path from "path";
 import { mergeWithRules } from "webpack-merge";
 import type { Configuration as WebpackConfiguration } from "webpack";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
-
 import CopyPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import ReactRefreshTypeScript from "react-refresh-typescript";
@@ -14,12 +13,14 @@ import {
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
   proxyMap,
+  brandingStrings,
+  brandingAssetPath,
 } from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
-const brandType = KONVEYOR_ENV.PROFILE;
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
+const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
 
 interface Configuration extends WebpackConfiguration {
   devServer?: DevServerConfiguration;
@@ -75,10 +76,6 @@ const config: Configuration = mergeWithRules({
         include: [...stylePaths],
         use: ["style-loader", "css-loader"],
       },
-      {
-        test: /\.yaml$/,
-        use: "raw-loader",
-      },
     ],
   },
 
@@ -96,15 +93,16 @@ const config: Configuration = mergeWithRules({
         },
       ],
     }),
+
     // index.html generated at compile time to inject `_env`
     new HtmlWebpackPlugin({
       filename: "index.html",
       template: pathTo("../public/index.html.ejs"),
       templateParameters: {
         _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
-        brandType,
+        branding: brandingStrings,
       },
-      favicon: pathTo(`../public/${brandType}-favicon.ico`),
+      favicon: faviconPath,
       minify: {
         collapseWhitespace: false,
         keepClosingSlash: true,

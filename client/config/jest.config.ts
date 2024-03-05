@@ -23,6 +23,9 @@ const config: JestConfigWithTsJest = {
     "@patternfly/react-icons/dist/esm/icons/":
       "<rootDir>/__mocks__/fileMock.js",
 
+    // other mocks
+    "react-i18next": "<rootDir>/__mocks__/react-i18next.js",
+
     // match the paths in tsconfig.json
     "@app/(.*)": "<rootDir>/src/app/$1",
     "@assets/(.*)":
@@ -44,7 +47,7 @@ const config: JestConfigWithTsJest = {
   },
 
   // Code to set up the testing framework before each test file in the suite is executed
-  setupFilesAfterEnv: ["<rootDir>/src/app/setupTests.ts"],
+  setupFilesAfterEnv: ["<rootDir>/src/app/test-config/setupTests.ts"],
 };
 
 export default config;

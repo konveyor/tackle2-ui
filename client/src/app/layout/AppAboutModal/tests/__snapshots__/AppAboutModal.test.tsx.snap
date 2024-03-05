@@ -36,7 +36,7 @@ exports[`AppAboutModal 1`] = `
                 <img
                   alt="Logo"
                   class="pf-v5-c-about-modal-box__brand-image"
-                  src="test-file-stub"
+                  src="branding/images/masthead-logo.svg"
                 />
               </div>
               <div
@@ -125,8 +125,8 @@ exports[`AppAboutModal 1`] = `
                         data-ouia-safe="true"
                         data-pf-content="true"
                       >
-                        about.bottom1
-                         
+                        Konveyor
+                         is a project within the
                         <a
                           class=""
                           data-ouia-component-id="OUIA-Generated-Text-5"
@@ -147,8 +147,7 @@ exports[`AppAboutModal 1`] = `
                         data-ouia-safe="true"
                         data-pf-content="true"
                       >
-                        about.bottom2
-                         
+                        For more information, refer to
                         <a
                           class=""
                           data-ouia-component-id="OUIA-Generated-Text-7"

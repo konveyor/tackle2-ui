@@ -5,12 +5,12 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
-import { KONVEYOR_ENV } from "@konveyor-ui/common";
+import { brandingAssetPath } from "@konveyor-ui/common";
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
-const brandType = KONVEYOR_ENV.PROFILE;
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
+const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
 
 const config = merge<Configuration>(commonWebpackConfiguration, {
   mode: "production",
@@ -36,10 +36,6 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
         include: [...stylePaths],
         use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
-      {
-        test: /\.yaml$/,
-        use: "raw-loader",
-      },
     ],
   },
 
@@ -56,11 +52,12 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: "production",
     }),
+
     // index.html generated at runtime via the express server to inject `_env`
     new HtmlWebpackPlugin({
       filename: "index.html.ejs",
       template: `!!raw-loader!${pathTo("../public/index.html.ejs")}`,
-      favicon: pathTo(`../public/${brandType}-favicon.ico`),
+      favicon: faviconPath,
       minify: {
         collapseWhitespace: false,
         keepClosingSlash: true,

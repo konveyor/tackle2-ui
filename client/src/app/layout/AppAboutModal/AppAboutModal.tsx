@@ -9,71 +9,74 @@ import {
   TextList,
   TextListItem,
 } from "@patternfly/react-core";
-
-import konveyorBrandImage from "@app/images/Konveyor-white-logo.svg";
-import mtaBrandImage from "@app/images/logoRedHat.svg";
-import { APP_BRAND, BrandType } from "@app/Constants";
 import { ENV } from "@app/env";
+import useBranding from "@app/hooks/useBranding";
 
 export interface AppAboutModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const TRANSPARENT_1x1_GIF =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw== ";
+
 export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   isOpen,
   onClose,
 }) => {
   const { t } = useTranslation();
-  const brandName =
-    APP_BRAND === BrandType.Konveyor
-      ? "Konveyor"
-      : "Migration Toolkit for Applications";
+  const { about } = useBranding();
+
   return (
     <AboutModal
       isOpen={isOpen}
       onClose={onClose}
       trademark="COPYRIGHT © 2022."
-      brandImageSrc={
-        APP_BRAND === BrandType.Konveyor ? konveyorBrandImage : mtaBrandImage
-      }
+      brandImageSrc={about.imageSrc ?? TRANSPARENT_1x1_GIF}
       brandImageAlt="Logo"
-      productName={brandName}
+      productName={about.displayName}
     >
       <TextContent>
         <Text component={TextVariants.h4}>{t("about.about")}</Text>
+
         <Text component={TextVariants.p}>
-          {t("about.introduction", { brandType: brandName })}
+          {t("about.introduction", { brandType: about.displayName })}
         </Text>
+
         <Text component={TextVariants.p}>
-          {t("about.description", { brandType: brandName })}
+          {t("about.description", { brandType: about.displayName })}
         </Text>
+
         <Text component={TextVariants.p}>
-          {t("about.bottom1", { brandType: brandName })}{" "}
-          <Text
-            component={TextVariants.a}
-            href="https://www.konveyor.io/"
-            target="_blank"
-          >
-            Konveyor community
+          <Trans i18nKey={"about.bottom1"}>
+            {{ brandType: about.displayName }} is a project within the
+            <Text
+              component={TextVariants.a}
+              href="https://www.konveyor.io/"
+              target="_blank"
+            >
+              Konveyor community
+            </Text>
+            .
+          </Trans>
+        </Text>
+
+        {about.documentationUrl ? (
+          <Text component={TextVariants.p}>
+            <Trans i18nKey={"about.bottom2"}>
+              For more information, refer to
+              <Text
+                component={TextVariants.a}
+                href={about.documentationUrl}
+                target="_blank"
+              >
+                {{ brandType: about.displayName }} documentation
+              </Text>
+              .
+            </Trans>
           </Text>
-          .
-        </Text>
-        <Text component={TextVariants.p}>
-          {t("about.bottom2")}{" "}
-          <Text
-            component={TextVariants.a}
-            href={
-              APP_BRAND === BrandType.Konveyor
-                ? "https://konveyor.github.io/konveyor/"
-                : "https://access.redhat.com/documentation/en-us/migration_toolkit_for_applications"
-            }
-            target="_blank"
-          >
-            {brandName} documentation
-          </Text>
-          .
-        </Text>
+        ) : null}
+
         <Text component={TextVariants.p}>
           <Trans i18nKey="about.iconLibrary">
             The Icon Library used in this project is a derivative of the{" "}

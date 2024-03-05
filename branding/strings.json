@@ -1,0 +1,21 @@
+{
+  "application": {
+    "title": "Konveyor",
+    "name": "Konveyor Tackle UI",
+    "description": "Konveyor/Tackle UI"
+  },
+  "about": {
+    "displayName": "Konveyor",
+    "imageSrc": "<%= brandingRoot %>/images/masthead-logo.svg",
+    "documentationUrl": "https://konveyor.github.io/konveyor/"
+  },
+  "masthead": {
+    "leftBrand": {
+      "src": "<%= brandingRoot %>/images/masthead-logo.svg",
+      "alt": "brand",
+      "height": "60px"
+    },
+    "leftTitle": null,
+    "rightBrand": null
+  }
+}
