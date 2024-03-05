@@ -32,6 +32,7 @@ import {
   Ref,
   Archetype,
   AssessmentWithSectionOrder,
+  Review,
 } from "@app/api/models";
 import {
   IPageDrawerContentProps,
@@ -57,7 +58,6 @@ import { ReviewFields } from "./review-fields";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ApplicationDetailFields } from "./application-detail-fields";
-import { useFetchArchetypes } from "@app/queries/archetypes";
 import { AssessedArchetypes } from "./components/assessed-archetypes";
 
 export interface IApplicationDetailDrawerProps
@@ -66,6 +66,8 @@ export interface IApplicationDetailDrawerProps
   task: Task | undefined | null;
   applications?: Application[];
   assessments?: AssessmentWithSectionOrder[];
+  reviews?: Review[];
+  archetypes?: Archetype[];
   onEditClick: () => void;
 }
 
@@ -79,7 +81,15 @@ enum TabKey {
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
-> = ({ onCloseClick, application, assessments, task, onEditClick }) => {
+> = ({
+  onCloseClick,
+  application,
+  assessments,
+  reviews,
+  archetypes,
+  task,
+  onEditClick,
+}) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -88,7 +98,6 @@ export const ApplicationDetailDrawer: React.FC<
   const isTaskRunning = task?.state === "Running";
 
   const { identities } = useFetchIdentities();
-  const { archetypes } = useFetchArchetypes();
   const { facts, isFetching } = useFetchFacts(application?.id);
 
   const [taskIdToView, setTaskIdToView] = React.useState<number>();
@@ -106,8 +115,9 @@ export const ApplicationDetailDrawer: React.FC<
 
   const reviewedArchetypes =
     application?.archetypes
-      ?.map((archetypeRef) =>
-        archetypes.find((archetype) => archetype.id === archetypeRef.id)
+      ?.map(
+        (archetypeRef) =>
+          archetypes?.find((archetype) => archetype.id === archetypeRef.id)
       )
       .filter((fullArchetype) => fullArchetype?.review)
       .filter(Boolean) || [];
@@ -445,7 +455,7 @@ export const ApplicationDetailDrawer: React.FC<
             eventKey={TabKey.Reviews}
             title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
-            <ReviewFields application={application} />
+            <ReviewFields application={application} reviews={reviews} />
           </Tab>
         </Tabs>
       </div>
