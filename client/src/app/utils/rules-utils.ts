@@ -21,8 +21,8 @@ export const parseRules = (file: IReadFile): ParsedRule => {
       const yamlList = Array.isArray(yamlDoc) ? yamlDoc : [yamlDoc];
       const yamlLabels = Array.from(
         new Set(
-          yamlList?.flatMap((parsedLine) => {
-            return parsedLine?.labels ? parsedLine?.labels : [];
+          yamlList?.flatMap((parsedRule) => {
+            return parsedRule?.labels ? parsedRule?.labels : [];
           }) || []
         )
       );
@@ -32,7 +32,8 @@ export const parseRules = (file: IReadFile): ParsedRule => {
         target: allLabels?.targetLabel,
         otherLabels: allLabels?.otherLabels,
         allLabels: allLabels?.allLabels,
-        total: 0,
+        total:
+          yamlList?.filter((parsedRule) => parsedRule?.ruleID)?.length ?? 0,
         ...(file.responseID && {
           fileID: file.responseID,
         }),
