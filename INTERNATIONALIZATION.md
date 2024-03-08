@@ -45,4 +45,4 @@ At this point you should be able to see your new language already translated int
 
 ## Why the questionnaire (assessment process) is not translated?
 
-The questionnaire is data imported from YAML files hence the translation to a new language of the questionnaire requires a new file.
+To accommodate diverse user needs, including internationalization, our custom assessment module supports the uploading of YAML files. This flexibility allows for the easy adaptation of assessments to different languages or specific requirements. If you're looking to offer assessments in a new language, simply create and upload a YAML file tailored to that language.
