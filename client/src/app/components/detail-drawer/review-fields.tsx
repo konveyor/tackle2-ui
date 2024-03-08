@@ -5,13 +5,16 @@ import {
   DescriptionListTerm,
   DescriptionListDescription,
 } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { Application, Archetype, Review } from "@app/api/models";
 import { useFetchReviewById } from "@app/queries/reviews";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { useFetchReviews } from "@app/queries/reviews";
+
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
 import { ReviewLabel } from "./review-label";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export type ReviewDrawerLabelItem = {
   review?: Review | null;
@@ -23,10 +26,11 @@ export const ReviewFields: React.FC<{
   application?: Application | null;
   archetype?: Archetype | null;
   reviews?: Review[];
-}> = ({ application, archetype, reviews }) => {
+}> = ({ application, archetype }) => {
   const { archetypes } = useFetchArchetypes();
   const { t } = useTranslation();
 
+  const { reviews } = useFetchReviews();
   const { review: appReview } = useFetchReviewById(application?.review?.id);
   const { review: archetypeReview } = useFetchReviewById(archetype?.review?.id);
 
