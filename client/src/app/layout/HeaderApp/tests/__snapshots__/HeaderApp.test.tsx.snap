@@ -46,7 +46,7 @@ exports[`Test snapshot 1`] = `
             <img
               alt="brand"
               class="pf-v5-c-brand"
-              src="test-file-stub"
+              src="branding/images/masthead-logo.svg"
               style="--pf-v5-c-brand--Height: 60px;"
             />
           </span>
@@ -170,7 +170,7 @@ exports[`Test snapshot 1`] = `
           <img
             alt="brand"
             class="pf-v5-c-brand"
-            src="test-file-stub"
+            src="branding/images/masthead-logo.svg"
             style="--pf-v5-c-brand--Height: 60px;"
           />
         </span>

@@ -18,7 +18,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Archetype, Ref, Tag, TagRef } from "@app/api/models";
+import { Archetype, Ref, Review, Tag, TagRef } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 
@@ -34,6 +34,7 @@ import { Link } from "react-router-dom";
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
   archetype: Archetype | null;
+  reviews?: Review[];
 }
 
 enum TabKey {
@@ -44,6 +45,7 @@ enum TabKey {
 const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
   onCloseClick,
   archetype,
+  reviews,
 }) => {
   const { t } = useTranslation();
 
@@ -226,7 +228,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
             eventKey={TabKey.Reviews}
             title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
-            <ReviewFields archetype={archetype} />
+            <ReviewFields archetype={archetype} reviews={reviews} />
           </Tab>
         </Tabs>
       </div>
