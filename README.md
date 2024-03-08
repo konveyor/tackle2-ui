@@ -49,7 +49,9 @@ $ minikube config set memory 10240
 $ minikube config set cpus 4
 ```
 
-From a terminal run (depending on your driver administrator access may be required):
+Note: Depending on your driver, administrator access may be required. Common choices include Docker for container-based virtualization and KVM for hardware-assisted virtualization on Linux systems. If you're not sure which driver is best for you or if you're encountering compatibility issues, Minikube also supports auto-selecting a driver based on your system's capabilities and installed software.
+
+From a terminal run:
 
 ```sh
 $ minikube start --addons=dashboard --addons=ingress
