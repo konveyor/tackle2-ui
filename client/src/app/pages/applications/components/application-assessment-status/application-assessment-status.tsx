@@ -113,7 +113,10 @@ export const ApplicationAssessmentStatus: React.FC<
     tooltipCount = assessedArchetypesWithARequiredAssessment.length;
   } else if (
     applicationAssessments?.some(
-      (assessment) => assessment.status === "started"
+      (assessment) =>
+        assessment.status === "started" ||
+        assessment.status === "empty" ||
+        assessment.status === "complete"
     )
   ) {
     statusPreset = "InProgress";
