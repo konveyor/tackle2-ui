@@ -25,17 +25,17 @@ locales: ["en", "es", "myLanguageCode"]
 npm extract
 ```
 
-The previous command created a file `public/locales/{myLanguageCode}/translation.json`; the content of this file should be the translated new language. As a reference you can use the english version of the translation located at [public/locales/en/translation.json](https://github.com/konveyor/tackle-ui/blob/main/public/locales/en/translation.json)
+The previous command created a file `public/locales/{myLanguageCode}/translation.json`; the content of this file should be the translated new language. As a reference you can use the english version of the translation located at [public/locales/en/translation.json](https://github.com/konveyor/tackle2-ui/blob/main/client/public/locales/en/translation.json)
 
 > As soon as you feel confident, open a new Pull Request with your changes and make it part of the official repository.
 
 ## How to see the new translation in action?
 
-To see your changes in action you will need to start Tackle UI in development mode. For starting Tackle UI in development mode follow the instruction at [Starting the UI](https://github.com/konveyor/tackle-ui#starting-the-ui)
+To see your changes in action you will need to start Tackle UI in development mode. For starting Tackle UI in development mode follow the instruction at [Development section](https://github.com/konveyor/tackle2-ui/blob/main/README.md#development)
 
 Steps:
 
-- Start Tackle UI in dev mode following [Starting the UI](https://github.com/konveyor/tackle-ui#starting-the-ui) instructions.
+- Start Tackle UI in dev mode following the instructions in the [Development section](https://github.com/konveyor/tackle2-ui/blob/main/README.md#development).
 - Go to Keycloak http://localhost:8180/auth/admin/ and use `username=admin, password=admin`. Go to `Realm settings > themes > Supported locales` and select the new language you are adding. Finally click on `Save`.
 - Go to http://localhost:3000/ and you should be redirected to the Login page where you are able to select your new language.
 
@@ -45,4 +45,4 @@ At this point you should be able to see your new language already translated int
 
 ## Why the questionnaire (assessment process) is not translated?
 
-The questionnaire is data comming from https://github.com/konveyor/tackle-pathfinder hence the translation to a new language of the questionnaire should be done in that repository.
+To accommodate diverse user needs, including internationalization, our custom assessment module supports the uploading of YAML files. This flexibility allows for the easy adaptation of assessments to different languages or specific requirements. If you're looking to offer assessments in a new language, simply create and upload a YAML file tailored to that language.
