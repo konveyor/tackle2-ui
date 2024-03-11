@@ -49,13 +49,25 @@ $ minikube config set memory 10240
 $ minikube config set cpus 4
 ```
 
-From a terminal with administrator access (but not logged in as root), run:
+Note: Depending on your driver, administrator access may be required. Common choices include Docker for container-based virtualization and KVM for hardware-assisted virtualization on Linux systems. If you're not sure which driver is best for you or if you're encountering compatibility issues, Minikube also supports auto-selecting a driver based on your system's capabilities and installed software.
+
+From a terminal run:
 
 ```sh
-$ minikube start --addons=dashboard --addons=ingress --addons=olm
+$ minikube start --addons=dashboard --addons=ingress
 ```
 
-Note: We need to enable the dashboard, ingress and olm addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API. The olm addon allows us to use an operator to deploy Tackle.
+Note: We need to enable the dashboard and ingress addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API.
+
+Since the olm addon is disabled until OLM issue [2534](https://github.com/operator-framework/operator-lifecycle-manager/issues/2534) is resolved we need to install the [OLM manually](https://github.com/operator-framework/operator-lifecycle-manager/releases) i.e. for version `v0.27.0` we can use:
+
+```sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.27.0/install.sh -o install.sh
+chmod +x install.sh
+./install.sh v0.27.0
+```
+
+See also official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube).
 
 ### Configuring kubectl for minikube
 
@@ -83,7 +95,9 @@ You will need `kubectl` on your PATH and configured to control minikube in order
 
 ### Installing the Konveyor operator
 
-The [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
+Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
+
+Alternatively, the [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
 
 #### Customizing the install script (optional)
 
@@ -126,7 +140,7 @@ $ npm run start:dev
 
 ## Understanding the local development environment
 
-Tackle2 runs in a Kubernetes compatible environment (Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM).
+Tackle2 runs in a Kubernetes compatible environment (i.e. Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM).
 Although the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
 
 The React and Patternfly based UI is composed of web pages served by an http server with proxy capabilities.
@@ -182,26 +196,23 @@ port and only show the URL instead of opening the default browser directly:
 $ minikube dashboard --port=18080 --url=true
 ```
 
-Second, we can use the `kubectl proxy` command to enable access to the dashboard. The following
-command sets up the proxy to listen on any network interface (useful for remote access), to the
-18080/tcp port (easy to remember), and with requests filtering disabled (less secure, but necessary):
+Second, we can use the `kubectl port-forward` command to enable access to the dashboard:
 
 ```sh
-$ kubectl proxy --address=0.0.0.0 --port 18080 --disable-filter=true
+$ kubectl port-forward svc/kubernetes-dashboard -n kubernetes-dashboard 30090:80
 ```
 
-We can now access the minikube dashboard through the proxy. Use the following URL as a template,
-replacing the IP address with your workstation IP address:
-`http://192.168.0.1:18080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/#/`
+We can now access the minikube dashboard on `http://localhost:30090`
 
 ## Troubleshooting
 
-Note - The steps described are executed on a Fedora 35 workstation, but will likely work on any recent Linux distribution.
-The only prerequisites are to enable virtualization extensions in the BIOS/EFI of the machine, to install libvirt and to add our user to the libvirt group.
+Note - The steps described are executed on a Fedora 38 workstation, but will likely work on any recent Linux distribution.
+
+- For minikube setups that rely on virtualization, the only prerequisites are to enable virtualization extensions in the BIOS/EFI of the machine, to install libvirt and to add our user to the libvirt group.
 
 - Ensure that your minikube installation directory is available in your `$PATH` environment variable. This is usually `/usr/local/bin/` or something similar depending on your OS of choice.
 
-- The following command gives us the IP address assigned to the virtual machine created by Minikube.
+- The following command gives us the IP address assigned to the node created by Minikube.
   It's used when interacting with tackle UI image installed on the minikube cluster.
 
 ```sh
