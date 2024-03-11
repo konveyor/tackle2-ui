@@ -84,7 +84,7 @@ import {
   useDeleteAssessmentMutation,
   useFetchAssessments,
 } from "@app/queries/assessments";
-import { useDeleteReviewMutation, useFetchReviews } from "@app/queries/reviews";
+import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
@@ -117,7 +117,6 @@ export const ApplicationsTable: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { identities } = useFetchIdentities();
-  const { reviews, isFetching: isFetchingReviews } = useFetchReviews();
 
   const [saveApplicationModalState, setSaveApplicationModalState] =
     React.useState<"create" | Application | null>(null);
@@ -1080,7 +1079,6 @@ export const ApplicationsTable: React.FC = () => {
           applications={applications}
           assessments={assessments}
           archetypes={archetypes}
-          reviews={reviews}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}

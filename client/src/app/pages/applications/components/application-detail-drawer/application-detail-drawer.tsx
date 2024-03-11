@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import {
   TextContent,
   Text,
@@ -24,6 +25,9 @@ import {
   LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
+import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+
 import {
   Application,
   Identity,
@@ -32,33 +36,32 @@ import {
   Ref,
   Archetype,
   AssessmentWithSectionOrder,
-  Review,
 } from "@app/api/models";
-import {
-  IPageDrawerContentProps,
-  PageDrawerContent,
-} from "@app/components/PageDrawerContext";
-import {
-  getDependenciesUrlFilteredByAppName,
-  getIssuesSingleAppSelectedLocation,
-} from "@app/pages/issues/helpers";
-import { ApplicationTags } from "../application-tags";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { useFetchFacts } from "@app/queries/facts";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSetting } from "@app/queries/settings";
 import { getKindIdByRef } from "@app/utils/model-utils";
-import DownloadButton from "./components/download-button";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import { ApplicationFacts } from "./application-facts";
-import { ReviewFields } from "./review-fields";
+
+import {
+  getDependenciesUrlFilteredByAppName,
+  getIssuesSingleAppSelectedLocation,
+} from "@app/pages/issues/helpers";
+import {
+  IPageDrawerContentProps,
+  PageDrawerContent,
+} from "@app/components/PageDrawerContext";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { RiskLabel } from "@app/components/RiskLabel";
-import { ApplicationDetailFields } from "./application-detail-fields";
+import { ReviewFields } from "@app/components/detail-drawer/review-fields";
+
+import { ApplicationTags } from "../application-tags";
 import { AssessedArchetypes } from "./components/assessed-archetypes";
+import DownloadButton from "./components/download-button";
+import { ApplicationDetailFields } from "./application-detail-fields";
+import { ApplicationFacts } from "./application-facts";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -66,7 +69,6 @@ export interface IApplicationDetailDrawerProps
   task: Task | undefined | null;
   applications?: Application[];
   assessments?: AssessmentWithSectionOrder[];
-  reviews?: Review[];
   archetypes?: Archetype[];
   onEditClick: () => void;
 }
@@ -85,7 +87,6 @@ export const ApplicationDetailDrawer: React.FC<
   onCloseClick,
   application,
   assessments,
-  reviews,
   archetypes,
   task,
   onEditClick,
@@ -455,7 +456,7 @@ export const ApplicationDetailDrawer: React.FC<
             eventKey={TabKey.Reviews}
             title={<TabTitleText>{t("terms.review")}</TabTitleText>}
           >
-            <ReviewFields application={application} reviews={reviews} />
+            <ReviewFields application={application} />
           </Tab>
         </Tabs>
       </div>
