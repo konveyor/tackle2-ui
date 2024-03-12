@@ -155,7 +155,7 @@ export const IssueAffectedFilesTable: React.FC<
                   <Td
                     width={70}
                     {...getTdProps({ columnKey: "file" })}
-                    modifier="truncate"
+                    modifier="wrap"
                   >
                     <Button
                       variant="link"
