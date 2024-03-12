@@ -1,6 +1,7 @@
 import "./archetype-detail-drawer.css";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 import {
   TextContent,
@@ -17,19 +18,17 @@ import {
   TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-
+import { dedupeArrayOfObjects } from "@app/utils/utils";
+import { Paths } from "@app/Paths";
+import { serializeFilterUrlParams } from "@app/hooks/table-controls";
 import { Archetype, Ref, Review, Tag, TagRef } from "@app/api/models";
+
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
-
-import { dedupeArrayOfObjects } from "@app/utils/utils";
-import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
-import { ReviewFields } from "@app/pages/applications/components/application-detail-drawer/review-fields";
+import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 import { RiskLabel } from "@app/components/RiskLabel";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { LabelsFromTags } from "@app/components/labels/labels-from-tags/labels-from-tags";
-import { serializeFilterUrlParams } from "@app/hooks/table-controls";
-import { Paths } from "@app/Paths";
-import { Link } from "react-router-dom";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
