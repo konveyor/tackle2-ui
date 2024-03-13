@@ -33,6 +33,7 @@ export const useLocalTableControls = <
 > => {
   const state = useTableControlState(args);
   const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
+  const { columnState } = state;
   return useTableControlProps({
     ...args,
     ...state,
@@ -42,5 +43,7 @@ export const useLocalTableControls = <
       ...args,
       isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
     }),
+    idProperty: args.idProperty,
+    ...columnState,
   });
 };

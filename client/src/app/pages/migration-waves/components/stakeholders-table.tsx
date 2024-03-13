@@ -18,6 +18,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
   migrationWave,
 }) => {
   const tableControls = useLocalTableControls({
+    tableName: "wave-stakeholders-table",
     idProperty: "name",
     items: migrationWave.allStakeholders,
     columnNames: {

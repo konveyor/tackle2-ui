@@ -51,6 +51,7 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
   }, [allApplications, reviews]);
 
   const tableControls = useLocalTableControls({
+    tableName: "adoption-candidate-table",
     idProperty: "id",
     items: applicationsWithReviews || [],
     columnNames: {

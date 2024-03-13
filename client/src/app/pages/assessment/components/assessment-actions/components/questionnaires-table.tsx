@@ -37,6 +37,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   tableName,
 }) => {
   const tableControls = useLocalTableControls({
+    tableName: "questionnaires-table",
     idProperty: "id",
     items: questionnaires || [],
     columnNames: {
