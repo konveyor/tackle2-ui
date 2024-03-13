@@ -192,3 +192,14 @@ export const collapseSpacesAndCompare = (
 
 export const capitalizeFirstLetter = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1);
+
+/**
+ * Uses native string localCompare method with numeric option enabled.
+ *
+ * @param locale to be used by string compareFn
+ */
+export const localeNumericCompare = (
+  a: string,
+  b: string,
+  locale: string
+): number => a.localeCompare(b, locale, { numeric: true });
