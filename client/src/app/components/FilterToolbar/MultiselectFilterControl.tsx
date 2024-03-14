@@ -238,7 +238,8 @@ export const MultiselectFilterControl = <TItem,>({
         newSelectOptions = [
           {
             key: "no-results",
-            isDisabled: false,
+            isDisabled: true,
+            hasCheckbox: false,
             children: `No results found for "${inputValue}"`,
             value: "No results",
           },
