@@ -1,7 +1,7 @@
 /* eslint-env node */
 
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import express from "express";
 import ejs from "ejs";
@@ -14,12 +14,12 @@ import {
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
   proxyMap,
+  brandingStrings,
 } from "@konveyor-ui/common";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const brandType = KONVEYOR_ENV.PROFILE;
 const port = parseInt(KONVEYOR_ENV.PORT, 10) || 8080;
 
 const app = express();
@@ -48,7 +48,7 @@ app.get("*", (_, res) => {
   } else {
     res.render("index.html.ejs", {
       _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
-      brandType,
+      branding: brandingStrings,
     });
   }
 });
