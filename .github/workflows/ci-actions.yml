@@ -42,13 +42,13 @@ jobs:
         run: npm run test -- --coverage --watchAll=false
 
       - name: Upload to codecov (client)
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: client
           directory: ./*/coverage
 
       - name: Upload to codecov (server)
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           flags: server
           directory: ./*/coverage
