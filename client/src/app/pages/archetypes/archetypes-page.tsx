@@ -43,6 +43,8 @@ import {
   useLocalTableControls,
 } from "@app/hooks/table-controls";
 import {
+  ARCHETYPES_QUERY_KEY,
+  ARCHETYPE_QUERY_KEY,
   useDeleteArchetypeMutation,
   useFetchArchetypes,
 } from "@app/queries/archetypes";
@@ -69,11 +71,14 @@ import {
 } from "@app/rbac";
 import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
+import { IconedStatus } from "@app/components/IconedStatus";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const queryClient = useQueryClient();
 
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
@@ -115,34 +120,37 @@ const Archetypes: React.FC = () => {
     onError
   );
 
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
+  const { mutateAsync: deleteAssessment } = useDeleteAssessmentMutation();
 
-  const discardAssessment = async (archetype: Archetype) => {
-    try {
-      if (archetype.assessments) {
-        await Promise.all(
-          archetype.assessments.map(async (assessment) => {
-            await deleteAssessment({
-              assessmentId: assessment.id,
-              archetypeId: archetype.id,
-            });
-          })
-        ).then(() => {
-          pushNotification({
-            title: t("toastr.success.assessmentDiscarded", {
-              application: archetype.name,
-            }),
-            variant: "success",
-          });
-        });
-      }
-    } catch (error) {
-      console.error("Error while deleting assessments:", error);
-      pushNotification({
-        title: getAxiosErrorMessage(error as AxiosError),
-        variant: "danger",
-      });
+  const discardAssessment = (archetype: Archetype) => {
+    if (!archetype.assessments) {
+      return;
     }
+    Promise.all(
+      archetype.assessments.map((assessment) =>
+        deleteAssessment({
+          assessmentId: assessment.id,
+          archetypeId: archetype.id,
+        })
+      )
+    )
+      .then(() => {
+        pushNotification({
+          title: t("toastr.success.assessmentDiscarded", {
+            application: archetype.name,
+          }),
+          variant: "success",
+        });
+        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
+        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
+      })
+      .catch((error) => {
+        console.error("Error while deleting assessments:", error);
+        pushNotification({
+          title: getAxiosErrorMessage(error as AxiosError),
+          variant: "danger",
+        });
+      });
   };
 
   const onDeleteReviewSuccess = (name: string) => {
@@ -154,25 +162,29 @@ const Archetypes: React.FC = () => {
     });
   };
 
-  const { mutate: deleteReview } = useDeleteReviewMutation(
+  const { mutateAsync: deleteReview } = useDeleteReviewMutation(
     onDeleteReviewSuccess
   );
 
-  const discardReview = async (archetype: Archetype) => {
-    try {
-      if (archetype.review?.id) {
-        await deleteReview({
-          id: archetype.review.id,
-          name: archetype.name,
-        });
-      }
-    } catch (error) {
-      console.error("Error while deleting review:", error);
-      pushNotification({
-        title: getAxiosErrorMessage(error as AxiosError),
-        variant: "danger",
-      });
+  const discardReview = (archetype: Archetype) => {
+    if (!archetype.review?.id) {
+      return;
     }
+    deleteReview({
+      id: archetype.review.id,
+      name: archetype.name,
+    })
+      .then(() => {
+        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
+        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
+      })
+      .catch((error) => {
+        console.error("Error while deleting review:", error);
+        pushNotification({
+          title: getAxiosErrorMessage(error as AxiosError),
+          variant: "danger",
+        });
+      });
   };
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters");
@@ -193,6 +205,8 @@ const Archetypes: React.FC = () => {
       tags: t("terms.tags"),
       maintainers: t("terms.maintainers"),
       applications: t("terms.applications"),
+      assessment: t("terms.assessment"),
+      review: t("terms.review"),
     },
 
     isFilterEnabled: true,
@@ -380,6 +394,11 @@ const Archetypes: React.FC = () => {
                     <Th {...getThProps({ columnKey: "tags" })} />
                     <Th {...getThProps({ columnKey: "maintainers" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th
+                      {...getThProps({ columnKey: "assessment" })}
+                      width={10}
+                    />
+                    <Th {...getThProps({ columnKey: "review" })} width={10} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -426,6 +445,32 @@ const Archetypes: React.FC = () => {
                         </Td>
                         <Td {...getTdProps({ columnKey: "applications" })}>
                           <ArchetypeApplicationsColumn archetype={archetype} />
+                        </Td>
+                        <Td
+                          width={15}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "assessment" })}
+                        >
+                          <IconedStatus
+                            preset={
+                              archetype.assessed
+                                ? "Completed"
+                                : archetype?.assessments?.length
+                                ? "InProgress"
+                                : "NotStarted"
+                            }
+                          />
+                        </Td>
+                        <Td
+                          width={15}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "review" })}
+                        >
+                          <IconedStatus
+                            preset={
+                              archetype.review ? "Completed" : "NotStarted"
+                            }
+                          />
                         </Td>
                         <Td isActionCell>
                           {(archetypeWriteAccess ||
