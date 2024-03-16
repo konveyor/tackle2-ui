@@ -22,6 +22,8 @@ jobs:
       containerfile: "./Dockerfile"
       architectures: '[ "amd64", "arm64", "ppc64le", "s390x" ]'
       extra-args: "--ulimit nofile=4096:4096"
+      pre_build_cmd: |
+        sed -i '/RUN npm clean-install/i RUN npm install -g npm@9' Dockerfile
     secrets:
       registry_username: ${{ secrets.QUAY_PUBLISH_ROBOT }}
       registry_password: ${{ secrets.QUAY_PUBLISH_TOKEN }}
