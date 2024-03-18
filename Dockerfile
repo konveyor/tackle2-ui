@@ -3,7 +3,7 @@ FROM registry.access.redhat.com/ubi9/nodejs-18:latest as builder
 
 USER 1001
 COPY --chown=1001 . .
-RUN npm clean-install && npm run build && npm run dist
+RUN npm clean-install --ignore-scripts && npm run build && npm run dist
 
 # Runner image
 FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:latest
