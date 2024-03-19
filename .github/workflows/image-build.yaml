@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'main'
-      - 'release-*'
+      - "main"
+      - "release-*"
     tags:
-      - 'v*'
+      - "v*"
 
 concurrency:
   group: build-${{ github.ref }}
@@ -21,9 +21,8 @@ jobs:
       image_name: "tackle2-ui"
       containerfile: "./Dockerfile"
       architectures: '[ "amd64", "arm64", "ppc64le", "s390x" ]'
+      # 2023-03-19: currently needed for npm@10
       extra-args: "--ulimit nofile=4096:4096"
-      pre_build_cmd: |
-        sed -i '/RUN npm clean-install/i RUN npm install -g npm@9' Dockerfile
     secrets:
       registry_username: ${{ secrets.QUAY_PUBLISH_ROBOT }}
       registry_password: ${{ secrets.QUAY_PUBLISH_TOKEN }}
