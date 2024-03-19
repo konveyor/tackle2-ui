@@ -9,13 +9,16 @@ export const useAssessmentStatus = (application: Application) => {
   const { archetypes } = useFetchArchetypes();
 
   return useMemo(() => {
-    const applicationAssessments = assessments?.filter(
-      (assessment: Assessment) => assessment.application?.id === application.id
-    );
-    const inheritedArchetypes = archetypes?.filter(
-      (archetype: Archetype) =>
-        archetype.applications?.map((app) => app.id).includes(application.id)
-    );
+    const applicationAssessments =
+      assessments?.filter(
+        (assessment: Assessment) =>
+          assessment.application?.id === application.id
+      ) ?? [];
+    const inheritedArchetypes =
+      archetypes?.filter(
+        (archetype: Archetype) =>
+          archetype.applications?.map((app) => app.id).includes(application.id)
+      ) ?? [];
 
     const assessmentsWithArchetypes = inheritedArchetypes.map(
       (inheritedArchetype) => ({
