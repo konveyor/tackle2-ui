@@ -27,6 +27,9 @@ jobs:
           node-version: ${{ env.node-version }}
           cache: "npm"
 
+      - name: Force install npm@9 to match Dockerfile build container ubi9/nodejs-18:1-88
+        run: npm install -g npm@9
+
       - name: Verify package-lock.json
         run: ./scripts/verify_lock.mjs
 
