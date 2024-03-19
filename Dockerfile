@@ -1,12 +1,21 @@
+# NOTE: Since the `:latest` tag can have npm version changes, we are using
+#       a specific version tag. Container build errors have come up locally
+#       and via github action workflow when `:latest` is updated.
+#
+# Image info: https://catalog.redhat.com/software/containers/ubi9/nodejs-18/62e8e7ed22d1d3c2dfe2ca01
+# Relevant PRs:
+#   - https://github.com/konveyor/tackle2-ui/pull/1746
+#   - https://github.com/konveyor/tackle2-ui/pull/1781
+
 # Builder image
-FROM registry.access.redhat.com/ubi9/nodejs-18:latest as builder
+FROM registry.access.redhat.com/ubi9/nodejs-18:1-88 as builder
 
 USER 1001
 COPY --chown=1001 . .
 RUN npm clean-install --ignore-scripts && npm run build && npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:latest
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-93
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
