@@ -8,6 +8,10 @@ export const useAssessmentStatus = (application: Application) => {
   const { assessments } = useFetchAssessments();
   const { archetypes } = useFetchArchetypes();
 
+  const isDirectlyAssessed =
+    (application.assessed && (application.assessments?.length ?? 0) > 0) ??
+    false;
+
   return useMemo(() => {
     const applicationAssessments =
       assessments?.filter(
@@ -65,10 +69,6 @@ export const useAssessmentStatus = (application: Application) => {
         assessment.status === "empty" ||
         assessment.status === "complete"
     );
-    const isDirectlyAssessed =
-      (application.assessed && (application.assessments?.length ?? 0) > 0) ??
-      false;
-
     return {
       allArchetypesAssessed,
       countOfFullyAssessedArchetypes: assessedArchetypesCount,
@@ -76,5 +76,5 @@ export const useAssessmentStatus = (application: Application) => {
       hasApplicationAssessmentInProgress,
       isApplicationDirectlyAssessed: isDirectlyAssessed,
     };
-  }, [assessments, archetypes, application]);
+  }, [assessments, archetypes, application.id, isDirectlyAssessed]);
 };
