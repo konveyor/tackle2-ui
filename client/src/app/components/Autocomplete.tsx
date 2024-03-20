@@ -80,12 +80,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   }, [options, selections]);
 
   const filteredOptions = useMemo(() => {
-    // No input so do not filter!
-    if (!inputValue) {
-      return options;
-    }
-
-    // filter to choose options that are 1. NOT selected, and 2. include the inputValue
     return options.filter(
       ({ id, name }) =>
         selections.findIndex((s) => s.id === id) === -1 &&
@@ -191,7 +185,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     if (!event || !itemId) {
       return;
     }
-
     event.stopPropagation();
     focusTextInput(true);
     addSelectionByItemId(itemId);
