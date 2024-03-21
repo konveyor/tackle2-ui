@@ -44,7 +44,6 @@ export const SSOMenu: React.FC = () => {
                 ref={toggleRef}
                 id="sso-actions-toggle"
                 onClick={() => onDropdownToggle(!isDropdownOpen)}
-                onBlur={() => onDropdownToggle(false)}
               >
                 {(keycloak?.idTokenParsed as any)?.["preferred_username"] ??
                   "DefaultUsername"}
