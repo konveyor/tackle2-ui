@@ -32,7 +32,7 @@ export const ApplicationFormModal: React.FC<ApplicationFormModalProps> = ({
           aria-label="submit"
           variant={ButtonVariant.primary}
           isDisabled={formProps.isSubmitDisabled}
-          onClick={formProps.onSubmit()}
+          onClick={formProps.onSubmit}
         >
           {!application ? t("actions.create") : t("actions.save")}
         </Button>,

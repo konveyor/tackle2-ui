@@ -330,14 +330,13 @@ export const useApplicationFormHook = ({
     isCancelDisabled: isSubmitting || isValidating,
     stakeholders,
     businessServiceOptions,
-    onSubmit: () => handleSubmit(onValidSubmit),
+    onSubmit: handleSubmit(onValidSubmit),
   };
 };
 
 export const ApplicationForm: React.FC<
   ReturnType<typeof useApplicationFormHook>
 > = ({
-  onSubmit,
   setBasicExpanded,
   isBasicExpanded,
   control,
@@ -353,7 +352,7 @@ export const ApplicationForm: React.FC<
 }) => {
   const { t } = useTranslation();
   return (
-    <Form onSubmit={onSubmit}>
+    <Form>
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"
