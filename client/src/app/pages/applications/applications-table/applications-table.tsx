@@ -91,7 +91,6 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 // Relative components
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ApplicationForm } from "../components/application-form";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
@@ -108,6 +107,7 @@ import { ApplicationIdentityForm } from "../components/application-identity-form
 import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { ApplicationFormModal } from "../components/application-form";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -1103,21 +1103,12 @@ export const ApplicationsTable: React.FC = () => {
             />
           )}
         </Modal>
-        <Modal
-          title={
-            createUpdateApplications
-              ? t("dialog.title.updateApplication")
-              : t("dialog.title.newApplication")
-          }
-          variant="medium"
-          isOpen={isCreateUpdateApplicationsModalOpen}
-          onClose={() => setSaveApplicationModalState(null)}
-        >
-          <ApplicationForm
+        {isCreateUpdateApplicationsModalOpen && (
+          <ApplicationFormModal
             application={createUpdateApplications}
             onClose={() => setSaveApplicationModalState(null)}
           />
-        </Modal>
+        )}
         <SimpleDocumentViewerModal
           title={`Analysis details for ${taskToView?.name}`}
           documentId={taskToView?.task}
