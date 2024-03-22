@@ -1,1 +1,1 @@
-export { ApplicationForm } from "./application-form";
+export { ApplicationFormModal } from "./application-form-modal";

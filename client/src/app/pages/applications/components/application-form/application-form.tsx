@@ -3,9 +3,6 @@ import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { object, string } from "yup";
 import {
-  ActionGroup,
-  Button,
-  ButtonVariant,
   ExpandableSection,
   Form,
   Popover,
@@ -70,10 +67,10 @@ export interface ApplicationFormProps {
   onClose: () => void;
 }
 
-export const ApplicationForm: React.FC<ApplicationFormProps> = ({
+export const useApplicationFormHook = ({
   application,
   onClose,
-}) => {
+}: ApplicationFormProps) => {
   const { t } = useTranslation();
   const {
     existingApplications,
@@ -316,9 +313,46 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       toString: () => `Subversion`,
     },
   ];
+  return {
+    handleSubmit,
+    onValidSubmit,
+    setBasicExpanded,
+    isBasicExpanded,
+    control,
+    tagItems,
+    stakeholdersOptions,
+    setSourceCodeExpanded,
+    isSourceCodeExpanded,
+    kindOptions,
+    setBinaryExpanded,
+    isBinaryExpanded,
+    isSubmitDisabled: !isValid || isSubmitting || isValidating || !isDirty,
+    isCancelDisabled: isSubmitting || isValidating,
+    stakeholders,
+    businessServiceOptions,
+    onSubmit: handleSubmit(onValidSubmit),
+  };
+};
 
+export const ApplicationForm: React.FC<
+  ReturnType<typeof useApplicationFormHook>
+> = ({
+  setBasicExpanded,
+  isBasicExpanded,
+  control,
+  tagItems,
+  stakeholdersOptions,
+  setSourceCodeExpanded,
+  isSourceCodeExpanded,
+  kindOptions,
+  setBinaryExpanded,
+  isBinaryExpanded,
+  stakeholders,
+  businessServiceOptions,
+}) => {
+  const { t } = useTranslation();
   return (
-    <Form onSubmit={handleSubmit(onValidSubmit)}>
+    <Form>
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"
@@ -623,27 +657,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
           />
         </div>
       </ExpandableSection>
-      <ActionGroup>
-        <Button
-          type="submit"
-          id="submit"
-          aria-label="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-        >
-          {!application ? t("actions.create") : t("actions.save")}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>
-      </ActionGroup>
     </Form>
   );
 };
