@@ -920,8 +920,6 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
-                          assessments={assessments}
-                          archetypes={archetypes}
                           isLoading={
                             isFetchingApplications ||
                             isFetchingArchetypes ||

@@ -10,7 +10,8 @@
       "@app/*": ["src/app/*"],
       "@assets/*": [
         "../node_modules/@patternfly/react-core/dist/styles/assets/*"
-      ]
+      ],
+      "@mocks/*": ["src/mocks/*"]
     },
     "typeRoots": ["types/", "node_modules/@types", "../node_modules/@types"],
 
