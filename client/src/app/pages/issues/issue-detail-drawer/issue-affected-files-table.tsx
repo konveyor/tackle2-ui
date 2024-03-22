@@ -25,6 +25,7 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import PathDisplay from "./path-display";
 
 export interface IIssueAffectedFilesTableProps {
   issue: AnalysisIssue;
@@ -152,17 +153,13 @@ export const IssueAffectedFilesTable: React.FC<
                   item={fileReport}
                   rowIndex={rowIndex}
                 >
-                  <Td
-                    width={70}
-                    {...getTdProps({ columnKey: "file" })}
-                    modifier="truncate"
-                  >
+                  <Td {...getTdProps({ columnKey: "file" })}>
                     <Button
                       variant="link"
                       isInline
                       onClick={() => setSelectedFileForDetailModal(fileReport)}
                     >
-                      {fileReport?.file || "<unknown>"}
+                      <PathDisplay path={fileReport?.file || "<unknown>"} />
                     </Button>
                   </Td>
                   <Td
