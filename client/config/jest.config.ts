@@ -30,6 +30,7 @@ const config: JestConfigWithTsJest = {
     "@app/(.*)": "<rootDir>/src/app/$1",
     "@assets/(.*)":
       "<rootDir>../node_modules/@patternfly/react-core/dist/styles/assets/$1",
+    "^@mocks/(.*)$": "<rootDir>/src/mocks/$1",
   },
 
   // A list of paths to directories that Jest should use to search for files
