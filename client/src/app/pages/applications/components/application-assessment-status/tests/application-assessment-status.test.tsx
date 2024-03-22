@@ -7,8 +7,8 @@ import {
   renderHook,
   waitFor,
 } from "@app/test-config/test-utils";
-import { server } from "../../../../../../mocks/server";
 import { rest } from "msw";
+import { server } from "@mocks/server";
 
 describe("useAssessmentStatus", () => {
   beforeEach(() => {
@@ -90,6 +90,11 @@ describe("useAssessmentStatus", () => {
     server.use(
       rest.get("/hub/assessments", (req, res, ctx) => {
         return res(ctx.json(mockAssessments));
+      })
+    );
+    server.use(
+      rest.get("/hub/archetypes", (req, res, ctx) => {
+        return res(ctx.json([]));
       })
     );
 
