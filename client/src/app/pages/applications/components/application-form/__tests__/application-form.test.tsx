@@ -13,12 +13,12 @@ import {
   TAG_CATEGORIES,
 } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
-import { ApplicationForm } from "../application-form";
 import userEvent from "@testing-library/user-event";
 
 import "@testing-library/jest-dom/extend-expect";
 import "@testing-library/jest-dom";
 import { BusinessService } from "@app/api/models";
+import { ApplicationFormModal } from "../application-form-modal";
 
 const data: any[] = [];
 mock.onGet(`${BUSINESS_SERVICES}`).reply(200, data);
@@ -34,7 +34,9 @@ describe("Component: application-form", () => {
 
     mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
 
-    render(<ApplicationForm application={null} onClose={mockChangeValue} />);
+    render(
+      <ApplicationFormModal application={null} onClose={mockChangeValue} />
+    );
     const nameInput = await screen.findByLabelText("Name *");
     fireEvent.change(nameInput, {
       target: { value: "app-name" },
