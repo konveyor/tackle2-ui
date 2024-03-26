@@ -805,6 +805,8 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
               </ToolbarItem>
+            </ToolbarGroup>
+            <ToolbarGroup variant="icon-button-group">
               {dropdownItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown

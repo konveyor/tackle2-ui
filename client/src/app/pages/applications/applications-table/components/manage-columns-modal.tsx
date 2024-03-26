@@ -18,7 +18,6 @@ import {
 import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
 
 export interface ManagedColumnsProps<TColumnKey extends string> {
-  showModal: boolean;
   onClose(): void;
   columns: ColumnState<TColumnKey>[];
   setColumns: (newColumns: ColumnState<TColumnKey>[]) => void;
@@ -29,7 +28,6 @@ export interface ManagedColumnsProps<TColumnKey extends string> {
 }
 
 export const ManageColumnsModal = <TColumnKey extends string>({
-  showModal,
   description = "Selected columns will be displayed in the table.",
   onClose,
   columns,
@@ -59,7 +57,7 @@ export const ManageColumnsModal = <TColumnKey extends string>({
   return (
     <Modal
       title={title}
-      isOpen={showModal}
+      isOpen={true}
       variant="small"
       description={
         <TextContent>
