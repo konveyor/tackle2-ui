@@ -82,6 +82,8 @@ export const ManageColumnsModal = <TColumnKey extends string>({
                 <DataListCheck
                   aria-labelledby={`check-${id}`}
                   checked={isVisible}
+                  //TODO: Dynamic disable logic based on idProperty definition in useTableControlState.
+                  // Currently, any column whose name is 'name' will not be allowed to be hidden
                   isDisabled={id === "name"}
                   onChange={(e, checked) => onSelect(id, checked)}
                 />

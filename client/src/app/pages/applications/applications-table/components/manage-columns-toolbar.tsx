@@ -40,12 +40,12 @@ export const ManageColumnsToolbar = <TColumnKey extends string>({
       {isOpen && (
         <ManageColumnsModal
           onClose={() => setIsOpen(false)}
-          description={t("Selected columns will be displayed in the table.")}
+          description={t("message.manageColumnsDescription")}
           setColumns={setColumns}
           columns={columns}
-          saveLabel={t("Save")}
-          cancelLabel={t("Cancel")}
-          title={t("Manage Columns")}
+          saveLabel={t("actions.save")}
+          cancelLabel={t("actions.cancel")}
+          title={t("title.manageColumns")}
         />
       )}
     </>
