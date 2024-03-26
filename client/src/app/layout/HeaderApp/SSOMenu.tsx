@@ -38,6 +38,7 @@ export const SSOMenu: React.FC = () => {
           <Dropdown
             onSelect={onDropdownSelect}
             isOpen={isDropdownOpen}
+            onOpenChange={onDropdownToggle}
             toggle={(toggleRef) => (
               <MenuToggle
                 isFullHeight
