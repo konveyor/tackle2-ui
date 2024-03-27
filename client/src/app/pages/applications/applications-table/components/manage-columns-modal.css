@@ -1,0 +1,10 @@
+.custom-data-list-item-row {
+  display: flex;
+  align-items: center;
+}
+
+.custom-data-list-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}

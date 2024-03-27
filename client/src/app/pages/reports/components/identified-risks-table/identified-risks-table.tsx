@@ -141,6 +141,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
   });
 
   const tableControls = useLocalTableControls({
+    tableName: "identified-risks-table",
     idProperty: "questionId",
     items: tableData || [],
     columnNames: {

@@ -96,6 +96,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     useSharedAffectedApplicationFilterCategories();
 
   const tableControlState = useTableControlState({
+    tableName: "issues-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.issues,
     columnNames: {

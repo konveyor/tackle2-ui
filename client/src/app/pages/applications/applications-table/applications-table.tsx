@@ -108,6 +108,7 @@ import { ApplicationReviewStatus } from "../components/application-review-status
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { ApplicationFormModal } from "../components/application-form";
+import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -214,7 +215,7 @@ export const ApplicationsTable: React.FC = () => {
     refetch: fetchApplications,
   } = useFetchApplications(!hasActiveTasks);
 
-  const { assessments, isFetching: isFetchingAssesments } =
+  const { assessments, isFetching: isFetchingAssessments } =
     useFetchAssessments();
   const { archetypes, isFetching: isFetchingArchetypes } = useFetchArchetypes();
 
@@ -310,6 +311,7 @@ export const ApplicationsTable: React.FC = () => {
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControls = useLocalTableControls({
+    tableName: "applications",
     idProperty: "id",
     items: applications || [],
     columnNames: {
@@ -517,10 +519,12 @@ export const ApplicationsTable: React.FC = () => {
       getTrProps,
       getTdProps,
       toolbarBulkSelectorProps,
+      getColumnVisibility,
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
 
     selectionState: { selectedItems: selectedRows },
+    columnState,
   } = tableControls;
 
   const clearFilters = () => {
@@ -801,6 +805,8 @@ export const ApplicationsTable: React.FC = () => {
                   </ToolbarItem>
                 </RBAC>
               </ToolbarItem>
+            </ToolbarGroup>
+            <ToolbarGroup variant="icon-button-group">
               {dropdownItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown
@@ -811,6 +817,10 @@ export const ApplicationsTable: React.FC = () => {
               ) : (
                 <></>
               )}
+              <ManageColumnsToolbar
+                columns={columnState.columns}
+                setColumns={columnState.setColumns}
+              />
             </ToolbarGroup>
 
             <ToolbarItem {...paginationToolbarItemProps}>
@@ -826,16 +836,30 @@ export const ApplicationsTable: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} width={15} />
-                <Th
-                  {...getThProps({ columnKey: "businessService" })}
-                  width={15}
-                />
-                <Th {...getThProps({ columnKey: "assessment" })} width={10} />
-                <Th {...getThProps({ columnKey: "review" })} width={10} />
-                <Th {...getThProps({ columnKey: "analysis" })} width={10} />
-                <Th {...getThProps({ columnKey: "tags" })} width={10} />
-                <Th {...getThProps({ columnKey: "effort" })} width={10} />
+                {getColumnVisibility("name") && (
+                  <Th {...getThProps({ columnKey: "name" })} width={15} />
+                )}
+                {getColumnVisibility("businessService") && (
+                  <Th
+                    {...getThProps({ columnKey: "businessService" })}
+                    width={15}
+                  />
+                )}
+                {getColumnVisibility("assessment") && (
+                  <Th {...getThProps({ columnKey: "assessment" })} width={15} />
+                )}
+                {getColumnVisibility("review") && (
+                  <Th {...getThProps({ columnKey: "review" })} width={10} />
+                )}
+                {getColumnVisibility("analysis") && (
+                  <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                )}
+                {getColumnVisibility("tags") && (
+                  <Th {...getThProps({ columnKey: "tags" })} width={10} />
+                )}
+                {getColumnVisibility("effort") && (
+                  <Th {...getThProps({ columnKey: "effort" })} width={10} />
+                )}
                 <Th />
               </TableHeaderContentWithControls>
             </Tr>
@@ -871,73 +895,87 @@ export const ApplicationsTable: React.FC = () => {
                       item={application}
                       rowIndex={rowIndex}
                     >
-                      <Td
-                        width={15}
-                        {...getTdProps({ columnKey: "name" })}
-                        modifier="truncate"
-                      >
-                        {application.name}
-                      </Td>
-                      <Td
-                        width={15}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "businessService" })}
-                      >
-                        {application.businessService && (
-                          <ApplicationBusinessService
-                            id={application.businessService.id}
+                      {getColumnVisibility("name") && (
+                        <Td
+                          width={15}
+                          {...getTdProps({ columnKey: "name" })}
+                          modifier="truncate"
+                        >
+                          {application.name}
+                        </Td>
+                      )}
+                      {getColumnVisibility("businessService") && (
+                        <Td
+                          width={15}
+                          {...getTdProps({ columnKey: "businessService" })}
+                          modifier="truncate"
+                        >
+                          {application.businessService && (
+                            <ApplicationBusinessService
+                              id={application.businessService.id}
+                            />
+                          )}
+                        </Td>
+                      )}
+                      {getColumnVisibility("assessment") && (
+                        <Td
+                          width={15}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "assessment" })}
+                        >
+                          <ApplicationAssessmentStatus
+                            application={application}
+                            isLoading={
+                              isFetchingApplications ||
+                              isFetchingArchetypes ||
+                              isFetchingAssessments
+                            }
+                            key={`${application?.id}-assessment-status`}
                           />
-                        )}
-                      </Td>
-                      <Td
-                        width={15}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "assessment" })}
-                      >
-                        <ApplicationAssessmentStatus
-                          application={application}
-                          isLoading={
-                            isFetchingApplications ||
-                            isFetchingArchetypes ||
-                            isFetchingAssesments
-                          }
-                          key={`${application?.id}-assessment-status`}
-                        />
-                      </Td>
-                      <Td
-                        width={15}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "review" })}
-                      >
-                        <ApplicationReviewStatus
-                          application={application}
-                          key={`${application?.id}-review-status`}
-                        />
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "analysis" })}
-                      >
-                        <ApplicationAnalysisStatus
-                          state={getTask(application)?.state || "No task"}
-                        />
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "tags" })}
-                      >
-                        <TagIcon />
-                        {application.tags ? application.tags.length : 0}
-                      </Td>
-                      <Td
-                        width={10}
-                        modifier="truncate"
-                        {...getTdProps({ columnKey: "effort" })}
-                      >
-                        {application?.effort ?? "-"}
-                      </Td>
+                        </Td>
+                      )}
+                      {getColumnVisibility("review") && (
+                        <Td
+                          width={15}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "review" })}
+                        >
+                          <ApplicationReviewStatus
+                            application={application}
+                            key={`${application?.id}-review-status`}
+                          />
+                        </Td>
+                      )}
+                      {getColumnVisibility("analysis") && (
+                        <Td
+                          width={10}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "analysis" })}
+                        >
+                          <ApplicationAnalysisStatus
+                            state={getTask(application)?.state || "No task"}
+                          />
+                        </Td>
+                      )}
+                      {getColumnVisibility("tags") && (
+                        <Td
+                          width={10}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "tags" })}
+                        >
+                          <TagIcon />
+                          {application.tags ? application.tags.length : 0}
+                        </Td>
+                      )}
+                      {getColumnVisibility("effort") && (
+                        <Td
+                          width={10}
+                          modifier="truncate"
+                          {...getTdProps({ columnKey: "effort" })}
+                        >
+                          {application?.effort ?? "-"}
+                        </Td>
+                      )}
 
                       <Td isActionCell id="pencil-action">
                         {applicationWriteAccess && (

@@ -35,6 +35,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
   const { tickets } = useFetchTickets();
 
   const tableControls = useLocalTableControls({
+    tableName: "wave-applications-table",
     idProperty: "name",
     items: migrationWave.fullApplications,
     columnNames: {
