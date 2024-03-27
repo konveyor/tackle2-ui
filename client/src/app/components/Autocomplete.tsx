@@ -12,6 +12,7 @@ import {
   SearchInput,
   Divider,
   Tooltip,
+  MenuGroup,
 } from "@patternfly/react-core";
 
 const toString = (input: string | (() => string)) =>
@@ -29,6 +30,8 @@ export interface AutocompleteOptionProps {
 
   /** the tooltip to display on the Label when the option has been selected */
   tooltip?: string | (() => string);
+  /** the group to display the option in */
+  group?: string;
 }
 
 export interface IAutocompleteProps {
@@ -37,6 +40,7 @@ export interface IAutocompleteProps {
 
   /** The set of options to use for selection */
   options?: AutocompleteOptionProps[];
+  isGrouped?: boolean;
   selections?: AutocompleteOptionProps[];
 
   placeholderText?: string;
@@ -47,6 +51,10 @@ export interface IAutocompleteProps {
   noResultsMessage?: string;
 }
 
+interface GroupedOptions {
+  [key: string]: AutocompleteOptionProps[];
+}
+
 /**
  * Multiple type-ahead with table complete and selection labels
  */
@@ -54,6 +62,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   id = "",
   onChange,
   options = [],
+  isGrouped = false,
   placeholderText = "Search",
   searchString = "",
   searchInputAriaLabel = "Search input",
@@ -86,6 +95,22 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
         toString(name).toLowerCase().includes(inputValue.toLocaleLowerCase())
     );
   }, [options, selections, inputValue]);
+
+  const groupedOptions = useMemo((): GroupedOptions => {
+    if (!isGrouped) {
+      // If not grouped, return an empty object or handle accordingly
+      return {};
+    }
+
+    return filteredOptions.reduce((groups: GroupedOptions, option) => {
+      const groupName = option.group || "Ungrouped";
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(option);
+      return groups;
+    }, {});
+  }, [filteredOptions, isGrouped]);
 
   /** callback for removing a selection */
   const deleteSelectionByItemId = (idToDelete: number) => {
@@ -256,39 +281,45 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     </div>
   );
 
-  const menu = (
-    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
-      <MenuContent>
+  const renderMenuItems = () => {
+    if (isGrouped && groupedOptions) {
+      return Object.entries(groupedOptions).map(([groupName, groupOptions]) => (
+        <React.Fragment key={groupName}>
+          <MenuGroup label={groupName}>
+            <MenuList>
+              {groupOptions.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  itemId={option.id.toString()}
+                  onClick={(e) => handleMenuItemOnSelect(e, option.id)}
+                >
+                  {toString(option.name)}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </MenuGroup>
+          <Divider />
+        </React.Fragment>
+      ));
+    } else {
+      return (
         <MenuList>
-          {/* if supplied, add the menu heading */}
-          {menuHeader ? (
-            <>
-              <MenuItem isDisabled key="heading" itemId="-2">
-                {menuHeader}
-              </MenuItem>
-              <Divider key="divider" />
-            </>
-          ) : undefined}
-
-          {/* show a disabled "no result" when all menu items are filtered out */}
-          {filteredOptions.length === 0 ? (
-            <MenuItem isDisabled key="no result" itemId="-1">
-              {noResultsMessage}
-            </MenuItem>
-          ) : undefined}
-
-          {/* only show items that include the text in the input */}
-          {filteredOptions.map(({ id, name }, _index) => (
+          {filteredOptions.map((option) => (
             <MenuItem
-              key={id}
-              itemId={id}
-              onClick={(e) => handleMenuItemOnSelect(e, id)}
+              key={option.id}
+              itemId={option.id.toString()}
+              onClick={(e) => handleMenuItemOnSelect(e, option.id)}
             >
-              {toString(name)}
+              {toString(option.name)}
             </MenuItem>
           ))}
         </MenuList>
-      </MenuContent>
+      );
+    }
+  };
+  const menu = (
+    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
+      <MenuContent>{renderMenuItems()}</MenuContent>
     </Menu>
   );
 
