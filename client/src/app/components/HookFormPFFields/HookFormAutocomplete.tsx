@@ -6,13 +6,13 @@ import {
   AutocompleteOptionProps,
 } from "@app/components/Autocomplete";
 
-// TODO: Does not support select menu grouping by category
 // TODO: Does not support select menu selection checkboxes
 // TODO: Does not support rendering item labels with item category color
 // TODO: Does not support rendering item labels in item category groups
 
 export const HookFormAutocomplete = <FormValues extends FieldValues>({
   items = [],
+  isGrouped = false,
   label,
   fieldId,
   name,
@@ -23,6 +23,7 @@ export const HookFormAutocomplete = <FormValues extends FieldValues>({
   isRequired = false,
 }: {
   items: AutocompleteOptionProps[];
+  isGrouped?: boolean;
   name: Path<FormValues>;
   control: Control<FormValues>;
   label: string;
@@ -45,6 +46,7 @@ export const HookFormAutocomplete = <FormValues extends FieldValues>({
         placeholderText={placeholderText}
         searchInputAriaLabel={searchInputAriaLabel}
         options={items}
+        isGrouped={isGrouped}
         selections={value}
         onChange={(selection) => {
           onChange(selection);

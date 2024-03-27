@@ -12,10 +12,13 @@ import {
   SearchInput,
   Divider,
   Tooltip,
+  MenuGroup,
 } from "@patternfly/react-core";
 
 const toString = (input: string | (() => string)) =>
   typeof input === "function" ? input() : input;
+
+const createCompositeKey = (group: string, id: number) => `${group}:${id}`;
 
 export interface AutocompleteOptionProps {
   /** id for the option */
@@ -29,6 +32,8 @@ export interface AutocompleteOptionProps {
 
   /** the tooltip to display on the Label when the option has been selected */
   tooltip?: string | (() => string);
+  /** the group to display the option in */
+  group?: string;
 }
 
 export interface IAutocompleteProps {
@@ -37,6 +42,7 @@ export interface IAutocompleteProps {
 
   /** The set of options to use for selection */
   options?: AutocompleteOptionProps[];
+  isGrouped?: boolean;
   selections?: AutocompleteOptionProps[];
 
   placeholderText?: string;
@@ -47,6 +53,10 @@ export interface IAutocompleteProps {
   noResultsMessage?: string;
 }
 
+interface GroupedOptions {
+  [key: string]: AutocompleteOptionProps[];
+}
+
 /**
  * Multiple type-ahead with table complete and selection labels
  */
@@ -54,6 +64,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   id = "",
   onChange,
   options = [],
+  isGrouped = false,
   placeholderText = "Search",
   searchString = "",
   searchInputAriaLabel = "Search input",
@@ -63,7 +74,8 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   noResultsMessage = "No results found",
 }) => {
   const [inputValue, setInputValue] = useState(searchString);
-  const [tabSelectedItemId, setTabSelectedItemId] = useState<number>();
+  const [tabSelectedItemId, setTabSelectedItemId] = useState<string>();
+
   const [menuIsOpen, setMenuIsOpen] = useState(false);
 
   /** refs used to detect when clicks occur inside vs outside of the textInputGroup and menu popper */
@@ -74,32 +86,84 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     if (!selections || selections.length === 0) {
       return [];
     }
-    return options.filter(
-      ({ id }) => selections.findIndex((s) => s.id === id) > -1
-    );
-  }, [options, selections]);
+    return isGrouped
+      ? options.filter((option) => {
+          return selections.some((selection) => {
+            return (
+              selection.id === option.id && selection.group === option.group
+            );
+          });
+        })
+      : options.filter((option) => {
+          return (
+            selections.findIndex((selection) => selection.id === option.id) > -1
+          );
+        });
+  }, [options, selections, isGrouped]);
 
   const filteredOptions = useMemo(() => {
-    return options.filter(
-      ({ id, name }) =>
-        selections.findIndex((s) => s.id === id) === -1 &&
-        toString(name).toLowerCase().includes(inputValue.toLocaleLowerCase())
-    );
-  }, [options, selections, inputValue]);
+    return options.filter((option) => {
+      const isOptionSelected = selections.some((selection) => {
+        const isSelectedById = selection.id === option.id;
+        const isSelectedByGroup = isGrouped
+          ? selection.group === option.group
+          : true;
+        return isSelectedById && isSelectedByGroup;
+      });
+
+      const isNameMatch = toString(option.name)
+        .toLowerCase()
+        .includes(inputValue.toLowerCase());
+      return !isOptionSelected && isNameMatch;
+    });
+  }, [options, selections, inputValue, isGrouped]);
+
+  const groupedOptions = useMemo((): GroupedOptions => {
+    if (!isGrouped) {
+      return {};
+    }
+
+    return filteredOptions.reduce((groups: GroupedOptions, option) => {
+      const groupName = option.group || "Ungrouped";
+      if (!groups[groupName]) {
+        groups[groupName] = [];
+      }
+      groups[groupName].push(option);
+      return groups;
+    }, {});
+  }, [filteredOptions, isGrouped]);
 
   /** callback for removing a selection */
-  const deleteSelectionByItemId = (idToDelete: number) => {
-    onChange(selections.filter(({ id }) => id !== idToDelete));
+  const deleteSelectionByItemId = (
+    idToDelete: number,
+    groupToDelete?: string
+  ) => {
+    const newSelections = selections.filter((selection) => {
+      if (isGrouped) {
+        return !(
+          selection.id === idToDelete && selection.group === groupToDelete
+        );
+      }
+      return selection.id !== idToDelete;
+    });
+
+    onChange(newSelections);
   };
 
   /** lookup the option matching the itemId and add as a selection */
-  const addSelectionByItemId = (itemId: string | number) => {
-    const asNumber = typeof itemId === "string" ? parseInt(itemId, 10) : itemId;
-    const matchingOption = options.find(({ id }) => id === asNumber);
+  const addSelectionByItemId = (compositeKey: string) => {
+    const [group, idStr] = compositeKey.split(":");
+    const id = parseInt(idStr, 10);
+    const matchingOption = options.find(
+      ({ id: optionId, group: optionGroup }) =>
+        id === optionId && group === optionGroup
+    );
 
-    onChange([...selections, matchingOption].filter(Boolean));
-    setInputValue("");
-    setMenuIsOpen(false);
+    if (matchingOption) {
+      onChange([...selections, matchingOption].filter(Boolean));
+      setInputValue("");
+      setMenuIsOpen(false);
+    }
   };
 
   /** callback for updating the inputValue state in this component so that the input can be controlled */
@@ -121,15 +185,22 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   /** close the menu, and if only 1 filtered option exists, select it */
   const handleTab = (event: React.KeyboardEvent) => {
     if (filteredOptions.length === 1) {
-      setInputValue(toString(filteredOptions[0].name));
-      setTabSelectedItemId(filteredOptions[0].id);
+      const option = filteredOptions[0];
+      const compositeKey =
+        isGrouped && option.group
+          ? createCompositeKey(option.group, option.id)
+          : option.id.toString();
+      setInputValue(toString(option.name));
+      setTabSelectedItemId(compositeKey);
       event.preventDefault();
     }
     setMenuIsOpen(false);
   };
 
   /** close the menu when escape is hit */
-  const handleEscape = () => {
+  const handleEscape = (event: React.KeyboardEvent) => {
+    event.stopPropagation();
+
     setMenuIsOpen(false);
   };
 
@@ -157,7 +228,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
         handleEnter();
         break;
       case "Escape":
-        handleEscape();
+        handleEscape(event);
         break;
       case "Tab":
         handleTab(event);
@@ -180,14 +251,18 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   /** add the text of the selected menu item to the selected items */
   const handleMenuItemOnSelect = (
     event: React.MouseEvent<Element, MouseEvent> | undefined,
-    itemId: number
+    itemId: number,
+    groupName?: string
   ) => {
-    if (!event || !itemId) {
-      return;
-    }
+    if (!event) return;
     event.stopPropagation();
     focusTextInput(true);
-    addSelectionByItemId(itemId);
+
+    const compositeKey =
+      isGrouped && groupName
+        ? createCompositeKey(groupName, itemId)
+        : itemId.toString();
+    addSelectionByItemId(compositeKey);
   };
 
   /** close the menu when a click occurs outside of the menu or text input group */
@@ -256,9 +331,48 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     </div>
   );
 
-  const menu = (
-    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
-      <MenuContent>
+  const renderMenuItems = () => {
+    if (isGrouped && groupedOptions) {
+      return Object.entries(groupedOptions).map(([groupName, groupOptions]) => (
+        <React.Fragment key={groupName}>
+          <MenuGroup label={groupName}>
+            <MenuList>
+              {groupOptions.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  itemId={option.id.toString()}
+                  onClick={(e) =>
+                    isGrouped
+                      ? handleMenuItemOnSelect(e, option.id, groupName)
+                      : handleMenuItemOnSelect(e, option.id)
+                  }
+                >
+                  {toString(option.name)}
+                </MenuItem>
+              ))}
+              {/* if supplied, add the menu heading */}
+              {menuHeader ? (
+                <>
+                  <MenuItem isDisabled key="heading" itemId="-2">
+                    {menuHeader}
+                  </MenuItem>
+                  <Divider key="divider" />
+                </>
+              ) : undefined}
+
+              {/* show a disabled "no result" when all menu items are filtered out */}
+              {groupOptions.length === 0 ? (
+                <MenuItem isDisabled key="no result" itemId="-1">
+                  {noResultsMessage}
+                </MenuItem>
+              ) : undefined}
+            </MenuList>
+          </MenuGroup>
+          <Divider />
+        </React.Fragment>
+      ));
+    } else {
+      return (
         <MenuList>
           {/* if supplied, add the menu heading */}
           {menuHeader ? (
@@ -276,22 +390,24 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
               {noResultsMessage}
             </MenuItem>
           ) : undefined}
-
-          {/* only show items that include the text in the input */}
-          {filteredOptions.map(({ id, name }, _index) => (
+          {filteredOptions.map((option) => (
             <MenuItem
-              key={id}
-              itemId={id}
-              onClick={(e) => handleMenuItemOnSelect(e, id)}
+              key={option.id}
+              itemId={option.id.toString()}
+              onClick={(e) => handleMenuItemOnSelect(e, option.id)}
             >
-              {toString(name)}
+              {toString(option.name)}
             </MenuItem>
           ))}
         </MenuList>
-      </MenuContent>
+      );
+    }
+  };
+  const menu = (
+    <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
+      <MenuContent>{renderMenuItems()}</MenuContent>
     </Menu>
   );
-
   return (
     <Flex direction={{ default: "column" }}>
       <FlexItem key="input">
@@ -307,12 +423,14 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
       </FlexItem>
       <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>
-          {selectedOptions.map(({ id, name, labelName, tooltip }) => (
-            <FlexItem key={id}>
+          {selectedOptions.map(({ id, name, group, labelName, tooltip }) => (
+            <FlexItem key={`${group}:${id}`}>
               <LabelToolip content={tooltip}>
                 <Label
                   color={labelColor}
-                  onClose={() => deleteSelectionByItemId(id)}
+                  onClose={() => {
+                    deleteSelectionByItemId(id, group);
+                  }}
                 >
                   {toString(labelName || name)}
                 </Label>

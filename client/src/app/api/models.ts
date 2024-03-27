@@ -799,3 +799,6 @@ export interface AssessmentsWithArchetype {
   archetype: Archetype;
   assessments: Assessment[];
 }
+export interface GroupedStakeholderRef extends Ref {
+  group: "Stakeholder" | "Stakeholder Group";
+}
