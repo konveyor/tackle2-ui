@@ -38,6 +38,7 @@ const things: Thing[] = [
 ];
 
 const tableControls = useLocalTableControls({
+  tableName: 'page-table-name' // A unique name of the table
   idProperty: "id", // The name of a unique string or number property on the data items.
   items: things, // The generic type `TItem` is inferred from the items passed here.
   columnNames: {

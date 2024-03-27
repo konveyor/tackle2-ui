@@ -51,6 +51,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
+    tableName: "dependency-apps-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencyApplications,
     columnNames: {

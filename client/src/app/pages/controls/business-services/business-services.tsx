@@ -81,6 +81,7 @@ export const BusinessServices: React.FC = () => {
   const { data: applications } = useFetchApplications();
 
   const tableControls = useLocalTableControls({
+    tableName: "business-services-table",
     idProperty: "name",
     items: businessServices,
     columnNames: {

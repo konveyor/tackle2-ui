@@ -101,6 +101,7 @@ const AssessmentSettings: React.FC = () => {
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
   const tableControls = useLocalTableControls({
+    tableName: "questionnaires-table",
     idProperty: "id",
     items: questionnaires || [],
     columnNames: {

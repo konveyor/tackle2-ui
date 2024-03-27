@@ -99,6 +99,7 @@ export const StakeholderGroups: React.FC = () => {
   };
 
   const tableControls = useLocalTableControls({
+    tableName: "stakeholder-groups-table",
     idProperty: "name",
     items: stakeholderGroups,
     columnNames: {

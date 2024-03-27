@@ -61,6 +61,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const { mutate: deleteTicket } = useDeleteTicketMutation();
 
   const tableControls = useLocalTableControls({
+    tableName: "wave-applications-table",
     idProperty: "name",
     items: migrationWave.fullApplications,
     columnNames: {

@@ -9,6 +9,7 @@ import { useSortState } from "./sorting";
 import { usePaginationState } from "./pagination";
 import { useActiveItemState } from "./active-item";
 import { useExpansionState } from "./expansion";
+import { useColumnState } from "./column/useColumnState";
 
 /**
  * Provides the "source of truth" state for all table features.
@@ -66,6 +67,19 @@ export const useTableControlState = <
     ...args,
     persistTo: getPersistTo("activeItem"),
   });
+
+  const { columnNames, tableName } = args;
+
+  const initialColumns = Object.entries(columnNames).map(([id, label]) => ({
+    id: id as TColumnKey,
+    label: label as string,
+    isVisible: true,
+  }));
+
+  const columnState = useColumnState<TColumnKey>({
+    columnsKey: tableName,
+    initialColumns,
+  });
   return {
     ...args,
     filterState,
@@ -73,5 +87,6 @@ export const useTableControlState = <
     paginationState,
     expansionState,
     activeItemState,
+    columnState,
   };
 };

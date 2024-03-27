@@ -78,6 +78,7 @@ export const ManageImports: React.FC = () => {
   );
 
   const tableControls = useLocalTableControls({
+    tableName: "manage-imports",
     idProperty: "id",
     items: importSummaries,
     columnNames: {

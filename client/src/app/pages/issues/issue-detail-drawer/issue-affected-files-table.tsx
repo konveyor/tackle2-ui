@@ -37,6 +37,7 @@ export const IssueAffectedFilesTable: React.FC<
   const { t } = useTranslation();
 
   const tableControlState = useTableControlState({
+    tableName: "affected-files-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedFiles,
     columnNames: {
