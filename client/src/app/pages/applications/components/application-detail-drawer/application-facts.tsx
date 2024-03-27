@@ -33,7 +33,7 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
 
   const filterCategories: FilterCategory<Fact, "source">[] = [
     {
-      key: "source",
+      categoryKey: "source",
       title: t("terms.source"),
       type: FilterType.multiselect,
       placeholderText: t("terms.source"),

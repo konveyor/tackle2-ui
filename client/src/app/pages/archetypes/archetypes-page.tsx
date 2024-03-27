@@ -217,7 +217,7 @@ const Archetypes: React.FC = () => {
 
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -229,7 +229,7 @@ const Archetypes: React.FC = () => {
         },
       },
       {
-        key: "application.name",
+        categoryKey: "application.name",
         title: t("terms.applicationName"),
         type: FilterType.multiselect,
         logicOperator: "OR",

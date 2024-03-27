@@ -61,7 +61,7 @@ export const JobFunctions: React.FC = () => {
 
   const filterCategories: FilterCategory<JobFunction, "name">[] = [
     {
-      key: "name",
+      categoryKey: "name",
       title: t("terms.name"),
       type: FilterType.search,
       placeholderText:
