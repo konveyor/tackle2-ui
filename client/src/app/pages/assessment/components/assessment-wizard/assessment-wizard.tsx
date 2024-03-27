@@ -14,7 +14,7 @@ import {
   Assessment,
   AssessmentStatus,
   AssessmentWithSectionOrder,
-  GroupedRef,
+  GroupedStakeholderRef,
   QuestionWithSectionOrder,
   Ref,
   SectionWithQuestionOrder,
@@ -57,7 +57,7 @@ export enum SAVE_ACTION_VALUE {
 }
 
 export interface AssessmentWizardValues {
-  stakeholdersAndGroupsRefs: GroupedRef[];
+  stakeholdersAndGroupsRefs: GroupedStakeholderRef[];
 
   [COMMENTS_KEY]: {
     [key: string]: string; // <categoryId, commentValue>
@@ -144,7 +144,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         name: yup.string().required(),
         group: yup
           .string()
-          .oneOf(["stakeholder", "stakeholderGroup"])
+          .oneOf(["Stakeholder", "Stakeholder Group"])
           .required(),
       })
     ),
@@ -261,21 +261,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       }) || [];
     return sections;
   };
-  //Fix
-  // const { stakeholders, stakeholderGroups } = separateStakeholdersAndGroups(
-  //   formValues.stakeholdersAndGroupsRefs
-  // );
   const mapAndSeparateStakeholdersAndGroups = (
-    combinedRefs: GroupedRef[]
+    combinedRefs: GroupedStakeholderRef[]
   ): { stakeholdersPayload: Ref[]; stakeholderGroupsPayload: Ref[] } => {
-    // Filter and map stakeholders
     const stakeholdersPayload = combinedRefs
-      .filter((ref) => ref.group === "stakeholder")
+      .filter((ref) => ref.group === "Stakeholder")
       .map(({ id, name }) => ({ id, name }));
 
-    // Filter and map stakeholder groups
     const stakeholderGroupsPayload = combinedRefs
-      .filter((ref) => ref.group === "stakeholderGroup")
+      .filter((ref) => ref.group === "Stakeholder Group")
       .map(({ id, name }) => ({ id, name }));
 
     return { stakeholdersPayload, stakeholderGroupsPayload };
@@ -644,7 +638,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
 const combineStakeholdersAndGroups = (
   assessment: AssessmentWithSectionOrder
-): GroupedRef[] => {
+): GroupedStakeholderRef[] => {
   const stakeholders = assessment.stakeholders ?? [];
   const stakeholderGroups = assessment.stakeholderGroups ?? [];
 

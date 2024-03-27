@@ -6,7 +6,6 @@ import {
   AutocompleteOptionProps,
 } from "@app/components/Autocomplete";
 
-// TODO: Does not support select menu grouping by category
 // TODO: Does not support select menu selection checkboxes
 // TODO: Does not support rendering item labels with item category color
 // TODO: Does not support rendering item labels in item category groups
