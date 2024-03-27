@@ -53,6 +53,7 @@ export const AffectedApplications: React.FC = () => {
     "Active rule";
 
   const tableControlState = useTableControlState({
+    tableName: "affected-applications-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedApps,
     columnNames: {

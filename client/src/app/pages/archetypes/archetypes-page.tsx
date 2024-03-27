@@ -192,6 +192,7 @@ const Archetypes: React.FC = () => {
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControls = useLocalTableControls({
+    tableName: "archetypes-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.archetypes,
     idProperty: "id",
