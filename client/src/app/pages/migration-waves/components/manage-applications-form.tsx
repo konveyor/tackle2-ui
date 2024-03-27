@@ -100,6 +100,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   );
 
   const tableControls = useLocalTableControls({
+    tableName: "manage-applications-table",
     idProperty: "name",
     items: availableApplications,
     columnNames: {

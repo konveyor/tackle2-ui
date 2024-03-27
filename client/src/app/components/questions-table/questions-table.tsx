@@ -38,6 +38,7 @@ const QuestionsTable: React.FC<{
   hideAnswerKey,
 }) => {
   const tableControls = useLocalTableControls({
+    tableName: "questions-table",
     idProperty: "text",
     items: questions || [],
     columnNames: {

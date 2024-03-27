@@ -74,6 +74,7 @@ export const useTableControlProps = <
     isSelectionEnabled,
     isExpansionEnabled,
     isActiveItemEnabled,
+    columnState: { columns },
   } = args;
 
   const columnKeys = objectKeys(columnNames);
@@ -171,6 +172,10 @@ export const useTableControlProps = <
     },
   });
 
+  const getColumnVisibility = (columnKey: TColumnKey) => {
+    return columns.find((column) => column.id === columnKey)?.isVisible ?? true;
+  };
+
   return {
     ...args,
     numColumnsBeforeData,
@@ -191,6 +196,7 @@ export const useTableControlProps = <
       getSelectCheckboxTdProps,
       getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
+      getColumnVisibility,
     },
   };
 };

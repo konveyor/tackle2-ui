@@ -180,6 +180,7 @@ export const MigrationWaves: React.FC = () => {
   };
 
   const tableControls = useLocalTableControls({
+    tableName: "migration-waves-table",
     idProperty: "id",
     items: migrationWaves,
     columnNames: {

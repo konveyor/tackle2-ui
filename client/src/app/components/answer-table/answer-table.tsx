@@ -31,6 +31,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
   const { t } = useTranslation();
 
   const tableControls = useLocalTableControls({
+    tableName: "answer-table",
     idProperty: "text",
     items: hideAnswerKey
       ? answers.filter((answer) => answer.selected)

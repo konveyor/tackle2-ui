@@ -38,6 +38,7 @@ import {
 import { IFilterToolbarProps } from "@app/components/FilterToolbar";
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
+import { IColumnState } from "./column/useColumnState";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -56,7 +57,8 @@ export type TableFeature =
   | "pagination"
   | "selection"
   | "expansion"
-  | "activeItem";
+  | "activeItem"
+  | "columns";
 
 /**
  * Identifier for where to persist state for a single table feature or for all table features.
@@ -137,11 +139,18 @@ export type IUseTableControlStateArgs<
   TPersistenceKeyPrefix extends string = string,
 > = {
   /**
+   * Unique table identifier. Used for state persistence and to distinguish between stored state between multiple tables.
+   */
+  tableName: string;
+  /**
    * An ordered mapping of unique keys to human-readable column name strings.
    * - Keys of this object are used as unique identifiers for columns (`columnKey`).
    * - Values of this object are rendered in the column headers by default (can be overridden by passing children to <Th>) and used as `dataLabel` for cells in the column.
    */
   columnNames: Record<TColumnKey, string>;
+  /**
+   * Initial state for the columns feature. If omitted, all columns are enabled by default.
+   */
 } & IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
   IPaginationStateArgs & {
@@ -193,6 +202,10 @@ export type ITableControlState<
    * State for the active item feature. Returned by useActiveItemState.
    */
   activeItemState: IActiveItemState;
+  /**
+   * State for the columns feature. Returned by useColumnState.
+   */
+  columnState: IColumnState<TColumnKey>;
 };
 
 /**
@@ -288,6 +301,10 @@ export type IUseTableControlPropsArgs<
      * @todo this won't be included here when useSelectionState gets moved from lib-ui. It is separated from the other state temporarily and used only at render time.
      */
     selectionState: ReturnType<typeof useSelectionState<TItem>>;
+    /**
+     * The state for the columns feature. Returned by useColumnState.
+     */
+    columnState: IColumnState<TColumnKey>;
   };
 
 /**
@@ -326,8 +343,17 @@ export type ITableControls<
    */
   expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
   /**
+   * Values derived at render time from the column feature state. Includes helper functions for convenience.
+   *
+   *
+   *
+   *
+   */
+  columnState: IColumnState<TColumnKey>;
+  /**
    * Values derived at render time from the active-item feature state. Includes helper functions for convenience.
    */
+
   activeItemDerivedState: IActiveItemDerivedState<TItem>;
   /**
    * Prop helpers: where it all comes together.
@@ -406,6 +432,12 @@ export type ITableControls<
      * The two Trs for the expandable row and expanded content row should be contained in a Tbody with no other Tr components.
      */
     getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
+
+    /**
+     * Returns the visibility of a column
+     */
+
+    getColumnVisibility: (columnKey: TColumnKey) => boolean;
   };
 };
 
