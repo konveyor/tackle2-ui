@@ -22,7 +22,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
           </span>
         </div>
         <div
-          class=""
+          class="status-label"
         >
           terms.notStarted
         </div>
@@ -47,7 +47,7 @@ exports[`StatusIcon Renders without crashing 1`] = `
         </span>
       </div>
       <div
-        class=""
+        class="status-label"
       >
         terms.notStarted
       </div>

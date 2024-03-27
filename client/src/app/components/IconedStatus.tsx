@@ -1,3 +1,4 @@
+import "./iconed-status.css";
 import React from "react";
 import { Flex, FlexItem, Icon, Tooltip } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
@@ -175,7 +176,9 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
           </Icon>
         </IconWithOptionalTooltip>
       </FlexItem>
-      <FlexItem>{label || presetProps?.label}</FlexItem>
+      <FlexItem className="status-label">
+        {label || presetProps?.label}
+      </FlexItem>
       {(preset === "InheritedReviews" ||
         preset === "InheritedAssessments" ||
         preset === "InProgressInheritedAssessments" ||

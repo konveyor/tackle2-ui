@@ -879,7 +879,7 @@ export const ApplicationsTable: React.FC = () => {
                         {application.name}
                       </Td>
                       <Td
-                        width={15}
+                        width={10}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "businessService" })}
                       >
@@ -915,7 +915,7 @@ export const ApplicationsTable: React.FC = () => {
                         />
                       </Td>
                       <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "analysis" })}
                       >
