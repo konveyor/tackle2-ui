@@ -356,7 +356,7 @@ export const MultiselectFilterControl = <TItem,>({
 
   return (
     <ToolbarFilter
-      id={`filter-control-${category.key}`}
+      id={`filter-control-${category.categoryKey}`}
       chips={chips}
       deleteChip={(_, chip) => onFilterClear(chip)}
       deleteChipGroup={onFilterClearAll}

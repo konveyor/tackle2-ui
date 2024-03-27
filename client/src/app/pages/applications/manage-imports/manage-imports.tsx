@@ -95,7 +95,7 @@ export const ManageImports: React.FC = () => {
     hasActionsColumn: true,
     filterCategories: [
       {
-        key: "filename",
+        categoryKey: "filename",
         title: t("terms.filename"),
         type: FilterType.search,
         placeholderText:

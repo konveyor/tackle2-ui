@@ -177,7 +177,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
     expandableVariant: "single",
     filterCategories: [
       {
-        key: "questionnaireName",
+        categoryKey: "questionnaireName",
         title: t("terms.questionnaire"),
         type: FilterType.multiselect,
         placeholderText:
@@ -192,7 +192,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         ].map((name) => ({ key: name, value: name })),
       },
       {
-        key: "section",
+        categoryKey: "section",
         title: t("terms.section"),
         type: FilterType.multiselect,
         placeholderText:
@@ -205,7 +205,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         ].map((name) => ({ key: name, value: name })),
       },
       {
-        key: "question",
+        categoryKey: "question",
         title: t("terms.question"),
         type: FilterType.multiselect,
         placeholderText:
@@ -220,7 +220,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         ].map((name) => ({ key: name, value: name })),
       },
       {
-        key: "answer",
+        categoryKey: "answer",
         title: t("terms.answer"),
         type: FilterType.multiselect,
         placeholderText:
@@ -233,7 +233,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         ].map((name) => ({ key: name, value: name })),
       },
       {
-        key: "risk",
+        categoryKey: "risk",
         title: t("terms.risk"),
         type: FilterType.multiselect,
         placeholderText:

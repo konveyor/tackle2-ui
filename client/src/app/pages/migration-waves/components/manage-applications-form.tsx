@@ -118,7 +118,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     hasActionsColumn: true,
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -130,7 +130,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         },
       },
       {
-        key: "businessService",
+        categoryKey: "businessService",
         title: t("terms.businessService"),
         type: FilterType.select,
         placeholderText:
@@ -148,7 +148,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         ),
       },
       {
-        key: "owner",
+        categoryKey: "owner",
         title: t("terms.owner"),
         type: FilterType.select,
         placeholderText:

@@ -199,7 +199,7 @@ export const MigrationWaves: React.FC = () => {
     hasActionsColumn: true,
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:

@@ -67,7 +67,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
     initialFilterValues: deserializedFilterValues,
     filterCategories: [
       {
-        key: "application.name",
+        categoryKey: "application.name",
         title: "Application Name",
         type: FilterType.search,
         placeholderText:
@@ -77,7 +77,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
       {
-        key: "businessService",
+        categoryKey: "businessService",
         title: t("terms.businessService"),
         placeholderText:
           t("actions.filterBy", {
@@ -89,7 +89,7 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
           .map((name) => ({ key: name, value: name })),
       },
       {
-        key: "tag.id",
+        categoryKey: "tag.id",
         title: t("terms.tags"),
         type: FilterType.multiselect,
         placeholderText:

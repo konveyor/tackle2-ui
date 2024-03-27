@@ -111,7 +111,7 @@ export const Stakeholders: React.FC = () => {
     hasActionsColumn: true,
     filterCategories: [
       {
-        key: "email",
+        categoryKey: "email",
         title: t("terms.email"),
         type: FilterType.search,
         placeholderText:
@@ -123,7 +123,7 @@ export const Stakeholders: React.FC = () => {
         },
       },
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -135,7 +135,7 @@ export const Stakeholders: React.FC = () => {
         },
       },
       {
-        key: "jobFunction",
+        categoryKey: "jobFunction",
         title: t("terms.jobFunction"),
         type: FilterType.search,
         placeholderText:
@@ -147,7 +147,7 @@ export const Stakeholders: React.FC = () => {
         },
       },
       {
-        key: "stakeholderGroups",
+        categoryKey: "stakeholderGroups",
         title: t("terms.stakeholderGroups"),
         type: FilterType.search,
         placeholderText:

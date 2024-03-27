@@ -105,7 +105,7 @@ export const JiraTrackers: React.FC = () => {
     isPaginationEnabled: true,
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -117,7 +117,7 @@ export const JiraTrackers: React.FC = () => {
         },
       },
       {
-        key: "url",
+        categoryKey: "url",
         title: t("terms.url"),
         type: FilterType.search,
         placeholderText:

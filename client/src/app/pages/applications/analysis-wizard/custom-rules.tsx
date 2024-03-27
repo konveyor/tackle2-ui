@@ -118,7 +118,7 @@ export const CustomRules: React.FC = () => {
 
   const filterCategories: FilterCategory<IReadFile, "name">[] = [
     {
-      key: "name",
+      categoryKey: "name",
       title: t("terms.name"),
       type: FilterType.search,
       placeholderText:

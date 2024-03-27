@@ -94,7 +94,7 @@ export const BusinessServices: React.FC = () => {
     hasActionsColumn: true,
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
@@ -106,7 +106,7 @@ export const BusinessServices: React.FC = () => {
         },
       },
       {
-        key: "description",
+        categoryKey: "description",
         title: t("terms.description"),
         type: FilterType.search,
         placeholderText:
@@ -118,7 +118,7 @@ export const BusinessServices: React.FC = () => {
         },
       },
       {
-        key: "owner",
+        categoryKey: "owner",
         title: t("terms.createdBy"),
         type: FilterType.search,
         placeholderText:

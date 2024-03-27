@@ -336,7 +336,7 @@ export const ApplicationsTable: React.FC = () => {
     }),
     filterCategories: [
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.multiselect,
         placeholderText:
@@ -351,7 +351,7 @@ export const ApplicationsTable: React.FC = () => {
         ].map((name) => ({ key: name, value: name })),
       },
       {
-        key: "archetypes",
+        categoryKey: "archetypes",
         title: t("terms.archetypes"),
         type: FilterType.multiselect,
         placeholderText:
@@ -380,7 +380,7 @@ export const ApplicationsTable: React.FC = () => {
         logicOperator: "OR",
       },
       {
-        key: "businessService",
+        categoryKey: "businessService",
         title: t("terms.businessService"),
         placeholderText:
           t("actions.filterBy", {
@@ -396,7 +396,7 @@ export const ApplicationsTable: React.FC = () => {
         getItemValue: (item) => item.businessService?.name || "",
       },
       {
-        key: "identities",
+        categoryKey: "identities",
         title: t("terms.credentialType"),
         placeholderText:
           t("actions.filterBy", {
@@ -421,7 +421,7 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
-        key: "repository",
+        categoryKey: "repository",
         title: t("terms.repositoryType"),
         placeholderText:
           t("actions.filterBy", {
@@ -435,7 +435,7 @@ export const ApplicationsTable: React.FC = () => {
         getItemValue: (item) => item?.repository?.kind || "",
       },
       {
-        key: "binary",
+        categoryKey: "binary",
         title: t("terms.artifact"),
         placeholderText:
           t("actions.filterBy", {
@@ -456,7 +456,7 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
-        key: "tags",
+        categoryKey: "tags",
         title: t("terms.tags"),
         type: FilterType.multiselect,
         placeholderText:
@@ -481,7 +481,7 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
-        key: "risk",
+        categoryKey: "risk",
         title: t("terms.risk"),
         type: FilterType.multiselect,
         placeholderText:
