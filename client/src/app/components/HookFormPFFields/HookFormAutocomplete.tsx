@@ -13,6 +13,7 @@ import {
 
 export const HookFormAutocomplete = <FormValues extends FieldValues>({
   items = [],
+  isGrouped = false,
   label,
   fieldId,
   name,
@@ -23,6 +24,7 @@ export const HookFormAutocomplete = <FormValues extends FieldValues>({
   isRequired = false,
 }: {
   items: AutocompleteOptionProps[];
+  isGrouped?: boolean;
   name: Path<FormValues>;
   control: Control<FormValues>;
   label: string;
@@ -45,6 +47,7 @@ export const HookFormAutocomplete = <FormValues extends FieldValues>({
         placeholderText={placeholderText}
         searchInputAriaLabel={searchInputAriaLabel}
         options={items}
+        isGrouped={isGrouped}
         selections={value}
         onChange={(selection) => {
           onChange(selection);

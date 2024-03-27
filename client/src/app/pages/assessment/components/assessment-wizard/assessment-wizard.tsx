@@ -14,6 +14,7 @@ import {
   Assessment,
   AssessmentStatus,
   AssessmentWithSectionOrder,
+  GroupedRef,
   QuestionWithSectionOrder,
   Ref,
   SectionWithQuestionOrder,
@@ -53,8 +54,7 @@ export enum SAVE_ACTION_VALUE {
 }
 
 export interface AssessmentWizardValues {
-  stakeholders: Ref[];
-  stakeholderGroups: Ref[];
+  stakeholdersAndGroupsRefs: GroupedRef[];
 
   [COMMENTS_KEY]: {
     [key: string]: string; // <categoryId, commentValue>
