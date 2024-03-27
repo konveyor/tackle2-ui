@@ -38,7 +38,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   //   [stakeholderGroups]
   // );
   const stakeholdersAndGroupsItems = useMemo(
-    () => combineAndGroupRefs(stakeholders, stakeholderGroups),
+    () => combineAndGroupStakeholderRefs(stakeholders, stakeholderGroups),
     [stakeholders, stakeholderGroups]
   );
 
@@ -90,7 +90,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   );
 };
 
-const combineAndGroupRefs = (
+export const combineAndGroupStakeholderRefs = (
   stakeholderRefs: Ref[],
   stakeholderGroupRefs: Ref[]
 ): GroupedRef[] => {
@@ -103,7 +103,7 @@ const combineAndGroupRefs = (
   return groupedRefs;
 };
 
-const createGroupedRef = (
+export const createGroupedRef = (
   ref: Ref,
   group: "stakeholder" | "stakeholderGroup"
 ): GroupedRef => ({

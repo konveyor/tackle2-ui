@@ -40,7 +40,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AssessmentStakeholdersForm } from "../assessment-stakeholders-form/assessment-stakeholders-form";
+import {
+  AssessmentStakeholdersForm,
+  combineAndGroupStakeholderRefs,
+} from "../assessment-stakeholders-form/assessment-stakeholders-form";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -135,21 +138,27 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   }, [assessment]);
 
   const validationSchema = yup.object().shape({
-    stakeholders: yup
-      .array()
-      .of(yup.object({ id: yup.number(), name: yup.string() })), // Ref
-
-    stakeholderGroups: yup
-      .array()
-      .of(yup.object({ id: yup.number(), name: yup.string() })), // Ref
+    stakeholdersAndGroupsRefs: yup.array().of(
+      yup.object().shape({
+        id: yup.number().required(),
+        name: yup.string().required(),
+        group: yup
+          .string()
+          .oneOf(["stakeholder", "stakeholderGroup"])
+          .required(),
+      })
+    ),
   });
 
   const methods = useForm<AssessmentWizardValues>({
     resolver: yupResolver(validationSchema),
     mode: "all",
     defaultValues: {
-      stakeholders: initialStakeholders,
-      stakeholderGroups: initialStakeholderGroups,
+      // stakeholders: assessment?.stakeholders ?? [],
+      // stakeholderGroups: assessment?.stakeholderGroups ?? [],
+      stakeholdersAndGroupsRefs: assessment
+        ? combineStakeholdersAndGroups(assessment)
+        : [],
 
       [COMMENTS_KEY]: initialComments,
       [QUESTIONS_KEY]: initialQuestions,
@@ -166,9 +175,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const disableNavigation = !isValid || isSubmitting;
 
   const isFirstStepValid = () => {
-    const numberOfStakeholdlers = values?.stakeholders?.length || 0;
-    const numberOfGroups = values?.stakeholderGroups?.length || 0;
-    return numberOfStakeholdlers + numberOfGroups > 0;
+    const numberOfStakeholdlersAndGroups =
+      values?.stakeholdersAndGroupsRefs?.length || 0;
+    return numberOfStakeholdlersAndGroups > 0;
   };
 
   const isQuestionValid = (question: QuestionWithSectionOrder): boolean => {
@@ -252,20 +261,25 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       }) || [];
     return sections;
   };
+  //Fix
+  // const { stakeholders, stakeholderGroups } = separateStakeholdersAndGroups(
+  //   formValues.stakeholdersAndGroupsRefs
+  // );
+  const mapAndSeparateStakeholdersAndGroups = (
+    combinedRefs: GroupedRef[]
+  ): { stakeholdersPayload: Ref[]; stakeholderGroupsPayload: Ref[] } => {
+    // Filter and map stakeholders
+    const stakeholdersPayload = combinedRefs
+      .filter((ref) => ref.group === "stakeholder")
+      .map(({ id, name }) => ({ id, name }));
 
-  const stakeholdersToPayload = (
-    stakeholders?: AssessmentWizardValues["stakeholders"]
-  ): Ref[] | undefined =>
-    !stakeholders
-      ? undefined
-      : stakeholders.map(({ id, name }) => ({ id, name })).filter(Boolean);
+    // Filter and map stakeholder groups
+    const stakeholderGroupsPayload = combinedRefs
+      .filter((ref) => ref.group === "stakeholderGroup")
+      .map(({ id, name }) => ({ id, name }));
 
-  const stakeholderGroupsToPayload = (
-    stakeholderGroups?: AssessmentWizardValues["stakeholderGroups"]
-  ): Ref[] | undefined =>
-    !stakeholderGroups
-      ? undefined
-      : stakeholderGroups.map(({ id, name }) => ({ id, name })).filter(Boolean);
+    return { stakeholdersPayload, stakeholderGroupsPayload };
+  };
 
   const handleSaveAsDraft = async (formValues: AssessmentWizardValues) => {
     try {
@@ -276,13 +290,17 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       const sections = assessment
         ? buildSectionsFromFormValues(formValues)
         : [];
+      const { stakeholdersPayload, stakeholderGroupsPayload } =
+        mapAndSeparateStakeholdersAndGroups(
+          formValues.stakeholdersAndGroupsRefs
+        );
 
       const assessmentStatus: AssessmentStatus = "started";
       const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
-        stakeholders: stakeholdersToPayload(values.stakeholders),
-        stakeholderGroups: stakeholderGroupsToPayload(values.stakeholderGroups),
+        stakeholders: stakeholdersPayload,
+        stakeholderGroups: stakeholderGroupsPayload,
 
         sections,
         status: assessmentStatus,
@@ -313,11 +331,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         ? buildSectionsFromFormValues(formValues)
         : [];
 
+      const { stakeholdersPayload, stakeholderGroupsPayload } =
+        mapAndSeparateStakeholdersAndGroups(
+          formValues.stakeholdersAndGroupsRefs
+        );
       const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
-        stakeholders: stakeholdersToPayload(values.stakeholders),
-        stakeholderGroups: stakeholderGroupsToPayload(values.stakeholderGroups),
+        stakeholders: stakeholdersPayload,
+        stakeholderGroups: stakeholderGroupsPayload,
 
         sections,
         status: assessmentStatus,
@@ -350,12 +372,16 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         ? buildSectionsFromFormValues(formValues)
         : [];
 
+      const { stakeholdersPayload, stakeholderGroupsPayload } =
+        mapAndSeparateStakeholdersAndGroups(
+          formValues.stakeholdersAndGroupsRefs
+        );
+
       const payload: AssessmentWithSectionOrder = {
         ...assessment,
 
-        stakeholders: stakeholdersToPayload(values.stakeholders),
-        stakeholderGroups: stakeholderGroupsToPayload(values.stakeholderGroups),
-
+        stakeholders: stakeholdersPayload,
+        stakeholderGroups: stakeholderGroupsPayload,
         sections,
         status: assessmentStatus,
       };
@@ -441,19 +467,38 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   };
 
   const isAssessmentChanged = () => {
+    // Checking if any questions have changed
     const questionsChanged = Object.entries(values[QUESTIONS_KEY]).some(
       ([name, answer]) => initialQuestions[name] !== answer
     );
-    const stakeholdersChanged =
-      initialStakeholders.length !== values.stakeholders.length ||
-      initialStakeholderGroups.length !== values.stakeholderGroups.length ||
-      !values.stakeholders.every(({ id, name }) =>
-        initialStakeholders.find((it) => it.id === id && it.name === name)
-      ) ||
-      !values.stakeholderGroups.every(({ id, name }) =>
-        initialStakeholderGroups.find((it) => it.id === id && it.name === name)
+
+    // Checking if any stakeholders or stakeholder groups have changed
+    const stakeholdersAndGroupsChanged = (
+      initialRefs: GroupedRef[],
+      currentRefs: GroupedRef[]
+    ) => {
+      if (initialRefs.length !== currentRefs.length) return true;
+      const refMap = new Map(
+        initialRefs.map((ref) => [`${ref.id}-${ref.group}`, ref.name])
       );
-    return questionsChanged || stakeholdersChanged;
+      return currentRefs.some(
+        (ref) => refMap.get(`${ref.id}-${ref.group}`) !== ref.name
+      );
+    };
+
+    // Extract initial combined stakeholders and groups from the assessment
+    const initialCombinedRefs = assessment
+      ? combineStakeholdersAndGroups(assessment)
+      : [];
+
+    // Current combined stakeholders and groups from form values
+    const currentCombinedRefs = values.stakeholdersAndGroupsRefs;
+
+    // Determine if there's been any change
+    return (
+      questionsChanged ||
+      stakeholdersAndGroupsChanged(initialCombinedRefs, currentCombinedRefs)
+    );
   };
 
   const handleCancelAssessment = () => {
@@ -595,4 +640,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       )}
     </>
   );
+};
+
+const combineStakeholdersAndGroups = (
+  assessment: AssessmentWithSectionOrder
+): GroupedRef[] => {
+  const stakeholders = assessment.stakeholders ?? [];
+  const stakeholderGroups = assessment.stakeholderGroups ?? [];
+
+  return combineAndGroupStakeholderRefs(stakeholders, stakeholderGroups);
 };
