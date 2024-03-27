@@ -14,29 +14,14 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
-import { GroupedRef, Ref } from "@app/api/models";
+import { GroupedStakeholderRef, Ref } from "@app/api/models";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
   const { control } = useFormContext<AssessmentWizardValues>();
 
   const { stakeholders } = useFetchStakeholders();
-  // const stakeholderItems = useMemo(
-  //   () =>
-  //     stakeholders
-  //       .map(({ id, name }) => ({ id, name }))
-  //       .sort((a, b) => a.name.localeCompare(b.name)),
-  //   [stakeholders]
-  // );
-
   const { stakeholderGroups } = useFetchStakeholderGroups();
-  // const stakeholderGroupItems = useMemo(
-  //   () =>
-  //     stakeholderGroups
-  //       .map(({ id, name }) => ({ id, name }))
-  //       .sort((a, b) => a.name.localeCompare(b.name)),
-  //   [stakeholderGroups]
-  // );
   const stakeholdersAndGroupsItems = useMemo(
     () => combineAndGroupStakeholderRefs(stakeholders, stakeholderGroups),
     [stakeholders, stakeholderGroups]
@@ -68,21 +53,10 @@ export const AssessmentStakeholdersForm: React.FC = () => {
               placeholderText={t("composed.selectMany", {
                 what: t("terms.stakeholder(s)").toLowerCase(),
               })}
+              isGrouped
+              isRequired
               searchInputAriaLabel="stakeholders-and-groups-select-toggle"
             />
-
-            {/* <HookFormAutocomplete<AssessmentWizardValues>
-              items={stakeholderGroupItems}
-              control={control}
-              name="stakeholderGroups"
-              label="Stakeholder Group(s)"
-              fieldId="stakeholderGroups"
-              noResultsMessage={t("message.noResultsFoundTitle")}
-              placeholderText={t("composed.selectMany", {
-                what: t("terms.stakeholderGroup(s)").toLowerCase(),
-              })}
-              searchInputAriaLabel="stakeholder-groups-select-toggle"
-            /> */}
           </FormSection>
         </GridItem>
       </Grid>
@@ -93,11 +67,11 @@ export const AssessmentStakeholdersForm: React.FC = () => {
 export const combineAndGroupStakeholderRefs = (
   stakeholderRefs: Ref[],
   stakeholderGroupRefs: Ref[]
-): GroupedRef[] => {
-  const groupedRefs: GroupedRef[] = [
-    ...stakeholderRefs.map((ref) => createGroupedRef(ref, "stakeholder")),
+): GroupedStakeholderRef[] => {
+  const groupedRefs: GroupedStakeholderRef[] = [
+    ...stakeholderRefs.map((ref) => createGroupedRef(ref, "Stakeholder")),
     ...stakeholderGroupRefs.map((ref) =>
-      createGroupedRef(ref, "stakeholderGroup")
+      createGroupedRef(ref, "Stakeholder Group")
     ),
   ];
   return groupedRefs;
@@ -105,8 +79,8 @@ export const combineAndGroupStakeholderRefs = (
 
 export const createGroupedRef = (
   ref: Ref,
-  group: "stakeholder" | "stakeholderGroup"
-): GroupedRef => ({
+  group: "Stakeholder" | "Stakeholder Group"
+): GroupedStakeholderRef => ({
   ...ref,
   group,
 });
