@@ -63,7 +63,7 @@ export const Dependencies: React.FC = () => {
     filterCategories: [
       ...allAffectedApplicationsFilterCategories,
       {
-        key: "name",
+        categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.search,
         filterGroup: "Dependency",
@@ -74,7 +74,7 @@ export const Dependencies: React.FC = () => {
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
       {
-        key: "provider",
+        categoryKey: "provider",
         title: t("terms.language"),
         type: FilterType.search,
         filterGroup: "Dependency",

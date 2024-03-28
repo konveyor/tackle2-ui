@@ -130,7 +130,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     "source" | "tagCategory"
   >[] = [
     {
-      key: "source",
+      categoryKey: "source",
       title: t("terms.source"),
       type: FilterType.multiselect,
       placeholderText: t("terms.source"),
@@ -142,7 +142,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
       logicOperator: "OR",
     },
     {
-      key: "tagCategory",
+      categoryKey: "tagCategory",
       title: t("terms.tagCategory"),
       type: FilterType.multiselect,
       placeholderText: t("terms.tagCategory"),
