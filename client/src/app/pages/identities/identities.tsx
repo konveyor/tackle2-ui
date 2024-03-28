@@ -113,7 +113,7 @@ export const Identities: React.FC = () => {
     "name" | "type" | "createdBy"
   >[] = [
     {
-      key: "name",
+      categoryKey: "name",
       title: "Name",
       type: FilterType.search,
       placeholderText: "Filter by name...",
@@ -122,7 +122,7 @@ export const Identities: React.FC = () => {
       },
     },
     {
-      key: "type",
+      categoryKey: "type",
       title: "Type",
       type: FilterType.select,
       placeholderText: "Filter by type...",
@@ -134,7 +134,7 @@ export const Identities: React.FC = () => {
     ...(isAuthRequired
       ? [
           {
-            key: "createdBy",
+            categoryKey: "createdBy",
             title: "Created By",
             type: FilterType.search,
             placeholderText: "Filter by created by User...",
