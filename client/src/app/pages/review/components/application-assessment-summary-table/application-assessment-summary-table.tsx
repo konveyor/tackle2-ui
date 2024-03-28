@@ -90,7 +90,10 @@ export const ApplicationAssessmentSummaryTable: React.FC<
       getItemValue: (item) => {
         return item.riskValue || "";
       },
-      selectOptions: typeOptions,
+      selectOptions: typeOptions.map(({ key, value }) => ({
+        value: key,
+        label: value,
+      })),
     },
   ];
 
