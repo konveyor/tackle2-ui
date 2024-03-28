@@ -170,7 +170,7 @@ export const Tags: React.FC = () => {
     "tags" | "rank" | "color"
   >[] = [
     {
-      key: "tags",
+      categoryKey: "tags",
       title: t("terms.name"),
       type: FilterType.multiselect,
       placeholderText:
@@ -208,7 +208,7 @@ export const Tags: React.FC = () => {
       ),
     },
     {
-      key: "rank",
+      categoryKey: "rank",
       title: t("terms.rank"),
       type: FilterType.search,
       placeholderText:
@@ -220,7 +220,7 @@ export const Tags: React.FC = () => {
       },
     },
     {
-      key: "color",
+      categoryKey: "color",
       title: t("terms.color"),
       type: FilterType.search,
       placeholderText:

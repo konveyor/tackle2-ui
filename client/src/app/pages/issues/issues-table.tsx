@@ -117,7 +117,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     filterCategories: [
       ...(mode === "allIssues" ? allIssuesSpecificFilterCategories : []),
       {
-        key: "category",
+        categoryKey: "category",
         title: t("terms.category"),
         filterGroup:
           mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
@@ -129,7 +129,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
       {
-        key: "source",
+        categoryKey: "source",
         title: t("terms.source"),
         filterGroup:
           mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
@@ -153,7 +153,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         },
       },
       {
-        key: "target",
+        categoryKey: "target",
         title: t("terms.target"),
         filterGroup:
           mode === "allIssues" ? IssueFilterGroups.Issues : undefined,

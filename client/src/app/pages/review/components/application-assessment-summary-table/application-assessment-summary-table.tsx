@@ -83,7 +83,7 @@ export const ApplicationAssessmentSummaryTable: React.FC<
 
   const filterCategories: FilterCategory<ITableItem, "riskValue">[] = [
     {
-      key: "riskValue",
+      categoryKey: "riskValue",
       title: "Risk",
       type: FilterType.select,
       placeholderText: "Filter by name...",

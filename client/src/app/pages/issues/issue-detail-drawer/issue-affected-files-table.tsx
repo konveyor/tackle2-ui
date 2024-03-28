@@ -52,7 +52,7 @@ export const IssueAffectedFilesTable: React.FC<
     initialSort: { columnKey: "file", direction: "asc" },
     filterCategories: [
       {
-        key: "file",
+        categoryKey: "file",
         title: "File",
         type: FilterType.search,
         placeholderText:

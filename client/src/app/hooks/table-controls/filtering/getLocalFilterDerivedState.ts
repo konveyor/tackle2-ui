@@ -48,7 +48,7 @@ export const getLocalFilterDerivedState = <
       const values = filterValues[categoryKey];
       if (!values || values.length === 0) return true;
       const filterCategory = filterCategories.find(
-        (category) => category.key === categoryKey
+        (category) => category.categoryKey === categoryKey
       );
       let itemValue = (item as any)[categoryKey];
       if (filterCategory?.getItemValue) {

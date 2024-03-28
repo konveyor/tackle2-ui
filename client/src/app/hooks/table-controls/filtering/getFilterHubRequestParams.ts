@@ -98,7 +98,7 @@ export const getFilterHubRequestParams = <
     const { filterValues } = filterState;
     objectKeys(filterValues).forEach((categoryKey) => {
       const filterCategory = filterCategories?.find(
-        (category) => category.key === categoryKey
+        (category) => category.categoryKey === categoryKey
       );
       const filterValue = filterValues[categoryKey];
       if (!filterCategory || !filterValue) return;

@@ -32,7 +32,7 @@ export interface IBasicFilterCategory<
   TFilterCategoryKey extends string, // Unique identifiers for each filter category (inferred from key properties if possible)
 > {
   /** For use in the filterValues state object. Must be unique per category. */
-  key: TFilterCategoryKey;
+  categoryKey: TFilterCategoryKey;
   /** Title of the filter as displayed in the filter selection dropdown and filter chip groups. */
   title: string;
   /** Type of filter component to use to select the filter's content. */
@@ -119,22 +119,22 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
   const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =
-    React.useState(filterCategories[0].key);
+    React.useState(filterCategories[0].categoryKey);
 
   const onCategorySelect = (
     category: FilterCategory<TItem, TFilterCategoryKey>
   ) => {
-    setCurrentFilterCategoryKey(category.key);
+    setCurrentFilterCategoryKey(category.categoryKey);
     setIsCategoryDropdownOpen(false);
   };
 
   const setFilterValue = (
     category: FilterCategory<TItem, TFilterCategoryKey>,
     newValue: FilterValue
-  ) => setFilterValues({ ...filterValues, [category.key]: newValue });
+  ) => setFilterValues({ ...filterValues, [category.categoryKey]: newValue });
 
   const currentFilterCategory = filterCategories.find(
-    (category) => category.key === currentFilterCategoryKey
+    (category) => category.categoryKey === currentFilterCategoryKey
   );
 
   const filterGroups = filterCategories.reduce(
@@ -157,8 +157,8 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
               .map((filterCategory) => {
                 return (
                   <DropdownItem
-                    id={`filter-category-${filterCategory.key}`}
-                    key={filterCategory.key}
+                    id={`filter-category-${filterCategory.categoryKey}`}
+                    key={filterCategory.categoryKey}
                     onClick={() => onCategorySelect(filterCategory)}
                   >
                     {filterCategory.title}
@@ -171,8 +171,8 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
     } else {
       return filterCategories.map((category) => (
         <DropdownItem
-          id={`filter-category-${category.key}`}
-          key={category.key}
+          id={`filter-category-${category.categoryKey}`}
+          key={category.categoryKey}
           onClick={() => onCategorySelect(category)}
         >
           {category.title}
@@ -215,13 +215,13 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
 
         {filterCategories.map((category) => (
           <FilterControl<TItem, TFilterCategoryKey>
-            key={category.key}
+            key={category.categoryKey}
             category={category}
-            filterValue={filterValues[category.key]}
+            filterValue={filterValues[category.categoryKey]}
             setFilterValue={(newValue) => setFilterValue(category, newValue)}
             showToolbarItem={
               showFiltersSideBySide ||
-              currentFilterCategory?.key === category.key
+              currentFilterCategory?.categoryKey === category.categoryKey
             }
             isDisabled={isDisabled}
           />

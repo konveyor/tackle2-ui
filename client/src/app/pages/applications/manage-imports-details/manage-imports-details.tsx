@@ -101,7 +101,7 @@ export const ManageImportsDetails: React.FC = () => {
     "Application Name"
   >[] = [
     {
-      key: "Application Name",
+      categoryKey: "Application Name",
       title: "Application Name",
       type: FilterType.search,
       placeholderText: "Filter by application name...",

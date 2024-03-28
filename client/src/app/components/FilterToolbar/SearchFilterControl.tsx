@@ -40,7 +40,7 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
     setFilterValue(trimmedValue ? [trimmedValue.replace(/\s+/g, " ")] : []);
   };
 
-  const id = `${category.key}-input`;
+  const id = `${category.categoryKey}-input`;
   return (
     <ToolbarFilter
       chips={filterValue || []}

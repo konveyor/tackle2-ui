@@ -48,7 +48,7 @@ export const useSharedAffectedApplicationFilterCategories = <
 
   return [
     {
-      key: "application.name",
+      categoryKey: "application.name",
       title: t("terms.applicationName"),
       filterGroup: IssueFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
@@ -67,7 +67,7 @@ export const useSharedAffectedApplicationFilterCategories = <
         selectedOptions?.filter(Boolean) ?? [],
     },
     {
-      key: "application.id",
+      categoryKey: "application.id",
       title: t("terms.archetypes"),
       filterGroup: IssueFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
@@ -101,7 +101,7 @@ export const useSharedAffectedApplicationFilterCategories = <
       },
     },
     {
-      key: "businessService.name",
+      categoryKey: "businessService.name",
       title: t("terms.businessService"),
       filterGroup: IssueFilterGroups.ApplicationInventory,
       placeholderText:
@@ -114,7 +114,7 @@ export const useSharedAffectedApplicationFilterCategories = <
         .map((name) => ({ key: name, value: name })),
     },
     {
-      key: "tag.id",
+      categoryKey: "tag.id",
       title: t("terms.tags"),
       filterGroup: IssueFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
