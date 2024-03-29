@@ -9,8 +9,6 @@ import {
   Td,
   ActionsColumn,
   IAction,
-  cellWidth,
-  ICell,
   IRow,
   IRowData,
 } from "@patternfly/react-table";
@@ -35,17 +33,6 @@ export const TagTable: React.FC<TabTableProps> = ({
   onDelete,
 }) => {
   const { t } = useTranslation();
-
-  const columns: ICell[] = [
-    {
-      title: t("terms.tagName"),
-      transforms: [cellWidth(100)],
-      cellFormatters: [],
-      props: {
-        className: "columnPadding",
-      },
-    },
-  ];
 
   const rows: IRow[] = [];
   (tagCategory.tags || [])
@@ -94,9 +81,7 @@ export const TagTable: React.FC<TabTableProps> = ({
           const rowActions = defaultActions(row);
           return (
             <Tr>
-              {row.cells?.map((cell: any) => (
-                <Td>{cell.title}</Td>
-              ))}
+              {row.cells?.map((cell: any) => <Td>{cell.title}</Td>)}
               <Td isActionCell>
                 {rowActions && <ActionsColumn items={rowActions} />}
               </Td>
