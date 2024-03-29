@@ -1,8 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Flex, FlexItem } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import { applicationsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 import { ConditionalTooltip } from "./ConditionalTooltip";
+import { Td } from "@patternfly/react-table";
 
 export interface AppTableActionButtonsProps {
   isDeleteEnabled?: boolean;
@@ -24,34 +25,32 @@ export const AppTableActionButtons: React.FC<AppTableActionButtonsProps> = ({
       allowedPermissions={applicationsWriteScopes}
       rbacType={RBAC_TYPE.Scope}
     >
-      <Flex>
-        <FlexItem align={{ default: "alignRight" }}>
+      <Td isActionCell>
+        <Button
+          id="edit-button"
+          aria-label="edit"
+          variant="secondary"
+          onClick={onEdit}
+        >
+          {t("actions.edit")}
+        </Button>
+      </Td>
+      <Td isActionCell>
+        <ConditionalTooltip
+          isTooltipEnabled={isDeleteEnabled}
+          content={tooltipMessage}
+        >
           <Button
-            id="edit-button"
-            aria-label="edit"
-            variant="secondary"
-            onClick={onEdit}
+            id="delete-button"
+            aria-label="delete"
+            variant="link"
+            onClick={onDelete}
+            isAriaDisabled={isDeleteEnabled}
           >
-            {t("actions.edit")}
+            {t("actions.delete")}
           </Button>
-        </FlexItem>
-        <FlexItem>
-          <ConditionalTooltip
-            isTooltipEnabled={isDeleteEnabled}
-            content={tooltipMessage}
-          >
-            <Button
-              id="delete-button"
-              aria-label="delete"
-              variant="link"
-              onClick={onDelete}
-              isAriaDisabled={isDeleteEnabled}
-            >
-              {t("actions.delete")}
-            </Button>
-          </ConditionalTooltip>
-        </FlexItem>
-      </Flex>
+        </ConditionalTooltip>
+      </Td>
     </RBAC>
   );
 };
