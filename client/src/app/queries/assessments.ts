@@ -23,6 +23,7 @@ import {
 } from "@app/api/models";
 import { QuestionnairesQueryKey } from "./questionnaires";
 import { ARCHETYPE_QUERY_KEY } from "./archetypes";
+import { ApplicationsQueryKey } from "./applications";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
@@ -120,20 +121,10 @@ export const useDeleteAssessmentMutation = (
       archetypeId?: number;
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
-      const isArchetype = !!args.archetypeId;
 
-      queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args?.archetypeId,
-        isArchetype,
-      ]);
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args?.applicationId,
-        isArchetype,
-      ]);
 
       return deletedAssessment;
     },

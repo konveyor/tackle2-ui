@@ -9,6 +9,8 @@ import {
 } from "@app/test-config/test-utils";
 import { rest } from "msw";
 import { server } from "@mocks/server";
+import { assessmentsQueryKey } from "@app/queries/assessments";
+import { QueryClient } from "@tanstack/react-query";
 
 describe("useAssessmentStatus", () => {
   beforeEach(() => {
@@ -16,6 +18,73 @@ describe("useAssessmentStatus", () => {
   });
   afterEach(() => {
     server.resetHandlers();
+  });
+
+  it("Updates hasApplicationAssessmentInProgress to false once associated assessments are deleted", async () => {
+    server.use(
+      rest.get("/hub/assessments", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockAssessment({
+              id: 1,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 1, name: "questionnaire1" },
+              status: "started",
+              sections: [],
+            }),
+            createMockAssessment({
+              id: 2,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 2, name: "questionnaire2" },
+              status: "complete",
+              sections: [],
+            }),
+          ])
+        );
+      }),
+      rest.get("/hub/archetypes", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockArchetype({
+              id: 1,
+              name: "archetype1",
+              applications: [],
+              assessed: false,
+              assessments: [],
+            }),
+          ])
+        );
+      })
+    );
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          cacheTime: 1000,
+        },
+      },
+    });
+    const { result, rerender } = renderHook(
+      () => useAssessmentStatus(createMockApplication({ id: 1, name: "app1" })),
+      { queryClient }
+    );
+
+    await waitFor(() => {
+      expect(result.current.hasApplicationAssessmentInProgress).toBe(true);
+    });
+
+    server.use(
+      rest.get("/hub/assessments", (req, res, ctx) => {
+        return res(ctx.json([]));
+      })
+    );
+    queryClient.invalidateQueries([assessmentsQueryKey]);
+
+    rerender(createMockApplication({ id: 1, name: "app1" }));
+
+    await waitFor(() => {
+      expect(result.current.hasApplicationAssessmentInProgress).toBe(false);
+    });
   });
 
   it("Correctly calculates status given one started assessment and one complete assessment for an application", async () => {
@@ -55,10 +124,10 @@ describe("useAssessmentStatus", () => {
         );
       })
     );
-    const { result, waitForNextUpdate } = renderHook(() =>
+
+    const { result } = renderHook(() =>
       useAssessmentStatus(createMockApplication({ id: 1, name: "app1" }))
     );
-    await waitForNextUpdate();
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: false,
@@ -105,11 +174,8 @@ describe("useAssessmentStatus", () => {
       assessments: mockAssessments,
     });
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
 
-    await waitForNextUpdate();
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: false,
@@ -175,10 +241,7 @@ describe("useAssessmentStatus", () => {
       ],
       assessed: false,
     });
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: false,
@@ -228,10 +291,7 @@ describe("useAssessmentStatus", () => {
       })
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: true,
@@ -279,10 +339,7 @@ describe("useAssessmentStatus", () => {
       })
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: false,
@@ -331,10 +388,7 @@ describe("useAssessmentStatus", () => {
       })
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
     await waitFor(() => {
       expect(result.current).toEqual({
         allArchetypesAssessed: true,
@@ -398,10 +452,7 @@ describe("useAssessmentStatus", () => {
       })
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useAssessmentStatus(mockApplication)
-    );
-    await waitForNextUpdate();
+    const { result } = renderHook(() => useAssessmentStatus(mockApplication));
 
     await waitFor(() => {
       expect(result.current).toEqual({

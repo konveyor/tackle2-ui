@@ -9,6 +9,7 @@ import {
 } from "@app/api/rest";
 import { New, Review } from "@app/api/models";
 import { AxiosError } from "axios";
+import { ApplicationsQueryKey } from "./applications";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
@@ -85,13 +86,14 @@ export const useDeleteReviewMutation = (
     onSuccess: (_, args) => {
       onSuccess && onSuccess(args.name);
       queryClient.invalidateQueries([reviewsQueryKey]);
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError && onError,
   });
 };
 
 export const useFetchReviewById = (id?: number | string) => {
-  const { data, isLoading, error, isFetching } = useQuery({
+  const { data, error, isFetching } = useQuery({
     queryKey: [reviewQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(null) : getReviewById(id),
