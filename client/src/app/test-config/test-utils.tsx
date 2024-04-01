@@ -4,18 +4,39 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Application, Archetype, Assessment } from "@app/api/models";
 import { RenderHookOptions, renderHook } from "@testing-library/react-hooks";
 
-const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        cacheTime: 1000,
+import { createContext, useContext } from "react";
+
+const QueryClientContext = createContext<QueryClient | undefined>(undefined);
+
+const AllTheProviders: FC<{
+  children: React.ReactNode;
+  queryClient?: QueryClient;
+}> = ({ children, queryClient }) => {
+  const internalQueryClient =
+    queryClient ||
+    new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          cacheTime: 1000,
+        },
       },
-    },
-  });
+    });
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={internalQueryClient}>
+      {children}
+    </QueryClientProvider>
   );
+};
+
+export const useQueryClientContext = () => {
+  const context = useContext(QueryClientContext);
+  if (context === undefined) {
+    throw new Error(
+      "useQueryClientContext must be used within a QueryClientContext.Provider"
+    );
+  }
+  return context;
 };
 
 const customRender = (
@@ -25,19 +46,20 @@ const customRender = (
 
 const customRenderHook = <TProps, TResult>(
   callback: (props: TProps) => TResult,
-  options?: Omit<RenderHookOptions<TProps>, "wrapper">
+  options?: Omit<RenderHookOptions<TProps>, "wrapper"> & {
+    queryClient?: QueryClient;
+  }
 ) => {
+  const { queryClient, ...rest } = options || {};
   const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <AllTheProviders>{children}</AllTheProviders>
+    <AllTheProviders queryClient={queryClient}>{children}</AllTheProviders>
   );
 
-  return renderHook(callback, { wrapper: Wrapper as React.FC, ...options });
+  return renderHook(callback, { wrapper: Wrapper as React.FC, ...rest });
 };
 
-// re-export everything
 export * from "@testing-library/react";
 
-// override render method
 export { customRender as render };
 export { customRenderHook as renderHook };
 
