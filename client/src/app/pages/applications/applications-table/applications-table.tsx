@@ -75,7 +75,6 @@ import {
 // Queries
 import { Application, Assessment, Ref, Task } from "@app/api/models";
 import {
-  ApplicationsQueryKey,
   useBulkDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
@@ -243,64 +242,54 @@ export const ApplicationsTable: React.FC = () => {
     onDeleteApplicationError
   );
 
-  const onDeleteReviewSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.reviewDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-    queryClient.invalidateQueries([ApplicationsQueryKey]);
-  };
-
   const { mutate: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess
+    (name) => {
+      pushNotification({
+        title: t("toastr.success.reviewDiscarded", { application: name }),
+        variant: "success",
+      });
+    },
+    (error) => {
+      console.error("Error while deleting review:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
   );
 
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation();
-
-  const discardAssessment = async (application: Application) => {
-    try {
-      if (application.assessments) {
-        await Promise.all(
-          application.assessments.map(async (assessment) => {
-            await deleteAssessment({
-              assessmentId: assessment.id,
-              applicationName: application.name,
-            });
-          })
-        ).then(() => {
-          pushNotification({
-            title: t("toastr.success.assessmentDiscarded", {
-              application: application.name,
-            }),
-            variant: "success",
-          });
-          queryClient.invalidateQueries([ApplicationsQueryKey]);
-        });
-      }
-    } catch (error) {
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    (name) => {
+      pushNotification({
+        title: t("toastr.success.assessmentDiscarded", { application: name }),
+        variant: "success",
+      });
+    },
+    (error) => {
       console.error("Error while deleting assessments:", error);
       pushNotification({
-        title: getAxiosErrorMessage(error as AxiosError),
+        title: getAxiosErrorMessage(error),
         variant: "danger",
+      });
+    }
+  );
+
+  const discardAssessment = async (application: Application) => {
+    if (application.assessments) {
+      application.assessments.forEach((assessment) => {
+        deleteAssessment({
+          assessmentId: assessment.id,
+          applicationName: application.name,
+        });
       });
     }
   };
 
   const discardReview = async (application: Application) => {
-    try {
-      if (application.review?.id) {
-        await deleteReview({
-          id: application.review.id,
-          name: application.name,
-        });
-      }
-    } catch (error) {
-      console.error("Error while deleting review:", error);
-      pushNotification({
-        title: getAxiosErrorMessage(error as AxiosError),
-        variant: "danger",
+    if (application.review) {
+      deleteReview({
+        id: application.review.id,
+        name: application.name,
       });
     }
   };
