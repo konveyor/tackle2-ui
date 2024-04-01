@@ -67,8 +67,10 @@ export const useAssessmentStatus = (application: Application) => {
       (assessment: Assessment) =>
         assessment.status === "started" ||
         assessment.status === "empty" ||
-        assessment.status === "complete"
+        (assessment.status === "complete" &&
+          application.assessments?.length !== 0)
     );
+
     return {
       allArchetypesAssessed,
       countOfFullyAssessedArchetypes: assessedArchetypesCount,
@@ -76,5 +78,11 @@ export const useAssessmentStatus = (application: Application) => {
       hasApplicationAssessmentInProgress,
       isApplicationDirectlyAssessed: isDirectlyAssessed,
     };
-  }, [assessments, archetypes, application.id, isDirectlyAssessed]);
+  }, [
+    assessments,
+    archetypes,
+    application.id,
+    application.assessments,
+    isDirectlyAssessed,
+  ]);
 };
