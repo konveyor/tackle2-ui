@@ -187,23 +187,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       onOpenModal(assessment);
     } else if (action === AssessmentAction.Retake) {
       if (assessment) {
-        try {
-          await deleteAssessmentAsync({
-            assessmentId: assessment.id,
-            applicationName: application?.name,
-            applicationId: application?.id,
-            archetypeName: archetype?.name,
-            archetypeId: archetype?.id,
-          }).then(() => {
-            createAssessment();
-          });
-        } catch (error) {
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-          console.error("Error while deleting assessment:", error);
-        }
+        onOpenModal(assessment);
       }
     }
   };
