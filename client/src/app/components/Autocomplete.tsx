@@ -18,8 +18,6 @@ import {
 const toString = (input: string | (() => string)) =>
   typeof input === "function" ? input() : input;
 
-const createCompositeKey = (group: string, id: number) => `${group}:${id}`;
-
 export interface AutocompleteOptionProps {
   /** id for the option */
   id: number;
@@ -34,6 +32,9 @@ export interface AutocompleteOptionProps {
   tooltip?: string | (() => string);
   /** the group to display the option in */
   group?: string;
+
+  /** a unique identifier for the option */
+  uniqueId?: string;
 }
 
 export interface IAutocompleteProps {
@@ -151,12 +152,10 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   };
 
   /** lookup the option matching the itemId and add as a selection */
-  const addSelectionByItemId = (compositeKey: string) => {
-    const [group, idStr] = compositeKey.split(":");
-    const id = parseInt(idStr, 10);
+  const addSelectionByItemId = (identifier: string) => {
     const matchingOption = options.find(
-      ({ id: optionId, group: optionGroup }) =>
-        id === optionId && group === optionGroup
+      (option) =>
+        option.uniqueId === identifier || option.id.toString() === identifier
     );
 
     if (matchingOption) {
@@ -186,12 +185,10 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   const handleTab = (event: React.KeyboardEvent) => {
     if (filteredOptions.length === 1) {
       const option = filteredOptions[0];
-      const compositeKey =
-        isGrouped && option.group
-          ? createCompositeKey(option.group, option.id)
-          : option.id.toString();
+
+      const identifier = option.uniqueId || option.id.toString();
       setInputValue(toString(option.name));
-      setTabSelectedItemId(compositeKey);
+      setTabSelectedItemId(identifier);
       event.preventDefault();
     }
     setMenuIsOpen(false);
@@ -248,21 +245,16 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
     closeMenu && setMenuIsOpen(false);
   };
 
-  /** add the text of the selected menu item to the selected items */
   const handleMenuItemOnSelect = (
     event: React.MouseEvent<Element, MouseEvent> | undefined,
-    itemId: number,
-    groupName?: string
+    option: AutocompleteOptionProps
   ) => {
     if (!event) return;
     event.stopPropagation();
     focusTextInput(true);
 
-    const compositeKey =
-      isGrouped && groupName
-        ? createCompositeKey(groupName, itemId)
-        : itemId.toString();
-    addSelectionByItemId(compositeKey);
+    const identifier = option.uniqueId || option.id.toString();
+    addSelectionByItemId(identifier);
   };
 
   /** close the menu when a click occurs outside of the menu or text input group */
@@ -339,13 +331,9 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
             <MenuList>
               {groupOptions.map((option) => (
                 <MenuItem
-                  key={option.id}
+                  key={option.uniqueId}
                   itemId={option.id.toString()}
-                  onClick={(e) =>
-                    isGrouped
-                      ? handleMenuItemOnSelect(e, option.id, groupName)
-                      : handleMenuItemOnSelect(e, option.id)
-                  }
+                  onClick={(e) => handleMenuItemOnSelect(e, option)}
                 >
                   {toString(option.name)}
                 </MenuItem>
@@ -394,7 +382,7 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
             <MenuItem
               key={option.id}
               itemId={option.id.toString()}
-              onClick={(e) => handleMenuItemOnSelect(e, option.id)}
+              onClick={(e) => handleMenuItemOnSelect(e, option)}
             >
               {toString(option.name)}
             </MenuItem>

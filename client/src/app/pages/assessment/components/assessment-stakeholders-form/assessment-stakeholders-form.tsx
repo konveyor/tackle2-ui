@@ -14,7 +14,7 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
-import { GroupedStakeholderRef, Ref } from "@app/api/models";
+import { GroupedStakeholderRef, Ref, StakeholderType } from "@app/api/models";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();
@@ -64,23 +64,24 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   );
 };
 
+const createCompositeKey = (group: string, id: number) => `${group}:${id}`;
+
 export const combineAndGroupStakeholderRefs = (
   stakeholderRefs: Ref[],
   stakeholderGroupRefs: Ref[]
-): GroupedStakeholderRef[] => {
+) => {
   const groupedRefs: GroupedStakeholderRef[] = [
-    ...stakeholderRefs.map((ref) => createGroupedRef(ref, "Stakeholder")),
-    ...stakeholderGroupRefs.map((ref) =>
-      createGroupedRef(ref, "Stakeholder Group")
-    ),
+    ...stakeholderRefs.map((ref) => ({
+      ...ref,
+      uniqueId: createCompositeKey("Stakeholder", ref.id),
+      group: StakeholderType.Stakeholder,
+    })),
+    ...stakeholderGroupRefs.map((ref) => ({
+      ...ref,
+      uniqueId: createCompositeKey("Stakeholder Group", ref.id),
+      group: StakeholderType.StakeholderGroup,
+    })),
   ];
+
   return groupedRefs;
 };
-
-export const createGroupedRef = (
-  ref: Ref,
-  group: "Stakeholder" | "Stakeholder Group"
-): GroupedStakeholderRef => ({
-  ...ref,
-  group,
-});
