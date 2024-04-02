@@ -324,73 +324,35 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   );
 
   const renderMenuItems = () => {
-    if (isGrouped && groupedOptions) {
-      return Object.entries(groupedOptions).map(([groupName, groupOptions]) => (
-        <React.Fragment key={groupName}>
+    const effectiveGroupedOptions = isGrouped
+      ? groupedOptions
+      : { undefined: filteredOptions };
+
+    return Object.entries(effectiveGroupedOptions).map(
+      ([groupName, groupOptions], index) => (
+        <React.Fragment key={groupName || `ungrouped-${index}`}>
           <MenuGroup label={groupName}>
             <MenuList>
               {groupOptions.map((option) => (
                 <MenuItem
-                  key={option.uniqueId}
+                  key={option.uniqueId || option.id}
                   itemId={option.id.toString()}
                   onClick={(e) => handleMenuItemOnSelect(e, option)}
                 >
                   {toString(option.name)}
                 </MenuItem>
               ))}
-              {/* if supplied, add the menu heading */}
-              {menuHeader ? (
-                <>
-                  <MenuItem isDisabled key="heading" itemId="-2">
-                    {menuHeader}
-                  </MenuItem>
-                  <Divider key="divider" />
-                </>
-              ) : undefined}
-
-              {/* show a disabled "no result" when all menu items are filtered out */}
-              {groupOptions.length === 0 ? (
-                <MenuItem isDisabled key="no result" itemId="-1">
-                  {noResultsMessage}
-                </MenuItem>
-              ) : undefined}
             </MenuList>
           </MenuGroup>
-          <Divider />
+          {/* Add a divider except after the last group */}
+          {index < Object.keys(effectiveGroupedOptions).length - 1 && (
+            <Divider />
+          )}
         </React.Fragment>
-      ));
-    } else {
-      return (
-        <MenuList>
-          {/* if supplied, add the menu heading */}
-          {menuHeader ? (
-            <>
-              <MenuItem isDisabled key="heading" itemId="-2">
-                {menuHeader}
-              </MenuItem>
-              <Divider key="divider" />
-            </>
-          ) : undefined}
-
-          {/* show a disabled "no result" when all menu items are filtered out */}
-          {filteredOptions.length === 0 ? (
-            <MenuItem isDisabled key="no result" itemId="-1">
-              {noResultsMessage}
-            </MenuItem>
-          ) : undefined}
-          {filteredOptions.map((option) => (
-            <MenuItem
-              key={option.id}
-              itemId={option.id.toString()}
-              onClick={(e) => handleMenuItemOnSelect(e, option)}
-            >
-              {toString(option.name)}
-            </MenuItem>
-          ))}
-        </MenuList>
-      );
-    }
+      )
+    );
   };
+
   const menu = (
     <Menu ref={menuRef} onKeyDown={handleMenuOnKeyDown} isScrollable>
       <MenuContent>{renderMenuItems()}</MenuContent>
