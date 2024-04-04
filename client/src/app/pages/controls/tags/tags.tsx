@@ -26,7 +26,11 @@ import {
 } from "@patternfly/react-table";
 import { CubesIcon } from "@patternfly/react-icons";
 
-import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  dedupeFunction,
+  getAxiosErrorMessage,
+  localeNumericCompare,
+} from "@app/utils/utils";
 import { Tag, TagCategory } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
@@ -53,6 +57,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
 import { TagTable } from "./components/tag-table";
+import i18n from "@app/i18n";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
@@ -177,10 +182,9 @@ export const Tags: React.FC = () => {
         categoryKey: "tags",
         title: t("terms.name"),
         type: FilterType.multiselect,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
+        placeholderText: t("actions.filterBy", {
+          what: t("terms.name").toLowerCase(),
+        }),
         getItemValue: (item) => {
           const tagCategoryNames = item.name?.toString() || "";
           const tagNames = item?.tags
@@ -191,23 +195,18 @@ export const Tags: React.FC = () => {
         },
         selectOptions: dedupeFunction(
           tagCategories
-            ?.map((tagCategory) => tagCategory?.tags)
-            .flat()
+            ?.flatMap((tagCategory) => tagCategory?.tags ?? [])
             .filter((tag) => tag && tag.name)
-            .map((tag) => ({ key: tag?.name, value: tag?.name }))
+            .map((tag) => ({ key: tag.name, value: tag.name }))
             .concat(
               tagCategories?.map((tagCategory) => ({
                 key: tagCategory?.name,
                 value: tagCategory?.name,
-              }))
+              })) ?? []
             )
-            .sort((a, b) => {
-              if (a.value && b.value) {
-                return a?.value.localeCompare(b?.value);
-              } else {
-                return 0;
-              }
-            })
+            .sort((a, b) =>
+              localeNumericCompare(a.value, b.value, i18n.language)
+            )
         ),
       },
       {
@@ -264,9 +263,6 @@ export const Tags: React.FC = () => {
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
-  const categoryColor =
-    tagCategoryToUpdate?.colour ||
-    getTagCategoryFallbackColor(tagCategoryToUpdate);
   return (
     <>
       <ConditionalRender
@@ -386,7 +382,9 @@ export const Tags: React.FC = () => {
                         <Td width={20}>
                           <AppTableActionButtons
                             isDeleteEnabled={!!tagCategory.tags?.length}
-                            tooltipMessage="Cannot delete non empty tag category"
+                            tooltipMessage={t(
+                              "message.cannotDeleteNonEmptyTagCategory"
+                            )}
                             onEdit={() => setTagCategoryModalState(tagCategory)}
                             onDelete={() => setTagCategoryToDelete(tagCategory)}
                           />
