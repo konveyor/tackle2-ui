@@ -255,6 +255,7 @@ export const Stakeholders: React.FC = () => {
                   </Title>
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
+                      how: t("terms.add"),
                       what: t("terms.stakeholder").toLowerCase(),
                     })}
                   </EmptyStateBody>
@@ -338,6 +339,7 @@ export const Stakeholders: React.FC = () => {
                                 </Title>
                                 <EmptyStateBody>
                                   {t("composed.noDataStateBody", {
+                                    how: t("terms.add"),
                                     what: t(
                                       "terms.stakeholderGroup"
                                     ).toLowerCase(),

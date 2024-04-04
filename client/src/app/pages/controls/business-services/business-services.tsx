@@ -228,6 +228,7 @@ export const BusinessServices: React.FC = () => {
                   </Title>
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
+                      how: t("terms.create"),
                       what: t("terms.businessService").toLowerCase(),
                     })}
                   </EmptyStateBody>
