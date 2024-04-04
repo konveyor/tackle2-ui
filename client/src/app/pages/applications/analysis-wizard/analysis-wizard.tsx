@@ -93,7 +93,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   isOpen,
 }: IAnalysisWizard) => {
   const { t } = useTranslation();
-  const title = t("dialog.title.applicationAnalysis");
 
   const { identities } = useFetchIdentities();
 
@@ -108,7 +107,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     updateTaskGroup(data);
   };
 
-  const onCreateTaskgroupError = (error: Error | unknown) => {
+  const onCreateTaskgroupError = (_error: Error | unknown) => {
     pushNotification({
       title: "Taskgroup creation failed",
       variant: "danger",
@@ -121,14 +120,14 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     onCreateTaskgroupError
   );
 
-  const onSubmitTaskgroupSuccess = (data: Taskgroup) =>
+  const onSubmitTaskgroupSuccess = (_data: Taskgroup) =>
     pushNotification({
       title: "Applications",
       message: "Submitted for analysis",
       variant: "info",
     });
 
-  const onSubmitTaskgroupError = (error: Error | unknown) =>
+  const onSubmitTaskgroupError = (_error: Error | unknown) =>
     pushNotification({
       title: "Taskgroup submit failed",
       variant: "danger",
@@ -143,7 +142,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     updateTaskGroup(null);
   };
 
-  const onDeleteTaskgroupError = (error: Error | unknown) => {
+  const onDeleteTaskgroupError = (_error: Error | unknown) => {
     pushNotification({
       title: "Taskgroup: delete failed",
       variant: "danger",
@@ -162,7 +161,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: null,
-      mode: "binary",
+      mode: "source-code-deps",
       formLabels: [],
       selectedTargets: [],
       selectedSourceLabels: [],
@@ -333,10 +332,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const steps = [
     <WizardStep
-      name={t("wizard.terms.configureAnalysis")}
+      key="wizard-configureAnalysis"
       id="wizard-configureAnalysis"
+      name={t("wizard.terms.configureAnalysis")}
       steps={[
         <WizardStep
+          key={StepId.AnalysisMode}
           id={StepId.AnalysisMode}
           name={t("wizard.terms.analysisMode")}
           footer={{
@@ -352,6 +353,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           </>
         </WizardStep>,
         <WizardStep
+          key={StepId.SetTargets}
           id={StepId.SetTargets}
           name={t("wizard.terms.setTargets")}
           isDisabled={!isStepEnabled(StepId.SetTargets)}
@@ -360,6 +362,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           <SetTargets />
         </WizardStep>,
         <WizardStep
+          key={StepId.Scope}
           id={StepId.Scope}
           name={t("wizard.terms.scope")}
           isDisabled={!isStepEnabled(StepId.Scope)}
@@ -370,10 +373,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       ]}
     ></WizardStep>,
     <WizardStep
-      name={t("wizard.terms.advanced")}
+      key="wizard-advanced"
       id="wizard-advanced"
+      name={t("wizard.terms.advanced")}
       steps={[
         <WizardStep
+          key={StepId.CustomRules}
           id={StepId.CustomRules}
           name={t("wizard.terms.customRules")}
           isDisabled={!isStepEnabled(StepId.CustomRules)}
@@ -382,6 +387,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           <CustomRules />
         </WizardStep>,
         <WizardStep
+          key={StepId.Options}
           id={StepId.Options}
           name={t("wizard.terms.options")}
           isDisabled={!isStepEnabled(StepId.Options)}
@@ -392,8 +398,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       ]}
     ></WizardStep>,
     <WizardStep
-      name={t("wizard.terms.review")}
+      key={StepId.Review}
       id={StepId.Review}
+      name={t("wizard.terms.review")}
       isDisabled={!isStepEnabled(StepId.Review)}
       footer={{ nextButtonText: "Run" }}
     >
