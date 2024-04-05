@@ -1,36 +1,38 @@
 import React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-import { useSelectionState } from "@migtools/lib-ui";
 import {
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
   ModalVariant,
+  Title,
+  Toolbar,
+  ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
-  expandable,
-  ICell,
-  IExtraData,
-  IRow,
-  IRowData,
-  sortable,
+  ExpandableRowContent,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
+import { CubesIcon } from "@patternfly/react-icons";
 
-import { dedupeFunction, getAxiosErrorMessage } from "@app/utils/utils";
-import { Tag, TagCategory } from "@app/api/models";
-import { TagTable } from "./components/tag-table";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+  dedupeFunction,
+  getAxiosErrorMessage,
+  localeNumericCompare,
+} from "@app/utils/utils";
+import { Tag, TagCategory } from "@app/api/models";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   useDeleteTagMutation,
   useDeleteTagCategoryMutation,
@@ -45,15 +47,17 @@ import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { Color } from "@app/components/Color";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): TagCategory => {
-  return rowData[ENTITY_FIELD];
-};
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
+import { TagTable } from "./components/tag-table";
+import i18n from "@app/i18n";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
@@ -69,10 +73,6 @@ export const Tags: React.FC = () => {
   const isTagCategoryModalOpen = tagCategoryModalState !== null;
   const tagCategoryToUpdate =
     tagCategoryModalState !== "create" ? tagCategoryModalState : null;
-
-  // const [isNewTagCategoryModalOpen, setIsNewTagCategoryModalOpen] =
-  //   useState(false);
-  // const [rowToUpdate, setRowToUpdate] = useState<TagCategory>();
 
   const [tagModalState, setTagModalState] = React.useState<
     "create" | Tag | null
@@ -157,210 +157,111 @@ export const Tags: React.FC = () => {
     refetch,
   } = useFetchTagCategories();
 
-  const {
-    isItemSelected: isItemExpanded,
-    toggleItemSelected: toggleItemExpanded,
-  } = useSelectionState<TagCategory>({
-    items: tagCategories || [],
-    isEqual: (a, b) => a.id === b.id,
-  });
+  const deleteTagFromTable = (tag: Tag) => {
+    setTagToDelete(tag);
+  };
 
-  const filterCategories: FilterCategory<
-    TagCategory,
-    "tags" | "rank" | "color"
-  >[] = [
-    {
-      categoryKey: "tags",
-      title: t("terms.name"),
-      type: FilterType.multiselect,
-      placeholderText:
-        t("actions.filterBy", {
+  const tableControls = useLocalTableControls({
+    tableName: "business-services-table",
+    idProperty: "name",
+    items: tagCategories,
+    columnNames: {
+      name: t("terms.name"),
+      rank: t("terms.rank"),
+      color: t("terms.color"),
+      tagCount: t("terms.tagCount"),
+    },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    hasActionsColumn: true,
+    isExpansionEnabled: true,
+    expandableVariant: "single",
+    filterCategories: [
+      {
+        categoryKey: "tags",
+        title: t("terms.name"),
+        type: FilterType.multiselect,
+        placeholderText: t("actions.filterBy", {
           what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        const tagCategoryNames = item.name?.toString() || "";
-        const tagNames = item?.tags
-          ?.map((tag) => tag.name)
-          .concat(tagCategoryNames)
-          .join("");
-
-        return tagNames || "";
+        }),
+        getItemValue: (item) => {
+          const tagCategoryNames = item.name?.toString() || "";
+          const tagNames = item?.tags
+            ?.map((tag) => tag.name)
+            .concat(tagCategoryNames)
+            .join("");
+          return tagNames || "";
+        },
+        selectOptions: dedupeFunction(
+          tagCategories
+            ?.flatMap((tagCategory) => tagCategory?.tags ?? [])
+            .filter((tag) => tag && tag.name)
+            .map((tag) => ({ key: tag.name, value: tag.name }))
+            .concat(
+              tagCategories?.map((tagCategory) => ({
+                key: tagCategory?.name,
+                value: tagCategory?.name,
+              })) ?? []
+            )
+            .sort((a, b) =>
+              localeNumericCompare(a.value, b.value, i18n.language)
+            )
+        ),
       },
-      selectOptions: dedupeFunction(
-        tagCategories
-          ?.map((tagCategory) => tagCategory?.tags)
-          .flat()
-          .filter((tag) => tag && tag.name)
-          .map((tag) => ({ key: tag?.name, value: tag?.name }))
-          .concat(
-            tagCategories?.map((tagCategory) => ({
-              key: tagCategory?.name,
-              value: tagCategory?.name,
-            }))
-          )
-          .sort((a, b) => {
-            if (a.value && b.value) {
-              return a?.value.localeCompare(b?.value);
-            } else {
-              return 0;
-            }
-          })
-      ),
-    },
-    {
-      categoryKey: "rank",
-      title: t("terms.rank"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.rank").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item.rank?.toString() || "";
+      {
+        categoryKey: "rank",
+        title: t("terms.rank"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.rank").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item.rank?.toString() || "";
+        },
       },
-    },
-    {
-      categoryKey: "color",
-      title: t("terms.color"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.color").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        const hex = item?.colour || "";
-        const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
-        return colorLabel || hex;
+      {
+        categoryKey: "color",
+        title: t("terms.color"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.color").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          const hex = item?.colour || "";
+          const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
+          return colorLabel || hex;
+        },
       },
-    },
-  ];
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    tagCategories || [],
-    filterCategories
-  );
-
-  const getSortValues = (item: TagCategory) => [
-    "",
-    item?.name || "",
-    typeof item?.rank === "number" ? item.rank : Number.MAX_VALUE,
-
-    "",
-    item?.tags?.length || 0,
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  const deleteTagFromTable = (row: Tag) => {
-    setTagToDelete(row);
-  };
-
-  const columns: ICell[] = [
-    {
-      title: t("terms.tagCategory"),
-      transforms: [sortable],
-      cellFormatters: [expandable],
-    },
-    { title: t("terms.rank"), transforms: [sortable] },
-    {
-      title: t("terms.color"),
-      transforms: [],
-    },
-    {
-      title: t("terms.tagCount"),
-      transforms: [sortable],
-    },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-u-text-align-right",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems.forEach((item) => {
-    const isExpanded = isItemExpanded(item) && !!item?.tags?.length;
-    const categoryColor = item.colour || getTagCategoryFallbackColor(item);
-    rows.push({
-      [ENTITY_FIELD]: item,
-      isOpen: (item.tags || []).length > 0 ? isExpanded : undefined,
-      cells: [
-        {
-          title: item.name,
-        },
-        {
-          title: item.rank,
-        },
-        {
-          title: <Color hex={categoryColor} />,
-        },
-        {
-          title: item.tags ? item.tags.length : 0,
-        },
-        {
-          title: (
-            <AppTableActionButtons
-              isDeleteEnabled={!!item.tags?.length}
-              tooltipMessage="Cannot delete non empty tag category"
-              onEdit={() => setTagCategoryModalState(item)}
-              onDelete={() => deleteRow(item)}
-            />
-          ),
-        },
-      ],
-    });
-
-    if (isExpanded) {
-      rows.push({
-        parent: rows.length - 1,
-        fullWidth: true,
-        noPadding: true,
-        cells: [
-          {
-            title: (
-              <div>
-                <TagTable
-                  tagCategory={item}
-                  onEdit={setTagModalState}
-                  onDelete={deleteTagFromTable}
-                />
-              </div>
-            ),
-          },
-        ],
-      });
-    }
+    ],
+    initialItemsPerPage: 10,
+    sortableColumns: ["name", "rank", "tagCount"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (item) => ({
+      name: item?.name || "",
+      rank: typeof item?.rank === "number" ? item.rank : Number.MAX_VALUE,
+      tagCount: item?.tags?.length || 0,
+    }),
+    isLoading: isFetching,
   });
 
-  // Rows
-
-  const collapseRow = (
-    event: React.MouseEvent,
-    rowIndex: number,
-    isOpen: boolean,
-    rowData: IRowData,
-    extraData: IExtraData
-  ) => {
-    const row = getRow(rowData);
-    toggleItemExpanded(row);
-  };
-
-  const deleteRow = (row: TagCategory) => {
-    setTagCategoryToDelete(row);
-  };
-
-  // Advanced filters
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+    expansionDerivedState: { isCellExpanded },
+  } = tableControls;
 
   return (
     <>
@@ -368,70 +269,164 @@ export const Tags: React.FC = () => {
         when={isFetching && !(tagCategories || fetchError)}
         then={<AppPlaceholder />}
       >
-        <AppTableWithControls
-          paginationProps={paginationProps}
-          paginationIdPrefix="tags"
-          count={tagCategories ? tagCategories.length : 0}
-          sortBy={sortBy}
-          onSort={onSort}
-          onCollapse={collapseRow}
-          cells={columns}
-          rows={rows}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          toolbarToggle={
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
-          toolbarActions={
-            <ToolbarGroup variant="button-group">
-              <RBAC
-                allowedPermissions={controlsWriteScopes}
-                rbacType={RBAC_TYPE.Scope}
-              >
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    id="create-tag"
-                    aria-label="Create tag"
-                    variant={ButtonVariant.primary}
-                    onClick={() => setTagModalState("create")}
+        <div
+          style={{
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+          }}
+        >
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <ToolbarGroup variant="button-group">
+                <RBAC
+                  allowedPermissions={controlsWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      id="create-tag"
+                      aria-label="Create tag"
+                      variant={ButtonVariant.primary}
+                      onClick={() => setTagModalState("create")}
+                    >
+                      {t("actions.createTag")}
+                    </Button>
+                  </ToolbarItem>
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      id="create-tag-category"
+                      aria-label="Create tag category"
+                      variant={ButtonVariant.secondary}
+                      onClick={() => setTagCategoryModalState("create")}
+                    >
+                      {t("actions.createTagCategory")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
+              </ToolbarGroup>
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="tag-category-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
+              </ToolbarItem>
+            </ToolbarContent>
+          </Toolbar>
+          <Table {...tableProps} aria-label="Tag category table">
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} />
+                  <Th {...getThProps({ columnKey: "rank" })} />
+                  <Th {...getThProps({ columnKey: "color" })} />
+                  <Th {...getThProps({ columnKey: "tagCount" })} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={currentPageItems.length === 0}
+              noDataEmptyState={
+                <EmptyState variant="sm">
+                  <EmptyStateIcon icon={CubesIcon} />
+                  <Title headingLevel="h2" size="lg">
+                    {t("composed.noDataStateTitle", {
+                      what: t("terms.tags").toLowerCase(),
+                    })}
+                  </Title>
+                  <EmptyStateBody>
+                    {t("composed.noDataStateBody", {
+                      what: t("terms.tags").toLowerCase(),
+                    })}
+                  </EmptyStateBody>
+                </EmptyState>
+              }
+              numRenderedColumns={numRenderedColumns}
+            >
+              {currentPageItems?.map((tagCategory, rowIndex) => {
+                const hasTags = tagCategory.tags && tagCategory.tags.length > 0;
+                const categoryColor =
+                  tagCategory.colour ||
+                  getTagCategoryFallbackColor(tagCategory);
+
+                return (
+                  <Tbody
+                    key={tagCategory.id}
+                    isExpanded={isCellExpanded(tagCategory)}
                   >
-                    {t("actions.createTag")}
-                  </Button>
-                </ToolbarItem>
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    id="create-tag-category"
-                    aria-label="Create tag category"
-                    variant={ButtonVariant.secondary}
-                    onClick={() => setTagCategoryModalState("create")}
-                  >
-                    {t("actions.createTagCategory")}
-                  </Button>
-                </ToolbarItem>
-              </RBAC>
-            </ToolbarGroup>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.tagCategories')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.tagCategories").toLowerCase(),
+                    <Tr {...getTrProps({ item: tagCategory })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={tagCategory}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {tagCategory.name}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "rank" })}>
+                          {tagCategory.rank}
+                        </Td>
+                        <Td width={10} {...getTdProps({ columnKey: "color" })}>
+                          <Color hex={categoryColor} />
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "tagCount" })}
+                        >
+                          {tagCategory.tags?.length || 0}
+                        </Td>
+                        <Td width={20}>
+                          <AppTableActionButtons
+                            isDeleteEnabled={!!tagCategory.tags?.length}
+                            tooltipMessage={t(
+                              "message.cannotDeleteNonEmptyTagCategory"
+                            )}
+                            onEdit={() => setTagCategoryModalState(tagCategory)}
+                            onDelete={() => setTagCategoryToDelete(tagCategory)}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                    {isCellExpanded(tagCategory) && (
+                      <Tr>
+                        <Td colSpan={numRenderedColumns}>
+                          <ExpandableRowContent>
+                            {hasTags ? (
+                              <TagTable
+                                tagCategory={tagCategory}
+                                onEdit={setTagModalState}
+                                onDelete={deleteTagFromTable}
+                              />
+                            ) : (
+                              <EmptyState variant="sm">
+                                <EmptyStateIcon icon={CubesIcon} />
+                                <Title headingLevel="h4" size="lg">
+                                  {t("message.noTagsAvailable")}
+                                </Title>
+                                <EmptyStateBody>
+                                  {t("message.noAssociatedTags")}
+                                </EmptyStateBody>
+                              </EmptyState>
+                            )}
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    )}
+                  </Tbody>
+                );
               })}
-              // t('terms.stakeholderGroup')
-              description={t("composed.noDataStateBody", {
-                what: t("terms.tagCategory").toLowerCase(),
-              })}
-            />
-          }
-        />
+            </ConditionalTableBody>
+          </Table>
+          <SimplePagination
+            idPrefix="tag-category-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </ConditionalRender>
 
       <Modal
