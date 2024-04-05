@@ -8,20 +8,9 @@ import {
   Tbody,
   Td,
   ActionsColumn,
-  IAction,
-  cellWidth,
-  ICell,
-  IRow,
-  IRowData,
 } from "@patternfly/react-table";
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
-
-const ENTITY_FIELD = "entity";
-
-const getRow = (rowData: IRowData): Tag => {
-  return rowData[ENTITY_FIELD];
-};
 
 export interface TabTableProps {
   tagCategory: TagCategory;
@@ -30,79 +19,42 @@ export interface TabTableProps {
 }
 
 export const TagTable: React.FC<TabTableProps> = ({
-  tagCategory: tagCategory,
+  tagCategory,
   onEdit,
   onDelete,
 }) => {
   const { t } = useTranslation();
-
-  const columns: ICell[] = [
-    {
-      title: t("terms.tagName"),
-      transforms: [cellWidth(100)],
-      cellFormatters: [],
-      props: {
-        className: "columnPadding",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  (tagCategory.tags || [])
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .forEach((item) => {
-      rows.push({
-        [ENTITY_FIELD]: item,
-        noPadding: true,
-        cells: [
-          {
-            title: item.name,
-          },
-        ],
-      });
-    });
-
-  const editRow = (row: Tag) => {
-    onEdit(row);
-  };
-
-  const deleteRow = (row: Tag) => {
-    onDelete(row);
-  };
-
-  const defaultActions = (tag: IRowData): IAction[] => [
-    {
-      title: t("actions.edit"),
-      onClick: () => editRow(getRow(tag)),
-    },
-    {
-      title: t("actions.delete"),
-      onClick: () => deleteRow(getRow(tag)),
-    },
-  ];
 
   return (
     <Table borders={false} aria-label="Tag table" variant="compact" isNested>
       <Thead noWrap>
         <Tr>
           <Th>{t("terms.tagName")}</Th>
-          <Td></Td>
+          <Td />
         </Tr>
       </Thead>
       <Tbody>
-        {rows.map((row: IRow) => {
-          const rowActions = defaultActions(row);
-          return (
-            <Tr>
-              {row.cells?.map((cell: any) => (
-                <Td>{cell.title}</Td>
-              ))}
+        {(tagCategory.tags || [])
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((tag) => (
+            <Tr key={tag.name}>
+              <Td>{tag.name}</Td>
               <Td isActionCell>
-                {rowActions && <ActionsColumn items={rowActions} />}
+                <ActionsColumn
+                  items={[
+                    {
+                      title: t("actions.edit"),
+                      onClick: () => onEdit(tag),
+                    },
+                    {
+                      title: t("actions.delete"),
+                      onClick: () => onDelete(tag),
+                    },
+                  ]}
+                />
               </Td>
             </Tr>
-          );
-        })}
+          ))}
       </Tbody>
     </Table>
   );

@@ -3,7 +3,7 @@ import { Tag, TagCategory } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { LabelCustomColor } from "@app/components/LabelCustomColor";
 
-export const getTagCategoryFallbackColor = (category?: TagCategory) => {
+export const getTagCategoryFallbackColor = (category?: TagCategory | null) => {
   if (!category?.id) return COLOR_HEX_VALUES_BY_NAME.gray;
   const colorValues = Object.values(COLOR_HEX_VALUES_BY_NAME);
   return colorValues[category?.id % colorValues.length];

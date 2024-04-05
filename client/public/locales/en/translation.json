@@ -178,6 +178,7 @@
     "blockedDeleteTarget": "Cannot delete {{what}} because it is associated with a target.",
     "defaultBlockedDelete": "Cannot delete {{what}} because it is associated with another object.",
     "cannotDeleteApplicationsAssignedToMigrationWave": "Cannot delete applications that are assigned to a migration wave.",
+    "cannotDeleteNonEmptyTagCategory": "Cannot delete a tag category that contains tags.",
     "continueConfirmation": "Yes, continue",
     "copyAssessmentAndReviewBody": "Some of the selected target applications have an in-progress or complete assessment/review. By continuing, the existing assessment(s)/review(s) will be replaced by the copied assessment/review. Do you wish to continue?",
     "copyAssessmentAndReviewQuestion": "Copy assessment and review?",
@@ -220,7 +221,9 @@
     "toTagApplication": "Either no tags exist yet or you may not have permission to view any. If you have permission, try creating a new custom tag.",
     "unsavedChanges": "Are you sure you want to close the assessment? Any unsaved changes will be lost.",
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
-    "unlinkTicket": "Unlink from Jira"
+    "unlinkTicket": "Unlink from Jira",
+    "noTagsAvailable": "No tags available",
+    "noAssociatedTags": "This tag category has no associated tags."
   },
   "proposedActions": {
     "refactor": "Refactor",
