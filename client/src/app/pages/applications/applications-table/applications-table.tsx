@@ -579,21 +579,14 @@ export const ApplicationsTable: React.FC = () => {
     : [];
   const applicationDropdownItems = applicationWriteAccess
     ? [
-        <ConditionalTooltip
-          key="delete-app-tooltip"
-          isTooltipEnabled={areAppsInWaves}
-          content={t("message.cannotDeleteApplicationsAssignedToMigrationWave")}
+        <DropdownItem
+          key="applications-bulk-delete"
+          onClick={() => {
+            setApplicationsToDelete(selectedRows);
+          }}
         >
-          <DropdownItem
-            key="applications-bulk-delete"
-            isAriaDisabled={areAppsInWaves || selectedRows.length < 1}
-            onClick={() => {
-              setApplicationsToDelete(selectedRows);
-            }}
-          >
-            {t("actions.delete")}
-          </DropdownItem>
-        </ConditionalTooltip>,
+          {t("actions.delete")}
+        </DropdownItem>,
         ...(credentialsReadAccess
           ? [
               <DropdownItem
@@ -1022,17 +1015,6 @@ export const ApplicationsTable: React.FC = () => {
                             ...(applicationWriteAccess
                               ? [
                                   {
-                                    isAriaDisabled:
-                                      application.migrationWave !== null,
-                                    tooltipProps: {
-                                      content:
-                                        application.migrationWave !== null
-                                          ? t(
-                                              "message.cannotDeleteApplicationsAssignedToMigrationWave"
-                                            )
-                                          : "",
-                                    },
-
                                     title: t("actions.delete"),
                                     onClick: () =>
                                       setApplicationsToDelete([application]),
