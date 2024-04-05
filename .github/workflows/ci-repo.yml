@@ -10,31 +10,40 @@ on:
       - "main"
       - "release-*"
 
-env:
-  # Note: This should match the node version(s) used in the base Dockerfile
-  node-version: "18"
-
 jobs:
+  unit-test-lookup-image:
+    runs-on: ubuntu-latest
+    outputs:
+      builder-image: ${{ steps.grepBuilder.outputs.builder }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lookup builder image from the project's Dockerfile
+        id: grepBuilder
+        run: |
+          builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
+          echo "Builder image: \`$builder\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "builder=$builder" >> "$GITHUB_OUTPUT"
+
   unit-test:
     runs-on: ubuntu-latest
+    needs: unit-test-lookup-image
+
+    # Use the same container as the Dockerfile's "FROM * as builder"
+    container: ${{ needs.unit-test-lookup-image.outputs.builder-image }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js (version "${{ env.node-version }}")
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.node-version }}
-          cache: "npm"
-
-      - name: Force install npm@9 to match Dockerfile build container ubi9/nodejs-18:1-88
-        run: npm install -g npm@9
+      # TODO: Setup a cache for npm so it could install faster
+      #       follow actions/setup-node@v4 techniques
 
       - name: Verify package-lock.json
         run: ./scripts/verify_lock.mjs
 
       - name: Install
-        run: npm clean-install --ignore-scripts
+        run: |
+          npm version
+          npm clean-install --ignore-scripts
 
       - name: Lint sources
         run: npm run lint
