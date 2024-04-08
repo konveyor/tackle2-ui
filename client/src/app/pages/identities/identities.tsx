@@ -126,7 +126,10 @@ export const Identities: React.FC = () => {
       title: "Type",
       type: FilterType.select,
       placeholderText: "Filter by type...",
-      selectOptions: typeOptions,
+      selectOptions: typeOptions.map(({ key, value }) => ({
+        value: key,
+        label: value,
+      })),
       getItemValue: (item) => {
         return item.kind || "";
       },
