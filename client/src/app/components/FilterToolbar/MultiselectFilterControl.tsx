@@ -25,8 +25,6 @@ import { TimesIcon } from "@patternfly/react-icons";
 
 import "./select-overrides.css";
 
-const CHIP_BREAK_DELINEATOR = " / ";
-
 export interface IMultiselectFilterControlProps<TItem>
   extends IFilterControlProps<TItem, string> {
   category: IMultiselectFilterCategory<TItem, string>;
@@ -63,15 +61,8 @@ export const MultiselectFilterControl = <TItem,>({
         (i) => i
       ) as FilterSelectOptionProps[]);
 
-  const getOptionKeyFromOptionValue = (optionValue: string) =>
-    flatOptions.find(({ value }) => value === optionValue)?.key;
-
-  const getOptionValueFromOptionKey = (optionKey: string) =>
-    flatOptions.find(({ key }) => key === optionKey)?.value;
-
-  const getOptionKeyFromChip = (chipDisplayValue: string) => {
-    return flatOptions.find(({ value }) => value === chipDisplayValue)?.key;
-  };
+  const getOptionFromOptionValue = (optionValue: string) =>
+    flatOptions.find(({ value }) => value === optionValue);
 
   const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(
     null
@@ -83,39 +74,43 @@ export const MultiselectFilterControl = <TItem,>({
 
   const onFilterClearAll = () => setFilterValue([]);
   const onFilterClear = (chip: string | ToolbarChip) => {
-    const displayValue = typeof chip === "string" ? chip : chip.key;
-    const optionKey = getOptionKeyFromChip(displayValue);
+    const value = typeof chip === "string" ? chip : chip.key;
 
-    if (optionKey) {
-      const newValue = filterValue?.filter((val) => val !== optionKey) ?? [];
+    if (value) {
+      const newValue = filterValue?.filter((val) => val !== value) ?? [];
       setFilterValue(newValue.length > 0 ? newValue : null);
     }
   };
 
   /*
-   * Note: Chips can be a `ToolbarChip` or a plain `string`.  Use a hack to split a
-   *       selected option in 2 parts.  Assuming the option is in the format "Group / Item"
-   *       break the text and show a chip with the Item and the Group as a tooltip.
+   * Note: Create chips only as `ToolbarChip` (no plain string)
    */
-  const chips = filterValue?.map((s, index) => {
-    const displayValue = getOptionValueFromOptionKey(s);
-    const chip: string = displayValue?.toString() ?? "";
-    const idx = chip.indexOf(CHIP_BREAK_DELINEATOR);
+  const chips = filterValue
+    ?.map((value, index) => {
+      const option = getOptionFromOptionValue(value);
+      if (!option) {
+        return null;
+      }
 
-    if (idx > 0) {
-      const tooltip = chip.substring(0, idx);
-      const text = chip.substring(idx + CHIP_BREAK_DELINEATOR.length);
+      const { chipLabel, label, groupLabel } = option;
+      const displayValue: string = chipLabel ?? label ?? value ?? "";
+
       return {
-        key: chip,
-        node: (
-          <Tooltip id={`tooltip-chip-${index}`} content={<div>{tooltip}</div>}>
-            <div>{text}</div>
+        key: value,
+        node: groupLabel ? (
+          <Tooltip
+            id={`tooltip-chip-${index}`}
+            content={<div>{groupLabel}</div>}
+          >
+            <div>{displayValue}</div>
           </Tooltip>
+        ) : (
+          displayValue
         ),
-      } as ToolbarChip;
-    }
-    return chip;
-  });
+      };
+    })
+
+    .filter(Boolean);
 
   const renderSelectOptions = (
     filter: (option: FilterSelectOptionProps, groupName?: string) => boolean
@@ -125,64 +120,51 @@ export const MultiselectFilterControl = <TItem,>({
           selectOptions as Record<string, FilterSelectOptionProps[]>
         )
           .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
-          .map(([group, options], index) => {
-            const groupFiltered =
-              options?.filter((o) => filter(o, group)) ?? [];
-            return groupFiltered.length === 0 ? undefined : (
-              <SelectGroup key={`group-${index}`} label={group}>
-                {groupFiltered.map((optionProps) => {
-                  const optionKey = getOptionKeyFromOptionValue(
-                    optionProps.value
-                  );
-                  if (!optionKey) return null;
-                  return (
-                    <SelectOption
-                      {...optionProps}
-                      key={optionProps.key}
-                      isSelected={filterValue?.includes(optionKey)}
-                    />
-                  );
-                })}
-              </SelectGroup>
-            );
-          })
-          .filter(Boolean)
+          .map(([group, options]): [string, FilterSelectOptionProps[]] => [
+            group,
+            options?.filter((o) => filter(o, group)) ?? [],
+          ])
+          .filter(([, groupFiltered]) => groupFiltered?.length)
+          .map(([group, groupFiltered], index) => (
+            <SelectGroup key={`group-${index}`} label={group}>
+              {groupFiltered.map(({ value, label, optionProps }) => (
+                <SelectOption
+                  {...optionProps}
+                  key={value}
+                  value={value}
+                  isSelected={filterValue?.includes(value)}
+                >
+                  {label ?? value}
+                </SelectOption>
+              ))}
+            </SelectGroup>
+          ))
       : flatOptions
           .filter((o) => filter(o))
-          .map((optionProps, index) => {
-            const optionKey = getOptionKeyFromOptionValue(optionProps.value);
-            if (!optionKey) return null;
-            return (
-              <SelectOption
-                {...optionProps}
-                {...(!optionProps.isDisabled && { hasCheckbox: true })}
-                key={optionProps.value || optionProps.children}
-                value={optionProps.value}
-                isFocused={focusedItemIndex === index}
-                isSelected={filterValue?.includes(optionKey)}
-              >
-                {optionProps.value}
-              </SelectOption>
-            );
-          });
+          .map(({ label, value, optionProps = {} }, index) => (
+            <SelectOption
+              {...optionProps}
+              {...(!optionProps.isDisabled && { hasCheckbox: true })}
+              key={value}
+              value={value}
+              isFocused={focusedItemIndex === index}
+              isSelected={filterValue?.includes(value)}
+            >
+              {label ?? value}
+            </SelectOption>
+          ));
 
   const onSelect = (value: string | undefined) => {
     if (value && value !== "No results") {
-      const optionKey = getOptionKeyFromOptionValue(value);
+      let newFilterValue: string[];
 
-      if (optionKey) {
-        let newFilterValue: string[];
-
-        if (filterValue && filterValue.includes(optionKey)) {
-          newFilterValue = filterValue.filter((item) => item !== optionKey);
-        } else {
-          newFilterValue = filterValue
-            ? [...filterValue, optionKey]
-            : [optionKey];
-        }
-
-        setFilterValue(newFilterValue);
+      if (filterValue && filterValue.includes(value)) {
+        newFilterValue = filterValue.filter((item) => item !== value);
+      } else {
+        newFilterValue = filterValue ? [...filterValue, value] : [value];
       }
+
+      setFilterValue(newFilterValue);
     }
     textInputRef.current?.focus();
   };
@@ -211,9 +193,9 @@ export const MultiselectFilterControl = <TItem,>({
       }
 
       setFocusedItemIndex(indexToFocus);
-      const focusedItem = selectOptions.filter((option) => !option.isDisabled)[
-        indexToFocus
-      ];
+      const focusedItem = selectOptions.filter(
+        ({ optionProps }) => !optionProps?.isDisabled
+      )[indexToFocus];
       setActiveItem(
         `select-multi-typeahead-checkbox-${focusedItem.value.replace(" ", "-")}`
       );
@@ -237,28 +219,25 @@ export const MultiselectFilterControl = <TItem,>({
       if (!newSelectOptions.length) {
         newSelectOptions = [
           {
-            key: "no-results",
-            isDisabled: true,
-            hasCheckbox: false,
-            children: `No results found for "${inputValue}"`,
-            value: "No results",
+            value: "no-results",
+            optionProps: {
+              isDisabled: true,
+              hasCheckbox: false,
+            },
+            label: `No results found for "${inputValue}"`,
           },
         ];
-      }
-
-      if (!isFilterDropdownOpen) {
-        setIsFilterDropdownOpen(true);
       }
     }
 
     setSelectOptions(newSelectOptions);
     setFocusedItemIndex(null);
     setActiveItem(null);
-  }, [inputValue]);
+  }, [inputValue, category.selectOptions]);
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const enabledMenuItems = Array.isArray(selectOptions)
-      ? selectOptions.filter((option) => !option.isDisabled)
+      ? selectOptions.filter(({ optionProps }) => !optionProps?.isDisabled)
       : [];
     const [firstMenuItem] = enabledMenuItems;
     const focusedItem = focusedItemIndex
@@ -301,6 +280,9 @@ export const MultiselectFilterControl = <TItem,>({
     value: string
   ) => {
     setInputValue(value);
+    if (!isFilterDropdownOpen) {
+      setIsFilterDropdownOpen(true);
+    }
   };
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (

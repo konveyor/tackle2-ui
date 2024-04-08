@@ -395,9 +395,9 @@ export const ApplicationsTable: React.FC = () => {
           }) + "...",
         type: FilterType.multiselect,
         selectOptions: [
-          { key: "source", value: "Source" },
-          { key: "maven", value: "Maven" },
-          { key: "proxy", value: "Proxy" },
+          { value: "source", label: "Source" },
+          { value: "maven", label: "Maven" },
+          { value: "proxy", label: "Proxy" },
         ],
         getItemValue: (item) => {
           const searchStringArr: string[] = [];
@@ -420,8 +420,8 @@ export const ApplicationsTable: React.FC = () => {
           }) + "...",
         type: FilterType.select,
         selectOptions: [
-          { key: "git", value: "Git" },
-          { key: "subversion", value: "Subversion" },
+          { value: "git", label: "Git" },
+          { value: "subversion", label: "Subversion" },
         ],
         getItemValue: (item) => item?.repository?.kind || "",
       },
@@ -434,8 +434,8 @@ export const ApplicationsTable: React.FC = () => {
           }) + "...",
         type: FilterType.select,
         selectOptions: [
-          { key: "binary", value: t("terms.artifactAssociated") },
-          { key: "none", value: t("terms.artifactNotAssociated") },
+          { value: "binary", label: t("terms.artifactAssociated") },
+          { value: "none", label: t("terms.artifactNotAssociated") },
         ],
         getItemValue: (item) => {
           const hasBinary =
@@ -454,7 +454,12 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.tagName").toLowerCase(),
           }) + "...",
-        selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+        selectOptions: tagItems.map(({ name, tagName, categoryName }) => ({
+          value: name,
+          label: name,
+          chipLabel: tagName,
+          groupLabel: categoryName,
+        })),
         /**
          * Create a single string from an Application's Tags that can be used to
          * match against the `selectOptions`'s values (here on the client side)
@@ -480,10 +485,10 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.risk").toLowerCase(),
           }) + "...",
         selectOptions: [
-          { key: "green", value: "Low" },
-          { key: "yellow", value: "Medium" },
-          { key: "red", value: "High" },
-          { key: "unknown", value: "Unknown" },
+          { value: "green", label: "Low" },
+          { value: "yellow", label: "Medium" },
+          { value: "red", label: "High" },
+          { value: "unknown", label: "Unknown" },
         ],
         getItemValue: (item) => item.risk || "",
       },
