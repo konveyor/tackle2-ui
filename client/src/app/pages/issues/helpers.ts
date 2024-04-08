@@ -122,7 +122,12 @@ export const useSharedAffectedApplicationFilterCategories = <
         t("actions.filterBy", {
           what: t("terms.tagName").toLowerCase(),
         }) + "...",
-      selectOptions: tagItems.map(({ name }) => ({ key: name, value: name })),
+      selectOptions: tagItems.map(({ name, tagName, categoryName }) => ({
+        value: name,
+        label: name,
+        chipLabel: tagName,
+        groupLabel: categoryName,
+      })),
       /**
        * Convert the selected `selectOptions` to an array of tag ids the server side
        * filtering will understand.

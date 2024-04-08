@@ -33,20 +33,26 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
 >): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
-  const getOptionKeyFromOptionValue = (optionValue: string) =>
-    category.selectOptions.find(({ value }) => value === optionValue)?.key;
+  const getOptionFromOptionValue = (optionValue: string) =>
+    category.selectOptions.find(({ value }) => value === optionValue);
 
-  const getOptionValueFromOptionKey = (optionKey: string) =>
-    category.selectOptions.find(({ key }) => key === optionKey)?.value;
-
-  const chips = filterValue?.map((key) => {
-    const displayValue = getOptionValueFromOptionKey(key);
-    return displayValue ? displayValue : key;
-  });
+  const chips = filterValue
+    ?.map((value) => {
+      const option = getOptionFromOptionValue(value);
+      if (!option) {
+        return null;
+      }
+      const { chipLabel, label } = option;
+      return {
+        key: value,
+        node: chipLabel ?? label ?? value,
+      };
+    })
+    .filter(Boolean);
 
   const onFilterSelect = (value: string) => {
-    const optionKey = getOptionKeyFromOptionValue(value);
-    setFilterValue(optionKey ? [optionKey] : null);
+    const option = getOptionFromOptionValue(value);
+    setFilterValue(option ? [value] : null);
     setIsFilterDropdownOpen(false);
   };
 
@@ -59,7 +65,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
     let displayText = "Any";
     if (filterValue && filterValue.length > 0) {
       const selectedKey = filterValue[0];
-      const selectedDisplayValue = getOptionValueFromOptionKey(selectedKey);
+      const selectedDisplayValue = getOptionFromOptionValue(selectedKey)?.label;
       displayText = selectedDisplayValue ? selectedDisplayValue : selectedKey;
     }
 
@@ -103,15 +109,16 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
         shouldFocusToggleOnSelect
       >
         <SelectList>
-          {category.selectOptions.map((o, index) => {
-            const isSelected = filterValue?.includes(o.key);
+          {category.selectOptions.map(({ label, value, optionProps }) => {
+            const isSelected = filterValue?.includes(value);
             return (
               <SelectOption
-                {...o}
-                key={`${index}-${o.value}`}
+                {...optionProps}
+                key={value}
+                value={value}
                 isSelected={isSelected}
               >
-                {o.value}
+                {label ?? value}
               </SelectOption>
             );
           })}
