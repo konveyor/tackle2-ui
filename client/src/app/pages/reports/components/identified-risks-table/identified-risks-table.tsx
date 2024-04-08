@@ -247,10 +247,10 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
           return riskValue.toString();
         },
         selectOptions: [
-          { key: "3", value: "High" },
-          { key: "2", value: "Medium" },
-          { key: "1", value: "Low" },
-          { key: "0", value: "Unknown" },
+          { value: "3", label: "High" },
+          { value: "2", label: "Medium" },
+          { value: "1", label: "Low" },
+          { value: "0", label: "Unknown" },
         ],
       },
     ],

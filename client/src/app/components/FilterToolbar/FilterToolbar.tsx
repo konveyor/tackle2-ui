@@ -22,8 +22,12 @@ export enum FilterType {
 
 export type FilterValue = string[] | undefined | null;
 
-export interface FilterSelectOptionProps extends SelectOptionProps {
-  key: string;
+export interface FilterSelectOptionProps {
+  optionProps?: SelectOptionProps;
+  value: string;
+  label?: string;
+  chipLabel?: string;
+  groupLabel?: string;
 }
 
 export interface IBasicFilterCategory<
