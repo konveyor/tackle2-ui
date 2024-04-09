@@ -27,16 +27,16 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
 
   const options: SelectOptionProps[] = [
     {
-      value: "binary",
-      children: "Binary",
+      value: "source-code-deps",
+      children: "Source code + dependencies",
     },
     {
       value: "source-code",
       children: "Source code",
     },
     {
-      value: "source-code-deps",
-      children: "Source code + dependencies",
+      value: "binary",
+      children: "Binary",
     },
   ];
 
