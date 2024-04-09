@@ -138,7 +138,10 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
       selectOptions: Array.from(sources)
         .sort(compareSources)
         .map((source) => source || "Manual")
-        .map((source) => ({ key: source, value: source })),
+        .map((source) => ({
+          value: source,
+          label: capitalizeFirstLetter(source),
+        })),
       logicOperator: "OR",
     },
     {
