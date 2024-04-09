@@ -1017,15 +1017,6 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            ...(applicationWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.delete"),
-                                    onClick: () =>
-                                      setApplicationsToDelete([application]),
-                                  },
-                                ]
-                              : []),
                             ...(dependenciesWriteAccess
                               ? [
                                   {
@@ -1068,6 +1059,17 @@ export const ApplicationsTable: React.FC = () => {
                                   {
                                     title: t("actions.cancelAnalysis"),
                                     onClick: () => cancelAnalysis(application),
+                                  },
+                                ]
+                              : []),
+                            { isSeparator: true },
+                            ...(applicationWriteAccess
+                              ? [
+                                  {
+                                    title: t("actions.delete"),
+                                    onClick: () =>
+                                      setApplicationsToDelete([application]),
+                                    isDanger: true,
                                   },
                                 ]
                               : []),
