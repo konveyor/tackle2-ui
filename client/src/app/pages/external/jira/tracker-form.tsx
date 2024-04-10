@@ -299,7 +299,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
               label="Enable insecure communication"
               aria-label="Insecure Communication"
               isChecked={value}
-              onChange={() => onChange}
+              onChange={onChange}
             />
             <Popover
               position={PopoverPosition.top}
