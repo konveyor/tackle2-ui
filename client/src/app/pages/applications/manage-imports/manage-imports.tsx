@@ -243,7 +243,8 @@ export const ManageImports: React.FC = () => {
                     </Title>
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
-                        what: t("terms.importSummary").toLowerCase(),
+                        how: t("actions.import"),
+                        what: t("terms.applicationFile").toLowerCase(),
                       })}
                     </EmptyStateBody>
                   </EmptyState>

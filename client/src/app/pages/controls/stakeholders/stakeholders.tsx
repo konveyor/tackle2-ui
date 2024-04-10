@@ -255,6 +255,7 @@ export const Stakeholders: React.FC = () => {
                   </Title>
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
+                      how: t("terms.add"),
                       what: t("terms.stakeholder").toLowerCase(),
                     })}
                   </EmptyStateBody>
@@ -263,6 +264,7 @@ export const Stakeholders: React.FC = () => {
               numRenderedColumns={numRenderedColumns}
             >
               {currentPageItems?.map((stakeholder, rowIndex) => {
+                const hasGroups = stakeholder.stakeholderGroups?.length;
                 return (
                   <Tbody
                     key={stakeholder.id}
@@ -310,20 +312,41 @@ export const Stakeholders: React.FC = () => {
                           className={spacing.pyLg}
                         >
                           <ExpandableRowContent>
-                            <DescriptionList>
-                              <DescriptionListGroup>
-                                <DescriptionListTerm>
-                                  {t("terms.group(s)")}
-                                </DescriptionListTerm>
-                                {!!stakeholder.stakeholderGroups?.length && (
-                                  <DescriptionListDescription>
-                                    {stakeholder.stakeholderGroups
-                                      ?.map((f) => f.name)
-                                      .join(", ")}
-                                  </DescriptionListDescription>
-                                )}
-                              </DescriptionListGroup>
-                            </DescriptionList>
+                            {hasGroups ? (
+                              <DescriptionList>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>
+                                    {t("terms.group(s)")}
+                                  </DescriptionListTerm>
+                                  {!!stakeholder.stakeholderGroups?.length && (
+                                    <DescriptionListDescription>
+                                      {stakeholder.stakeholderGroups
+                                        ?.map((f) => f.name)
+                                        .join(", ")}
+                                    </DescriptionListDescription>
+                                  )}
+                                </DescriptionListGroup>
+                              </DescriptionList>
+                            ) : (
+                              <EmptyState variant="sm">
+                                <EmptyStateIcon icon={CubesIcon} />
+                                <Title headingLevel="h2" size="lg">
+                                  {t("composed.noDataStateTitle", {
+                                    what: t(
+                                      "terms.stakeholderGroups"
+                                    ).toLowerCase(),
+                                  })}
+                                </Title>
+                                <EmptyStateBody>
+                                  {t("composed.noDataStateBody", {
+                                    how: t("terms.add"),
+                                    what: t(
+                                      "terms.stakeholderGroup"
+                                    ).toLowerCase(),
+                                  })}
+                                </EmptyStateBody>
+                              </EmptyState>
+                            )}
                           </ExpandableRowContent>
                         </Td>
                       </Tr>

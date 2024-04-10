@@ -330,6 +330,7 @@ export const Identities: React.FC = () => {
                   what: "credentials",
                 })}
                 description={t("composed.noDataStateBody", {
+                  how: t("terms.create"),
                   what: "credential",
                 })}
               />

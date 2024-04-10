@@ -235,6 +235,7 @@ export const JiraTrackers: React.FC = () => {
                     </Title>
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
+                        how: t("actions.create"),
                         what: t("terms.jiraConfig").toLowerCase(),
                       })}
                     </EmptyStateBody>
