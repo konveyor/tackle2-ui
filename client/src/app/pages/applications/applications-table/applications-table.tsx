@@ -1062,9 +1062,9 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            { isSeparator: true },
                             ...(applicationWriteAccess
                               ? [
+                                  { isSeparator: true },
                                   {
                                     title: t("actions.delete"),
                                     onClick: () =>
