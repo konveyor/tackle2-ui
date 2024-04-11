@@ -106,7 +106,7 @@ The install script provides optional environment variables you can use to custom
 For example, if you wish to run tackle with keycloak authentication enabled, export the following variable before running the install script:
 
 ```sh
-$ export TACKLE_FEATURE_AUTH_REQUIRED=true
+$ export AUTH_REQUIRED=true
 ```
 
 #### Running the install script
