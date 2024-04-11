@@ -1010,26 +1010,6 @@ export const ApplicationsTable: React.FC = () => {
                                   },
                                 ]
                               : []),
-                            ...(applicationWriteAccess
-                              ? [
-                                  {
-                                    isAriaDisabled:
-                                      application.migrationWave !== null,
-                                    tooltipProps: {
-                                      content:
-                                        application.migrationWave !== null
-                                          ? t(
-                                              "message.cannotDeleteApplicationsAssignedToMigrationWave"
-                                            )
-                                          : "",
-                                    },
-
-                                    title: t("actions.delete"),
-                                    onClick: () =>
-                                      setApplicationsToDelete([application]),
-                                  },
-                                ]
-                              : []),
                             ...(dependenciesWriteAccess
                               ? [
                                   {
@@ -1072,6 +1052,28 @@ export const ApplicationsTable: React.FC = () => {
                                   {
                                     title: t("actions.cancelAnalysis"),
                                     onClick: () => cancelAnalysis(application),
+                                  },
+                                ]
+                              : []),
+                            ...(applicationWriteAccess
+                              ? [
+                                  { isSeparator: true },
+                                  {
+                                    isAriaDisabled:
+                                      application.migrationWave !== null,
+                                    tooltipProps: {
+                                      content:
+                                        application.migrationWave !== null
+                                          ? t(
+                                              "message.cannotDeleteApplicationsAssignedToMigrationWave"
+                                            )
+                                          : "",
+                                    },
+
+                                    title: t("actions.delete"),
+                                    onClick: () =>
+                                      setApplicationsToDelete([application]),
+                                    isDanger: true,
                                   },
                                 ]
                               : []),
