@@ -11,6 +11,7 @@ import {
   Grid,
   GridItem,
   DatePicker,
+  FormGroup,
 } from "@patternfly/react-core";
 
 import { useFetchStakeholders } from "@app/queries/stakeholders";
@@ -227,7 +228,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   });
 
   const startDateStr = watch("startDateStr");
-  const endDateStr = watch("endDateStr");
+  const [endDateStr, setEndDateStr] = React.useState("");
   const startDate = dateStrFormatValidator(startDateStr)
     ? dayjs(startDateStr).toDate()
     : null;
@@ -324,7 +325,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   aria-label={name}
                   onChange={(e, val) => {
                     onChange(val);
-                    if (endDate) trigger("endDateStr");
+                    // if (endDate) trigger("endDateStr");
                   }}
                   placeholder="MM/DD/YYYY"
                   value={value}
@@ -349,27 +350,24 @@ export const WaveForm: React.FC<WaveFormProps> = ({
         </GridItem>
         <GridItem span={8}>
           <div ref={endDateRef}>
-            <HookFormPFGroupController
-              control={control}
-              name="endDateStr"
+            <FormGroup
               label="Potential End Date"
               fieldId="endDateStr"
               isRequired
-              renderInput={({ field: { value, name, onChange } }) => (
-                <DatePicker
-                  isDisabled={!startDate}
-                  aria-label={name}
-                  onChange={(e, val) => onChange(val)}
-                  placeholder="MM/DD/YYYY"
-                  value={value && startDate ? value : ""}
-                  dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
-                  dateParse={(val) => dayjs(val).toDate()}
-                  validators={[endDateRangeValidator]}
-                  rangeStart={startDate ? startDate : undefined}
-                  appendTo={() => endDateRef.current || document.body}
-                />
-              )}
-            />
+            >
+              <DatePicker
+                isDisabled={!startDate}
+                aria-label="endDateStr"
+                onChange={(e, val) => setEndDateStr(val)}
+                placeholder="MM/DD/YYYY"
+                value={endDate && startDate ? endDateStr : ""}
+                dateFormat={(val) => dayjs(val).format("MM/DD/YYYY")}
+                dateParse={(val) => dayjs(val).toDate()}
+                validators={[endDateRangeValidator]}
+                rangeStart={startDate ? startDate : undefined}
+                appendTo={() => endDateRef.current || document.body}
+              />
+            </FormGroup>
           </div>
         </GridItem>
 
