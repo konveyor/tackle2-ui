@@ -124,7 +124,7 @@ export const FileAllIncidentsTable: React.FC<
                     {...getTdProps({ columnKey: "message" })}
                   >
                     <ReactMarkdown components={markdownPFComponents}>
-                      {`${incident.message.split("\n")[0]} ...`}
+                      {`${getFirstNonEmptyLine(incident.message)} ...`}
                     </ReactMarkdown>
                   </Td>
                 </TableRowContentWithControls>
@@ -142,4 +142,9 @@ export const FileAllIncidentsTable: React.FC<
       />
     </>
   );
+};
+
+const getFirstNonEmptyLine = (message: string) => {
+  const lines = message.split("\n");
+  return lines.find((line) => line.trim() !== "") || "No content available.";
 };
