@@ -585,26 +585,30 @@ export const MigrationWaves: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      <Modal
-        id="create-edit-migration-wave-modal"
-        title={
-          migrationWaveToEdit
-            ? t("dialog.title.update", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
-        isOpen={isWaveModalOpen}
-        onClose={closeWaveModal}
-      >
-        <WaveForm
-          migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}
+      {isWaveModalOpen && (
+        <Modal
+          id="create-edit-migration-wave-modal"
+          title={
+            migrationWaveToEdit
+              ? t("dialog.title.update", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+          }
+          variant={ModalVariant.medium}
+          isOpen={true}
           onClose={closeWaveModal}
-        />
-      </Modal>
+        >
+          <WaveForm
+            migrationWave={
+              migrationWaveToEdit ? migrationWaveToEdit : undefined
+            }
+            onClose={closeWaveModal}
+          />
+        </Modal>
+      )}
       {applicationsToExport !== null && (
         <Modal
           title={t("terms.exportToIssue")}

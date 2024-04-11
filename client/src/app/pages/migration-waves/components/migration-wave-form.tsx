@@ -66,11 +66,16 @@ export interface WaveFormProps {
   migrationWave?: MigrationWave;
   onClose: () => void;
 }
+let prevWave: any = null;
+let prevOnClose: any = null;
 
 export const WaveForm: React.FC<WaveFormProps> = ({
   migrationWave,
   onClose,
 }) => {
+  console.log("render2", prevWave === migrationWave, prevOnClose === onClose);
+  prevWave = migrationWave;
+  prevOnClose = onClose;
   const { t } = useTranslation();
 
   const { pushNotification } = React.useContext(NotificationsContext);
