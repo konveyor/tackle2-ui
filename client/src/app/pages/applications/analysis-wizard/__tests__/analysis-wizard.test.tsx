@@ -99,7 +99,7 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    const mode = screen.getByText(/binary/i);
+    const mode = screen.getByText(/binary|source code/i);
     await userEvent.click(mode);
 
     const sourceCode = await screen.findByRole("option", {
@@ -126,7 +126,7 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    const mode = screen.getByText(/binary/i);
+    const mode = screen.getByText(/binary|source code/i);
     await userEvent.click(mode);
 
     const sourceCodePlusDependencies = await screen.findByRole("option", {
@@ -219,7 +219,7 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    const mode = screen.getByText(/binary/i);
+    const mode = screen.getByText(/binary|source code/i);
     await userEvent.click(mode);
 
     const uploadBinary = screen.queryByRole("option", {

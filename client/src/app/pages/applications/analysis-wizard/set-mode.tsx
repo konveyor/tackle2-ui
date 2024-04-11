@@ -22,30 +22,30 @@ interface ISetMode {
 export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
   const { t } = useTranslation();
 
-  const { watch, control, setValue } =
-    useFormContext<AnalysisWizardFormValues>();
+  const { watch, control } = useFormContext<AnalysisWizardFormValues>();
   const mode = watch("mode");
 
   const options: SelectOptionProps[] = [
     {
-      value: "binary",
-      children: "Binary",
+      value: "source-code-deps",
+      children: "Source code + dependencies",
     },
     {
       value: "source-code",
       children: "Source code",
     },
     {
-      value: "source-code-deps",
-      children: "Source code + dependencies",
+      value: "binary",
+      children: "Binary",
     },
   ];
 
-  if (isSingleApp)
+  if (isSingleApp) {
     options.push({
       value: "binary-upload",
       children: "Upload a local binary",
     });
+  }
 
   return (
     <Form
