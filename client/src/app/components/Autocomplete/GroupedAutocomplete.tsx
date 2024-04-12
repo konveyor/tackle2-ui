@@ -95,11 +95,9 @@ export const GroupedAutocomplete: React.FC<IGroupedAutocompleteProps> = ({
 
   const filteredOptions = useMemo(() => {
     return options.filter((option) => {
-      const isOptionSelected = selections.some((selection) => {
-        const isSelectedById = selection.uniqueId === option.uniqueId;
-        const isSelectedByGroup = selection.group === option.group;
-        return isSelectedById && isSelectedByGroup;
-      });
+      const isOptionSelected = selections.some(
+        (selection) => selection.uniqueId === option.uniqueId
+      );
 
       const isNameMatch = toString(option.name)
         .toLowerCase()
