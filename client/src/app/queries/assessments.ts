@@ -122,6 +122,22 @@ export const useDeleteAssessmentMutation = (
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
 
+      queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
+
+      const isArchetype = !!args.archetypeId;
+
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
+        args?.archetypeId,
+        isArchetype,
+      ]);
+
+      queryClient.invalidateQueries([
+        assessmentsByItemIdQueryKey,
+        args?.applicationId,
+        isArchetype,
+      ]);
+
       queryClient.invalidateQueries([ApplicationsQueryKey]);
       queryClient.invalidateQueries([assessmentsQueryKey]);
       queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
