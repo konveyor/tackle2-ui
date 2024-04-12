@@ -44,7 +44,8 @@ export const AssessmentStakeholdersForm: React.FC = () => {
         <GridItem md={6} className="pf-v5-c-form">
           <FormSection>
             <HookFormAutocomplete<AssessmentWizardValues>
-              items={stakeholdersAndGroupsItems}
+              isGrouped
+              groupedItems={stakeholdersAndGroupsItems}
               control={control}
               name="stakeholdersAndGroupsRefs"
               label="Stakeholder(s) and Stakeholder Group(s)"
@@ -53,7 +54,6 @@ export const AssessmentStakeholdersForm: React.FC = () => {
               placeholderText={t("composed.selectMany", {
                 what: t("terms.stakeholder(s)").toLowerCase(),
               })}
-              isGrouped
               isRequired
               searchInputAriaLabel="stakeholders-and-groups-select-toggle"
             />
