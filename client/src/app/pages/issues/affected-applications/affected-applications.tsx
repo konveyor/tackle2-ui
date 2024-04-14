@@ -9,6 +9,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -36,6 +37,8 @@ import {
 } from "../helpers";
 import { IssueDetailDrawer } from "../issue-detail-drawer";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -60,7 +63,7 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business service",
-      effort: "Total Effort",
+      effort: "Effort",
       incidents: "Incidents",
     },
     isFilterEnabled: true,
@@ -181,7 +184,34 @@ export const AffectedApplications: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "description" })} />
                     <Th {...getThProps({ columnKey: "businessService" })} />
-                    <Th {...getThProps({ columnKey: "effort" })} />
+                    <Th
+                      {...getThProps({ columnKey: "effort" })}
+                      style={{ paddingRight: 0 }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <div>
+                          <span>Effort</span>
+                        </div>
+                        <Tooltip
+                          content={
+                            <>
+                              <Text>
+                                This column shows the total calculated effort
+                                for all incidents related to this file.
+                              </Text>
+                            </>
+                          }
+                          position="right"
+                        >
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                            className={`${spacing.mlSm} pf-v5-c-icon pf-m-info`}
+                          >
+                            <QuestionCircleIcon />
+                          </div>
+                        </Tooltip>
+                      </div>
+                    </Th>
                     <Th {...getThProps({ columnKey: "incidents" })} />
                   </TableHeaderContentWithControls>
                 </Tr>

@@ -326,6 +326,7 @@
     "details": "Details",
     "displayName": "Display name",
     "effort": "Effort",
+    "totalEffort": "Total Effort",
     "effortEstimate": "Effort estimate",
     "email": "Email",
     "error": "Error",

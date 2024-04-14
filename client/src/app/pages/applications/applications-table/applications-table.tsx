@@ -15,6 +15,7 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  Text,
 } from "@patternfly/react-core";
 import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
 import {
@@ -108,6 +109,9 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { ApplicationFormModal } from "../components/application-form";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
+
+import { QuestionCircleIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -845,9 +849,33 @@ export const ApplicationsTable: React.FC = () => {
                   <Th {...getThProps({ columnKey: "tags" })} width={10} />
                 )}
                 {getColumnVisibility("effort") && (
-                  <Th {...getThProps({ columnKey: "effort" })} width={10} />
+                  <Th
+                    {...getThProps({ columnKey: "effort" })}
+                    style={{ paddingRight: 0 }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div>
+                        <span>Effort</span>
+                      </div>
+                      <Tooltip
+                        content={
+                          <>
+                            <Text>
+                              This column shows the total application effort.
+                            </Text>
+                          </>
+                        }
+                        position="right"
+                      >
+                        <div
+                          className={`${spacing.mlSm} pf-v5-c-icon pf-m-info`}
+                        >
+                          <QuestionCircleIcon />
+                        </div>
+                      </Tooltip>
+                    </div>
+                  </Th>
                 )}
-                <Th />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>

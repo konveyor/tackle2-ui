@@ -70,6 +70,7 @@ import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { IssueDescriptionAndLinks } from "./components/issue-description-and-links";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -328,7 +329,31 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
               <Th {...getThProps({ columnKey: "category" })} />
               <Th {...getThProps({ columnKey: "source" })} />
               <Th {...getThProps({ columnKey: "target" })} />
-              <Th {...getThProps({ columnKey: "effort" })} />
+              <Th
+                {...getThProps({ columnKey: "effort" })}
+                style={{ paddingRight: 0 }}
+              >
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div>
+                    <span>Effort</span>
+                  </div>
+                  <Tooltip
+                    content={
+                      <>
+                        <Text>
+                          This column shows the effort weight for a single issue
+                          incident.
+                        </Text>
+                      </>
+                    }
+                    position="right"
+                  >
+                    <div className={`${spacing.mlSm} pf-v5-c-icon pf-m-info`}>
+                      <QuestionCircleIcon />
+                    </div>
+                  </Tooltip>
+                </div>
+              </Th>
               <Th {...getThProps({ columnKey: "affected" })} />
             </TableHeaderContentWithControls>
           </Tr>
