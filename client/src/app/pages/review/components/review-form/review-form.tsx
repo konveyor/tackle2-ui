@@ -222,13 +222,11 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             value={value}
             min={1}
             max={10}
-            onMinus={() => {
-              onChange((value || 0) - 1);
-            }}
-            onChange={() => onChange}
-            onPlus={() => {
-              onChange((value || 0) + 1);
-            }}
+            onMinus={() => onChange((value || 0) - 1)}
+            onChange={(event) =>
+              onChange((event.target as HTMLInputElement).value)
+            }
+            onPlus={() => onChange((value || 0) + 1)}
           />
         )}
       />
@@ -247,13 +245,11 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             value={value}
             min={1}
             max={10}
-            onMinus={() => {
-              onChange((value || 0) - 1);
-            }}
-            onChange={() => onChange}
-            onPlus={() => {
-              onChange((value || 0) + 1);
-            }}
+            onMinus={() => onChange((value || 0) - 1)}
+            onChange={(event) =>
+              onChange((event.target as HTMLInputElement).value)
+            }
+            onPlus={() => onChange((value || 0) + 1)}
           />
         )}
       />
