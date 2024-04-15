@@ -20,6 +20,110 @@ describe("useAssessmentStatus", () => {
     server.resetHandlers();
   });
 
+  it("Updates hasApplicationAssessmentInProgress to false when assessment is marked as not required", async () => {
+    server.use(
+      rest.get("/hub/archetypes", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockArchetype({
+              id: 1,
+              name: "archetype1",
+              applications: [],
+              assessed: false,
+              assessments: [],
+            }),
+          ])
+        );
+      }),
+      rest.get("/hub/assessments", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockAssessment({
+              id: 1,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 1, name: "questionnaire1" },
+              status: "started",
+              required: true,
+              sections: [],
+            }),
+            createMockAssessment({
+              id: 2,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 2, name: "questionnaire2" },
+              status: "complete",
+              required: true,
+              sections: [],
+            }),
+          ])
+        );
+      })
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          cacheTime: 1000,
+        },
+      },
+    });
+
+    const { result, rerender } = renderHook(
+      () => useAssessmentStatus(createMockApplication({ id: 1, name: "app1" })),
+      { queryClient }
+    );
+
+    await waitFor(() => {
+      expect(result.current.hasApplicationAssessmentInProgress).toBe(true);
+    });
+
+    server.use(
+      rest.get("/hub/archetypes", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockArchetype({
+              id: 1,
+              name: "archetype1",
+              applications: [],
+              assessed: false,
+              assessments: [],
+            }),
+          ])
+        );
+      }),
+      rest.get("/hub/assessments", (req, res, ctx) => {
+        return res(
+          ctx.json([
+            createMockAssessment({
+              id: 1,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 1, name: "questionnaire1" },
+              status: "started",
+              required: false,
+              sections: [],
+            }),
+            createMockAssessment({
+              id: 2,
+              application: { id: 1, name: "app1" },
+              questionnaire: { id: 2, name: "questionnaire2" },
+              status: "complete",
+              required: false,
+              sections: [],
+            }),
+          ])
+        );
+      })
+    );
+
+    queryClient.invalidateQueries([assessmentsQueryKey]);
+
+    rerender(createMockApplication({ id: 1, name: "app1" }));
+
+    await waitFor(() => {
+      expect(result.current.hasApplicationAssessmentInProgress).toBe(false);
+    });
+  });
+
   it("Updates hasApplicationAssessmentInProgress to false once associated assessments are deleted", async () => {
     server.use(
       rest.get("/hub/assessments", (req, res, ctx) => {
