@@ -1,3 +1,4 @@
+import "./file-all-incidents-table.css";
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { useSelectionState } from "@migtools/lib-ui";
@@ -123,9 +124,7 @@ export const FileAllIncidentsTable: React.FC<
                     colSpan={2}
                     {...getTdProps({ columnKey: "message" })}
                   >
-                    <ReactMarkdown components={markdownPFComponents}>
-                      {`${incident.message.split("\n")[0]} ...`}
-                    </ReactMarkdown>
+                    {messageDisplayComponent(incident.message)}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
@@ -141,5 +140,21 @@ export const FileAllIncidentsTable: React.FC<
         paginationProps={paginationProps}
       />
     </>
+  );
+};
+
+const getFirstNonEmptyLine = (message: string): string | null => {
+  const lines = message.split("\n");
+  const nonEmptyLine = lines.find((line) => line.trim() !== "");
+  return nonEmptyLine || null;
+};
+
+const messageDisplayComponent = (message: string) => {
+  const content = getFirstNonEmptyLine(message);
+  if (content === null) {
+    return <div className="empty-cell">No content available.</div>;
+  }
+  return (
+    <ReactMarkdown components={markdownPFComponents}>{content}</ReactMarkdown>
   );
 };
