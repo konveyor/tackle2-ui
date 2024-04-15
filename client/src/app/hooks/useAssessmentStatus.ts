@@ -65,10 +65,11 @@ export const useAssessmentStatus = (application: Application) => {
 
     const hasApplicationAssessmentInProgress = applicationAssessments?.some(
       (assessment: Assessment) =>
-        assessment.status === "started" ||
-        assessment.status === "empty" ||
-        (assessment.status === "complete" &&
-          application.assessments?.length !== 0)
+        assessment.required &&
+        (assessment.status === "started" ||
+          assessment.status === "empty" ||
+          (assessment.status === "complete" &&
+            application.assessments?.length !== 0))
     );
 
     return {
