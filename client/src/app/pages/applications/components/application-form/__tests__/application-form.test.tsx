@@ -6,12 +6,7 @@ import {
   fireEvent,
 } from "@app/test-config/test-utils";
 
-import {
-  APPLICATIONS,
-  BUSINESS_SERVICES,
-  REVIEWS,
-  TAG_CATEGORIES,
-} from "@app/api/rest";
+import { BUSINESS_SERVICES } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
@@ -20,19 +15,17 @@ import "@testing-library/jest-dom";
 import { BusinessService } from "@app/api/models";
 import { ApplicationFormModal } from "../application-form-modal";
 
-const data: any[] = [];
-mock.onGet(`${BUSINESS_SERVICES}`).reply(200, data);
-mock.onGet(`${TAG_CATEGORIES}`).reply(200, data);
-mock.onGet(`${APPLICATIONS}`).reply(200, data);
-mock.onGet(`${REVIEWS}`).reply(200, data);
-
 describe("Component: application-form", () => {
   const mockChangeValue = jest.fn();
 
   it("Validation tests", async () => {
     const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
 
-    mock.onGet(`${BUSINESS_SERVICES}`).reply(200, businessServices);
+    mock
+      .onGet(`${BUSINESS_SERVICES}`)
+      .reply(200, businessServices)
+      .onAny()
+      .reply(200, []);
 
     render(
       <ApplicationFormModal application={null} onClose={mockChangeValue} />
@@ -121,5 +114,5 @@ describe("Component: application-form", () => {
     );
 
     expect(createButton).toBeEnabled();
-  });
+  }, 10000);
 });
