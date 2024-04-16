@@ -844,17 +844,17 @@ export const ApplicationsTable: React.FC = () => {
           <Thead>
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
-                <Th {...getThProps({ columnKey: "name" })} width={15} />
+                <Th {...getThProps({ columnKey: "name" })} width={10} />
                 <Th
                   {...getThProps({ columnKey: "businessService" })}
                   width={15}
                 />
-                <Th {...getThProps({ columnKey: "assessment" })} width={10} />
-                <Th {...getThProps({ columnKey: "review" })} width={10} />
-                <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                <Th {...getThProps({ columnKey: "assessment" })} width={15} />
+                <Th {...getThProps({ columnKey: "review" })} width={15} />
+                <Th {...getThProps({ columnKey: "analysis" })} width={15} />
                 <Th {...getThProps({ columnKey: "tags" })} width={10} />
                 <Th {...getThProps({ columnKey: "effort" })} width={10} />
-                <Th />
+                <Th width={10} />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -890,7 +890,7 @@ export const ApplicationsTable: React.FC = () => {
                       rowIndex={rowIndex}
                     >
                       <Td
-                        width={15}
+                        width={10}
                         {...getTdProps({ columnKey: "name" })}
                         modifier="truncate"
                       >
@@ -933,7 +933,7 @@ export const ApplicationsTable: React.FC = () => {
                         />
                       </Td>
                       <Td
-                        width={10}
+                        width={15}
                         modifier="truncate"
                         {...getTdProps({ columnKey: "analysis" })}
                       >
