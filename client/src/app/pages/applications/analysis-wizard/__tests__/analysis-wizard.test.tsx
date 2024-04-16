@@ -6,6 +6,8 @@ import { TASKGROUPS } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
+mock.onAny().reply(200, []);
+
 const applicationData1 = {
   id: 1,
   name: "App1",
