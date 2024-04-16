@@ -824,7 +824,7 @@ export const ApplicationsTable: React.FC = () => {
             <Tr>
               <TableHeaderContentWithControls {...tableControls}>
                 {getColumnVisibility("name") && (
-                  <Th {...getThProps({ columnKey: "name" })} width={15} />
+                  <Th {...getThProps({ columnKey: "name" })} width={10} />
                 )}
                 {getColumnVisibility("businessService") && (
                   <Th
@@ -836,10 +836,10 @@ export const ApplicationsTable: React.FC = () => {
                   <Th {...getThProps({ columnKey: "assessment" })} width={15} />
                 )}
                 {getColumnVisibility("review") && (
-                  <Th {...getThProps({ columnKey: "review" })} width={10} />
+                  <Th {...getThProps({ columnKey: "review" })} width={15} />
                 )}
                 {getColumnVisibility("analysis") && (
-                  <Th {...getThProps({ columnKey: "analysis" })} width={10} />
+                  <Th {...getThProps({ columnKey: "analysis" })} width={15} />
                 )}
                 {getColumnVisibility("tags") && (
                   <Th {...getThProps({ columnKey: "tags" })} width={10} />
@@ -847,7 +847,7 @@ export const ApplicationsTable: React.FC = () => {
                 {getColumnVisibility("effort") && (
                   <Th {...getThProps({ columnKey: "effort" })} width={10} />
                 )}
-                <Th />
+                <Th width={10} />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -885,7 +885,7 @@ export const ApplicationsTable: React.FC = () => {
                     >
                       {getColumnVisibility("name") && (
                         <Td
-                          width={15}
+                          width={10}
                           {...getTdProps({ columnKey: "name" })}
                           modifier="truncate"
                         >
@@ -936,7 +936,7 @@ export const ApplicationsTable: React.FC = () => {
                       )}
                       {getColumnVisibility("analysis") && (
                         <Td
-                          width={10}
+                          width={15}
                           modifier="truncate"
                           {...getTdProps({ columnKey: "analysis" })}
                         >
