@@ -318,10 +318,11 @@ export const Tags: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th {...getThProps({ columnKey: "name" })} />
-                  <Th {...getThProps({ columnKey: "rank" })} />
-                  <Th {...getThProps({ columnKey: "color" })} />
-                  <Th {...getThProps({ columnKey: "tagCount" })} />
+                  <Th {...getThProps({ columnKey: "name" })} width={30} />
+                  <Th {...getThProps({ columnKey: "rank" })} width={20} />
+                  <Th {...getThProps({ columnKey: "color" })} width={20} />
+                  <Th {...getThProps({ columnKey: "tagCount" })} width={20} />
+                  <Th width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -379,20 +380,18 @@ export const Tags: React.FC = () => {
                         >
                           {tagCategory.tags?.length || 0}
                         </Td>
-                        <Td width={20}>
-                          <AppTableActionButtons
-                            isDeleteEnabled={!!tagCategory.tags?.length}
-                            tooltipMessage={t(
-                              "message.cannotDeleteNonEmptyTagCategory"
-                            )}
-                            onEdit={() => setTagCategoryModalState(tagCategory)}
-                            onDelete={() => setTagCategoryToDelete(tagCategory)}
-                          />
-                        </Td>
+                        <AppTableActionButtons
+                          isDeleteEnabled={!!tagCategory.tags?.length}
+                          tooltipMessage={t(
+                            "message.cannotDeleteNonEmptyTagCategory"
+                          )}
+                          onEdit={() => setTagCategoryModalState(tagCategory)}
+                          onDelete={() => setTagCategoryToDelete(tagCategory)}
+                        />
                       </TableRowContentWithControls>
                     </Tr>
                     {isCellExpanded(tagCategory) && (
-                      <Tr>
+                      <Tr isExpanded>
                         <Td colSpan={numRenderedColumns}>
                           <ExpandableRowContent>
                             {hasTags ? (

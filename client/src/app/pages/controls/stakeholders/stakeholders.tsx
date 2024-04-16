@@ -233,10 +233,14 @@ export const Stakeholders: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th {...getThProps({ columnKey: "email" })} />
-                  <Th {...getThProps({ columnKey: "name" })} />
-                  <Th {...getThProps({ columnKey: "jobFunction" })} />
-                  <Th {...getThProps({ columnKey: "groupCount" })} />
+                  <Th {...getThProps({ columnKey: "email" })} width={30} />
+                  <Th {...getThProps({ columnKey: "name" })} width={20} />
+                  <Th
+                    {...getThProps({ columnKey: "jobFunction" })}
+                    width={20}
+                  />
+                  <Th {...getThProps({ columnKey: "groupCount" })} width={20} />
+                  <Th width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -261,75 +265,77 @@ export const Stakeholders: React.FC = () => {
               }
               numRenderedColumns={numRenderedColumns}
             >
-              {currentPageItems?.map((stakeholder, rowIndex) => {
-                return (
-                  <Tbody
-                    key={stakeholder.id}
-                    isExpanded={isCellExpanded(stakeholder)}
-                  >
-                    <Tr {...getTrProps({ item: stakeholder })}>
-                      <TableRowContentWithControls
-                        {...tableControls}
-                        item={stakeholder}
-                        rowIndex={rowIndex}
-                      >
-                        <Td width={25} {...getTdProps({ columnKey: "email" })}>
-                          {stakeholder.email}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "name" })}>
-                          {stakeholder.name}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "jobFunction" })}
+              <Tbody key={currentPageItems.length}>
+                {currentPageItems?.map((stakeholder, rowIndex) => {
+                  return (
+                    <>
+                      <Tr {...getTrProps({ item: stakeholder })}>
+                        <TableRowContentWithControls
+                          {...tableControls}
+                          item={stakeholder}
+                          rowIndex={rowIndex}
                         >
-                          {stakeholder.jobFunction?.name}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "groupCount" })}
-                        >
-                          {stakeholder.stakeholderGroups?.length}
-                        </Td>
-                        <Td width={20}>
+                          <Td
+                            width={30}
+                            {...getTdProps({ columnKey: "email" })}
+                          >
+                            {stakeholder.email}
+                          </Td>
+                          <Td width={20} {...getTdProps({ columnKey: "name" })}>
+                            {stakeholder.name}
+                          </Td>
+                          <Td
+                            width={20}
+                            {...getTdProps({ columnKey: "jobFunction" })}
+                          >
+                            {stakeholder.jobFunction?.name}
+                          </Td>
+                          <Td
+                            width={20}
+                            {...getTdProps({ columnKey: "groupCount" })}
+                          >
+                            {stakeholder.stakeholderGroups?.length}
+                          </Td>
                           <AppTableActionButtons
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholder)
                             }
                             onDelete={() => deleteRow(stakeholder)}
                           />
-                        </Td>
-                      </TableRowContentWithControls>
-                    </Tr>
-                    {isCellExpanded(stakeholder) ? (
-                      <Tr isExpanded>
-                        <Td />
-                        <Td
-                          {...getExpandedContentTdProps({ item: stakeholder })}
-                          className={spacing.pyLg}
-                        >
-                          <ExpandableRowContent>
-                            <DescriptionList>
-                              <DescriptionListGroup>
-                                <DescriptionListTerm>
-                                  {t("terms.group(s)")}
-                                </DescriptionListTerm>
-                                {!!stakeholder.stakeholderGroups?.length && (
-                                  <DescriptionListDescription>
-                                    {stakeholder.stakeholderGroups
-                                      ?.map((f) => f.name)
-                                      .join(", ")}
-                                  </DescriptionListDescription>
-                                )}
-                              </DescriptionListGroup>
-                            </DescriptionList>
-                          </ExpandableRowContent>
-                        </Td>
+                        </TableRowContentWithControls>
                       </Tr>
-                    ) : null}
-                  </Tbody>
-                );
-              })}
+                      {isCellExpanded(stakeholder) ? (
+                        <Tr isExpanded>
+                          <Td />
+                          <Td
+                            {...getExpandedContentTdProps({
+                              item: stakeholder,
+                            })}
+                            className={spacing.pyLg}
+                          >
+                            <ExpandableRowContent>
+                              <DescriptionList>
+                                <DescriptionListGroup>
+                                  <DescriptionListTerm>
+                                    {t("terms.group(s)")}
+                                  </DescriptionListTerm>
+                                  {!!stakeholder.stakeholderGroups?.length && (
+                                    <DescriptionListDescription>
+                                      {stakeholder.stakeholderGroups
+                                        ?.map((f) => f.name)
+                                        .join(", ")}
+                                    </DescriptionListDescription>
+                                  )}
+                                </DescriptionListGroup>
+                              </DescriptionList>
+                            </ExpandableRowContent>
+                          </Td>
+                        </Tr>
+                      ) : null}
+                    </>
+                  );
+                })}
+              </Tbody>
             </ConditionalTableBody>
           </Table>
           <SimplePagination
