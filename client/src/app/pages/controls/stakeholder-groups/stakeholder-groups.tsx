@@ -226,9 +226,13 @@ export const StakeholderGroups: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th {...getThProps({ columnKey: "name" })} />
-                  <Th {...getThProps({ columnKey: "description" })} />
-                  <Th {...getThProps({ columnKey: "count" })} />
+                  <Th {...getThProps({ columnKey: "name" })} width={25} />
+                  <Th
+                    {...getThProps({ columnKey: "description" })}
+                    width={25}
+                  />
+                  <Th {...getThProps({ columnKey: "count" })} width={40} />
+                  <Th width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -254,52 +258,49 @@ export const StakeholderGroups: React.FC = () => {
               }
               numRenderedColumns={numRenderedColumns}
             >
-              {currentPageItems?.map((stakeholderGroup, rowIndex) => {
-                const hasStakeholders = stakeholderGroup.stakeholders?.length;
-                return (
-                  <Tbody
-                    key={stakeholderGroup.id}
-                    isExpanded={isCellExpanded(stakeholderGroup)}
-                  >
-                    <Tr {...getTrProps({ item: stakeholderGroup })}>
-                      <TableRowContentWithControls
-                        {...tableControls}
-                        item={stakeholderGroup}
-                        rowIndex={rowIndex}
-                      >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                          {stakeholderGroup.name}
-                        </Td>
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "description" })}
+              <Tbody key={stakeholderGroups?.length}>
+                {currentPageItems?.map((stakeholderGroup, rowIndex) => {
+                  return (
+                    <>
+                      <Tr {...getTrProps({ item: stakeholderGroup })}>
+                        <TableRowContentWithControls
+                          {...tableControls}
+                          item={stakeholderGroup}
+                          rowIndex={rowIndex}
                         >
-                          {stakeholderGroup.description}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "count" })}>
-                          {stakeholderGroup.stakeholders?.length}
-                        </Td>
-                        <Td width={20}>
+                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                            {stakeholderGroup.name}
+                          </Td>
+                          <Td
+                            width={25}
+                            {...getTdProps({ columnKey: "description" })}
+                          >
+                            {stakeholderGroup.description}
+                          </Td>
+                          <Td
+                            width={40}
+                            {...getTdProps({ columnKey: "count" })}
+                          >
+                            {stakeholderGroup.stakeholders?.length}
+                          </Td>
                           <AppTableActionButtons
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholderGroup)
                             }
                             onDelete={() => deleteRow(stakeholderGroup)}
                           />
-                        </Td>
-                      </TableRowContentWithControls>
-                    </Tr>
-                    {isCellExpanded(stakeholderGroup) ? (
-                      <Tr isExpanded>
-                        <Td />
-                        <Td
-                          {...getExpandedContentTdProps({
-                            item: stakeholderGroup,
-                          })}
-                          className={spacing.pyLg}
-                        >
-                          <ExpandableRowContent>
-                            {hasStakeholders ? (
+                        </TableRowContentWithControls>
+                      </Tr>
+                      {isCellExpanded(stakeholderGroup) ? (
+                        <Tr isExpanded>
+                          <Td />
+                          <Td
+                            {...getExpandedContentTdProps({
+                              item: stakeholderGroup,
+                            })}
+                            className={spacing.pyLg}
+                          >
+                            <ExpandableRowContent>
                               <DescriptionList>
                                 <DescriptionListGroup>
                                   <DescriptionListTerm>
@@ -314,29 +315,14 @@ export const StakeholderGroups: React.FC = () => {
                                   )}
                                 </DescriptionListGroup>
                               </DescriptionList>
-                            ) : (
-                              <EmptyState variant="sm">
-                                <EmptyStateIcon icon={CubesIcon} />
-                                <Title headingLevel="h2" size="lg">
-                                  {t("composed.noDataStateTitle", {
-                                    what: t("terms.stakeholder").toLowerCase(),
-                                  })}
-                                </Title>
-                                <EmptyStateBody>
-                                  {t("composed.noDataStateBody", {
-                                    how: t("terms.add"),
-                                    what: t("terms.stakeholder").toLowerCase(),
-                                  })}
-                                </EmptyStateBody>
-                              </EmptyState>
-                            )}
-                          </ExpandableRowContent>
-                        </Td>
-                      </Tr>
-                    ) : null}
-                  </Tbody>
-                );
-              })}
+                            </ExpandableRowContent>
+                          </Td>
+                        </Tr>
+                      ) : null}
+                    </>
+                  );
+                })}
+              </Tbody>
             </ConditionalTableBody>
           </Table>
           <SimplePagination
