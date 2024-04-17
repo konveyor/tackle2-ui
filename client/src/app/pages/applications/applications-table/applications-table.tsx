@@ -66,7 +66,6 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
-import { useQueryClient } from "@tanstack/react-query";
 import {
   deserializeFilterUrlParams,
   useLocalTableControls,
@@ -108,6 +107,7 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { ApplicationFormModal } from "../components/application-form";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
+import dayjs from "dayjs";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -207,12 +207,17 @@ export const ApplicationsTable: React.FC = () => {
   const [reviewToDiscard, setReviewToDiscard] =
     React.useState<Application | null>(null);
 
+  const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
+    dayjs()
+  );
+
   const {
     data: applications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
-    refetch: fetchApplications,
-  } = useFetchApplications(!hasActiveTasks);
+  } = useFetchApplications(() =>
+    hasActiveTasks || dayjs().isBefore(endOfAppImportPeriod) ? 5000 : false
+  );
 
   const { assessments, isFetching: isFetchingAssessments } =
     useFetchAssessments();
@@ -498,8 +503,6 @@ export const ApplicationsTable: React.FC = () => {
     isSelectionEnabled: true,
   });
 
-  const queryClient = useQueryClient();
-
   const {
     currentPageItems,
     numRenderedColumns,
@@ -558,10 +561,6 @@ export const ApplicationsTable: React.FC = () => {
     tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
-
-  const areAppsInWaves = selectedRows.some(
-    (application) => application.migrationWave !== null
-  );
 
   const importDropdownItems = importWriteAccess
     ? [
@@ -1132,19 +1131,6 @@ export const ApplicationsTable: React.FC = () => {
           onClose={() => setTaskToView(undefined)}
         />
         <Modal
-          isOpen={isApplicationImportModalOpen}
-          variant="medium"
-          title={t("dialog.title.importApplicationFile")}
-          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
-        >
-          <ImportApplicationsForm
-            onSaved={() => {
-              setIsApplicationImportModalOpen(false);
-              fetchApplications();
-            }}
-          />
-        </Modal>
-        <Modal
           isOpen={isDependenciesModalOpen}
           variant="medium"
           title={t("composed.manageDependenciesFor", {
@@ -1168,7 +1154,7 @@ export const ApplicationsTable: React.FC = () => {
           <ImportApplicationsForm
             onSaved={() => {
               setIsApplicationImportModalOpen(false);
-              fetchApplications();
+              setEndOfAppImportPeriod(dayjs().add(15, "s"));
             }}
           />
         </Modal>
