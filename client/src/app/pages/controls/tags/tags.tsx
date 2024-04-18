@@ -190,7 +190,7 @@ export const Tags: React.FC = () => {
             ?.map((tag) => tag.name)
             .concat(tagCategoryNames)
             .join("");
-          return tagNames || "";
+          return tagNames || tagCategoryNames || "";
         },
         selectOptions: dedupeFunction(
           tagCategories
