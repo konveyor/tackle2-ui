@@ -10,7 +10,6 @@ import { IDENTITIES } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 
 import { IdentityForm } from "..";
-import "@testing-library/jest-dom/extend-expect";
 import "@testing-library/jest-dom";
 
 const data: any[] = [];

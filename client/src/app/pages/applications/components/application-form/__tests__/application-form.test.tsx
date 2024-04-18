@@ -10,7 +10,6 @@ import { BUSINESS_SERVICES } from "@app/api/rest";
 import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
-import "@testing-library/jest-dom/extend-expect";
 import "@testing-library/jest-dom";
 import { BusinessService } from "@app/api/models";
 import { ApplicationFormModal } from "../application-form-modal";
