@@ -24,5 +24,8 @@
     "concurrently": "^8.0.1",
     "copyfiles": "^2.4.1",
     "rimraf": "^4.4.1"
+  },
+  "overrides": {
+    "follow-redirects": "^1.15.6"
   }
 }
