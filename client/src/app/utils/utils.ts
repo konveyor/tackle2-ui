@@ -194,3 +194,6 @@ export const localeNumericCompare = (
   b: string,
   locale: string
 ): number => a.localeCompare(b, locale, { numeric: true });
+
+export const getString = (input: string | (() => string)) =>
+  typeof input === "function" ? input() : input;

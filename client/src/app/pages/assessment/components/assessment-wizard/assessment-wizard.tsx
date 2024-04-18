@@ -468,8 +468,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
     // Checking if any stakeholders or stakeholder groups have changed
     const stakeholdersAndGroupsChanged = (
-      initialRefs: GroupedRef[],
-      currentRefs: GroupedRef[]
+      initialRefs: GroupedStakeholderRef[],
+      currentRefs: GroupedStakeholderRef[]
     ) => {
       if (initialRefs.length !== currentRefs.length) return true;
       const refMap = new Map(
