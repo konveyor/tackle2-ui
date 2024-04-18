@@ -13,6 +13,7 @@ export interface CustomWizardFooterProps {
   isDisabled: boolean;
   isFormInvalid: boolean;
   isSaveAsDraftDisabled?: boolean;
+  isAssessmentChanged?: boolean;
   enableNext?: boolean;
   onNext?: () => void;
   onBack?: () => void;
@@ -27,6 +28,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   isDisabled,
   isFormInvalid,
   isSaveAsDraftDisabled,
+  isAssessmentChanged,
   enableNext,
   onNext,
   onBack,
@@ -35,7 +37,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
   onSaveAsDraft,
 }) => {
   const { t } = useTranslation();
-  const { goToNextStep, goToPrevStep, close, activeStep } = useWizardContext();
+  const { goToNextStep, goToPrevStep, close } = useWizardContext();
   return (
     <>
       <WizardFooterWrapper>
@@ -45,7 +47,12 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               <Button
                 variant="primary"
                 onClick={() => onSave(false)}
-                isDisabled={!enableNext || isDisabled || isFormInvalid}
+                isDisabled={
+                  !enableNext ||
+                  isDisabled ||
+                  isFormInvalid ||
+                  !isAssessmentChanged
+                }
                 cy-data="next"
               >
                 {t("actions.save")}
@@ -53,7 +60,12 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               <Button
                 variant="primary"
                 onClick={() => onSave(true)}
-                isDisabled={!enableNext || isDisabled || isFormInvalid}
+                isDisabled={
+                  !enableNext ||
+                  isDisabled ||
+                  isFormInvalid ||
+                  !isAssessmentChanged
+                }
                 cy-data="save-and-review"
               >
                 {t("actions.saveAndReview")}

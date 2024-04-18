@@ -114,6 +114,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return comments;
   }, [assessment]);
 
+  const initialStakeholders = assessment?.stakeholders ?? [];
+  const initialStakeholderGroups = assessment?.stakeholderGroups ?? [];
   const initialQuestions = useMemo(() => {
     const questions: { [key: string]: string | undefined } = {};
     if (assessment) {
@@ -146,8 +148,8 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     resolver: yupResolver(validationSchema),
     mode: "all",
     defaultValues: {
-      stakeholders: assessment?.stakeholders ?? [],
-      stakeholderGroups: assessment?.stakeholderGroups ?? [],
+      stakeholders: initialStakeholders,
+      stakeholderGroups: initialStakeholderGroups,
 
       [COMMENTS_KEY]: initialComments,
       [QUESTIONS_KEY]: initialQuestions,
@@ -160,7 +162,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const isValid = methods.formState.isValid;
   const isSubmitting = methods.formState.isSubmitting;
   const isValidating = methods.formState.isValidating;
-  const watchAllFields = methods.watch();
 
   const disableNavigation = !isValid || isSubmitting;
 
@@ -439,11 +440,20 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     }
   };
 
-  const haveAnyQuestionBeenAnswered = () => {
-    const questions = values[QUESTIONS_KEY];
-    return Object.values(questions).some(
-      (answer) => answer !== null && answer !== ""
+  const isAssessmentChanged = () => {
+    const questionsChanged = Object.entries(values[QUESTIONS_KEY]).some(
+      ([name, answer]) => initialQuestions[name] !== answer
     );
+    const stakeholdersChanged =
+      initialStakeholders.length !== values.stakeholders.length ||
+      initialStakeholderGroups.length !== values.stakeholderGroups.length ||
+      !values.stakeholders.every(({ id, name }) =>
+        initialStakeholders.find((it) => it.id === id && it.name === name)
+      ) ||
+      !values.stakeholderGroups.every(({ id, name }) =>
+        initialStakeholderGroups.find((it) => it.id === id && it.name === name)
+      );
+    return questionsChanged || stakeholdersChanged;
   };
 
   const handleCancelAssessment = () => {
@@ -486,6 +496,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         isLastStep={step === sortedSections.length}
         onNext={() => setCurrentStep(step + 1)}
         onBack={() => setCurrentStep(step - 1)}
+        isAssessmentChanged={isAssessmentChanged()}
         isDisabled={
           isSubmitting ||
           isValidating ||
@@ -574,7 +585,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               onClose={() => setAssessmentToCancel(null)}
               onConfirm={() => handleCancelAssessment()}
               message={
-                haveAnyQuestionBeenAnswered()
+                isAssessmentChanged()
                   ? t("message.unsavedChanges")
                   : t("message.noAnswers")
               }
