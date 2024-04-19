@@ -1,3 +1,5 @@
+// hub OpenAPI definition: https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json
+
 export enum MimeType {
   TAR = "tar",
   YAML = "yaml",
@@ -158,11 +160,11 @@ export interface ApplicationDependency {
 export interface ApplicationAdoptionPlan {
   applicationId: number;
   applicationName: string;
-  positionX: number;
-  positionY: number;
-  effort: number;
   decision: ProposedAction;
   effortEstimate: string;
+  effort: number;
+  positionX: number;
+  positionY: number;
 }
 
 export interface ApplicationImportSummary {
@@ -190,18 +192,17 @@ export type IdentityKind =
 
 export interface Identity {
   id: number;
+  createUser?: string;
+  updateUser?: string;
+  createTime?: string;
+
+  kind: IdentityKind;
   name: string;
   description?: string;
-  kind?: IdentityKind;
-  createUser?: string;
-  encrypted?: string;
-  key?: string;
-  keyFilename?: string;
-  password?: string;
   user?: string;
-  updateUser?: string;
+  password?: string;
+  key?: string;
   settings?: string;
-  settingsFilename?: string;
 }
 
 export interface Proxy {
