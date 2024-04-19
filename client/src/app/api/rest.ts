@@ -1,3 +1,5 @@
+// hub OpenAPI definition: https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json
+
 import axios, { AxiosPromise } from "axios";
 
 import {

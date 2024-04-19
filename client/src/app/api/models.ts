@@ -1,3 +1,5 @@
+// hub OpenAPI definition: https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json
+
 export enum MimeType {
   TAR = "tar",
   YAML = "yaml",
