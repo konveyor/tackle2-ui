@@ -1,5 +1,4 @@
-import axios, { AxiosPromise } from "axios";
-import { APIClient } from "@app/axios-config";
+import axios, { AxiosPromise, RawAxiosRequestHeaders } from "axios";
 
 import {
   AnalysisDependency,
@@ -49,6 +48,7 @@ import {
   MimeType,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
+import { APIClient } from "@app/axios-config/apiClient";
 
 // TACKLE_HUB
 export const HUB = "/hub";
@@ -106,14 +106,18 @@ export const QUESTIONNAIRES = HUB + "/questionnaires";
 
 export const ARCHETYPES = HUB + "/archetypes";
 
-// PATHFINDER
-export const PATHFINDER = "/hub/pathfinder";
 export const ASSESSMENTS = HUB + "/assessments";
 
-const jsonHeaders = { headers: { Accept: "application/json" } };
-const formHeaders = { headers: { Accept: "multipart/form-data" } };
-const fileHeaders = { headers: { Accept: "application/json" } };
-const yamlHeaders = { headers: { Accept: "application/x-yaml" } };
+const jsonHeaders: RawAxiosRequestHeaders = {
+  Accept: "application/json",
+};
+const formHeaders: RawAxiosRequestHeaders = {
+  Accept: "multipart/form-data",
+};
+const fileHeaders: RawAxiosRequestHeaders = { Accept: "application/json" };
+const yamlHeaders: RawAxiosRequestHeaders = {
+  Accept: "application/x-yaml",
+};
 
 type Direction = "asc" | "desc";
 
@@ -245,8 +249,8 @@ export const deleteAssessment = (id: number): AxiosPromise => {
   return APIClient.delete(`${ASSESSMENTS}/${id}`);
 };
 
-export const getIdentities = (): AxiosPromise<Array<Identity>> => {
-  return APIClient.get(`${IDENTITIES}`, jsonHeaders);
+export const getIdentities = () => {
+  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
 };
 
 export const createIdentity = (obj: New<Identity>): AxiosPromise<Identity> => {
@@ -327,8 +331,7 @@ export function getTaskById(
   format: string,
   merged: boolean = false
 ): Promise<Task | string> {
-  const headers =
-    format === "yaml" ? { ...yamlHeaders.headers } : { ...jsonHeaders.headers };
+  const headers = format === "yaml" ? { ...yamlHeaders } : { ...jsonHeaders };
   const responseType = format === "yaml" ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
@@ -376,11 +379,9 @@ export const uploadFileTaskgroup = ({
   formData: any;
   file: any;
 }) => {
-  return axios.post<Taskgroup>(
-    `${TASKGROUPS}/${id}/bucket/${path}`,
-    formData,
-    formHeaders
-  );
+  return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
+    headers: formHeaders,
+  });
 };
 
 export const removeFileTaskgroup = ({
@@ -435,7 +436,9 @@ export const createFile = ({
   file: IReadFile;
 }) =>
   axios
-    .post<HubFile>(`${FILES}/${file.fileName}`, formData, fileHeaders)
+    .post<HubFile>(`${FILES}/${file.fileName}`, formData, {
+      headers: fileHeaders,
+    })
     .then((response) => {
       return response.data;
     });
