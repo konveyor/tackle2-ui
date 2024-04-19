@@ -45,8 +45,9 @@ jobs:
           npm version
           npm clean-install --ignore-scripts
 
-      - name: Lint sources
-        run: npm run lint
+      # Linting doesn't exist on release-0.2
+      # - name: Lint sources
+      #   run: npm run lint
 
       - name: Build
         run: npm run build
