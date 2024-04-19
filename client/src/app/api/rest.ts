@@ -1,5 +1,6 @@
+// hub OpenAPI definition: https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json
+
 import axios, { AxiosPromise } from "axios";
-import { APIClient } from "@app/axios-config";
 
 import {
   AnalysisDependency,
@@ -136,7 +137,7 @@ export const getApplicationDependencies = (
   return axios
     .get(`${APPLICATION_DEPENDENCY}`, {
       params,
-      headers: jsonHeaders,
+      headers: jsonHeaders.headers,
     })
     .then((response) => response.data);
 };
@@ -179,21 +180,17 @@ export const deleteReview = (id: number): Promise<Review> => {
   return axios.delete(`${REVIEWS}/${id}`);
 };
 
-export const getApplicationAdoptionPlan = (
-  applicationIds: number[]
-): AxiosPromise<ApplicationAdoptionPlan[]> => {
-  return APIClient.post(
+export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
+  return axios.post<ApplicationAdoptionPlan[]>(
     `${REPORT}/adoptionplan`,
-    applicationIds.map((f) => ({
-      applicationId: f,
-    }))
+    applicationIds.map((f) => ({ applicationId: f }))
   );
 };
 
-export const getApplicationSummaryCSV = (id: string): AxiosPromise => {
-  return APIClient.get(`${APP_IMPORT_CSV}?importSummaryId=${id}`, {
+export const getApplicationSummaryCSV = (id: string) => {
+  return axios.get<ArrayBuffer>(`${APP_IMPORT_CSV}?importSummary.id=${id}`, {
     responseType: "arraybuffer",
-    headers: { Accept: "text/csv", responseType: "blob" },
+    headers: { Accept: "text/csv" },
   });
 };
 
@@ -241,27 +238,25 @@ export const getAssessmentById = (id: number | string): Promise<Assessment> => {
   return axios.get(`${ASSESSMENTS}/${id}`).then((response) => response.data);
 };
 
-export const deleteAssessment = (id: number): AxiosPromise => {
-  return APIClient.delete(`${ASSESSMENTS}/${id}`);
+export const deleteAssessment = (id: number) => {
+  return axios.delete<void>(`${ASSESSMENTS}/${id}`);
 };
 
-export const getIdentities = (): AxiosPromise<Array<Identity>> => {
-  return APIClient.get(`${IDENTITIES}`, jsonHeaders);
+export const getIdentities = () => {
+  return axios.get<Identity[]>(`${IDENTITIES}`, jsonHeaders);
 };
 
-export const createIdentity = (obj: New<Identity>): AxiosPromise<Identity> => {
-  return APIClient.post(`${IDENTITIES}`, obj);
+export const createIdentity = (obj: New<Identity>) => {
+  return axios.post<Identity>(`${IDENTITIES}`, obj);
 };
 
-export const updateIdentity = (obj: Identity): AxiosPromise<Identity> => {
-  return APIClient.put(`${IDENTITIES}/${obj.id}`, obj);
+export const updateIdentity = (obj: Identity) => {
+  return axios.put<void>(`${IDENTITIES}/${obj.id}`, obj);
 };
 
-export const deleteIdentity = (identity: Identity): AxiosPromise => {
-  return APIClient.delete(`${IDENTITIES}/${identity.id}`);
+export const deleteIdentity = (identity: Identity) => {
+  return axios.delete<void>(`${IDENTITIES}/${identity.id}`);
 };
-
-// Axios direct
 
 // success with code 201 and created entity as response data
 export const createApplication = (application: New<Application>) =>
