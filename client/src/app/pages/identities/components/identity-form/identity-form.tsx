@@ -40,7 +40,7 @@ type UserCredentials = "userpass" | "source";
 interface IdentityFormValues {
   name: string;
   description: string;
-  kind?: IdentityKind;
+  kind: IdentityKind;
   settings: string;
   settingsFilename: string;
   userCredentials?: UserCredentials;
