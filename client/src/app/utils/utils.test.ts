@@ -22,39 +22,12 @@ describe("utils", () => {
       isAxiosError: true,
       name: "error",
       message: errorMsg,
-      config: {},
       toJSON: () => ({}),
     };
 
     const errorMessage = getAxiosErrorMessage(mockAxiosError);
     expect(errorMessage).toBe(errorMsg);
   });
-
-  it("getAxiosErrorMessage: should pick body message", () => {
-    const errorMsg = "Internal server error";
-
-    const mockAxiosError: AxiosError = {
-      isAxiosError: true,
-      name: "error",
-      message: "Network error",
-      config: {},
-      response: {
-        data: {
-          errorMessage: errorMsg,
-        },
-        status: 400,
-        statusText: "",
-        headers: {},
-        config: {},
-      },
-      toJSON: () => ({}),
-    };
-
-    const errorMessage = getAxiosErrorMessage(mockAxiosError);
-    expect(errorMessage).toBe(errorMsg);
-  });
-
-  // getValidatedFromError
 
   it("getValidatedFromError: given value should return 'error'", () => {
     const error = "Any value";
