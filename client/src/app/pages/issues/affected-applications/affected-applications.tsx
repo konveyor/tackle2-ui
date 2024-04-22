@@ -2,6 +2,8 @@ import * as React from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Flex,
+  FlexItem,
   PageSection,
   PageSectionVariants,
   Text,
@@ -9,6 +11,7 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -36,6 +39,7 @@ import {
 } from "../helpers";
 import { IssueDetailDrawer } from "../issue-detail-drawer";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;
@@ -60,7 +64,7 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business service",
-      effort: "Total Effort",
+      effort: "Effort",
       incidents: "Incidents",
     },
     isFilterEnabled: true,
@@ -181,7 +185,29 @@ export const AffectedApplications: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "description" })} />
                     <Th {...getThProps({ columnKey: "businessService" })} />
-                    <Th {...getThProps({ columnKey: "effort" })} />
+                    <Th
+                      {...getThProps({ columnKey: "effort" })}
+                      style={{ paddingRight: 0 }}
+                    >
+                      <Flex
+                        flexWrap={{ default: "nowrap" }}
+                        spaceItems={{ default: "spaceItemsSm" }}
+                      >
+                        <FlexItem>
+                          <span>{t("effort")}</span>
+                        </FlexItem>
+                        <FlexItem>
+                          <Tooltip
+                            content={t("message.affectedAppEffortToltip")}
+                            position="right"
+                          >
+                            <Flex>
+                              <QuestionCircleIcon />
+                            </Flex>
+                          </Tooltip>
+                        </FlexItem>
+                      </Flex>
+                    </Th>
                     <Th {...getThProps({ columnKey: "incidents" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
