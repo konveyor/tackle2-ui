@@ -32,13 +32,15 @@ interface DownloadOptions {
   mimeType: MimeType;
 }
 
-export const useFetchApplications = (refetchDisabled: boolean = false) => {
+export const useFetchApplications = (
+  refetchInterval: number | false | (() => number | false) = 5000
+) => {
   const queryClient = useQueryClient();
   const { isLoading, error, refetch, data } = useQuery({
     initialData: [],
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
-    refetchInterval: !refetchDisabled ? 5000 : false,
+    refetchInterval: refetchInterval,
     onSuccess: () => {
       queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
     },
