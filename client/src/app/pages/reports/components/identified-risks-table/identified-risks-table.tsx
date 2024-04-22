@@ -51,6 +51,13 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const riskLevelLabelMapping = {
+    red: t("risks.high"),
+    yellow: t("risks.medium"),
+    green: t("risks.low"),
+    unknown: t("risks.unknown"),
+  };
+
   const { assessmentsWithArchetypeApplications } =
     useFetchAssessmentsWithArchetypeApplications();
 
@@ -242,15 +249,14 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
         getItemValue: (item: ITableRowData) => {
           const riskKey = item.answer.risk;
           const riskValue =
-            riskLevelMapping[riskKey as keyof typeof riskLevelMapping];
+            riskLevelLabelMapping[
+              riskKey as keyof typeof riskLevelLabelMapping
+            ];
           return riskValue.toString();
         },
-        selectOptions: [
-          { value: "3", label: "High" },
-          { value: "2", label: "Medium" },
-          { value: "1", label: "Low" },
-          { value: "0", label: "Unknown" },
-        ],
+        selectOptions: Object.values(riskLevelLabelMapping).map((riskName) => {
+          return { value: riskName, label: riskName };
+        }),
       },
     ],
     initialItemsPerPage: 10,
