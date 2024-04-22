@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, FlexItem, Icon, Tooltip } from "@patternfly/react-core";
+import { Icon, Tooltip } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
@@ -7,6 +7,7 @@ import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-i
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import TopologyIcon from "@patternfly/react-icons/dist/esm/icons/topology-icon";
+import { IconWithLabel } from "./IconWithLabel";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
@@ -129,14 +130,6 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     },
   };
   const presetProps = preset && presets[preset];
-  const IconWithOptionalTooltip: React.FC<{ children: React.ReactElement }> = ({
-    children,
-  }) =>
-    presetProps?.tooltipMessage ? (
-      <Tooltip content={presetProps?.tooltipMessage}>{children}</Tooltip>
-    ) : (
-      <>{children}</>
-    );
 
   const getTooltipContent = () => {
     switch (preset) {
@@ -164,28 +157,25 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
   };
 
   return (
-    <Flex
-      flexWrap={{ default: "nowrap" }}
-      spaceItems={{ default: "spaceItemsSm" }}
-    >
-      <FlexItem>
-        <IconWithOptionalTooltip>
-          <Icon status={status || presetProps?.status} className={className}>
-            {icon || presetProps?.icon || <UnknownIcon />}
-          </Icon>
-        </IconWithOptionalTooltip>
-      </FlexItem>
-      <FlexItem>{label || presetProps?.label}</FlexItem>
-      {(preset === "InheritedReviews" ||
+    <IconWithLabel
+      iconTooltipMessage={presetProps?.tooltipMessage}
+      icon={
+        <Icon status={status || presetProps?.status} className={className}>
+          {icon || presetProps?.icon || <UnknownIcon />}
+        </Icon>
+      }
+      label={label || presetProps?.label}
+      hasTrailingItem={
+        preset === "InheritedReviews" ||
         preset === "InheritedAssessments" ||
         preset === "InProgressInheritedAssessments" ||
-        preset === "InProgressInheritedReviews") && (
-        <FlexItem>
-          <Tooltip content={getTooltipContent()}>
-            <TopologyIcon />
-          </Tooltip>
-        </FlexItem>
-      )}
-    </Flex>
+        preset === "InProgressInheritedReviews"
+      }
+      trailingItem={
+        <Tooltip content={getTooltipContent()}>
+          <TopologyIcon />
+        </Tooltip>
+      }
+    />
   );
 };
