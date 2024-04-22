@@ -6,34 +6,41 @@ import { saveAs } from "file-saver";
 import {
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   PageSection,
+  Title,
+  Toolbar,
+  ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { cellWidth, ICell, IRow, truncate } from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
-import { ApplicationImport } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
 import {
   useFetchImports,
   useFetchImportSummaryById,
 } from "@app/queries/imports";
 import {
-  FilterCategory,
+  FilterToolbar,
   FilterType,
 } from "@app/components/FilterToolbar/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { PageHeader } from "@app/components/PageHeader";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-
-const ENTITY_FIELD = "entity";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { CubesIcon } from "@patternfly/react-icons";
 
 export const ManageImportsDetails: React.FC = () => {
   // i18
@@ -44,43 +51,12 @@ export const ManageImportsDetails: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.application"),
-      transforms: [cellWidth(30)],
-      cellTransforms: [truncate],
-    },
-    {
-      title: t("terms.message"),
-      transforms: [cellWidth(70)],
-      cellTransforms: [truncate],
-    },
-  ];
-
   const { imports, isFetching, fetchError } = useFetchImports(
     parseInt(importId),
     false
   );
 
   const { importSummary } = useFetchImportSummaryById(importId);
-
-  const rows: IRow[] = [];
-  imports?.forEach((item) => {
-    rows.push({
-      [ENTITY_FIELD]: item,
-      cells: [
-        {
-          title: item["Application Name"],
-        },
-        {
-          title: item.errorMessage,
-        },
-      ],
-    });
-  });
-
-  //
 
   const exportCSV = () => {
     getApplicationSummaryCSV(importId)
@@ -95,42 +71,52 @@ export const ManageImportsDetails: React.FC = () => {
         });
       });
   };
-
-  const filterCategories: FilterCategory<
-    ApplicationImport,
-    "Application Name"
-  >[] = [
-    {
-      categoryKey: "Application Name",
-      title: "Application Name",
-      type: FilterType.search,
-      placeholderText: "Filter by application name...",
-      getItemValue: (item) => {
-        return item["Application Name"] || "";
-      },
+  const tableControls = useLocalTableControls({
+    tableName: "manage-imports-details",
+    idProperty: "Application Name",
+    items: imports || [],
+    columnNames: {
+      name: t("terms.name"),
+      message: t("terms.message"),
     },
-  ];
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    hasActionsColumn: true,
+    filterCategories: [
+      {
+        categoryKey: "name",
+        title: "Application Name",
+        type: FilterType.search,
+        placeholderText: "Filter by application name...",
+        getItemValue: (item) => {
+          return item["Application Name"] || "";
+        },
+      },
+    ],
+    initialItemsPerPage: 10,
+    sortableColumns: ["name", "message"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (item) => ({
+      name: item["Application Name"],
+      message: item.errorMessage,
+    }),
+    isLoading: isFetching,
+  });
 
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    imports || [],
-    filterCategories
-  );
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
-  const getSortValues = (item: ApplicationImport) => [
-    item?.["Application Name"] || "",
-    "", // Action column
-  ];
-
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+  } = tableControls;
 
   return (
     <>
@@ -158,20 +144,14 @@ export const ManageImportsDetails: React.FC = () => {
           when={isFetching && !(imports || fetchError)}
           then={<AppPlaceholder />}
         >
-          <AppTableWithControls
-            count={imports ? imports.length : 0}
-            paginationProps={paginationProps}
-            paginationIdPrefix="manage-imports-details"
-            sortBy={sortBy}
-            onSort={onSort}
-            filtersApplied={false}
-            cells={columns}
-            rows={rows}
-            isLoading={isFetching}
-            loadingVariant="skeleton"
-            fetchError={fetchError}
-            toolbarActions={
-              <>
+          <div
+            style={{
+              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            }}
+          >
+            <Toolbar {...toolbarProps}>
+              <ToolbarContent>
+                <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
                     <Button
@@ -185,9 +165,73 @@ export const ManageImportsDetails: React.FC = () => {
                     </Button>
                   </ToolbarItem>
                 </ToolbarGroup>
-              </>
-            }
-          />
+              </ToolbarContent>
+            </Toolbar>
+            <Table {...tableProps} aria-label="Business service table">
+              <Thead>
+                <Tr>
+                  <TableHeaderContentWithControls {...tableControls}>
+                    <Th {...getThProps({ columnKey: "name" })} />
+                    <Th {...getThProps({ columnKey: "message" })} />
+                  </TableHeaderContentWithControls>
+                </Tr>
+              </Thead>
+              <ConditionalTableBody
+                isLoading={isFetching}
+                isError={!!fetchError}
+                isNoData={currentPageItems.length === 0}
+                noDataEmptyState={
+                  <EmptyState variant="sm">
+                    <EmptyStateIcon icon={CubesIcon} />
+                    <Title headingLevel="h2" size="lg">
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.imports").toLowerCase(),
+                      })}
+                    </Title>
+                    <EmptyStateBody>
+                      {t("composed.noDataStateBody", {
+                        how: t("terms.create"),
+                        what: t("terms.imports").toLowerCase(),
+                      })}
+                    </EmptyStateBody>
+                  </EmptyState>
+                }
+                numRenderedColumns={numRenderedColumns}
+              >
+                <Tbody>
+                  {currentPageItems?.map((appImport, rowIndex) => {
+                    return (
+                      <Tr
+                        key={appImport["Application Name"]}
+                        {...getTrProps({ item: appImport })}
+                      >
+                        <TableRowContentWithControls
+                          {...tableControls}
+                          item={appImport}
+                          rowIndex={rowIndex}
+                        >
+                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                            {appImport["Application Name"]}
+                          </Td>
+                          <Td
+                            width={10}
+                            {...getTdProps({ columnKey: "message" })}
+                          >
+                            {appImport.errorMessage}
+                          </Td>
+                        </TableRowContentWithControls>
+                      </Tr>
+                    );
+                  })}
+                </Tbody>
+              </ConditionalTableBody>
+            </Table>
+            <SimplePagination
+              idPrefix="business-service-table"
+              isTop={false}
+              paginationProps={paginationProps}
+            />
+          </div>
         </ConditionalRender>
       </PageSection>
     </>
