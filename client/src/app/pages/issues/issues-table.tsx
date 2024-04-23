@@ -335,7 +335,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                   spaceItems={{ default: "spaceItemsSm" }}
                 >
                   <FlexItem>
-                    <span>{t("effort")}</span>
+                    <span>{t("terms.effort")}</span>
                   </FlexItem>
                   <FlexItem>
                     <Tooltip

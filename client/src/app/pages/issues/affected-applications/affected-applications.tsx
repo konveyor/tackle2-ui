@@ -194,7 +194,7 @@ export const AffectedApplications: React.FC = () => {
                         spaceItems={{ default: "spaceItemsSm" }}
                       >
                         <FlexItem>
-                          <span>{t("effort")}</span>
+                          <span>{t("terms.effort")}</span>
                         </FlexItem>
                         <FlexItem>
                           <Tooltip
