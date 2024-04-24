@@ -1,24 +1,36 @@
 import React, { FC, ReactElement, ReactNode } from "react";
 import { Flex, FlexItem } from "@patternfly/react-core";
-import { IconWithOptionalTooltip } from "./IconWithOptionalTooltip";
+import { OptionalTooltip } from "./OptionalTooltip";
 
 export const IconWithLabel: FC<{
   iconTooltipMessage?: string;
   icon: ReactElement;
   label: ReactNode;
-  hasTrailingItem?: boolean;
   trailingItem?: ReactElement;
-}> = ({ iconTooltipMessage, icon, label, hasTrailingItem, trailingItem }) => (
+  trailingItemTooltipMessage?: string;
+}> = ({
+  iconTooltipMessage,
+  icon,
+  label,
+  trailingItem,
+  trailingItemTooltipMessage,
+}) => (
   <Flex
     flexWrap={{ default: "nowrap" }}
     spaceItems={{ default: "spaceItemsSm" }}
   >
     <FlexItem>
-      <IconWithOptionalTooltip tooltipMessage={iconTooltipMessage}>
+      <OptionalTooltip tooltipMessage={iconTooltipMessage}>
         {icon}
-      </IconWithOptionalTooltip>
+      </OptionalTooltip>
     </FlexItem>
     <FlexItem>{label}</FlexItem>
-    {hasTrailingItem && <FlexItem>{trailingItem}</FlexItem>}
+    {!!trailingItem && (
+      <FlexItem>
+        <OptionalTooltip tooltipMessage={trailingItemTooltipMessage}>
+          {trailingItem}
+        </OptionalTooltip>
+      </FlexItem>
+    )}
   </Flex>
 );

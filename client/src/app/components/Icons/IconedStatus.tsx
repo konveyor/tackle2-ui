@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, Tooltip } from "@patternfly/react-core";
+import { Icon } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
@@ -8,6 +8,7 @@ import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclam
 import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import TopologyIcon from "@patternfly/react-icons/dist/esm/icons/topology-icon";
 import { IconWithLabel } from "./IconWithLabel";
+import { ReactElement } from "react-markdown/lib/react-markdown";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
@@ -32,7 +33,9 @@ export type IconedStatusStatusType =
   | "danger";
 
 type IconedStatusPresetType = {
-  [key in IconedStatusPreset]: Omit<IIconedStatusProps, "preset">;
+  [key in IconedStatusPreset]: Omit<IIconedStatusProps, "preset"> & {
+    topologyIcon?: ReactElement;
+  };
 };
 
 export interface IIconedStatusProps {
@@ -62,6 +65,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
+      topologyIcon: <TopologyIcon />,
     },
     InProgressInheritedAssessments: {
       icon: <InProgressIcon />,
@@ -70,6 +74,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
+      topologyIcon: <TopologyIcon />,
     },
     InheritedReviews: {
       icon: <CheckCircleIcon />,
@@ -78,6 +83,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
+      topologyIcon: <TopologyIcon />,
     },
     InheritedAssessments: {
       icon: <CheckCircleIcon />,
@@ -86,6 +92,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
+      topologyIcon: <TopologyIcon />,
     },
     Canceled: {
       icon: <TimesCircleIcon />,
@@ -131,31 +138,6 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
   };
   const presetProps = preset && presets[preset];
 
-  const getTooltipContent = () => {
-    switch (preset) {
-      case "InheritedReviews":
-        return t("message.inheritedReviewTooltip", {
-          count: tooltipCount,
-        });
-
-      case "InheritedAssessments":
-        return t("message.inheritedAssessmentTooltip", {
-          count: tooltipCount,
-        });
-      case "InProgressInheritedReviews":
-        return t("message.inheritedReviewTooltip", {
-          count: tooltipCount,
-        });
-      case "InProgressInheritedAssessments":
-        return t("message.inheritedAssessmentTooltip", {
-          count: tooltipCount,
-        });
-
-      default:
-        return "";
-    }
-  };
-
   return (
     <IconWithLabel
       iconTooltipMessage={presetProps?.tooltipMessage}
@@ -165,17 +147,8 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
         </Icon>
       }
       label={label || presetProps?.label}
-      hasTrailingItem={
-        preset === "InheritedReviews" ||
-        preset === "InheritedAssessments" ||
-        preset === "InProgressInheritedAssessments" ||
-        preset === "InProgressInheritedReviews"
-      }
-      trailingItem={
-        <Tooltip content={getTooltipContent()}>
-          <TopologyIcon />
-        </Tooltip>
-      }
+      trailingItemTooltipMessage={presetProps?.tooltipMessage}
+      trailingItem={presetProps?.topologyIcon}
     />
   );
 };

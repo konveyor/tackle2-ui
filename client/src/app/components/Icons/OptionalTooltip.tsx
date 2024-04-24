@@ -1,7 +1,7 @@
 import React from "react";
 import { Tooltip } from "@patternfly/react-core";
 
-export const IconWithOptionalTooltip: React.FC<{
+export const OptionalTooltip: React.FC<{
   tooltipMessage?: string;
   children: React.ReactElement;
 }> = ({ children, tooltipMessage }) =>
