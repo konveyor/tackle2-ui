@@ -91,7 +91,7 @@ export const Tags: React.FC = () => {
   const onDeleteTagError = (error: AxiosError) => {
     if (
       error.response?.status === 500 &&
-      error.response?.data.error === "FOREIGN KEY constraint failed"
+      error.message === "FOREIGN KEY constraint failed"
     ) {
       pushNotification({
         title: "Cannot delete a used tag",
@@ -121,7 +121,7 @@ export const Tags: React.FC = () => {
   const onDeleteTagCategoryError = (error: AxiosError) => {
     if (
       error.response?.status === 500 &&
-      error.response?.data.error === "FOREIGN KEY constraint failed"
+      error.message === "FOREIGN KEY constraint failed"
     ) {
       pushNotification({
         title: "Cannot delete a used tag",
