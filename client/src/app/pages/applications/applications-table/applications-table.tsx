@@ -853,6 +853,7 @@ export const ApplicationsTable: React.FC = () => {
                   <Flex
                     flexWrap={{ default: "nowrap" }}
                     spaceItems={{ default: "spaceItemsSm" }}
+                    alignItems={{ default: "alignItemsCenter" }}
                   >
                     <FlexItem>
                       <span>{t("terms.effort")}</span>
