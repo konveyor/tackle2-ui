@@ -2,11 +2,9 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@app/test-config/test-utils";
 import { AnalysisWizard } from "../analysis-wizard";
-import { TASKGROUPS } from "@app/api/rest";
-import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
-
-mock.onAny().reply(200, []);
+import { server } from "@mocks/server";
+import { rest } from "msw";
 
 const applicationData1 = {
   id: 1,
@@ -53,6 +51,13 @@ const taskgroupData = {
 };
 
 describe("<AnalysisWizard />", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+
   let isAnalyzeModalOpen = true;
   const setAnalyzeModalOpen = (toggle: boolean) =>
     (isAnalyzeModalOpen = toggle);
@@ -157,7 +162,11 @@ describe("<AnalysisWizard />", () => {
       },
     ];
 
-    mock.onPost(`${TASKGROUPS}`).reply(200, taskgroupData);
+    server.use(
+      rest.get("/hub/taskgroups", (req, res, ctx) => {
+        return res(ctx.json([taskgroupData]));
+      })
+    );
 
     render(
       <AnalysisWizard

@@ -6,19 +6,10 @@ import { Paths } from "@app/Paths";
 // Axios error
 
 export const getAxiosErrorMessage = (axiosError: AxiosError) => {
-  if (
-    axiosError.response &&
-    axiosError.response.data &&
-    axiosError.response.data.errorMessage
-  ) {
-    return axiosError.response.data.errorMessage;
-  } else if (
-    axiosError.response?.data?.error &&
-    typeof axiosError?.response?.data?.error === "string"
-  ) {
-    return axiosError?.response?.data?.error;
-  } else {
+  if (axiosError.response && axiosError.response.data && axiosError.message) {
     return axiosError.message;
+  } else {
+    return "Network error";
   }
 };
 
