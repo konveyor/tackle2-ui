@@ -166,7 +166,7 @@ export const Tags: React.FC = () => {
     idProperty: "name",
     items: tagCategories,
     columnNames: {
-      name: t("terms.name"),
+      tagCategory: t("terms.tagCategory"),
       rank: t("terms.rank"),
       color: t("terms.color"),
       tagCount: t("terms.tagCount"),
@@ -237,10 +237,10 @@ export const Tags: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
-    sortableColumns: ["name", "rank", "tagCount"],
-    initialSort: { columnKey: "name", direction: "asc" },
+    sortableColumns: ["tagCategory", "rank", "tagCount"],
+    initialSort: { columnKey: "tagCategory", direction: "asc" },
     getSortValues: (item) => ({
-      name: item?.name || "",
+      tagCategory: item?.name || "",
       rank: typeof item?.rank === "number" ? item.rank : Number.MAX_VALUE,
       tagCount: item?.tags?.length || 0,
     }),
@@ -319,7 +319,10 @@ export const Tags: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th {...getThProps({ columnKey: "name" })} width={30} />
+                  <Th
+                    {...getThProps({ columnKey: "tagCategory" })}
+                    width={30}
+                  />
                   <Th {...getThProps({ columnKey: "rank" })} width={20} />
                   <Th {...getThProps({ columnKey: "color" })} width={20} />
                   <Th {...getThProps({ columnKey: "tagCount" })} width={20} />
@@ -366,7 +369,10 @@ export const Tags: React.FC = () => {
                         item={tagCategory}
                         rowIndex={rowIndex}
                       >
-                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                        <Td
+                          width={25}
+                          {...getTdProps({ columnKey: "tagCategory" })}
+                        >
                           {tagCategory.name}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "rank" })}>
