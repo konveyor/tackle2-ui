@@ -4,43 +4,39 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
   Modal,
-  ToolbarGroup,
+  Title,
+  Toolbar,
+  ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  cellWidth,
-  ICell,
-  IRow,
-  sortable,
-  TableText,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
-import { AppTableWithControls } from "@app/components/AppTableWithControls";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { JobFunction } from "@app/api/models";
 import { JobFunctionForm } from "./components/job-function-form";
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useLegacySortState } from "@app/hooks/useLegacySortState";
-import { useLegacyPaginationState } from "@app/hooks/useLegacyPaginationState";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-
-const ENTITY_FIELD = "entity";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  TableHeaderContentWithControls,
+  ConditionalTableBody,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { CubesIcon } from "@patternfly/react-icons";
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
@@ -59,39 +55,56 @@ export const JobFunctions: React.FC = () => {
   const { jobFunctions, isFetching, fetchError, refetch } =
     useFetchJobFunctions();
 
-  const filterCategories: FilterCategory<JobFunction, "name">[] = [
-    {
-      categoryKey: "name",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.name || "";
-      },
+  const tableControls = useLocalTableControls({
+    tableName: "job-functions-table",
+    idProperty: "name",
+    items: jobFunctions || [],
+    columnNames: {
+      name: t("terms.name"),
     },
-  ];
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    hasActionsColumn: true,
+    filterCategories: [
+      {
+        categoryKey: "name",
+        title: t("terms.name"),
+        type: FilterType.search,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.name").toLowerCase(),
+          }) + "...",
+        getItemValue: (item) => {
+          return item?.name || "";
+        },
+      },
+    ],
+    initialItemsPerPage: 10,
+    sortableColumns: ["name"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (item) => ({
+      name: item?.name || "",
+    }),
+    isLoading: isFetching,
+  });
 
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    jobFunctions || [],
-    filterCategories
-  );
-  const getSortValues = (jobFunction: JobFunction) => [
-    jobFunction.name || "",
-    "", // Action column
-  ];
+  const {
+    currentPageItems,
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+  } = tableControls;
 
-  const { sortBy, onSort, sortedItems } = useLegacySortState(
-    filteredItems,
-    getSortValues
-  );
-
-  const { currentPageItems, setPageNumber, paginationProps } =
-    useLegacyPaginationState(sortedItems, 10);
-
-  const onDeleteJobFunctionSuccess = (response: any) => {
+  const onDeleteJobFunctionSuccess = () => {
     pushNotification({
       title: t("terms.jobFunctionDeleted"),
       variant: "success",
@@ -110,57 +123,13 @@ export const JobFunctions: React.FC = () => {
     onDeleteJobFunctionError
   );
 
-  const columns: ICell[] = [
-    {
-      title: t("terms.name"),
-      transforms: [sortable, cellWidth(70)],
-      cellFormatters: [],
-    },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-u-text-align-right",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  currentPageItems?.forEach((item) => {
-    rows.push({
-      [ENTITY_FIELD]: item,
-      cells: [
-        {
-          title: <TableText wrapModifier="truncate">{item.name}</TableText>,
-        },
-        {
-          title: (
-            <AppTableActionButtons
-              isDeleteEnabled={!!item.stakeholders}
-              tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
-              onEdit={() => setCreateUpdateModalState(item)}
-              onDelete={() => deleteRow(item)}
-            />
-          ),
-        },
-      ],
-    });
-  });
-
-  // Rows
-
   const deleteRow = (row: JobFunction) => {
     setJobFunctionToDelete(row);
   };
 
-  // Advanced filters
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
-    refetch;
+    refetch();
   };
 
   return (
@@ -169,59 +138,101 @@ export const JobFunctions: React.FC = () => {
         when={isFetching && !(jobFunctions || fetchError)}
         then={<AppPlaceholder />}
       >
-        <AppTableWithControls
-          count={jobFunctions ? jobFunctions.length : 0}
-          sortBy={sortBy}
-          onSort={onSort}
-          cells={columns}
-          rows={rows}
-          isLoading={isFetching}
-          loadingVariant="skeleton"
-          fetchError={fetchError}
-          toolbarClearAllFilters={handleOnClearAllFilters}
-          paginationProps={paginationProps}
-          paginationIdPrefix="job-functions"
-          toolbarToggle={
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-            />
-          }
-          toolbarActions={
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <RBAC
-                  allowedPermissions={controlsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
+        <div
+          style={{
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+          }}
+        >
+          <Toolbar {...toolbarProps}>
+            <ToolbarContent>
+              <FilterToolbar {...filterToolbarProps} />
+              <RBAC
+                allowedPermissions={controlsWriteScopes}
+                rbacType={RBAC_TYPE.Scope}
+              >
+                <Button
+                  type="button"
+                  id="create-job-function"
+                  aria-label="Create job function"
+                  variant={ButtonVariant.primary}
+                  onClick={() => setCreateUpdateModalState("create")}
                 >
-                  <Button
-                    type="button"
-                    id="create-job-function"
-                    aria-label="Create job function"
-                    variant={ButtonVariant.primary}
-                    onClick={() => setCreateUpdateModalState("create")}
-                  >
-                    {t("actions.createNew")}
-                  </Button>
-                </RBAC>
+                  {t("actions.createNew")}
+                </Button>
+              </RBAC>
+              <ToolbarItem {...paginationToolbarItemProps}>
+                <SimplePagination
+                  idPrefix="job-function-table"
+                  isTop
+                  paginationProps={paginationProps}
+                />
               </ToolbarItem>
-            </ToolbarGroup>
-          }
-          noDataState={
-            <NoDataEmptyState
-              // t('terms.jobFunctions')
-              title={t("composed.noDataStateTitle", {
-                what: t("terms.jobFunctions").toLowerCase(),
-              })}
-              // t('terms.jobFunction')
-              description={t("composed.noDataStateBody", {
-                how: t("terms.create"),
-                what: t("terms.jobFunction").toLowerCase(),
-              })}
-            />
-          }
-        />
+            </ToolbarContent>
+          </Toolbar>
+          <Table {...tableProps} aria-label="Job function table">
+            <Thead>
+              <Tr>
+                <TableHeaderContentWithControls {...tableControls}>
+                  <Th {...getThProps({ columnKey: "name" })} width={90} />
+                </TableHeaderContentWithControls>
+              </Tr>
+            </Thead>
+            <ConditionalTableBody
+              isLoading={isFetching}
+              isError={!!fetchError}
+              isNoData={currentPageItems.length === 0}
+              noDataEmptyState={
+                <EmptyState variant="sm">
+                  <EmptyStateIcon icon={CubesIcon} />
+                  <Title headingLevel="h2" size="lg">
+                    {t("composed.noDataStateTitle", {
+                      what: t("terms.jobFunction").toLowerCase(),
+                    })}
+                  </Title>
+                  <EmptyStateBody>
+                    {t("composed.noDataStateBody", {
+                      how: t("terms.create"),
+                      what: t("terms.jobFunction").toLowerCase(),
+                    })}
+                  </EmptyStateBody>
+                </EmptyState>
+              }
+              numRenderedColumns={numRenderedColumns}
+            >
+              <Tbody>
+                {currentPageItems?.map((jobFunction, rowIndex) => {
+                  return (
+                    <Tr
+                      key={jobFunction.name}
+                      {...getTrProps({ item: jobFunction })}
+                    >
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={jobFunction}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={90} {...getTdProps({ columnKey: "name" })}>
+                          {jobFunction.name}
+                        </Td>
+                        <AppTableActionButtons
+                          isDeleteEnabled={!!jobFunction.stakeholders}
+                          tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
+                          onEdit={() => setCreateUpdateModalState(jobFunction)}
+                          onDelete={() => deleteRow(jobFunction)}
+                        />
+                      </TableRowContentWithControls>
+                    </Tr>
+                  );
+                })}
+              </Tbody>
+            </ConditionalTableBody>
+          </Table>
+          <SimplePagination
+            idPrefix="job-function-table"
+            isTop={false}
+            paginationProps={paginationProps}
+          />
+        </div>
       </ConditionalRender>
 
       <Modal

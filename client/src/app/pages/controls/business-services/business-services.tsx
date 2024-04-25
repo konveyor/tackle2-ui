@@ -165,7 +165,7 @@ export const BusinessServices: React.FC = () => {
 
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
-    refetch;
+    refetch();
   };
 
   return (
@@ -263,16 +263,14 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
-                        <Td width={20}>
-                          <AppTableActionButtons
-                            isDeleteEnabled={isAssignedToApplication}
-                            tooltipMessage="Cannot remove a business service associated with application(s)"
-                            onEdit={() =>
-                              setCreateUpdateModalState(businessService)
-                            }
-                            onDelete={() => deleteRow(businessService)}
-                          />
-                        </Td>
+                        <AppTableActionButtons
+                          isDeleteEnabled={isAssignedToApplication}
+                          tooltipMessage="Cannot remove a business service associated with application(s)"
+                          onEdit={() =>
+                            setCreateUpdateModalState(businessService)
+                          }
+                          onDelete={() => deleteRow(businessService)}
+                        />
                       </TableRowContentWithControls>
                     </Tr>
                   </Tbody>
