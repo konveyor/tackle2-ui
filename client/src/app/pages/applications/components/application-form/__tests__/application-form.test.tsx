@@ -6,26 +6,31 @@ import {
   fireEvent,
 } from "@app/test-config/test-utils";
 
-import { BUSINESS_SERVICES } from "@app/api/rest";
-import mock from "@app/test-config/mockInstance";
 import userEvent from "@testing-library/user-event";
 
 import "@testing-library/jest-dom";
-import { BusinessService } from "@app/api/models";
 import { ApplicationFormModal } from "../application-form-modal";
+import { server } from "@mocks/server";
+import { rest } from "msw";
 
 describe("Component: application-form", () => {
   const mockChangeValue = jest.fn();
+  beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
+  afterAll(() => server.close());
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  server.use(
+    rest.get("/hub/businessservices", (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json([{ id: 1, name: "service" }]));
+    })
+  );
 
   it("Validation tests", async () => {
-    const businessServices: BusinessService[] = [{ id: 1, name: "service" }];
-
-    mock
-      .onGet(`${BUSINESS_SERVICES}`)
-      .reply(200, businessServices)
-      .onAny()
-      .reply(200, []);
-
     render(
       <ApplicationFormModal application={null} onClose={mockChangeValue} />
     );
