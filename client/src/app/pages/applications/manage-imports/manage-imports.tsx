@@ -27,7 +27,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterType, FilterToolbar } from "@app/components/FilterToolbar";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/Icons";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";

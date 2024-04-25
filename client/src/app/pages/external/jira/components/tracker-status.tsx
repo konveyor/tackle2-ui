@@ -13,7 +13,7 @@ import {
   Spinner,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/Icons";
 
 interface ITrackerStatusProps {
   name: string;
