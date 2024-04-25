@@ -319,10 +319,15 @@ export const Identities: React.FC = () => {
                           item={identity}
                           rowIndex={rowIndex}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          <Td
+                            modifier="truncate"
+                            width={25}
+                            {...getTdProps({ columnKey: "name" })}
+                          >
                             {identity.name}
                           </Td>
                           <Td
+                            modifier="truncate"
                             width={25}
                             {...getTdProps({ columnKey: "description" })}
                           >
