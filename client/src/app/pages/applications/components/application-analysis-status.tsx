@@ -1,7 +1,7 @@
 import React from "react";
 
 import { TaskState } from "@app/api/models";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/Icons";
 
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
