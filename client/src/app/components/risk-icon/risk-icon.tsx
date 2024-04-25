@@ -1,6 +1,6 @@
 import React from "react";
 import { TimesCircleIcon, WarningTriangleIcon } from "@patternfly/react-icons";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/Icons";
 
 interface RiskIconProps {
   risk: string;
