@@ -853,14 +853,13 @@ export const ApplicationsTable: React.FC = () => {
                   <Flex
                     flexWrap={{ default: "nowrap" }}
                     spaceItems={{ default: "spaceItemsSm" }}
+                    alignItems={{ default: "alignItemsCenter" }}
                   >
-                    <FlexItem>
-                      <span>{t("effort")}</span>
-                    </FlexItem>
+                    <FlexItem>{t("terms.effort")}</FlexItem>
                     <FlexItem>
                       <Tooltip
                         content={t("message.applicationEffortTooltip")}
-                        position="right"
+                        position="top"
                       >
                         <Flex>
                           <QuestionCircleIcon />

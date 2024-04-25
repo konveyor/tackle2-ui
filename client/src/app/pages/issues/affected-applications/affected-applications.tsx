@@ -64,7 +64,7 @@ export const AffectedApplications: React.FC = () => {
       name: "Name",
       description: "Description",
       businessService: "Business service",
-      effort: "Effort",
+      effort: "Total Effort",
       incidents: "Incidents",
     },
     isFilterEnabled: true,
@@ -192,14 +192,13 @@ export const AffectedApplications: React.FC = () => {
                       <Flex
                         flexWrap={{ default: "nowrap" }}
                         spaceItems={{ default: "spaceItemsSm" }}
+                        alignItems={{ default: "alignItemsCenter" }}
                       >
-                        <FlexItem>
-                          <span>{t("effort")}</span>
-                        </FlexItem>
+                        <FlexItem>{t("terms.effort")}</FlexItem>
                         <FlexItem>
                           <Tooltip
-                            content={t("message.affectedAppEffortToltip")}
-                            position="right"
+                            content={t("message.applicationEffortTooltip")}
+                            position="top"
                           >
                             <Flex>
                               <QuestionCircleIcon />

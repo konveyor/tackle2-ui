@@ -333,14 +333,13 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                 <Flex
                   flexWrap={{ default: "nowrap" }}
                   spaceItems={{ default: "spaceItemsSm" }}
+                  alignItems={{ default: "alignItemsCenter" }}
                 >
-                  <FlexItem>
-                    <span>{t("effort")}</span>
-                  </FlexItem>
+                  <FlexItem>{t("terms.effort")}</FlexItem>
                   <FlexItem>
                     <Tooltip
-                      content={t("message.allIssuesEffortTooltip")}
-                      position="right"
+                      content={t("message.issuesEffortTooltip")}
+                      position="top"
                     >
                       <Flex>
                         <QuestionCircleIcon />
