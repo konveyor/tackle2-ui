@@ -142,12 +142,12 @@ export const Tags: React.FC = () => {
 
   const closeTagCategoryModal = () => {
     setTagCategoryModalState(null);
-    refetch;
+    refetch();
   };
 
   const closeTagModal = () => {
     setTagModalState(null);
-    refetch;
+    refetch();
   };
 
   const {
