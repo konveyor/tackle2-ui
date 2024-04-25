@@ -1,6 +1,6 @@
 import React from "react";
 import { Application } from "@app/api/models";
-import { IconedStatus, IconedStatusPreset } from "@app/components/IconedStatus";
+import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
 import { Spinner } from "@patternfly/react-core";
 import { useAssessmentStatus } from "@app/hooks/useAssessmentStatus";
 interface ApplicationAssessmentStatusProps {
