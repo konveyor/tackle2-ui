@@ -7,8 +7,7 @@
 #
 # By default, no authentication, and only use pre-built images
 #
-set -e
-set -oq pipefail
+set -euxo pipefail
 
 # use kubectl if available, else fall back to `minikube kubectl --`, else error
 KUBECTL=kubectl
@@ -96,14 +95,14 @@ spec:
   sourceNamespace: ${NAMESPACE}
 EOF
 
-  # If on MacOS, need to install `brew install coreutils` to get `timeout`
-  timeout 600s bash -c "until $KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io; do sleep 30; done" \
-  || $KUBECTL get subscription --namespace ${NAMESPACE} -o yaml konveyor-operator # Print subscription details when timed out
+  # # If on MacOS, need to install `brew install coreutils` to get `timeout`
+  # timeout 600s bash -c "until $KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io; do sleep 30; done" \
+  # || $KUBECTL get subscription --namespace ${NAMESPACE} -o yaml konveyor-operator # Print subscription details when timed out
 
-  # $KUBECTL wait \
-  #   --namespace ${NAMESPACE} \
-  #   --for=condition=established \
-  #   customresourcedefinitions.apiextensions.k8s.io/tackles.tackle.konveyor.io
+  $KUBECTL wait \
+    --namespace ${NAMESPACE} \
+    --for=condition=established \
+    customresourcedefinitions.apiextensions.k8s.io/tackles.tackle.konveyor.io
 }
 
 install_tackle() {
