@@ -91,7 +91,7 @@ export const Stakeholders: React.FC = () => {
 
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
-    refetch;
+    refetch();
   };
 
   const tableControls = useLocalTableControls({

@@ -71,7 +71,7 @@ import {
 } from "@app/rbac";
 import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
-import { IconedStatus } from "@app/components/IconedStatus";
+import { IconedStatus } from "@app/components/Icons";
 import { useQueryClient } from "@tanstack/react-query";
 
 const Archetypes: React.FC = () => {

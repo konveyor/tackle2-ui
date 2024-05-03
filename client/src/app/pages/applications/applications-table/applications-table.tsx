@@ -114,6 +114,7 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { ApplicationFormModal } from "../components/application-form";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import dayjs from "dayjs";
+import { IconWithLabel } from "@app/components/Icons";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -972,8 +973,12 @@ export const ApplicationsTable: React.FC = () => {
                           modifier="truncate"
                           {...getTdProps({ columnKey: "tags" })}
                         >
-                          <TagIcon />
-                          {application.tags ? application.tags.length : 0}
+                          <IconWithLabel
+                            icon={<TagIcon />}
+                            label={
+                              application.tags ? application.tags.length : 0
+                            }
+                          />
                         </Td>
                       )}
                       {getColumnVisibility("effort") && (

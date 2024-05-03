@@ -6,18 +6,25 @@ import {
   fireEvent,
 } from "@app/test-config/test-utils";
 
-import { IDENTITIES } from "@app/api/rest";
-import mock from "@app/test-config/mockInstance";
-
 import { IdentityForm } from "..";
 import "@testing-library/jest-dom";
-
-const data: any[] = [];
-
-mock.onGet(`${IDENTITIES}`).reply(200, data);
+import { server } from "@mocks/server";
+import { rest } from "msw";
 
 describe("Component: identity-form", () => {
+  beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
+
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
   const mockChangeValue = jest.fn();
+  const data: any = [];
+
+  server.use(
+    rest.get("*", (req, res, ctx) => {
+      return res(ctx.json(data));
+    })
+  );
 
   it("Display form on initial load", async () => {
     render(<IdentityForm onClose={mockChangeValue} />);
@@ -176,7 +183,7 @@ describe("Component: identity-form", () => {
     expect(createButton).toBeDisabled();
   });
 
-  it.skip("Identity form validation test - source - key upload", async () => {
+  it("Identity form validation test - source - key upload", async () => {
     render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
@@ -231,7 +238,7 @@ describe("Component: identity-form", () => {
     expect(createButton).toBeEnabled();
   });
 
-  it.skip("Identity form validation test - maven", async () => {
+  it("Identity form validation test - maven", async () => {
     render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");

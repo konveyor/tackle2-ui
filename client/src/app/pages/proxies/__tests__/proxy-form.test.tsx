@@ -8,40 +8,30 @@ import {
 } from "@app/test-config/test-utils";
 
 import { Proxies } from "../proxies";
-import MockAdapter from "axios-mock-adapter";
-import { IDENTITIES, PROXIES } from "@app/api/rest";
-import axios from "axios";
-import { Proxy, Identity } from "@app/api/models";
 import userEvent from "@testing-library/user-event";
-import { ProxyForm } from "../proxy-form";
-import mock from "@app/test-config/mockInstance";
-
-const identitiesData: Identity[] = [];
-mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
-
-const proxiesData = [
-  {
-    host: "",
-    kind: "http",
-    port: 0,
-    excluded: [],
-    identity: null,
-    id: 1,
-    enabled: false,
-  },
-  {
-    host: "",
-    kind: "https",
-    port: 0,
-    excluded: [],
-    identity: null,
-    id: 1,
-    enabled: false,
-  },
-];
-mock.onGet(`${PROXIES}`).reply(200, proxiesData);
+import { server } from "@mocks/server";
+import { rest } from "msw";
 
 describe("Component: proxy-form", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  server.use(
+    rest.get("/hub/identities", (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json([
+          { id: 0, name: "proxy-cred", kind: "proxy" },
+          { id: 1, name: "maven-cred", kind: "maven" },
+          { id: 2, name: "source-cred", kind: "source" },
+        ])
+      );
+    })
+  );
+
   it("Display switch statements on initial load", async () => {
     render(<Proxies />);
     await screen.findByLabelText("HTTP proxy");
@@ -49,7 +39,7 @@ describe("Component: proxy-form", () => {
     await screen.findByLabelText("HTTPS proxy");
   });
 
-  it.skip("Show HTTP proxy form when switch button clicked", async () => {
+  it("Show HTTP proxy form when switch button clicked", async () => {
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
 
@@ -62,7 +52,7 @@ describe("Component: proxy-form", () => {
     );
   });
 
-  it.skip("Show HTTPS proxy form when switch button clicked", async () => {
+  it("Show HTTPS proxy form when switch button clicked", async () => {
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
 
@@ -75,14 +65,19 @@ describe("Component: proxy-form", () => {
     );
   });
 
-  it.skip("Select http proxy identity", async () => {
-    const identitiesData: Identity[] = [
-      { id: 0, name: "proxy-cred", kind: "proxy" },
-      { id: 1, name: "maven-cred", kind: "maven" },
-      { id: 2, name: "source-cred", kind: "source" },
-    ];
-
-    mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
+  it("Select http proxy identity", async () => {
+    server.use(
+      rest.get("/hub/identities", (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            { id: 0, name: "proxy-cred", kind: "proxy" },
+            { id: 1, name: "maven-cred", kind: "maven" },
+            { id: 2, name: "source-cred", kind: "source" },
+          ])
+        );
+      })
+    );
 
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
@@ -112,14 +107,19 @@ describe("Component: proxy-form", () => {
     expect(sourceCred).toBeNull(); // it doesn't exist
   });
 
-  it.skip("Select https proxy identity", async () => {
-    const identitiesData: Identity[] = [
-      { id: 0, name: "proxy-cred", kind: "proxy" },
-      { id: 1, name: "maven-cred", kind: "maven" },
-      { id: 2, name: "source-cred", kind: "source" },
-    ];
-
-    mock.onGet(`${IDENTITIES}`).reply(200, identitiesData);
+  it("Select https proxy identity", async () => {
+    server.use(
+      rest.get("/hub/identities", (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            { id: 0, name: "proxy-cred", kind: "proxy" },
+            { id: 1, name: "maven-cred", kind: "maven" },
+            { id: 2, name: "source-cred", kind: "source" },
+          ])
+        );
+      })
+    );
 
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
