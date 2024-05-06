@@ -23,9 +23,17 @@ import { adminRoutes, devRoutes } from "@app/Routes";
 
 type PersonaType = "ADMINISTRATION" | "MIGRATION";
 
-const PersonaKey: { [key in PersonaType]: string } = {
-  ADMINISTRATION: "Administration",
-  MIGRATION: "Migration",
+const PersonaKey: {
+  [key in PersonaType]: { label: string; startPath: Paths };
+} = {
+  ADMINISTRATION: {
+    label: "Administration",
+    startPath: Paths.general,
+  },
+  MIGRATION: {
+    label: "Migration",
+    startPath: Paths.applications,
+  },
 };
 
 export const SidebarApp: React.FC = () => (
@@ -52,8 +60,7 @@ export const SidebarApp: React.FC = () => (
 const PersonaSidebar: FC<{
   children: ReactElement;
   selectedPersona: PersonaType;
-  targetPath: Paths;
-}> = ({ children, selectedPersona, targetPath }) => {
+}> = ({ children, selectedPersona }) => {
   const token = keycloak.tokenParsed || undefined;
   const userRoles = token?.realm_access?.roles || [];
   const adminAccess = checkAccess(userRoles, ["tackle-admin"]);
@@ -71,11 +78,12 @@ const PersonaSidebar: FC<{
           value={selectedPersona}
           options={personaOptions.map((value) => ({
             value,
-            children: PersonaKey[value],
+            children: PersonaKey[value]?.label,
           }))}
           onChange={(value) => {
-            if (value !== selectedPersona) {
-              history.push(targetPath);
+            const startPath = PersonaKey[value as PersonaType]?.startPath;
+            if (value !== selectedPersona && startPath) {
+              history.push(startPath);
             }
           }}
         />
@@ -92,7 +100,7 @@ const PersonaSidebar: FC<{
 export const MigrationSidebar = () => {
   const { t } = useTranslation();
   return (
-    <PersonaSidebar selectedPersona="MIGRATION" targetPath={Paths.general}>
+    <PersonaSidebar selectedPersona="MIGRATION">
       <NavList title="Global">
         <NavItem>
           <NavLink to={Paths.applications} activeClassName="pf-m-current">
@@ -143,10 +151,7 @@ export const MigrationSidebar = () => {
 export const AdminSidebar = () => {
   const { t } = useTranslation();
   return (
-    <PersonaSidebar
-      selectedPersona="ADMINISTRATION"
-      targetPath={Paths.applications}
-    >
+    <PersonaSidebar selectedPersona="ADMINISTRATION">
       <NavList title="Admin">
         <NavItem>
           <NavLink to={Paths.general} activeClassName="pf-m-current">
