@@ -5,7 +5,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
-import { Paths } from "@app/Paths";
+import { Paths, DevPathValues, AdminPathValues } from "@app/Paths";
 import { RouteWrapper } from "./components/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
@@ -61,14 +61,14 @@ const AssessmentSummary = lazy(
       "./pages/assessment/components/assessment-summary/assessment-summary-page"
     )
 );
-export interface IRoute {
-  path: string;
+export interface IRoute<T> {
+  path: T;
   comp: React.ComponentType<any>;
   exact?: boolean;
   routes?: undefined;
 }
 
-export const devRoutes: IRoute[] = [
+export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.applicationsImportsDetails,
     comp: ImportDetails,
@@ -173,18 +173,13 @@ export const devRoutes: IRoute[] = [
       ]
     : []),
   {
-    path: Paths.questionnaire,
-    comp: Questionnaire,
-    exact: false,
-  },
-  {
     path: Paths.archetypes,
     comp: Archetypes,
     exact: false,
   },
 ];
 
-export const adminRoutes: IRoute[] = [
+export const adminRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: General,
     path: Paths.general,
@@ -213,6 +208,11 @@ export const adminRoutes: IRoute[] = [
   {
     path: Paths.assessment,
     comp: AssessmentSettings,
+    exact: false,
+  },
+  {
+    path: Paths.questionnaire,
+    comp: Questionnaire,
     exact: false,
   },
   { comp: Proxies, path: Paths.proxies, exact: false },

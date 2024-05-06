@@ -1,54 +1,68 @@
-export enum Paths {
-  base = "/",
-  notFound = "/not-found",
-
+export const DevPaths = {
   // Developer perspective
-  applications = "/applications",
-  applicationsAnalysisTab = "/applications/analysis-tab",
-  applicationsAssessmentTab = "/applications/assessment-tab",
-  applicationsImports = "/applications/application-imports",
-  applicationsImportsDetails = "/applications/application-imports/:importId",
-  archetypesAssessment = "/archetypes/assessment/:assessmentId",
-  applicationsAssessment = "/applications/assessment/:assessmentId",
-  applicationAssessmentActions = "/applications/assessment-actions/:applicationId",
-  viewArchetypes = "/applications/view-archetypes/:applicationId/archetypes/:archetypeId",
-  archetypeAssessmentActions = "/archetypes/assessment-actions/:archetypeId",
-  applicationAssessmentSummary = "/applications/assessment-summary/:assessmentId",
-  archetypeAssessmentSummary = "/archetypes/assessment-summary/:assessmentId",
-  applicationsReview = "/applications/:applicationId/review",
-  archetypeReview = "/archetypes/:archetypeId/review",
-  applicationsAnalysis = "/applications/analysis",
-  archetypes = "/archetypes",
-  controls = "/controls",
-  controlsBusinessServices = "/controls/business-services",
-  controlsStakeholders = "/controls/stakeholders",
-  controlsStakeholderGroups = "/controls/stakeholder-groups",
-  controlsJobFunctions = "/controls/job-functions",
-  controlsTags = "/controls/tags",
-  reports = "/reports",
-  migrationWaves = "/migration-waves",
-  waves = "/waves",
-  issues = "/issues",
-  issuesAllTab = "/issues/all",
-  issuesAllAffectedApplications = "/issues/all/:ruleset/:rule/affected-applications",
-  issuesSingleAppTab = "/issues/single-app",
-  issuesSingleAppSelected = "/issues/single-app/:applicationId",
+  applications: "/applications",
+  applicationsAnalysisTab: "/applications/analysis-tab",
+  applicationsAssessmentTab: "/applications/assessment-tab",
+  applicationsImports: "/applications/application-imports",
+  applicationsImportsDetails: "/applications/application-imports/:importId",
+  archetypesAssessment: "/archetypes/assessment/:assessmentId",
+  applicationsAssessment: "/applications/assessment/:assessmentId",
+  applicationAssessmentActions:
+    "/applications/assessment-actions/:applicationId",
+  viewArchetypes:
+    "/applications/view-archetypes/:applicationId/archetypes/:archetypeId",
+  archetypeAssessmentActions: "/archetypes/assessment-actions/:archetypeId",
+  applicationAssessmentSummary:
+    "/applications/assessment-summary/:assessmentId",
+  archetypeAssessmentSummary: "/archetypes/assessment-summary/:assessmentId",
+  applicationsReview: "/applications/:applicationId/review",
+  archetypeReview: "/archetypes/:archetypeId/review",
+  applicationsAnalysis: "/applications/analysis",
+  archetypes: "/archetypes",
+  controls: "/controls",
+  controlsBusinessServices: "/controls/business-services",
+  controlsStakeholders: "/controls/stakeholders",
+  controlsStakeholderGroups: "/controls/stakeholder-groups",
+  controlsJobFunctions: "/controls/job-functions",
+  controlsTags: "/controls/tags",
+  reports: "/reports",
+  migrationWaves: "/migration-waves",
+  waves: "/waves",
+  issues: "/issues",
+  issuesAllTab: "/issues/all",
+  issuesAllAffectedApplications:
+    "/issues/all/:ruleset/:rule/affected-applications",
+  issuesSingleAppTab: "/issues/single-app",
+  issuesSingleAppSelected: "/issues/single-app/:applicationId",
 
-  dependencies = "/dependencies",
+  dependencies: "/dependencies",
+} as const;
 
+export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
+
+export const AdminPaths = {
   // Administrator perspective
-  general = "/general",
-  identities = "/identities",
-  repositories = "/repositories",
-  repositoriesGit = "/repositories/git",
-  repositoriesSvn = "/repositories/svn",
-  repositoriesMvn = "/repositories/maven",
-  proxies = "/proxies",
-  migrationTargets = "/migration-targets",
-  assessment = "/assessment",
-  questionnaire = "/questionnaire/:questionnaireId",
-  jira = "/jira",
-}
+  general: "/general",
+  identities: "/identities",
+  repositories: "/repositories",
+  repositoriesGit: "/repositories/git",
+  repositoriesSvn: "/repositories/svn",
+  repositoriesMvn: "/repositories/maven",
+  proxies: "/proxies",
+  migrationTargets: "/migration-targets",
+  assessment: "/assessment",
+  questionnaire: "/questionnaire/:questionnaireId",
+  jira: "/jira",
+} as const;
+
+export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];
+
+export const GeneralPaths = {
+  base: "/",
+  notFound: "/not-found",
+} as const;
+
+export const Paths = { ...GeneralPaths, ...AdminPaths, ...DevPaths } as const;
 
 export interface AssessmentRoute {
   assessmentId: string;
