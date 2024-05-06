@@ -173,11 +173,6 @@ export const devRoutes: IRoute[] = [
       ]
     : []),
   {
-    path: Paths.assessment,
-    comp: AssessmentSettings,
-    exact: false,
-  },
-  {
     path: Paths.questionnaire,
     comp: Questionnaire,
     exact: false,
@@ -213,6 +208,11 @@ export const adminRoutes: IRoute[] = [
   {
     comp: RepositoriesMvn,
     path: Paths.repositoriesMvn,
+    exact: false,
+  },
+  {
+    path: Paths.assessment,
+    comp: AssessmentSettings,
     exact: false,
   },
   { comp: Proxies, path: Paths.proxies, exact: false },
