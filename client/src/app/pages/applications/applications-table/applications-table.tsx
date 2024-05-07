@@ -586,6 +586,7 @@ export const ApplicationsTable: React.FC = () => {
     ? [
         <DropdownItem
           key="applications-bulk-delete"
+          isDisabled={selectedRows.length < 1}
           onClick={() => {
             setApplicationsToDelete(selectedRows);
           }}
