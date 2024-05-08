@@ -5,10 +5,16 @@ on:
     branches:
       - "main"
       - "release-*"
+
   pull_request:
     branches:
       - "main"
       - "release-*"
+
+  schedule:
+    - cron: "35 5 * * *" # every day @ 5:35am UTC
+
+  workflow_dispatch:
 
 jobs:
   unit-test-lookup-image:
@@ -17,6 +23,7 @@ jobs:
       builder-image: ${{ steps.grepBuilder.outputs.builder }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
         run: |
@@ -55,13 +62,15 @@ jobs:
         run: npm run test -- --coverage --watchAll=false
 
       - name: Upload to codecov (client)
+        if: ${{ github.event.pull_request }}
         uses: codecov/codecov-action@v4
         with:
           flags: client
-          directory: ./*/coverage
+          directory: ./client/coverage
 
       - name: Upload to codecov (server)
+        if: ${{ github.event.pull_request }}
         uses: codecov/codecov-action@v4
         with:
           flags: server
-          directory: ./*/coverage
+          directory: ./server/coverage
