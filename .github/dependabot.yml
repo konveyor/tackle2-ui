@@ -4,6 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    commit-message:
+      prefix: ":ghost: "
     allow:
       - dependency-name: "@patternfly/*"
         dependency-type: "direct"
