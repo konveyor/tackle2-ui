@@ -20,7 +20,7 @@ jobs:
       registry: "quay.io/konveyor"
       image_name: "tackle2-ui"
       containerfile: "./Dockerfile"
-      architectures: '[ "amd64", "arm64", "ppc64le", "s390x" ]'
+      architectures: '[ "amd64", "arm64" ]'
       # 2023-03-19: currently needed for npm@10
       extra-args: "--ulimit nofile=4096:4096"
     secrets:
