@@ -187,7 +187,7 @@ export const MigrationTargets: React.FC = () => {
           </GridItem>
           <GridItem span={2} className={spacing.mtSm}>
             <Button
-              id="clear-repository"
+              id="create-target"
               isInline
               className={spacing.mlMd}
               onClick={() => setCreateUpdateModalState("create")}
