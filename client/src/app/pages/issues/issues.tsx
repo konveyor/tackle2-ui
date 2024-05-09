@@ -24,7 +24,9 @@ export enum IssueFilterGroups {
   Issues = "Issues",
 }
 
-export type IssuesTabPath = Paths.issuesAllTab | Paths.issuesSingleAppTab;
+export type IssuesTabPath =
+  | typeof Paths.issuesAllTab
+  | typeof Paths.issuesSingleAppTab;
 
 export const Issues: React.FC = () => {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
-import { Paths } from "@app/Paths";
+import { AdminPathValues, DevPathValues } from "@app/Paths";
 
 // Axios error
 
@@ -132,7 +132,10 @@ export const customURLValidation = (schema: yup.StringSchema) => {
   });
 };
 
-export const formatPath = (path: Paths, data: any) => {
+export const formatPath = (
+  path: AdminPathValues | DevPathValues,
+  data: any
+) => {
   let url = path as string;
 
   for (const k of Object.keys(data)) {
