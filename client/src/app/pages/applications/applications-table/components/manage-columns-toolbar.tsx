@@ -45,7 +45,7 @@ export const ManageColumnsToolbar = <TColumnKey extends string>({
           columns={columns}
           saveLabel={t("actions.save")}
           cancelLabel={t("actions.cancel")}
-          title={t("title.manageColumns")}
+          title={t("dialog.title.manageColumns")}
         />
       )}
     </>
