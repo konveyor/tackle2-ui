@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Badge,
   Button,
+  Label,
   MenuToggle,
   MenuToggleElement,
   Select,
@@ -54,7 +55,7 @@ export const MultiselectFilterControl = <TItem,>({
       .includes(inputValue?.trim().toLowerCase() ?? "")
   );
 
-  const groups = [
+  const [firstGroup, ...otherGroups] = [
     ...new Set([
       ...(category.selectOptions
         ?.map(({ groupLabel }) => groupLabel)
@@ -225,60 +226,72 @@ export const MultiselectFilterControl = <TItem,>({
 
   return (
     <>
-      {groups.reduce(
-        (acc, groupName) => (
+      {[
+        <ToolbarFilter
+          id={`${idPrefix}-${firstGroup}`}
+          chips={chipsFor(firstGroup)}
+          deleteChip={(_, chip) => onFilterClear(chip)}
+          deleteChipGroup={() => onFilterClearAll(firstGroup)}
+          categoryName={firstGroup}
+          key={firstGroup}
+          showToolbarItem={showToolbarItem}
+        >
+          <Select
+            isScrollable={isScrollable}
+            aria-label={category.title}
+            toggle={toggle}
+            selected={filterValue}
+            onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
+            onSelect={(_, selection) => onSelect(selection as string)}
+            isOpen={isFilterDropdownOpen}
+          >
+            <SelectList id={withPrefix("select-typeahead-listbox")}>
+              {[
+                ...filteredOptions.map(
+                  ({ groupLabel, label, value, optionProps = {} }, index) => (
+                    <SelectOption
+                      {...optionProps}
+                      {...(!optionProps.isDisabled && { hasCheckbox: true })}
+                      key={value}
+                      id={withPrefix(`option-${index}`)}
+                      value={value}
+                      isFocused={focusedItemIndex === index}
+                      isSelected={filterValue?.includes(value)}
+                    >
+                      {!!groupLabel && <Label>{groupLabel}</Label>}{" "}
+                      {label ?? value}
+                    </SelectOption>
+                  )
+                ),
+                !filteredOptions.length && (
+                  <SelectOption
+                    isDisabled
+                    hasCheckbox={false}
+                    key={NO_RESULTS}
+                    value={NO_RESULTS}
+                    isSelected={false}
+                  >
+                    {`No results found for "${inputValue}"`}
+                  </SelectOption>
+                ),
+              ].filter(Boolean)}
+            </SelectList>
+          </Select>
+        </ToolbarFilter>,
+        ...otherGroups.map((groupName) => (
           <ToolbarFilter
             id={`${idPrefix}-${groupName}`}
             chips={chipsFor(groupName)}
             deleteChip={(_, chip) => onFilterClear(chip)}
             deleteChipGroup={() => onFilterClearAll(groupName)}
             categoryName={groupName}
-            showToolbarItem={showToolbarItem}
+            key={groupName}
+            showToolbarItem={false}
           >
-            {acc}
+            {" "}
           </ToolbarFilter>
-        ),
-        <Select
-          isScrollable={isScrollable}
-          aria-label={category.title}
-          toggle={toggle}
-          selected={filterValue}
-          onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
-          onSelect={(_, selection) => onSelect(selection as string)}
-          isOpen={isFilterDropdownOpen}
-        >
-          <SelectList id={withPrefix("select-typeahead-listbox")}>
-            {[
-              ...filteredOptions.map(
-                ({ label, value, optionProps = {} }, index) => (
-                  <SelectOption
-                    {...optionProps}
-                    {...(!optionProps.isDisabled && { hasCheckbox: true })}
-                    key={value}
-                    id={withPrefix(`option-${index}`)}
-                    value={value}
-                    isFocused={focusedItemIndex === index}
-                    isSelected={filterValue?.includes(value)}
-                  >
-                    {label ?? value}
-                  </SelectOption>
-                )
-              ),
-              !filteredOptions.length && (
-                <SelectOption
-                  isDisabled
-                  hasCheckbox={false}
-                  key={NO_RESULTS}
-                  value={NO_RESULTS}
-                  isSelected={false}
-                >
-                  {`No results found for "${inputValue}"`}
-                </SelectOption>
-              ),
-            ].filter(Boolean)}
-          </SelectList>
-        </Select>
-      )}
+        )),
+      ]}
     </>
   );
 };
