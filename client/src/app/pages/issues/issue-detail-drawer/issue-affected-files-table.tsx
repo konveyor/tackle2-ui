@@ -2,9 +2,12 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Flex,
+  FlexItem,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -26,6 +29,7 @@ import { SimplePagination } from "@app/components/SimplePagination";
 import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import PathDisplay from "./path-display";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 export interface IIssueAffectedFilesTableProps {
   issue: AnalysisIssue;
@@ -136,7 +140,25 @@ export const IssueAffectedFilesTable: React.FC<
                 {...getThProps({ columnKey: "incidents" })}
                 modifier="nowrap"
               />
-              <Th {...getThProps({ columnKey: "effort" })} modifier="nowrap" />
+              <Th {...getThProps({ columnKey: "effort" })}>
+                <Flex
+                  flexWrap={{ default: "nowrap" }}
+                  spaceItems={{ default: "spaceItemsSm" }}
+                  alignItems={{ default: "alignItemsCenter" }}
+                >
+                  <FlexItem>{t("terms.effort")}</FlexItem>
+                  <FlexItem>
+                    <Tooltip
+                      content={t("message.affectedAppEffortTooltip")}
+                      position="top"
+                    >
+                      <Flex>
+                        <QuestionCircleIcon />
+                      </Flex>
+                    </Tooltip>
+                  </FlexItem>
+                </Flex>
+              </Th>
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
