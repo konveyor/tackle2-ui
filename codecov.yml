@@ -30,3 +30,8 @@ flags:
 
 ignore:
   - "**/mockServiceWorker.js"
+
+# turn off github annotations, too many annotations are not useful
+# see: https://docs.codecov.com/docs/github-checks
+github_checks:
+  annotations: false
