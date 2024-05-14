@@ -11,6 +11,7 @@ import {
 import { SelectFilterControl } from "./SelectFilterControl";
 import { SearchFilterControl } from "./SearchFilterControl";
 import { MultiselectFilterControl } from "./MultiselectFilterControl";
+import { DateRangeFilter } from "./DateRangeFilter";
 
 export interface IFilterControlProps<TItem, TFilterCategoryKey extends string> {
   category: FilterCategory<TItem, TFilterCategoryKey>;
@@ -57,6 +58,9 @@ export const FilterControl = <TItem, TFilterCategoryKey extends string>({
         {...props}
       />
     );
+  }
+  if (category.type === FilterType.dateRange) {
+    return <DateRangeFilter category={category} {...props} />;
   }
   return null;
 };
