@@ -52,6 +52,8 @@ export interface IBasicFilterCategory<
    * Defaults to using the UI state's value if omitted.
    */
   getServerFilterValue?: (filterValue: FilterValue) => string[] | undefined;
+  /** For client side filtering, provide custom algorithm for testing if the value of `TItem` matches the filter value. */
+  matcher?: (filter: string, item: TItem) => boolean;
 }
 
 export interface IMultiselectFilterCategory<
