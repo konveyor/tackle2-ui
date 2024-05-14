@@ -49,10 +49,12 @@ export const MultiselectFilterControl = <TItem,>({
   const withPrefix = (id: string) => `${idPrefix}-${id}`;
   const defaultGroup = category.title;
 
-  const filteredOptions = category.selectOptions?.filter(({ label, value }) =>
-    String(label ?? value ?? "")
-      .toLowerCase()
-      .includes(inputValue?.trim().toLowerCase() ?? "")
+  const filteredOptions = category.selectOptions?.filter(
+    ({ label, value, groupLabel }) =>
+      [label ?? value, groupLabel]
+        .filter(Boolean)
+        .map((it) => it.toLocaleLowerCase())
+        .some((it) => it.includes(inputValue?.trim().toLowerCase() ?? ""))
   );
 
   const [firstGroup, ...otherGroups] = [
@@ -64,7 +66,7 @@ export const MultiselectFilterControl = <TItem,>({
     ]),
   ];
 
-  const onFilterClearAll = (groupName: string) =>
+  const onFilterClearGroup = (groupName: string) =>
     setFilterValue(
       filterValue
         ?.map((filter): [string, FilterSelectOptionProps | undefined] => [
@@ -226,12 +228,12 @@ export const MultiselectFilterControl = <TItem,>({
 
   return (
     <>
-      {[
+      {
         <ToolbarFilter
           id={`${idPrefix}-${firstGroup}`}
           chips={chipsFor(firstGroup)}
           deleteChip={(_, chip) => onFilterClear(chip)}
-          deleteChipGroup={() => onFilterClearAll(firstGroup)}
+          deleteChipGroup={() => onFilterClearGroup(firstGroup)}
           categoryName={firstGroup}
           key={firstGroup}
           showToolbarItem={showToolbarItem}
@@ -246,52 +248,50 @@ export const MultiselectFilterControl = <TItem,>({
             isOpen={isFilterDropdownOpen}
           >
             <SelectList id={withPrefix("select-typeahead-listbox")}>
-              {[
-                ...filteredOptions.map(
-                  ({ groupLabel, label, value, optionProps = {} }, index) => (
-                    <SelectOption
-                      {...optionProps}
-                      {...(!optionProps.isDisabled && { hasCheckbox: true })}
-                      key={value}
-                      id={withPrefix(`option-${index}`)}
-                      value={value}
-                      isFocused={focusedItemIndex === index}
-                      isSelected={filterValue?.includes(value)}
-                    >
-                      {!!groupLabel && <Label>{groupLabel}</Label>}{" "}
-                      {label ?? value}
-                    </SelectOption>
-                  )
-                ),
-                !filteredOptions.length && (
+              {filteredOptions.map(
+                ({ groupLabel, label, value, optionProps = {} }, index) => (
                   <SelectOption
-                    isDisabled
-                    hasCheckbox={false}
-                    key={NO_RESULTS}
-                    value={NO_RESULTS}
-                    isSelected={false}
+                    {...optionProps}
+                    {...(!optionProps.isDisabled && { hasCheckbox: true })}
+                    key={value}
+                    id={withPrefix(`option-${index}`)}
+                    value={value}
+                    isFocused={focusedItemIndex === index}
+                    isSelected={filterValue?.includes(value)}
                   >
-                    {`No results found for "${inputValue}"`}
+                    {!!groupLabel && <Label>{groupLabel}</Label>}{" "}
+                    {label ?? value}
                   </SelectOption>
-                ),
-              ].filter(Boolean)}
+                )
+              )}
+              {filteredOptions.length === 0 && (
+                <SelectOption
+                  isDisabled
+                  hasCheckbox={false}
+                  key={NO_RESULTS}
+                  value={NO_RESULTS}
+                  isSelected={false}
+                >
+                  {`No results found for "${inputValue}"`}
+                </SelectOption>
+              )}
             </SelectList>
           </Select>
-        </ToolbarFilter>,
-        ...otherGroups.map((groupName) => (
-          <ToolbarFilter
-            id={`${idPrefix}-${groupName}`}
-            chips={chipsFor(groupName)}
-            deleteChip={(_, chip) => onFilterClear(chip)}
-            deleteChipGroup={() => onFilterClearAll(groupName)}
-            categoryName={groupName}
-            key={groupName}
-            showToolbarItem={false}
-          >
-            {" "}
-          </ToolbarFilter>
-        )),
-      ]}
+        </ToolbarFilter>
+      }
+      {otherGroups.map((groupName) => (
+        <ToolbarFilter
+          id={`${idPrefix}-${groupName}`}
+          chips={chipsFor(groupName)}
+          deleteChip={(_, chip) => onFilterClear(chip)}
+          deleteChipGroup={() => onFilterClearGroup(groupName)}
+          categoryName={groupName}
+          key={groupName}
+          showToolbarItem={false}
+        >
+          {" "}
+        </ToolbarFilter>
+      ))}
     </>
   );
 };
