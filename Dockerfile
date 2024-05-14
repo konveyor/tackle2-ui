@@ -15,7 +15,7 @@ COPY --chown=1001 . .
 RUN npm clean-install --ignore-scripts && npm run build && npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-93
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-113
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
