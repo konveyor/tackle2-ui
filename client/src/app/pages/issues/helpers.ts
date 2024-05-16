@@ -23,8 +23,7 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useTranslation } from "react-i18next";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchApplications } from "@app/queries/applications";
-import { localeNumericCompare } from "@app/utils/utils";
-import i18n from "@app/i18n";
+import { universalComparator } from "@app/utils/utils";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
@@ -58,7 +57,7 @@ export const useSharedAffectedApplicationFilterCategories = <
         }) + "...",
       selectOptions: applications
         .map(({ name }) => name)
-        .sort((a, b) => localeNumericCompare(a, b, i18n.language))
+        .sort(universalComparator)
         .map((name) => ({
           key: name,
           value: name,

@@ -23,7 +23,11 @@ import {
   useCreateArchetypeMutation,
   useUpdateArchetypeMutation,
 } from "@app/queries/archetypes";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+  universalComparator,
+} from "@app/utils/utils";
 import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
@@ -198,8 +202,14 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         .map(({ id }) => tagItems.find((tag) => tag.id === id))
         .filter(Boolean),
 
-      stakeholders: archetype?.stakeholders?.sort() ?? [],
-      stakeholderGroups: archetype?.stakeholderGroups?.sort() ?? [],
+      stakeholders:
+        archetype?.stakeholders?.sort((a, b) =>
+          universalComparator(a.name, b.name)
+        ) ?? [],
+      stakeholderGroups:
+        archetype?.stakeholderGroups?.sort((a, b) =>
+          universalComparator(a.name, b.name)
+        ) ?? [],
     },
     resolver: yupResolver(validationSchema),
     mode: "all",

@@ -30,6 +30,7 @@ import { ApplicationSelectionContextProvider } from "./application-selection-con
 import { IdentifiedRisksTable } from "./components/identified-risks-table";
 import { toIdRef } from "@app/utils/model-utils";
 import { ApplicationLandscape } from "./components/application-landscape";
+import { universalComparator } from "@app/utils/utils";
 
 const ALL_QUESTIONNAIRES = -1;
 
@@ -112,7 +113,7 @@ export const Reports: React.FC = () => {
         )
           .map((id) => questionnairesById[id])
           .filter((questionnaire) => questionnaire !== undefined)
-          .sort((a, b) => a.name.localeCompare(b.name));
+          .sort((a, b) => universalComparator(a.name, b.name));
 
   const isAllQuestionnairesSelected =
     selectedQuestionnaireId === ALL_QUESTIONNAIRES;

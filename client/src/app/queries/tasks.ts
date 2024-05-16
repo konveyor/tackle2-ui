@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { cancelTask, deleteTask, getTaskById, getTasks } from "@app/api/rest";
+import { universalComparator } from "@app/utils/utils";
 
 interface FetchTasksFilters {
   addon?: string;
@@ -22,15 +23,11 @@ export const useFetchTasks = (
           filters?.addon ? filters.addon === task.addon : true
         )
         // sort by application.id (ascending) then createTime (newest to oldest)
-        .sort((a, b) => {
-          if (a.application.id !== b.application.id) {
-            return a.application.id - b.application.id;
-          } else {
-            const aTime = a?.createTime ?? "";
-            const bTime = b?.createTime ?? "";
-            return aTime < bTime ? 1 : aTime > bTime ? -1 : 0;
-          }
-        })
+        .sort((a, b) =>
+          a.application.id !== b.application.id
+            ? universalComparator(a.application.id, b.application.id)
+            : -1 * universalComparator(a.createTime, b.createTime)
+        )
         // remove old tasks for each application
         .filter(
           (task, index, tasks) =>
