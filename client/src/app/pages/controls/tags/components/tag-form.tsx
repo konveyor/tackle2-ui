@@ -178,7 +178,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            variant="single"
+            variant="typeahead"
             maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
             placeholderText={t("composed.selectOne", {
               what: t("terms.tagCategory").toLowerCase(),
