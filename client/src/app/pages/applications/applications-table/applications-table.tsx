@@ -15,8 +15,14 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  Flex,
+  FlexItem,
 } from "@patternfly/react-core";
-import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
+import {
+  PencilAltIcon,
+  QuestionCircleIcon,
+  TagIcon,
+} from "@patternfly/react-icons";
 import {
   Table,
   Thead,
@@ -845,9 +851,25 @@ export const ApplicationsTable: React.FC = () => {
                 {getColumnVisibility("tags") && (
                   <Th {...getThProps({ columnKey: "tags" })} width={10} />
                 )}
-                {getColumnVisibility("effort") && (
-                  <Th {...getThProps({ columnKey: "effort" })} width={10} />
-                )}
+                <Th {...getThProps({ columnKey: "effort" })}>
+                  <Flex
+                    flexWrap={{ default: "nowrap" }}
+                    spaceItems={{ default: "spaceItemsSm" }}
+                    alignItems={{ default: "alignItemsCenter" }}
+                  >
+                    <FlexItem>{t("terms.effort")}</FlexItem>
+                    <FlexItem>
+                      <Tooltip
+                        content={t("message.applicationEffortTooltip")}
+                        position="top"
+                      >
+                        <Flex>
+                          <QuestionCircleIcon />
+                        </Flex>
+                      </Tooltip>
+                    </FlexItem>
+                  </Flex>
+                </Th>
                 <Th width={10} />
               </TableHeaderContentWithControls>
             </Tr>

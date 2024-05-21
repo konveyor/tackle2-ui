@@ -20,9 +20,13 @@ jobs:
       registry: "quay.io/konveyor"
       image_name: "tackle2-ui"
       containerfile: "./Dockerfile"
-      architectures: '[ "amd64", "arm64", "ppc64le", "s390x" ]'
+
+      # keep the architectures in sync with `ci-image-build.yml`
+      architectures: '[ "amd64", "arm64" ]'
+
       # 2023-03-19: currently needed for npm@10
       extra-args: "--ulimit nofile=4096:4096"
+
     secrets:
       registry_username: ${{ secrets.QUAY_PUBLISH_ROBOT }}
       registry_password: ${{ secrets.QUAY_PUBLISH_TOKEN }}
