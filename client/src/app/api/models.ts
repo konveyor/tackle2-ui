@@ -800,3 +800,12 @@ export interface AssessmentsWithArchetype {
   archetype: Archetype;
   assessments: Assessment[];
 }
+
+export enum StakeholderType {
+  Stakeholder = "Stakeholder",
+  StakeholderGroup = "Stakeholder Group",
+}
+export interface GroupedStakeholderRef extends Ref {
+  group: StakeholderType.Stakeholder | StakeholderType.StakeholderGroup;
+  uniqueId: string;
+}
