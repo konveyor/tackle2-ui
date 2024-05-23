@@ -289,7 +289,7 @@ export const BusinessServices: React.FC = () => {
                                       )
                                     : "",
                                 },
-                                isDanger: true,
+                                isDanger: isAssignedToApplication == false,
                                 title: t("actions.delete"),
                                 onClick: () => deleteRow(businessService),
                               },
