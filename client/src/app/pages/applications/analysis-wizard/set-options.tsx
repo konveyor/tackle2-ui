@@ -18,7 +18,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { getValidatedFromErrors } from "@app/utils/utils";
+import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
 import { defaultTargets } from "../../../data/targets";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AnalysisWizardFormValues } from "./schema";
@@ -71,11 +71,7 @@ export const SetOptions: React.FC = () => {
   const defaultTargetsAndTargetsLabels = [
     ...defaultTargets,
     ...allTargetLabelsFromTargets,
-  ].sort((t1, t2) => {
-    if (t1.label > t2.label) return 1;
-    if (t1.label < t2.label) return -1;
-    return 0;
-  });
+  ].sort((t1, t2) => universalComparator(t1.label, t2.label));
 
   const defaultSourcesAndSourcesLabels = [
     ...new Set(defaultSources.concat(allSourceLabelsFromTargets)),

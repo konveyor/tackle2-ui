@@ -11,6 +11,7 @@ import {
 } from "@patternfly/react-table";
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
+import { universalComparator } from "@app/utils/utils";
 
 export interface TabTableProps {
   tagCategory: TagCategory;
@@ -35,7 +36,7 @@ export const TagTable: React.FC<TabTableProps> = ({
       </Thead>
       <Tbody>
         {(tagCategory.tags || [])
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => universalComparator(a.name, b.name))
           .map((tag) => (
             <Tr key={tag.name}>
               <Td>{tag.name}</Td>
