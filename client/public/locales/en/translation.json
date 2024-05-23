@@ -226,7 +226,8 @@
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
     "unlinkTicket": "Unlink from Jira",
     "noTagsAvailable": "No tags available",
-    "noAssociatedTags": "This tag category has no associated tags."
+    "noAssociatedTags": "This tag category has no associated tags.",
+    "cannotRemoveBusinessServiceAssociatedWithApplication": "Cannot remove a business service associated with application(s)"
   },
   "proposedActions": {
     "refactor": "Refactor",

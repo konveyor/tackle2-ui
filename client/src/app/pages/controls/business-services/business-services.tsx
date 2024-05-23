@@ -14,7 +14,15 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import {
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 
 import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -26,7 +34,6 @@ import {
   useFetchBusinessServices,
 } from "@app/queries/businessservices";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -263,14 +270,32 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
-                        <AppTableActionButtons
-                          isDeleteEnabled={isAssignedToApplication}
-                          tooltipMessage="Cannot remove a business service associated with application(s)"
-                          onEdit={() =>
-                            setCreateUpdateModalState(businessService)
-                          }
-                          onDelete={() => deleteRow(businessService)}
-                        />
+                        <Td isActionCell id="row-actions">
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.edit"),
+                                onClick: () =>
+                                  setCreateUpdateModalState(businessService),
+                              },
+
+                              { isSeparator: true },
+                              {
+                                isAriaDisabled: isAssignedToApplication,
+                                tooltipProps: {
+                                  content: isAssignedToApplication
+                                    ? t(
+                                        "message.cannotRemoveBusinessServiceAssociatedWithApplication"
+                                      )
+                                    : "",
+                                },
+                                isDanger: true,
+                                title: t("actions.delete"),
+                                onClick: () => deleteRow(businessService),
+                              },
+                            ]}
+                          />
+                        </Td>
                       </TableRowContentWithControls>
                     </Tr>
                   </Tbody>
