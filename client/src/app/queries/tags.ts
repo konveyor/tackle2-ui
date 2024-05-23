@@ -12,6 +12,7 @@ import {
   updateTagCategory,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { universalComparator } from "@app/utils/utils";
 
 export const TagsQueryKey = "tags";
 export const TagCategoriesQueryKey = "tagcategories";
@@ -88,7 +89,7 @@ export const useFetchTagsWithTagItems = () => {
         name: `${tag.category?.name} / ${tag.name}`,
         tooltip: tag.category?.name,
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => universalComparator(a.name, b.name));
   }, [tags]);
 
   return {
