@@ -468,7 +468,7 @@ export const ApplicationsTable: React.FC = () => {
           }) + "...",
         selectOptions: tagItems.map(({ name, tagName, categoryName }) => ({
           value: name,
-          label: name,
+          label: tagName,
           chipLabel: tagName,
           groupLabel: categoryName,
         })),
