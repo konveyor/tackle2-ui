@@ -29,7 +29,7 @@ import { CubesIcon } from "@patternfly/react-icons";
 import {
   dedupeFunction,
   getAxiosErrorMessage,
-  localeNumericCompare,
+  universalComparator,
 } from "@app/utils/utils";
 import { Tag, TagCategory } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -57,7 +57,6 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
 import { TagTable } from "./components/tag-table";
-import i18n from "@app/i18n";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
@@ -204,9 +203,7 @@ export const Tags: React.FC = () => {
                 value: tagCategory?.name,
               })) ?? []
             )
-            .sort((a, b) =>
-              localeNumericCompare(a.value, b.value, i18n.language)
-            )
+            .sort((a, b) => universalComparator(a.value, b.value))
         ),
       },
       {

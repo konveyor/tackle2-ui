@@ -2,6 +2,7 @@ import * as yup from "yup";
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
 import { AdminPathValues, DevPathValues } from "@app/Paths";
+import i18n from "@app/i18n";
 
 // Axios error
 
@@ -195,5 +196,22 @@ export const capitalizeFirstLetter = (str: string) =>
 export const localeNumericCompare = (
   a: string,
   b: string,
-  locale: string
-): number => a.localeCompare(b, locale, { numeric: true });
+  locale: string = i18n.language
+): number => a.localeCompare(b, locale ?? "en", { numeric: true });
+
+export const getString = (input: string | (() => string)) =>
+  typeof input === "function" ? input() : input;
+
+/**
+ * Compares all types by converting them to string.
+ * Nullish entities are converted to empty string.
+ * @see localeNumericCompare
+ * @param locale to be used by string compareFn
+ */
+export const universalComparator = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  a: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  b: any,
+  locale: string = i18n.language
+) => localeNumericCompare(String(a ?? ""), String(b ?? ""), locale);
