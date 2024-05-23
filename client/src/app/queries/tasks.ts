@@ -25,7 +25,7 @@ export const useFetchTasks = (
         // sort by application.id (ascending) then createTime (newest to oldest)
         .sort((a, b) =>
           a.application.id !== b.application.id
-            ? universalComparator(a.application.id, b.application.id)
+            ? a.application.id - b.application.id
             : -1 * universalComparator(a.createTime, b.createTime)
         )
         // remove old tasks for each application
