@@ -13,6 +13,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   ActionsColumn,
@@ -44,7 +45,7 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -262,7 +263,7 @@ export const BusinessServices: React.FC = () => {
                           {businessService.name}
                         </Td>
                         <Td
-                          width={10}
+                          width={25}
                           {...getTdProps({ columnKey: "description" })}
                         >
                           {businessService.description}
@@ -270,16 +271,20 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
+                        <Td isActionCell id="pencil-action">
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setCreateUpdateModalState(businessService)
+                              }
+                            />
+                          </Tooltip>
+                        </Td>
                         <Td isActionCell id="row-actions">
                           <ActionsColumn
                             items={[
-                              {
-                                title: t("actions.edit"),
-                                onClick: () =>
-                                  setCreateUpdateModalState(businessService),
-                              },
-
-                              { isSeparator: true },
                               {
                                 isAriaDisabled: isAssignedToApplication,
                                 tooltipProps: {
