@@ -61,9 +61,7 @@ export interface IMultiselectFilterCategory<
   TFilterCategoryKey extends string,
 > extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
   /** The full set of options to select from for this filter. */
-  selectOptions:
-    | FilterSelectOptionProps[]
-    | Record<string, FilterSelectOptionProps[]>;
+  selectOptions: FilterSelectOptionProps[];
   /** Option search input field placeholder text. */
   placeholderText?: string;
   /** How to connect multiple selected options together. Defaults to "AND". */

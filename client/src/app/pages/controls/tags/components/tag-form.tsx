@@ -11,7 +11,7 @@ import {
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Tag, TagCategory } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 import { ITagCategoryDropdown } from "@app/utils/model-utils";
 import {
   useFetchTags,
@@ -56,7 +56,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       };
     });
 
-    return options.sort((a, b) => a.value.localeCompare(b.value));
+    return options.sort((a, b) => universalComparator(a.value, b.value));
   }, [tagCategories]);
 
   const tagCategoryInitialValue: ITagCategoryDropdown | null = useMemo(() => {
