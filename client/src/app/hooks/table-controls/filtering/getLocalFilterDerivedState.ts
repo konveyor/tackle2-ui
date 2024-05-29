@@ -1,8 +1,8 @@
 import {
   FilterCategory,
+  FilterValue,
   getFilterLogicOperator,
 } from "@app/components/FilterToolbar";
-import { objectKeys } from "@app/utils/utils";
 import { IFilterState } from "./useFilterState";
 
 /**
@@ -44,26 +44,33 @@ export const getLocalFilterDerivedState = <
   filterState: { filterValues },
 }: ILocalFilterDerivedStateArgs<TItem, TFilterCategoryKey>) => {
   const filteredItems = items.filter((item) =>
-    objectKeys(filterValues).every((categoryKey) => {
-      const values = filterValues[categoryKey];
+    Object.entries<FilterValue>(filterValues).every(([filterKey, values]) => {
       if (!values || values.length === 0) return true;
       const filterCategory = filterCategories.find(
-        (category) => category.categoryKey === categoryKey
+        (category) => category.categoryKey === filterKey
       );
-      let itemValue = (item as any)[categoryKey];
-      if (filterCategory?.getItemValue) {
-        itemValue = filterCategory.getItemValue(item);
-      }
-      const logicOperator = getFilterLogicOperator(filterCategory);
-      return values[logicOperator === "AND" ? "every" : "some"](
-        (filterValue) => {
-          if (!itemValue) return false;
-          const lowerCaseItemValue = String(itemValue).toLowerCase();
-          const lowerCaseFilterValue = String(filterValue).toLowerCase();
-          return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
-        }
-      );
+      const defaultMatcher = (filterValue: string, item: TItem) =>
+        legacyMatcher(
+          filterValue,
+          filterCategory?.getItemValue?.(item) ?? (item as any)[filterKey]
+        );
+      const matcher = filterCategory?.matcher ?? defaultMatcher;
+      const logicOperator =
+        getFilterLogicOperator(filterCategory) === "AND" ? "every" : "some";
+      return values[logicOperator]((filterValue) => matcher(filterValue, item));
     })
   );
+
   return { filteredItems };
+};
+
+/**
+ *
+ * @returns false for any falsy value (regardless of the filter value), true if (coerced to string) lowercased value contains lowercased filter value.
+ */
+const legacyMatcher = (filterValue: string, value: any) => {
+  if (!value) return false;
+  const lowerCaseItemValue = String(value).toLowerCase();
+  const lowerCaseFilterValue = String(filterValue).toLowerCase();
+  return lowerCaseItemValue.indexOf(lowerCaseFilterValue) !== -1;
 };
