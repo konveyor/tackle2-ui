@@ -1,6 +1,8 @@
 export const DevPaths = {
   // Developer perspective
   applications: "/applications",
+  applicationsAnalysisDetails:
+    "/applications/:applicationId/analysis-details/:taskId",
   applicationsAnalysisTab: "/applications/analysis-tab",
   applicationsAssessmentTab: "/applications/assessment-tab",
   applicationsImports: "/applications/application-imports",
@@ -85,4 +87,9 @@ export interface ReviewRoute {
 
 export interface ImportSummaryRoute {
   importId: string;
+}
+
+export interface AnalysisDetailsRoute {
+  applicationId: string;
+  taskId: string;
 }

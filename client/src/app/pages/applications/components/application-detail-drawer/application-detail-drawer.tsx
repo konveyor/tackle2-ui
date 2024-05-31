@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -52,7 +52,6 @@ import {
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
@@ -62,6 +61,8 @@ import { AssessedArchetypes } from "./components/assessed-archetypes";
 import DownloadButton from "./components/download-button";
 import { ApplicationDetailFields } from "./application-detail-fields";
 import { ApplicationFacts } from "./application-facts";
+import { formatPath } from "@app/utils/utils";
+import { Paths } from "@app/Paths";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -101,8 +102,6 @@ export const ApplicationDetailDrawer: React.FC<
   const { identities } = useFetchIdentities();
   const { facts, isFetching } = useFetchFacts(application?.id);
 
-  const [taskIdToView, setTaskIdToView] = React.useState<number>();
-
   let matchingSourceCredsRef: Identity | undefined;
   let matchingMavenCredsRef: Identity | undefined;
   if (application && identities) {
@@ -113,6 +112,16 @@ export const ApplicationDetailDrawer: React.FC<
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
   const enableDownloadSetting = useSetting("download.html.enabled");
+  const history = useHistory();
+  const navigateToAnalysisDetails = () =>
+    application?.id &&
+    task?.id &&
+    history.push(
+      formatPath(Paths.applicationsAnalysisDetails, {
+        applicationId: application?.id,
+        taskId: task?.id,
+      })
+    );
 
   const reviewedArchetypes =
     application?.archetypes
@@ -340,7 +349,7 @@ export const ApplicationDetailDrawer: React.FC<
                             }
                             type="button"
                             variant="link"
-                            onClick={() => setTaskIdToView(task.id)}
+                            onClick={navigateToAnalysisDetails}
                             className={spacing.ml_0}
                             style={{ margin: "0", padding: "0" }}
                           >
@@ -401,7 +410,7 @@ export const ApplicationDetailDrawer: React.FC<
                       }
                       type="button"
                       variant="link"
-                      onClick={() => setTaskIdToView(task.id)}
+                      onClick={navigateToAnalysisDetails}
                       className={spacing.ml_0}
                       style={{ margin: "0", padding: "0" }}
                     >
@@ -429,7 +438,7 @@ export const ApplicationDetailDrawer: React.FC<
                       }
                       type="button"
                       variant="link"
-                      onClick={() => setTaskIdToView(task?.id)}
+                      onClick={navigateToAnalysisDetails}
                       className={spacing.ml_0}
                       style={{ margin: "0", padding: "0" }}
                     >
@@ -440,13 +449,6 @@ export const ApplicationDetailDrawer: React.FC<
                   )}
                 </>
               )}
-              <SimpleDocumentViewerModal
-                title={`Analysis details for ${application?.name}`}
-                documentId={taskIdToView}
-                onClose={() => {
-                  setTaskIdToView(undefined);
-                }}
-              />
             </TextContent>
             {!isFetching && !!facts.length && (
               <ApplicationFacts facts={facts} />
