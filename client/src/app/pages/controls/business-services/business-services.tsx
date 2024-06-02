@@ -46,6 +46,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -192,15 +193,20 @@ export const BusinessServices: React.FC = () => {
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
-                  <Button
-                    type="button"
-                    id="create-business-service"
-                    aria-label="Create new business service"
-                    variant={ButtonVariant.primary}
-                    onClick={() => setCreateUpdateModalState("create")}
+                  <RBAC
+                    allowedPermissions={controlsWriteScopes}
+                    rbacType={RBAC_TYPE.Scope}
                   >
-                    {t("actions.createNew")}
-                  </Button>
+                    <Button
+                      type="button"
+                      id="create-business-service"
+                      aria-label="Create new business service"
+                      variant={ButtonVariant.primary}
+                      onClick={() => setCreateUpdateModalState("create")}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </RBAC>
                 </ToolbarItem>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>
