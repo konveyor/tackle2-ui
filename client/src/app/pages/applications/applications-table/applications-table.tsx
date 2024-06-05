@@ -327,6 +327,8 @@ export const ApplicationsTable: React.FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: true,
+    persistTo: { activeItem: "urlParams" },
+    isLoading: isFetchingApplications,
     sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialFilterValues: deserializedFilterValues,
