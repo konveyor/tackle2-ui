@@ -261,7 +261,7 @@ export const BusinessServices: React.FC = () => {
                           {businessService.name}
                         </Td>
                         <Td
-                          width={25}
+                          width={10}
                           {...getTdProps({ columnKey: "description" })}
                         >
                           {businessService.description}
