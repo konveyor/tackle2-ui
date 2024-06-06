@@ -13,17 +13,8 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { BusinessService } from "@app/api/models";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -45,8 +36,9 @@ import {
   ConditionalTableBody,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+import { CubesIcon } from "@patternfly/react-icons";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { ControlTableActionButtons } from "@app/components/ControlTableActionButtons";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -277,36 +269,16 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() =>
-                                setCreateUpdateModalState(businessService)
-                              }
-                            />
-                          </Tooltip>
-                        </Td>
-                        <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={[
-                              {
-                                isAriaDisabled: isAssignedToApplication,
-                                tooltipProps: {
-                                  content: isAssignedToApplication
-                                    ? t(
-                                        "message.cannotRemoveBusinessServiceAssociatedWithApplication"
-                                      )
-                                    : "",
-                                },
-                                isDanger: isAssignedToApplication == false,
-                                title: t("actions.delete"),
-                                onClick: () => deleteRow(businessService),
-                              },
-                            ]}
-                          />
-                        </Td>
+                        <ControlTableActionButtons
+                          isDeleteEnabled={isAssignedToApplication}
+                          deleteTooltipMessage={t(
+                            "message.cannotRemoveBusinessServiceAssociatedWithApplication"
+                          )}
+                          onEdit={() =>
+                            setCreateUpdateModalState(businessService)
+                          }
+                          onDelete={() => deleteRow(businessService)}
+                        />
                       </TableRowContentWithControls>
                     </Tr>
                   </Tbody>
