@@ -851,7 +851,7 @@ export const ApplicationsTable: React.FC = () => {
                 {getColumnVisibility("tags") && (
                   <Th {...getThProps({ columnKey: "tags" })} width={10} />
                 )}
-                <Th {...getThProps({ columnKey: "effort" })}>
+                <Th {...getThProps({ columnKey: "effort" })} width={10}>
                   <Flex
                     flexWrap={{ default: "nowrap" }}
                     spaceItems={{ default: "spaceItemsSm" }}
