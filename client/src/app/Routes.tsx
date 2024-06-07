@@ -79,6 +79,11 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.applicationsAnalysisDetails,
     comp: AnalysisDetails,
+    exact: true,
+  },
+  {
+    path: Paths.applicationsAnalysisDetailsAttachment,
+    comp: AnalysisDetails,
     exact: false,
   },
   {

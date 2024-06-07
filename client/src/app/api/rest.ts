@@ -319,13 +319,25 @@ export const getApplicationImports = (
     .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
 
-export function getTaskById(
+export function getTaskById(id: number): Promise<Task> {
+  return axios
+    .get(`${TASKS}/${id}`, {
+      headers: { ...jsonHeaders },
+      responseType: "json",
+    })
+    .then((response) => {
+      return response.data;
+    });
+}
+
+export function getTaskByIdAndFormat(
   id: number,
   format: string,
   merged: boolean = false
-): Promise<Task | string> {
-  const headers = format === "yaml" ? { ...yamlHeaders } : { ...jsonHeaders };
-  const responseType = format === "yaml" ? "text" : "json";
+): Promise<string> {
+  const isYaml = format === "yaml";
+  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
   if (merged) {
@@ -338,7 +350,9 @@ export function getTaskById(
       responseType: responseType,
     })
     .then((response) => {
-      return response.data;
+      return isYaml
+        ? String(response.data ?? "")
+        : JSON.stringify(response.data, undefined, 2);
     });
 }
 
@@ -438,6 +452,11 @@ export const createFile = ({
     .then((response) => {
       return response.data;
     });
+
+export const getTextFile = (id: number): Promise<string> =>
+  axios
+    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
+    .then((response) => response.data);
 
 export const getSettingById = <K extends keyof SettingTypes>(
   id: K
