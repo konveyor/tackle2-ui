@@ -70,7 +70,6 @@ import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { IssueDescriptionAndLinks } from "./components/issue-description-and-links";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 export interface IIssuesTableProps {
   mode: "allIssues" | "singleApp";
@@ -329,25 +328,12 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
               <Th {...getThProps({ columnKey: "category" })} />
               <Th {...getThProps({ columnKey: "source" })} />
               <Th {...getThProps({ columnKey: "target" })} />
-              <Th {...getThProps({ columnKey: "effort" })}>
-                <Flex
-                  flexWrap={{ default: "nowrap" }}
-                  spaceItems={{ default: "spaceItemsSm" }}
-                  alignItems={{ default: "alignItemsCenter" }}
-                >
-                  <FlexItem>{t("terms.effort")}</FlexItem>
-                  <FlexItem>
-                    <Tooltip
-                      content={t("message.issuesEffortTooltip")}
-                      position="top"
-                    >
-                      <Flex>
-                        <QuestionCircleIcon />
-                      </Flex>
-                    </Tooltip>
-                  </FlexItem>
-                </Flex>
-              </Th>
+              <Th
+                {...getThProps({ columnKey: "effort" })}
+                info={{
+                  tooltip: `${t("message.issuesEffortTooltip")}`,
+                }}
+              />
               <Th {...getThProps({ columnKey: "affected" })} />
             </TableHeaderContentWithControls>
           </Tr>
