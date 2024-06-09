@@ -8,7 +8,7 @@
 }
 
 /* Match empty state layout to the editor layout so they take up exactly the same space */
-.simple-task-viewer .simple-task-viewer-empty-state {
+.simple-task-viewer-code .simple-task-viewer-empty-state {
   padding: var(--pf-v5-c-code-editor__code--PaddingTop)
     var(--pf-v5-c-code-editor__code--PaddingRight)
     var(--pf-v5-c-code-editor__code--PaddingBottom)
@@ -17,37 +17,28 @@
 
 /*
   Make all of the containers of the MonacoEditor component take the maximum height so the
-  editor can always be as tall as possible in the Modal.
+  editor can always be as tall as possible.
  */
-.simple-task-viewer[class*="full-height"] .pf-v5-c-modal-box__body {
+.simple-task-viewer[class*="full-height"] .pf-v5-c-modal-box__body,
+.simple-task-viewer-container {
   display: flex;
   flex-direction: column;
 }
 
-.simple-task-viewer[class*="full-height"]
-  .pf-v5-c-modal-box__body
-  .pf-v5-c-code-editor {
+.simple-task-viewer-code {
   flex-grow: 1;
-}
-
-.simple-task-viewer[class*="full-height"]
-  .pf-v5-c-modal-box__body
-  .pf-v5-c-code-editor
-  .pf-v5-c-file-upload {
   height: 100%;
 }
 
-.simple-task-viewer[class*="full-height"]
-  .pf-v5-c-modal-box__body
-  .pf-v5-c-code-editor
-  .pf-v5-c-file-upload
-  .pf-v5-c-code-editor__main {
+.simple-task-viewer-code .pf-v5-c-file-upload {
+  height: 100%;
+}
+
+.simple-task-viewer-code .pf-v5-c-file-upload .pf-v5-c-code-editor__main {
   flex-grow: 1;
 }
 
-.simple-task-viewer[class*="full-height"]
-  .pf-v5-c-modal-box__body
-  .pf-v5-c-code-editor
+.simple-task-viewer-code
   .pf-v5-c-file-upload
   .pf-v5-c-code-editor__main
   .pf-v5-c-code-editor__code {
@@ -58,20 +49,21 @@
   Tweak the code editor so we can put the language selection toggle group in the
   "Language Label" location
 */
-.simple-task-viewer .pf-v5-c-code-editor__controls {
+.simple-task-viewer-code .pf-v5-c-code-editor__controls {
   flex-grow: 1;
 }
 
-.simple-task-viewer .pf-v5-c-code-editor__header-main {
+.simple-task-viewer-code .pf-v5-c-code-editor__header-main {
   display: none;
 }
 
-.simple-task-viewer .pf-v5-c-code-editor__tab.language-toggle-group-container {
+.simple-task-viewer-code
+  .pf-v5-c-code-editor__tab.language-toggle-group-container {
   padding: 0;
   border: none;
 }
 
-.simple-task-viewer .language-toggle-group {
+.simple-task-viewer-code .language-toggle-group {
   --pf-v5-c-toggle-group__button--FontSize: var(--pf-v5-global--FontSize--md);
 }
 

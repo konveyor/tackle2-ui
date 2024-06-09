@@ -104,7 +104,6 @@ import { ApplicationDependenciesForm } from "@app/components/ApplicationDependen
 import { useState } from "react";
 import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
-import { SimpleDocumentViewerModal } from "@app/components/SimpleDocumentViewer";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
@@ -552,11 +551,6 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
     useState(false);
-
-  const [taskToView, setTaskToView] = useState<{
-    name: string;
-    task: number | undefined;
-  }>();
 
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
@@ -1072,11 +1066,20 @@ export const ApplicationsTable: React.FC = () => {
                               ? [
                                   {
                                     title: t("actions.analysisDetails"),
-                                    onClick: () =>
-                                      setTaskToView({
-                                        name: application.name,
-                                        task: getTask(application)?.id,
-                                      }),
+                                    onClick: () => {
+                                      const taskId = getTask(application)?.id;
+                                      if (taskId && application.id) {
+                                        history.push(
+                                          formatPath(
+                                            Paths.applicationsAnalysisDetails,
+                                            {
+                                              applicationId: application.id,
+                                              taskId,
+                                            }
+                                          )
+                                        );
+                                      }
+                                    },
                                   },
                                 ]
                               : []),
@@ -1153,11 +1156,6 @@ export const ApplicationsTable: React.FC = () => {
             onClose={() => setSaveApplicationModalState(null)}
           />
         )}
-        <SimpleDocumentViewerModal
-          title={`Analysis details for ${taskToView?.name}`}
-          documentId={taskToView?.task}
-          onClose={() => setTaskToView(undefined)}
-        />
         <Modal
           isOpen={isDependenciesModalOpen}
           variant="medium"
