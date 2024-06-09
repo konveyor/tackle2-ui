@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { server } from "@mocks/server";
+import "@app/dayjs";
 
 const mockInitialized = false;
 
