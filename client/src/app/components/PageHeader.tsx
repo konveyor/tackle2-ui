@@ -13,7 +13,7 @@ import { HorizontalNav } from "./HorizontalNav";
 export interface PageHeaderProps {
   title: string;
   description?: React.ReactNode;
-  breadcrumbs: { title: string; path: string | (() => void) }[];
+  breadcrumbs: { title: string; path?: string | (() => void) }[];
   btnActions?: React.ReactNode;
   navItems?: { title: string; path: string }[];
 }
