@@ -7,7 +7,7 @@ import { PageSection } from "@patternfly/react-core";
 import { AnalysisDetailsRoute, Paths } from "@app/Paths";
 import { PageHeader } from "@app/components/PageHeader";
 import { formatPath } from "@app/utils/utils";
-import { SimpleDocumentViewer } from "@app/components/SimpleDocumentViewer";
+import { SimpleDocumentViewer } from "@app/components/simple-document-viewer";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchTaskByID } from "@app/queries/tasks";
 
