@@ -19,8 +19,7 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
   const [filteredArchetypes, setFilteredArchetypes] = useState<Archetype[]>([]);
 
   const queryClient = useQueryClient();
-  const { isLoading, isSuccess, error, refetch, data } = useQuery({
-    initialData: [],
+  const { isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [ARCHETYPES_QUERY_KEY, forApplication?.id],
     queryFn: getArchetypes,
     onSuccess: (fetchedArchetypes) => {
