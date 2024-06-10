@@ -31,7 +31,6 @@
     "delete": "Delete",
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
-
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -105,7 +104,6 @@
   "dialog": {
     "message": {
       "applicationsBulkDelete": "The selected application(s) will be deleted.",
-
       "delete": "This action cannot be undone.",
       "discardAssessment": "The assessment(s) for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
       "discardReview": "The review for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
@@ -331,6 +329,7 @@
     "effort": "Effort",
     "effortEstimate": "Effort estimate",
     "email": "Email",
+    "endDate": "End date",
     "error": "Error",
     "errorReport": "Error report",
     "explanation": "Explanation",
@@ -433,6 +432,7 @@
     "stakeholderGroupDeleted": "Stakeholder group deleted",
     "stakeholderGroups": "Stakeholder groups",
     "stakeholders": "Stakeholders",
+    "startDate": "Start date",
     "status": "Status",
     "suggestedAdoptionPlan": "Suggested adoption plan",
     "svnConfig": "Subversion configuration",

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Breadcrumb, BreadcrumbItem, Button } from "@patternfly/react-core";
 
 export interface BreadCrumbPathProps {
-  breadcrumbs: { title: string; path: string | (() => void) }[];
+  breadcrumbs: { title: string; path?: string | (() => void) }[];
 }
 
 export const BreadCrumbPath: React.FC<BreadCrumbPathProps> = ({
@@ -12,6 +12,11 @@ export const BreadCrumbPath: React.FC<BreadCrumbPathProps> = ({
   return (
     <Breadcrumb>
       {breadcrumbs.map((crumb, i, { length }) => {
+        if (!crumb.path) {
+          // the item is not a link
+          return <BreadcrumbItem key={i}>{crumb.title}</BreadcrumbItem>;
+        }
+
         const isLast = i === length - 1;
 
         const link =
