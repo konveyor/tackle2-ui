@@ -42,7 +42,7 @@ import {
   useFetchMigrationWaves,
   useUpdateMigrationWaveMutation,
 } from "@app/queries/migration-waves";
-import { MigrationWave, Ref, Ticket } from "@app/api/models";
+import { MigrationWave, Ref, Ticket, WaveWithStatus } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -69,6 +69,7 @@ import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { toRefs } from "@app/utils/model-utils";
 import { useFetchTickets } from "@app/queries/tickets";
+import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -179,7 +180,7 @@ export const MigrationWaves: React.FC = () => {
     updateMigrationWave(payload);
   };
 
-  const tableControls = useLocalTableControls({
+  const tableControls = useLocalTableControls<WaveWithStatus, string, string>({
     tableName: "migration-waves-table",
     idProperty: "id",
     items: migrationWaves,
@@ -210,6 +211,18 @@ export const MigrationWaves: React.FC = () => {
         getItemValue: (item) => {
           return item?.name || "";
         },
+      },
+      {
+        categoryKey: "startDate",
+        title: t("terms.startDate"),
+        type: FilterType.dateRange,
+        matcher: (interval, item) => isInClosedRange(interval, item.startDate),
+      },
+      {
+        categoryKey: "endDate",
+        title: t("terms.endDate"),
+        type: FilterType.dateRange,
+        matcher: (interval, item) => isInClosedRange(interval, item.endDate),
       },
     ],
     sortableColumns: ["name", "startDate", "endDate"],

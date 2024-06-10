@@ -24,7 +24,9 @@ const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
 const ImportDetails = lazy(
   () => import("./pages/applications/manage-imports-details")
 );
-
+const AnalysisDetails = lazy(
+  () => import("./pages/applications/analysis-details")
+);
 const Reports = lazy(() => import("./pages/reports"));
 const Controls = lazy(() => import("./pages/controls"));
 const Identities = lazy(() => import("./pages/identities"));
@@ -72,6 +74,11 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.applicationsImportsDetails,
     comp: ImportDetails,
+    exact: false,
+  },
+  {
+    path: Paths.applicationsAnalysisDetails,
+    comp: AnalysisDetails,
     exact: false,
   },
   {

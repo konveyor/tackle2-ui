@@ -18,6 +18,7 @@ export enum FilterType {
   multiselect = "multiselect",
   search = "search",
   numsearch = "numsearch",
+  dateRange = "dateRange",
 }
 
 export type FilterValue = string[] | undefined | null;
@@ -81,7 +82,8 @@ export interface ISearchFilterCategory<TItem, TFilterCategoryKey extends string>
 export type FilterCategory<TItem, TFilterCategoryKey extends string> =
   | IMultiselectFilterCategory<TItem, TFilterCategoryKey>
   | ISelectFilterCategory<TItem, TFilterCategoryKey>
-  | ISearchFilterCategory<TItem, TFilterCategoryKey>;
+  | ISearchFilterCategory<TItem, TFilterCategoryKey>
+  | IBasicFilterCategory<TItem, TFilterCategoryKey>;
 
 export type IFilterValues<TFilterCategoryKey extends string> = Partial<
   Record<TFilterCategoryKey, FilterValue>

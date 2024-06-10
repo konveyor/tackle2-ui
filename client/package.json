@@ -11,7 +11,7 @@
     "build": "NODE_ENV=production webpack --config ./config/webpack.prod.ts",
     "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
     "start:dev": "NODE_ENV=development webpack serve --config ./config/webpack.dev.ts",
-    "test": "NODE_ENV=test jest --rootDir=. --config=./config/jest.config.ts",
+    "test": "NODE_ENV=test TZ=UTC jest --rootDir=. --config=./config/jest.config.ts",
     "lint": "eslint .",
     "tsc": "tsc -p ./tsconfig.json"
   },
