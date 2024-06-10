@@ -36,6 +36,7 @@ export const AnalysisDetails: React.FC = () => {
             },
             {
               title: appName,
+              path: `${Paths.applications}/?activeItem=${applicationId}`,
             },
             {
               title: t("actions.analysisDetails"),
