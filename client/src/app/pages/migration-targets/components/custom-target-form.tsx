@@ -307,7 +307,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             },
           }),
       },
-      provider: providerType || "Java",
+      provider: [providerType] || ["Java"],
     };
 
     if (target) {

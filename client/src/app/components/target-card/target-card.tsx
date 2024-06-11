@@ -25,7 +25,7 @@ import {
   SelectVariant,
   SelectOptionObject,
 } from "@patternfly/react-core/deprecated";
-import { GripVerticalIcon } from "@patternfly/react-icons";
+import { GripVerticalIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
@@ -86,6 +86,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   const handleCardClick = (event: React.MouseEvent) => {
     // Stop 'select' event propagation
+    event.preventDefault();
     const eventTarget: any = event.target;
     if (eventTarget.type === "button") return;
 
@@ -110,16 +111,25 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   return (
     <Card
       onClick={handleCardClick}
-      isSelectable={!!cardSelected}
+      isSelectable
       isSelected={isCardSelected}
       className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
     >
       <CardHeader
         selectableActions={{
           selectableActionId: "" + target.id,
+          selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
           isChecked: isCardSelected,
         }}
-      />
+      >
+        <Label
+          id={`${target.provider}-selectable-action-label`}
+          variant="outline"
+          icon={<InfoCircleIcon />}
+        >
+          {target.provider}
+        </Label>
+      </CardHeader>
       <CardBody>
         <Flex>
           <FlexItem>

@@ -359,7 +359,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           isDisabled={!isStepEnabled(StepId.SetTargets)}
           footer={{ isNextDisabled: !isStepEnabled(StepId.SetTargets + 1) }}
         >
-          <SetTargets />
+          <SetTargets applications={applications} />
         </WizardStep>,
         <WizardStep
           key={StepId.Scope}

@@ -7,6 +7,7 @@ import {
   GalleryItem,
   Form,
   Alert,
+  SelectOptionProps,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -15,23 +16,52 @@ import { TargetCard } from "@app/components/target-card/target-card";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
-import { Target } from "@app/api/models";
-import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
+import { Application, TagCategory, Target } from "@app/api/models";
+import { useFetchTagCategories } from "@app/queries/tags";
+import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
+interface SetTargetsProps {
+  applications: Application[];
+}
 
-export const SetTargets: React.FC = () => {
+export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const { t } = useTranslation();
 
   const { targets } = useFetchTargets();
-
-  const [provider, setProvider] = useState("Java");
 
   const targetOrderSetting = useSetting("ui.target.order");
 
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
+
   const values = getValues();
   const formLabels = watch("formLabels");
   const selectedTargets = watch("selectedTargets");
+
+  const { tagCategories, isFetching, fetchError } = useFetchTagCategories();
+
+  const findCategoryForTag = (tagId: number) => {
+    return tagCategories.find(
+      (category: TagCategory) =>
+        category.tags?.some((categoryTag) => categoryTag.id === tagId)
+    );
+  };
+
+  const initialProviders = Array.from(
+    new Set(
+      applications
+        .flatMap((app) => app.tags || [])
+        .map((tag) => {
+          return {
+            category: findCategoryForTag(tag.id),
+            tag,
+          };
+        })
+        .filter((tagWithCat) => tagWithCat?.category?.name === "Language")
+        .map((tagWithCat) => tagWithCat.tag.name)
+    )
+  ).filter(Boolean);
+
+  const [provider, setProvider] = useState(initialProviders);
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -124,6 +154,10 @@ export const SetTargets: React.FC = () => {
     }
   };
 
+  const allProviders = targets.flatMap((target) => target.provider);
+
+  const languageOptions = Array.from(new Set(allProviders));
+
   return (
     <Form
       onSubmit={(event) => {
@@ -136,26 +170,21 @@ export const SetTargets: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
-      <SimpleSelectTypeahead
-        width={200}
+      <SimpleSelectCheckbox
+        placeholderText="Filter by language..."
+        width={300}
         value={provider}
-        toggleAriaLabel="Action select dropdown toggle"
-        toggleId="action-select-toggle"
-        hideClearButton
-        id="action-select"
-        options={[
-          {
-            value: "Java",
-            children: "Java",
-          },
-          {
-            value: "Go",
-            children: "Go",
-          },
-        ]}
+        options={languageOptions?.map((language): SelectOptionProps => {
+          return {
+            children: <div>{language}</div>,
+
+            value: language,
+          };
+        })}
         onChange={(selection) => {
-          setProvider(selection as string);
+          setProvider(selection as string[]);
         }}
+        toggleId="language-select-toggle"
       />
       {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&
@@ -172,8 +201,10 @@ export const SetTargets: React.FC = () => {
               const matchingTarget = targets.find((target) => target.id === id);
 
               const isSelected = selectedTargets?.includes(id);
-
-              if (matchingTarget && matchingTarget.provider === provider) {
+              if (
+                matchingTarget &&
+                provider?.some((p) => matchingTarget?.provider?.includes(p))
+              ) {
                 return (
                   <GalleryItem key={index}>
                     <TargetCard
