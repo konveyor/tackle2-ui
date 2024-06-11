@@ -54,28 +54,29 @@ export const SetOptions: React.FC = () => {
     // Remove duplicates from array of objects based on label value (label.label)
     .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i);
 
-  const allTargetLabelsFromTargets = allLabelsFromTargets.filter((label) => {
-    const parsedLabel = getParsedLabel(label?.label);
-    if (parsedLabel.labelType === "target") {
-      return parsedLabel.labelValue;
-    }
-  });
+  const allTargetLabelsFromTargets = allLabelsFromTargets.filter(
+    (label) => getParsedLabel(label?.label).labelType === "target"
+  );
 
-  const allSourceLabelsFromTargets = allLabelsFromTargets.filter((label) => {
-    const parsedLabel = getParsedLabel(label?.label);
-    if (parsedLabel.labelType === "source") {
-      return parsedLabel.labelValue;
-    }
-  });
+  const allSourceLabelsFromTargets = allLabelsFromTargets.filter(
+    (label) => getParsedLabel(label?.label).labelType === "source"
+  );
 
-  const defaultTargetsAndTargetsLabels = [
-    ...defaultTargets,
-    ...allTargetLabelsFromTargets,
-  ].sort((t1, t2) => universalComparator(t1.label, t2.label));
+  const defaultTargetsAndTargetsLabels = Array.from(
+    new Map(
+      defaultTargets
+        .concat(allTargetLabelsFromTargets)
+        .map((item) => [item.label, item])
+    ).values()
+  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
 
-  const defaultSourcesAndSourcesLabels = [
-    ...new Set(defaultSources.concat(allSourceLabelsFromTargets)),
-  ];
+  const defaultSourcesAndSourcesLabels = Array.from(
+    new Map(
+      defaultSources
+        .concat(allSourceLabelsFromTargets)
+        .map((item) => [item.label, item])
+    ).values()
+  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
 
   return (
     <Form
