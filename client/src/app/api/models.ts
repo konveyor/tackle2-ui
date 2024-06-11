@@ -306,7 +306,7 @@ export type TaskState =
   | "Postponed";
 
 export interface Task {
-  id?: number;
+  id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;

@@ -40,6 +40,7 @@ export const DevPaths = {
   issuesSingleAppSelected: "/issues/single-app/:applicationId",
 
   dependencies: "/dependencies",
+  tasks: "/tasks",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
