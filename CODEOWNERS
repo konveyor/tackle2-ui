@@ -1,2 +1,8 @@
-* @konveyor/migration-engineering-ui-committers
-/pkg/qe-tests/ @konveyor/migration-engineering-qe-committers
+#
+# Until an organization group (for example `@konveyor/tackle/ui-reviewers`) is created
+# and maintained to hold the set of people to auto-assign PRs for review, individually
+# name each person.
+#
+# The list (or group membership) should match up with the `OWNERS.md` file.
+#
+* @ibolton336 @sjd78 @rszwajko
