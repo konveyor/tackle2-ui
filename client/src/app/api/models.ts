@@ -413,6 +413,19 @@ export interface Taskgroup {
   tasks: TaskgroupTask[];
 }
 
+export interface TaskQueue {
+  /** Total number of tasks scheduled */
+  total: number;
+  /** number of tasks ready to run */
+  ready: number;
+  /** number of postponed tasks */
+  postponed: number;
+  /** number of tasks with pods created awaiting node scheduler */
+  pending: number;
+  /** number of tasks with running pods */
+  running: number;
+}
+
 export interface Cache {
   path: string;
   capacity: string;

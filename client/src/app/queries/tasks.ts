@@ -6,17 +6,26 @@ import {
   getServerTasks,
   getTaskById,
   getTaskByIdAndFormat,
+  getTaskQueue,
   getTasks,
   getTextFile,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
-import { HubPaginatedResult, HubRequestParams, Task } from "@app/api/models";
+import {
+  HubPaginatedResult,
+  HubRequestParams,
+  Task,
+  TaskQueue,
+} from "@app/api/models";
 
 interface FetchTasksFilters {
   addon?: string;
 }
 
 export const TasksQueryKey = "tasks";
+export const TasksQueueKey = "TasksQueue";
+export const TaskByIDQueryKey = "taskByID";
+export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
 
 export const useFetchTasks = (
   filters: FetchTasksFilters = {},
@@ -109,9 +118,6 @@ export const useCancelTaskMutation = (
   });
 };
 
-export const TaskByIDQueryKey = "taskByID";
-export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
-
 export const useFetchTaskByIdAndFormat = ({
   taskId,
   format = "json",
@@ -170,6 +176,29 @@ export const useFetchTaskByID = (taskId?: number) => {
     task: data,
     isFetching: isLoading,
     fetchError: error,
+    refetch,
+  };
+};
+
+/** Fetch the TaskQueue counts. Defaults to `0` for all counts. */
+export const useFetchTaskQueue = (addon?: string) => {
+  const { data, error, refetch, isFetching } = useQuery({
+    queryKey: [TasksQueueKey, addon],
+    queryFn: () => getTaskQueue(addon),
+    refetchInterval: 5000,
+    initialData: {
+      total: 0,
+      ready: 0,
+      postponed: 0,
+      pending: 0,
+      running: 0,
+    } as TaskQueue,
+  });
+
+  return {
+    taskQueue: data,
+    isFetching,
+    error,
     refetch,
   };
 };
