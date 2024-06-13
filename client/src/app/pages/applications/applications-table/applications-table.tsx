@@ -148,7 +148,7 @@ export const ApplicationsTable: React.FC = () => {
     tasks.find((task: Task) => task.application?.id === application.id);
 
   const { tasks, hasActiveTasks } = useFetchTasks(
-    { addon: "analyzer" },
+    { kind: "analyzer", addon: "analyzer" },
     isAnalyzeModalOpen
   );
 

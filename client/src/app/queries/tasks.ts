@@ -20,6 +20,7 @@ import {
 
 interface FetchTasksFilters {
   addon?: string;
+  kind?: string;
 }
 
 export const TasksQueryKey = "tasks";
@@ -38,7 +39,16 @@ export const useFetchTasks = (
     select: (allTasks) => {
       const uniqSorted = allTasks
         .filter((task) =>
-          filters?.addon ? filters.addon === task.addon : true
+          // If there are any tasks with the addon field, we will still need to consider those older
+          // tasks that do not have the kind field. This is because the kind field was added later and is
+          // preferred over the addon field.
+
+          // The task manager will determine and assign the addon field when the addon is specified and addon isnt
+          // which will result in both being set.
+
+          filters?.kind || filters?.addon
+            ? filters.kind === task.kind || filters.addon === task.addon
+            : true
         )
         // sort by application.id (ascending) then createTime (newest to oldest)
         .sort((a, b) =>

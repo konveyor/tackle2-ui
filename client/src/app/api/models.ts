@@ -312,8 +312,8 @@ export interface Task {
   createTime?: string;
 
   name: string;
-  kind: string;
-  addon: string;
+  kind?: string;
+  addon?: string;
   extensions: string[];
   state?: TaskState;
   locator?: string;
@@ -408,7 +408,8 @@ export interface TaskgroupTask {
 export interface Taskgroup {
   id?: number;
   name: string;
-  addon: string;
+  kind?: string;
+  addon?: string;
   data: TaskData;
   tasks: TaskgroupTask[];
 }
@@ -469,7 +470,7 @@ export interface Target {
   labels?: TargetLabel[];
   image?: RulesetImage;
   ruleset: Ruleset;
-  provider?: string;
+  provider?: string[];
 }
 
 export interface Metadata {
