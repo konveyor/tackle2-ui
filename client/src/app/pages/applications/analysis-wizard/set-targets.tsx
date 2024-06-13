@@ -184,7 +184,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
         onChange={(selection) => {
           setProvider(selection as string[]);
         }}
-        toggleId="language-select-toggle"
+        toggleId="action-select-toggle"
       />
       {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&

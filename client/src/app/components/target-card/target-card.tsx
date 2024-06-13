@@ -110,6 +110,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
 
   return (
     <Card
+      id={`target-card-${target.name.replace(/\s/g, "-")}`}
       onClick={handleCardClick}
       isSelectable
       isSelected={isCardSelected}
@@ -117,7 +118,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     >
       <CardHeader
         selectableActions={{
-          selectableActionId: "" + target.id,
+          selectableActionId: "target-name-" + target.name,
           selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
           isChecked: isCardSelected,
         }}

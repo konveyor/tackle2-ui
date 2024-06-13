@@ -93,11 +93,12 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
       onOpenChange={setIsOpen}
       toggle={(toggleref: React.Ref<MenuToggleElement>) => (
         <MenuToggle
+          aria-label={toggleAriaLabel}
+          id={toggleId}
           ref={toggleref}
           onClick={onToggleClick}
           style={{ width: width && width + "px" }}
           isExpanded={isOpen}
-          id={toggleId}
         >
           <span className={spacing.mrSm}>{placeholderText}</span>
           {selectedItems.length > 0 && (
@@ -110,6 +111,7 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
       <SelectList>
         {selectOptions.map((option, index) => (
           <SelectOption
+            id={`checkbox-for-${option.value}`}
             hasCheckbox
             key={option.value}
             isFocused={index === 0}
