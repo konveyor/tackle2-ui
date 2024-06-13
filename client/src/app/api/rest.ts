@@ -376,7 +376,7 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
 export const updateTask = (task: Partial<Task> & { id: number }) =>
   axios.patch<Task>(`${TASKS}/${task.id}`, task);
 
-export const createTaskgroup = (obj: Taskgroup) =>
+export const createTaskgroup = (obj: New<Taskgroup>) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
 export const submitTaskgroup = (obj: Taskgroup) =>
