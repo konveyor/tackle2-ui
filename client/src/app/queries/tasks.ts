@@ -202,3 +202,20 @@ export const useFetchTaskQueue = (addon?: string) => {
     refetch,
   };
 };
+
+// TODO: Fetch a reasonable sized page of queued tasks (the ones that go in the total count
+//       in `useFetchTaskQueue()`) and provide a way to increase the page size as a user
+//       scrolls down a task list (infinite scroll OR load more link/button)
+export const useFetchQueuedTasks = () => {
+  const tasks: Task[] = [];
+  const isFetching = false;
+  const error = undefined;
+  const increasePageSize = () => {};
+
+  return {
+    tasks,
+    isFetching,
+    error,
+    increasePageSize,
+  };
+};
