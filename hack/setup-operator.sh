@@ -1,13 +1,15 @@
 #!/bin/bash
 #
 # Based on:
-#   - https://github.com/konveyor/operator/blob/main/hack/install-konveyor.sh
+#   - https://github.com/konveyor/operator/blob/main/hack/install-konveyor.sh **latest
 #   - https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh
 #   - https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator
+#   - https://github.com/konveyor/operator/blob/main/tackle-k8s.yaml
 #
 # By default, no authentication, and only use pre-built images
 #
-set -euxo pipefail
+set -eo pipefail
+# set -euxo pipefail
 
 # use kubectl if available, else fall back to `minikube kubectl --`, else error
 KUBECTL=kubectl
@@ -38,6 +40,19 @@ debug() {
 }
 trap 'debug' ERR
 
+function retry_command() {
+  local retries=$1
+  local sleeptime=$2
+  local cmd=${@:3}
+
+  until [[ $retries -eq 0 ]] || ${cmd} &>/dev/null; do
+    echo "command failed, try again in ${sleeptime}s [retries: $retries]"
+    sleep $sleeptime
+    ((retries--))
+  done
+  [[ $retries == 0 ]] && return 1 || return 0
+}
+
 # Inputs for setting up the operator
 NAMESPACE="${NAMESPACE:-konveyor-tackle}"
 OPERATOR_INDEX_IMAGE="${OPERATOR_INDEX_IMAGE:-quay.io/konveyor/tackle2-operator-index:latest}"
@@ -46,21 +61,22 @@ OPERATOR_INDEX_IMAGE="${OPERATOR_INDEX_IMAGE:-quay.io/konveyor/tackle2-operator-
 TACKLE_CR="${TACKLE_CR:-}"
 
 FEATURE_AUTH_REQUIRED="${FEATURE_AUTH_REQUIRED:-false}"
-HUB_IMAGE="${HUB_IMAGE:-quay.io/konveyor/tackle2-hub:latest}"
-UI_IMAGE="${UI_IMAGE:-quay.io/konveyor/tackle2-ui:latest}"
-UI_INGRESS_CLASS_NAME="${UI_INGRESS_CLASS_NAME:-nginx}"
-ADDON_ANALYZER_IMAGE="${ADDON_ANALYZER_IMAGE:-quay.io/konveyor/tackle2-addon-analyzer:latest}"
 IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-Always}"
+UI_INGRESS_CLASS_NAME="${UI_INGRESS_CLASS_NAME:-nginx}"
+UI_IMAGE="${UI_IMAGE:-quay.io/konveyor/tackle2-ui:latest}"
+HUB_IMAGE="${HUB_IMAGE:-quay.io/konveyor/tackle2-hub:latest}"
+ADDON_ANALYZER_IMAGE="${ADDON_ANALYZER_IMAGE:-quay.io/konveyor/tackle2-addon-analyzer:latest}"
 ANALYZER_CONTAINER_REQUESTS_MEMORY="${ANALYZER_CONTAINER_REQUESTS_MEMORY:-0}"
 ANALYZER_CONTAINER_REQUESTS_CPU="${ANALYZER_CONTAINER_REQUESTS_CPU:-0}"
 
 install_operator() {
-  # Create the Konveyor Namespace
-  $KUBECTL auth can-i create namespace --all-namespaces
-  $KUBECTL create namespace ${NAMESPACE} || true
-
-  # Install the Konveyor CatalogSource, OperatorGroup, and Subscription
+  # Install the Konveyor Namespace, CatalogSource, OperatorGroup, and Subscription
   cat <<EOF | $KUBECTL apply -f -
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${NAMESPACE}
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
@@ -95,29 +111,37 @@ spec:
   sourceNamespace: ${NAMESPACE}
 EOF
 
-  # # If on MacOS, need to install `brew install coreutils` to get `timeout`
-  # timeout 600s bash -c "until $KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io; do sleep 30; done" \
-  # || $KUBECTL get subscription --namespace ${NAMESPACE} -o yaml konveyor-operator # Print subscription details when timed out
+  echo "Waiting for the Tackle CRD to exist"
+  retry_command 10 10 \
+    $KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io
 
+  if [[ $? -ne 0 ]]; then
+    echo "Tackle CRD doesn't exist yet, cannot continue"
+    exit 1
+  fi
+
+  echo "Waiting for the Tackle CRD to become established"
   $KUBECTL wait \
     --namespace ${NAMESPACE} \
-    --for=condition=established \
-    customresourcedefinitions.apiextensions.k8s.io/tackles.tackle.konveyor.io
-}
-
-install_tackle() {
-  echo "Waiting for the Tackle CRD to become available"
-  $KUBECTL wait \
-    --namespace "${NAMESPACE}" \
-    --for=condition=established \
-    customresourcedefinitions.apiextensions.k8s.io/tackles.tackle.konveyor.io
-
-  echo "Waiting for the Tackle Operator to exist"
-  timeout 2m bash -c "until $KUBECTL --namespace ${NAMESPACE} get deployment/tackle-operator; do sleep 10; done"
+    --timeout=120s \
+    --for=condition=Established \
+    customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io
 
   echo "Waiting for the Tackle Operator to become available"
-  $KUBECTL rollout status --namespace "${NAMESPACE}" -w deployment/tackle-operator --timeout=600s
+  $KUBECTL rollout status \
+    --namespace "${NAMESPACE}" \
+    --timeout=600s \
+    -w deployment/tackle-operator
+}
 
+install_konveyor() {
+  echo "Make sure the Tackle Operator is available"
+  $KUBECTL rollout status \
+    --namespace "${NAMESPACE}" \
+    --timeout=600s \
+    -w deployment/tackle-operator
+
+  echo "Create a Tackle CR"
   if [ -n "${TACKLE_CR}" ]; then
     echo "${TACKLE_CR}" | $KUBECTL apply --namespace "${NAMESPACE}" -f -
   else
@@ -127,18 +151,18 @@ apiVersion: tackle.konveyor.io/v1alpha1
 metadata:
   name: tackle
 spec:
-  feature_auth_required: ${FEATURE_AUTH_REQUIRED}
-  hub_image_fqin: ${HUB_IMAGE}
-  ui_image_fqin: ${UI_IMAGE}
-  ui_ingress_class_name: ${UI_INGRESS_CLASS_NAME}
-  analyzer_fqin: ${ADDON_ANALYZER_IMAGE}
   image_pull_policy: ${IMAGE_PULL_POLICY}
+  feature_auth_required: ${FEATURE_AUTH_REQUIRED}
+  ui_ingress_class_name: ${UI_INGRESS_CLASS_NAME}
+  ui_image_fqin: ${UI_IMAGE}
+  hub_image_fqin: ${HUB_IMAGE}
+  analyzer_fqin: ${ADDON_ANALYZER_IMAGE}
   analyzer_container_requests_memory: ${ANALYZER_CONTAINER_REQUESTS_MEMORY}
   analyzer_container_requests_cpu: ${ANALYZER_CONTAINER_REQUESTS_CPU}
 EOF
   fi
 
-  # Want to see in github logs what we just created
+  # Log Want to see in github logs what we just created
   $KUBECTL get --namespace "${NAMESPACE}" -o yaml tackles.tackle.konveyor.io/tackle
 
   # Wait for reconcile to finish
@@ -157,5 +181,5 @@ EOF
     deployments.apps
 }
 
-$KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io || install_operator
-install_tackle
+$KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io &>/dev/null || install_operator
+install_konveyor
