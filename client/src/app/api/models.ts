@@ -330,7 +330,7 @@ export interface Task {
   events?: TaskEvent[];
   errors?: TaskError[];
   activity?: string[];
-  attached?: Attachment[];
+  attached?: TaskAttachment[];
 }
 
 export interface TaskPolicy {
@@ -359,7 +359,7 @@ export interface TaskError {
   description: string;
 }
 
-export interface Attachment {
+export interface TaskAttachment {
   id: number;
   name?: string;
   activity?: number;
