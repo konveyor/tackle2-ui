@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   EmptyState,
@@ -18,8 +18,9 @@ import {
 } from "@patternfly/react-core";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
-import { Task } from "@app/api/models";
+import { TaskState } from "@app/api/models";
 import { useTaskManagerContext } from "./TaskManagerContext";
+import { useServerTasks } from "@app/queries/tasks";
 
 interface TaskManagerDrawerProps {
   ref?: React.ForwardedRef<HTMLElement>;
@@ -76,7 +77,7 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
 );
 TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
-const TaskItem: React.FC<{ task: Task }> = ({ task }) => (
+const TaskItem: React.FC<{ task: TaskManagerTask }> = ({ task }) => (
   <NotificationDrawerListItem key={task.id} variant="info">
     <NotificationDrawerListItemHeader
       variant="success"
@@ -87,32 +88,86 @@ const TaskItem: React.FC<{ task: Task }> = ({ task }) => (
   </NotificationDrawerListItem>
 );
 
+interface TaskManagerTask {
+  id: number;
+
+  createUser: string;
+  updateUser: string;
+  createTime: string;
+  started?: string;
+  terminated?: string;
+
+  name: string;
+  kind: string;
+  addon: string;
+  extensions: string[];
+  state: TaskState;
+  priority: number;
+  application: { id: number; name: string };
+  preemptEnabled: boolean;
+}
+
+const PAGE_SIZE = 20;
+
 const useTaskManagerData = () => {
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const increasePageSize = () => {
-    setPageSize(pageSize + 20);
+    setPageSize(pageSize + PAGE_SIZE);
   };
 
-  const tasks: Task[] = [
-    // {
-    //   id: 999,
-    //   application: { id: 1 },
-    //   name: "Task 999",
-    //   addon: "analyzer",
-    //   data: {
-    //     tagger: { enabled: true },
-    //     verbosity: 0,
-    //     mode: { artifact: "", binary: false, withDeps: false },
-    //     scope: {
-    //       withKnownLibs: false,
-    //       packages: { included: [], excluded: [] },
-    //     },
-    //   },
-    // },
-  ];
+  const { result, isFetching } = useServerTasks(
+    {
+      filters: [{ field: "state", operator: "=", value: "queued" }],
+      sort: {
+        field: "id",
+        direction: "desc",
+      },
+      page: {
+        pageNumber: 1,
+        itemsPerPage: pageSize,
+      },
+    },
+    5000
+  );
+
+  const tasks: TaskManagerTask[] = useMemo(
+    () =>
+      result.data.map((task) => ({
+        id: task.id,
+        createUser: task.createUser,
+        updateUser: task.updateUser,
+        createTime: task.createTime, // TODO: date?
+        started: task.started, // TODO: date?
+        terminated: task.terminated, // TODO: date?
+        name: task.name,
+        kind: task.kind,
+        addon: task.addon,
+        extensions: task.extensions,
+        state: task.state,
+        priority: task.priority,
+        application: task.application,
+        preemptEnabled: task?.policy?.preemptEnabled ?? false,
+      })),
+    [result.data]
+  );
+
+  // {
+  //   id: 999,
+  //   createUser: "",
+  //   updateUser: "",
+  //   createTime: "2024-06-13T02:30:47.070179657Z",
+  //   name: "Task 999",
+  //   kind: "",
+  //   addon: "analyzer",
+  //   extensions: [],
+  //   state: "Ready",
+  //   priority: 0,
+  //   application: { id: 1, name: "App1" },
+  // },
 
   return {
     tasks,
     increasePageSize,
+    isFetching,
   };
 };
