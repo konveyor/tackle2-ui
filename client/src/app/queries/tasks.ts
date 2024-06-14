@@ -68,12 +68,16 @@ export const useFetchTasks = (
   };
 };
 
-export const useServerTasks = (params: HubRequestParams = {}) => {
+export const useServerTasks = (
+  params: HubRequestParams = {},
+  refetchInterval?: number
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TasksQueryKey, params],
     queryFn: async () => await getServerTasks(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval: refetchInterval ?? false,
   });
 
   return {
@@ -200,22 +204,5 @@ export const useFetchTaskQueue = (addon?: string) => {
     isFetching,
     error,
     refetch,
-  };
-};
-
-// TODO: Fetch a reasonable sized page of queued tasks (the ones that go in the total count
-//       in `useFetchTaskQueue()`) and provide a way to increase the page size as a user
-//       scrolls down a task list (infinite scroll OR load more link/button)
-export const useFetchQueuedTasks = () => {
-  const tasks: Task[] = [];
-  const isFetching = false;
-  const error = undefined;
-  const increasePageSize = () => {};
-
-  return {
-    tasks,
-    isFetching,
-    error,
-    increasePageSize,
   };
 };
