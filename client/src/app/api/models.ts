@@ -307,18 +307,62 @@ export type TaskState =
 
 export interface Task {
   id?: number;
+  createUser?: string;
+  updateUser?: string;
   createTime?: string;
-  application: { id: number };
+
   name: string;
+  kind: string;
   addon: string;
+  extensions: string[];
+  state?: TaskState;
+  locator?: string;
+  priority?: number;
+  policy: TaskPolicy;
+  ttl: TTL;
   data: TaskData;
-  error?: string;
-  image?: string;
+  application: Ref;
+  bucket?: Ref;
+  pod?: string;
+  retries?: number;
   started?: string;
   terminated?: string;
-  state?: TaskState;
-  job?: string;
-  report?: TaskReport;
+  events?: TaskEvent[];
+  errors?: TaskError[];
+  activity?: string[];
+  attached?: Attachment[];
+}
+
+export interface TaskPolicy {
+  isolated?: boolean;
+  preemptEnabled?: boolean;
+  preemptExempt?: boolean;
+}
+
+export interface TTL {
+  created?: number;
+  pending?: number;
+  running?: number;
+  succeeded?: number;
+  failed?: number;
+}
+
+export interface TaskEvent {
+  kind: string;
+  count: number;
+  reason?: string;
+  last: string; // time
+}
+
+export interface TaskError {
+  severity: string;
+  description: string;
+}
+
+export interface Attachment {
+  id: number;
+  name?: string;
+  activity?: number;
 }
 
 export interface TaskData {
@@ -353,19 +397,6 @@ export interface TaskData {
       excluded: string[];
     };
   };
-}
-
-interface TaskReport {
-  activity: string[];
-  completed: number;
-  createTime: string;
-  createUser: string;
-  error: string;
-  id: number;
-  status: string;
-  task: number;
-  total: number;
-  updateUser: string;
 }
 
 export interface TaskgroupTask {
