@@ -20,7 +20,7 @@ added to the instance by:
 
 #### List all of the "tackle-" pods, what container image they're using, and the image's manifest digest:
 
-```
+```sh
 > minikube kubectl -- \
     get pods -n konveyor-tackle -o=json \
     | jq '
@@ -46,12 +46,11 @@ added to the instance by:
   "image": "quay.io/konveyor/tackle2-ui:latest",
   "imageID": "docker-pullable://quay.io/konveyor/tackle2-ui@sha256:541484a8919d9129bed5b95a2776a84ef35989ca271753147185ddb395cc8781"
 }
-
 ```
 
 #### List the current ":latest" tag's manifest digest from quay for a single image (tackle2-hub in this example):
 
-```
+```sh
 > curl https://quay.io/api/v1/repository/konveyor/tackle2-hub/tag/\?onlyActiveTags\=true\&specificTag\=latest | jq '.'
 {
   "tags": [
@@ -76,7 +75,7 @@ The ":latest" image tag usually move frequently. Using the previous two commands
 
 If the digests do not match, the easy way to update is to "bounce" the deployment (the tackle-hub in this example):
 
-```
+```sh
 > minikube kubectl -- scale -n konveyor-tackle deployment tackle-hub --replicas=0
 deployment.apps/tackle-hub scaled
 > minikube kubectl -- scale -n konveyor-tackle deployment tackle-hub --replicas=1
