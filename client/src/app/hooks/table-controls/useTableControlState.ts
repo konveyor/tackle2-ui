@@ -68,17 +68,11 @@ export const useTableControlState = <
     persistTo: getPersistTo("activeItem"),
   });
 
-  const { columnNames, tableName } = args;
-
-  const initialColumns = Object.entries(columnNames).map(([id, label]) => ({
-    id: id as TColumnKey,
-    label: label as string,
-    isVisible: true,
-  }));
-
+  const { columnNames, tableName, initialColumns } = args;
   const columnState = useColumnState<TColumnKey>({
     columnsKey: tableName,
     initialColumns,
+    supportedColumns: columnNames,
   });
   return {
     ...args,

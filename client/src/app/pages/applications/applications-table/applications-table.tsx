@@ -325,6 +325,9 @@ export const ApplicationsTable: React.FC = () => {
     isLoading: isFetchingApplications,
     sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
+    initialColumns: {
+      name: { isIdentity: true },
+    },
     initialFilterValues: deserializedFilterValues,
     getSortValues: (app) => ({
       name: app.name,
@@ -804,6 +807,7 @@ export const ApplicationsTable: React.FC = () => {
               <ManageColumnsToolbar
                 columns={columnState.columns}
                 setColumns={columnState.setColumns}
+                defaultColumns={columnState.defaultColumns}
               />
             </ToolbarGroup>
 
