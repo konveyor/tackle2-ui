@@ -30,7 +30,7 @@ export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const mvnInsecureSetting = useSetting("mvn.insecure.enabled");
   const mvnInsecureSettingMutation = useSettingMutation("mvn.insecure.enabled");
@@ -101,7 +101,7 @@ export const RepositoriesMvn: React.FC = () => {
                     isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
                     onClick={() => setIsConfirmDialogOpen(true)}
                   >
-                    {isFetching ? (
+                    {isRWXSupported && isFetching ? (
                       <Text>
                         Loading...
                         <Spinner
