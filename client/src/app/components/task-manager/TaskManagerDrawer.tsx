@@ -1,5 +1,6 @@
 import React, { forwardRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   EmptyState,
   EmptyStateActions,
@@ -15,6 +16,7 @@ import {
   NotificationDrawerListItem,
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   CubesIcon,
@@ -24,10 +26,13 @@ import {
   CheckCircleIcon,
   TaskIcon,
 } from "@patternfly/react-icons";
+import { css } from "@patternfly/react-styles";
 
 import { TaskState } from "@app/api/models";
 import { useTaskManagerContext } from "./TaskManagerContext";
 import { useServerTasks } from "@app/queries/tasks";
+
+import "./TaskManagerDrawer.css";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -45,7 +50,8 @@ interface TaskManagerTask {
   extensions: string[];
   state: TaskState;
   priority: number;
-  application: { id: number; name: string };
+  applicationId: number;
+  applicationName: string;
   preemptEnabled: boolean;
 }
 
@@ -60,8 +66,11 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
     const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
     const { tasks } = useTaskManagerData();
 
+    const [expandedItems, setExpandedItems] = useState<number[]>([]);
+
     const closeDrawer = () => {
       setIsExpanded(!isExpanded);
+      setExpandedItems([]);
     };
 
     return (
@@ -95,7 +104,18 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
           ) : (
             <NotificationDrawerList>
               {tasks.map((task) => (
-                <TaskItem key={task.id} task={task} />
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  expanded={expandedItems.includes(task.id)}
+                  onExpandToggle={(expand) => {
+                    setExpandedItems(
+                      expand
+                        ? [...expandedItems, task.id]
+                        : expandedItems.filter((i) => i !== task.id)
+                    );
+                  }}
+                />
               ))}
             </NotificationDrawerList>
           )}
@@ -119,15 +139,49 @@ const TaskStateToIcon: React.FC<{ task: TaskManagerTask }> = ({ task }) =>
     <TaskIcon />
   );
 
-const TaskItem: React.FC<{ task: TaskManagerTask }> = ({ task }) => {
+const TaskItem: React.FC<{
+  task: TaskManagerTask;
+  expanded: boolean;
+  onExpandToggle: (expand: boolean) => void;
+}> = ({ task, expanded, onExpandToggle }) => {
+  const starttime = dayjs(task.started ?? task.createTime);
+  const title = expanded
+    ? `${task.id} (${task.addon})`
+    : `${task.id} (${task.addon}) - ${task.applicationName} - ${
+        task.priority ?? 0
+      }`;
+
   return (
-    <NotificationDrawerListItem key={task.id} variant="info">
+    <NotificationDrawerListItem
+      key={task.id}
+      variant="info"
+      className={css(
+        expanded && "task-manager-item-expanded",
+        !expanded && "task-manager-item-collapsed"
+      )}
+      onClick={() => onExpandToggle(!expanded)}
+    >
       <NotificationDrawerListItemHeader
         variant="custom"
-        title={`Task ID ${task.id}`}
+        title={title}
         icon={<TaskStateToIcon task={task} />}
-      ></NotificationDrawerListItemHeader>
-      <NotificationDrawerListItemBody timestamp="right about now, funk soul brother"></NotificationDrawerListItemBody>
+      >
+        {/* Put the item's action menu here */}
+      </NotificationDrawerListItemHeader>
+      {expanded ? (
+        <NotificationDrawerListItemBody
+          timestamp={
+            <Tooltip content={starttime.format("ll, LTS")}>
+              <span>{starttime.fromNow()}</span>
+            </Tooltip>
+          }
+        >
+          <div>{task.applicationName}</div>
+          {/* TODO: Link to /applications with filter applied? */}
+          <div>Priority {task.priority}</div>
+          {/* TODO: Bucket to Low, Medium, High? */}
+        </NotificationDrawerListItemBody>
+      ) : undefined}
     </NotificationDrawerListItem>
   );
 };
@@ -152,19 +206,6 @@ const useTaskManagerData = () => {
     },
     5000
   );
-  // {
-  //   id: 999,
-  //   createUser: "",
-  //   updateUser: "",
-  //   createTime: "2024-06-13T02:30:47.070179657Z",
-  //   name: "Task 999",
-  //   kind: "",
-  //   addon: "analyzer",
-  //   extensions: [],
-  //   state: "Ready",
-  //   priority: 0,
-  //   application: { id: 1, name: "App1" },
-  // },
 
   const tasks: TaskManagerTask[] = useMemo(
     () =>
@@ -184,8 +225,9 @@ const useTaskManagerData = () => {
                 addon: task.addon,
                 extensions: task.extensions,
                 state: task.state ?? "",
-                priority: task.priority,
-                application: task.application,
+                priority: task.priority ?? 0,
+                applicationId: task.application.id,
+                applicationName: task.application.name,
                 preemptEnabled: task?.policy?.preemptEnabled ?? false,
 
                 // TODO: Add any checks that could be needed later...
