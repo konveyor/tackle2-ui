@@ -334,6 +334,14 @@ export const ApplicationsTable: React.FC = () => {
     }),
     filterCategories: [
       {
+        categoryKey: "id",
+        title: "ID",
+        type: FilterType.numsearch,
+        matcher: (filter: string, item: Application) =>
+          String(item.id) === filter,
+        hideToolbarItem: true,
+      },
+      {
         categoryKey: "name",
         title: t("terms.name"),
         type: FilterType.multiselect,

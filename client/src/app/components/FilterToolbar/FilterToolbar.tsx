@@ -55,6 +55,11 @@ export interface IBasicFilterCategory<
   getServerFilterValue?: (filterValue: FilterValue) => string[] | undefined;
   /** For client side filtering, provide custom algorithm for testing if the value of `TItem` matches the filter value. */
   matcher?: (filter: string, item: TItem) => boolean;
+  /**
+   * Controls filter visibility. Hidden filters are fully functional and can be used for filtering on page load via URL.
+   * Defaults to false.
+   */
+  hideToolbarItem?: boolean;
 }
 
 export interface IMultiselectFilterCategory<
@@ -125,7 +130,10 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
   const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =
-    React.useState(filterCategories[0].categoryKey);
+    React.useState(
+      filterCategories.find(({ hideToolbarItem }) => !hideToolbarItem)
+        ?.categoryKey
+    );
 
   const onCategorySelect = (
     category: FilterCategory<TItem, TFilterCategoryKey>
@@ -160,6 +168,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
               .filter(
                 (filterCategory) => filterCategory.filterGroup === filterGroup
               )
+              .filter((filterCategory) => !filterCategory.hideToolbarItem)
               .map((filterCategory) => {
                 return (
                   <DropdownItem
@@ -175,15 +184,17 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         </DropdownGroup>
       ));
     } else {
-      return filterCategories.map((category) => (
-        <DropdownItem
-          id={`filter-category-${category.categoryKey}`}
-          key={category.categoryKey}
-          onClick={() => onCategorySelect(category)}
-        >
-          {category.title}
-        </DropdownItem>
-      ));
+      return filterCategories
+        .filter((filterCategory) => !filterCategory.hideToolbarItem)
+        .map((category) => (
+          <DropdownItem
+            id={`filter-category-${category.categoryKey}`}
+            key={category.categoryKey}
+            onClick={() => onCategorySelect(category)}
+          >
+            {category.title}
+          </DropdownItem>
+        ));
     }
   };
 
@@ -226,8 +237,9 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
             filterValue={filterValues[category.categoryKey]}
             setFilterValue={(newValue) => setFilterValue(category, newValue)}
             showToolbarItem={
-              showFiltersSideBySide ||
-              currentFilterCategory?.categoryKey === category.categoryKey
+              !category.hideToolbarItem &&
+              (showFiltersSideBySide ||
+                currentFilterCategory?.categoryKey === category.categoryKey)
             }
             isDisabled={isDisabled}
           />
