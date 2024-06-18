@@ -341,7 +341,7 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (item) => item?.name || "",
+        matcher: (filter: string, item: Application) => item.name === filter,
         selectOptions: [
           ...new Set(
             applications.map((application) => application.name).filter(Boolean)
