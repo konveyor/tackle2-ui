@@ -104,6 +104,14 @@ export type IFeaturePersistenceArgs<
    */
   persistTo?: PersistTarget;
 };
+
+export interface ColumnSetting {
+  // visibility status, can change in time
+  isVisible?: boolean;
+  // column is always visible because it's needed to uniquely identify the row
+  isIdentity?: boolean;
+}
+
 /**
  * Table-level persistence-specific args
  * - Extra args needed for persisting state at the table level.
@@ -151,6 +159,7 @@ export type IUseTableControlStateArgs<
   /**
    * Initial state for the columns feature. If omitted, all columns are enabled by default.
    */
+  initialColumns?: Partial<Record<TColumnKey, ColumnSetting>>;
 } & IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
   IPaginationStateArgs & {

@@ -25,6 +25,8 @@ export interface ManagedColumnsProps<TColumnKey extends string> {
   saveLabel?: string;
   cancelLabel?: string;
   title?: string;
+  restoreLabel?: string;
+  defaultColumns: ColumnState<TColumnKey>[];
 }
 
 export const ManageColumnsModal = <TColumnKey extends string>({
@@ -35,6 +37,8 @@ export const ManageColumnsModal = <TColumnKey extends string>({
   saveLabel = "Save",
   cancelLabel = "Cancel",
   title = "Manage Columns",
+  restoreLabel = "Restore defaults",
+  defaultColumns,
 }: ManagedColumnsProps<TColumnKey>) => {
   const [editedColumns, setEditedColumns] =
     useState<ColumnState<TColumnKey>[]>(columns);
@@ -47,6 +51,7 @@ export const ManageColumnsModal = <TColumnKey extends string>({
       }))
     );
   };
+  const restoreDefaults = () => setEditedColumns([...defaultColumns]);
 
   const onSave = () => {
     // If ordering is implemented, update accordingly
@@ -72,19 +77,20 @@ export const ManageColumnsModal = <TColumnKey extends string>({
         <Button key="cancel" variant="secondary" onClick={onClose}>
           {cancelLabel}
         </Button>,
+        <Button key="restore" variant="link" onClick={restoreDefaults}>
+          {restoreLabel}
+        </Button>,
       ]}
     >
       <DataList aria-label={title} id="table-column-management" isCompact>
-        {editedColumns.map(({ id, label, isVisible }, index) => (
+        {editedColumns.map(({ id, label, isVisible, isIdentity }, index) => (
           <DataListItem key={index}>
             <DataListItemRow className="custom-data-list-item-row">
               <DataListControl>
                 <DataListCheck
                   aria-labelledby={`check-${id}`}
-                  checked={isVisible}
-                  //TODO: Dynamic disable logic based on idProperty definition in useTableControlState.
-                  // Currently, any column whose name is 'name' will not be allowed to be hidden
-                  isDisabled={id === "name"}
+                  checked={isVisible || isIdentity}
+                  isDisabled={isIdentity}
                   onChange={(e, checked) => onSelect(id, checked)}
                 />
               </DataListControl>
