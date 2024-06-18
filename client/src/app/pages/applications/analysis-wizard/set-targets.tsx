@@ -61,7 +61,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     )
   ).filter(Boolean);
 
-  const [provider, setProvider] = useState(initialProviders);
+  const [providers, setProviders] = useState(initialProviders);
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -173,7 +173,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
       <SimpleSelectCheckbox
         placeholderText="Filter by language..."
         width={300}
-        value={provider}
+        value={providers}
         options={languageOptions?.map((language): SelectOptionProps => {
           return {
             children: <div>{language}</div>,
@@ -182,7 +182,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
           };
         })}
         onChange={(selection) => {
-          setProvider(selection as string[]);
+          setProviders(selection as string[]);
         }}
         toggleId="action-select-toggle"
       />
@@ -199,11 +199,11 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
         {targetOrderSetting.isSuccess
           ? targetOrderSetting.data.map((id, index) => {
               const matchingTarget = targets.find((target) => target.id === id);
-
               const isSelected = selectedTargets?.includes(id);
+
               if (
                 matchingTarget &&
-                provider?.some((p) => matchingTarget?.provider?.includes(p))
+                providers?.some((p) => matchingTarget?.provider?.includes(p))
               ) {
                 return (
                   <GalleryItem key={index}>

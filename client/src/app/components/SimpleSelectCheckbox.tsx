@@ -35,14 +35,9 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
   width,
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
   const [selectOptions, setSelectOptions] = React.useState<SelectOptionProps[]>(
     [{ value: "show-all", label: "Show All", children: "Show All" }, ...options]
   );
-
-  React.useEffect(() => {
-    setSelectedItems(value || []);
-  }, [value]);
 
   React.useEffect(() => {
     const updatedOptions = [
@@ -60,27 +55,21 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     selectionValue: string | number | undefined
   ) => {
-    const value = selectionValue as string;
-    if (value === "show-all") {
-      if (selectedItems.length === options.length) {
-        setSelectedItems([]);
-        onChange([]);
-      } else {
-        const allItemValues = options.map((option) => option.value as string);
-        setSelectedItems(allItemValues);
-        onChange(allItemValues);
-      }
+    if (!value || !selectionValue) {
+      return;
+    }
+    let newValue: string[] = [];
+    if (selectionValue === "show-all") {
+      newValue =
+        value.length === options.length ? [] : options.map((opt) => opt.value);
     } else {
-      if (selectedItems.includes(value)) {
-        const newSelections = selectedItems.filter((item) => item !== value);
-        setSelectedItems(newSelections);
-        onChange(newSelections);
+      if (value.includes(selectionValue as string)) {
+        newValue = value.filter((item) => item !== selectionValue);
       } else {
-        const newSelections = [...selectedItems, value];
-        setSelectedItems(newSelections);
-        onChange(newSelections);
+        newValue = [...value, selectionValue as string];
       }
     }
+    onChange(newValue);
   };
 
   return (
@@ -88,7 +77,7 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
       role="menu"
       id={id}
       isOpen={isOpen}
-      selected={selectedItems}
+      selected={value}
       onSelect={onSelect}
       onOpenChange={setIsOpen}
       toggle={(toggleref: React.Ref<MenuToggleElement>) => (
@@ -101,9 +90,7 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
           isExpanded={isOpen}
         >
           <span className={spacing.mrSm}>{placeholderText}</span>
-          {selectedItems.length > 0 && (
-            <Badge isRead>{selectedItems.length}</Badge>
-          )}
+          {value && value.length > 0 && <Badge isRead>{value.length}</Badge>}
         </MenuToggle>
       )}
       aria-label={toggleAriaLabel}
@@ -115,11 +102,13 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
             hasCheckbox
             key={option.value}
             isFocused={index === 0}
-            onClick={() => onSelect(undefined, option.value)}
+            onClick={(e) => {
+              onSelect(e, option.value);
+            }}
             isSelected={
               option.value === "show-all"
-                ? selectedItems.length === options.length
-                : selectedItems.includes(option.value as string)
+                ? value?.length === options.length
+                : value?.includes(option.value as string)
             }
             {...option}
           >

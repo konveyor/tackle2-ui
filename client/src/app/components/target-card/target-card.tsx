@@ -85,15 +85,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
-    // Stop 'select' event propagation
-    event.preventDefault();
-    const eventTarget: any = event.target;
-    if (eventTarget.type === "button") return;
+    const eventTarget = event.target as HTMLElement;
+
+    if (eventTarget.tagName === "BUTTON" || eventTarget.tagName === "LABEL") {
+      event.preventDefault();
+    }
 
     setCardSelected(!isCardSelected);
-    onCardClick &&
-      selectedLabelName &&
+    if (onCardClick && selectedLabelName) {
       onCardClick(!isCardSelected, selectedLabelName, target);
+    }
   };
 
   const handleLabelSelection = (
@@ -107,16 +108,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       onSelectedCardTargetChange(selection as string);
     }
   };
-
   return (
     <Card
       id={`target-card-${target.name.replace(/\s/g, "-")}`}
       onClick={handleCardClick}
-      isSelectable
+      isSelectable={!!cardSelected}
       isSelected={isCardSelected}
       className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
     >
       <CardHeader
+        checked={isCardSelected}
         selectableActions={{
           selectableActionId: "target-name-" + target.name,
           selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
