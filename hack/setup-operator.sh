@@ -70,6 +70,8 @@ ANALYZER_CONTAINER_REQUESTS_MEMORY="${ANALYZER_CONTAINER_REQUESTS_MEMORY:-0}"
 ANALYZER_CONTAINER_REQUESTS_CPU="${ANALYZER_CONTAINER_REQUESTS_CPU:-0}"
 
 install_operator() {
+  echo "Installing the Konveyor Operator..."
+
   # Install the Konveyor Namespace, CatalogSource, OperatorGroup, and Subscription
   cat <<EOF | $KUBECTL apply -f -
 ---
@@ -135,6 +137,8 @@ EOF
 }
 
 install_konveyor() {
+  echo "Installing the Konveyor CR..."
+
   echo "Make sure the Tackle Operator is available"
   $KUBECTL rollout status \
     --namespace "${NAMESPACE}" \
@@ -163,6 +167,7 @@ EOF
   fi
 
   # Log Want to see in github logs what we just created
+  echo "Created CR:"
   $KUBECTL get --namespace "${NAMESPACE}" -o yaml tackles.tackle.konveyor.io/tackle
 
   # Wait for reconcile to finish
