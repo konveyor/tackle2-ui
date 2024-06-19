@@ -258,6 +258,13 @@ export const useApplicationFormHook = ({
   });
 
   const onValidSubmit = (formValues: FormValues) => {
+    let binaryValue = formValues.packaging
+      ? `${formValues.group}:${formValues.artifact}:${formValues.version}:${formValues.packaging}`
+      : `${formValues.group}:${formValues.artifact}:${formValues.version}`;
+    if (!binaryValue.startsWith("mvn://")) {
+      binaryValue = `mvn://${binaryValue}`;
+    }
+
     const payload: New<Application> = {
       name: formValues.name.trim(),
       description: formValues.description.trim(),
@@ -282,10 +289,7 @@ export const useApplicationFormHook = ({
             path: formValues.rootPath.trim(),
           }
         : undefined,
-
-      binary: formValues.packaging
-        ? `${formValues.group}:${formValues.artifact}:${formValues.version}:${formValues.packaging}`
-        : `${formValues.group}:${formValues.artifact}:${formValues.version}`,
+      binary: binaryValue,
 
       // Values not editable on the form but still need to be passed through
       identities: application?.identities ?? undefined,
