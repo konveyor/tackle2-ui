@@ -13,12 +13,14 @@ import { ColumnsIcon } from "@patternfly/react-icons";
 
 interface ManageColumnsToolbarProps<TColumnKey extends string> {
   columns: ColumnState<TColumnKey>[];
+  defaultColumns: ColumnState<TColumnKey>[];
   setColumns: (newColumns: ColumnState<TColumnKey>[]) => void;
 }
 
 export const ManageColumnsToolbar = <TColumnKey extends string>({
   columns,
   setColumns,
+  defaultColumns,
 }: ManageColumnsToolbarProps<TColumnKey>) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +48,7 @@ export const ManageColumnsToolbar = <TColumnKey extends string>({
           saveLabel={t("actions.save")}
           cancelLabel={t("actions.cancel")}
           title={t("dialog.title.manageColumns")}
+          defaultColumns={defaultColumns}
         />
       )}
     </>
