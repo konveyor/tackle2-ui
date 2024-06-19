@@ -38,7 +38,7 @@ import {
 } from "@app/components/TableControls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
-import { ControlTableActionButtons } from "@app/components/ControlTableActionButtons";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
