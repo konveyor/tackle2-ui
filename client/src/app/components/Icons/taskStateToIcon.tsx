@@ -29,6 +29,7 @@ export const taskStateToIcon = (state?: TaskState) => {
     case "Pending":
       return <InProgressIcon />;
     case "Created":
+    case "QuotaBlocked":
     case "Running":
     case "Ready":
     case "Postponed":

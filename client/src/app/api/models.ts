@@ -301,6 +301,7 @@ export type TaskState =
   | "Failed"
   | "Running"
   | "No task"
+  | "QuotaBlocked"
   | "Ready"
   | "Pending"
   | "Postponed";
