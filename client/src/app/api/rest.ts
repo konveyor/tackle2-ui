@@ -345,6 +345,9 @@ export function getTaskById(
 export const getTasks = () =>
   axios.get<Task[]>(TASKS).then((response) => response.data);
 
+export const getServerTasks = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<Task>(TASKS, params);
+
 export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
 
 export const cancelTask = (id: number) =>

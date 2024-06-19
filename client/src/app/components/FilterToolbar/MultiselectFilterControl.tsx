@@ -226,6 +226,9 @@ export const MultiselectFilterControl = <TItem,>({
     </MenuToggle>
   );
 
+  const withGroupPrefix = (group: string) =>
+    group === category.title ? group : `${category.title}/${group}`;
+
   return (
     <>
       {
@@ -234,8 +237,8 @@ export const MultiselectFilterControl = <TItem,>({
           chips={chipsFor(firstGroup)}
           deleteChip={(_, chip) => onFilterClear(chip)}
           deleteChipGroup={() => onFilterClearGroup(firstGroup)}
-          categoryName={firstGroup}
-          key={firstGroup}
+          categoryName={{ name: firstGroup, key: withGroupPrefix(firstGroup) }}
+          key={withGroupPrefix(firstGroup)}
           showToolbarItem={showToolbarItem}
         >
           <Select
@@ -285,8 +288,8 @@ export const MultiselectFilterControl = <TItem,>({
           chips={chipsFor(groupName)}
           deleteChip={(_, chip) => onFilterClear(chip)}
           deleteChipGroup={() => onFilterClearGroup(groupName)}
-          categoryName={groupName}
-          key={groupName}
+          categoryName={{ name: groupName, key: withGroupPrefix(groupName) }}
+          key={withGroupPrefix(groupName)}
           showToolbarItem={false}
         >
           {" "}

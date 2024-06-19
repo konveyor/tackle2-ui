@@ -1,7 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { cancelTask, deleteTask, getTaskById, getTasks } from "@app/api/rest";
+import {
+  cancelTask,
+  deleteTask,
+  getServerTasks,
+  getTaskById,
+  getTasks,
+} from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
+import { HubPaginatedResult, HubRequestParams, Task } from "@app/api/models";
 
 interface FetchTasksFilters {
   addon?: string;
@@ -47,6 +54,26 @@ export const useFetchTasks = (
     fetchError: error,
     refetch,
     hasActiveTasks,
+  };
+};
+
+export const useServerTasks = (params: HubRequestParams = {}) => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: [TasksQueryKey, params],
+    queryFn: async () => await getServerTasks(params),
+    onError: (error) => console.log("error, ", error),
+    keepPreviousData: true,
+  });
+
+  return {
+    result: {
+      data: data?.data,
+      total: data?.total ?? 0,
+      params: data?.params ?? params,
+    } as HubPaginatedResult<Task>,
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
   };
 };
 
