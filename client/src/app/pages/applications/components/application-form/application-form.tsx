@@ -113,7 +113,12 @@ export const useApplicationFormHook = ({
     application: Application | null,
     fieldName: string
   ) => {
-    const fieldList = application?.binary?.split(":") || [];
+    const binaryString = application?.binary?.startsWith("mvn://")
+      ? application.binary.substring(6)
+      : application?.binary;
+
+    const fieldList = binaryString?.split(":") || [];
+
     switch (fieldName) {
       case "group":
         return fieldList[0] || "";
