@@ -128,15 +128,25 @@ TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
 const TaskStateToIcon: React.FC<{ task: TaskManagerTask }> = ({ task }) =>
   task.state === "Ready" ? (
-    <CheckCircleIcon />
+    <Tooltip content="Ready">
+      <CheckCircleIcon />
+    </Tooltip>
   ) : task.state === "Postponed" ? (
-    <PauseCircleIcon />
+    <Tooltip content="Postponed">
+      <PauseCircleIcon />
+    </Tooltip>
   ) : task.state === "Pending" ? (
-    <PendingIcon />
+    <Tooltip content="Pending">
+      <PendingIcon />
+    </Tooltip>
   ) : task.state === "Running" ? (
-    <InProgressIcon />
+    <Tooltip content="Running">
+      <InProgressIcon />
+    </Tooltip>
   ) : (
-    <TaskIcon />
+    <Tooltip content="Unknown">
+      <TaskIcon />
+    </Tooltip>
   );
 
 const TaskItem: React.FC<{
