@@ -312,16 +312,16 @@ export interface Task {
   updateUser?: string;
   createTime?: string;
 
-  name: string;
-  kind: string;
-  addon: string;
-  extensions: string[];
+  name?: string;
+  kind?: string;
+  addon?: string;
+  extensions?: string[];
   state?: TaskState;
   locator?: string;
   priority?: number;
-  policy: TaskPolicy;
-  ttl: TTL;
-  data: TaskData;
+  policy?: TaskPolicy;
+  ttl?: TTL;
+  data?: TaskData;
   application: Ref;
   bucket?: Ref;
   pod?: string;
@@ -407,9 +407,10 @@ export interface TaskgroupTask {
 }
 
 export interface Taskgroup {
-  id?: number;
+  id: number;
   name: string;
-  addon: string;
+  kind?: string;
+  addon?: string;
   data: TaskData;
   tasks: TaskgroupTask[];
 }
