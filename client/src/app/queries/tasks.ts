@@ -5,7 +5,9 @@ import {
   deleteTask,
   getServerTasks,
   getTaskById,
+  getTaskByIdAndFormat,
   getTasks,
+  getTextFile,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
 import { HubPaginatedResult, HubRequestParams, Task } from "@app/api/models";
@@ -108,16 +110,59 @@ export const useCancelTaskMutation = (
 };
 
 export const TaskByIDQueryKey = "taskByID";
+export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
 
-export const useFetchTaskByID = (
-  taskId?: number,
+export const useFetchTaskByIdAndFormat = ({
+  taskId,
   format = "json",
-  merged = false
-) => {
-  console.log("useFetchTaskByID", taskId, format, merged);
+  merged = false,
+  enabled = true,
+}: {
+  taskId?: number;
+  format?: "json" | "yaml";
+  merged?: boolean;
+  enabled?: boolean;
+}) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskByIDQueryKey, taskId, format, merged],
-    queryFn: () => (taskId ? getTaskById(taskId, format, merged) : null),
+    queryFn: () =>
+      taskId ? getTaskByIdAndFormat(taskId, format, merged) : undefined,
+    enabled,
+  });
+
+  return {
+    task: data,
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchTaskAttachmentById = ({
+  attachmentId,
+  enabled = true,
+}: {
+  attachmentId?: number;
+  enabled?: boolean;
+}) => {
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: [TaskAttachmentByIDQueryKey, attachmentId],
+    queryFn: () => (attachmentId ? getTextFile(attachmentId) : undefined),
+    enabled,
+  });
+
+  return {
+    attachment: data,
+    isFetching: isLoading,
+    fetchError: error,
+    refetch,
+  };
+};
+
+export const useFetchTaskByID = (taskId?: number) => {
+  const { isLoading, error, data, refetch } = useQuery({
+    queryKey: [TaskByIDQueryKey, taskId],
+    queryFn: () => (taskId ? getTaskById(taskId) : null),
     enabled: !!taskId,
   });
 

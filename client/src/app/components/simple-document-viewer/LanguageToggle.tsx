@@ -7,49 +7,47 @@ import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 import "./SimpleDocumentViewer.css";
 
 export const LanguageToggle: React.FC<{
-  currentLanguage: Language.yaml | Language.json;
+  currentLanguage: Language;
   code?: string;
-  setCurrentLanguage: (lang: Language.yaml | Language.json) => void;
-}> = ({ currentLanguage, code, setCurrentLanguage }) => (
-  <div
-    className={css(
-      editorStyles.codeEditorTab,
-      "language-toggle-group-container"
-    )}
-    key="code-language-toggle"
-  >
-    <ToggleGroup
-      aria-label="code content type selection"
-      className="language-toggle-group"
+  supportedLanguages: Language[];
+  setCurrentLanguage: (lang: Language) => void;
+}> = ({ currentLanguage, code, setCurrentLanguage, supportedLanguages }) => {
+  if (supportedLanguages.length <= 1) {
+    return <></>;
+  }
+
+  return (
+    <div
+      className={css(
+        editorStyles.codeEditorTab,
+        "language-toggle-group-container"
+      )}
+      key="code-language-toggle"
     >
-      <ToggleGroupItem
-        text={
-          <>
-            <span className={editorStyles.codeEditorTabIcon}>
-              <CodeIcon />
-            </span>
-            <span className={editorStyles.codeEditorTabText}>JSON</span>
-          </>
-        }
-        buttonId="code-language-select-json"
-        isSelected={currentLanguage === "json"}
-        isDisabled={!code && currentLanguage !== "json"}
-        onChange={() => setCurrentLanguage(Language.json)}
-      />
-      <ToggleGroupItem
-        text={
-          <>
-            <span className={editorStyles.codeEditorTabIcon}>
-              <CodeIcon />
-            </span>
-            <span className={editorStyles.codeEditorTabText}>YAML</span>
-          </>
-        }
-        buttonId="code-language-select-yaml"
-        isSelected={currentLanguage === "yaml"}
-        isDisabled={!code && currentLanguage !== "yaml"}
-        onChange={() => setCurrentLanguage(Language.yaml)}
-      />
-    </ToggleGroup>
-  </div>
-);
+      <ToggleGroup
+        aria-label="code content type selection"
+        className="language-toggle-group"
+      >
+        {supportedLanguages.map((lang) => (
+          <ToggleGroupItem
+            key={lang}
+            text={
+              <>
+                <span className={editorStyles.codeEditorTabIcon}>
+                  <CodeIcon />
+                </span>
+                <span className={editorStyles.codeEditorTabText}>
+                  {lang === Language.plaintext ? "Text" : lang.toUpperCase()}
+                </span>
+              </>
+            }
+            buttonId={`code-language-select-${lang}`}
+            isSelected={currentLanguage === lang}
+            isDisabled={!code && currentLanguage !== lang}
+            onChange={() => setCurrentLanguage(lang)}
+          />
+        ))}
+      </ToggleGroup>
+    </div>
+  );
+};

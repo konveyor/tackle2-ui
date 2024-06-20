@@ -1,7 +1,6 @@
 import * as React from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
-  Checkbox,
   EmptyState,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -10,9 +9,14 @@ import {
 } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
-import { useFetchTaskByID } from "@app/queries/tasks";
+import {
+  useFetchTaskAttachmentById,
+  useFetchTaskByIdAndFormat,
+} from "@app/queries/tasks";
 import { RefreshControl } from "./RefreshControl";
 import { LanguageToggle } from "./LanguageToggle";
+import { AttachmentToggle } from "./AttachmentToggle";
+import { TaskAttachment } from "@app/api/models";
 
 export { Language } from "@patternfly/react-code-editor";
 
@@ -22,69 +26,153 @@ type ControlledEditor = {
   setPosition: (position: object) => void;
 };
 
+export interface Document {
+  id: DocumentId;
+  name: string;
+  description?: string;
+  languages: Language[];
+}
+
 export interface ISimpleDocumentViewerProps {
-  /** The id of the document to display, or `undefined` to display the empty state. */
-  documentId: number | undefined;
+  /** The id of the task to display, or `undefined` to display the empty state. */
+  taskId: number | undefined;
+
+  /** The document ID to display - number for task attachment ID, string values for other viewing modes.
+   * Defaults to basic task view (LOG_VIEW) .
+   */
+  documentId: DocumentId | undefined;
+
+  /** Task attachments */
+  attachments: TaskAttachment[];
 
   /** Filename, without extension, to use with the download file action. */
   downloadFilename?: string;
-
-  /**
-   * Initial language of the document.  Also used for the file extensions with
-   * the download file action.  Defaults to `Language.yaml`.
-   */
-  language?: Language.yaml | Language.json;
 
   /**
    * Height of the document viewer, or `"full"` to take up all of the available
    * vertical space.  Defaults to "450px".
    */
   height?: string | "full";
+
+  /** Callback triggered when user selects a new document to display */
+  onDocumentChange?: (documentId: DocumentId) => void;
 }
+
+export type DocumentId = number | "LOG_VIEW" | "MERGED_VIEW";
+
+const useDocuments = ({
+  taskId,
+  selectedId,
+  currentLanguage,
+}: {
+  taskId?: number;
+  selectedId: DocumentId;
+  currentLanguage: Language;
+}) => {
+  const { task, refetch: refetchTask } = useFetchTaskByIdAndFormat({
+    taskId,
+    format: currentLanguage === Language.yaml ? "yaml" : "json",
+    enabled:
+      !!taskId && (selectedId === "LOG_VIEW" || selectedId === "MERGED_VIEW"),
+    merged: selectedId === "MERGED_VIEW",
+  });
+
+  const isAttachment = typeof selectedId === "number";
+  const { attachment, refetch: refetchAttachment } = useFetchTaskAttachmentById(
+    {
+      attachmentId: isAttachment ? selectedId : undefined,
+      enabled: isAttachment,
+    }
+  );
+
+  return isAttachment
+    ? { code: attachment, refetch: refetchAttachment }
+    : { code: task, refetch: refetchTask };
+};
 
 /**
  * Fetch and then use the `@patternfly/react-code-editor` to display a document in
  * read-only mode with language highlighting applied.
  */
 export const SimpleDocumentViewer = ({
-  documentId,
+  taskId,
+  documentId = "LOG_VIEW",
+  attachments,
   downloadFilename,
-  language = Language.yaml,
   height = "450px",
+  onDocumentChange,
 }: ISimpleDocumentViewerProps) => {
-  const editorRef = React.useRef<ControlledEditor>();
-  const [currentLanguage, setCurrentLanguage] = React.useState(language);
-  const [code, setCode] = React.useState<string>();
-  const [merged, setMerged] = React.useState(false);
-
-  const { task, isFetching, fetchError, refetch } = useFetchTaskByID(
-    documentId,
-    currentLanguage === Language.yaml ? "yaml" : "json",
-    merged
+  const configuredDocuments: Document[] = React.useMemo(
+    () => [
+      {
+        id: "LOG_VIEW",
+        name: "Log view",
+        languages: [Language.yaml, Language.json],
+      },
+      {
+        id: "MERGED_VIEW",
+        name: "Merged log view",
+        description: "with inlined commands output",
+        languages: [Language.yaml, Language.json],
+      },
+      ...attachments.map(({ id, name = "unknown" }) => ({
+        id,
+        name,
+        languages: [
+          (name.endsWith(".yaml") || name.endsWith(".yml")) && Language.yaml,
+          name.endsWith(".json") && Language.json,
+          Language.plaintext,
+        ].filter(Boolean),
+      })),
+    ],
+    [attachments]
   );
 
-  const onMergedChange = (checked: boolean) => {
-    setMerged(checked);
-    refetch();
-  };
+  const [selectedId, setSelectedId] = React.useState<DocumentId>(
+    configuredDocuments.find(({ id }) => id === documentId)?.id ?? "LOG_VIEW"
+  );
+  const supportedLanguages = configuredDocuments.find(
+    ({ id }) => id === selectedId
+  )?.languages ?? [Language.yaml, Language.json];
 
+  const [currentLanguage, setCurrentLanguage] = React.useState(
+    supportedLanguages[0] ?? Language.plaintext
+  );
+
+  const editorRef = React.useRef<ControlledEditor>();
+
+  const { code, refetch } = useDocuments({
+    taskId,
+    currentLanguage,
+    selectedId,
+  });
+
+  // move focus on first code change AFTER a new document was selected
+  const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
   React.useEffect(() => {
-    if (task) {
-      const formattedCode =
-        currentLanguage === Language.yaml
-          ? task.toString()
-          : JSON.stringify(task, undefined, 2);
-
-      setCode(formattedCode);
+    if (code && !focusMovedOnSelectedDocumentChange.current) {
       focusAndHomePosition();
+      focusMovedOnSelectedDocumentChange.current = true;
     }
-  }, [task, currentLanguage]);
+  }, [code]);
 
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
       editorRef.current.setPosition({ column: 0, lineNumber: 1 });
     }
+  };
+
+  const onSelect = (docId: string | number) => {
+    const doc = configuredDocuments.find(({ id }) => id === docId);
+    if (!doc || doc.id === selectedId) {
+      return;
+    }
+
+    setCurrentLanguage(doc.languages[0] ?? Language.plaintext);
+    setSelectedId(doc.id);
+    focusMovedOnSelectedDocumentChange.current = false;
+    onDocumentChange?.(doc.id);
   };
 
   return (
@@ -118,23 +206,23 @@ export const SimpleDocumentViewer = ({
         </div>
       }
       customControls={[
+        <AttachmentToggle
+          key="attachmentToggle"
+          documents={configuredDocuments.map((it) => ({
+            ...it,
+            isSelected: it.id === selectedId,
+          }))}
+          onSelect={onSelect}
+        />,
         <RefreshControl
           key="refresh"
           isVisible={code !== ""}
           refetch={refetch}
         />,
-        <Checkbox
-          className="merged-checkbox"
-          key="merged"
-          id="merged"
-          label="Merged"
-          isChecked={merged}
-          onChange={(e, checked) => onMergedChange(checked)}
-          aria-label="Merged Checkbox"
-        />,
         <LanguageToggle
           key="languageToggle"
           code={code}
+          supportedLanguages={supportedLanguages}
           currentLanguage={currentLanguage}
           setCurrentLanguage={setCurrentLanguage}
         />,
