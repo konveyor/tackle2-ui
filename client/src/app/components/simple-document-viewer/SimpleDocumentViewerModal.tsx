@@ -37,7 +37,7 @@ export interface ISimpleDocumentViewerModalProps
 
 export const SimpleDocumentViewerModal = ({
   title,
-  documentId,
+  taskId: documentId,
   onClose,
   position = "top",
   isFullHeight = true,
@@ -64,7 +64,7 @@ export const SimpleDocumentViewerModal = ({
       ]}
     >
       <SimpleDocumentViewer
-        documentId={documentId}
+        taskId={documentId}
         height={isFullHeight ? "full" : undefined}
         {...rest}
       />
