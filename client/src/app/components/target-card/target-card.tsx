@@ -25,7 +25,7 @@ import {
   SelectVariant,
   SelectOptionObject,
 } from "@patternfly/react-core/deprecated";
-import { GripVerticalIcon } from "@patternfly/react-icons";
+import { GripVerticalIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
@@ -85,14 +85,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   );
 
   const handleCardClick = (event: React.MouseEvent) => {
-    // Stop 'select' event propagation
-    const eventTarget: any = event.target;
-    if (eventTarget.type === "button") return;
+    const eventTarget = event.target as HTMLElement;
+
+    if (eventTarget.tagName === "BUTTON" || eventTarget.tagName === "LABEL") {
+      event.preventDefault();
+    }
 
     setCardSelected(!isCardSelected);
-    onCardClick &&
-      selectedLabelName &&
+    if (onCardClick && selectedLabelName) {
       onCardClick(!isCardSelected, selectedLabelName, target);
+    }
   };
 
   const handleLabelSelection = (
@@ -106,20 +108,30 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       onSelectedCardTargetChange(selection as string);
     }
   };
-
   return (
     <Card
+      id={`target-card-${target.name.replace(/\s/g, "-")}`}
       onClick={handleCardClick}
       isSelectable={!!cardSelected}
       isSelected={isCardSelected}
       className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
     >
       <CardHeader
+        checked={isCardSelected}
         selectableActions={{
-          selectableActionId: "" + target.id,
+          selectableActionId: "target-name-" + target.name,
+          selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
           isChecked: isCardSelected,
         }}
-      />
+      >
+        <Label
+          id={`${target.provider}-selectable-action-label`}
+          variant="outline"
+          icon={<InfoCircleIcon />}
+        >
+          {target.provider}
+        </Label>
+      </CardHeader>
       <CardBody>
         <Flex>
           <FlexItem>
