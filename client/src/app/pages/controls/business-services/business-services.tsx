@@ -26,7 +26,6 @@ import {
   useFetchBusinessServices,
 } from "@app/queries/businessservices";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -38,6 +37,8 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { CubesIcon } from "@patternfly/react-icons";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -184,15 +185,20 @@ export const BusinessServices: React.FC = () => {
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="button-group">
                 <ToolbarItem>
-                  <Button
-                    type="button"
-                    id="create-business-service"
-                    aria-label="Create new business service"
-                    variant={ButtonVariant.primary}
-                    onClick={() => setCreateUpdateModalState("create")}
+                  <RBAC
+                    allowedPermissions={controlsWriteScopes}
+                    rbacType={RBAC_TYPE.Scope}
                   >
-                    {t("actions.createNew")}
-                  </Button>
+                    <Button
+                      type="button"
+                      id="create-business-service"
+                      aria-label="Create new business service"
+                      variant={ButtonVariant.primary}
+                      onClick={() => setCreateUpdateModalState("create")}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </RBAC>
                 </ToolbarItem>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>
@@ -263,9 +269,11 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
-                        <AppTableActionButtons
+                        <ControlTableActionButtons
                           isDeleteEnabled={isAssignedToApplication}
-                          tooltipMessage="Cannot remove a business service associated with application(s)"
+                          deleteTooltipMessage={t(
+                            "message.cannotRemoveBusinessServiceAssociatedWithApplication"
+                          )}
                           onEdit={() =>
                             setCreateUpdateModalState(businessService)
                           }

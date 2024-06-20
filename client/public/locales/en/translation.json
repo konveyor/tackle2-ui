@@ -227,6 +227,7 @@
     "unlinkTicket": "Unlink from Jira",
     "noTagsAvailable": "No tags available",
     "noAssociatedTags": "This tag category has no associated tags.",
+    "cannotRemoveBusinessServiceAssociatedWithApplication": "Cannot remove a business service associated with application(s)",
     "updateFailed": "Update failed.",
     "updateRequestSubmitted": "Update request submitted.",
     "cancelationFailed": "Cancelation failed.",
