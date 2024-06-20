@@ -1,27 +1,36 @@
 import axios, { AxiosPromise, RawAxiosRequestHeaders } from "axios";
 
 import {
+  AnalysisAppDependency,
+  AnalysisAppReport,
   AnalysisDependency,
-  BaseAnalysisRuleReport,
-  BaseAnalysisIssueReport,
-  AnalysisIssue,
   AnalysisFileReport,
   AnalysisIncident,
+  AnalysisIssue,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
   ApplicationImport,
   ApplicationImportSummary,
+  Archetype,
   Assessment,
+  BaseAnalysisIssueReport,
+  BaseAnalysisRuleReport,
   BusinessService,
   Cache,
+  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
+  InitialAssessment,
   IReadFile,
-  Tracker,
   JobFunction,
+  MigrationWave,
+  MimeType,
+  New,
   Proxy,
+  Questionnaire,
+  Ref,
   Review,
   Setting,
   SettingTypes,
@@ -29,23 +38,15 @@ import {
   StakeholderGroup,
   Tag,
   TagCategory,
+  Target,
   Task,
   Taskgroup,
-  MigrationWave,
+  TaskQueue,
   Ticket,
-  New,
-  Ref,
+  Tracker,
   TrackerProject,
   TrackerProjectIssuetype,
   UnstructuredFact,
-  AnalysisAppDependency,
-  AnalysisAppReport,
-  Target,
-  HubFile,
-  Questionnaire,
-  Archetype,
-  InitialAssessment,
-  MimeType,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -332,7 +333,7 @@ export function getTaskById(id: number): Promise<Task> {
 
 export function getTaskByIdAndFormat(
   id: number,
-  format: string,
+  format: "json" | "yaml",
   merged: boolean = false
 ): Promise<string> {
   const isYaml = format === "yaml";
@@ -345,7 +346,7 @@ export function getTaskByIdAndFormat(
   }
 
   return axios
-    .get(url, {
+    .get<Task | string>(url, {
       headers: headers,
       responseType: responseType,
     })
@@ -362,10 +363,15 @@ export const getTasks = () =>
 export const getServerTasks = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<Task>(TASKS, params);
 
-export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
+export const deleteTask = (id: number) => axios.delete<void>(`${TASKS}/${id}`);
 
 export const cancelTask = (id: number) =>
-  axios.put<Task>(`${TASKS}/${id}/cancel`);
+  axios.put<void>(`${TASKS}/${id}/cancel`);
+
+export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
+  axios
+    .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
+    .then(({ data }) => data);
 
 export const createTaskgroup = (obj: Taskgroup) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
