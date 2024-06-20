@@ -63,6 +63,9 @@ const AssessmentSummary = lazy(
       "./pages/assessment/components/assessment-summary/assessment-summary-page"
     )
 );
+
+const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
+
 export interface IRoute<T> {
   path: T;
   comp: React.ComponentType<any>;
@@ -187,6 +190,11 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.archetypes,
     comp: Archetypes,
+    exact: false,
+  },
+  {
+    path: Paths.tasks,
+    comp: TaskManager,
     exact: false,
   },
 ];

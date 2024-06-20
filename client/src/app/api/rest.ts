@@ -373,6 +373,9 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
     .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
     .then(({ data }) => data);
 
+export const updateTask = (task: Partial<Task> & { id: number }) =>
+  axios.patch<Task>(`${TASKS}/${task.id}`, task);
+
 export const createTaskgroup = (obj: Taskgroup) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
