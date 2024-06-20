@@ -1,5 +1,5 @@
 import { useFetchTaskQueue } from "@app/queries/tasks";
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 
 interface TaskManagerContextProps {
   /** Count of the currently "queued" Tasks */
@@ -31,14 +31,17 @@ export const TaskManagerProvider: React.FC<{ children: React.ReactNode }> = ({
   const { taskQueue } = useFetchTaskQueue();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const contextValue = useMemo(
+    () => ({
+      queuedCount: taskQueue.total,
+      isExpanded,
+      setIsExpanded,
+    }),
+    [taskQueue.total, isExpanded, setIsExpanded]
+  );
+
   return (
-    <TaskManagerContext.Provider
-      value={{
-        queuedCount: taskQueue.total,
-        isExpanded,
-        setIsExpanded,
-      }}
-    >
+    <TaskManagerContext.Provider value={contextValue}>
       {children}
     </TaskManagerContext.Provider>
   );
