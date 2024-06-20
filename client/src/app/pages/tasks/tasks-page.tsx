@@ -205,6 +205,7 @@ export const TasksPage: React.FC = () => {
     id,
     application,
     kind,
+    addon,
     state,
     priority = 0,
     policy,
@@ -215,7 +216,7 @@ export const TasksPage: React.FC = () => {
   }: Task) => ({
     id,
     application: application.name,
-    kind,
+    kind: kind ?? addon,
     state: (
       <IconWithLabel icon={taskStateToIcon(state)} label={state ?? "No task"} />
     ),
@@ -301,12 +302,19 @@ export const TasksPage: React.FC = () => {
                       >
                         {columnState.columns
                           .filter(({ id }) => getColumnVisibility(id))
-                          .map(({ id }) => (
-                            <Td key={id} {...getTdProps({ columnKey: id })}>
-                              {cells[id]}
+                          .map(({ id: columnKey }) => (
+                            <Td
+                              key={`${columnKey}_${task.id}`}
+                              {...getTdProps({ columnKey })}
+                            >
+                              {cells[columnKey]}
                             </Td>
                           ))}
-                        <Td isActionCell id="row-actions">
+                        <Td
+                          key={`row-actions-${task.id}`}
+                          isActionCell
+                          id={`row-actions-${task.id}`}
+                        >
                           <ActionsColumn
                             isDisabled={[
                               "Succeeded",
