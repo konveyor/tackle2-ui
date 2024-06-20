@@ -227,9 +227,9 @@ const useTaskManagerData = () => {
                 id: task.id ?? -1,
                 createUser: task.createUser ?? "",
                 updateUser: task.updateUser ?? "",
-                createTime: task.createTime ?? "", // TODO: date?
-                started: task.started ?? "", // TODO: date?
-                terminated: task.terminated ?? "", // TODO: date?
+                createTime: task.createTime ?? "",
+                started: task.started ?? "",
+                terminated: task.terminated ?? "",
                 name: task.name,
                 kind: task.kind,
                 addon: task.addon,
