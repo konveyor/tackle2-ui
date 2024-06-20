@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 
 import {
   Application,
+  New,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -70,9 +71,9 @@ const defaultTaskData: TaskData = {
   },
 };
 
-export const defaultTaskgroup: Taskgroup = {
+export const defaultTaskgroup: New<Taskgroup> = {
   name: `taskgroup.analyzer`,
-  addon: "analyzer",
+  kind: "analyzer",
   data: {
     ...defaultTaskData,
   },
@@ -359,7 +360,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           isDisabled={!isStepEnabled(StepId.SetTargets)}
           footer={{ isNextDisabled: !isStepEnabled(StepId.SetTargets + 1) }}
         >
-          <SetTargets />
+          <SetTargets applications={applications} />
         </WizardStep>,
         <WizardStep
           key={StepId.Scope}

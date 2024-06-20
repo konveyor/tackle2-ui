@@ -148,15 +148,13 @@ export const ApplicationsTable: React.FC = () => {
     tasks.find((task: Task) => task.application?.id === application.id);
 
   const { tasks, hasActiveTasks } = useFetchTasks(
-    { addon: "analyzer" },
+    { kind: "analyzer", addon: "analyzer" },
     isAnalyzeModalOpen
   );
 
   const isTaskCancellable = (application: Application) => {
     const task = getTask(application);
-    if (task?.state && task.state.match(/(Created|Running|Ready|Pending)/))
-      return true;
-    return false;
+    return task?.state && !["Succeeded", "Failed"].includes(task.state);
   };
 
   const cancelAnalysis = (row: Application) => {
@@ -610,18 +608,23 @@ export const ApplicationsTable: React.FC = () => {
 
   const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
 
-  const isAnalyzingAllowed = () => {
-    const candidateTasks = selectedRows.filter(
-      (app) =>
-        !tasks.some(
-          (task) =>
-            task.application?.id === app.id &&
-            task.state?.match(/(Created|Running|Ready|Pending)/)
-        )
-    );
+  const isAnalyzingDisabled = () => {
+    if (tasks.length === 0) {
+      return false;
+    }
 
-    if (candidateTasks.length === selectedRows.length) return true;
-    return false;
+    const allowedStates = ["Succeeded", "Failed", null, ""];
+
+    const candidateTasks = selectedRows.filter((app) => {
+      const hasAllowedState = tasks.some(
+        (task) =>
+          task.application?.id === app.id &&
+          allowedStates.includes(task.state || "")
+      );
+      return !hasAllowedState;
+    });
+
+    return candidateTasks.length > 0;
   };
 
   const hasExistingAnalysis = selectedRows.some((app) =>
@@ -783,7 +786,7 @@ export const ApplicationsTable: React.FC = () => {
                           setAnalyzeModalOpen(true);
                         }}
                         isDisabled={
-                          selectedRows.length < 1 || !isAnalyzingAllowed()
+                          selectedRows.length < 1 || isAnalyzingDisabled()
                         }
                       >
                         {t("actions.analyze")}

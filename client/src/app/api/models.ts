@@ -301,26 +301,27 @@ export type TaskState =
   | "Failed"
   | "Running"
   | "No task"
+  | "QuotaBlocked"
   | "Ready"
   | "Pending"
   | "Postponed";
 
 export interface Task {
-  id?: number;
+  id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;
 
-  name: string;
-  kind: string;
-  addon: string;
-  extensions: string[];
+  name?: string;
+  kind?: string;
+  addon?: string;
+  extensions?: string[];
   state?: TaskState;
   locator?: string;
   priority?: number;
-  policy: TaskPolicy;
-  ttl: TTL;
-  data: TaskData;
+  policy?: TaskPolicy;
+  ttl?: TTL;
+  data?: TaskData;
   application: Ref;
   bucket?: Ref;
   pod?: string;
@@ -406,11 +407,25 @@ export interface TaskgroupTask {
 }
 
 export interface Taskgroup {
-  id?: number;
+  id: number;
   name: string;
-  addon: string;
+  kind?: string;
+  addon?: string;
   data: TaskData;
   tasks: TaskgroupTask[];
+}
+
+export interface TaskQueue {
+  /** Total number of tasks scheduled */
+  total: number;
+  /** number of tasks ready to run */
+  ready: number;
+  /** number of postponed tasks */
+  postponed: number;
+  /** number of tasks with pods created awaiting node scheduler */
+  pending: number;
+  /** number of tasks with running pods */
+  running: number;
 }
 
 export interface Cache {

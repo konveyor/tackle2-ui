@@ -19,8 +19,9 @@ import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
 
 import useBranding from "@app/hooks/useBranding";
+import { TaskNotificationBadge } from "@app/components/task-manager/TaskNotificaitonBadge";
 import { AppAboutModalState } from "../AppAboutModalState";
-import { SSOMenu } from "./SSOMenu";
+import { SsoToolbarItem } from "./SsoToolbarItem";
 import { MobileDropdown } from "./MobileDropdown";
 
 import "./header.css";
@@ -33,9 +34,21 @@ export const HeaderApp: React.FC = () => {
   const toolbar = (
     <Toolbar isFullHeight isStatic>
       <ToolbarContent>
+        {/* toolbar items to always show */}
         <ToolbarGroup
+          id="header-toolbar-tasks"
           variant="icon-button-group"
           align={{ default: "alignRight" }}
+        >
+          <ToolbarItem>
+            <TaskNotificationBadge />
+          </ToolbarItem>
+        </ToolbarGroup>
+
+        {/* toolbar items to show at desktop sizes */}
+        <ToolbarGroup
+          id="header-toolbar-desktop"
+          variant="icon-button-group"
           spacer={{ default: "spacerNone", md: "spacerMd" }}
           visibility={{
             default: "hidden",
@@ -62,16 +75,30 @@ export const HeaderApp: React.FC = () => {
             </AppAboutModalState>
           </ToolbarItem>
         </ToolbarGroup>
-        <ToolbarGroup>
-          <ToolbarItem
-            visibility={{
-              lg: "hidden",
-            }} /** this kebab dropdown replaces the icon buttons and is hidden for desktop sizes */
-          >
+
+        {/* toolbar items to show at mobile sizes */}
+        <ToolbarGroup
+          id="header-toolbar-mobile"
+          variant="icon-button-group"
+          spacer={{ default: "spacerNone", md: "spacerMd" }}
+          visibility={{ lg: "hidden" }}
+        >
+          <ToolbarItem>
             <MobileDropdown />
           </ToolbarItem>
-          <SSOMenu />
         </ToolbarGroup>
+
+        {/* Show the SSO menu at desktop sizes */}
+        <ToolbarGroup
+          id="header-toolbar-sso"
+          visibility={{
+            default: "hidden",
+            md: "visible",
+          }}
+        >
+          <SsoToolbarItem />
+        </ToolbarGroup>
+
         {rightBrand ? (
           <ToolbarGroup>
             <ToolbarItem>

@@ -23,6 +23,7 @@
 .simple-task-viewer-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .simple-task-viewer-code {
@@ -53,6 +54,10 @@
   flex-grow: 1;
 }
 
+.simple-task-viewer-code .pf-v5-c-code-editor__controls > * {
+  display: flex;
+}
+
 .simple-task-viewer-code .pf-v5-c-code-editor__header-main {
   display: none;
 }
@@ -67,6 +72,6 @@
   --pf-v5-c-toggle-group__button--FontSize: var(--pf-v5-global--FontSize--md);
 }
 
-.merged-checkbox {
-  margin: auto 0.5rem;
+.simple-task-viewer-attachment-toggle {
+  order: -1;
 }

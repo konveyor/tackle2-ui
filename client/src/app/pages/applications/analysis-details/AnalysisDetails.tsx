@@ -1,28 +1,58 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { PageSection } from "@patternfly/react-core";
 
-import { AnalysisDetailsRoute, Paths } from "@app/Paths";
+import { AnalysisDetailsAttachmentRoute, Paths } from "@app/Paths";
 import { PageHeader } from "@app/components/PageHeader";
 import { formatPath } from "@app/utils/utils";
-import { SimpleDocumentViewer } from "@app/components/simple-document-viewer";
+import {
+  DocumentId,
+  SimpleDocumentViewer,
+} from "@app/components/simple-document-viewer";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchTaskByID } from "@app/queries/tasks";
+import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 
 export const AnalysisDetails: React.FC = () => {
-  // i18
   const { t } = useTranslation();
 
-  // Router
-  const { applicationId, taskId } = useParams<AnalysisDetailsRoute>();
+  const { applicationId, taskId, attachmentId } =
+    useParams<AnalysisDetailsAttachmentRoute>();
+  const { search } = useLocation();
+  const hasMergedParam = new URLSearchParams(search).has("merged");
+
+  const history = useHistory();
+  const onDocumentChange = (documentId: DocumentId) =>
+    typeof documentId === "number"
+      ? history.push(
+          formatPath(Paths.applicationsAnalysisDetailsAttachment, {
+            applicationId: applicationId,
+            taskId: taskId,
+            attachmentId: documentId,
+          })
+        )
+      : history.push({
+          pathname: formatPath(Paths.applicationsAnalysisDetails, {
+            applicationId: applicationId,
+            taskId: taskId,
+          }),
+          search: documentId === "MERGED_VIEW" ? "?merged=true" : undefined,
+        });
 
   const { application } = useFetchApplicationById(applicationId);
   const { task } = useFetchTaskByID(Number(taskId));
-  const taskName =
-    (typeof task != "string" ? task?.name : taskId) ?? t("terms.unknown");
-  const appName = application?.name ?? t("terms.unknown") ?? "";
+
+  const taskName = task?.name ?? t("terms.unknown");
+  const appName: string = application?.name ?? t("terms.unknown");
+  const attachmentName = task?.attached?.find(
+    ({ id }) => String(id) === attachmentId
+  )?.name;
+  const resolvedAttachmentId = attachmentName
+    ? Number(attachmentId)
+    : undefined;
+  const resolvedLogMode = hasMergedParam ? "MERGED_VIEW" : "LOG_VIEW";
 
   return (
     <>
@@ -45,11 +75,41 @@ export const AnalysisDetails: React.FC = () => {
                 taskId: taskId,
               }),
             },
+            ...(attachmentName
+              ? [
+                  {
+                    title: t("terms.attachments"),
+                  },
+                  {
+                    title: attachmentName,
+                    path: formatPath(Paths.applicationsAnalysisDetails, {
+                      applicationId: applicationId,
+                      taskId: taskId,
+                      attachment: attachmentId,
+                    }),
+                  },
+                ]
+              : []),
           ]}
         />
       </PageSection>
-      <PageSection className="simple-task-viewer-container">
-        <SimpleDocumentViewer documentId={Number(taskId)} height="full" />
+      <PageSection>
+        <div
+          style={{
+            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+          }}
+          className="simple-task-viewer-container"
+        >
+          <SimpleDocumentViewer
+            // force re-creating viewer via keys
+            key={`${task?.id}/${task?.attached?.length}`}
+            taskId={task ? Number(taskId) : undefined}
+            documentId={resolvedAttachmentId || resolvedLogMode}
+            attachments={task?.attached ?? []}
+            onDocumentChange={onDocumentChange}
+            height="full"
+          />
+        </div>
       </PageSection>
     </>
   );

@@ -1,27 +1,36 @@
 import axios, { AxiosPromise, RawAxiosRequestHeaders } from "axios";
 
 import {
+  AnalysisAppDependency,
+  AnalysisAppReport,
   AnalysisDependency,
-  BaseAnalysisRuleReport,
-  BaseAnalysisIssueReport,
-  AnalysisIssue,
   AnalysisFileReport,
   AnalysisIncident,
+  AnalysisIssue,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
   ApplicationImport,
   ApplicationImportSummary,
+  Archetype,
   Assessment,
+  BaseAnalysisIssueReport,
+  BaseAnalysisRuleReport,
   BusinessService,
   Cache,
+  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
+  InitialAssessment,
   IReadFile,
-  Tracker,
   JobFunction,
+  MigrationWave,
+  MimeType,
+  New,
   Proxy,
+  Questionnaire,
+  Ref,
   Review,
   Setting,
   SettingTypes,
@@ -29,23 +38,15 @@ import {
   StakeholderGroup,
   Tag,
   TagCategory,
+  Target,
   Task,
   Taskgroup,
-  MigrationWave,
+  TaskQueue,
   Ticket,
-  New,
-  Ref,
+  Tracker,
   TrackerProject,
   TrackerProjectIssuetype,
   UnstructuredFact,
-  AnalysisAppDependency,
-  AnalysisAppReport,
-  Target,
-  HubFile,
-  Questionnaire,
-  Archetype,
-  InitialAssessment,
-  MimeType,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -319,13 +320,25 @@ export const getApplicationImports = (
     .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
     .then((response) => response.data);
 
-export function getTaskById(
+export function getTaskById(id: number): Promise<Task> {
+  return axios
+    .get(`${TASKS}/${id}`, {
+      headers: { ...jsonHeaders },
+      responseType: "json",
+    })
+    .then((response) => {
+      return response.data;
+    });
+}
+
+export function getTaskByIdAndFormat(
   id: number,
-  format: string,
+  format: "json" | "yaml",
   merged: boolean = false
-): Promise<Task | string> {
-  const headers = format === "yaml" ? { ...yamlHeaders } : { ...jsonHeaders };
-  const responseType = format === "yaml" ? "text" : "json";
+): Promise<string> {
+  const isYaml = format === "yaml";
+  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
   if (merged) {
@@ -333,12 +346,14 @@ export function getTaskById(
   }
 
   return axios
-    .get(url, {
+    .get<Task | string>(url, {
       headers: headers,
       responseType: responseType,
     })
     .then((response) => {
-      return response.data;
+      return isYaml
+        ? String(response.data ?? "")
+        : JSON.stringify(response.data, undefined, 2);
     });
 }
 
@@ -348,12 +363,20 @@ export const getTasks = () =>
 export const getServerTasks = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<Task>(TASKS, params);
 
-export const deleteTask = (id: number) => axios.delete<Task>(`${TASKS}/${id}`);
+export const deleteTask = (id: number) => axios.delete<void>(`${TASKS}/${id}`);
 
 export const cancelTask = (id: number) =>
-  axios.put<Task>(`${TASKS}/${id}/cancel`);
+  axios.put<void>(`${TASKS}/${id}/cancel`);
 
-export const createTaskgroup = (obj: Taskgroup) =>
+export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
+  axios
+    .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
+    .then(({ data }) => data);
+
+export const updateTask = (task: Partial<Task> & { id: number }) =>
+  axios.patch<Task>(`${TASKS}/${task.id}`, task);
+
+export const createTaskgroup = (obj: New<Taskgroup>) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
 export const submitTaskgroup = (obj: Taskgroup) =>
@@ -438,6 +461,11 @@ export const createFile = ({
     .then((response) => {
       return response.data;
     });
+
+export const getTextFile = (id: number): Promise<string> =>
+  axios
+    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
+    .then((response) => response.data);
 
 export const getSettingById = <K extends keyof SettingTypes>(
   id: K

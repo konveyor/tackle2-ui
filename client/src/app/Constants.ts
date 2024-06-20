@@ -244,4 +244,5 @@ export enum TablePersistenceKeyPrefix {
   issuesRemainingIncidents = "ii",
   dependencyApplications = "da",
   archetypes = "ar",
+  tasks = "t",
 }

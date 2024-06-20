@@ -3,6 +3,8 @@ export const DevPaths = {
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
+  applicationsAnalysisDetailsAttachment:
+    "/applications/:applicationId/analysis-details/:taskId/attachments/:attachmentId",
   applicationsAnalysisTab: "/applications/analysis-tab",
   applicationsAssessmentTab: "/applications/assessment-tab",
   applicationsImports: "/applications/application-imports",
@@ -38,6 +40,7 @@ export const DevPaths = {
   issuesSingleAppSelected: "/issues/single-app/:applicationId",
 
   dependencies: "/dependencies",
+  tasks: "/tasks",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -92,4 +95,10 @@ export interface ImportSummaryRoute {
 export interface AnalysisDetailsRoute {
   applicationId: string;
   taskId: string;
+}
+
+export interface AnalysisDetailsAttachmentRoute {
+  applicationId: string;
+  taskId: string;
+  attachmentId: string;
 }
