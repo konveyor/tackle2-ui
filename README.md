@@ -71,12 +71,12 @@ $ minikube start --addons=dashboard --addons=ingress
 
 Note: We need to enable the dashboard and ingress addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API.
 
-Since the olm addon is disabled until OLM issue [2534](https://github.com/operator-framework/operator-lifecycle-manager/issues/2534) is resolved we need to install the [OLM manually](https://github.com/operator-framework/operator-lifecycle-manager/releases) i.e. for version `v0.27.0` we can use:
+Since the olm addon is disabled until OLM issue [2534](https://github.com/operator-framework/operator-lifecycle-manager/issues/2534) is resolved we need to install the [OLM manually](https://github.com/operator-framework/operator-lifecycle-manager/releases) i.e. for version `v0.28.0` we can use:
 
 ```sh
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.27.0/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.28.0/install.sh -o install.sh
 chmod +x install.sh
-./install.sh v0.27.0
+./install.sh v0.28.0
 ```
 
 See also official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube).
@@ -109,7 +109,9 @@ You will need `kubectl` on your PATH and configured to control minikube in order
 
 Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
 
-Alternatively, the [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
+Alternative 1, use the script [`hack/setup-operator.sh`](./hack/setup-operator.sh). It is a local variation of the script from the operator that still allows overriding portions of the Tackle CR with environment variables.
+
+Alternative 2, the [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
 
 #### Customizing the install script (optional)
 
@@ -152,8 +154,7 @@ $ npm run start:dev
 
 ## Understanding the local development environment
 
-Tackle2 runs in a Kubernetes compatible environment (i.e. Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM).
-Although the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
+Tackle2 runs in a Kubernetes compatible environment (i.e. Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM). Although the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
 
 The React and Patternfly based UI is composed of web pages served by an http server with proxy capabilities.
 
