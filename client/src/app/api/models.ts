@@ -301,12 +301,13 @@ export type TaskState =
   | "Failed"
   | "Running"
   | "No task"
+  | "QuotaBlocked"
   | "Ready"
   | "Pending"
   | "Postponed";
 
 export interface Task {
-  id?: number;
+  id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;
