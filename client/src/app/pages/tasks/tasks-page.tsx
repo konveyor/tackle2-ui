@@ -164,8 +164,7 @@ export const TasksPage: React.FC = () => {
 
   const tableControls = useTableControlProps({
     ...tableControlState,
-    // task.id is defined as optional
-    idProperty: "name",
+    idProperty: "id",
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
