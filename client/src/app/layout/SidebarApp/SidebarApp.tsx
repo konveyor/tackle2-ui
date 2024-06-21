@@ -149,6 +149,11 @@ export const MigrationSidebar = () => {
             </NavItem>
           </>
         ) : null}
+        <NavItem>
+          <NavLink to={DevPaths.tasks} activeClassName="pf-m-current">
+            {t("sidebar.tasks")}
+          </NavLink>
+        </NavItem>
       </NavList>
     </PersonaSidebar>
   );

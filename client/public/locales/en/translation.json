@@ -29,12 +29,14 @@
     "createTags": "Create tags",
     "cancelAnalysis": "Cancel analysis",
     "delete": "Delete",
+    "disablePreemption": "Disable preemption",
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
     "edit": "Edit",
+    "enablePreemption": "Enable preemption",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
     "import": "Import",
@@ -224,7 +226,12 @@
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
     "unlinkTicket": "Unlink from Jira",
     "noTagsAvailable": "No tags available",
-    "noAssociatedTags": "This tag category has no associated tags."
+    "noAssociatedTags": "This tag category has no associated tags.",
+    "cannotRemoveBusinessServiceAssociatedWithApplication": "Cannot remove a business service associated with application(s)",
+    "updateFailed": "Update failed.",
+    "updateRequestSubmitted": "Update request submitted.",
+    "cancelationFailed": "Cancelation failed.",
+    "cancelationRequestSubmitted": "Cancelation request submitted"
   },
   "proposedActions": {
     "refactor": "Refactor",
@@ -249,7 +256,8 @@
     "reports": "Reports",
     "migrationWaves": "Migration waves",
     "issues": "Issues",
-    "dependencies": "Dependencies"
+    "dependencies": "Dependencies",
+    "tasks": "Task Manager"
   },
   "terms": {
     "accepted": "Accepted",
@@ -285,6 +293,7 @@
     "assessmentQuestionnaires": "Assessment questionnaires",
     "assessmentNotes": "Assessment notes",
     "assessmentSummary": "Assessment summary",
+    "attachments": "Attachments",
     "autoTagging": "Automated Tagging",
     "binary": "Binary",
     "branch": "Branch",
@@ -366,6 +375,7 @@
     "jobFunction": "Job function",
     "jobFunctionDeleted": "Job function deleted",
     "jobFunctions": "Job functions",
+    "kind": "Kind",
     "language": "Language",
     "label": "Label",
     "loading": "Loading",
@@ -390,6 +400,8 @@
     "notYetReviewed": "Not yet reviewed",
     "other": "Other",
     "owner": "Owner",
+    "pod": "Pod",
+    "preemption": "Preemption",
     "priority": "Priority",
     "proposedAction": "Proposed action",
     "proxyConfig": "Proxy configuration",
@@ -433,6 +445,7 @@
     "stakeholderGroups": "Stakeholder groups",
     "stakeholders": "Stakeholders",
     "startDate": "Start date",
+    "started": "Started",
     "status": "Status",
     "suggestedAdoptionPlan": "Suggested adoption plan",
     "svnConfig": "Subversion configuration",
@@ -451,6 +464,7 @@
     "tagCategoryDeleted": "Tag category deleted",
     "tagCategories": "Tag categories",
     "teamMember": "team member",
+    "terminated": "Terminated",
     "ticket": "Ticket",
     "trivialButMigratable": "Trivial but migratable",
     "type": "Type",
@@ -467,7 +481,9 @@
     "YAMLTemplate": "YAML template"
   },
   "titles": {
-    "archetypeDrawer": "Archetype details"
+    "archetypeDrawer": "Archetype details",
+    "taskManager": "Task Manager",
+    "task": "Task"
   },
   "toastr": {
     "success": {

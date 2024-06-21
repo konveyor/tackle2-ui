@@ -235,7 +235,10 @@ export const MigrationTargets: React.FC = () => {
                   const matchingTarget = targets.find(
                     (target) => target.id === id
                   );
-                  if (matchingTarget && matchingTarget.provider === provider) {
+                  if (
+                    matchingTarget &&
+                    matchingTarget.provider?.includes(provider)
+                  ) {
                     return (
                       <SortableItem
                         key={id}
