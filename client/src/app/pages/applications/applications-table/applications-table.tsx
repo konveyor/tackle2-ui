@@ -626,12 +626,12 @@ export const ApplicationsTable: React.FC = () => {
     const tasksForSelected = tasks.filter((task) =>
       selectedAppIds.includes(task.application.id)
     );
-    const allowedStates = ["Succeeded", "Failed", null, ""];
+    const terminalStates = ["Succeeded", "Failed", "Canceled", ""];
 
     return (
       tasksForSelected.length === 0 ||
       tasksForSelected.every(({ state }) =>
-        allowedStates.includes(state as string)
+        terminalStates.includes(state ?? "")
       )
     );
   };
