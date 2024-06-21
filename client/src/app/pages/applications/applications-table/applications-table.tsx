@@ -608,23 +608,32 @@ export const ApplicationsTable: React.FC = () => {
 
   const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
 
-  const isAnalyzingDisabled = () => {
-    if (tasks.length === 0) {
+  /**
+   * Analysis on the selected applications should be allowed if:
+   *   - At least 1 application is selected
+   *   - No analysis is in-flight for the selected applications (only 1 analysis at a time)
+   */
+  const isAnalyzingAllowed = () => {
+    if (selectedRows.length === 0) {
       return false;
     }
 
+    if (tasks.length === 0) {
+      return true;
+    }
+
+    const selectedAppIds = selectedRows.map(({ id }) => id);
+    const tasksForSelected = tasks.filter((task) =>
+      selectedAppIds.includes(task.application.id)
+    );
     const allowedStates = ["Succeeded", "Failed", null, ""];
 
-    const candidateTasks = selectedRows.filter((app) => {
-      const hasAllowedState = tasks.some(
-        (task) =>
-          task.application?.id === app.id &&
-          allowedStates.includes(task.state || "")
-      );
-      return !hasAllowedState;
-    });
-
-    return candidateTasks.length > 0;
+    return (
+      tasksForSelected.length === 0 ||
+      tasksForSelected.every(({ state }) =>
+        allowedStates.includes(state as string)
+      )
+    );
   };
 
   const hasExistingAnalysis = selectedRows.some((app) =>
@@ -785,9 +794,7 @@ export const ApplicationsTable: React.FC = () => {
                         onClick={() => {
                           setAnalyzeModalOpen(true);
                         }}
-                        isDisabled={
-                          selectedRows.length < 1 || isAnalyzingDisabled()
-                        }
+                        isDisabled={!isAnalyzingAllowed()}
                       >
                         {t("actions.analyze")}
                       </Button>
