@@ -623,8 +623,10 @@ export const ApplicationsTable: React.FC = () => {
     }
 
     const selectedAppIds = selectedRows.map(({ id }) => id);
-    const tasksForSelected = tasks.filter((task) =>
-      selectedAppIds.includes(task.application.id)
+    const tasksForSelected = tasks.filter(
+      (task) =>
+        (task.kind ?? task.addon) === "analyzer" &&
+        selectedAppIds.includes(task.application.id)
     );
     const terminalStates = ["Succeeded", "Failed", "Canceled", ""];
 
