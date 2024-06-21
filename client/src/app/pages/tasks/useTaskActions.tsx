@@ -4,9 +4,15 @@ import {
   useCancelTaskMutation,
   useUpdateTaskMutation,
 } from "@app/queries/tasks";
-import { Task } from "@app/api/models";
+import { Task, TaskState } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useTranslation } from "react-i18next";
+
+const canCancel = (state: TaskState = "No task") =>
+  !["Succeeded", "Failed", "Canceled"].includes(state);
+
+const canTogglePreemption = (state: TaskState = "No task") =>
+  !["Succeeded", "Failed", "Canceled", "Running"].includes(state);
 
 export const useTaskActions = () => {
   const { t } = useTranslation();
@@ -49,5 +55,5 @@ export const useTaskActions = () => {
       },
     });
 
-  return { cancelTask, togglePreemption };
+  return { cancelTask, togglePreemption, canCancel, canTogglePreemption };
 };

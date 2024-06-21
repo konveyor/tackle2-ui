@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   EmptyState,
   EmptyStateHeader,
@@ -47,6 +47,8 @@ import { IconWithLabel, taskStateToIcon } from "@app/components/Icons";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 import dayjs from "dayjs";
 import { useTaskActions } from "./useTaskActions";
+import { formatPath } from "@app/utils/utils";
+import { Paths } from "@app/Paths";
 
 export const TasksPage: React.FC = () => {
   const { t } = useTranslation();
@@ -199,7 +201,8 @@ export const TasksPage: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const { cancelTask, togglePreemption } = useTaskActions();
+  const { cancelTask, togglePreemption, canCancel, canTogglePreemption } =
+    useTaskActions();
 
   const toCells = ({
     id,
@@ -218,7 +221,18 @@ export const TasksPage: React.FC = () => {
     application: application.name,
     kind: kind ?? addon,
     state: (
-      <IconWithLabel icon={taskStateToIcon(state)} label={state ?? "No task"} />
+      <IconWithLabel
+        icon={taskStateToIcon(state)}
+        label={
+          <Link
+            to={formatPath(Paths.taskDetails, {
+              taskId: id,
+            })}
+          >
+            {state ?? "No task"}
+          </Link>
+        }
+      />
     ),
     priority,
     preemption: String(!!policy?.preemptEnabled),
@@ -316,22 +330,27 @@ export const TasksPage: React.FC = () => {
                           id={`row-actions-${task.id}`}
                         >
                           <ActionsColumn
-                            isDisabled={[
-                              "Succeeded",
-                              "Failed",
-                              "Canceled",
-                            ].includes(task.state ?? "")}
                             items={[
                               {
                                 title: t("actions.cancel"),
+                                isDisabled: !canCancel(task.state),
                                 onClick: () => cancelTask(task.id),
                               },
                               {
                                 title: task.policy?.preemptEnabled
                                   ? t("actions.disablePreemption")
                                   : t("actions.enablePreemption"),
-                                isDisabled: "Running" === task.state,
+                                isDisabled: !canTogglePreemption(task.state),
                                 onClick: () => togglePreemption(task),
+                              },
+                              {
+                                title: t("actions.taskDetails"),
+                                onClick: () =>
+                                  history.push(
+                                    formatPath(Paths.taskDetails, {
+                                      taskId: task.id,
+                                    })
+                                  ),
                               },
                             ]}
                           />
