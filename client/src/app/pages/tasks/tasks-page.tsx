@@ -159,7 +159,8 @@ export const TasksPage: React.FC = () => {
         createUser: "createUser",
         priority: "priority",
       },
-    })
+    }),
+    5000
   );
 
   const tableControls = useTableControlProps({
