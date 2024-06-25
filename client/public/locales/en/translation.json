@@ -55,7 +55,7 @@
     "selectNone": "Select none",
     "selectPage": "Select page",
     "submitReview": "Submit review",
-    "taskDetails": "Task details",
+    "taskDetails": "Task {{taskId}}",
     "unlink": "Unlink",
     "view": "View",
     "viewErrorReport": "View error report",

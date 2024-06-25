@@ -6,7 +6,7 @@ import { AnalysisDetailsAttachmentRoute, Paths } from "@app/Paths";
 import { formatPath } from "@app/utils/utils";
 
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
-import { TaskDetailsBase } from "@app/pages/tasks/TaskDetails";
+import { TaskDetailsBase } from "@app/pages/tasks/TaskDetailsBase";
 import { useFetchApplicationById } from "@app/queries/applications";
 
 export const AnalysisDetails = () => {
