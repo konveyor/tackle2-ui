@@ -18,8 +18,10 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
+  ActionsColumn,
   ExpandableRowContent,
   Table,
   Tbody,
@@ -29,10 +31,9 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -298,12 +299,28 @@ export const Stakeholders: React.FC = () => {
                           >
                             {stakeholder.stakeholderGroups?.length}
                           </Td>
-                          <AppTableActionButtons
-                            onEdit={() =>
-                              setCreateUpdateModalState(stakeholder)
-                            }
-                            onDelete={() => deleteRow(stakeholder)}
-                          />
+                          <Td isActionCell id="pencil-action">
+                            <Tooltip content={t("actions.edit")}>
+                              <Button
+                                variant="plain"
+                                icon={<PencilAltIcon />}
+                                onClick={() =>
+                                  setCreateUpdateModalState(stakeholder)
+                                }
+                              />
+                            </Tooltip>
+                          </Td>
+                          <Td isActionCell id="row-actions">
+                            <ActionsColumn
+                              items={[
+                                {
+                                  isDanger: true,
+                                  title: t("actions.delete"),
+                                  onClick: () => deleteRow(stakeholder),
+                                },
+                              ]}
+                            />
+                          </Td>
                         </TableRowContentWithControls>
                       </Tr>
                       {isCellExpanded(stakeholder) ? (
