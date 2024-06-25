@@ -285,11 +285,21 @@ const DependencyVersionColumn = ({
 }: {
   appDependency: AnalysisAppDependency;
 }) => {
-  const isJavaDependency = name && version && sha && provider === "java";
+  let mavenCentralLink;
 
-  const mavenCentralLink = isJavaDependency
-    ? `https://search.maven.org/search?q=1:${extractFirstSha(sha)}`
-    : undefined;
+  if (name && version && provider === "java") {
+    if (sha) {
+      mavenCentralLink = `https://search.maven.org/#search|1:${extractFirstSha(
+        sha
+      )}`;
+    } else {
+      const group = name.substring(0, name.lastIndexOf("."));
+      const artifact = name.substring(name.lastIndexOf(".") + 1);
+      mavenCentralLink = encodeURI(
+        `https://search.maven.org/#search|g:${group} a:${artifact} v:${version}`
+      );
+    }
+  }
 
   return (
     <TextContent>
