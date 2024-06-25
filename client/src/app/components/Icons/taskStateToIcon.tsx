@@ -1,11 +1,16 @@
 import { TaskState } from "@app/api/models";
 import React from "react";
 import { Icon } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
+import {
+  CheckCircleIcon,
+  TimesCircleIcon,
+  InProgressIcon,
+  ExclamationCircleIcon,
+  UnknownIcon,
+  PendingIcon,
+  TaskIcon,
+  PauseCircleIcon,
+} from "@patternfly/react-icons";
 
 export const taskStateToIcon = (state?: TaskState) => {
   switch (state) {
@@ -26,14 +31,17 @@ export const taskStateToIcon = (state?: TaskState) => {
           <ExclamationCircleIcon />
         </Icon>
       );
-    case "Pending":
-      return <InProgressIcon />;
-    case "Created":
-    case "QuotaBlocked":
     case "Running":
-    case "Ready":
+      return <InProgressIcon />;
+    case "Pending":
+      return <PendingIcon />;
+    case "QuotaBlocked":
     case "Postponed":
+      return <PauseCircleIcon />;
+    case "Created":
+    case "Ready":
+      return <TaskIcon />;
     default:
-      return <></>;
+      return <TaskIcon />;
   }
 };
