@@ -19,7 +19,7 @@ export const TaskDetails = () => {
           path: Paths.tasks,
         },
         {
-          title: t("actions.taskDetails", { taskId }),
+          title: t("titles.taskWithId", { taskId }),
           path: detailsPath,
         },
       ]}

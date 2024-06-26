@@ -61,7 +61,11 @@ export const TasksPage: React.FC = () => {
 
   const tableControlState = useTableControlState({
     tableName: "tasks-table",
-    persistTo: { filter: "urlParams" },
+    persistTo: {
+      filter: "urlParams",
+      pagination: "sessionStorage",
+      sort: "sessionStorage",
+    },
     persistenceKeyPrefix: TablePersistenceKeyPrefix.tasks,
     columnNames: {
       id: "ID",
