@@ -65,6 +65,7 @@ const AssessmentSummary = lazy(
 );
 
 const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
+const TaskDetails = lazy(() => import("./pages/tasks/TaskDetails"));
 
 export interface IRoute<T> {
   path: T;
@@ -195,6 +196,16 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.tasks,
     comp: TaskManager,
+    exact: true,
+  },
+  {
+    path: Paths.taskDetails,
+    comp: TaskDetails,
+    exact: true,
+  },
+  {
+    path: Paths.taskDetailsAttachment,
+    comp: TaskDetails,
     exact: false,
   },
 ];

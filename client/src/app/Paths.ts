@@ -41,6 +41,8 @@ export const DevPaths = {
 
   dependencies: "/dependencies",
   tasks: "/tasks",
+  taskDetails: "/tasks/:taskId",
+  taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -99,6 +101,11 @@ export interface AnalysisDetailsRoute {
 
 export interface AnalysisDetailsAttachmentRoute {
   applicationId: string;
+  taskId: string;
+  attachmentId: string;
+}
+
+export interface TaskDetailsAttachmentRoute {
   taskId: string;
   attachmentId: string;
 }
