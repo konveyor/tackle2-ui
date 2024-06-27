@@ -1,5 +1,5 @@
 import { TaskState } from "@app/api/models";
-import React from "react";
+import React, { FC } from "react";
 import { Icon } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
@@ -12,7 +12,7 @@ import {
   PauseCircleIcon,
 } from "@patternfly/react-icons";
 
-export const taskStateToIcon = (state?: TaskState) => {
+export const TaskStateIcon: FC<{ state?: TaskState }> = ({ state }) => {
   switch (state) {
     case "not supported":
     case "No task":

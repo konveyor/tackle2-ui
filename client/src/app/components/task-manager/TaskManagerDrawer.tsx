@@ -26,7 +26,7 @@ import { useTaskManagerContext } from "./TaskManagerContext";
 import { useServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
-import { taskStateToIcon } from "../Icons";
+import { TaskStateIcon } from "../Icons";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -121,7 +121,9 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
 TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
 const TaskStateToIcon: React.FC<{ taskState: TaskState }> = ({ taskState }) => (
-  <Tooltip content={taskState}>{taskStateToIcon(taskState)}</Tooltip>
+  <Tooltip content={taskState}>
+    <TaskStateIcon state={taskState} />
+  </Tooltip>
 );
 
 const TaskItem: React.FC<{
