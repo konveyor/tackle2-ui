@@ -43,7 +43,7 @@ import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { useSelectionState } from "@migtools/lib-ui";
 import { useServerTasks } from "@app/queries/tasks";
 import { Task } from "@app/api/models";
-import { IconWithLabel, taskStateToIcon } from "@app/components/Icons";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 import dayjs from "dayjs";
 import { useTaskActions } from "./useTaskActions";
@@ -226,7 +226,7 @@ export const TasksPage: React.FC = () => {
     kind: kind ?? addon,
     state: (
       <IconWithLabel
-        icon={taskStateToIcon(state)}
+        icon={<TaskStateIcon state={state} />}
         label={
           <Link
             to={formatPath(Paths.taskDetails, {

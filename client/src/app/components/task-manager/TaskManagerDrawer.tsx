@@ -18,14 +18,7 @@ import {
   NotificationDrawerListItemHeader,
   Tooltip,
 } from "@patternfly/react-core";
-import {
-  CubesIcon,
-  InProgressIcon,
-  PauseCircleIcon,
-  PendingIcon,
-  CheckCircleIcon,
-  TaskIcon,
-} from "@patternfly/react-icons";
+import { CubesIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
 import { TaskState } from "@app/api/models";
@@ -33,6 +26,7 @@ import { useTaskManagerContext } from "./TaskManagerContext";
 import { useServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
+import { TaskStateIcon } from "../Icons";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -126,28 +120,11 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
 );
 TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
-const TaskStateToIcon: React.FC<{ task: TaskManagerTask }> = ({ task }) =>
-  task.state === "Ready" ? (
-    <Tooltip content="Ready">
-      <CheckCircleIcon />
-    </Tooltip>
-  ) : task.state === "Postponed" ? (
-    <Tooltip content="Postponed">
-      <PauseCircleIcon />
-    </Tooltip>
-  ) : task.state === "Pending" ? (
-    <Tooltip content="Pending">
-      <PendingIcon />
-    </Tooltip>
-  ) : task.state === "Running" ? (
-    <Tooltip content="Running">
-      <InProgressIcon />
-    </Tooltip>
-  ) : (
-    <Tooltip content="Unknown">
-      <TaskIcon />
-    </Tooltip>
-  );
+const TaskStateToIcon: React.FC<{ taskState: TaskState }> = ({ taskState }) => (
+  <Tooltip content={taskState}>
+    <TaskStateIcon state={taskState} />
+  </Tooltip>
+);
 
 const TaskItem: React.FC<{
   task: TaskManagerTask;
@@ -174,7 +151,7 @@ const TaskItem: React.FC<{
       <NotificationDrawerListItemHeader
         variant="custom"
         title={title}
-        icon={<TaskStateToIcon task={task} />}
+        icon={<TaskStateToIcon taskState={task.state} />}
       >
         {/* Put the item's action menu here */}
       </NotificationDrawerListItemHeader>
