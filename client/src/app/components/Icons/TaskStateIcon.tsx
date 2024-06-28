@@ -18,21 +18,29 @@ export const TaskStateIcon: FC<{ state?: TaskState }> = ({ state }) => {
     case "No task":
       return <UnknownIcon />;
     case "Canceled":
-      return <TimesCircleIcon />;
+      return (
+        <Icon status="info">
+          <TimesCircleIcon />
+        </Icon>
+      );
     case "Succeeded":
       return (
-        <Icon status={"success"}>
+        <Icon status="success">
           <CheckCircleIcon />
         </Icon>
       );
     case "Failed":
       return (
-        <Icon status={"danger"}>
+        <Icon status="danger">
           <ExclamationCircleIcon />
         </Icon>
       );
     case "Running":
-      return <InProgressIcon />;
+      return (
+        <Icon status="info">
+          <InProgressIcon />
+        </Icon>
+      );
     case "Pending":
       return <PendingIcon />;
     case "QuotaBlocked":
