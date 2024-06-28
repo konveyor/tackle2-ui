@@ -11,10 +11,9 @@ on:
       - "main"
       - "release-*"
 
-  schedule:
-    - cron: "35 5 * * *" # every day @ 5:35am UTC
-
   workflow_dispatch:
+
+  workflow_call:
 
 jobs:
   unit-test-lookup-image:
