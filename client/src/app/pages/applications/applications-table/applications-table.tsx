@@ -43,11 +43,7 @@ import {
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  dedupeFunction,
-  formatPath,
-  getAxiosErrorMessage,
-} from "@app/utils/utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import keycloak from "@app/keycloak";
 import {
@@ -74,7 +70,7 @@ import {
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
-import { Application, Assessment, Ref, Task } from "@app/api/models";
+import { Application, Assessment, Ref } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -85,7 +81,6 @@ import {
   useFetchAssessments,
 } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
-import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 
@@ -107,6 +102,11 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { ColumnApplicationName } from "./components/column-application-name";
+import {
+  DecoratedApplication,
+  useDecoratedApplications,
+} from "./useDecoratedApplications";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -181,16 +181,9 @@ export const ApplicationsTable: React.FC = () => {
     useState(false);
 
   // ----- Table data fetches and mutations
-  const { identities } = useFetchIdentities();
   const { tagItems } = useFetchTagsWithTagItems();
 
-  const { tasks, hasActiveTasks } = useFetchTasks(
-    { kind: "analyzer", addon: "analyzer" },
-    isAnalyzeModalOpen
-  );
-
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application?.id === application.id);
+  const { tasks, hasActiveTasks } = useFetchTasks(isAnalyzeModalOpen);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -213,23 +206,31 @@ export const ApplicationsTable: React.FC = () => {
     failedCancelTask
   );
 
-  const cancelAnalysis = (row: Application) => {
-    const task = tasks.find((task) => task.application?.id === row.id);
+  const cancelAnalysis = (application: DecoratedApplication) => {
+    const task = application.tasks.currentAnalyzer;
     if (task?.id) cancelTask(task.id);
   };
 
-  const isTaskCancellable = (application: Application) => {
-    const task = getTask(application);
+  const isTaskCancellable = (application: DecoratedApplication) => {
+    const task = application.tasks.currentAnalyzer;
     return task?.state && !["Succeeded", "Failed"].includes(task.state);
   };
 
+  // TODO: Review the refetchInterval calculation for the application list
   const {
-    data: applications,
+    data: baseApplications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
   } = useFetchApplications(() =>
     hasActiveTasks || dayjs().isBefore(endOfAppImportPeriod) ? 5000 : false
   );
+
+  const {
+    applications,
+    applicationNames,
+    referencedArchetypeRefs,
+    referencedBusinessServiceRefs,
+  } = useDecoratedApplications(baseApplications, tasks);
 
   const { assessments, isFetching: isFetchingAssessments } =
     useFetchAssessments();
@@ -363,12 +364,11 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        matcher: (filter: string, item: Application) => item.name === filter,
-        selectOptions: [
-          ...new Set(
-            applications.map((application) => application.name).filter(Boolean)
-          ),
-        ].map((name) => ({ key: name, value: name })),
+        selectOptions: applicationNames.map((name) => ({
+          key: name,
+          value: name,
+        })),
+        matcher: (filter: string, app: Application) => app.name === filter,
       },
       {
         categoryKey: "archetypes",
@@ -378,90 +378,76 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.archetypes").toLowerCase(),
           }) + "...",
-        getItemValue: (item) => {
-          const archetypeNames = item?.archetypes
+        selectOptions: referencedArchetypeRefs.map(({ name }) => ({
+          key: name,
+          value: name,
+        })),
+        logicOperator: "OR",
+        getItemValue: (app) => {
+          const archetypeNames = app?.archetypes
             ?.map((archetype) => archetype.name)
             .join("");
           return archetypeNames || "";
         },
-        selectOptions: [
-          ...new Set(
-            applications
-              .flatMap(
-                (application) =>
-                  application?.archetypes?.map((archetype) => archetype.name)
-              )
-              .filter(Boolean)
-          ),
-        ].map((archetypeName) => ({
-          key: archetypeName,
-          value: archetypeName,
-        })),
-        logicOperator: "OR",
       },
       {
         categoryKey: "businessService",
         title: t("terms.businessService"),
+        type: FilterType.multiselect,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.businessService").toLowerCase(),
           }) + "...",
-        type: FilterType.multiselect,
-        selectOptions: dedupeFunction(
-          applications
-            .filter((app) => !!app.businessService?.name)
-            .map((app) => app.businessService?.name)
-            .map((name) => ({ key: name, value: name }))
-        ),
-        getItemValue: (item) => item.businessService?.name || "",
+        selectOptions: referencedBusinessServiceRefs.map(({ name }) => ({
+          key: name,
+          value: name,
+        })),
+        getItemValue: (app) => app.businessService?.name ?? "",
       },
       {
         categoryKey: "identities",
         title: t("terms.credentialType"),
+        type: FilterType.multiselect,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.credentialType").toLowerCase(),
           }) + "...",
-        type: FilterType.multiselect,
         selectOptions: [
           { value: "source", label: "Source" },
           { value: "maven", label: "Maven" },
           { value: "proxy", label: "Proxy" },
         ],
-        getItemValue: (item) => {
-          const searchStringArr: string[] = [];
-          item.identities?.forEach((appIdentity) => {
-            const matchingIdentity = identities.find(
-              (identity) => identity.id === appIdentity.id
-            );
-            searchStringArr.push(matchingIdentity?.kind || "");
-          });
-          const searchString = searchStringArr.join("");
-          return searchString;
+        getItemValue: (app) => {
+          const identityKinds = app.identities
+            ?.map(({ kind }) => kind as string)
+            ?.filter(Boolean)
+            ?.join("^");
+
+          return identityKinds ?? "";
         },
       },
       {
         categoryKey: "repository",
         title: t("terms.repositoryType"),
+        type: FilterType.select,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.repositoryType").toLowerCase(),
           }) + "...",
-        type: FilterType.select,
         selectOptions: [
           { value: "git", label: "Git" },
           { value: "subversion", label: "Subversion" },
         ],
-        getItemValue: (item) => item?.repository?.kind || "",
+        getItemValue: (item) => item?.repository?.kind ?? "",
       },
       {
         categoryKey: "binary",
         title: t("terms.artifact"),
+        type: FilterType.select,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.artifact").toLowerCase(),
           }) + "...",
-        type: FilterType.select,
         selectOptions: [
           { value: "binary", label: t("terms.artifactAssociated") },
           { value: "none", label: t("terms.artifactNotAssociated") },
@@ -471,7 +457,6 @@ export const ApplicationsTable: React.FC = () => {
             item.binary !== "::" && item.binary?.match(/.+:.+:.+/)
               ? "binary"
               : "none";
-
           return hasBinary;
         },
       },
@@ -519,7 +504,7 @@ export const ApplicationsTable: React.FC = () => {
           { value: "red", label: "High" },
           { value: "unknown", label: "Unknown" },
         ],
-        getItemValue: (item) => item.risk || "",
+        getItemValue: (item) => item.risk ?? "",
       },
     ],
     initialItemsPerPage: 10,
@@ -603,7 +588,10 @@ export const ApplicationsTable: React.FC = () => {
                 key="manage-applications-credentials"
                 isDisabled={selectedRows.length < 1}
                 onClick={() => {
-                  setSaveApplicationsCredentialsModalState(selectedRows);
+                  const selectedApps: Application[] = selectedRows.map(
+                    ({ _ }) => _
+                  );
+                  setSaveApplicationsCredentialsModalState(selectedApps);
                 }}
               >
                 {t("actions.manageCredentials")}
@@ -625,28 +613,22 @@ export const ApplicationsTable: React.FC = () => {
       return false;
     }
 
-    if (tasks.length === 0) {
-      return true;
-    }
+    const currentAnalyzerTasksForSelected = selectedRows
+      .flatMap((app) => app.tasks.currentAnalyzer)
+      .filter(Boolean);
 
-    const selectedAppIds = selectedRows.map(({ id }) => id);
-    const tasksForSelected = tasks.filter(
-      (task) =>
-        (task.kind ?? task.addon) === "analyzer" &&
-        selectedAppIds.includes(task.application.id)
-    );
     const terminalStates = ["Succeeded", "Failed", "Canceled", ""];
 
     return (
-      tasksForSelected.length === 0 ||
-      tasksForSelected.every(({ state }) =>
+      currentAnalyzerTasksForSelected.length === 0 ||
+      currentAnalyzerTasksForSelected.every(({ state }) =>
         terminalStates.includes(state ?? "")
       )
     );
   };
 
-  const hasExistingAnalysis = selectedRows.some((app) =>
-    tasks.some((task) => task.application?.id === app.id)
+  const selectedRowsHaveExistingAnalysis = selectedRows.some(
+    (app) => !!app.tasks.currentAnalyzer
   );
 
   const handleNavToAssessment = (application: Application) => {
@@ -758,7 +740,9 @@ export const ApplicationsTable: React.FC = () => {
         <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
           <ToolbarContent>
             <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
-            <FilterToolbar<Application, string> {...filterToolbarProps} />
+            <FilterToolbar<DecoratedApplication, string>
+              {...filterToolbarProps}
+            />
             <ToolbarGroup variant="button-group">
               <ToolbarItem>
                 <RBAC
@@ -785,14 +769,16 @@ export const ApplicationsTable: React.FC = () => {
                 >
                   <ToolbarItem>
                     <ConditionalTooltip
-                      isTooltipEnabled={hasExistingAnalysis}
+                      isTooltipEnabled={selectedRowsHaveExistingAnalysis}
                       content={
                         "An analysis for one or more of the selected applications exists. This operation will overwrite pre-existing analysis data."
                       }
                     >
                       <Button
                         icon={
-                          hasExistingAnalysis ? <WarningTriangleIcon /> : null
+                          selectedRowsHaveExistingAnalysis ? (
+                            <WarningTriangleIcon />
+                          ) : null
                         }
                         type="button"
                         id="analyze-application"
@@ -892,232 +878,186 @@ export const ApplicationsTable: React.FC = () => {
             numRenderedColumns={numRenderedColumns}
           >
             <Tbody>
-              {currentPageItems?.map((application, rowIndex) => {
-                const hasExistingAnalysis = tasks.some(
-                  (task) => task.application?.id === application.id
-                );
-
-                return (
-                  <Tr
-                    key={application.name}
-                    {...getTrProps({ item: application })}
+              {currentPageItems?.map((application, rowIndex) => (
+                <Tr key={application.id} {...getTrProps({ item: application })}>
+                  <TableRowContentWithControls
+                    {...tableControls}
+                    item={application}
+                    rowIndex={rowIndex}
                   >
-                    <TableRowContentWithControls
-                      {...tableControls}
-                      item={application}
-                      rowIndex={rowIndex}
-                    >
-                      {getColumnVisibility("name") && (
-                        <Td
-                          width={10}
-                          {...getTdProps({ columnKey: "name" })}
-                          modifier="truncate"
-                        >
-                          {application.name}
-                        </Td>
-                      )}
-                      {getColumnVisibility("businessService") && (
-                        <Td
-                          width={15}
-                          {...getTdProps({ columnKey: "businessService" })}
-                          modifier="truncate"
-                        >
-                          {application.businessService && (
-                            <ApplicationBusinessService
-                              id={application.businessService.id}
-                            />
-                          )}
-                        </Td>
-                      )}
-                      {getColumnVisibility("assessment") && (
-                        <Td
-                          width={15}
-                          modifier="truncate"
-                          {...getTdProps({ columnKey: "assessment" })}
-                        >
-                          <ApplicationAssessmentStatus
-                            application={application}
-                            isLoading={
-                              isFetchingApplications ||
-                              isFetchingArchetypes ||
-                              isFetchingAssessments
-                            }
-                            key={`${application?.id}-assessment-status`}
+                    {getColumnVisibility("name") && (
+                      <Td
+                        width={10}
+                        {...getTdProps({ columnKey: "name" })}
+                        modifier="truncate"
+                      >
+                        <ColumnApplicationName application={application} />
+                      </Td>
+                    )}
+                    {getColumnVisibility("businessService") && (
+                      <Td
+                        width={15}
+                        {...getTdProps({ columnKey: "businessService" })}
+                        modifier="truncate"
+                      >
+                        {application.businessService && (
+                          <ApplicationBusinessService
+                            id={application.businessService.id}
                           />
-                        </Td>
-                      )}
-                      {getColumnVisibility("review") && (
-                        <Td
-                          width={15}
-                          modifier="truncate"
-                          {...getTdProps({ columnKey: "review" })}
-                        >
-                          <ApplicationReviewStatus
-                            application={application}
-                            key={`${application?.id}-review-status`}
-                          />
-                        </Td>
-                      )}
-                      {getColumnVisibility("analysis") && (
-                        <Td
-                          width={15}
-                          modifier="truncate"
-                          {...getTdProps({ columnKey: "analysis" })}
-                        >
-                          <ApplicationAnalysisStatus
-                            state={getTask(application)?.state || "No task"}
-                          />
-                        </Td>
-                      )}
-                      {getColumnVisibility("tags") && (
-                        <Td
-                          width={10}
-                          modifier="truncate"
-                          {...getTdProps({ columnKey: "tags" })}
-                        >
-                          <IconWithLabel
-                            icon={<TagIcon />}
-                            label={
-                              application.tags ? application.tags.length : 0
-                            }
-                          />
-                        </Td>
-                      )}
-                      {getColumnVisibility("effort") && (
-                        <Td
-                          width={10}
-                          modifier="truncate"
-                          {...getTdProps({ columnKey: "effort" })}
-                        >
-                          {application?.effort ?? "-"}
-                        </Td>
-                      )}
-
-                      <Td isActionCell id="pencil-action">
-                        {applicationWriteAccess && (
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() =>
-                                setSaveApplicationModalState(application)
-                              }
-                            />
-                          </Tooltip>
                         )}
                       </Td>
-                      <Td isActionCell id="row-actions">
-                        <ActionsColumn
-                          items={[
-                            ...(assessmentWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.assess"),
-                                    onClick: () =>
-                                      assessSelectedApp(application),
-                                  },
-                                ]
-                              : []),
-                            ...(reviewsWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.review"),
-                                    onClick: () =>
-                                      reviewSelectedApp(application),
-                                  },
-                                ]
-                              : []),
-                            ...(application?.assessments?.length &&
-                            assessmentWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.discardAssessment"),
-                                    onClick: () =>
-                                      setAssessmentToDiscard(application),
-                                  },
-                                ]
-                              : []),
-                            ...(application?.review && reviewsWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.discardReview"),
-                                    onClick: () =>
-                                      setReviewToDiscard(application),
-                                  },
-                                ]
-                              : []),
-                            ...(dependenciesWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.manageDependencies"),
-                                    onClick: () =>
-                                      setApplicationDependenciesToManage(
-                                        application
-                                      ),
-                                  },
-                                ]
-                              : []),
-
-                            ...(credentialsReadAccess && applicationWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.manageCredentials"),
-                                    onClick: () =>
-                                      setSaveApplicationsCredentialsModalState([
-                                        application,
-                                      ]),
-                                  },
-                                ]
-                              : []),
-                            ...(analysesReadAccess && hasExistingAnalysis
-                              ? [
-                                  {
-                                    title: t("actions.analysisDetails"),
-                                    onClick: () => {
-                                      const taskId = getTask(application)?.id;
-                                      if (taskId && application.id) {
-                                        history.push(
-                                          formatPath(
-                                            Paths.applicationsAnalysisDetails,
-                                            {
-                                              applicationId: application.id,
-                                              taskId,
-                                            }
-                                          )
-                                        );
-                                      }
-                                    },
-                                  },
-                                ]
-                              : []),
-                            ...(isTaskCancellable(application) &&
-                            tasksReadAccess &&
-                            tasksWriteAccess
-                              ? [
-                                  {
-                                    title: t("actions.cancelAnalysis"),
-                                    onClick: () => cancelAnalysis(application),
-                                  },
-                                ]
-                              : []),
-                            ...(applicationWriteAccess
-                              ? [
-                                  { isSeparator: true },
-                                  {
-                                    title: t("actions.delete"),
-                                    onClick: () =>
-                                      setApplicationsToDelete([application]),
-                                    isDanger: true,
-                                  },
-                                ]
-                              : []),
-                          ]}
+                    )}
+                    {getColumnVisibility("assessment") && (
+                      <Td
+                        width={15}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "assessment" })}
+                      >
+                        <ApplicationAssessmentStatus
+                          application={application}
+                          isLoading={
+                            isFetchingApplications ||
+                            isFetchingArchetypes ||
+                            isFetchingAssessments
+                          }
+                          key={`${application?.id}-assessment-status`}
                         />
                       </Td>
-                    </TableRowContentWithControls>
-                  </Tr>
-                );
-              })}
+                    )}
+                    {getColumnVisibility("review") && (
+                      <Td
+                        width={15}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "review" })}
+                      >
+                        <ApplicationReviewStatus
+                          application={application}
+                          key={`${application?.id}-review-status`}
+                        />
+                      </Td>
+                    )}
+                    {getColumnVisibility("analysis") && (
+                      <Td
+                        width={15}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "analysis" })}
+                      >
+                        <ApplicationAnalysisStatus
+                          state={
+                            application.tasks.currentAnalyzer?.state ||
+                            "No task"
+                          }
+                        />
+                      </Td>
+                    )}
+                    {getColumnVisibility("tags") && (
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "tags" })}
+                      >
+                        <IconWithLabel
+                          icon={<TagIcon />}
+                          label={application.tags ? application.tags.length : 0}
+                        />
+                      </Td>
+                    )}
+                    {getColumnVisibility("effort") && (
+                      <Td
+                        width={10}
+                        modifier="truncate"
+                        {...getTdProps({ columnKey: "effort" })}
+                      >
+                        {application?.effort ?? "-"}
+                      </Td>
+                    )}
+
+                    <Td isActionCell id="pencil-action">
+                      {applicationWriteAccess && (
+                        <Tooltip content={t("actions.edit")}>
+                          <Button
+                            variant="plain"
+                            icon={<PencilAltIcon />}
+                            onClick={() =>
+                              setSaveApplicationModalState(application)
+                            }
+                          />
+                        </Tooltip>
+                      )}
+                    </Td>
+                    <Td isActionCell id="row-actions">
+                      <ActionsColumn
+                        items={[
+                          assessmentWriteAccess && {
+                            title: t("actions.assess"),
+                            onClick: () => assessSelectedApp(application),
+                          },
+                          reviewsWriteAccess && {
+                            title: t("actions.review"),
+                            onClick: () => reviewSelectedApp(application),
+                          },
+                          assessmentWriteAccess &&
+                            (application.assessments?.length ?? 0) > 0 && {
+                              title: t("actions.discardAssessment"),
+                              onClick: () =>
+                                setAssessmentToDiscard(application),
+                            },
+                          reviewsWriteAccess &&
+                            application?.review && {
+                              title: t("actions.discardReview"),
+                              onClick: () => setReviewToDiscard(application),
+                            },
+                          dependenciesWriteAccess && {
+                            title: t("actions.manageDependencies"),
+                            onClick: () =>
+                              setApplicationDependenciesToManage(application),
+                          },
+                          credentialsReadAccess &&
+                            applicationWriteAccess && {
+                              title: t("actions.manageCredentials"),
+                              onClick: () =>
+                                setSaveApplicationsCredentialsModalState([
+                                  application._,
+                                ]),
+                            },
+                          analysesReadAccess &&
+                            !!application.tasks.currentAnalyzer && {
+                              title: t("actions.analysisDetails"),
+                              onClick: () => {
+                                const taskId =
+                                  application.tasks.currentAnalyzer?.id;
+                                if (taskId && application.id) {
+                                  history.push(
+                                    formatPath(
+                                      Paths.applicationsAnalysisDetails,
+                                      {
+                                        applicationId: application.id,
+                                        taskId,
+                                      }
+                                    )
+                                  );
+                                }
+                              },
+                            },
+                          tasksReadAccess &&
+                            tasksWriteAccess &&
+                            isTaskCancellable(application) && {
+                              title: t("actions.cancelAnalysis"),
+                              onClick: () => cancelAnalysis(application),
+                            },
+                          applicationWriteAccess && { isSeparator: true },
+                          applicationWriteAccess && {
+                            title: t("actions.delete"),
+                            onClick: () =>
+                              setApplicationsToDelete([application]),
+                            isDanger: true,
+                          },
+                        ].filter(Boolean)}
+                      />
+                    </Td>
+                  </TableRowContentWithControls>
+                </Tr>
+              ))}
             </Tbody>
           </ConditionalTableBody>
         </Table>
@@ -1134,7 +1074,7 @@ export const ApplicationsTable: React.FC = () => {
           archetypes={archetypes}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
-          task={activeItem ? getTask(activeItem) : null}
+          task={activeItem ? activeItem.tasks.currentAnalyzer : null}
         />
 
         <TaskGroupProvider>
