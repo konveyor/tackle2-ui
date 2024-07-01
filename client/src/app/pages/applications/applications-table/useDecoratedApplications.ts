@@ -155,22 +155,18 @@ export const useDecoratedApplications = (
   const referencedArchetypeRefs = useMemo(
     () =>
       unique(
-        applications
-          .flatMap((app) => app.archetypes)
-          .filter(Boolean)
-          .sort(universalComparator)
-      ),
+        applications.flatMap((app) => app.archetypes).filter(Boolean),
+        ({ id, name }) => `${id}:${name}`
+      ).sort((a, b) => universalComparator(a.name, b.name)),
     [applications]
   );
 
   const referencedBusinessServiceRefs = useMemo(
     () =>
       unique(
-        applications
-          .flatMap((app) => app.businessService)
-          .filter(Boolean)
-          .sort(universalComparator)
-      ),
+        applications.flatMap((app) => app.businessService).filter(Boolean),
+        ({ id, name }) => `${id}:${name}`
+      ).sort((a, b) => universalComparator(a.name, b.name)),
     [applications]
   );
 
