@@ -33,6 +33,8 @@ export interface DecoratedApplication extends Application {
     latestHasQueued: boolean;
     latestHasRunning: boolean;
     latestHasSuccess: boolean;
+
+    /** The most recently created `kind === "analyzer"` task for the application */
     currentAnalyzer: Task | undefined;
   };
   tasksStatus: ApplicationTasksStatus;
