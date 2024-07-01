@@ -9,6 +9,18 @@ export interface TasksGroupedByKind {
   [key: string]: Task[];
 }
 
+/**
+ * Characterize the status of set of the most current task for each kinds of task
+ * associated with an application.
+ */
+export type ApplicationTasksStatus =
+  | "None"
+  | "Running"
+  | "Queued"
+  | "Failed"
+  | "Canceled"
+  | "Success";
+
 export interface DecoratedApplication extends Application {
   /** reference to the Application being decorated */
   _: Application;
@@ -23,6 +35,7 @@ export interface DecoratedApplication extends Application {
     latestHasSuccess: boolean;
     currentAnalyzer: Task | undefined;
   };
+  tasksStatus: ApplicationTasksStatus;
 
   identities?: Identity[];
 }
@@ -50,6 +63,25 @@ const groupTasks = (tasks: Task[]) => {
 };
 
 /**
+ * Step through the task data of an application and return its summarized task status.
+ */
+const chooseApplicationTaskStatus = ({
+  tasks,
+}: DecoratedApplication): ApplicationTasksStatus => {
+  return !tasks.exist
+    ? "None"
+    : tasks.latestHasRunning
+    ? "Running"
+    : tasks.latestHasQueued
+    ? "Queued"
+    : tasks.latestHasFailed
+    ? "Failed"
+    : tasks.latestHasCanceled
+    ? "Canceled"
+    : "Success";
+};
+
+/**
  * Decorate a set of REST Applications with information useful to the components on the
  * application table.
  */
@@ -64,11 +96,12 @@ const decorateApplications = (
     const tasksByKind = tasksByIdByKind[app.id] ?? [];
     const latest = listify(tasksByKind, (_kind, tasks) => tasks[0]);
 
-    return {
+    const da: DecoratedApplication = {
       ...app,
       _: app,
 
       tasksByKind,
+      tasksStatus: "None",
       tasks: {
         exist: (tasksById[app.id]?.length ?? 0) > 0,
 
@@ -94,7 +127,10 @@ const decorateApplications = (
       identities: app.identities
         ?.map((identity) => identities.find(({ id }) => id === identity.id))
         ?.filter(Boolean),
-    } as DecoratedApplication;
+    };
+
+    da.tasksStatus = chooseApplicationTaskStatus(da);
+    return da;
   });
 
   return decorated;

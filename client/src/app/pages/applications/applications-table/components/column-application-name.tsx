@@ -11,20 +11,15 @@ import {
 } from "@patternfly/react-icons";
 
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
-import { DecoratedApplication } from "../useDecoratedApplications";
+import {
+  ApplicationTasksStatus,
+  DecoratedApplication,
+} from "../useDecoratedApplications";
 import { Paths } from "@app/Paths";
 import { formatPath, universalComparator } from "@app/utils/utils";
 import dayjs from "dayjs";
 import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
 import { Task } from "@app/api/models";
-
-type ApplicationStatus =
-  | "None"
-  | "Running"
-  | "Queued"
-  | "Failed"
-  | "Canceled"
-  | "Success";
 
 interface StatusData {
   popoverVariant: PopoverProps["alertSeverityVariant"];
@@ -32,27 +27,8 @@ interface StatusData {
   headerText: string;
 }
 
-/**
- * Step through the task data of an application and return its summarized task status.
- */
-const chooseApplicationTaskStatus = ({
-  tasks,
-}: DecoratedApplication): ApplicationStatus => {
-  return !tasks.exist
-    ? "None"
-    : tasks.latestHasRunning
-    ? "Running"
-    : tasks.latestHasQueued
-    ? "Queued"
-    : tasks.latestHasFailed
-    ? "Failed"
-    : tasks.latestHasCanceled
-    ? "Canceled"
-    : "Success";
-};
-
 /* TODO: This can be better aligned with `TaskStateIcon` in future. */
-const statusMap: Record<ApplicationStatus, StatusData> = {
+const statusMap: Record<ApplicationTasksStatus, StatusData> = {
   None: {
     popoverVariant: undefined,
     headerText: "This application has no tasks",
@@ -119,7 +95,7 @@ const linkToDetails = (task: Task) => {
 export const ColumnApplicationName: React.FC<{
   application: DecoratedApplication;
 }> = ({ application }) => {
-  const status = statusMap[chooseApplicationTaskStatus(application)];
+  const status = statusMap[application.tasksStatus];
   const StatusIcon = status.icon;
 
   const bodyContent = (
