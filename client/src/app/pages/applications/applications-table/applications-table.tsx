@@ -1,8 +1,9 @@
 // External libraries
-import * as React from "react";
+import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
+import dayjs from "dayjs";
 
 // @patternfly
 import {
@@ -72,6 +73,7 @@ import {
 } from "@app/hooks/table-controls";
 
 // Queries
+import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
 import { Application, Assessment, Ref, Task } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -85,41 +87,38 @@ import {
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 // Relative components
+import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
-import { ImportApplicationsForm } from "../components/import-applications-form";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { useState } from "react";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
-import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { ApplicationFormModal } from "../components/application-form";
 import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
 import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
-import { KebabDropdown } from "@app/components/KebabDropdown";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { ApplicationFormModal } from "../components/application-form";
-import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
-import dayjs from "dayjs";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IconWithLabel } from "@app/components/Icons";
+import { ImportApplicationsForm } from "../components/import-applications-form";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
   const history = useHistory();
   const token = keycloak.tokenParsed;
 
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const { identities } = useFetchIdentities();
-
-  const [saveApplicationModalState, setSaveApplicationModalState] =
-    React.useState<"create" | Application | null>(null);
+  // ----- State for the modals
+  const [saveApplicationModalState, setSaveApplicationModalState] = useState<
+    "create" | Application | null
+  >(null);
 
   const isCreateUpdateApplicationsModalOpen =
     saveApplicationModalState !== null;
@@ -127,40 +126,71 @@ export const ApplicationsTable: React.FC = () => {
   const createUpdateApplications =
     saveApplicationModalState !== "create" ? saveApplicationModalState : null;
 
-  const [archetypeRefsToOverride, setArchetypeRefsToOverride] = React.useState<
+  const [archetypeRefsToOverride, setArchetypeRefsToOverride] = useState<
     Ref[] | null
   >(null);
 
   const [archetypeRefsToOverrideReview, setArchetypeRefsToOverrideReview] =
-    React.useState<Ref[] | null>(null);
+    useState<Ref[] | null>(null);
 
   const [applicationToAssess, setApplicationToAssess] =
-    React.useState<Application | null>(null);
+    useState<Application | null>(null);
 
   const [applicationToReview, setApplicationToReview] =
-    React.useState<Application | null>(null);
-
-  /*** Analysis */
+    useState<Application | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
 
-  const getTask = (application: Application) =>
-    tasks.find((task: Task) => task.application?.id === application.id);
+  const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
+    useState<Application | null>(null);
+  const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
+    null
+  );
+
+  const [reviewToEdit, setReviewToEdit] = useState<number | null>(null);
+
+  const [applicationsToDelete, setApplicationsToDelete] = useState<
+    Application[]
+  >([]);
+
+  const [assessmentToDiscard, setAssessmentToDiscard] =
+    useState<Application | null>(null);
+
+  const [reviewToDiscard, setReviewToDiscard] = useState<Application | null>(
+    null
+  );
+
+  const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
+    dayjs()
+  );
+
+  const [
+    saveApplicationsCredentialsModalState,
+    setSaveApplicationsCredentialsModalState,
+  ] = useState<"create" | Application[] | null>(null);
+  const isCreateUpdateCredentialsModalOpen =
+    saveApplicationsCredentialsModalState !== null;
+  const applicationsCredentialsToUpdate =
+    saveApplicationsCredentialsModalState !== "create"
+      ? saveApplicationsCredentialsModalState
+      : null;
+
+  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
+    useState(false);
+
+  // ----- Table data fetches and mutations
+  const { identities } = useFetchIdentities();
+  const { tagItems } = useFetchTagsWithTagItems();
 
   const { tasks, hasActiveTasks } = useFetchTasks(
     { kind: "analyzer", addon: "analyzer" },
     isAnalyzeModalOpen
   );
 
-  const isTaskCancellable = (application: Application) => {
-    const task = getTask(application);
-    return task?.state && !["Succeeded", "Failed"].includes(task.state);
-  };
-
-  const cancelAnalysis = (row: Application) => {
-    const task = tasks.find((task) => task.application?.id === row.id);
-    if (task?.id) cancelTask(task.id);
-  };
+  const getTask = (application: Application) =>
+    tasks.find((task: Task) => task.application?.id === application.id);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -182,32 +212,16 @@ export const ApplicationsTable: React.FC = () => {
     completedCancelTask,
     failedCancelTask
   );
-  /*** Analysis */
 
-  const { tagItems } = useFetchTagsWithTagItems();
+  const cancelAnalysis = (row: Application) => {
+    const task = tasks.find((task) => task.application?.id === row.id);
+    if (task?.id) cancelTask(task.id);
+  };
 
-  const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
-    React.useState<Application | null>(null);
-  const isDependenciesModalOpen = applicationDependenciesToManage !== null;
-
-  const [assessmentToEdit, setAssessmentToEdit] =
-    React.useState<Assessment | null>(null);
-
-  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
-
-  const [applicationsToDelete, setApplicationsToDelete] = React.useState<
-    Application[]
-  >([]);
-
-  const [assessmentToDiscard, setAssessmentToDiscard] =
-    React.useState<Application | null>(null);
-
-  const [reviewToDiscard, setReviewToDiscard] =
-    React.useState<Application | null>(null);
-
-  const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
-    dayjs()
-  );
+  const isTaskCancellable = (application: Application) => {
+    const task = getTask(application);
+    return task?.state && !["Succeeded", "Failed"].includes(task.state);
+  };
 
   const {
     data: applications,
@@ -219,6 +233,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const { assessments, isFetching: isFetchingAssessments } =
     useFetchAssessments();
+
   const { archetypes, isFetching: isFetchingArchetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -261,6 +276,15 @@ export const ApplicationsTable: React.FC = () => {
     }
   );
 
+  const discardReview = async (application: Application) => {
+    if (application.review) {
+      deleteReview({
+        id: application.review.id,
+        name: application.name,
+      });
+    }
+  };
+
   const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
     (name) => {
       pushNotification({
@@ -288,15 +312,7 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
-  const discardReview = async (application: Application) => {
-    if (application.review) {
-      deleteReview({
-        id: application.review.id,
-        name: application.name,
-      });
-    }
-  };
-
+  // ----- Table controls
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters");
 
@@ -540,20 +556,6 @@ export const ApplicationsTable: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const [
-    saveApplicationsCredentialsModalState,
-    setSaveApplicationsCredentialsModalState,
-  ] = useState<"create" | Application[] | null>(null);
-  const isCreateUpdateCredentialsModalOpen =
-    saveApplicationsCredentialsModalState !== null;
-  const applicationsCredentialsToUpdate =
-    saveApplicationsCredentialsModalState !== "create"
-      ? saveApplicationsCredentialsModalState
-      : null;
-
-  const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
-    useState(false);
-
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
@@ -740,8 +742,6 @@ export const ApplicationsTable: React.FC = () => {
       );
     }
   };
-
-  const applicationName = assessmentToDiscard?.name || "Application name";
 
   return (
     <ConditionalRender
@@ -1126,6 +1126,7 @@ export const ApplicationsTable: React.FC = () => {
           isTop={false}
           paginationProps={paginationProps}
         />
+
         <ApplicationDetailDrawer
           application={activeItem}
           applications={applications}
@@ -1135,6 +1136,7 @@ export const ApplicationsTable: React.FC = () => {
           onEditClick={() => setSaveApplicationModalState(activeItem)}
           task={activeItem ? getTask(activeItem) : null}
         />
+
         <TaskGroupProvider>
           <AnalysisWizard
             applications={selectedRows}
@@ -1234,12 +1236,10 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={assessmentToDiscard !== null}
           message={
             <span>
-              <Trans
-                i18nKey="dialog.message.discardAssessment"
-                values={{ applicationName }}
-              >
-                The assessment(s) for <strong>{applicationName}</strong> will be
-                discarded. Do you wish to continue?
+              <Trans i18nKey="dialog.message.discardAssessment">
+                The assessment(s) for{" "}
+                <strong>{assessmentToDiscard?.name}</strong> discarded. Do you
+                wish to continue?
               </Trans>
             </span>
           }
@@ -1261,12 +1261,7 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={reviewToDiscard !== null}
           message={
             <span>
-              <Trans
-                i18nKey="dialog.message.discardReview"
-                values={{
-                  applicationName: reviewToDiscard?.name,
-                }}
-              >
+              <Trans i18nKey="dialog.message.discardReview">
                 The review for <strong>{reviewToDiscard?.name}</strong> will be
                 discarded, as well as the review result. Do you wish to
                 continue?
