@@ -321,6 +321,7 @@ export const ApplicationsTable: React.FC = () => {
   const tableControls = useLocalTableControls({
     tableName: "applications",
     idProperty: "id",
+    dataNameProperty: "name",
     items: applications || [],
     columnNames: {
       name: "Name",
