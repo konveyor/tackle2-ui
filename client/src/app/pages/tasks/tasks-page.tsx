@@ -242,8 +242,10 @@ export const TasksPage: React.FC = () => {
     preemption: String(!!policy?.preemptEnabled),
     createUser,
     pod,
-    started: started ? dayjs(started).format() : "",
-    terminated: terminated ? dayjs(terminated).format() : "",
+    started: started ? dayjs(started).format("YYYY-MM-DD HH:mm:ss") : "",
+    terminated: terminated
+      ? dayjs(terminated).format("YYYY-MM-DD HH:mm:ss")
+      : "",
   });
 
   return (
