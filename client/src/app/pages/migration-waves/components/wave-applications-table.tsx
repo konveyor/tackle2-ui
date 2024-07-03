@@ -36,7 +36,8 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
 
   const tableControls = useLocalTableControls({
     tableName: "wave-applications-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: migrationWave.fullApplications,
     columnNames: {
       appName: "Name",

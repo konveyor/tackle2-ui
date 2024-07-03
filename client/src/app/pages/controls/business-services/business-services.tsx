@@ -83,7 +83,8 @@ export const BusinessServices: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "business-services-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: businessServices,
     columnNames: {
       name: t("terms.name"),

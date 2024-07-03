@@ -103,6 +103,7 @@ const AssessmentSettings: React.FC = () => {
   const tableControls = useLocalTableControls({
     tableName: "questionnaires-table",
     idProperty: "id",
+    dataNameProperty: "name",
     items: questionnaires || [],
     columnNames: {
       required: "Required",

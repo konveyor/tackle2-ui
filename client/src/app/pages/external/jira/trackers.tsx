@@ -93,7 +93,8 @@ export const JiraTrackers: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "jira-Tracker-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: trackers,
     columnNames: {
       name: `${t("terms.instance")} name`,

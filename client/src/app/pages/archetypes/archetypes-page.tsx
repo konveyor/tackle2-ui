@@ -196,6 +196,7 @@ const Archetypes: React.FC = () => {
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.archetypes,
     idProperty: "id",
+    dataNameProperty: "name",
     items: archetypes,
     isLoading: isFetching,
     hasActionsColumn: true,

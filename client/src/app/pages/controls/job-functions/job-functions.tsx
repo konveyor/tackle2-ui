@@ -57,7 +57,8 @@ export const JobFunctions: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "job-functions-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: jobFunctions || [],
     columnNames: {
       name: t("terms.name"),
