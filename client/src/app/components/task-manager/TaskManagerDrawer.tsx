@@ -2,6 +2,9 @@ import React, { forwardRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import {
+  Dropdown,
+  DropdownItem,
+  DropdownList,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
@@ -9,6 +12,8 @@ import {
   EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
+  MenuToggle,
+  MenuToggleElement,
   NotificationDrawer,
   NotificationDrawerBody,
   NotificationDrawerHeader,
@@ -18,15 +23,16 @@ import {
   NotificationDrawerListItemHeader,
   Tooltip,
 } from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
-import { TaskState } from "@app/api/models";
+import { Task, TaskState } from "@app/api/models";
 import { useTaskManagerContext } from "./TaskManagerContext";
 import { useServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
 import { TaskStateIcon } from "../Icons";
+import { useTaskActions } from "@app/pages/tasks/useTaskActions";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -47,6 +53,9 @@ interface TaskManagerTask {
   applicationId: number;
   applicationName: string;
   preemptEnabled: boolean;
+
+  // full object to be used with library functions
+  _: Task;
 }
 
 const PAGE_SIZE = 20;
@@ -61,6 +70,9 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
     const { tasks } = useTaskManagerData();
 
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
+    const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
+      number | boolean
+    >(false);
 
     const closeDrawer = () => {
       setIsExpanded(!isExpanded);
@@ -109,6 +121,10 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
                         : expandedItems.filter((i) => i !== task.id)
                     );
                   }}
+                  actionsExpanded={task.id === taskWithExpandedActions}
+                  onActionsExpandToggle={(flag: boolean) =>
+                    setTaskWithExpandedAction(flag && task.id)
+                  }
                 />
               ))}
             </NotificationDrawerList>
@@ -130,13 +146,22 @@ const TaskItem: React.FC<{
   task: TaskManagerTask;
   expanded: boolean;
   onExpandToggle: (expand: boolean) => void;
-}> = ({ task, expanded, onExpandToggle }) => {
+  actionsExpanded: boolean;
+  onActionsExpandToggle: (expand: boolean) => void;
+}> = ({
+  task,
+  expanded,
+  onExpandToggle,
+  actionsExpanded,
+  onActionsExpandToggle,
+}) => {
   const starttime = dayjs(task.started ?? task.createTime);
   const title = expanded
     ? `${task.id} (${task.addon})`
     : `${task.id} (${task.addon}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
+  const taskActionItems = useTaskActions(task._);
 
   return (
     <NotificationDrawerListItem
@@ -153,7 +178,36 @@ const TaskItem: React.FC<{
         title={title}
         icon={<TaskStateToIcon taskState={task.state} />}
       >
-        {/* Put the item's action menu here */}
+        <Dropdown
+          onSelect={() => onActionsExpandToggle(false)}
+          isOpen={actionsExpanded}
+          onOpenChange={() => onActionsExpandToggle(false)}
+          popperProps={{ position: "right" }}
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              isExpanded={actionsExpanded}
+              isDisabled={taskActionItems.every(({ isDisabled }) => isDisabled)}
+              onClick={() => onActionsExpandToggle(!actionsExpanded)}
+              variant="plain"
+              aria-label={`Actions for task ${task.name}`}
+            >
+              <EllipsisVIcon aria-hidden="true" />
+            </MenuToggle>
+          )}
+        >
+          <DropdownList>
+            {taskActionItems.map(({ title, onClick, isDisabled }) => (
+              <DropdownItem
+                key={title}
+                onClick={onClick}
+                isDisabled={isDisabled}
+              >
+                {title}
+              </DropdownItem>
+            ))}
+          </DropdownList>
+        </Dropdown>
       </NotificationDrawerListItemHeader>
       {expanded ? (
         <NotificationDrawerListItemBody
@@ -216,6 +270,8 @@ const useTaskManagerData = () => {
                 applicationId: task.application.id,
                 applicationName: task.application.name,
                 preemptEnabled: task?.policy?.preemptEnabled ?? false,
+
+                _: task,
 
                 // TODO: Add any checks that could be needed later...
                 //  - isCancelable (does the current user own the task? other things to check?)
