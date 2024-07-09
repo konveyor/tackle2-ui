@@ -8,7 +8,7 @@
 #   - https://github.com/konveyor/tackle2-ui/pull/1781
 
 # Builder image
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-88 as builder
+FROM registry.access.redhat.com/ubi9/nodejs-18:1-112.1720017853 as builder
 
 USER 1001
 COPY --chown=1001 . .
