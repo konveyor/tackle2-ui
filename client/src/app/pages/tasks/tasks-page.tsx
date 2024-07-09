@@ -13,15 +13,7 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  Table,
-  Tbody,
-  Th,
-  Thead,
-  Tr,
-  Td,
-  ActionsColumn,
-} from "@patternfly/react-table";
+import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
 import { CubesIcon } from "@patternfly/react-icons";
 
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -46,9 +38,9 @@ import { Task } from "@app/api/models";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 import dayjs from "dayjs";
-import { useTaskActions } from "./useTaskActions";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
+import { TaskActionColumn } from "./TaskActionColumn";
 
 export const TasksPage: React.FC = () => {
   const { t } = useTranslation();
@@ -205,9 +197,6 @@ export const TasksPage: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const { cancelTask, togglePreemption, canCancel, canTogglePreemption } =
-    useTaskActions();
-
   const toCells = ({
     id,
     application,
@@ -335,31 +324,7 @@ export const TasksPage: React.FC = () => {
                           isActionCell
                           id={`row-actions-${task.id}`}
                         >
-                          <ActionsColumn
-                            items={[
-                              {
-                                title: t("actions.cancel"),
-                                isDisabled: !canCancel(task.state),
-                                onClick: () => cancelTask(task.id),
-                              },
-                              {
-                                title: task.policy?.preemptEnabled
-                                  ? t("actions.disablePreemption")
-                                  : t("actions.enablePreemption"),
-                                isDisabled: !canTogglePreemption(task.state),
-                                onClick: () => togglePreemption(task),
-                              },
-                              {
-                                title: t("actions.taskDetails"),
-                                onClick: () =>
-                                  history.push(
-                                    formatPath(Paths.taskDetails, {
-                                      taskId: task.id,
-                                    })
-                                  ),
-                              },
-                            ]}
-                          />
+                          <TaskActionColumn task={task} />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
