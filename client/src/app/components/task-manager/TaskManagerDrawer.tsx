@@ -55,7 +55,7 @@ interface TaskManagerTask {
   preemptEnabled: boolean;
 
   // full object to be used with library functions
-  task: Task;
+  _: Task;
 }
 
 const PAGE_SIZE = 20;
@@ -161,7 +161,7 @@ const TaskItem: React.FC<{
     : `${task.id} (${task.addon}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
-  const taskActionItems = useTaskActions(task.task);
+  const taskActionItems = useTaskActions(task._);
 
   return (
     <NotificationDrawerListItem
@@ -271,7 +271,7 @@ const useTaskManagerData = () => {
                 applicationName: task.application.name,
                 preemptEnabled: task?.policy?.preemptEnabled ?? false,
 
-                task,
+                _: task,
 
                 // TODO: Add any checks that could be needed later...
                 //  - isCancelable (does the current user own the task? other things to check?)
