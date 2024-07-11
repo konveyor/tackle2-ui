@@ -510,6 +510,10 @@
       "save": "Failed to save {{type}}."
     }
   },
+  "tooltip": {
+    "priority": "Tasks priority(Low-High). Impacts tasks scheduling policy.",
+    "preemption": "If enabled, allows the scheduler to cancel a running task and free the resources for higher priority tasks."
+  },
   "validation": {
     "email": "This field requires a valid email.",
     "max": "This field must be less than {{value}}.",
