@@ -39,7 +39,10 @@ export interface DecoratedApplication extends Application {
   };
   tasksStatus: ApplicationTasksStatus;
 
-  identities?: Identity[];
+  /** Contain directly referenced versions of `Ref[]` Application props */
+  direct: {
+    identities?: Identity[];
+  };
 }
 
 /**
@@ -126,9 +129,11 @@ const decorateApplications = (
         currentAnalyzer: tasksByKind["analyzer"]?.[0],
       },
 
-      identities: app.identities
-        ?.map((identity) => identities.find(({ id }) => id === identity.id))
-        ?.filter(Boolean),
+      direct: {
+        identities: app.identities
+          ?.map((identity) => identities.find(({ id }) => id === identity.id))
+          ?.filter(Boolean),
+      },
     };
 
     da.tasksStatus = chooseApplicationTaskStatus(da);
