@@ -13,7 +13,15 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
+import {
+  Table,
+  Tbody,
+  Th,
+  Thead,
+  Tr,
+  Td,
+  ThProps,
+} from "@patternfly/react-table";
 import { CubesIcon } from "@patternfly/react-icons";
 
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -189,6 +197,11 @@ export const TasksPage: React.FC = () => {
     columnState,
   } = tableControls;
 
+  const tooltips: Record<string, ThProps["info"]> = {
+    priority: { tooltip: t("tooltip.priority") },
+    preemption: { tooltip: t("tooltip.preemption") },
+  };
+
   const clearFilters = () => {
     const currentPath = history.location.pathname;
     const newSearch = new URLSearchParams(history.location.search);
@@ -275,7 +288,11 @@ export const TasksPage: React.FC = () => {
                   {columnState.columns
                     .filter(({ id }) => getColumnVisibility(id))
                     .map(({ id }) => (
-                      <Th key={id} {...getThProps({ columnKey: id })} />
+                      <Th
+                        key={id}
+                        {...getThProps({ columnKey: id })}
+                        info={tooltips[id]}
+                      />
                     ))}
                   <Th width={10} />
                 </TableHeaderContentWithControls>
