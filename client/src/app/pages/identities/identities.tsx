@@ -150,10 +150,7 @@ export const Identities: React.FC = () => {
       description: t("terms.description"),
       type: t("terms.type"),
 
-      //TODO: Enable conditional rendering for createdBy column
-      // ...(isAuthRequired && { createdBy: t("terms.createdBy") }
-      //   ? { createdBy: t("terms.createdBy") }
-      //   : {}),
+      createdBy: t("terms.createdBy"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -182,29 +179,25 @@ export const Identities: React.FC = () => {
           return item.kind || "";
         },
       },
-      //TODO: Enable conditional rendering for createdBy column
-      // ...(isAuthRequired
-      //   ? [
-      //       {
-      //         categoryKey: "createdBy",
-      //         title: "Created By",
-      //         type: FilterType.search,
-      //         placeholderText: "Filter by created by User...",
-      //         getItemValue: (item: Identity) => {
-      //           return item.createUser || "";
-      //         },
-      //       } as const,
-      //     ]
-      //   : []),
+      {
+        categoryKey: "createdBy",
+        title: t("terms.createdBy"),
+        type: FilterType.search,
+        placeholderText: t("actions.filterBy", {
+          what: t("terms.createdBy") + "...",
+        }),
+        getItemValue: (item: Identity) => {
+          return item.createUser || "";
+        },
+      },
     ],
     initialItemsPerPage: 10,
-    sortableColumns: ["name", "type"],
+    sortableColumns: ["name", "type", "createdBy"],
     initialSort: { columnKey: "name", direction: "asc" },
     getSortValues: (item) => ({
       name: item?.name || "",
       type: item?.kind || "",
-      //TODO: Enable conditional rendering for createdBy column
-      // ...(isAuthRequired && { createdBy: item?.createUser } ? { createdBy: item?.createUser } : {}),
+      createdBy: item?.createUser || "",
     }),
     isLoading: isFetching,
   });
@@ -275,10 +268,7 @@ export const Identities: React.FC = () => {
                       {...getThProps({ columnKey: "description" })}
                     />
                     <Th width={25} {...getThProps({ columnKey: "type" })} />
-
-                    {/* 
-                    //TODO: Enable conditional rendering for createdBy column
-                    <Th {...getThProps({ columnKey: "createdBy" })} /> */}
+                    <Th {...getThProps({ columnKey: "createdBy" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -340,14 +330,12 @@ export const Identities: React.FC = () => {
                           >
                             {typeFormattedString?.value}
                           </Td>
-                          {/* 
-                          Todo: Enable conditional rendering for createdBy column
                           <Td
                             width={10}
                             {...getTdProps({ columnKey: "createdBy" })}
                           >
-                            {identity.createdBy}
-                          </Td> */}
+                            {identity.createUser}
+                          </Td>
                           <AppTableActionButtons
                             isDeleteEnabled={
                               trackers.some(
