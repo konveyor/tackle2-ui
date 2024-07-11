@@ -304,7 +304,8 @@ export type TaskState =
   | "QuotaBlocked"
   | "Ready"
   | "Pending"
-  | "Postponed";
+  | "Postponed"
+  | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
 export interface Task {
   id: number;

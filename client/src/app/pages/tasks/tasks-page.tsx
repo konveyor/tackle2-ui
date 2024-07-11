@@ -42,13 +42,28 @@ import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 import { useSelectionState } from "@migtools/lib-ui";
 import { useServerTasks } from "@app/queries/tasks";
-import { Task } from "@app/api/models";
+import { Task, TaskState } from "@app/api/models";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { TaskActionColumn } from "./TaskActionColumn";
+
+const taskStateToLabel: Record<TaskState, string> = {
+  "No task": "taskState.NoTask",
+  "not supported": "",
+  Canceled: "Canceled",
+  Created: "Created",
+  Succeeded: "Succeeded",
+  Failed: "Failed",
+  Running: "Running",
+  QuotaBlocked: "Quota Blocked",
+  Ready: "Ready",
+  Pending: "Pending",
+  Postponed: "Postponed",
+  SucceededWithErrors: "Succeeded with Errors",
+};
 
 export const TasksPage: React.FC = () => {
   const { t } = useTranslation();
@@ -235,7 +250,7 @@ export const TasksPage: React.FC = () => {
               taskId: id,
             })}
           >
-            {state ?? "No task"}
+            {t(taskStateToLabel[state ?? "No task"])}
           </Link>
         }
       />
