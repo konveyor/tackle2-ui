@@ -70,7 +70,7 @@ import {
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
-import { Application, Assessment, Ref } from "@app/api/models";
+import { Assessment, Ref } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -117,7 +117,7 @@ export const ApplicationsTable: React.FC = () => {
 
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
-    "create" | Application | null
+    "create" | DecoratedApplication | null
   >(null);
 
   const isCreateUpdateApplicationsModalOpen =
@@ -134,15 +134,15 @@ export const ApplicationsTable: React.FC = () => {
     useState<Ref[] | null>(null);
 
   const [applicationToAssess, setApplicationToAssess] =
-    useState<Application | null>(null);
+    useState<DecoratedApplication | null>(null);
 
   const [applicationToReview, setApplicationToReview] =
-    useState<Application | null>(null);
+    useState<DecoratedApplication | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
-    useState<Application | null>(null);
+    useState<DecoratedApplication | null>(null);
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
@@ -152,15 +152,14 @@ export const ApplicationsTable: React.FC = () => {
   const [reviewToEdit, setReviewToEdit] = useState<number | null>(null);
 
   const [applicationsToDelete, setApplicationsToDelete] = useState<
-    Application[]
+    DecoratedApplication[]
   >([]);
 
   const [assessmentToDiscard, setAssessmentToDiscard] =
-    useState<Application | null>(null);
+    useState<DecoratedApplication | null>(null);
 
-  const [reviewToDiscard, setReviewToDiscard] = useState<Application | null>(
-    null
-  );
+  const [reviewToDiscard, setReviewToDiscard] =
+    useState<DecoratedApplication | null>(null);
 
   const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
     dayjs()
@@ -169,7 +168,7 @@ export const ApplicationsTable: React.FC = () => {
   const [
     saveApplicationsCredentialsModalState,
     setSaveApplicationsCredentialsModalState,
-  ] = useState<"create" | Application[] | null>(null);
+  ] = useState<"create" | DecoratedApplication[] | null>(null);
   const isCreateUpdateCredentialsModalOpen =
     saveApplicationsCredentialsModalState !== null;
   const applicationsCredentialsToUpdate =
@@ -277,7 +276,7 @@ export const ApplicationsTable: React.FC = () => {
     }
   );
 
-  const discardReview = async (application: Application) => {
+  const discardReview = async (application: DecoratedApplication) => {
     if (application.review) {
       deleteReview({
         id: application.review.id,
@@ -302,7 +301,7 @@ export const ApplicationsTable: React.FC = () => {
     }
   );
 
-  const discardAssessment = async (application: Application) => {
+  const discardAssessment = async (application: DecoratedApplication) => {
     if (application.assessments) {
       application.assessments.forEach((assessment) => {
         deleteAssessment({
@@ -368,7 +367,8 @@ export const ApplicationsTable: React.FC = () => {
           key: name,
           value: name,
         })),
-        matcher: (filter: string, app: Application) => app.name === filter,
+        matcher: (filter: string, app: DecoratedApplication) =>
+          app.name === filter,
       },
       {
         categoryKey: "archetypes",
@@ -418,7 +418,7 @@ export const ApplicationsTable: React.FC = () => {
           { value: "proxy", label: "Proxy" },
         ],
         getItemValue: (app) => {
-          const identityKinds = app.identities
+          const identityKinds = app.direct.identities
             ?.map(({ kind }) => kind as string)
             ?.filter(Boolean)
             ?.join("^");
@@ -588,10 +588,7 @@ export const ApplicationsTable: React.FC = () => {
                 key="manage-applications-credentials"
                 isDisabled={selectedRows.length < 1}
                 onClick={() => {
-                  const selectedApps: Application[] = selectedRows.map(
-                    ({ _ }) => _
-                  );
-                  setSaveApplicationsCredentialsModalState(selectedApps);
+                  setSaveApplicationsCredentialsModalState(selectedRows);
                 }}
               >
                 {t("actions.manageCredentials")}
@@ -631,7 +628,7 @@ export const ApplicationsTable: React.FC = () => {
     (app) => !!app.tasks.currentAnalyzer
   );
 
-  const handleNavToAssessment = (application: Application) => {
+  const handleNavToAssessment = (application: DecoratedApplication) => {
     application?.id &&
       history.push(
         formatPath(Paths.applicationAssessmentActions, {
@@ -640,7 +637,7 @@ export const ApplicationsTable: React.FC = () => {
       );
   };
 
-  const handleNavToViewArchetypes = (application: Application) => {
+  const handleNavToViewArchetypes = (application: DecoratedApplication) => {
     application?.id &&
       archetypeRefsToOverride?.length &&
       history.push(
@@ -651,7 +648,7 @@ export const ApplicationsTable: React.FC = () => {
       );
   };
 
-  const assessSelectedApp = async (application: Application) => {
+  const assessSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToAssess(application);
 
     if (application?.archetypes?.length) {
@@ -684,7 +681,7 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
-  const reviewSelectedApp = async (application: Application) => {
+  const reviewSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToReview(application);
     if (application?.archetypes?.length) {
       for (const archetypeRef of application.archetypes) {
@@ -1017,7 +1014,7 @@ export const ApplicationsTable: React.FC = () => {
                               title: t("actions.manageCredentials"),
                               onClick: () =>
                                 setSaveApplicationsCredentialsModalState([
-                                  application._,
+                                  application,
                                 ]),
                             },
                           analysesReadAccess &&
@@ -1094,14 +1091,14 @@ export const ApplicationsTable: React.FC = () => {
         >
           {applicationsCredentialsToUpdate && (
             <ApplicationIdentityForm
-              applications={applicationsCredentialsToUpdate}
+              applications={applicationsCredentialsToUpdate.map((a) => a._)}
               onClose={() => setSaveApplicationsCredentialsModalState(null)}
             />
           )}
         </Modal>
         {isCreateUpdateApplicationsModalOpen && (
           <ApplicationFormModal
-            application={createUpdateApplications}
+            application={createUpdateApplications?._ ?? null}
             onClose={() => setSaveApplicationModalState(null)}
           />
         )}
@@ -1115,7 +1112,7 @@ export const ApplicationsTable: React.FC = () => {
         >
           {applicationDependenciesToManage && (
             <ApplicationDependenciesForm
-              application={applicationDependenciesToManage}
+              application={applicationDependenciesToManage._}
               onCancel={() => setApplicationDependenciesToManage(null)}
             />
           )}
@@ -1189,8 +1186,10 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setAssessmentToDiscard(null)}
           onClose={() => setAssessmentToDiscard(null)}
           onConfirm={() => {
-            discardAssessment(assessmentToDiscard!);
-            setAssessmentToDiscard(null);
+            if (assessmentToDiscard !== null) {
+              discardAssessment(assessmentToDiscard);
+              setAssessmentToDiscard(null);
+            }
           }}
         />
         <ConfirmDialog
@@ -1214,8 +1213,10 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setReviewToDiscard(null)}
           onClose={() => setReviewToDiscard(null)}
           onConfirm={() => {
-            discardReview(reviewToDiscard!);
-            setReviewToDiscard(null);
+            if (reviewToDiscard !== null) {
+              discardReview(reviewToDiscard);
+              setReviewToDiscard(null);
+            }
           }}
         />
         <ConfirmDialog
