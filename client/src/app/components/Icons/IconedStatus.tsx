@@ -1,14 +1,18 @@
 import React from "react";
 import { Icon } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
-import TopologyIcon from "@patternfly/react-icons/dist/esm/icons/topology-icon";
 import { IconWithLabel } from "./IconWithLabel";
 import { ReactElement } from "react-markdown/lib/react-markdown";
+
+import {
+  CheckCircleIcon,
+  TimesCircleIcon,
+  InProgressIcon,
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  UnknownIcon,
+  TopologyIcon,
+} from "@patternfly/react-icons";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
@@ -17,6 +21,7 @@ export type IconedStatusPreset =
   | "InheritedAssessments"
   | "Canceled"
   | "Completed"
+  | "CompletedWithErrors"
   | "Error"
   | "Failed"
   | "InProgress"
@@ -103,6 +108,11 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
       icon: <CheckCircleIcon />,
       status: "success",
       label: t("terms.completed"),
+    },
+    CompletedWithErrors: {
+      icon: <ExclamationTriangleIcon />,
+      status: "warning",
+      label: t("terms.completedWithErrors"),
     },
     Error: {
       icon: <ExclamationCircleIcon />,
