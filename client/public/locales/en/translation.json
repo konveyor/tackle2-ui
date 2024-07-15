@@ -261,7 +261,17 @@
     "tasks": "Task Manager"
   },
   "taskState": {
-    "NoTask": "No Task"
+    "Canceled": "Canceled",
+    "Created": "Created",
+    "Failed": "Failed",
+    "NoTask": "No Task",
+    "Pending": "Pending",
+    "Postponed": "Postponed",
+    "QuotaBlocked": "Quota Blocked",
+    "Ready": "Ready",
+    "Running": "Running",
+    "Succeeded": "Succeeded",
+    "SucceededWithErrors": "Succeeded with Errors"
   },
   "terms": {
     "accepted": "Accepted",

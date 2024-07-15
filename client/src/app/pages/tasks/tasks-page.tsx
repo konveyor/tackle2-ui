@@ -53,16 +53,16 @@ import { TaskActionColumn } from "./TaskActionColumn";
 const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
   "not supported": "",
-  Canceled: "Canceled",
-  Created: "Created",
-  Succeeded: "Succeeded",
-  Failed: "Failed",
-  Running: "Running",
-  QuotaBlocked: "Quota Blocked",
-  Ready: "Ready",
-  Pending: "Pending",
-  Postponed: "Postponed",
-  SucceededWithErrors: "Succeeded with Errors",
+  Canceled: "taskState.Canceled",
+  Created: "taskState.Created",
+  Succeeded: "taskState.Succeeded",
+  Failed: "taskState.Failed",
+  Running: "taskState.Running",
+  QuotaBlocked: "taskState.QuotaBlocked",
+  Ready: "taskState.Ready",
+  Pending: "taskState.Pending",
+  Postponed: "taskState.Postponed",
+  SucceededWithErrors: "taskState.SucceededWithErrors",
 };
 
 export const TasksPage: React.FC = () => {
