@@ -29,7 +29,6 @@ export const TaskStates = {
 };
 
 export const TasksQueryKey = "tasks";
-export const TasksPagedQueryKey = "tasksPaged";
 export const TasksQueueKey = "tasksQueue";
 export const TaskByIDQueryKey = "taskByID";
 export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
@@ -74,7 +73,7 @@ export const useServerTasks = (
   refetchInterval?: number
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: [TasksPagedQueryKey, params],
+    queryKey: [TasksQueryKey, params],
     queryFn: async () => await getServerTasks(params),
     select: (data) => {
       if (data?.data?.length > 0) {
@@ -200,7 +199,7 @@ export const useFetchTaskByID = (taskId?: number) => {
     queryKey: [TaskByIDQueryKey, taskId],
     queryFn: () => (taskId ? getTaskById(taskId) : null),
     select: (task: Task | null) =>
-      task === null ? null : calculateSyntheticState(task),
+      !task ? null : calculateSyntheticState(task),
     enabled: !!taskId,
   });
 
