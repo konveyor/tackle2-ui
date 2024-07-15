@@ -7,6 +7,7 @@ import {
   TimesCircleIcon,
   InProgressIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
   PendingIcon,
 } from "@patternfly/react-icons";
 
@@ -76,6 +77,15 @@ const statusMap: Record<ApplicationTasksStatus, StatusData> = {
     icon: () => (
       <Icon status="success">
         <CheckCircleIcon />
+      </Icon>
+    ),
+  },
+  SuccessWithErrors: {
+    popoverVariant: "warning",
+    headerText: "All tasks succeeded, but some errors occurred",
+    icon: () => (
+      <Icon status="warning">
+        <ExclamationTriangleIcon />
       </Icon>
     ),
   },

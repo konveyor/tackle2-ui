@@ -19,7 +19,8 @@ export type ApplicationTasksStatus =
   | "Queued"
   | "Failed"
   | "Canceled"
-  | "Success";
+  | "Success"
+  | "SuccessWithErrors";
 
 export interface DecoratedApplication extends Application {
   /** reference to the Application being decorated */
@@ -33,6 +34,7 @@ export interface DecoratedApplication extends Application {
     latestHasQueued: boolean;
     latestHasRunning: boolean;
     latestHasSuccess: boolean;
+    latestHasSuccessWithErrors: boolean;
 
     /** The most recently created `kind === "analyzer"` task for the application */
     currentAnalyzer: Task | undefined;
@@ -83,6 +85,8 @@ const chooseApplicationTaskStatus = ({
     ? "Failed"
     : tasks.latestHasCanceled
     ? "Canceled"
+    : tasks.latestHasSuccessWithErrors
+    ? "SuccessWithErrors"
     : "Success";
 };
 
@@ -124,6 +128,9 @@ const decorateApplications = (
         ),
         latestHasSuccess: latest.some((task) =>
           TaskStates.Success.includes(task.state ?? "")
+        ),
+        latestHasSuccessWithErrors: latest.some((task) =>
+          TaskStates.SuccessWithErrors.includes(task.state ?? "")
         ),
 
         currentAnalyzer: tasksByKind["analyzer"]?.[0],

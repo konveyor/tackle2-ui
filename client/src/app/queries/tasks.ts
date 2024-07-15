@@ -26,6 +26,7 @@ export const TaskStates = {
   Queued: ["Ready", "Postponed", "Pending", "Running"], // "Created", "QuotaBlocked" ??
   Running: ["Running"],
   Success: ["Succeeded", "SucceededWithErrors"],
+  SuccessWithErrors: ["SucceededWithErrors"],
 };
 
 export const TasksQueryKey = "tasks";
