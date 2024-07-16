@@ -42,6 +42,7 @@ import {
   Task,
   Taskgroup,
   TaskQueue,
+  TaskDashboard,
   Ticket,
   Tracker,
   TrackerProject,
@@ -357,8 +358,10 @@ export function getTaskByIdAndFormat(
     });
 }
 
-export const getTasks = () =>
-  axios.get<Task[]>(TASKS).then((response) => response.data);
+export const getTasksDashboard = () =>
+  axios
+    .get<TaskDashboard[]>(`${TASKS}/report/dashboard`)
+    .then((response) => response.data);
 
 export const getServerTasks = (params: HubRequestParams = {}) =>
   getHubPaginatedResult<Task>(TASKS, params);

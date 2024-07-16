@@ -75,14 +75,13 @@ import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
 } from "@app/queries/applications";
-import { useCancelTaskMutation, useFetchTasks } from "@app/queries/tasks";
 import {
-  useDeleteAssessmentMutation,
-  useFetchAssessments,
-} from "@app/queries/assessments";
+  useCancelTaskMutation,
+  useFetchTaskDashboard,
+} from "@app/queries/tasks";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { useFetchArchetypes } from "@app/queries/archetypes";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
@@ -182,7 +181,7 @@ export const ApplicationsTable: React.FC = () => {
   // ----- Table data fetches and mutations
   const { tagItems } = useFetchTagsWithTagItems();
 
-  const { tasks, hasActiveTasks } = useFetchTasks(isAnalyzeModalOpen);
+  const { tasks, hasActiveTasks } = useFetchTaskDashboard(isAnalyzeModalOpen);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -230,11 +229,6 @@ export const ApplicationsTable: React.FC = () => {
     referencedArchetypeRefs,
     referencedBusinessServiceRefs,
   } = useDecoratedApplications(baseApplications, tasks);
-
-  const { assessments, isFetching: isFetchingAssessments } =
-    useFetchAssessments();
-
-  const { archetypes, isFetching: isFetchingArchetypes } = useFetchArchetypes();
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
@@ -913,11 +907,7 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
-                          isLoading={
-                            isFetchingApplications ||
-                            isFetchingArchetypes ||
-                            isFetchingAssessments
-                          }
+                          isLoading={isFetchingApplications}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
@@ -1067,12 +1057,9 @@ export const ApplicationsTable: React.FC = () => {
 
         <ApplicationDetailDrawer
           application={activeItem}
-          applications={applications}
-          assessments={assessments}
-          archetypes={archetypes}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
-          task={activeItem ? activeItem.tasks.currentAnalyzer : null}
+          task={activeItem?.tasks?.currentAnalyzer ?? null}
         />
 
         <TaskGroupProvider>

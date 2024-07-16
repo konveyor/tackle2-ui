@@ -1,12 +1,12 @@
 import { useMemo } from "react";
-import { Application, Identity, Task } from "@app/api/models";
+import { Application, Identity, TaskDashboard } from "@app/api/models";
 import { group, listify, mapEntries, unique } from "radash";
 import { TaskStates } from "@app/queries/tasks";
 import { universalComparator } from "@app/utils/utils";
 import { useFetchIdentities } from "@app/queries/identities";
 
 export interface TasksGroupedByKind {
-  [key: string]: Task[];
+  [key: string]: TaskDashboard[];
 }
 
 /**
@@ -37,7 +37,7 @@ export interface DecoratedApplication extends Application {
     latestHasSuccessWithErrors: boolean;
 
     /** The most recently created `kind === "analyzer"` task for the application */
-    currentAnalyzer: Task | undefined;
+    currentAnalyzer: TaskDashboard | undefined;
   };
   tasksStatus: ApplicationTasksStatus;
 
@@ -50,10 +50,10 @@ export interface DecoratedApplication extends Application {
 /**
  * Take an array of `Tasks`, group by application id and then by task kind.
  */
-const groupTasks = (tasks: Task[]) => {
+const groupTasks = (tasks: TaskDashboard[]) => {
   const byApplicationId = group(tasks, (task) => task.application.id) as Record<
     number,
-    Task[]
+    TaskDashboard[]
   >;
 
   const groupedByIdByKind = mapEntries(byApplicationId, (id, tasks) => [
@@ -96,7 +96,7 @@ const chooseApplicationTaskStatus = ({
  */
 const decorateApplications = (
   applications: Application[],
-  tasks: Task[],
+  tasks: TaskDashboard[],
   identities: Identity[]
 ) => {
   const { tasksById, tasksByIdByKind } = groupTasks(tasks);
@@ -152,7 +152,7 @@ const decorateApplications = (
 
 export const useDecoratedApplications = (
   applications: Application[],
-  tasks: Task[]
+  tasks: TaskDashboard[]
 ) => {
   const { identities } = useFetchIdentities();
 

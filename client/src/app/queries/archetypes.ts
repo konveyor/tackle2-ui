@@ -10,7 +10,7 @@ import {
   updateArchetype,
 } from "@app/api/rest";
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
@@ -42,8 +42,13 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
     onError: (error: AxiosError) => console.log(error),
   });
 
+  const archetypesById = useMemo(() => {
+    return Object.fromEntries(filteredArchetypes.map((a) => [a.id, a]));
+  }, [filteredArchetypes]);
+
   return {
     archetypes: filteredArchetypes,
+    archetypesById,
     isFetching: isLoading,
     isSuccess,
     error,

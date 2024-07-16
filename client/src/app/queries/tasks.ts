@@ -7,7 +7,7 @@ import {
   getTaskById,
   getTaskByIdAndFormat,
   getTaskQueue,
-  getTasks,
+  getTasksDashboard,
   getTextFile,
   updateTask,
 } from "@app/api/rest";
@@ -17,6 +17,7 @@ import {
   HubRequestParams,
   Task,
   TaskQueue,
+  TaskDashboard,
 } from "@app/api/models";
 
 export const TaskStates = {
@@ -37,7 +38,7 @@ export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
 /**
  * Rebuild the __state__ of a Task to include the UI synthetic "SucceededWithErrors"
  */
-const calculateSyntheticState = (task: Task): Task => {
+const calculateSyntheticTaskState = (task: Task): Task => {
   if (task.state === "Succeeded" && (task.errors?.length ?? 0) > 0) {
     task.state = "SucceededWithErrors";
   }
@@ -45,13 +46,26 @@ const calculateSyntheticState = (task: Task): Task => {
   return task;
 };
 
-export const useFetchTasks = (refetchDisabled: boolean = false) => {
+/**
+ * Rebuild the __state__ of a TaskDashboard to include the UI synthetic "SucceededWithErrors"
+ */
+const calculateSyntheticTaskDashboardState = (
+  task: TaskDashboard
+): TaskDashboard => {
+  if (task.state === "Succeeded" && (task?.errors ?? 0) > 0) {
+    task.state = "SucceededWithErrors";
+  }
+
+  return task;
+};
+
+export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
   const { isLoading, error, refetch, data } = useQuery({
-    queryKey: [TasksQueryKey],
-    queryFn: getTasks,
+    queryKey: [TasksQueryKey, "/report/dashboard"],
+    queryFn: getTasksDashboard,
     select: (tasks) =>
       tasks
-        .map(calculateSyntheticState)
+        .map(calculateSyntheticTaskDashboardState)
         .sort((a, b) => -1 * universalComparator(a.createTime, b.createTime)),
     onError: (err) => console.log(err),
     refetchInterval: !refetchDisabled ? 5000 : false,
@@ -78,7 +92,7 @@ export const useServerTasks = (
     queryFn: async () => await getServerTasks(params),
     select: (data) => {
       if (data?.data?.length > 0) {
-        data.data = data.data.map(calculateSyntheticState);
+        data.data = data.data.map(calculateSyntheticTaskState);
       }
       return data;
     },
@@ -200,7 +214,7 @@ export const useFetchTaskByID = (taskId?: number) => {
     queryKey: [TaskByIDQueryKey, taskId],
     queryFn: () => (taskId ? getTaskById(taskId) : null),
     select: (task: Task | null) =>
-      !task ? null : calculateSyntheticState(task),
+      !task ? null : calculateSyntheticTaskState(task),
     enabled: !!taskId,
   });
 
