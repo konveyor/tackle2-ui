@@ -7,7 +7,7 @@ import {
   getTaskById,
   getTaskByIdAndFormat,
   getTaskQueue,
-  getTasks,
+  getTasksDashboard,
   getTextFile,
   updateTask,
 } from "@app/api/rest";
@@ -17,6 +17,7 @@ import {
   HubRequestParams,
   Task,
   TaskQueue,
+  TaskDashboard,
 } from "@app/api/models";
 
 export const TaskStates = {
@@ -25,27 +26,49 @@ export const TaskStates = {
   Failed: ["Failed"],
   Queued: ["Ready", "Postponed", "Pending", "Running"], // "Created", "QuotaBlocked" ??
   Running: ["Running"],
-  Success: ["Succeeded"],
+  Success: ["Succeeded", "SucceededWithErrors"],
+  SuccessWithErrors: ["SucceededWithErrors"],
 };
 
 export const TasksQueryKey = "tasks";
-export const TasksQueueKey = "TasksQueue";
+export const TasksQueueKey = "tasksQueue";
 export const TaskByIDQueryKey = "taskByID";
 export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
 
-export const useFetchTasks = (refetchDisabled: boolean = false) => {
+/**
+ * Rebuild the __state__ of a Task to include the UI synthetic "SucceededWithErrors"
+ */
+const calculateSyntheticTaskState = (task: Task): Task => {
+  if (task.state === "Succeeded" && (task.errors?.length ?? 0) > 0) {
+    task.state = "SucceededWithErrors";
+  }
+
+  return task;
+};
+
+/**
+ * Rebuild the __state__ of a TaskDashboard to include the UI synthetic "SucceededWithErrors"
+ */
+const calculateSyntheticTaskDashboardState = (
+  task: TaskDashboard
+): TaskDashboard => {
+  if (task.state === "Succeeded" && (task?.errors ?? 0) > 0) {
+    task.state = "SucceededWithErrors";
+  }
+
+  return task;
+};
+
+export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
   const { isLoading, error, refetch, data } = useQuery({
-    queryKey: [TasksQueryKey],
-    queryFn: getTasks,
-    refetchInterval: !refetchDisabled ? 5000 : false,
-    select: (allTasks) => {
-      // sort by createTime (newest to oldest)
-      allTasks.sort(
-        (a, b) => -1 * universalComparator(a.createTime, b.createTime)
-      );
-      return allTasks;
-    },
+    queryKey: [TasksQueryKey, "/report/dashboard"],
+    queryFn: getTasksDashboard,
+    select: (tasks) =>
+      tasks
+        .map(calculateSyntheticTaskDashboardState)
+        .sort((a, b) => -1 * universalComparator(a.createTime, b.createTime)),
     onError: (err) => console.log(err),
+    refetchInterval: !refetchDisabled ? 5000 : false,
   });
 
   const hasActiveTasks =
@@ -61,13 +84,19 @@ export const useFetchTasks = (refetchDisabled: boolean = false) => {
 };
 
 export const useServerTasks = (
-  params: HubRequestParams = {},
+  params: HubRequestParams,
   refetchInterval?: number
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TasksQueryKey, params],
     queryFn: async () => await getServerTasks(params),
-    onError: (error) => console.log("error, ", error),
+    select: (data) => {
+      if (data?.data?.length > 0) {
+        data.data = data.data.map(calculateSyntheticTaskState);
+      }
+      return data;
+    },
+    onError: (error: Error) => console.log("error, ", error),
     keepPreviousData: true,
     refetchInterval: refetchInterval ?? false,
   });
@@ -184,6 +213,8 @@ export const useFetchTaskByID = (taskId?: number) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskByIDQueryKey, taskId],
     queryFn: () => (taskId ? getTaskById(taskId) : null),
+    select: (task: Task | null) =>
+      !task ? null : calculateSyntheticTaskState(task),
     enabled: !!taskId,
   });
 

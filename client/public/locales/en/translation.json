@@ -260,6 +260,19 @@
     "dependencies": "Dependencies",
     "tasks": "Task Manager"
   },
+  "taskState": {
+    "Canceled": "Canceled",
+    "Created": "Created",
+    "Failed": "Failed",
+    "NoTask": "No Task",
+    "Pending": "Pending",
+    "Postponed": "Postponed",
+    "QuotaBlocked": "Quota Blocked",
+    "Ready": "Ready",
+    "Running": "Running",
+    "Succeeded": "Succeeded",
+    "SucceededWithErrors": "Succeeded with Errors"
+  },
   "terms": {
     "accepted": "Accepted",
     "acceptedAppsAndDeps": "Accepted applications and dependencies",
@@ -312,6 +325,7 @@
     "comments": "Comments",
     "commentsFromApplication": "Application comments",
     "completed": "Completed",
+    "completedWithErrors": "Completed with Errors",
     "confidence": "Confidence",
     "connected": "Connected",
     "contributors": "Contributors",

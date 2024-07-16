@@ -304,7 +304,8 @@ export type TaskState =
   | "QuotaBlocked"
   | "Ready"
   | "Pending"
-  | "Postponed";
+  | "Postponed"
+  | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
 export interface Task {
   id: number;
@@ -332,6 +333,24 @@ export interface Task {
   errors?: TaskError[];
   activity?: string[];
   attached?: TaskAttachment[];
+}
+
+/** A smaller version of `Task` fetched from the report/dashboard endpoint. */
+export interface TaskDashboard {
+  id: number;
+  createUser: string;
+  updateUser: string;
+  createTime: string; // ISO-8601
+  name: string;
+  kind?: string;
+  addon?: string;
+  state: TaskState;
+  application: Ref;
+  started?: string; // ISO-8601
+  terminated?: string; // ISO-8601
+
+  /** Count of errors recorded on the task - even Succeeded tasks may have errors. */
+  errors?: number;
 }
 
 export interface TaskPolicy {
