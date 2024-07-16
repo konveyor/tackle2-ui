@@ -162,7 +162,8 @@ export const Tags: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "business-services-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: tagCategories,
     columnNames: {
       tagCategory: t("terms.tagCategory"),

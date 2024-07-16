@@ -143,7 +143,8 @@ export const Identities: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "identities-table",
-    idProperty: "name",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: identities,
     columnNames: {
       name: t("terms.name"),

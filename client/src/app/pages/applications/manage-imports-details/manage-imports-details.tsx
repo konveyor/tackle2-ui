@@ -74,6 +74,7 @@ export const ManageImportsDetails: React.FC = () => {
   const tableControls = useLocalTableControls({
     tableName: "manage-imports-details",
     idProperty: "Application Name",
+    dataNameProperty: "Application Name",
     items: imports || [],
     columnNames: {
       name: t("terms.name"),

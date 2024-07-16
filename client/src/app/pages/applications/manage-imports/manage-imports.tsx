@@ -80,6 +80,7 @@ export const ManageImports: React.FC = () => {
   const tableControls = useLocalTableControls({
     tableName: "manage-imports",
     idProperty: "id",
+    dataNameProperty: "filename",
     items: importSummaries,
     columnNames: {
       importTime: "Import Time",

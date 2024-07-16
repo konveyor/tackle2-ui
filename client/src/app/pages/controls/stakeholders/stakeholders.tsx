@@ -96,7 +96,8 @@ export const Stakeholders: React.FC = () => {
 
   const tableControls = useLocalTableControls({
     tableName: "stakeholders-table",
-    idProperty: "email",
+    idProperty: "id",
+    dataNameProperty: "name",
     items: stakeholders,
     columnNames: {
       email: "Email",
