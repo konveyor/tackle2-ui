@@ -64,6 +64,7 @@ import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
+import { TaskStates } from "@app/queries/tasks";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -364,6 +365,10 @@ const TabReportsContent: React.FC<{
       })
     );
 
+  const taskState = application.tasks.currentAnalyzer?.state ?? "";
+  const taskSucceeded = TaskStates.Success.includes(taskState);
+  const taskFailed = TaskStates.Failed.includes(taskState);
+
   return (
     <>
       <TextContent className={spacing.mtMd}>
@@ -392,7 +397,7 @@ const TabReportsContent: React.FC<{
         <Title headingLevel="h3" size="md">
           Analysis
         </Title>
-        {task?.state === "Succeeded" && application ? (
+        {taskSucceeded ? (
           <>
             <DescriptionList isHorizontal columnModifier={{ default: "2Col" }}>
               <DescriptionListGroup>
@@ -458,7 +463,7 @@ const TabReportsContent: React.FC<{
             </DescriptionList>
             <Divider className={spacing.mtMd}></Divider>
           </>
-        ) : task?.state === "Failed" ? (
+        ) : taskFailed ? (
           task ? (
             <>
               <Button
@@ -511,6 +516,7 @@ const TabReportsContent: React.FC<{
           </>
         )}
       </TextContent>
+
       {!isFetching && !!facts.length && <ApplicationFacts facts={facts} />}
     </>
   );
