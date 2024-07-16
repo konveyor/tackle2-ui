@@ -1,25 +1,18 @@
 import React from "react";
 
 import { TaskState } from "@app/api/models";
-import { IconedStatus } from "@app/components/Icons";
+import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
 
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
 
-export type AnalysisState =
-  | "Canceled"
-  | "Scheduled"
-  | "Completed"
-  | "Failed"
-  | "InProgress"
-  | "NotStarted";
-
-const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
+const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
   ["not supported", "Canceled"],
   ["Canceled", "Canceled"],
   ["Created", "Scheduled"],
   ["Succeeded", "Completed"],
+  ["SucceededWithErrors", "CompletedWithErrors"],
   ["Failed", "Failed"],
   ["Running", "InProgress"],
   ["No task", "NotStarted"],
@@ -28,16 +21,16 @@ const taskStateToAnalyze: Map<TaskState, AnalysisState> = new Map([
   ["Ready", "Scheduled"],
 ]);
 
+const getTaskStatus = (state: TaskState): IconedStatusPreset => {
+  if (taskStateToAnalyze.has(state)) {
+    const value = taskStateToAnalyze.get(state);
+    if (value) return value;
+  }
+  return "NotStarted";
+};
+
 export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
 > = ({ state }) => {
-  const getTaskStatus = (state: TaskState): AnalysisState => {
-    if (taskStateToAnalyze.has(state)) {
-      const value = taskStateToAnalyze.get(state);
-      if (value) return value;
-    }
-    return "NotStarted";
-  };
-
   return <IconedStatus preset={getTaskStatus(state)} />;
 };

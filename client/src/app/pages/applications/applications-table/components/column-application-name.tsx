@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import dayjs from "dayjs";
 
 import { Icon, Popover, PopoverProps, Tooltip } from "@patternfly/react-core";
 import {
@@ -7,19 +8,19 @@ import {
   TimesCircleIcon,
   InProgressIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
   PendingIcon,
 } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
 
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { Paths } from "@app/Paths";
+import { formatPath, universalComparator } from "@app/utils/utils";
+import { TaskDashboard } from "@app/api/models";
 import {
   ApplicationTasksStatus,
   DecoratedApplication,
 } from "../useDecoratedApplications";
-import { Paths } from "@app/Paths";
-import { formatPath, universalComparator } from "@app/utils/utils";
-import dayjs from "dayjs";
-import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
-import { Task } from "@app/api/models";
 
 interface StatusData {
   popoverVariant: PopoverProps["alertSeverityVariant"];
@@ -79,6 +80,15 @@ const statusMap: Record<ApplicationTasksStatus, StatusData> = {
       </Icon>
     ),
   },
+  SuccessWithErrors: {
+    popoverVariant: "warning",
+    headerText: "All tasks succeeded, but some errors occurred",
+    icon: () => (
+      <Icon status="warning">
+        <ExclamationTriangleIcon />
+      </Icon>
+    ),
+  },
 };
 
 const linkToTasks = (applicationName: string) => {
@@ -86,7 +96,7 @@ const linkToTasks = (applicationName: string) => {
   return `${formatPath(Paths.tasks, {})}?${search}`;
 };
 
-const linkToDetails = (task: Task) => {
+const linkToDetails = (task: TaskDashboard) => {
   return formatPath(Paths.taskDetails, {
     taskId: task.id,
   });

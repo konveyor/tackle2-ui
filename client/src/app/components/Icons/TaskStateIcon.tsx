@@ -6,6 +6,7 @@ import {
   TimesCircleIcon,
   InProgressIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
   UnknownIcon,
   PendingIcon,
   TaskIcon,
@@ -27,6 +28,12 @@ export const TaskStateIcon: FC<{ state?: TaskState }> = ({ state }) => {
       return (
         <Icon status="success">
           <CheckCircleIcon />
+        </Icon>
+      );
+    case "SucceededWithErrors":
+      return (
+        <Icon status="warning">
+          <ExclamationTriangleIcon />
         </Icon>
       );
     case "Failed":
