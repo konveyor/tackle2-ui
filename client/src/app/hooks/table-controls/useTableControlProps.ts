@@ -67,6 +67,9 @@ export const useTableControlProps = <
       isItemSelected,
     },
     columnNames,
+    idProperty,
+    dataNameProperty,
+    tableName,
     hasActionsColumn = false,
     variant,
     isFilterEnabled,
@@ -134,6 +137,9 @@ export const useTableControlProps = <
   const getTrProps: PropHelpers["getTrProps"] = ({ item, onRowClick }) => {
     const activeItemTrProps = getActiveItemTrProps({ item });
     return {
+      id: `${tableName}-row-item-${item[idProperty]}`,
+      "data-item-id": item[idProperty],
+      "data-item-name": dataNameProperty && item[dataNameProperty],
       ...(isActiveItemEnabled && activeItemTrProps),
       onRowClick: (event) =>
         handlePropagatedRowClick(event, () => {

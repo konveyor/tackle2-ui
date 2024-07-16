@@ -1,6 +1,10 @@
 import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
 import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
-import { DisallowCharacters, DiscriminatedArgs } from "@app/utils/type-utils";
+import {
+  DisallowCharacters,
+  DiscriminatedArgs,
+  KeyWithValueType,
+} from "@app/utils/type-utils";
 import {
   IFilterStateArgs,
   ILocalFilterDerivedStateArgs,
@@ -314,6 +318,11 @@ export type IUseTableControlPropsArgs<
      * The state for the columns feature. Returned by useColumnState.
      */
     columnState: IColumnState<TColumnKey>;
+    /**
+     * Name of a field in TItem to use as the table row's `data-item-name` value.  Without
+     * this property provided, the `data-item-name` is not added to the table row.
+     */
+    dataNameProperty?: KeyWithValueType<TItem, string>;
   };
 
 /**
