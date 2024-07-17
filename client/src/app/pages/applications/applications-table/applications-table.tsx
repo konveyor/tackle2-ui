@@ -76,6 +76,7 @@ import {
   useFetchApplications,
 } from "@app/queries/applications";
 import {
+  TaskStates,
   useCancelTaskMutation,
   useFetchTaskDashboard,
 } from "@app/queries/tasks";
@@ -609,12 +610,10 @@ export const ApplicationsTable: React.FC = () => {
       .flatMap((app) => app.tasks.currentAnalyzer)
       .filter(Boolean);
 
-    const terminalStates = ["Succeeded", "Failed", "Canceled", ""];
-
     return (
       currentAnalyzerTasksForSelected.length === 0 ||
       currentAnalyzerTasksForSelected.every(({ state }) =>
-        terminalStates.includes(state ?? "")
+        TaskStates.Terminal.includes(state ?? "")
       )
     );
   };
