@@ -28,6 +28,7 @@ export const TaskStates = {
   Running: ["Running"],
   Success: ["Succeeded", "SucceededWithErrors"],
   SuccessWithErrors: ["SucceededWithErrors"],
+  Terminal: ["Succeeded", "SucceededWithErrors", "Failed", "Canceled"],
 };
 
 export const TasksQueryKey = "tasks";
