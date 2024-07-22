@@ -19,6 +19,7 @@ import { useFetchTargets } from "@app/queries/targets";
 import { Application, TagCategory, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
+import { getUpdatedFormLabels, updateSelectedTargets } from "./utils";
 interface SetTargetsProps {
   applications: Application[];
 }
@@ -101,61 +102,23 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     selectedLabelName: string,
     target: Target
   ) => {
-    const updatedSelectedTargets = getUpdatedSelectedTargets(
-      isSelecting,
-      target
+    const updatedSelectedTargets = updateSelectedTargets(
+      target.id,
+      selectedTargets
     );
 
     const updatedFormLabels = getUpdatedFormLabels(
       isSelecting,
       selectedLabelName,
-      target
+      target,
+      formLabels
     );
 
     setValue("formLabels", updatedFormLabels);
     setValue("selectedTargets", updatedSelectedTargets);
   };
 
-  const getUpdatedSelectedTargets = (isSelecting: boolean, target: Target) => {
-    const { selectedTargets } = values;
-    if (isSelecting) {
-      return [...selectedTargets, target.id];
-    }
-    return selectedTargets.filter((id) => id !== target.id);
-  };
-
-  const getUpdatedFormLabels = (
-    isSelecting: boolean,
-    selectedLabelName: string,
-    target: Target
-  ) => {
-    const { formLabels } = values;
-    if (target.custom) {
-      const customTargetLabelNames = target.labels?.map((label) => label.name);
-      const otherSelectedLabels = formLabels?.filter(
-        (formLabel) => !customTargetLabelNames?.includes(formLabel.name)
-      );
-      return isSelecting && target.labels
-        ? [...otherSelectedLabels, ...target.labels]
-        : otherSelectedLabels;
-    } else {
-      const otherSelectedLabels = formLabels?.filter(
-        (formLabel) => formLabel.name !== selectedLabelName
-      );
-      if (isSelecting) {
-        const matchingLabel = target.labels?.find(
-          (label) => label.name === selectedLabelName
-        );
-        return matchingLabel
-          ? [...otherSelectedLabels, matchingLabel]
-          : otherSelectedLabels;
-      }
-      return otherSelectedLabels;
-    }
-  };
-
   const allProviders = targets.flatMap((target) => target.provider);
-
   const languageOptions = Array.from(new Set(allProviders));
 
   return (
