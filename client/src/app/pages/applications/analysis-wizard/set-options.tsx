@@ -29,6 +29,11 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
 import defaultSources from "./sources";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
+import {
+  findLabelBySelector,
+  isLabelInFormLabels,
+  updateSelectedTargetsBasedOnLabels,
+} from "./utils";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -41,6 +46,7 @@ export const SetOptions: React.FC = () => {
     excludedRulesTags,
     autoTaggingEnabled,
     advancedAnalysisEnabled,
+    selectedTargets,
   } = watch();
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
@@ -119,27 +125,33 @@ export const SetOptions: React.FC = () => {
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
                 const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
-                const matchingLabel =
-                  defaultTargetsAndTargetsLabels.find(
-                    (label) => label.label === selectionWithLabelSelector
-                  ) || "";
-
-                const formLabelLabels = formLabels.map(
-                  (formLabel) => formLabel.label
+                const matchingLabel = findLabelBySelector(
+                  defaultTargetsAndTargetsLabels,
+                  selectionWithLabelSelector
                 );
+                let updatedFormLabels = [];
                 if (
                   matchingLabel &&
-                  !formLabelLabels.includes(matchingLabel.label)
+                  !isLabelInFormLabels(formLabels, matchingLabel.label)
                 ) {
-                  onChange([...formLabels, matchingLabel]);
+                  updatedFormLabels = [...formLabels, matchingLabel];
+                  onChange(updatedFormLabels);
                 } else {
-                  onChange(
-                    formLabels.filter(
-                      (formLabel) =>
-                        formLabel.label !== selectionWithLabelSelector
-                    )
+                  updatedFormLabels = formLabels.filter(
+                    (formLabel) =>
+                      formLabel.label !== selectionWithLabelSelector
                   );
+                  onChange(updatedFormLabels);
                 }
+
+                const updatedSelectedTargets =
+                  updateSelectedTargetsBasedOnLabels(
+                    updatedFormLabels,
+                    selectedTargets,
+                    targets
+                  );
+                setValue("selectedTargets", updatedSelectedTargets);
+
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
