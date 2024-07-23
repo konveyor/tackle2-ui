@@ -49,7 +49,7 @@ import {
   useFetchArchetypes,
 } from "@app/queries/archetypes";
 
-import ArchetypeApplicationsColumn from "./components/archetype-applications-column";
+import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
 import ArchetypeDescriptionColumn from "./components/archetype-description-column";
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
 import ArchetypeForm from "./components/archetype-form";
@@ -446,7 +446,7 @@ const Archetypes: React.FC = () => {
                           <ArchetypeMaintainersColumn archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "applications" })}>
-                          <ArchetypeApplicationsColumn archetype={archetype} />
+                          <LinkToArchetypeApplications archetype={archetype} />
                         </Td>
                         <Td
                           width={15}

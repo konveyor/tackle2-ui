@@ -1,7 +1,6 @@
 import "./archetype-detail-drawer.css";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 import {
   TextContent,
@@ -19,8 +18,6 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { dedupeArrayOfObjects } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
-import { serializeFilterUrlParams } from "@app/hooks/table-controls";
 import { Archetype, Ref, Review, Tag, TagRef } from "@app/api/models";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
@@ -29,6 +26,7 @@ import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 import { RiskLabel } from "@app/components/RiskLabel";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { LabelsFromTags } from "@app/components/labels/labels-from-tags/labels-from-tags";
+import LinkToArchetypeApplications from "./link-to-archetype-applications";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -107,22 +105,12 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                   {t("terms.applications")}
                 </DescriptionListTerm>
                 <DescriptionListDescription>
-                  {archetype?.applications?.length ? (
-                    <>
-                      <Link to={getApplicationsUrl(archetype?.name)}>
-                        {archetype.applications.length}{" "}
-                        {t("terms.application", {
-                          count: archetype.applications.length,
-                          context:
-                            archetype.applications.length > 1
-                              ? "plural"
-                              : "singular",
-                        }).toLocaleLowerCase()}{" "}
-                      </Link>
-                    </>
-                  ) : (
-                    <EmptyTextMessage message={t("terms.none")} />
-                  )}
+                  <LinkToArchetypeApplications
+                    archetype={archetype}
+                    noApplicationsMessage={
+                      <EmptyTextMessage message={t("terms.none")} />
+                    }
+                  />
                 </DescriptionListDescription>
               </DescriptionListGroup>
 
@@ -249,16 +237,3 @@ const StakeholderGroupsLabels: React.FC<{ archetype: Archetype }> = ({
 }) => <LabelsFromItems items={archetype.stakeholderGroups as Ref[]} />;
 
 export default ArchetypeDetailDrawer;
-
-const getApplicationsUrl = (archetypeName: string) => {
-  const filterValues = {
-    archetypes: [archetypeName],
-  };
-
-  const serializedParams = serializeFilterUrlParams(filterValues);
-
-  const queryString = serializedParams.filters
-    ? `filters=${serializedParams.filters}`
-    : "";
-  return `${Paths.applications}?${queryString}`;
-};
