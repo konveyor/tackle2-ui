@@ -9,6 +9,7 @@ import { brandingAssetPath } from "@konveyor-ui/common";
 import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
+const nodeModules = (pkg: string) => pathTo(`../../node_modules/${pkg}`);
 const brandingPath = brandingAssetPath();
 const manifestPath = path.resolve(brandingPath, "manifest.json");
 
@@ -37,47 +38,27 @@ const config: Configuration = {
           },
         },
       },
+
+      // Ref: https://github.com/patternfly/patternfly-react-seed/blob/main/webpack.common.js
       {
         test: /\.(svg|ttf|eot|woff|woff2)$/,
+        type: "asset/resource",
         // only process modules with this loader
         // if they live under a 'fonts' or 'pficon' directory
         include: [
-          pathTo("../../node_modules/patternfly/dist/fonts"),
-          pathTo(
-            "../../node_modules/@patternfly/react-core/dist/styles/assets/fonts"
-          ),
-          pathTo(
-            "../../node_modules/@patternfly/react-core/dist/styles/assets/pficon"
-          ),
-          pathTo("../../node_modules/@patternfly/patternfly/assets/fonts"),
-          pathTo("../../node_modules/@patternfly/patternfly/assets/pficon"),
+          nodeModules("patternfly/dist/fonts"),
+          nodeModules("@patternfly/react-core/dist/styles/assets/fonts"),
+          nodeModules("@patternfly/react-core/dist/styles/assets/pficon"),
+          nodeModules("@patternfly/patternfly/assets/fonts"),
+          nodeModules("@patternfly/patternfly/assets/pficon"),
         ],
-        use: {
-          loader: "file-loader",
-          options: {
-            // Limit at 50k. larger files emited into separate files
-            limit: 5000,
-            outputPath: "fonts",
-            name: "[name].[ext]",
-          },
-        },
-      },
-      {
-        test: /\.(xsd)$/,
-        include: [pathTo("../src")],
-        use: {
-          loader: "raw-loader",
-          options: {
-            esModule: true,
-          },
-        },
       },
       {
         test: /\.svg$/,
+        type: "asset/inline",
         include: (input) => input.indexOf("background-filter.svg") > 1,
         use: [
           {
-            loader: "url-loader",
             options: {
               limit: 5000,
               outputPath: "svgs",
@@ -85,17 +66,13 @@ const config: Configuration = {
             },
           },
         ],
-        type: "javascript/auto",
       },
       {
         test: /\.svg$/,
         // only process SVG modules with this loader if they live under a 'bgimages' directory
         // this is primarily useful when applying a CSS background using an SVG
         include: (input) => input.indexOf(BG_IMAGES_DIRNAME) > -1,
-        use: {
-          loader: "svg-url-loader",
-          options: {},
-        },
+        type: "asset/inline",
       },
       {
         test: /\.svg$/,
@@ -110,52 +87,31 @@ const config: Configuration = {
           loader: "raw-loader",
           options: {},
         },
-        type: "javascript/auto",
       },
       {
         test: /\.(jpg|jpeg|png|gif)$/i,
         include: [
           pathTo("../src"),
-          pathTo("../../node_modules/patternfly"),
-          pathTo("../../node_modules/@patternfly/patternfly/assets/images"),
-          pathTo(
-            "../../node_modules/@patternfly/react-styles/css/assets/images"
+          nodeModules("patternfly"),
+          nodeModules("@patternfly/patternfly/assets/images"),
+          nodeModules("@patternfly/react-styles/css/assets/images"),
+          nodeModules("@patternfly/react-core/dist/styles/assets/images"),
+          nodeModules(
+            "@patternfly/react-core/node_modules/@patternfly/react-styles/css/assets/images"
           ),
-          pathTo(
-            "../../node_modules/@patternfly/react-core/dist/styles/assets/images"
+          nodeModules(
+            "@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images"
           ),
-          pathTo(
-            "../../node_modules/@patternfly/react-core/node_modules/@patternfly/react-styles/css/assets/images"
-          ),
-          pathTo(
-            "../../node_modules/@patternfly/react-table/node_modules/@patternfly/react-styles/css/assets/images"
-          ),
-          pathTo(
-            "../../node_modules/@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images"
+          nodeModules(
+            "@patternfly/react-inline-edit-extension/node_modules/@patternfly/react-styles/css/assets/images"
           ),
         ],
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 5000,
-              outputPath: "images",
-              name: "[name].[ext]",
-            },
+        type: "asset",
+        parser: {
+          dataUrlCondition: {
+            maxSize: 8096,
           },
-        ],
-        type: "javascript/auto",
-      },
-      {
-        test: pathTo("../../node_modules/xmllint/xmllint.js"),
-        loader: "exports-loader",
-        options: {
-          exports: "xmllint",
         },
-      },
-      {
-        test: /\.yaml$/,
-        use: "raw-loader",
       },
 
       // For monaco-editor-webpack-plugin --->
@@ -169,6 +125,28 @@ const config: Configuration = {
         type: "asset/resource",
       },
       // <--- For monaco-editor-webpack-plugin
+
+      {
+        test: /\.(xsd)$/,
+        include: [pathTo("../src")],
+        use: {
+          loader: "raw-loader",
+          options: {
+            esModule: true,
+          },
+        },
+      },
+      {
+        test: nodeModules("xmllint/xmllint.js"),
+        loader: "exports-loader",
+        options: {
+          exports: "xmllint",
+        },
+      },
+      {
+        test: /\.yaml$/,
+        use: "raw-loader",
+      },
     ],
   },
 
