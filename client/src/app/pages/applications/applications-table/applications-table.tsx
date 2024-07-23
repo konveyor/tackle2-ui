@@ -212,7 +212,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const isTaskCancellable = (application: DecoratedApplication) => {
     const task = application.tasks.currentAnalyzer;
-    return task?.state && !["Succeeded", "Failed"].includes(task.state);
+    return !TaskStates.Terminal.includes(task?.state ?? "");
   };
 
   // TODO: Review the refetchInterval calculation for the application list
@@ -979,16 +979,16 @@ export const ApplicationsTable: React.FC = () => {
                             title: t("actions.assess"),
                             onClick: () => assessSelectedApp(application),
                           },
-                          reviewsWriteAccess && {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
                           assessmentWriteAccess &&
                             (application.assessments?.length ?? 0) > 0 && {
                               title: t("actions.discardAssessment"),
                               onClick: () =>
                                 setAssessmentToDiscard(application),
                             },
+                          reviewsWriteAccess && {
+                            title: t("actions.review"),
+                            onClick: () => reviewSelectedApp(application),
+                          },
                           reviewsWriteAccess &&
                             application?.review && {
                               title: t("actions.discardReview"),
