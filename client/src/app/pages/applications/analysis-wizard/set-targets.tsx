@@ -20,6 +20,7 @@ import { Application, TagCategory, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
 import { getUpdatedFormLabels, updateSelectedTargets } from "./utils";
+
 interface SetTargetsProps {
   applications: Application[];
 }
@@ -38,7 +39,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const formLabels = watch("formLabels");
   const selectedTargets = watch("selectedTargets");
 
-  const { tagCategories, isFetching, fetchError } = useFetchTagCategories();
+  const { tagCategories } = useFetchTagCategories();
 
   const findCategoryForTag = (tagId: number) => {
     return tagCategories.find(
@@ -121,6 +122,15 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const allProviders = targets.flatMap((target) => target.provider);
   const languageOptions = Array.from(new Set(allProviders));
 
+  const targetsToRender: Target[] = !targetOrderSetting.isSuccess
+    ? []
+    : targetOrderSetting.data
+        .map((targetId) => targets.find((target) => target.id === targetId))
+        .filter(Boolean)
+        .filter((target) =>
+          providers.some((p) => target.provider?.includes(p) ?? false)
+        );
+
   return (
     <Form
       onSubmit={(event) => {
@@ -140,15 +150,16 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
         options={languageOptions?.map((language): SelectOptionProps => {
           return {
             children: <div>{language}</div>,
-
             value: language,
           };
         })}
         onChange={(selection) => {
           setProviders(selection as string[]);
         }}
+        id="filter-by-language"
         toggleId="action-select-toggle"
       />
+
       {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&
         !values.sourceRepository && (
@@ -158,41 +169,24 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
             title={t("wizard.label.skipTargets")}
           />
         )}
-      <Gallery hasGutter>
-        {targetOrderSetting.isSuccess
-          ? targetOrderSetting.data.map((id, index) => {
-              const matchingTarget = targets.find((target) => target.id === id);
-              const isSelected = selectedTargets?.includes(id);
 
-              if (
-                matchingTarget &&
-                providers?.some((p) => matchingTarget?.provider?.includes(p))
-              ) {
-                return (
-                  <GalleryItem key={index}>
-                    <TargetCard
-                      readOnly
-                      item={matchingTarget}
-                      cardSelected={isSelected}
-                      onSelectedCardTargetChange={(selectedTarget) => {
-                        handleOnSelectedCardTargetChange(selectedTarget);
-                      }}
-                      onCardClick={(isSelecting, selectedLabelName, target) => {
-                        handleOnCardClick(
-                          isSelecting,
-                          selectedLabelName,
-                          target
-                        );
-                      }}
-                      formLabels={formLabels}
-                    />
-                  </GalleryItem>
-                );
-              } else {
-                return null;
-              }
-            })
-          : null}
+      <Gallery hasGutter>
+        {targetsToRender.map((target) => (
+          <GalleryItem key={target.id}>
+            <TargetCard
+              readOnly
+              item={target}
+              cardSelected={selectedTargets?.includes(target.id)}
+              onSelectedCardTargetChange={(selectedTarget) => {
+                handleOnSelectedCardTargetChange(selectedTarget);
+              }}
+              onCardClick={(isSelecting, selectedLabelName, target) => {
+                handleOnCardClick(isSelecting, selectedLabelName, target);
+              }}
+              formLabels={formLabels}
+            />
+          </GalleryItem>
+        ))}
       </Gallery>
     </Form>
   );
