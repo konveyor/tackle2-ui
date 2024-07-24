@@ -87,24 +87,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     }
   );
 
-  const handleCardClick = (event: React.MouseEvent) => {
-    const eventTarget = event.target as HTMLElement;
-    event.preventDefault();
-
-    // Let the label choice select box do its own click handling
-    if (eventTarget.closest(".target-label-choice-container")) {
-      return;
-    }
-
+  const handleCardClick = () => {
     if (onCardClick && selectedLabelName) {
       onCardClick(!cardSelected, selectedLabelName, target);
     }
   };
 
   const handleLabelSelection = (selection: string) => {
-    setSelectedLabelName(selection as string);
+    setSelectedLabelName(selection);
     if (cardSelected && onSelectedCardTargetChange) {
-      onSelectedCardTargetChange(selection as string);
+      onSelectedCardTargetChange(selection);
     }
   };
 
@@ -122,13 +114,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const labelChoices =
     target.choice || forceSelect.includes(target.name) ? targetLabels : [];
 
+  const idCard = `target-${target.name.replace(/\s/g, "-")}`;
+  const idProv = `${idCard}-provider-${target.provider?.replace(/\s/g, "-")}`;
+
   return (
     <Card
+      key={`target-card-${target.id}`}
       className="target-card"
-      id={`target-card-${target.name.replace(/\s/g, "-")}`}
+      id={idCard}
       data-target-name={target.name}
       data-target-id={target.id}
-      onClick={handleCardClick}
       isSelectable={readOnly}
       isSelected={cardSelected}
       isFullHeight
@@ -136,15 +131,16 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isFlat
     >
       <CardHeader
-        checked={cardSelected}
         selectableActions={{
-          selectableActionId: "target-name-" + target.name,
-          selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
           isChecked: cardSelected,
+          name: `${idCard}-select`,
+          selectableActionId: `${idCard}-select`,
+          selectableActionAriaLabelledby: idCard,
+          onChange: handleCardClick,
         }}
       >
         <Label
-          id={`${target.provider}-selectable-action-label`}
+          id={`${idProv}-label`}
           variant="outline"
           icon={<InfoCircleIcon />}
         >

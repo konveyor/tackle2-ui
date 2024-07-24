@@ -7,9 +7,11 @@
   --pf-v5-c-card--m-selectable--hover--BackgroundColor: var(
     --pf-v5-c-card--BackgroundColor
   );
+  /*
   --pf-v5-c-card--m-selectable--hover--BoxShadow: var(
     --pf-v5-c-card--BoxShadow
   );
+  */
 }
 
 /*
