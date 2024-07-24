@@ -2,9 +2,27 @@
   background: none;
 }
 
-.select-card__component__empty-state {
-  padding: 0 !important;
+/* do NOT change background-color or box-shadow on hover with the TargetCard is selectable */
+.target-card.pf-m-selectable {
+  --pf-v5-c-card--m-selectable--hover--BackgroundColor: var(
+    --pf-v5-c-card--BackgroundColor
+  );
+  /*
+  --pf-v5-c-card--m-selectable--hover--BoxShadow: var(
+    --pf-v5-c-card--BoxShadow
+  );
+  */
 }
+
+/*
+  A way to force the select box to always have a white background,
+  even when the card is selected
+*/
+/*
+.target-label-choice-container {
+  background-color: var(--pf-v5-global--BackgroundColor--100);
+}
+*/
 
 .grabbable {
   cursor: move; /* fallback if grab cursor is unsupported */

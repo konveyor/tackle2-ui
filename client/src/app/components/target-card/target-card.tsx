@@ -1,14 +1,10 @@
-import "./target-card.css";
 import * as React from "react";
 import {
-  EmptyState,
   EmptyStateIcon,
   Title,
-  EmptyStateVariant,
   Card,
   CardBody,
   DropdownItem,
-  Text,
   Flex,
   FlexItem,
   Button,
@@ -18,26 +14,26 @@ import {
   PanelMain,
   PanelMainBody,
   Panel,
+  Stack,
+  StackItem,
+  Bullseye,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-  SelectOptionObject,
-} from "@patternfly/react-core/deprecated";
 import { GripVerticalIcon, InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
-import { KebabDropdown } from "../KebabDropdown";
 import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
+import { KebabDropdown } from "../KebabDropdown";
 import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
+import { SimpleSelectBasic } from "../SimpleSelectBasic";
+
+import "./target-card.css";
+import { localeNumericCompare } from "@app/utils/utils";
 
 export interface TargetCardProps {
   item: Target;
   cardSelected?: boolean;
-  isEditable?: boolean;
   onCardClick?: (
     isSelecting: boolean,
     targetLabelName: string,
@@ -51,14 +47,16 @@ export interface TargetCardProps {
   onDelete?: () => void;
 }
 
-// Force display dropdown box even though there only one option available.
-// This is a business rule to guarantee that option is always present.
+/**
+ * Force display dropdown box even though there only one option available.
+ * This is a business rule to guarantee that option is always present.
+ */
 const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item: target,
-  readOnly,
-  cardSelected,
+  readOnly = false,
+  cardSelected = false,
   formLabels,
   onCardClick,
   onSelectedCardTargetChange,
@@ -67,65 +65,82 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   onDelete,
 }) => {
   const { t } = useTranslation();
-  const [isCardSelected, setCardSelected] = React.useState(cardSelected);
   const imageDataUrl = useFetchImageDataUrl(target);
 
-  const prevSelectedLabel =
-    formLabels?.find((formLabel) => {
-      const labelNames = target?.labels?.map((label) => label.name);
-      return labelNames?.includes(formLabel.name);
-    })?.name || "";
-
-  const [isLabelSelectOpen, setLabelSelectOpen] = React.useState(false);
-
-  const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
-    prevSelectedLabel ||
-      target?.labels?.[0]?.name ||
-      `${target?.name || "target"}-Empty`
+  const targetLabels = (target?.labels ?? []).sort((a, b) =>
+    localeNumericCompare(b.label, a.label)
   );
 
-  const handleCardClick = (event: React.MouseEvent) => {
-    const eventTarget = event.target as HTMLElement;
+  const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
+    () => {
+      const prevSelectedLabel =
+        formLabels?.find((formLabel) => {
+          const labelNames = targetLabels.map((label) => label.name);
+          return labelNames?.includes(formLabel.name);
+        })?.name || "";
 
-    if (eventTarget.tagName === "BUTTON" || eventTarget.tagName === "LABEL") {
-      event.preventDefault();
+      return (
+        prevSelectedLabel ||
+        targetLabels[0]?.name ||
+        `${target?.name || "target"}-Empty`
+      );
     }
+  );
 
-    setCardSelected(!isCardSelected);
+  const handleCardClick = () => {
     if (onCardClick && selectedLabelName) {
-      onCardClick(!isCardSelected, selectedLabelName, target);
+      onCardClick(!cardSelected, selectedLabelName, target);
     }
   };
 
-  const handleLabelSelection = (
-    event: React.MouseEvent | React.ChangeEvent,
-    selection: string | SelectOptionObject
-  ) => {
-    event.stopPropagation();
-    setLabelSelectOpen(false);
-    setSelectedLabelName(selection as string);
-    if (isCardSelected && onSelectedCardTargetChange) {
-      onSelectedCardTargetChange(selection as string);
+  const handleLabelSelection = (selection: string) => {
+    setSelectedLabelName(selection);
+    if (cardSelected && onSelectedCardTargetChange) {
+      onSelectedCardTargetChange(selection);
     }
   };
+
+  const TargetLogo = () => (
+    <img
+      src={imageDataUrl || DefaultImage}
+      alt="Card logo"
+      style={{ height: 80, pointerEvents: "none" }}
+      onError={(e) => {
+        e.currentTarget.src = DefaultImage;
+      }}
+    />
+  );
+
+  const labelChoices =
+    target.choice || forceSelect.includes(target.name) ? targetLabels : [];
+
+  const idCard = `target-${target.name.replace(/\s/g, "-")}`;
+  const idProv = `${idCard}-provider-${target.provider?.replace(/\s/g, "-")}`;
+
   return (
     <Card
-      id={`target-card-${target.name.replace(/\s/g, "-")}`}
-      onClick={handleCardClick}
-      isSelectable={!!cardSelected}
-      isSelected={isCardSelected}
-      className="pf-v5-l-stack pf-v5-l-stack__item pf-m-fill"
+      key={`target-card-${target.id}`}
+      className="target-card"
+      id={idCard}
+      data-target-name={target.name}
+      data-target-id={target.id}
+      isSelectable={readOnly}
+      isSelected={cardSelected}
+      isFullHeight
+      isCompact
+      isFlat
     >
       <CardHeader
-        checked={isCardSelected}
         selectableActions={{
-          selectableActionId: "target-name-" + target.name,
-          selectableActionAriaLabelledby: `${target.name}-selectable-action-label`,
-          isChecked: isCardSelected,
+          isChecked: cardSelected,
+          name: `${idCard}-select`,
+          selectableActionId: `${idCard}-select`,
+          selectableActionAriaLabelledby: idCard,
+          onChange: handleCardClick,
         }}
       >
         <Label
-          id={`${target.provider}-selectable-action-label`}
+          id={`${idProv}-label`}
           variant="outline"
           icon={<InfoCircleIcon />}
         >
@@ -145,7 +160,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
                 {...handleProps?.listeners}
                 {...handleProps?.attributes}
               >
-                <GripVerticalIcon></GripVerticalIcon>
+                <GripVerticalIcon />
               </Button>
             )}
           </FlexItem>
@@ -168,58 +183,52 @@ export const TargetCard: React.FC<TargetCardProps> = ({
             )}
           </FlexItem>
         </Flex>
-        <EmptyState
-          variant={EmptyStateVariant.sm}
-          className="select-card__component__empty-state"
-        >
-          <EmptyStateIcon
-            icon={() => (
-              <img
-                src={imageDataUrl || DefaultImage}
-                alt="Card logo"
-                style={{ height: 80, pointerEvents: "none" }}
-                onError={(e) => {
-                  e.currentTarget.src = DefaultImage;
+
+        <Stack hasGutter>
+          <StackItem>
+            <Bullseye>
+              <EmptyStateIcon color="black" icon={TargetLogo} />
+            </Bullseye>
+          </StackItem>
+          <StackItem>
+            <Bullseye>
+              <Title headingLevel="h4" size="md">
+                {target.name}
+              </Title>
+            </Bullseye>
+          </StackItem>
+
+          {/* Target label choice */}
+          {labelChoices.length === 0 ? null : (
+            <StackItem className="target-label-choice-container">
+              <SimpleSelectBasic
+                selectId={`${target.name}-label-menu`}
+                toggleId={`${target.name}-toggle`}
+                toggleAriaLabel="Select label dropdown target"
+                aria-label="Select Label"
+                value={selectedLabelName}
+                options={labelChoices.map((label) => ({
+                  children: label.name,
+                  value: label.name,
+                }))}
+                onChange={(option) => {
+                  handleLabelSelection(option);
                 }}
               />
-            )}
-          />
-          <Title headingLevel="h4" size="md">
-            {target.name}
-          </Title>
-          {target.choice &&
-          ((!!target?.labels?.length && target?.labels?.length > 1) ||
-            forceSelect.includes(target.name)) ? (
-            <Select
-              className={spacing.mtSm}
-              toggleId={`${target.name}-toggle`}
-              variant={SelectVariant.single}
-              aria-label="Select Label"
-              onToggle={(_, isExpanded) => setLabelSelectOpen(isExpanded)}
-              onSelect={handleLabelSelection}
-              selections={selectedLabelName}
-              isOpen={isLabelSelectOpen}
-              width={250}
-            >
-              {target?.labels?.map((label) => (
-                <SelectOption key={label.name} value={label.name}>
-                  {label.name ? label.name : "Empty"}
-                </SelectOption>
-              ))}
-            </Select>
-          ) : null}
-          {target.description ? (
-            <Panel isScrollable className="panel-style">
-              <PanelMain maxHeight={target.choice ? "9em" : "12em"}>
-                <PanelMainBody>
-                  <Text className={`${spacing.pMd} pf-v5-u-text-align-left`}>
-                    {target.description}
-                  </Text>
-                </PanelMainBody>
-              </PanelMain>
-            </Panel>
-          ) : null}
-        </EmptyState>
+            </StackItem>
+          )}
+
+          {/* Target description */}
+          <StackItem isFilled>
+            {target.description ? (
+              <Panel isScrollable className="panel-style">
+                <PanelMain maxHeight={target.choice ? "9em" : "12em"}>
+                  <PanelMainBody>{target.description}</PanelMainBody>
+                </PanelMain>
+              </Panel>
+            ) : null}
+          </StackItem>
+        </Stack>
       </CardBody>
     </Card>
   );
