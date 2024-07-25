@@ -7,6 +7,8 @@ import {
   CardBody,
   Form,
   FormGroup,
+  Grid,
+  GridItem,
   PageSection,
   PageSectionVariants,
   Spinner,
@@ -30,7 +32,7 @@ export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<Boolean>(false);
+    React.useState<boolean>(false);
 
   const mvnInsecureSetting = useSetting("mvn.insecure.enabled");
   const mvnInsecureSettingMutation = useSettingMutation("mvn.insecure.enabled");
@@ -49,10 +51,11 @@ export const RepositoriesMvn: React.FC = () => {
   //     mvnForcedSettingMutation.mutate(!mvnForcedSetting.data);
   // };
 
-  let storageValue: string = "";
   const { data: cache, isFetching, isSuccess, refetch } = useFetchCache();
 
-  if (isSuccess) storageValue = `${cache.used} of ${cache.capacity} `;
+  const cacheUseString = React.useMemo(() => {
+    return isSuccess ? `${cache.used} of ${cache.capacity} ` : "";
+  }, [cache, isSuccess]);
 
   const onHandleCleanSuccess = () => {
     refetch();
@@ -67,6 +70,8 @@ export const RepositoriesMvn: React.FC = () => {
     onHandleCleanError
   );
 
+  const inputDisabled = !isRWXSupported || isFetching || isDeleting;
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -74,48 +79,55 @@ export const RepositoriesMvn: React.FC = () => {
           <Text component="h1">{t("terms.mavenConfig")}</Text>
         </TextContent>
       </PageSection>
+
       <PageSection>
         <Card>
           <CardBody>
             <Form>
               <FormGroup label="Local artifact repository" fieldId="name">
-                <TextInput
-                  value={isFetching ? "" : storageValue}
-                  className="repo"
-                  type="text"
-                  aria-label="Maven Repository Size"
-                  aria-disabled={!isRWXSupported || isFetching || isDeleting}
-                  isDisabled={!isRWXSupported || isFetching || isDeleting}
-                  readOnlyVariant="default"
-                  size={15}
-                  width={10}
-                />
-                <ConditionalTooltip
-                  isTooltipEnabled={!isRWXSupported}
-                  content={t("actions.clearRepositoryNotSupported")}
-                >
-                  <Button
-                    id="clear-repository"
-                    isInline
-                    className={spacing.mlMd}
-                    isAriaDisabled={!isRWXSupported || isFetching || isDeleting}
-                    onClick={() => setIsConfirmDialogOpen(true)}
-                  >
-                    {isFetching ? (
-                      <Text>
-                        Loading...
-                        <Spinner
-                          className={spacing.mlMd}
-                          isInline
-                          aria-label="Spinner of clear repository button"
-                        />
-                      </Text>
-                    ) : (
-                      "Clear repository"
-                    )}
-                  </Button>
-                </ConditionalTooltip>
+                <Grid>
+                  <GridItem span={5}>
+                    <TextInput
+                      value={isFetching ? "" : cacheUseString}
+                      type="text"
+                      aria-label="Maven Repository Size"
+                      aria-disabled={inputDisabled}
+                      isDisabled={inputDisabled}
+                      readOnlyVariant="default"
+                      size={15}
+                      width={20}
+                    />
+                  </GridItem>
+                  <GridItem span={7}>
+                    <ConditionalTooltip
+                      isTooltipEnabled={!isRWXSupported}
+                      content={t("actions.clearRepositoryNotSupported")}
+                    >
+                      <Button
+                        id="clear-repository"
+                        isInline
+                        className={spacing.mlMd}
+                        isAriaDisabled={inputDisabled}
+                        onClick={() => setIsConfirmDialogOpen(true)}
+                      >
+                        {isFetching ? (
+                          <Text>
+                            Loading...
+                            <Spinner
+                              className={spacing.mlMd}
+                              isInline
+                              aria-label="Spinner of clear repository button"
+                            />
+                          </Text>
+                        ) : (
+                          "Clear repository"
+                        )}
+                      </Button>
+                    </ConditionalTooltip>
+                  </GridItem>
+                </Grid>
               </FormGroup>
+
               <FormGroup fieldId="isInsecure">
                 {mvnInsecureSetting.isError && (
                   <Alert
@@ -145,6 +157,7 @@ export const RepositoriesMvn: React.FC = () => {
           </CardBody>
         </Card>
       </PageSection>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={"Clear repository"}
