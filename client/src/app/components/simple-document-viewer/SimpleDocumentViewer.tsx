@@ -31,22 +31,21 @@ export interface Document {
   name: string;
   description?: string;
   languages: Language[];
+  downloadFilename: string;
 }
 
 export interface ISimpleDocumentViewerProps {
   /** The id of the task to display, or `undefined` to display the empty state. */
   taskId: number | undefined;
 
-  /** The document ID to display - number for task attachment ID, string values for other viewing modes.
-   * Defaults to basic task view (LOG_VIEW) .
+  /**
+   * The document ID to display - number for task attachment ID, string values for
+   * other viewing modes.  Defaults to basic task view (LOG_VIEW).
    */
   documentId: DocumentId | undefined;
 
   /** Task attachments */
   attachments: TaskAttachment[];
-
-  /** Filename, without extension, to use with the download file action. */
-  downloadFilename?: string;
 
   /**
    * Height of the document viewer, or `"full"` to take up all of the available
@@ -98,7 +97,6 @@ export const SimpleDocumentViewer = ({
   taskId,
   documentId = "LOG_VIEW",
   attachments,
-  downloadFilename,
   height = "450px",
   onDocumentChange,
 }: ISimpleDocumentViewerProps) => {
@@ -108,12 +106,14 @@ export const SimpleDocumentViewer = ({
         id: "LOG_VIEW",
         name: "Log view",
         languages: [Language.yaml, Language.json],
+        downloadFilename: `log-${taskId}`,
       },
       {
         id: "MERGED_VIEW",
         name: "Merged log view",
         description: "with inlined commands output",
         languages: [Language.yaml, Language.json],
+        downloadFilename: `log-merged-${taskId}`,
       },
       ...attachments.map(({ id, name = "unknown" }) => ({
         id,
@@ -123,16 +123,20 @@ export const SimpleDocumentViewer = ({
           name.endsWith(".json") && Language.json,
           Language.plaintext,
         ].filter(Boolean),
+        downloadFilename: name.match(/\.(yaml|yml|json)$/)
+          ? name.substring(0, name.lastIndexOf("."))
+          : name,
       })),
     ],
-    [attachments]
+    [attachments, taskId]
   );
 
-  const [selectedId, setSelectedId] = React.useState<DocumentId>(
-    configuredDocuments.find(({ id }) => id === documentId)?.id ?? "LOG_VIEW"
+  const [selectedDocument, setSelectedDocument] = React.useState<Document>(
+    configuredDocuments.find(({ id }) => id === documentId) ??
+      configuredDocuments[0]
   );
   const supportedLanguages = configuredDocuments.find(
-    ({ id }) => id === selectedId
+    ({ id }) => id === selectedDocument.id
   )?.languages ?? [Language.yaml, Language.json];
 
   const [currentLanguage, setCurrentLanguage] = React.useState(
@@ -144,7 +148,7 @@ export const SimpleDocumentViewer = ({
   const { code, refetch } = useDocuments({
     taskId,
     currentLanguage,
-    selectedId,
+    selectedId: selectedDocument.id,
   });
 
   // move focus on first code change AFTER a new document was selected
@@ -165,12 +169,12 @@ export const SimpleDocumentViewer = ({
 
   const onSelect = (docId: string | number) => {
     const doc = configuredDocuments.find(({ id }) => id === docId);
-    if (!doc || doc.id === selectedId) {
+    if (!doc || doc.id === selectedDocument.id) {
       return;
     }
 
     setCurrentLanguage(doc.languages[0] ?? Language.plaintext);
-    setSelectedId(doc.id);
+    setSelectedDocument(doc);
     focusMovedOnSelectedDocumentChange.current = false;
     onDocumentChange?.(doc.id);
   };
@@ -184,7 +188,7 @@ export const SimpleDocumentViewer = ({
       isLineNumbersVisible
       isReadOnly
       height={height === "full" ? "100%" : height}
-      downloadFileName={downloadFilename}
+      downloadFileName={selectedDocument.downloadFilename}
       language={currentLanguage}
       code={code}
       onEditorDidMount={(editor) => {
@@ -210,7 +214,7 @@ export const SimpleDocumentViewer = ({
           key="attachmentToggle"
           documents={configuredDocuments.map((it) => ({
             ...it,
-            isSelected: it.id === selectedId,
+            isSelected: it.id === selectedDocument.id,
           }))}
           onSelect={onSelect}
         />,
