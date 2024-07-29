@@ -490,6 +490,7 @@ export const ApplicationsTable: React.FC = () => {
           { value: "yellow", label: "Medium" },
           { value: "red", label: "High" },
           { value: "unknown", label: "Unknown" },
+          { value: "unassessed", label: "Unassessed" },
         ],
         getItemValue: (item) => item.risk ?? "",
       },
