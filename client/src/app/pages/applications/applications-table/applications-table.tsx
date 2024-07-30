@@ -63,10 +63,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
-import {
-  deserializeFilterUrlParams,
-  useLocalTableControls,
-} from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
@@ -308,11 +305,6 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   // ----- Table controls
-  const urlParams = new URLSearchParams(window.location.search);
-  const filters = urlParams.get("filters");
-
-  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
-
   const tableControls = useLocalTableControls({
     tableName: "applications",
     idProperty: "id",
@@ -333,7 +325,7 @@ export const ApplicationsTable: React.FC = () => {
     isActiveItemEnabled: true,
     persistTo: {
       activeItem: "urlParams",
-      filter: "sessionStorage",
+      filter: "urlParams",
       pagination: "sessionStorage",
       sort: "sessionStorage",
     },
@@ -343,7 +335,6 @@ export const ApplicationsTable: React.FC = () => {
     initialColumns: {
       name: { isIdentity: true },
     },
-    initialFilterValues: deserializedFilterValues,
     getSortValues: (app) => ({
       name: app.name,
       businessService: app.businessService?.name || "",
