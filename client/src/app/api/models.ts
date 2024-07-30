@@ -781,7 +781,7 @@ export interface Thresholds {
 }
 
 export type AssessmentStatus = "empty" | "started" | "complete";
-export type Risk = "green" | "yellow" | "red" | "unknown";
+export type Risk = "green" | "yellow" | "red" | "unknown" | "unassessed";
 
 export interface InitialAssessment {
   application?: Ref;
