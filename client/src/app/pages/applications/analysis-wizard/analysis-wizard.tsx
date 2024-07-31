@@ -225,7 +225,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       (identity) => identity.name === fieldValues.associatedCredentials
     );
 
-    const selectedTargetsWithRuleset: Ref[] = fieldValues.selectedTargets
+    const ruleSetRefsFromSelectedTargets: Ref[] = fieldValues.selectedTargets
       .filter((target) => !!target.ruleset)
       .map<Ref>(({ ruleset }) => ({
         id: ruleset.id ?? -1,
@@ -295,8 +295,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 name: matchingSourceCredential.name,
               },
             }),
-          ...(selectedTargetsWithRuleset.length > 0 && {
-            ruleSets: selectedTargetsWithRuleset,
+          ...(ruleSetRefsFromSelectedTargets.length > 0 && {
+            ruleSets: ruleSetRefsFromSelectedTargets,
           }),
         },
       },

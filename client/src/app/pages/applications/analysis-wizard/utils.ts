@@ -65,7 +65,7 @@ export const useAnalyzableApplicationsByMode = (
 /**
  * Toggle the existence of a target within the array and return the array
  */
-export const updateSelectedTargets = (
+export const toggleSelectedTargets = (
   target: Target,
   selectedTargets: Target[]
 ): Target[] => {

@@ -19,7 +19,7 @@ import { useFetchTargets } from "@app/queries/targets";
 import { Application, TagCategory, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
-import { getUpdatedFormLabels, updateSelectedTargets } from "./utils";
+import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -103,7 +103,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     selectedLabelName: string,
     target: Target
   ) => {
-    const updatedSelectedTargets = updateSelectedTargets(
+    const updatedSelectedTargets = toggleSelectedTargets(
       target,
       selectedTargets
     );
