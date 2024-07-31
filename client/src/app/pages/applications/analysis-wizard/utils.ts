@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Application, Target, TargetLabel } from "@app/api/models";
 import { AnalysisMode, ANALYSIS_MODES } from "./schema";
+import { toggle } from "radash";
 
 export const isApplicationBinaryEnabled = (
   application: Application
@@ -61,14 +62,14 @@ export const useAnalyzableApplicationsByMode = (
     [applications]
   );
 
+/**
+ * Toggle the existence of a target within the array and return the array
+ */
 export const updateSelectedTargets = (
-  targetId: number,
-  selectedTargetIDs: number[]
-) => {
-  const isSelected = selectedTargetIDs.includes(targetId);
-  return isSelected
-    ? selectedTargetIDs.filter((id) => id !== targetId)
-    : [...selectedTargetIDs, targetId];
+  target: Target,
+  selectedTargets: Target[]
+): Target[] => {
+  return toggle(selectedTargets, target, (t) => t.id);
 };
 
 export const getUpdatedFormLabels = (
@@ -106,33 +107,37 @@ export const findLabelBySelector = (labels: TargetLabel[], selector: string) =>
 export const isLabelInFormLabels = (formLabels: TargetLabel[], label: string) =>
   formLabels.some((formLabel) => formLabel.label === label);
 
-export const labelToTargetId = (labelName: string, targets: Target[]) => {
+export const labelToTarget = (labelName: string, targets: Target[]) => {
   const target = targets.find(
     (t) => t.labels?.some((l) => l.name === labelName)
   );
-  return target ? target.id : null;
+  return target ? target : null;
 };
 
 export const updateSelectedTargetsBasedOnLabels = (
   currentFormLabels: TargetLabel[],
-  selectedTargets: number[],
+  selectedTargets: Target[],
   targets: Target[]
-) => {
+): Target[] => {
+  const targetsFromLabels = currentFormLabels
+    .map((label) => labelToTarget(label.name, targets))
+    .filter(Boolean);
+
   const newSelectedTargets = currentFormLabels.reduce(
-    (acc: number[], formLabel) => {
-      const targetId = labelToTargetId(formLabel.name, targets);
-      if (targetId && !acc.includes(targetId)) {
-        acc.push(targetId);
+    (acc: Target[], formLabel) => {
+      const target = labelToTarget(formLabel.name, targets);
+      if (target && !acc.some((v) => v.id === target.id)) {
+        acc.push(target);
       }
       return acc;
     },
     []
   );
 
-  const filteredSelectedTargets = selectedTargets.filter((targetId) =>
-    currentFormLabels.some(
-      (formLabel) => labelToTargetId(formLabel.name, targets) === targetId
-    )
+  // TODO: If a Target doesn't have a label (i.e. is a custom repo), it should
+  //       stick around and not get dropped here
+  const filteredSelectedTargets = selectedTargets.filter((target) =>
+    targetsFromLabels.some((current) => current?.id === target.id)
   );
 
   return [...new Set([...newSelectedTargets, ...filteredSelectedTargets])];

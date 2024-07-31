@@ -104,7 +104,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     target: Target
   ) => {
     const updatedSelectedTargets = updateSelectedTargets(
-      target.id,
+      target,
       selectedTargets
     );
 
@@ -176,7 +176,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
             <TargetCard
               readOnly
               item={target}
-              cardSelected={selectedTargets?.includes(target.id)}
+              cardSelected={selectedTargets.some(({ id }) => id === target.id)}
               onSelectedCardTargetChange={(selectedTarget) => {
                 handleOnSelectedCardTargetChange(selectedTarget);
               }}

@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import {
   Application,
   New,
+  Ref,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -223,6 +224,14 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     const matchingSourceCredential = identities.find(
       (identity) => identity.name === fieldValues.associatedCredentials
     );
+
+    const selectedTargetsWithRuleset: Ref[] = fieldValues.selectedTargets
+      .filter((target) => !!target.ruleset)
+      .map<Ref>(({ ruleset }) => ({
+        id: ruleset.id ?? -1,
+        name: ruleset.name ?? "",
+      }));
+
     return {
       ...currentTaskgroup,
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
@@ -286,6 +295,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 name: matchingSourceCredential.name,
               },
             }),
+          ...(selectedTargetsWithRuleset.length > 0 && {
+            ruleSets: selectedTargetsWithRuleset,
+          }),
         },
       },
     };

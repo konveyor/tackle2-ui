@@ -416,6 +416,7 @@ export interface TaskData {
       included: string[];
       excluded: string[];
     };
+    ruleSets?: Ref[]; // Target.ruleset.{ id, name }
   };
 }
 
