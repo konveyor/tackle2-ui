@@ -17,7 +17,12 @@ import {
   Modal,
   Tooltip,
 } from "@patternfly/react-core";
-import { PencilAltIcon, TagIcon } from "@patternfly/react-icons";
+import {
+  PencilAltIcon,
+  TagIcon,
+  WarningTriangleIcon,
+} from "@patternfly/react-icons";
+
 import {
   Table,
   Thead,
@@ -59,8 +64,8 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/rbac";
+import { normalizeRisk } from "@app/utils/type-utils";
 import { checkAccess } from "@app/utils/rbac-utils";
-import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 
 // Hooks
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -486,13 +491,13 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.risk").toLowerCase(),
           }) + "...",
         selectOptions: [
-          { value: "green", label: "Low" },
-          { value: "yellow", label: "Medium" },
-          { value: "red", label: "High" },
-          { value: "unknown", label: "Unknown" },
-          { value: "unassessed", label: "Unassessed" },
+          { value: "green", label: t("risks.low") },
+          { value: "yellow", label: t("risks.medium") },
+          { value: "red", label: t("risks.high") },
+          { value: "unknown", label: t("risks.unknown") },
+          { value: "unassessed", label: t("risks.unassessed") },
         ],
-        getItemValue: (item) => item.risk ?? "",
+        getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
     ],
     initialItemsPerPage: 10,
