@@ -1,0 +1,34 @@
+name: Assign Risk
+description: |
+  Questionnaire that allows the use to select a risk level directly
+
+sections:
+  - order: 1
+    name: Assign The RISK
+    questions:
+      - order: 1
+        text: What should be the Risk level of the application?
+        answers:
+          - order: 1
+            text: Unknown
+            risk: unknown
+          - order: 2
+            text: Green / Low
+            risk: green
+          - order: 3
+            text: Yellow / Medium
+            risk: yellow
+          - order: 4
+            text: Red / High
+            risk: red
+
+thresholds:
+  red: 1
+  yellow: 30
+  unknown: 15
+
+riskMessages:
+  red: Application requires deep changes in architecture or lifecycle
+  yellow: Application is Cloud friendly but requires some minor changes
+  green: Application is Cloud Native
+  unknown: More information about the application is required

@@ -118,6 +118,12 @@ export const RISK_LIST: RiskListType = {
     labelColor: "grey",
     sortFactor: 4,
   },
+  unassessed: {
+    i18Key: "risks.unassessed",
+    hexColor: black.value,
+    labelColor: "grey",
+    sortFactor: 5,
+  },
 };
 
 // Proposed action
