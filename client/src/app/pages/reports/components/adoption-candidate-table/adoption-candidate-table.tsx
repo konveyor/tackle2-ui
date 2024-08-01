@@ -126,7 +126,7 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
                     {item?.review?.effortEstimate ?? "N/A"}
                   </Td>
                   <Td {...getTdProps({ columnKey: "risk" })}>
-                    <RiskLabel risk={item.application.risk || "unknown"} />
+                    <RiskLabel risk={item.application.risk} />
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
