@@ -226,11 +226,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     );
 
     const ruleSetRefsFromSelectedTargets: Ref[] = fieldValues.selectedTargets
-      .filter((target) => !!target.ruleset)
-      .map<Ref>(({ ruleset }) => ({
-        id: ruleset.id ?? -1,
-        name: ruleset.name ?? "",
-      }));
+      .map(({ ruleset }) => ruleset)
+      .filter(Boolean)
+      .map<Ref>(({ id, name }) => ({ id: id ?? 0, name: name ?? "" }));
+    // TODO: Type `Ruleset` has the id and name as optional/undefined to support
+    //       object creation. At runtime, id and name will always be defined on
+    //       existing objects.  In future, update the Ruleset creation code to use
+    //       New<Ruleset> or similar to avoid these issues.
 
     return {
       ...currentTaskgroup,

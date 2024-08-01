@@ -107,6 +107,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
       target,
       selectedTargets
     );
+    setValue("selectedTargets", updatedSelectedTargets);
 
     const updatedFormLabels = getUpdatedFormLabels(
       isSelecting,
@@ -114,9 +115,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
       target,
       formLabels
     );
-
     setValue("formLabels", updatedFormLabels);
-    setValue("selectedTargets", updatedSelectedTargets);
   };
 
   const allProviders = targets.flatMap((target) => target.provider);

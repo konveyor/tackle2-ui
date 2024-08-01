@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Application, Target, TargetLabel } from "@app/api/models";
 import { AnalysisMode, ANALYSIS_MODES } from "./schema";
-import { toggle } from "radash";
+import { toggle, unique } from "radash";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 export const isApplicationBinaryEnabled = (
   application: Application
@@ -101,44 +102,46 @@ export const getUpdatedFormLabels = (
     return otherSelectedLabels;
   }
 };
-export const findLabelBySelector = (labels: TargetLabel[], selector: string) =>
-  labels.find((label) => label.label === selector) || "";
 
-export const isLabelInFormLabels = (formLabels: TargetLabel[], label: string) =>
-  formLabels.some((formLabel) => formLabel.label === label);
+/**
+ * Match a target to a set of target type labels based on if the target supports
+ * label choice.
+ */
+const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
+  if (!target.labels?.length) {
+    return false;
+  }
 
-export const labelToTarget = (labelName: string, targets: Target[]) => {
-  const target = targets.find(
-    (t) => t.labels?.some((l) => l.name === labelName)
+  const targetTargetLabelCount = target.labels?.reduce(
+    (count, tl) =>
+      getParsedLabel(tl.label).labelType === "target" ? count + 1 : count,
+    0
   );
-  return target ? target : null;
+
+  const matches = labels
+    .map((l) => target.labels?.find((tl) => tl.label === l.label) ?? false)
+    .filter(Boolean).length;
+
+  return target.choice ? matches >= 1 : matches === targetTargetLabelCount;
 };
 
+/**
+ * Given a set of selected labels, return a set of targets where (1) the target's labels
+ * properly match the select labels or (2) the target is selected but has no labels.
+ */
 export const updateSelectedTargetsBasedOnLabels = (
   currentFormLabels: TargetLabel[],
   selectedTargets: Target[],
   targets: Target[]
 ): Target[] => {
-  const targetsFromLabels = currentFormLabels
-    .map((label) => labelToTarget(label.name, targets))
-    .filter(Boolean);
-
-  const newSelectedTargets = currentFormLabels.reduce(
-    (acc: Target[], formLabel) => {
-      const target = labelToTarget(formLabel.name, targets);
-      if (target && !acc.some((v) => v.id === target.id)) {
-        acc.push(target);
-      }
-      return acc;
-    },
-    []
+  const targetsFromLabels = unique(
+    targets.filter((target) => matchTargetToLabels(target, currentFormLabels)),
+    (target) => target.id
   );
 
-  // TODO: If a Target doesn't have a label (i.e. is a custom repo), it should
-  //       stick around and not get dropped here
-  const filteredSelectedTargets = selectedTargets.filter((target) =>
-    targetsFromLabels.some((current) => current?.id === target.id)
+  const selectedTargetsWithNoLabel = selectedTargets.filter(
+    (target) => (target.labels?.length ?? 0) === 0
   );
 
-  return [...new Set([...newSelectedTargets, ...filteredSelectedTargets])];
+  return [...targetsFromLabels, ...selectedTargetsWithNoLabel];
 };
