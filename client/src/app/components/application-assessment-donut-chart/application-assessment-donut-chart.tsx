@@ -32,14 +32,14 @@ export const getChartDataFromCategories = (
     .flatMap((f) => f.answers)
     .filter((f) => f.selected === true)
     .forEach((f) => {
-      switch (f.risk) {
-        case "GREEN":
+      switch (f.risk.toLowerCase()) {
+        case "green":
           green++;
           break;
         case "yellow":
           amber++;
           break;
-        case "RED":
+        case "red":
           red++;
           break;
         default:

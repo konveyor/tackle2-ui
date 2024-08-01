@@ -207,7 +207,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                 {t("terms.riskFromArchetype")}
               </Title>
               <Text component="small" cy-data="comments">
-                <RiskLabel risk={archetype?.risk || "unknown"} />
+                <RiskLabel risk={archetype?.risk} />
               </Text>
             </TextContent>
           </Tab>

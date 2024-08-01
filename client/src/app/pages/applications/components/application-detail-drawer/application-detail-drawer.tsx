@@ -294,7 +294,7 @@ const TabDetailsContent: React.FC<{
           {t("terms.riskFromApplication")}
         </Title>
         <Text component="small" cy-data="comments">
-          <RiskLabel risk={application?.risk || "unknown"} />
+          <RiskLabel risk={application?.risk} />
         </Text>
       </TextContent>
 

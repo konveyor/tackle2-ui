@@ -24,7 +24,8 @@ describe("RiskLabel", () => {
     expect(screen.getByText("risks.unknown")).toBeInTheDocument();
   });
   it("Not defined risk", () => {
-    const { container } = render(<RiskLabel risk={"ANYTHING_ELSE" as any} />);
+    const { container } = render(<RiskLabel risk={"ANYTHING_ELSE"} />);
+    expect(container.firstChild).toHaveClass("pf-v5-c-label");
     expect(screen.getByText("ANYTHING_ELSE")).toBeInTheDocument();
   });
 });
