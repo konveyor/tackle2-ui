@@ -4,6 +4,7 @@ import {
   IReadFile,
   FileLoadError,
   TargetLabel,
+  Target,
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
@@ -55,7 +56,7 @@ const useModeStepSchema = ({
 
 export interface TargetsStepValues {
   formLabels: TargetLabel[];
-  selectedTargets: number[];
+  selectedTargets: Target[];
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
@@ -114,7 +115,6 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 });
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
-  const { t } = useTranslation();
   return yup.object({
     rulesKind: yup.string().defined(),
     customRulesFiles: yup
