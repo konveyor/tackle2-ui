@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import {
   Application,
   New,
+  Ref,
   TaskData,
   Taskgroup,
   TaskgroupTask,
@@ -223,6 +224,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     const matchingSourceCredential = identities.find(
       (identity) => identity.name === fieldValues.associatedCredentials
     );
+
+    const ruleSetRefsFromSelectedTargets: Ref[] = fieldValues.selectedTargets
+      .map(({ ruleset }) => ruleset)
+      .filter(Boolean)
+      .map<Ref>(({ id, name }) => ({ id: id ?? 0, name: name ?? "" }));
+    // TODO: Type `Ruleset` has the id and name as optional/undefined to support
+    //       object creation. At runtime, id and name will always be defined on
+    //       existing objects.  In future, update the Ruleset creation code to use
+    //       New<Ruleset> or similar to avoid these issues.
+
     return {
       ...currentTaskgroup,
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
@@ -286,6 +297,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 name: matchingSourceCredential.name,
               },
             }),
+          ...(ruleSetRefsFromSelectedTargets.length > 0 && {
+            ruleSets: ruleSetRefsFromSelectedTargets,
+          }),
         },
       },
     };

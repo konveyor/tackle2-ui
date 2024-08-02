@@ -29,11 +29,8 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
 import defaultSources from "./sources";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
-import {
-  findLabelBySelector,
-  isLabelInFormLabels,
-  updateSelectedTargetsBasedOnLabels,
-} from "./utils";
+import { updateSelectedTargetsBasedOnLabels } from "./utils";
+import { toggle } from "radash";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();
@@ -124,25 +121,14 @@ export const SetOptions: React.FC = () => {
               selections={targetSelections}
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
-                const selectionWithLabelSelector = `konveyor.io/target=${selection}`;
-                const matchingLabel = findLabelBySelector(
-                  defaultTargetsAndTargetsLabels,
-                  selectionWithLabelSelector
+                const selectionLabel = `konveyor.io/target=${selection}`;
+                const matchingLabel = defaultTargetsAndTargetsLabels.find(
+                  (label) => label.label === selectionLabel
                 );
-                let updatedFormLabels = [];
-                if (
-                  matchingLabel &&
-                  !isLabelInFormLabels(formLabels, matchingLabel.label)
-                ) {
-                  updatedFormLabels = [...formLabels, matchingLabel];
-                  onChange(updatedFormLabels);
-                } else {
-                  updatedFormLabels = formLabels.filter(
-                    (formLabel) =>
-                      formLabel.label !== selectionWithLabelSelector
-                  );
-                  onChange(updatedFormLabels);
-                }
+                const updatedFormLabels = !matchingLabel
+                  ? formLabels
+                  : toggle(formLabels, matchingLabel, (tl) => tl.label);
+                onChange(updatedFormLabels);
 
                 const updatedSelectedTargets =
                   updateSelectedTargetsBasedOnLabels(
