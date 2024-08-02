@@ -20,6 +20,7 @@ import { Application, TagCategory, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
 import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
+import { unique } from "radash";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -48,22 +49,23 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     );
   };
 
-  const initialProviders = Array.from(
-    new Set(
-      applications
-        .flatMap((app) => app.tags || [])
-        .map((tag) => {
-          return {
-            category: findCategoryForTag(tag.id),
-            tag,
-          };
-        })
-        .filter((tagWithCat) => tagWithCat?.category?.name === "Language")
-        .map((tagWithCat) => tagWithCat.tag.name)
-    )
-  ).filter(Boolean);
+  const allProviders = targets.flatMap((target) => target.provider);
+  const languageOptions = Array.from(new Set(allProviders));
 
-  const [providers, setProviders] = useState(initialProviders);
+  const initialProviders = unique(
+    applications
+      .flatMap((app) => app.tags || [])
+      .map((tag) => {
+        return {
+          category: findCategoryForTag(tag.id),
+          tag,
+        };
+      })
+      .filter((tag) => tag?.category?.name === "Language")
+      .map((languageTag) => languageTag.tag.name)
+  ).filter((language) => languageOptions.includes(language));
+
+  const [selectedProviders, setSelectedProviders] = useState(initialProviders);
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -118,16 +120,13 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     setValue("formLabels", updatedFormLabels);
   };
 
-  const allProviders = targets.flatMap((target) => target.provider);
-  const languageOptions = Array.from(new Set(allProviders));
-
   const targetsToRender: Target[] = !targetOrderSetting.isSuccess
     ? []
     : targetOrderSetting.data
         .map((targetId) => targets.find((target) => target.id === targetId))
         .filter(Boolean)
         .filter((target) =>
-          providers.some((p) => target.provider?.includes(p) ?? false)
+          selectedProviders.some((p) => target.provider?.includes(p) ?? false)
         );
 
   return (
@@ -145,7 +144,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
       <SimpleSelectCheckbox
         placeholderText="Filter by language..."
         width={300}
-        value={providers}
+        value={selectedProviders}
         options={languageOptions?.map((language): SelectOptionProps => {
           return {
             children: <div>{language}</div>,
@@ -153,7 +152,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
           };
         })}
         onChange={(selection) => {
-          setProviders(selection as string[]);
+          setSelectedProviders(selection as string[]);
         }}
         id="filter-by-language"
         toggleId="action-select-toggle"
