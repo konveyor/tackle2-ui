@@ -19,7 +19,7 @@ import { useFetchTargets } from "@app/queries/targets";
 import { Application, TagCategory, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
-import { getUpdatedFormLabels, updateSelectedTargets } from "./utils";
+import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -103,10 +103,11 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     selectedLabelName: string,
     target: Target
   ) => {
-    const updatedSelectedTargets = updateSelectedTargets(
-      target.id,
+    const updatedSelectedTargets = toggleSelectedTargets(
+      target,
       selectedTargets
     );
+    setValue("selectedTargets", updatedSelectedTargets);
 
     const updatedFormLabels = getUpdatedFormLabels(
       isSelecting,
@@ -114,9 +115,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
       target,
       formLabels
     );
-
     setValue("formLabels", updatedFormLabels);
-    setValue("selectedTargets", updatedSelectedTargets);
   };
 
   const allProviders = targets.flatMap((target) => target.provider);
@@ -176,7 +175,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
             <TargetCard
               readOnly
               item={target}
-              cardSelected={selectedTargets?.includes(target.id)}
+              cardSelected={selectedTargets.some(({ id }) => id === target.id)}
               onSelectedCardTargetChange={(selectedTarget) => {
                 handleOnSelectedCardTargetChange(selectedTarget);
               }}

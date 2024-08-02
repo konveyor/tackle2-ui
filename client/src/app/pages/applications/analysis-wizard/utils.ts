@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Application, Target, TargetLabel } from "@app/api/models";
 import { AnalysisMode, ANALYSIS_MODES } from "./schema";
+import { toggle, unique } from "radash";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 export const isApplicationBinaryEnabled = (
   application: Application
@@ -61,14 +63,14 @@ export const useAnalyzableApplicationsByMode = (
     [applications]
   );
 
-export const updateSelectedTargets = (
-  targetId: number,
-  selectedTargetIDs: number[]
-) => {
-  const isSelected = selectedTargetIDs.includes(targetId);
-  return isSelected
-    ? selectedTargetIDs.filter((id) => id !== targetId)
-    : [...selectedTargetIDs, targetId];
+/**
+ * Toggle the existence of a target within the array and return the array
+ */
+export const toggleSelectedTargets = (
+  target: Target,
+  selectedTargets: Target[]
+): Target[] => {
+  return toggle(selectedTargets, target, (t) => t.id);
 };
 
 export const getUpdatedFormLabels = (
@@ -100,40 +102,46 @@ export const getUpdatedFormLabels = (
     return otherSelectedLabels;
   }
 };
-export const findLabelBySelector = (labels: TargetLabel[], selector: string) =>
-  labels.find((label) => label.label === selector) || "";
 
-export const isLabelInFormLabels = (formLabels: TargetLabel[], label: string) =>
-  formLabels.some((formLabel) => formLabel.label === label);
+/**
+ * Match a target to a set of target type labels based on if the target supports
+ * label choice.
+ */
+const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
+  if (!target.labels?.length) {
+    return false;
+  }
 
-export const labelToTargetId = (labelName: string, targets: Target[]) => {
-  const target = targets.find(
-    (t) => t.labels?.some((l) => l.name === labelName)
+  const targetTargetLabelCount = target.labels?.reduce(
+    (count, tl) =>
+      getParsedLabel(tl.label).labelType === "target" ? count + 1 : count,
+    0
   );
-  return target ? target.id : null;
+
+  const matches = labels
+    .map((l) => target.labels?.find((tl) => tl.label === l.label) ?? false)
+    .filter(Boolean).length;
+
+  return target.choice ? matches >= 1 : matches === targetTargetLabelCount;
 };
 
+/**
+ * Given a set of selected labels, return a set of targets where (1) the target's labels
+ * properly match the select labels or (2) the target is selected but has no labels.
+ */
 export const updateSelectedTargetsBasedOnLabels = (
   currentFormLabels: TargetLabel[],
-  selectedTargets: number[],
+  selectedTargets: Target[],
   targets: Target[]
-) => {
-  const newSelectedTargets = currentFormLabels.reduce(
-    (acc: number[], formLabel) => {
-      const targetId = labelToTargetId(formLabel.name, targets);
-      if (targetId && !acc.includes(targetId)) {
-        acc.push(targetId);
-      }
-      return acc;
-    },
-    []
+): Target[] => {
+  const targetsFromLabels = unique(
+    targets.filter((target) => matchTargetToLabels(target, currentFormLabels)),
+    (target) => target.id
   );
 
-  const filteredSelectedTargets = selectedTargets.filter((targetId) =>
-    currentFormLabels.some(
-      (formLabel) => labelToTargetId(formLabel.name, targets) === targetId
-    )
+  const selectedTargetsWithNoLabel = selectedTargets.filter(
+    (target) => (target.labels?.length ?? 0) === 0
   );
 
-  return [...new Set([...newSelectedTargets, ...filteredSelectedTargets])];
+  return [...targetsFromLabels, ...selectedTargetsWithNoLabel];
 };
