@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Title,
   TextContent,
@@ -16,7 +16,7 @@ import { TargetCard } from "@app/components/target-card/target-card";
 import { AnalysisWizardFormValues } from "./schema";
 import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
-import { Application, TagCategory, Target } from "@app/api/models";
+import { Application, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
 import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
@@ -29,7 +29,7 @@ interface SetTargetsProps {
 export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const { t } = useTranslation();
 
-  const { targets } = useFetchTargets();
+  const { targets, isSuccess: isTargetsSuccess } = useFetchTargets();
 
   const targetOrderSetting = useSetting("ui.target.order");
 
@@ -40,32 +40,38 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const formLabels = watch("formLabels");
   const selectedTargets = watch("selectedTargets");
 
-  const { tagCategories } = useFetchTagCategories();
+  const { tagCategories, isSuccess: isTagCategoriesSuccess } =
+    useFetchTagCategories();
 
-  const findCategoryForTag = (tagId: number) => {
-    return tagCategories.find(
-      (category: TagCategory) =>
-        category.tags?.some((categoryTag) => categoryTag.id === tagId)
-    );
-  };
+  const languageProviders = useMemo(
+    () => unique(targets.map(({ provider }) => provider).filter(Boolean)),
+    [targets]
+  );
 
-  const allProviders = targets.flatMap((target) => target.provider);
-  const languageOptions = Array.from(new Set(allProviders));
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
 
-  const initialProviders = unique(
-    applications
-      .flatMap((app) => app.tags || [])
-      .map((tag) => {
-        return {
-          category: findCategoryForTag(tag.id),
-          tag,
-        };
-      })
-      .filter((tag) => tag?.category?.name === "Language")
-      .map((languageTag) => languageTag.tag.name)
-  ).filter((language) => languageOptions.includes(language));
+  useEffect(() => {
+    if (isTagCategoriesSuccess && isTargetsSuccess) {
+      const languageTags =
+        tagCategories.find((category) => category.name === "Language")?.tags ??
+        [];
 
-  const [selectedProviders, setSelectedProviders] = useState(initialProviders);
+      const applicationProviders = unique(
+        applications
+          .flatMap((app) => app.tags || [])
+          .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
+          .map((languageTag) => languageTag.name)
+          .filter((language) => languageProviders.includes(language))
+      );
+      setSelectedProviders(applicationProviders);
+    }
+  }, [
+    applications,
+    isTagCategoriesSuccess,
+    isTargetsSuccess,
+    languageProviders,
+    tagCategories,
+  ]);
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -145,14 +151,14 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
         placeholderText="Filter by language..."
         width={300}
         value={selectedProviders}
-        options={languageOptions?.map((language): SelectOptionProps => {
+        options={languageProviders?.map((language): SelectOptionProps => {
           return {
             children: <div>{language}</div>,
             value: language,
           };
         })}
         onChange={(selection) => {
-          setSelectedProviders(selection as string[]);
+          setSelectedProviders(selection);
         }}
         id="filter-by-language"
         toggleId="action-select-toggle"
