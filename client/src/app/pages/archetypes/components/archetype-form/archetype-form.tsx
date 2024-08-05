@@ -149,18 +149,7 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       )
       .required(t("validation.required")),
 
-    tags: yup
-      .array()
-      .of(yup.object({ id: yup.number(), name: yup.string() }))
-      .min(1, ({ min }) =>
-        t("validation.minCount", {
-          count: min,
-          type: t("terms.tag").toLocaleLowerCase(),
-          types: t("terms.tags").toLocaleLowerCase(),
-        })
-      )
-      .required(t("validation.required")),
-
+    tags: yup.array().of(yup.object({ id: yup.number(), name: yup.string() })),
     stakeholders: yup
       .array()
       .of(yup.object({ id: yup.number(), name: yup.string() })),
@@ -279,7 +268,6 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         name="tags"
         label="Archetype Tags"
         fieldId="tags"
-        isRequired
         noResultsMessage={t("message.noResultsFoundTitle")}
         placeholderText={t("composed.selectMany", {
           what: t("terms.tags").toLowerCase(),
