@@ -25,6 +25,7 @@ import { unique } from "radash";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ConditionalTableBody } from "@app/components/TableControls";
+import { useSetting } from "@app/queries/settings";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -34,11 +35,13 @@ interface SetTargetsProps {
 const useEnhancedTargets = (applications: Application[]) => {
   const {
     targets,
-    isFetching: isTargetsFetching,
+    isFetching: isTargetsLoading,
     fetchError: isTargetsError,
   } = useFetchTargets();
-  const { tagCategories, isFetching: isTagCategoriesFetching } =
+  const { tagCategories, isFetching: isTagCategoriesLoading } =
     useFetchTagCategories();
+  const { data: targetOrder = [], isLoading: isTargetOrderLoading } =
+    useSetting("ui.target.order");
 
   const languageProviders = useMemo(
     () => unique(targets.map(({ provider }) => provider).filter(Boolean)),
@@ -55,10 +58,25 @@ const useEnhancedTargets = (applications: Application[]) => {
       .map((languageTag) => languageTag.name)
       .filter((language) => languageProviders.includes(language))
   );
+
+  // 1. missing target order setting is not a blocker (only lowers user experience)
+  // 2. targets without manual order are put at the end
+  const targetsWithOrder = targets.map((target) => {
+    const index = targetOrder.findIndex((id) => id === target.id);
+    return {
+      target,
+      order: index === -1 ? targets.length : index,
+    };
+  });
+  targetsWithOrder.sort((a, b) => a.order - b.order);
+
   return {
-    isFetching: isTagCategoriesFetching || isTargetsFetching,
+    // keep the same meaning as in react query
+    // isLoading == no data yet
+    isLoading:
+      isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
     isError: !!isTargetsError,
-    targets,
+    targets: targetsWithOrder.map(({ target }) => target),
     applicationProviders: [...applicationProviders, "foo"],
     languageProviders: [...languageProviders, "foo"],
   };
@@ -70,7 +88,7 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { targets, isFetching, isError, languageProviders } =
+  const { targets, isLoading, isError, languageProviders } =
     useEnhancedTargets(applications);
 
   const { watch, setValue, getValues } =
@@ -79,9 +97,6 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
   const values = getValues();
   const formLabels = watch("formLabels");
   const selectedTargets = watch("selectedTargets");
-
-  // TODO: re-enable
-  // const targetOrderSetting = useSetting("ui.target.order");
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -145,7 +160,7 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
       name: "name",
     },
     isFilterEnabled: true,
-    isLoading: isFetching,
+    isLoading,
     filterCategories: [
       {
         selectOptions: languageProviders?.map((language) => ({
@@ -197,7 +212,7 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
           />
         )}
       <ConditionalTableBody
-        isLoading={isFetching}
+        isLoading={isLoading}
         isError={isError}
         isNoData={targets.length === 0}
         numRenderedColumns={1}
@@ -229,8 +244,8 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
 
 export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   // pre-fetch data but leave error handling to the real page
-  const { isFetching, applicationProviders } = useEnhancedTargets(applications);
-  if (isFetching) {
+  const { isLoading, applicationProviders } = useEnhancedTargets(applications);
+  if (isLoading) {
     return (
       <Bullseye>
         <Spinner size="xl" />
