@@ -8,6 +8,7 @@ import {
   SelectOptionProps,
   ToolbarToggleGroup,
   ToolbarItem,
+  ToolbarToggleGroupProps,
 } from "@patternfly/react-core";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 
@@ -110,6 +111,7 @@ export interface IFilterToolbarProps<TItem, TFilterCategoryKey extends string> {
   pagination?: JSX.Element;
   showFiltersSideBySide?: boolean;
   isDisabled?: boolean;
+  breakpoint?: ToolbarToggleGroupProps["breakpoint"];
 }
 
 export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
@@ -119,6 +121,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   pagination,
   showFiltersSideBySide = false,
   isDisabled = false,
+  breakpoint = "2xl",
 }: React.PropsWithChildren<
   IFilterToolbarProps<TItem, TFilterCategoryKey>
 >): JSX.Element | null => {
@@ -192,7 +195,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
       <ToolbarToggleGroup
         variant="filter-group"
         toggleIcon={<FilterIcon />}
-        breakpoint="2xl"
+        breakpoint={breakpoint}
         spaceItems={
           showFiltersSideBySide ? { default: "spaceItemsMd" } : undefined
         }
