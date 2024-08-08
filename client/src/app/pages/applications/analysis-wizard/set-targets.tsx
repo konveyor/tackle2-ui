@@ -77,8 +77,8 @@ const useEnhancedTargets = (applications: Application[]) => {
       isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
     isError: !!isTargetsError,
     targets: targetsWithOrder.map(({ target }) => target),
-    applicationProviders: [...applicationProviders, "foo"],
-    languageProviders: [...languageProviders, "foo"],
+    applicationProviders,
+    languageProviders,
   };
 };
 
@@ -160,6 +160,7 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
       name: "name",
     },
     isFilterEnabled: true,
+    isPaginationEnabled: false,
     isLoading,
     filterCategories: [
       {
@@ -198,7 +199,7 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
         clearAllFilters={() => filterToolbarProps.setFilterValues({})}
       >
         <ToolbarContent>
-          <FilterToolbar {...filterToolbarProps} />
+          <FilterToolbar {...filterToolbarProps} breakpoint="md" />
         </ToolbarContent>
       </Toolbar>
 
