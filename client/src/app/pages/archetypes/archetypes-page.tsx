@@ -50,7 +50,6 @@ import {
 } from "@app/queries/archetypes";
 
 import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
-import ArchetypeDescriptionColumn from "./components/archetype-description-column";
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
 import ArchetypeForm from "./components/archetype-form";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
@@ -437,7 +436,7 @@ const Archetypes: React.FC = () => {
                           {...getTdProps({ columnKey: "description" })}
                           modifier="truncate"
                         >
-                          <ArchetypeDescriptionColumn archetype={archetype} />
+                          {archetype.description}
                         </Td>
                         <Td {...getTdProps({ columnKey: "tags" })}>
                           <ArchetypeTagsColumn archetype={archetype} />
