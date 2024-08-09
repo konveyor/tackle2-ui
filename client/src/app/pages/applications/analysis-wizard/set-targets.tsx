@@ -9,8 +9,6 @@ import {
   Alert,
   Toolbar,
   ToolbarContent,
-  Bullseye,
-  Spinner,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -24,8 +22,9 @@ import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
 import { unique } from "radash";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { ConditionalTableBody } from "@app/components/TableControls";
 import { useSetting } from "@app/queries/settings";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { StateError } from "@app/components/StateError";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -60,7 +59,7 @@ const useEnhancedTargets = (applications: Application[]) => {
   );
 
   // 1. missing target order setting is not a blocker (only lowers user experience)
-  // 2. targets without manual order are put at the end
+  // 2. targets without assigned position (if any) are put at the end
   const targetsWithOrder = targets.map((target) => {
     const index = targetOrder.findIndex((id) => id === target.id);
     return {
@@ -71,10 +70,11 @@ const useEnhancedTargets = (applications: Application[]) => {
   targetsWithOrder.sort((a, b) => a.order - b.order);
 
   return {
-    // keep the same meaning as in react query
-    // isLoading == no data yet
+    // true if some queries are still fetching data for the first time (initial load)
+    // note that the default re-try count (3) is used
     isLoading:
       isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
+    // missing targets are the only blocker
     isError: !!isTargetsError,
     targets: targetsWithOrder.map(({ target }) => target),
     applicationProviders,
@@ -82,14 +82,22 @@ const useEnhancedTargets = (applications: Application[]) => {
   };
 };
 
-const SetTargetsInternal: React.FC<SetTargetsProps> = ({
-  applications,
+interface SetTargetsInternalProps {
+  targets: Target[];
+  isLoading: boolean;
+  isError: boolean;
+  languageProviders: string[];
+  initialFilters: string[];
+}
+
+const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
+  targets,
+  isLoading,
+  isError,
+  languageProviders,
   initialFilters = [],
 }) => {
   const { t } = useTranslation();
-
-  const { targets, isLoading, isError, languageProviders } =
-    useEnhancedTargets(applications);
 
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
@@ -212,12 +220,9 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
             title={t("wizard.label.skipTargets")}
           />
         )}
-      <ConditionalTableBody
-        isLoading={isLoading}
-        isError={isError}
-        isNoData={targets.length === 0}
-        numRenderedColumns={1}
-      >
+
+      {isError && <StateError />}
+      {!isError && (
         <Gallery hasGutter>
           {currentPageItems.map((target) => (
             <GalleryItem key={target.id}>
@@ -238,25 +243,37 @@ const SetTargetsInternal: React.FC<SetTargetsProps> = ({
             </GalleryItem>
           ))}
         </Gallery>
-      </ConditionalTableBody>
+      )}
     </Form>
   );
 };
 
 export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
-  // pre-fetch data but leave error handling to the real page
-  const { isLoading, applicationProviders } = useEnhancedTargets(applications);
+  // wait for the initial load but leave error handling to the real page
+  const {
+    isLoading,
+    targets,
+    isError,
+    applicationProviders,
+    languageProviders,
+  } = useEnhancedTargets(applications);
   if (isLoading) {
     return (
-      <Bullseye>
-        <Spinner size="xl" />
-      </Bullseye>
+      <div style={{ marginTop: "100px" }}>
+        <AppPlaceholder />
+      </div>
     );
   }
+
   return (
     <SetTargetsInternal
-      applications={applications}
-      initialFilters={applicationProviders}
+      {...{
+        initialFilters: applicationProviders,
+        targets,
+        isError,
+        isLoading,
+        languageProviders,
+      }}
     />
   );
 };
