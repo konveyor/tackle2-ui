@@ -47,27 +47,41 @@ const useEnhancedTargets = (applications: Application[]) => {
     [targets]
   );
 
-  const languageTags =
-    tagCategories?.find((category) => category.name === "Language")?.tags ?? [];
+  const languageTags = useMemo(
+    () =>
+      tagCategories?.find((category) => category.name === "Language")?.tags ??
+      [],
+    [tagCategories]
+  );
 
-  const applicationProviders = unique(
-    applications
-      .flatMap((app) => app.tags || [])
-      .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
-      .map((languageTag) => languageTag.name)
-      .filter((language) => languageProviders.includes(language))
+  const applicationProviders = useMemo(
+    () =>
+      unique(
+        applications
+          .flatMap((app) => app.tags || [])
+          .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
+          .map((languageTag) => languageTag.name)
+          .filter((language) => languageProviders.includes(language))
+      ),
+    [applications, languageTags, languageProviders]
   );
 
   // 1. missing target order setting is not a blocker (only lowers user experience)
   // 2. targets without assigned position (if any) are put at the end
-  const targetsWithOrder = targets.map((target) => {
-    const index = targetOrder.findIndex((id) => id === target.id);
-    return {
-      target,
-      order: index === -1 ? targets.length : index,
-    };
-  });
-  targetsWithOrder.sort((a, b) => a.order - b.order);
+  const targetsWithOrder = useMemo(
+    () =>
+      targets
+        .map((target) => {
+          const index = targetOrder.findIndex((id) => id === target.id);
+          return {
+            target,
+            order: index === -1 ? targets.length : index,
+          };
+        })
+        .sort((a, b) => a.order - b.order)
+        .map(({ target }) => target),
+    [targets, targetOrder]
+  );
 
   return {
     // true if some queries are still fetching data for the first time (initial load)
@@ -76,7 +90,7 @@ const useEnhancedTargets = (applications: Application[]) => {
       isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
     // missing targets are the only blocker
     isError: !!isTargetsError,
-    targets: targetsWithOrder.map(({ target }) => target),
+    targets: targetsWithOrder,
     applicationProviders,
     languageProviders,
   };
@@ -180,7 +194,6 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         title: "Languages",
         type: FilterType.multiselect,
         matcher: (filter, target) => !!target.provider?.includes(filter),
-        logicOperator: "OR",
       },
     ],
   });
