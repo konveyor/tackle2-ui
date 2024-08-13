@@ -190,16 +190,29 @@ export const ApplicationLandscape: React.FC<IApplicationLandscapeProps> = ({
           <FlexItem>
             <Donut
               isAssessment={false}
-              id="landscape-donut-unassessed"
-              value={landscapeData.unassessed + landscapeData.unknown}
+              id="landscape-donut-unknown"
+              value={landscapeData.unknown}
               total={landscapeData.applicationsCount}
               color={RISK_LIST.unknown.hexColor}
               riskLabel={
-                <Link to={getRisksUrl(["unknown"])}>
-                  {`${t("terms.unassessed")}/${t("terms.unknown")}`}
+                <Link to={getRisksUrl(["unknown"])}>{t("terms.unknown")}</Link>
+              }
+              riskTitle={t("terms.unknown")}
+            />
+          </FlexItem>
+          <FlexItem>
+            <Donut
+              isAssessment={false}
+              id="landscape-donut-unassessed"
+              value={landscapeData.unassessed}
+              total={landscapeData.applicationsCount}
+              color={RISK_LIST.unassessed.hexColor}
+              riskLabel={
+                <Link to={getRisksUrl(["unassessed"])}>
+                  {t("terms.unassessed")}
                 </Link>
               }
-              riskTitle={t("terms.unassessedOrUnknown")}
+              riskTitle={t("terms.unassessed")}
             />
           </FlexItem>
         </Flex>
