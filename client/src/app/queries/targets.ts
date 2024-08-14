@@ -12,7 +12,7 @@ import { AxiosError } from "axios";
 export const TargetsQueryKey = "targets";
 
 export const useFetchTargets = () => {
-  const { data, isLoading, error, refetch } = useQuery<Target[]>({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery<Target[]>({
     queryKey: [TargetsQueryKey],
     queryFn: async () => await getTargets(),
     onError: (err) => console.log(err),
@@ -21,6 +21,7 @@ export const useFetchTargets = () => {
   return {
     targets: data || [],
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
     refetch,
   };
