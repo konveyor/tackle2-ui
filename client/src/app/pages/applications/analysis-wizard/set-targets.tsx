@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import {
   Title,
   TextContent,
@@ -7,30 +7,111 @@ import {
   GalleryItem,
   Form,
   Alert,
-  SelectOptionProps,
+  Toolbar,
+  ToolbarContent,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 import { TargetCard } from "@app/components/target-card/target-card";
 import { AnalysisWizardFormValues } from "./schema";
-import { useSetting } from "@app/queries/settings";
 import { useFetchTargets } from "@app/queries/targets";
-import { Application, TagCategory, Target } from "@app/api/models";
+import { Application, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { SimpleSelectCheckbox } from "@app/components/SimpleSelectCheckbox";
 import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
+import { unique } from "radash";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useSetting } from "@app/queries/settings";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { StateError } from "@app/components/StateError";
 
 interface SetTargetsProps {
   applications: Application[];
+  initialFilters?: string[];
 }
 
-export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
+const useEnhancedTargets = (applications: Application[]) => {
+  const {
+    targets,
+    isFetching: isTargetsLoading,
+    fetchError: isTargetsError,
+  } = useFetchTargets();
+  const { tagCategories, isFetching: isTagCategoriesLoading } =
+    useFetchTagCategories();
+  const { data: targetOrder = [], isLoading: isTargetOrderLoading } =
+    useSetting("ui.target.order");
+
+  const languageProviders = useMemo(
+    () => unique(targets.map(({ provider }) => provider).filter(Boolean)),
+    [targets]
+  );
+
+  const languageTags = useMemo(
+    () =>
+      tagCategories?.find((category) => category.name === "Language")?.tags ??
+      [],
+    [tagCategories]
+  );
+
+  const applicationProviders = useMemo(
+    () =>
+      unique(
+        applications
+          .flatMap((app) => app.tags || [])
+          .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
+          .map((languageTag) => languageTag.name)
+          .filter((language) => languageProviders.includes(language))
+      ),
+    [applications, languageTags, languageProviders]
+  );
+
+  // 1. missing target order setting is not a blocker (only lowers user experience)
+  // 2. targets without assigned position (if any) are put at the end
+  const targetsWithOrder = useMemo(
+    () =>
+      targets
+        .map((target) => {
+          const index = targetOrder.findIndex((id) => id === target.id);
+          return {
+            target,
+            order: index === -1 ? targets.length : index,
+          };
+        })
+        .sort((a, b) => a.order - b.order)
+        .map(({ target }) => target),
+    [targets, targetOrder]
+  );
+
+  return {
+    // true if some queries are still fetching data for the first time (initial load)
+    // note that the default re-try count (3) is used
+    isLoading:
+      isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
+    // missing targets are the only blocker
+    isError: !!isTargetsError,
+    targets: targetsWithOrder,
+    applicationProviders,
+    languageProviders,
+  };
+};
+
+interface SetTargetsInternalProps {
+  targets: Target[];
+  isLoading: boolean;
+  isError: boolean;
+  languageProviders: string[];
+  initialFilters: string[];
+}
+
+const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
+  targets,
+  isLoading,
+  isError,
+  languageProviders,
+  initialFilters = [],
+}) => {
   const { t } = useTranslation();
-
-  const { targets } = useFetchTargets();
-
-  const targetOrderSetting = useSetting("ui.target.order");
 
   const { watch, setValue, getValues } =
     useFormContext<AnalysisWizardFormValues>();
@@ -38,32 +119,6 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   const values = getValues();
   const formLabels = watch("formLabels");
   const selectedTargets = watch("selectedTargets");
-
-  const { tagCategories } = useFetchTagCategories();
-
-  const findCategoryForTag = (tagId: number) => {
-    return tagCategories.find(
-      (category: TagCategory) =>
-        category.tags?.some((categoryTag) => categoryTag.id === tagId)
-    );
-  };
-
-  const initialProviders = Array.from(
-    new Set(
-      applications
-        .flatMap((app) => app.tags || [])
-        .map((tag) => {
-          return {
-            category: findCategoryForTag(tag.id),
-            tag,
-          };
-        })
-        .filter((tagWithCat) => tagWithCat?.category?.name === "Language")
-        .map((tagWithCat) => tagWithCat.tag.name)
-    )
-  ).filter(Boolean);
-
-  const [providers, setProviders] = useState(initialProviders);
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = formLabels?.filter((formLabel) => {
@@ -118,17 +173,35 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
     setValue("formLabels", updatedFormLabels);
   };
 
-  const allProviders = targets.flatMap((target) => target.provider);
-  const languageOptions = Array.from(new Set(allProviders));
+  const tableControls = useLocalTableControls({
+    tableName: "target-cards",
+    items: targets,
+    idProperty: "name",
+    initialFilterValues: { name: initialFilters },
+    columnNames: {
+      name: "name",
+    },
+    isFilterEnabled: true,
+    isPaginationEnabled: false,
+    isLoading,
+    filterCategories: [
+      {
+        selectOptions: languageProviders?.map((language) => ({
+          value: language,
+        })),
+        placeholderText: "Filter by language...",
+        categoryKey: "name",
+        title: "Languages",
+        type: FilterType.multiselect,
+        matcher: (filter, target) => !!target.provider?.includes(filter),
+      },
+    ],
+  });
 
-  const targetsToRender: Target[] = !targetOrderSetting.isSuccess
-    ? []
-    : targetOrderSetting.data
-        .map((targetId) => targets.find((target) => target.id === targetId))
-        .filter(Boolean)
-        .filter((target) =>
-          providers.some((p) => target.provider?.includes(p) ?? false)
-        );
+  const {
+    currentPageItems,
+    propHelpers: { toolbarProps, filterToolbarProps },
+  } = tableControls;
 
   return (
     <Form
@@ -142,22 +215,14 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
         </Title>
         <Text>{t("wizard.label.setTargets")}</Text>
       </TextContent>
-      <SimpleSelectCheckbox
-        placeholderText="Filter by language..."
-        width={300}
-        value={providers}
-        options={languageOptions?.map((language): SelectOptionProps => {
-          return {
-            children: <div>{language}</div>,
-            value: language,
-          };
-        })}
-        onChange={(selection) => {
-          setProviders(selection as string[]);
-        }}
-        id="filter-by-language"
-        toggleId="action-select-toggle"
-      />
+      <Toolbar
+        {...toolbarProps}
+        clearAllFilters={() => filterToolbarProps.setFilterValues({})}
+      >
+        <ToolbarContent>
+          <FilterToolbar {...filterToolbarProps} breakpoint="md" />
+        </ToolbarContent>
+      </Toolbar>
 
       {values.selectedTargets.length === 0 &&
         values.customRulesFiles.length === 0 &&
@@ -169,24 +234,59 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
           />
         )}
 
-      <Gallery hasGutter>
-        {targetsToRender.map((target) => (
-          <GalleryItem key={target.id}>
-            <TargetCard
-              readOnly
-              item={target}
-              cardSelected={selectedTargets.some(({ id }) => id === target.id)}
-              onSelectedCardTargetChange={(selectedTarget) => {
-                handleOnSelectedCardTargetChange(selectedTarget);
-              }}
-              onCardClick={(isSelecting, selectedLabelName, target) => {
-                handleOnCardClick(isSelecting, selectedLabelName, target);
-              }}
-              formLabels={formLabels}
-            />
-          </GalleryItem>
-        ))}
-      </Gallery>
+      {isError && <StateError />}
+      {!isError && (
+        <Gallery hasGutter>
+          {currentPageItems.map((target) => (
+            <GalleryItem key={target.id}>
+              <TargetCard
+                readOnly
+                item={target}
+                cardSelected={selectedTargets.some(
+                  ({ id }) => id === target.id
+                )}
+                onSelectedCardTargetChange={(selectedTarget) => {
+                  handleOnSelectedCardTargetChange(selectedTarget);
+                }}
+                onCardClick={(isSelecting, selectedLabelName, target) => {
+                  handleOnCardClick(isSelecting, selectedLabelName, target);
+                }}
+                formLabels={formLabels}
+              />
+            </GalleryItem>
+          ))}
+        </Gallery>
+      )}
     </Form>
+  );
+};
+
+export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
+  // wait for the initial load but leave error handling to the real page
+  const {
+    isLoading,
+    targets,
+    isError,
+    applicationProviders,
+    languageProviders,
+  } = useEnhancedTargets(applications);
+  if (isLoading) {
+    return (
+      <div style={{ marginTop: "100px" }}>
+        <AppPlaceholder />
+      </div>
+    );
+  }
+
+  return (
+    <SetTargetsInternal
+      {...{
+        initialFilters: applicationProviders,
+        targets,
+        isError,
+        isLoading,
+        languageProviders,
+      }}
+    />
   );
 };
