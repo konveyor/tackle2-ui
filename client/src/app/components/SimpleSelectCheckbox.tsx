@@ -11,7 +11,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 export interface ISimpleSelectBasicProps {
-  onChange: (selection: string | string[]) => void;
+  onChange: (selection: string[]) => void;
   options: SelectOptionProps[];
   value?: string[];
   placeholderText?: string;
