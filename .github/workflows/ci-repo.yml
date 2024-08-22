@@ -15,6 +15,10 @@ on:
 
   workflow_call:
 
+concurrency:
+  group: ci-repo-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   unit-test-lookup-image:
     runs-on: ubuntu-latest
@@ -61,14 +65,14 @@ jobs:
         run: npm run test -- --coverage --watchAll=false
 
       - name: Upload to codecov (client)
-        if: ${{ github.event.pull_request }}
+        # if: ${{ github.event.pull_request }}
         uses: codecov/codecov-action@v4
         with:
           flags: client
           directory: ./client/coverage
 
       - name: Upload to codecov (server)
-        if: ${{ github.event.pull_request }}
+        # if: ${{ github.event.pull_request }}
         uses: codecov/codecov-action@v4
         with:
           flags: server
