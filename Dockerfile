@@ -21,7 +21,7 @@ RUN npm version && \
   npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-123
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-123.1724037294
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
