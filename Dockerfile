@@ -12,7 +12,13 @@ FROM registry.access.redhat.com/ubi9/nodejs-18:1-118 as builder
 
 USER 1001
 COPY --chown=1001 . .
-RUN npm clean-install --ignore-scripts && npm run build && npm run dist
+RUN npm version && \
+  npm config --location=project set fetch-retry-maxtimeout 300000 && \
+  npm config --location=project set fetch-retry-mintimeout 60000 && \
+  npm config --location=project set fetch-timeout 600000 && \
+  npm clean-install --verbose --ignore-scripts --no-audit && \
+  npm run build && \
+  npm run dist
 
 # Runner image
 FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-123
