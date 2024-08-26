@@ -32,7 +32,6 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -51,6 +50,8 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { StakeholderForm } from "./components/stakeholder-form";
+import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
@@ -210,17 +211,22 @@ export const Stakeholders: React.FC = () => {
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="button-group">
-                <ToolbarItem>
-                  <Button
-                    type="button"
-                    id="create-stakeholder"
-                    aria-label="Create new stakeholder"
-                    variant={ButtonVariant.primary}
-                    onClick={() => setCreateUpdateModalState("create")}
-                  >
-                    {t("actions.createNew")}
-                  </Button>
-                </ToolbarItem>
+                <RBAC
+                  allowedPermissions={controlsWriteScopes}
+                  rbacType={RBAC_TYPE.Scope}
+                >
+                  <ToolbarItem>
+                    <Button
+                      type="button"
+                      id="create-stakeholder"
+                      aria-label="Create new stakeholder"
+                      variant={ButtonVariant.primary}
+                      onClick={() => setCreateUpdateModalState("create")}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </ToolbarItem>
+                </RBAC>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
@@ -299,7 +305,7 @@ export const Stakeholders: React.FC = () => {
                           >
                             {stakeholder.stakeholderGroups?.length}
                           </Td>
-                          <AppTableActionButtons
+                          <ControlTableActionButtons
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholder)
                             }
