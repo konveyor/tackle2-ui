@@ -2,26 +2,26 @@
 #       a specific version tag. Container build errors have come up locally
 #       and via github action workflow when `:latest` is updated.
 #
-# Image info: https://catalog.redhat.com/software/containers/ubi9/nodejs-18/62e8e7ed22d1d3c2dfe2ca01
+# Image info: https://catalog.redhat.com/software/containers/ubi9/nodejs-20/64770ac7a835530172eee6a9
 # Relevant PRs:
 #   - https://github.com/konveyor/tackle2-ui/pull/1746
 #   - https://github.com/konveyor/tackle2-ui/pull/1781
 
 # Builder image
-FROM registry.access.redhat.com/ubi9/nodejs-18:1-118 as builder
+FROM registry.access.redhat.com/ubi9/nodejs-20:1-54 as builder
 
 USER 1001
 COPY --chown=1001 . .
-RUN npm version && \
-  npm config --location=project set fetch-retry-maxtimeout 300000 && \
-  npm config --location=project set fetch-retry-mintimeout 60000 && \
-  npm config --location=project set fetch-timeout 600000 && \
+
+RUN \
+  npm version && \
+  npm config ls && \
   npm clean-install --verbose --ignore-scripts --no-audit && \
   npm run build && \
   npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-123
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:1-57
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
