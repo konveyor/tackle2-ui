@@ -35,8 +35,8 @@
     "client"
   ],
   "engines": {
-    "node": ">=18.14.2",
-    "npm": ">=9.5.0"
+    "node": ">=20.12.2",
+    "npm": "^9.5.0 || ^10.5.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
