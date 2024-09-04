@@ -6,9 +6,7 @@ import {
   DropdownItem,
   DropdownList,
   EmptyState,
-  EmptyStateActions,
   EmptyStateBody,
-  EmptyStateFooter,
   EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -101,11 +99,6 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
                 running. Completed and cancelled tasks may be viewed on the full
                 task list.
               </EmptyStateBody>
-              <EmptyStateFooter>
-                <EmptyStateActions>
-                  <Link to="/tasks">View All Tasks</Link>
-                </EmptyStateActions>
-              </EmptyStateFooter>
             </EmptyState>
           ) : (
             <NotificationDrawerList>
