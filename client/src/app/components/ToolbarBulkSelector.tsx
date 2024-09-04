@@ -78,6 +78,7 @@ export const ToolbarBulkSelector = <T,>({
     <DropdownItem
       onClick={() => {
         handleSelectAll(false);
+        setIsOpen(false);
       }}
       data-action="none"
       key="select-none"
@@ -91,6 +92,7 @@ export const ToolbarBulkSelector = <T,>({
           currentPageItems.map((item: T) => item),
           true
         );
+        setIsOpen(false);
       }}
       data-action="page"
       key="select-page"
@@ -101,6 +103,7 @@ export const ToolbarBulkSelector = <T,>({
     <DropdownItem
       onClick={() => {
         handleSelectAll(true);
+        setIsOpen(false);
       }}
       data-action="all"
       key="select-all"
@@ -116,6 +119,7 @@ export const ToolbarBulkSelector = <T,>({
       <ToolbarItem>
         <Dropdown
           isOpen={isOpen}
+          onOpenChange={(flag) => setIsOpen(flag)}
           toggle={(toggleRef) => (
             <MenuToggle
               ref={toggleRef}
