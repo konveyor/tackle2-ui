@@ -1,43 +1,53 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const node = nodeRef.current;
 
+  // state is set from IntersectionObserver callbacks which may not align with React lifecycle
+  // we can add extra safety by using the same approach as Console's useSafetyFirst() hook
+  // https://github.com/openshift/console/blob/9d4a9b0a01b2de64b308f8423a325f1fae5f8726/frontend/packages/console-dynamic-plugin-sdk/src/app/components/safety-first.tsx#L10
+  const mounted = useRef(true);
+  useEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    []
+  );
+  const setVisibleSafe = useCallback((newValue) => {
+    if (mounted.current) {
+      setVisible(newValue);
+    }
+  }, []);
+
   useEffect(() => {
     if (!enable || !node) {
-      console.log("useVisibilityTracker - disabled");
       return undefined;
     }
 
     // Observer with default options - the whole view port used.
     // Note that if root element is used then it needs to be the ancestor of the target.
-    // In case of infinite scroller the target is always withing the (scrollable!)parent
+    // In case of infinite scroller the target is always within the (scrollable!)parent
     // even if the node is technically hidden from the user.
     // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#root
     const observer = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]) =>
-        entries.forEach(({ isIntersecting, ...rest }) => {
+        entries.forEach(({ isIntersecting }) => {
           if (isIntersecting) {
-            setVisible(true);
-            console.log("useVisibilityTracker - intersection", rest);
+            setVisibleSafe(true);
           } else {
-            setVisible(false);
-            console.log("useVisibilityTracker - out-of-box", rest);
+            setVisibleSafe(false);
           }
         })
     );
     observer.observe(node);
 
-    console.log("useVisibilityTracker - observe");
-
     return () => {
       observer.disconnect();
-      setVisible(false);
-      console.log("useVisibilityTracker - disconnect");
+      setVisibleSafe(false);
     };
-  }, [enable, node]);
+  }, [enable, node, setVisibleSafe]);
 
   return {
     /**

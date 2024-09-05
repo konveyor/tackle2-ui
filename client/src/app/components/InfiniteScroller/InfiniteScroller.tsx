@@ -14,8 +14,6 @@ export interface InfiniteScrollerProps {
   itemCount: number;
 }
 
-let fetchRefHolder: any = null;
-
 export const InfiniteScroller = ({
   children,
   fetchMore,
@@ -34,16 +32,8 @@ export const InfiniteScroller = ({
       enable: hasMore,
     });
 
-  console.log("infinite props ", hasMore, itemCount, itemCountRef.current);
   useEffect(
     () => {
-      console.log(
-        `infinite [visible= >${isSentinelVisible}<] `,
-        itemCount,
-        itemCountRef.current,
-        fetchRefHolder === fetchMore
-      );
-      fetchRefHolder = fetchMore;
       if (
         isSentinelVisible &&
         itemCountRef.current !== itemCount &&
@@ -53,7 +43,8 @@ export const InfiniteScroller = ({
         itemCountRef.current = itemCount;
       }
     },
-    // reference to fetchMore() changes based on query state and ensures that the effect is triggered
+    // reference to fetchMore() changes based on query state and ensures that the effect is triggered in the right moment
+    // i.e. after fetch triggered by the previous fetchMore() call finished
     [isSentinelVisible, fetchMore, itemCount]
   );
 
