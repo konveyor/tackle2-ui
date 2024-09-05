@@ -57,7 +57,7 @@ interface TaskManagerTask {
   _: Task;
 }
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 20;
 
 interface TaskManagerDrawerProps {
   ref?: React.ForwardedRef<HTMLElement>;
