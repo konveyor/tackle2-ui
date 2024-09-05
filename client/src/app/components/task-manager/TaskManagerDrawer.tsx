@@ -20,8 +20,6 @@ import {
   EmptyStateIcon,
   EmptyStateBody,
   EmptyStateVariant,
-  EmptyStateFooter,
-  EmptyStateActions,
 } from "@patternfly/react-core";
 import { EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
@@ -104,11 +102,6 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
                 running. Completed and cancelled tasks may be viewed on the full
                 task list.
               </EmptyStateBody>
-              <EmptyStateFooter>
-                <EmptyStateActions>
-                  <Link to="/tasks">View All Tasks</Link>
-                </EmptyStateActions>
-              </EmptyStateFooter>
             </EmptyState>
           ) : (
             <InfiniteScroller
