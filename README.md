@@ -6,19 +6,19 @@ Konveyor UI component
 
 # Build and Test Status
 
-| branch      | last merge CI                                                                                                                                                                                            | last merge image build                                                                                                                                                                                                               | nightly CI                                                                                                                                                                                                                |
-| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| main        | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Amain+event%3Apush)        | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Amain+event%3Apush)        | [![Nightly CI (repo level @main)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-repo.yaml/badge.svg?branch=main&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-repo.yaml?query=branch%3Amain+event%3Aschedule) |
-| release-0.5 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.5+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.5+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.5&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.5+event%3Aschedule)              |
-| release-0.4 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.4+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.4+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.4&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.ymlquery=branch%3Arelease-0.4+event%3Aschedule)              |
-| release-0.3 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.3+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.3+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.3&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.3+event%3Aschedule)              |
+| branch      | last merge CI                                                                                                                                                                                                                                    | last merge image build                                                                                                                                                                                                                                                       | nightly CI                                                                                                                                                                                                                                                                 |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main        | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Amain+event%3Apush)               | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Amain+event%3Apush)               | [![Nightly CI (repo level @main)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-repo.yaml/badge.svg?branch=main&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-repo.yaml?query=branch%3Amain+event%3Aschedule) |
+| release-0.5 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.5+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.5+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.5&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.5+event%3Aschedule)                   |
+| release-0.4 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.4+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.4+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.4&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.ymlquery=branch%3Arelease-0.4+event%3Aschedule)                    |
+| release-0.3 | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.3+event%3Apush) | [![Multiple Architecture Image Build](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/image-build.yaml?query=branch%3Arelease-0.3+event%3Apush) | [![CI (repo level)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml/badge.svg?branch=release-0.3&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-repo.yml?query=branch%3Arelease-0.3+event%3Aschedule)                   |
 
-| branch      | last merge e2e CI                                                                                                                                                                                                    | nightly e2e CI                                                                                                                                                                                                                        |
-| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| main        | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Amain+event%3Apush)        | [![Nightly CI (global konveyor CI @main)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-global.yaml/badge.svg?branch=main&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-global.yaml?query=branch%3Amain+event%3Aschedule) |
-| release-0.5 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.5+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.5&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.5+event%3Aschedule)              |
-| release-0.4 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.4+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.4&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.4+event%3Aschedule)              |
-| release-0.3 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.3+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.3&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.3+event%3Aschedule)              |
+| branch      | last merge e2e CI                                                                                                                                                                                                                                            | nightly e2e CI                                                                                                                                                                                                                                                                         |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main        | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=main&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Amain+event%3Apush)               | [![Nightly CI (global konveyor CI @main)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-global.yaml/badge.svg?branch=main&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/nightly-ci-global.yaml?query=branch%3Amain+event%3Aschedule) |
+| release-0.5 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.5&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.5+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.5&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.5+event%3Aschedule)                   |
+| release-0.4 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.4&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.4+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.4&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.4+event%3Aschedule)                   |
+| release-0.3 | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.3&event=push)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.3+event%3Apush) | [![CI (global konveyor CI)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml/badge.svg?branch=release-0.3&event=schedule)](https://github.com/konveyor/tackle2-ui/actions/workflows/ci-global.yml?query=branch%3Arelease-0.3+event%3Aschedule)                   |
 
 # Development
 
@@ -45,75 +45,26 @@ With an existing Tackle2 environment available, one can start a locally served t
 npm run start:dev
 ```
 
-## Tackle2 environment setup
+## Konveyor environment setup
 
-With the UI project setup out of the way, you can now begin setting up you local Tackle2 dev environment. The preferred local development option is to setup a minikube instance.
-Alternatively, for information on general Kubernetes installation refer to [Tackle2 operator readme](https://github.com/konveyor/tackle2-operator#readme) file.
-
-### Minikube setup
-
-[Minikube](https://github.com/kubernetes/minikube) implements a local Kubernetes cluster on macOS, Linux, and Windows. See the minikube getting started guide [here.](https://minikube.sigs.k8s.io/docs/start/)
-
-All you need to run minikube is [Docker](https://docs.docker.com/engine/install/) (or similarly compatible) container or a Virtual Machine environment.
-
-By default, Minikube uses a [driver](https://minikube.sigs.k8s.io/docs/drivers/) with 6,000 MB of memory and 2 CPUs. This is not enough to run all the services, so we need to increase the allocated memory. In our experience, 10 GB of memory and 4 CPUs is fine:
-
-```sh
-$ minikube config set memory 10240
-$ minikube config set cpus 4
-```
-
-Note: Depending on your driver, administrator access may be required. Common choices include Docker for container-based virtualization and KVM for hardware-assisted virtualization on Linux systems. If you're not sure which driver is best for you or if you're encountering compatibility issues, Minikube also supports auto-selecting a driver based on your system's capabilities and installed software.
-
-From a terminal run:
-
-```sh
-$ minikube start --addons=dashboard --addons=ingress
-```
-
-Note: We need to enable the dashboard and ingress addons. The dashboard addon installs the dashboard service that exposes the Kubernetes objects in a user interface. The ingress addon allows us to create Ingress CRs to expose the Tackle UI and Tackle Hub API.
-
-Since the olm addon is disabled until OLM issue [2534](https://github.com/operator-framework/operator-lifecycle-manager/issues/2534) is resolved we need to install the [OLM manually](https://github.com/operator-framework/operator-lifecycle-manager/releases) i.e. for version `v0.28.0` we can use:
-
-```sh
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.28.0/install.sh -o install.sh
-chmod +x install.sh
-./install.sh v0.28.0
-```
-
-See also official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube).
-
-### Configuring kubectl for minikube
-
-You will need `kubectl` on your PATH and configured to control minikube in order to proceed. There are two ways to set this up:
-
-1. **Install kubectl yourself**
-
-   If you already [have the `kubectl` CLI tool installed](https://kubernetes.io/docs/tasks/tools/#kubectl) and available on your PATH, the `minikube start` command should configure it to control the minikube cluster. You should see the following message when minikube starts if this worked correctly:
-
-   ```
-   🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
-   ```
-
-2. **Use a shell alias for minikube's built-in kubectl**
-
-   Minikube provides its own internal `kubectl` which you can use by running `minikube kubectl --` followed by your CLI arguments. If you want to use the built-in `minikube kubectl` as the `kubectl` on your PATH, you can set a shell alias. The following example shows how to do it for Bash on Fedora 35.
-
-   ```sh
-   $ mkdir -p ~/.bashrc.d
-   $ cat << EOF > ~/.bashrc.d/minikube
-   alias kubectl="minikube kubectl --"
-   EOF
-   $ source ~/.bashrc
-   ```
+The process for setting up a Konveyor operator to run on a local Kubernetes cluster via
+minikube is detailed in the [local setup document](docs/local-minikube-setup.md).
 
 ### Installing the Konveyor operator
 
-Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
+There are a few good ways to install the Konveyor operator:
 
-Alternative 1, use the script [`hack/setup-operator.sh`](./hack/setup-operator.sh). It is a local variation of the script from the operator that still allows overriding portions of the Tackle CR with environment variables.
+- Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
 
-Alternative 2, the [konveyor/operator git repository](https://github.com/konveyor/operator) provides a script to install Tackle locally using `kubectl`. You can [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh). This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription and Tackle CR, then waits for deployments to be ready.
+- Alternative 1, use the script [`hack/setup-operator.sh`](./hack/setup-operator.sh). It
+  is a local variation of the script from the operator that still allows overriding portions
+  of the Tackle CR with environment variables.
+
+- Alternative 2, the [konveyor/operator git repository](https://github.com/konveyor/operator)
+  provides a script to install Tackle locally using `kubectl`. You can
+  [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh).
+  This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription
+  and Tackle CR, then waits for deployments to be ready.
 
 #### Customizing the install script (optional)
 
