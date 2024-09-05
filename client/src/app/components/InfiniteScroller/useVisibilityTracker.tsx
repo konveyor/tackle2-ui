@@ -39,5 +39,15 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
     };
   }, [enable, node]);
 
-  return { visible, nodeRef };
+  return {
+    /**
+     * Is the node referenced via `nodeRef` currently visible on the page?
+     */
+    visible,
+    /**
+     * A ref to a node whose visibility will be tracked.  This should be set as a ref to a
+     * relevant dom element by the component using this hook.
+     */
+    nodeRef,
+  };
 }
