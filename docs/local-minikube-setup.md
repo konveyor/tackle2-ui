@@ -18,7 +18,7 @@ The setup process follows the general steps:
 A guide for installing minikube and Konveyor is also available in the general project
 documentation. See document [Installing Konveyor](https://konveyor.github.io/konveyor/installation).
 
-For information on general Kubernetes installation refer to
+For information on generic Kubernetes installation refer to
 [Konveyor operator readme](https://github.com/konveyor/tackle2-operator#readme).
 
 ## Install and start minikube
@@ -78,11 +78,27 @@ chmod +x install.sh
 
 ## Install the Konveyor Operator
 
-See also official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube).
+Using the official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube) is an easy way to start.
 
-## Sample Data
+_TBD - Move more content from README.md_
 
-## Optional Setup
+## Optional Steps...
+
+### Considerations for MacOS
+
+Some core utils used in install and setup scripts may not be available by default on
+a Mac. They are available to install via [Homebrew](https://brew.sh/) as the `coreutils`
+package:
+
+```sh
+brew install coreutils
+```
+
+### Sample data from tackle2-hub
+
+The [tackle2-hub repo](https://github.com/konveyor/tackle2-hub) has some scripts to add
+basic entities to a Konveyor instance. Using the scripts is a reasonable way to get a
+base setup. Importing that data is [described here](/hack/README.md#adding-a-base-set-of-data-to-an-empty-instance).
 
 ### Configuring kubectl for minikube
 

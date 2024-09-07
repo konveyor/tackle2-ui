@@ -24,10 +24,12 @@ Konveyor UI component
 
 ## Prerequisites
 
-- [NodeJS](https://nodejs.org/en/) >= 16.x
-- [minikube](https://minikube.sigs.k8s.io/docs/start) (optional): setup your local minikube instance with your container manager of choice. (Docker, Hyperkit, Hyper-V, KVM, Parallels, Podman, VirtualBox, or VMware Fusion/Workstation.)
+- [Node.js](https://nodejs.org/en/) >= 20 (see the `engines` block of [package.json](./package.json) for specifics)
+- [minikube](https://minikube.sigs.k8s.io/docs/start) (optional): setup your local minikube instance with your container manager of choice
 
-## Installation
+## Quick start
+
+### Clone the repository
 
 To get started, clone the repo to your development workstation and install the required dependencies locally with NPM.
 
@@ -37,20 +39,44 @@ cd tackle2-ui
 npm install
 ```
 
-## Quick start
+### Connect to or setup a Konveyor instance
 
-With an existing Tackle2 environment available, one can start a locally served tackle2-ui instance with:
+- **Existing instance?** Make sure `kubectl` is configured to connect to the cluster where
+  the existing operator is deployed.
+
+- **New instance?** The process for setting up a Konveyor operator to run on a local Kubernetes
+  cluster via minikube is detailed in the [local setup document](docs/local-minikube-setup.md).
+
+### Run the development server
+
+With an existing Konveyor environment available, and `kubectl` configured to use it, a local development server served tackle2-ui instance can be started with:
 
 ```sh
 npm run start:dev
 ```
 
+Your development server should start up and serve the locally running UI from:
+
+```
+http://localhost:9000
+```
+
 ## Konveyor environment setup
+
+There are many ways to setup a kubernetes instance and deploy the Konveyor operator for
+use as a development environment. The recommendation is to setup minikube and deploy
+the operator there. D
+
+Summary of tasks to setup a local environment:
+
+1. Setup an kubernetes instance with OLM to support the Konveyor operator
+2. Install the Konveyor operator
+3. Create the Konveyor CR
+
+### Setus up a local insta Konveyor operator
 
 The process for setting up a Konveyor operator to run on a local Kubernetes cluster via
 minikube is detailed in the [local setup document](docs/local-minikube-setup.md).
-
-### Installing the Konveyor operator
 
 There are a few good ways to install the Konveyor operator:
 
@@ -78,12 +104,6 @@ $ export AUTH_REQUIRED=true
 
 #### Running the install script
 
-Before proceeding, if you are on macOS you will need to use [Homebrew](https://brew.sh/) to install the `coreutils` package:
-
-```sh
-$ brew install coreutils
-```
-
 To run the install script (requires `kubectl` on your PATH configured for minikube):
 
 ```sh
@@ -92,7 +112,10 @@ $ curl https://raw.githubusercontent.com/konveyor/operator/main/hack/install-tac
 
 Alternatively, you can clone the [konveyor/operator git repository](https://github.com/konveyor/operator) and run `./hack/install-tackle.sh` from your clone, or you can execute its commands manually.
 
-⚠️ Note: While CRDs are being established, you may see the script output `NotFound` errors. You can safely ignore these. The script will wait 30 seconds to check for the CRD again before proceeding.
+> [!WARNING]
+> While CRDs are being established, you may see the script output `NotFound` errors.
+> You can safely ignore these. The script will wait and recheck for the CRD again before
+> proceeding.
 
 The installation is complete when the script outputs "condition met" messages and terminates.
 
@@ -191,12 +214,6 @@ $ minikube ip
 Please read the [Pull Request (PR) Process](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md#pull-request-pr-process)
 section of the [Konveyor versioning and branching doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md)
 for more information.
-
-## File Naming Conventions
-
-- Use kebab-case for file names.
-- The root page/parent level components are placed directly in their respective directories.
-- Presentation layer components are placed within the `components/` subdirectory of the parent component.
 
 # Contributing
 
