@@ -2,7 +2,7 @@
 
 The preferred local development for the tackle2-ui is to install the Konveyor
 operator on a minikube instance. When the operator is installed and running,
-the ui development server can attach to it and use the running hub api. There
+the UI development server can attach to it and use the operator's hub api. There
 will also be a running UI instance to work with.
 
 The setup process follows the general steps:
@@ -12,14 +12,6 @@ The setup process follows the general steps:
 - install the operator framework (OLM)
 - install the Konveyor operator
 - optionally add test data
-
-## Konveyor Documentation
-
-A guide for installing minikube and Konveyor is also available in the general project
-documentation. See document [Installing Konveyor](https://konveyor.github.io/konveyor/installation).
-
-For information on generic Kubernetes installation refer to
-[Konveyor operator readme](https://github.com/konveyor/tackle2-operator#readme).
 
 ## Install and start minikube
 
@@ -78,9 +70,89 @@ chmod +x install.sh
 
 ## Install the Konveyor Operator
 
-Using the official Konveyor instructions for [Provisioning Minikube](https://konveyor.github.io/konveyor/installation/#provisioning-minikube) is an easy way to start.
+There are a few good ways to install the Konveyor operator:
 
-_TBD - Move more content from README.md_
+- Use the script [`hack/setup-operator.sh`](/hack/setup-operator.sh). It is a local variation of
+  the script from the operator that applies all CRs needed to install the Konveyor operator and
+  setup the Tackle instance. Use of this script is described in the next section.
+
+- Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
+
+- Use one of the `hack/install-*` scripts in the [konveyor/operator](https://github.com/konveyor/operator)
+  repository. These scripts require `kubectl` and the `operator-sdk`.
+
+### Running the setup script
+
+To run the setup script without cloning the repo, make sure the `kubectl` command (not alias)
+is working and configured for minikube instance, and that the bash shell is available:
+
+```sh
+curl https://raw.githubusercontent.com/konveyor/tackle2-ui/main/hack/setup-operator.sh -o setup-operator.sh
+chmod +x setup-operator.sh
+./setup-operator.sh
+```
+
+You may also run the script directly from you tackle2-ui clone:
+
+```sh
+cd tackle2-ui/hack
+./setup-operator.sh
+```
+
+> [!WARNING]
+> While CRDs are being established, you may see the script output `NotFound` errors.
+> You can safely ignore these. The script will wait and recheck for the CRD again before
+> proceeding.
+
+The installation is complete when the script outputs "condition met" messages and terminates.
+
+### Customizing the setup script
+
+The setup script provides optional environment variables that may be used to customize the
+images used, settings, and features enabled during the install.
+
+Configuration environment variable include:
+| variable | default | description |
+| --- | --- | --- |
+| TACKLE*CR | *(empty)\_ | Allows specifying the full Tackle CR |
+| ADDON_ANALYZER_IMAGE | quay.io/konveyor/tackle2-addon-analyzer:latest | image for the ADDON_ANALYZER pod |
+| ANALYZER_CONTAINER_REQUESTS_CPU | 0 | cpu count for the analyzer (0 is no restriction) |
+| ANALYZER_CONTAINER_REQUESTS_MEMORY | 0 | memory size for the analyzer (0 is no restriction) |
+| FEATURE_AUTH_REQUIRED | false | include keycloak SSO in operator deployment |
+| HUB_BUCKET_VOLUME_SIZE | 100Gi | PV claim size for the HUB buckets |
+| HUB_DATABASE_VOLUME_SIZE | 10Gi | PV claim size for the HUB database |
+| HUB_IMAGE | quay.io/konveyor/tackle2-hub:lates | image for the HUB pod |
+| IMAGE_PULL_POLICY | Always | When should images needed by the operator be pulled **link to docs for the pull policy** |
+| NAMESPACE | konveyor-tackle | kubernetes namespace used |
+| OPERATOR_INDEX_IMAGE | quay.io/konveyor/tackle2-operator-index:latest | base operator container image |
+| UI_IMAGE | quay.io/konveyor/tackle2-ui:latest | image for the UI pod |
+| UI_INGRESS_CLASS_NAME | nginx | nginx is the used as the ingress for minikube to access the UI |
+
+For example, if you wish to run tackle with keycloak authentication enabled, export the following variable before running the install script:
+
+```sh
+export FEATURE_AUTH_REQUIRED=true
+./setup-operator.sh
+```
+
+If the `TACKLE_CR` variable is defined, its contents will be used to create the `Tackle`
+instance in lieu of one built in the script based on the other config variables. For
+example, this will create a Tackle instance with authentication turned on and the UI
+using a specially built test image:
+
+```sh
+export TACKLE_CR=$(cat <<EOF
+kind: Tackle
+apiVersion: tackle.konveyor.io/v1alpha1
+metadata:
+  name: tackle
+spec:
+  feature_auth_required: true
+  ui_image_fqin: quay.io/sdickers/tackle2-ui:test-new-feature
+EOF
+)
+./setup-operator.sh
+```
 
 ## Optional Steps...
 
@@ -121,14 +193,14 @@ There are a few ways to set this up:
    followed by your CLI arguments. If you want to use the built-in `minikube kubectl` as the `kubectl`
    on your shell, you can setup a shell alias.
 
-   The following example shows how to setup an alias for bash on Fedora 35:
+   The following example shows how to setup an alias for bash on Fedora:
 
    ```sh
-   $ mkdir -p ~/.bashrc.d
-   $ cat << EOF > ~/.bashrc.d/minikube
+   mkdir -p ~/.bashrc.d
+   cat << EOF > ~/.bashrc.d/minikube
    alias kubectl="minikube kubectl --"
    EOF
-   $ source ~/.bashrc
+   source ~/.bashrc
    ```
 
    > [!WARNING]
@@ -142,9 +214,24 @@ There are a few ways to set this up:
    the `$PATH` can be used. Installing for all system users can typically be done to `/usr/local/bin`:
 
    ```sh
-   $ cat << EOF > kubectl.sh
+   cat << EOF > kubectl.sh
    #! /usr/bin/env bash
    minikube kubectl -- $@
    EOF
-   $ sudo install -m 777 kubectl.sh /usr/local/bin/kubectl
+   sudo install -m 777 kubectl.sh /usr/local/bin/kubectl
    ```
+
+## Starting Over
+
+If at any point your minikube Konveyor operator instance stops working properly, it
+is simple to destroy the environment and rebuild.
+
+To destroy an existing minikube instance (with Konveyor installed):
+
+```sh
+minikube stop
+minikube delete
+```
+
+Rebuild by starting a new instance of minikube and following the rest of the
+install steps in this document.

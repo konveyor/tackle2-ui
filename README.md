@@ -63,74 +63,28 @@ http://localhost:9000
 
 ## Konveyor environment setup
 
-There are many ways to setup a kubernetes instance and deploy the Konveyor operator for
-use as a development environment. The recommendation is to setup minikube and deploy
-the operator there. D
-
 Summary of tasks to setup a local environment:
 
 1. Setup an kubernetes instance with OLM to support the Konveyor operator
 2. Install the Konveyor operator
 3. Create the Konveyor CR
+4. Run your [local dev server](#run-the-development-server)
 
-### Setus up a local insta Konveyor operator
+The most common and the recommended environment is to [setup minikube and deploy
+the operator](ocs/local-minikube-setup.md) there.
 
-The process for setting up a Konveyor operator to run on a local Kubernetes cluster via
-minikube is detailed in the [local setup document](docs/local-minikube-setup.md).
+A general guide for installing minikube and Konveyor is also available in the project
+documentation [Installing Konveyor](https://konveyor.github.io/konveyor/installation).
 
-There are a few good ways to install the Konveyor operator:
-
-- Follow the official instructions for [Installing Konveyor Operator](https://konveyor.github.io/konveyor/installation/#installing-konveyor-operator)
-
-- Alternative 1, use the script [`hack/setup-operator.sh`](./hack/setup-operator.sh). It
-  is a local variation of the script from the operator that still allows overriding portions
-  of the Tackle CR with environment variables.
-
-- Alternative 2, the [konveyor/operator git repository](https://github.com/konveyor/operator)
-  provides a script to install Tackle locally using `kubectl`. You can
-  [inspect its source here](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh).
-  This script creates the `konveyor-tackle` namespace, CatalogSource, OperatorGroup, Subscription
-  and Tackle CR, then waits for deployments to be ready.
-
-#### Customizing the install script (optional)
-
-The install script provides optional environment variables you can use to customize the images and features used. See [the source of the script](https://github.com/konveyor/operator/blob/main/hack/install-tackle.sh) for all available variables.
-
-For example, if you wish to run tackle with keycloak authentication enabled, export the following variable before running the install script:
-
-```sh
-$ export AUTH_REQUIRED=true
-```
-
-#### Running the install script
-
-To run the install script (requires `kubectl` on your PATH configured for minikube):
-
-```sh
-$ curl https://raw.githubusercontent.com/konveyor/operator/main/hack/install-tackle.sh | bash
-```
-
-Alternatively, you can clone the [konveyor/operator git repository](https://github.com/konveyor/operator) and run `./hack/install-tackle.sh` from your clone, or you can execute its commands manually.
-
-> [!WARNING]
-> While CRDs are being established, you may see the script output `NotFound` errors.
-> You can safely ignore these. The script will wait and recheck for the CRD again before
-> proceeding.
-
-The installation is complete when the script outputs "condition met" messages and terminates.
-
-### Start your local development server
-
-Now that your environment is ready, navigate to your installed tackle-ui directory and run your development server:
-
-```sh
-$ cd tackle2-ui
-$ npm run start:dev
-```
+For information to help install on any Kubernetes platform see the
+[Konveyor operator readme](https://github.com/konveyor/tackle2-operator#readme).
 
 ## Understanding the local development environment
 
-Tackle2 runs in a Kubernetes compatible environment (i.e. Openshift, Kubernetes or minikube) and is usually deployed with Tackle2 Operator (OLM). Although the UI pod has access to tackle2 APIs from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs endpoints by proxy.
+Konveyor runs in a Kubernetes compatible environment (e.g. Openshift, Kubernetes or minikube) and
+is typically deployed with Tackle2 Operator (OLM). Although the UI pod has access to tackle2 APIs
+from within the cluster, the UI can also be executed outside the cluster and access Tackle APIs
+endpoints by proxy.
 
 The React and Patternfly based UI is composed of web pages served by an http server with proxy capabilities.
 
@@ -170,28 +124,27 @@ $ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080
 **Note**: The `npm run port-forward` or `kubectl port-forward` commands need to remain running
 for the ports to be available.
 
-## Accessing the Kubernetes dashboard
+## Accessing the Minikube Kubernetes dashboard
 
-We may need to access the dashboard, either simply to see what's happening under the hood, or to
-troubleshoot an issue. The dashboard addon is enabled in the default in recommended `minikube start`
-command in the [Minikube setup section](#minikube-setup).
+We may need to access the dashboard, either simply to see what's happening under
+the hood, or to troubleshoot an issue.
 
-There are two ways to setup access to the dashboard.
+There are two ways to setup access to the dashboard:
 
-First, we can use the `minikube dashboard` command. Use to following to open on an explicit
-port and only show the URL instead of opening the default browser directly:
+1. We can use the `minikube dashboard` command. Use to following to open on an explicit
+   port and only show the URL instead of opening the default browser directly:
 
-```sh
-$ minikube dashboard --port=18080 --url=true
-```
+   ```sh
+   $ minikube dashboard --port=18080 --url=true
+   ```
 
-Second, we can use the `kubectl port-forward` command to enable access to the dashboard:
+2. We can use the `kubectl port-forward` command to enable access to the dashboard:
 
-```sh
-$ kubectl port-forward svc/kubernetes-dashboard -n kubernetes-dashboard 30090:80
-```
+   ```sh
+   $ kubectl port-forward svc/kubernetes-dashboard -n kubernetes-dashboard 30090:80
+   ```
 
-We can now access the minikube dashboard on `http://localhost:30090`
+   We can now access the minikube dashboard on `http://localhost:30090`
 
 ## Troubleshooting
 
