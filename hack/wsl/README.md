@@ -162,7 +162,7 @@ the path `/usr/local/bin` is included and is a good location to put the scripts.
   windows binary:
 
   ```
-  curl https://raw.githubusercontent.com/konveyor/tackle2-ui/main/hack/wsl/shim_scripts/minikube.sh
+  curl -L https://raw.githubusercontent.com/konveyor/tackle2-ui/main/hack/wsl/shim_scripts/minikube.sh -o minikube.sh
   sudo install -m 777 minikube.sh /usr/local/bin/minikube
   ```
 
@@ -170,7 +170,7 @@ the path `/usr/local/bin` is included and is a good location to put the scripts.
   embedded in minikube `minikube kubectl --`:
 
   ```
-  curl https://raw.githubusercontent.com/konveyor/tackle2-ui/main/hack/wsl/shim_scripts/kubectl.sh
+  curl -L https://raw.githubusercontent.com/konveyor/tackle2-ui/main/hack/wsl/shim_scripts/kubectl.sh -o kubectl.sh
   sudo install -m 777 kubectl.sh /usr/local/bin/kubectl
   ```
 
