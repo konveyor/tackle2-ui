@@ -200,6 +200,7 @@
     "issuesEffortTooltip": "This column shows the effort weight for a single issue incident.",
     "dependentQuestionTooltip": "This question is conditionally included or excluded based on tags:",
     "jiraInstanceNotConnected": "Jira instance {{name}} is not connected.",
+    "loadingTripleDot": "Loading...",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
     "noDataAvailableBody": "No data available to be shown here.",
     "noDataAvailableTitle": "No data available",
