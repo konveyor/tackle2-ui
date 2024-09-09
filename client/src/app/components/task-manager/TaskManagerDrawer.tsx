@@ -1,15 +1,10 @@
-import React, { forwardRef, useMemo, useState } from "react";
+import React, { forwardRef, useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import {
   Dropdown,
   DropdownItem,
   DropdownList,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
   NotificationDrawer,
@@ -20,17 +15,23 @@ import {
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
   Tooltip,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateBody,
+  EmptyStateVariant,
 } from "@patternfly/react-core";
-import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
+import { EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
 import { Task, TaskState } from "@app/api/models";
 import { useTaskManagerContext } from "./TaskManagerContext";
-import { useServerTasks } from "@app/queries/tasks";
+import { useInfiniteServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
 import { TaskStateIcon } from "../Icons";
 import { useTaskActions } from "@app/pages/tasks/useTaskActions";
+import { InfiniteScroller } from "../InfiniteScroller";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -65,7 +66,7 @@ interface TaskManagerDrawerProps {
 export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
   (_props, ref) => {
     const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
-    const { tasks } = useTaskManagerData();
+    const { tasks, hasNextPage, fetchNextPage } = useTaskManagerData();
 
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
     const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
@@ -101,26 +102,32 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
               </EmptyStateBody>
             </EmptyState>
           ) : (
-            <NotificationDrawerList>
-              {tasks.map((task) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  expanded={expandedItems.includes(task.id)}
-                  onExpandToggle={(expand) => {
-                    setExpandedItems(
-                      expand
-                        ? [...expandedItems, task.id]
-                        : expandedItems.filter((i) => i !== task.id)
-                    );
-                  }}
-                  actionsExpanded={task.id === taskWithExpandedActions}
-                  onActionsExpandToggle={(flag: boolean) =>
-                    setTaskWithExpandedAction(flag && task.id)
-                  }
-                />
-              ))}
-            </NotificationDrawerList>
+            <InfiniteScroller
+              fetchMore={fetchNextPage}
+              hasMore={hasNextPage}
+              itemCount={tasks?.length ?? 0}
+            >
+              <NotificationDrawerList>
+                {tasks.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    expanded={expandedItems.includes(task.id)}
+                    onExpandToggle={(expand) => {
+                      setExpandedItems(
+                        expand
+                          ? [...expandedItems, task.id]
+                          : expandedItems.filter((i) => i !== task.id)
+                      );
+                    }}
+                    actionsExpanded={task.id === taskWithExpandedActions}
+                    onActionsExpandToggle={(flag: boolean) =>
+                      setTaskWithExpandedAction(flag && task.id)
+                    }
+                  />
+                ))}
+              </NotificationDrawerList>
+            </InfiniteScroller>
           )}
         </NotificationDrawerBody>
       </NotificationDrawer>
@@ -221,12 +228,13 @@ const TaskItem: React.FC<{
 };
 
 const useTaskManagerData = () => {
-  const [pageSize, setPageSize] = useState(PAGE_SIZE);
-  const increasePageSize = () => {
-    setPageSize(pageSize + PAGE_SIZE);
-  };
-
-  const { result, isFetching } = useServerTasks(
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage = false,
+    isFetching,
+    isFetchingNextPage,
+  } = useInfiniteServerTasks(
     {
       filters: [{ field: "state", operator: "=", value: "queued" }],
       sort: {
@@ -235,7 +243,7 @@ const useTaskManagerData = () => {
       },
       page: {
         pageNumber: 1,
-        itemsPerPage: pageSize,
+        itemsPerPage: PAGE_SIZE,
       },
     },
     5000
@@ -243,40 +251,52 @@ const useTaskManagerData = () => {
 
   const tasks: TaskManagerTask[] = useMemo(
     () =>
-      !result.data
-        ? []
-        : result.data.map(
-            (task) =>
-              ({
-                id: task.id ?? -1,
-                createUser: task.createUser ?? "",
-                updateUser: task.updateUser ?? "",
-                createTime: task.createTime ?? "",
-                started: task.started ?? "",
-                terminated: task.terminated ?? "",
-                name: task.name,
-                kind: task.kind,
-                addon: task.addon,
-                extensions: task.extensions,
-                state: task.state ?? "",
-                priority: task.priority ?? 0,
-                applicationId: task.application.id,
-                applicationName: task.application.name,
-                preemptEnabled: task?.policy?.preemptEnabled ?? false,
+      data?.pages
+        ?.flatMap((data) => data?.data ?? [])
+        ?.map(
+          (task) =>
+            ({
+              id: task.id ?? -1,
+              createUser: task.createUser ?? "",
+              updateUser: task.updateUser ?? "",
+              createTime: task.createTime ?? "",
+              started: task.started ?? "",
+              terminated: task.terminated ?? "",
+              name: task.name,
+              kind: task.kind,
+              addon: task.addon,
+              extensions: task.extensions,
+              state: task.state ?? "",
+              priority: task.priority ?? 0,
+              applicationId: task.application.id,
+              applicationName: task.application.name,
+              preemptEnabled: task?.policy?.preemptEnabled ?? false,
 
-                _: task,
+              _: task,
 
-                // TODO: Add any checks that could be needed later...
-                //  - isCancelable (does the current user own the task? other things to check?)
-                //  - isPreemptionToggleAllowed
-              }) as TaskManagerTask
-          ),
-    [result.data]
+              // TODO: Add any checks that could be needed later...
+              //  - isCancelable (does the current user own the task? other things to check?)
+              //  - isPreemptionToggleAllowed
+            }) as TaskManagerTask
+        ) ?? [],
+    [data]
   );
+
+  const fetchMore = useCallback(() => {
+    // forced fetch is not allowed when background fetch or other forced fetch is in progress
+    if (!isFetching && !isFetchingNextPage) {
+      fetchNextPage();
+      return true;
+    } else {
+      return false;
+    }
+  }, [isFetching, isFetchingNextPage, fetchNextPage]);
 
   return {
     tasks,
-    increasePageSize,
     isFetching,
+    hasNextPage,
+    fetchNextPage: fetchMore,
+    isReadyToFetch: !isFetching && !isFetchingNextPage,
   };
 };

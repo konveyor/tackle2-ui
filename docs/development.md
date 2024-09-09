@@ -6,6 +6,12 @@ This document describes the process for running and developing tackle2-ui on you
 
 Tackle2-ui can be developed using macOS(x86_64 only) or Linux environments.
 
+## File Naming Conventions
+
+- Use kebab-case for file names.
+- The root page/parent level components are placed directly in their respective directories.
+- Presentation layer components are placed within the `components/` subdirectory of the parent component.
+
 ## React hooks
 
 Our project utilizes [Hooks](https://reactjs.org/docs/hooks-intro.html) wherever possible as this pattern has been proven and settled on in the react community. The hooks pattern is highly testable and provides a clear way to reuse stateful logic without overcomplicating components with complex lifecycle methods. Overall, we have largely left class components behind and have adopted functional components / hooks as the way forward.
@@ -17,7 +23,7 @@ For handling spacing/layout requirements that do not fit the standard PF mold, w
 
 ## Form development
 
-We are using [react-hook-form](https://react-hook-form.com) in tandem with [patternfly](https://www.patternfly.org). Custom wrapper components have been developed to aid with this integration and their usage can be referenced in the [proxy-form](./client/src/app/pages/proxies/proxy-form.tsx) component.
+We are using [react-hook-form](https://react-hook-form.com) in tandem with [patternfly](https://www.patternfly.org). Custom wrapper components have been developed to aid with this integration and their usage can be referenced in the [proxy-form](/client/src/app/pages/proxies/proxy-form.tsx) component.
 
 ### Steps to create a form
 
@@ -62,5 +68,5 @@ export interface FormValues {
 
 For more info about working on the Tackle 2.x UI, check out these READMEs:
 
-- [tests.md](./tests.md)
-- [internationalization.md](./INTERNATIONALIZATION.md)
+- [tests.md](/docs/tests.md)
+- [internationalization.md](/INTERNATIONALIZATION.md)
