@@ -203,6 +203,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         {!showFiltersSideBySide && (
           <ToolbarItem>
             <Dropdown
+              onOpenChange={(flag) => setIsCategoryDropdownOpen(flag)}
               toggle={(toggleRef) => (
                 <MenuToggle
                   id="filtered-by"
