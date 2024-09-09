@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   cancelTask,
@@ -82,6 +87,47 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
     refetch,
     hasActiveTasks,
   };
+};
+
+export const useInfiniteServerTasks = (
+  initialParams: HubRequestParams,
+  refetchInterval?: number
+) => {
+  return useInfiniteQuery({
+    // usually the params are part of the key
+    // infinite query tracks the actual params for all pages under one key
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: [TasksQueryKey],
+    queryFn: async ({ pageParam = initialParams }) =>
+      await getServerTasks(pageParam),
+    getNextPageParam: (lastPage) => {
+      const pageNumber = lastPage?.params.page?.pageNumber ?? 0;
+      const itemsPerPage = lastPage?.params.page?.itemsPerPage ?? 20;
+      const total = lastPage?.total ?? 0;
+      if (total <= pageNumber * itemsPerPage) {
+        return undefined;
+      }
+
+      return {
+        ...lastPage.params,
+        page: {
+          pageNumber: pageNumber + 1,
+          itemsPerPage,
+        },
+      };
+    },
+    select: (infiniteData) => {
+      infiniteData?.pages?.forEach((page) => {
+        if (page.data?.length > 0) {
+          page.data = page.data.map(calculateSyntheticTaskState);
+        }
+      });
+      return infiniteData;
+    },
+    onError: (error: Error) => console.log("error, ", error),
+    keepPreviousData: true,
+    refetchInterval: refetchInterval ?? false,
+  });
 };
 
 export const useServerTasks = (
