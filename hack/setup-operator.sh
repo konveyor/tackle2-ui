@@ -65,6 +65,8 @@ IMAGE_PULL_POLICY="${IMAGE_PULL_POLICY:-Always}"
 UI_INGRESS_CLASS_NAME="${UI_INGRESS_CLASS_NAME:-nginx}"
 UI_IMAGE="${UI_IMAGE:-quay.io/konveyor/tackle2-ui:latest}"
 HUB_IMAGE="${HUB_IMAGE:-quay.io/konveyor/tackle2-hub:latest}"
+HUB_BUCKET_VOLUME_SIZE="${HUB_BUCKET_VOLUME_SIZE:-100Gi}"
+HUB_DATABASE_VOLUME_SIZE="${HUB_DATABASE_VOLUME_SIZE:-10Gi}"
 ADDON_ANALYZER_IMAGE="${ADDON_ANALYZER_IMAGE:-quay.io/konveyor/tackle2-addon-analyzer:latest}"
 ANALYZER_CONTAINER_REQUESTS_MEMORY="${ANALYZER_CONTAINER_REQUESTS_MEMORY:-0}"
 ANALYZER_CONTAINER_REQUESTS_CPU="${ANALYZER_CONTAINER_REQUESTS_CPU:-0}"
@@ -160,6 +162,8 @@ spec:
   ui_ingress_class_name: ${UI_INGRESS_CLASS_NAME}
   ui_image_fqin: ${UI_IMAGE}
   hub_image_fqin: ${HUB_IMAGE}
+  hub_bucket_volume_size: ${HUB_BUCKET_VOLUME_SIZE}
+  hub_database_volume_size: ${HUB_DATABASE_VOLUME_SIZE}
   analyzer_fqin: ${ADDON_ANALYZER_IMAGE}
   analyzer_container_requests_memory: ${ANALYZER_CONTAINER_REQUESTS_MEMORY}
   analyzer_container_requests_cpu: ${ANALYZER_CONTAINER_REQUESTS_CPU}
