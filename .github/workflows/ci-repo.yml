@@ -20,10 +20,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  unit-test-lookup-image:
+  unit-test-lookup:
     runs-on: ubuntu-latest
     outputs:
       builder-image: ${{ steps.grepBuilder.outputs.builder }}
+      should-test: ${{ steps.check-changes.outputs.should-test }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,15 +33,64 @@ jobs:
         id: grepBuilder
         run: |
           builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
-          echo "Builder image: \`$builder\`" >> "$GITHUB_STEP_SUMMARY"
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
+
+      - name: Did docs and hacks change?
+        id: docs-and-hacks
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            docs/**
+            hack/**
+            *.md
+
+      - name: Check if only docs and hacks changes have been made in a PR
+        id: check-changes
+        env:
+          IS_PR: ${{ !!github.event.pull_request }}
+          ONLY_DOCS: ${{ steps.docs-and-hacks.outputs.only_modified }}
+        run: |
+          SHOULD_TEST=$(
+            if [[ $IS_PR == true ]] && [[ $ONLY_DOCS == true ]]; then
+              echo "false"
+            else
+              echo "true"
+            fi
+          )
+
+          echo "is-pr=$IS_PR" >> "$GITHUB_OUTPUT"
+          echo "changes_only_docs=${ONLY_DOCS:-false}" >> "$GITHUB_OUTPUT"
+          echo "should-test=$SHOULD_TEST" >> "$GITHUB_OUTPUT"
+
+      - name: Summarize findings
+        env:
+          ONLY_DOCS: ${{ steps.docs-and-hacks.outputs.only_modified }}
+          MODIFIED_FILES: ${{ steps.docs-and-hacks.outputs.all_modified_files }}
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Build container
+            - CI will run on container: \`${{ steps.grepBuilder.outputs.builder }}\`
+
+          ## Findings
+            - The action is PR triggered? \`${{ steps.check-changes.outputs.is-pr }}\`
+            - Changes are only to docs and hacks? \`${{ steps.check-changes.outputs.changes_only_docs }}\`
+            - Should the unit test run? \`${{ steps.check-changes.outputs.should-test }}\`
+          EOF
+
+          if [[ $ONLY_DOCS == true ]] && [[ -n "$MODIFIED_FILES" ]]; then
+            echo "## Modified docs and hacks files that do not impact the build" >> "$GITHUB_STEP_SUMMARY"
+            for file in ${MODIFIED_FILES}; do
+              echo "  - \`$file\`" >> "$GITHUB_STEP_SUMMARY"
+            done
+          fi
 
   unit-test:
     runs-on: ubuntu-latest
-    needs: unit-test-lookup-image
+    needs: unit-test-lookup
+    if: ${{ needs.unit-test-lookup.outputs.should-test == 'true' }}
 
     # Use the same container as the Dockerfile's "FROM * as builder"
-    container: ${{ needs.unit-test-lookup-image.outputs.builder-image }}
+    container: ${{ needs.unit-test-lookup.outputs.builder-image }}
 
     steps:
       - uses: actions/checkout@v4
