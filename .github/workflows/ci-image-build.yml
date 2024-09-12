@@ -2,6 +2,10 @@ name: CI (test image build for a PR with build related changes)
 
 on:
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "hack/**"
+      - "*.md"
     branches:
       - "main"
       - "release-*"
