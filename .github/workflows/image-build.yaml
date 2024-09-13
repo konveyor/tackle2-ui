@@ -17,8 +17,8 @@ jobs:
   image-build:
     uses: konveyor/release-tools/.github/workflows/build-push-images.yaml@main
     with:
-      registry: "quay.io/konveyor"
-      image_name: "tackle2-ui"
+      registry: ${{ vars.IMAGE_BUILD_REGISTRY || 'quay.io/konveyor' }}
+      image_name: ${{ vars.IMAGE_BUILD_IMAGE_NAME || 'tackle2-ui' }}
       containerfile: "./Dockerfile"
 
       # keep the architectures in sync with `ci-image-build.yml`
