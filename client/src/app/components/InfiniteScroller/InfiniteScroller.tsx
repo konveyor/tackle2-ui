@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useVisibilityTracker } from "./useVisibilityTracker";
 import "./InfiniteScroller.css";
@@ -12,6 +12,7 @@ export interface InfiniteScrollerProps {
   hasMore: boolean;
   // number of items currently displayed/known
   itemCount: number;
+  pageSize: number;
 }
 
 export const InfiniteScroller = ({
@@ -19,40 +20,38 @@ export const InfiniteScroller = ({
   fetchMore,
   hasMore,
   itemCount,
+  pageSize,
 }: InfiniteScrollerProps) => {
   const { t } = useTranslation();
-  // Track how many items were known at time of triggering the fetch.
-  // This allows to detect edge case when second(or more) fetchMore() is triggered before
-  // IntersectionObserver is able to detect out-of-view event.
-  // Initializing with zero ensures that the effect will be triggered immediately
-  // (parent is expected to display empty state until some items are available).
-  const itemCountRef = useRef(0);
+  const [readyForFetch, setReadyForFetch] = useState(false);
   const { visible: isSentinelVisible, nodeRef: sentinelRef } =
     useVisibilityTracker({
       enable: hasMore,
     });
+  useEffect(() => {
+    // enable or clear the flag depending on the sentinel visibility
+    setReadyForFetch(!!isSentinelVisible);
+  }, [isSentinelVisible]);
 
-  useEffect(
-    () => {
-      if (
-        isSentinelVisible &&
-        itemCountRef.current !== itemCount &&
-        fetchMore() // fetch may be blocked if background refresh is in progress (or other manual fetch)
-      ) {
-        // fetchMore call was triggered (it may fail but will be subject to React Query retry policy)
-        itemCountRef.current = itemCount;
-      }
-    },
+  useEffect(() => {
+    if (readyForFetch) {
+      // clear the flag if fetch request is accepted
+      setReadyForFetch(!fetchMore());
+    }
     // reference to fetchMore() changes based on query state and ensures that the effect is triggered in the right moment
     // i.e. after fetch triggered by the previous fetchMore() call finished
-    [isSentinelVisible, fetchMore, itemCount]
-  );
+  }, [fetchMore, readyForFetch]);
 
   return (
     <div>
       {children}
       {hasMore && (
-        <div ref={sentinelRef} className="infinite-scroll-sentinel">
+        <div
+          ref={sentinelRef}
+          // re-create the node with every page change to force new Intersection observer
+          key={Math.ceil(itemCount / pageSize)}
+          className="infinite-scroll-sentinel"
+        >
           {t("message.loadingTripleDot")}
         </div>
       )}
