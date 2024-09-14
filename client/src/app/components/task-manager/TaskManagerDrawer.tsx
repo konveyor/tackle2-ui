@@ -66,7 +66,8 @@ interface TaskManagerDrawerProps {
 export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
   (_props, ref) => {
     const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
-    const { tasks, hasNextPage, fetchNextPage } = useTaskManagerData();
+    const { tasks, hasNextPage, fetchNextPage, pageSize } =
+      useTaskManagerData();
 
     const [expandedItems, setExpandedItems] = useState<number[]>([]);
     const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
@@ -106,6 +107,7 @@ export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
               fetchMore={fetchNextPage}
               hasMore={hasNextPage}
               itemCount={tasks?.length ?? 0}
+              pageSize={pageSize}
             >
               <NotificationDrawerList>
                 {tasks.map((task) => (
@@ -282,6 +284,7 @@ const useTaskManagerData = () => {
     [data]
   );
 
+  // note that the callback will change when query fetching state changes
   const fetchMore = useCallback(() => {
     // forced fetch is not allowed when background fetch or other forced fetch is in progress
     if (!isFetching && !isFetchingNextPage) {
@@ -297,6 +300,6 @@ const useTaskManagerData = () => {
     isFetching,
     hasNextPage,
     fetchNextPage: fetchMore,
-    isReadyToFetch: !isFetching && !isFetchingNextPage,
+    pageSize: PAGE_SIZE,
   };
 };
