@@ -64,6 +64,17 @@ export type TableFeature =
   | "activeItem"
   | "columns";
 
+export interface PersistenceProvider<T> {
+  write: (value: T) => void;
+  read: () => T;
+}
+
+export const isPersistenceProvider = (
+  persistTo?: PersistTarget | PersistenceProvider<unknown>
+): persistTo is PersistenceProvider<unknown> =>
+  !!(persistTo as PersistenceProvider<unknown>)?.write &&
+  !!(persistTo as PersistenceProvider<unknown>)?.read;
+
 /**
  * Identifier for where to persist state for a single table feature or for all table features.
  * - "state" (default) - Plain React state. Resets on component unmount or page reload.
@@ -106,7 +117,7 @@ export type IFeaturePersistenceArgs<
   /**
    * Where to persist state for this feature.
    */
-  persistTo?: PersistTarget;
+  persistTo?: PersistTarget | PersistenceProvider<unknown>;
 };
 
 export interface ColumnSetting {
@@ -131,7 +142,9 @@ export type ITablePersistenceArgs<
    */
   persistTo?:
     | PersistTarget
-    | Partial<Record<TableFeature | "default", PersistTarget>>;
+    | Partial<
+        Record<TableFeature, PersistTarget | PersistenceProvider<unknown>>
+      >;
 };
 
 /**

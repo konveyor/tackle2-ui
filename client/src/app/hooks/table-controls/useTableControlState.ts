@@ -1,7 +1,8 @@
 import {
+  IFeaturePersistenceArgs,
   ITableControlState,
+  ITablePersistenceArgs,
   IUseTableControlStateArgs,
-  PersistTarget,
   TableFeature,
 } from "./types";
 import { useFilterState } from "./filtering";
@@ -10,6 +11,21 @@ import { usePaginationState } from "./pagination";
 import { useActiveItemState } from "./active-item";
 import { useExpansionState } from "./expansion";
 import { useColumnState } from "./column/useColumnState";
+
+const getPersistTo = ({
+  feature,
+  persistTo,
+}: {
+  feature: TableFeature;
+  persistTo: ITablePersistenceArgs["persistTo"];
+}): {
+  persistTo: IFeaturePersistenceArgs["persistTo"];
+} => ({
+  persistTo:
+    !persistTo || typeof persistTo === "string"
+      ? persistTo
+      : persistTo[feature],
+});
 
 /**
  * Provides the "source of truth" state for all table features.
@@ -41,31 +57,29 @@ export const useTableControlState = <
   TFilterCategoryKey,
   TPersistenceKeyPrefix
 > => {
-  const getPersistTo = (feature: TableFeature): PersistTarget | undefined =>
-    !args.persistTo || typeof args.persistTo === "string"
-      ? args.persistTo
-      : args.persistTo[feature] || args.persistTo.default;
-
   const filterState = useFilterState<
     TItem,
     TFilterCategoryKey,
     TPersistenceKeyPrefix
-  >({ ...args, persistTo: getPersistTo("filter") });
+  >({
+    ...args,
+    ...getPersistTo({ feature: "filter", persistTo: args.persistTo }),
+  });
   const sortState = useSortState<TSortableColumnKey, TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("sort"),
+    ...getPersistTo({ feature: "sort", persistTo: args.persistTo }),
   });
   const paginationState = usePaginationState<TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("pagination"),
+    ...getPersistTo({ persistTo: args.persistTo, feature: "pagination" }),
   });
   const expansionState = useExpansionState<TColumnKey, TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("expansion"),
+    ...getPersistTo({ persistTo: args.persistTo, feature: "expansion" }),
   });
   const activeItemState = useActiveItemState<TPersistenceKeyPrefix>({
     ...args,
-    persistTo: getPersistTo("activeItem"),
+    ...getPersistTo({ persistTo: args.persistTo, feature: "activeItem" }),
   });
 
   const { columnNames, tableName, initialColumns } = args;
