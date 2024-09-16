@@ -52,6 +52,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
@@ -284,7 +285,7 @@ export const StakeholderGroups: React.FC = () => {
                           >
                             {stakeholderGroup.stakeholders?.length}
                           </Td>
-                          <AppTableActionButtons
+                          <ControlTableActionButtons
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholderGroup)
                             }
