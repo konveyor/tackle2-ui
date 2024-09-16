@@ -5,6 +5,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  ToolbarChip,
   ToolbarFilter,
 } from "@patternfly/react-core";
 import { IFilterControlProps } from "./FilterControl";
@@ -56,8 +57,9 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
     setIsFilterDropdownOpen(false);
   };
 
-  const onFilterClear = (chip: string) => {
-    const newValue = filterValue?.filter((val) => val !== chip);
+  const onFilterClear = (chip: string | ToolbarChip) => {
+    const chipValue = typeof chip === "string" ? chip : chip.key;
+    const newValue = filterValue?.filter((val) => val !== chipValue);
     setFilterValue(newValue?.length ? newValue : null);
   };
 
@@ -90,7 +92,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
     <ToolbarFilter
       id={`filter-control-${category.categoryKey}`}
       chips={chips}
-      deleteChip={(_, chip) => onFilterClear(chip as string)}
+      deleteChip={(_, chip) => onFilterClear(chip)}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
