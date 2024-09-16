@@ -16,7 +16,6 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -37,6 +36,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
@@ -215,9 +215,9 @@ export const JobFunctions: React.FC = () => {
                         <Td width={90} {...getTdProps({ columnKey: "name" })}>
                           {jobFunction.name}
                         </Td>
-                        <AppTableActionButtons
+                        <ControlTableActionButtons
                           isDeleteEnabled={!!jobFunction.stakeholders}
-                          tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
+                          // tooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
                           onEdit={() => setCreateUpdateModalState(jobFunction)}
                           onDelete={() => deleteRow(jobFunction)}
                         />
