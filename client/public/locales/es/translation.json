@@ -309,7 +309,8 @@
   "toastr": {
     "success": {
       "added": "Éxito! {{what}} fue creado como un {{type}}.",
-      "applicationDeleted": "{{appIDCount}} aplicacione(s) descheda.",
+      "applicationDeleted": "Aplicacione {{appName}} descheda.",
+      "applicationsDeleted": "{{appIDCount}} aplicacione(s) descheda.",
       "assessmentAndReviewCopied": "Éxito! Evaluación y revisión copiada a las aplicaciones seleccionadas",
       "assessmentCopied": "Éxito! Evaluación copiada a las aplicaciones seleccionadas",
       "assessmentDiscarded": "Éxito! Evaluación de {{application}} desechada.",
