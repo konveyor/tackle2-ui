@@ -88,7 +88,10 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
+import {
+  ApplicationAnalysisStatus,
+  taskStateToAnalyze,
+} from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -499,7 +502,24 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
+      {
+        categoryKey: "analysis",
+        title: t("terms.analysis"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.analysis").toLowerCase(),
+          }) + "...",
+        selectOptions: Array.from(taskStateToAnalyze).map(
+          ([taskState, displayStatus]) => ({
+            value: taskState,
+            label: t(`${displayStatus}`),
+          })
+        ),
+        getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
+      },
     ],
+
     initialItemsPerPage: 10,
     hasActionsColumn: true,
     isSelectionEnabled: true,
