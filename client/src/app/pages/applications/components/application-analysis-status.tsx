@@ -10,7 +10,7 @@ export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
 
-const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
+export const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
   ["not supported", "Canceled"],
   ["Canceled", "Canceled"],
   ["Created", "Scheduled"],
