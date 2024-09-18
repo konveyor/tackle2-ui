@@ -116,7 +116,6 @@ export const ApplicationsTable: React.FC = () => {
 
   const history = useHistory();
   const token = keycloak.tokenParsed;
-
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
     "create" | DecoratedApplication | null
@@ -156,7 +155,9 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationsToDelete, setApplicationsToDelete] = useState<
     DecoratedApplication[]
   >([]);
-
+  const [applicationsToCancel, setApplicationsToCancel] = useState<
+    DecoratedApplication[]
+  >([]);
   const [assessmentToDiscard, setAssessmentToDiscard] =
     useState<DecoratedApplication | null>(null);
 
@@ -272,7 +273,6 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
   );
-
   const discardReview = async (application: DecoratedApplication) => {
     if (application.review) {
       deleteReview({
@@ -297,7 +297,6 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
   );
-
   const discardAssessment = async (application: DecoratedApplication) => {
     if (application.assessments) {
       application.assessments.forEach((assessment) => {
@@ -575,6 +574,23 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
+        ...(tasksReadAccess &&
+        tasksWriteAccess &&
+        selectedRows.some((application: DecoratedApplication) =>
+          isTaskCancellable(application)
+        )
+          ? [
+              <DropdownItem
+                key="applications-bulk-cancel"
+                isDisabled={selectedRows.length < 1}
+                onClick={() => {
+                  handleCancelBulkAnalysis();
+                }}
+              >
+                {t("actions.cancelAnalysis")}
+              </DropdownItem>,
+            ]
+          : []),
         ...(credentialsReadAccess
           ? [
               <DropdownItem
@@ -637,6 +653,15 @@ export const ApplicationsTable: React.FC = () => {
           archetypeId: archetypeRefsToOverride[0].id,
         })
       );
+  };
+  const handleCancelBulkAnalysis = () => {
+    const runningAppsToCancel = selectedRows.filter((application) =>
+      isTaskCancellable(application)
+    );
+    setApplicationsToCancel(runningAppsToCancel);
+    runningAppsToCancel.forEach((application) => {
+      cancelAnalysis(application);
+    });
   };
 
   const assessSelectedApp = async (application: DecoratedApplication) => {
