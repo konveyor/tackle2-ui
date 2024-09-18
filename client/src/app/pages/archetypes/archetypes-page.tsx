@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-
 import {
   Button,
   ButtonVariant,
@@ -521,15 +520,6 @@ const Archetypes: React.FC = () => {
                                       },
                                     ]
                                   : []),
-                                // ...(archetypeWriteAccess
-                                //   ? [
-                                //       {
-                                //         title: t("actions.edit"),
-                                //         onClick: () =>
-                                //           setArchetypeToEdit(archetype),
-                                //       },
-                                //     ]
-                                //   : []),
                                 ...(archetype?.assessments?.length &&
                                 assessmentWriteAccess
                                   ? [
