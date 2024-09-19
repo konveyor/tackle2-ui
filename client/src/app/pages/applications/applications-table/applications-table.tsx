@@ -574,15 +574,14 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
-        ...(tasksReadAccess &&
-        tasksWriteAccess &&
-        selectedRows.some((application: DecoratedApplication) =>
-          isTaskCancellable(application)
-        )
+        ...(tasksReadAccess && tasksWriteAccess
           ? [
               <DropdownItem
                 key="applications-bulk-cancel"
-                isDisabled={selectedRows.length < 1}
+                isDisabled={selectedRows.some(
+                  (application: DecoratedApplication) =>
+                    isTaskCancellable(application)
+                )}
                 onClick={() => {
                   handleCancelBulkAnalysis();
                 }}
