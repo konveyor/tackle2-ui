@@ -57,12 +57,14 @@ const useModeStepSchema = ({
 export interface TargetsStepValues {
   formLabels: TargetLabel[];
   selectedTargets: Target[];
+  targetFilters?: Record<string, string[]>;
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   return yup.object({
     formLabels: yup.array(),
     selectedTargets: yup.array(),
+    targetFilters: yup.object(),
   });
 };
 

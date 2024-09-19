@@ -1,5 +1,5 @@
 import { DiscriminatedArgs } from "@app/utils/type-utils";
-import { IFeaturePersistenceArgs } from "..";
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
 /**
@@ -96,7 +96,9 @@ export const useSortState = <
       ? {
           persistTo,
           keys: ["sortColumn", "sortDirection"],
-          serialize: (activeSort) => ({
+          serialize: (
+            activeSort: Partial<IActiveSort<TSortableColumnKey> | null>
+          ) => ({
             sortColumn: activeSort?.columnKey || null,
             sortDirection: activeSort?.direction || null,
           }),
@@ -113,7 +115,14 @@ export const useSortState = <
           persistTo,
           key: "sort",
         }
-      : { persistTo }),
+      : isPersistenceProvider(persistTo)
+      ? {
+          persistTo: "provider",
+          serialize: persistTo.write,
+          deserialize: () =>
+            persistTo.read() as IActiveSort<TSortableColumnKey> | null,
+        }
+      : { persistTo: "state" }),
   });
   return { activeSort, setActiveSort };
 };
