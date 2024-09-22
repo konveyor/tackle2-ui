@@ -365,7 +365,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort"],
+    sortableColumns: ["name", "businessService", "tags", "effort","analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -375,6 +375,7 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
+      analysis:app.tasks.currentAnalyzer?.state || ""
     }),
     filterCategories: [
       {
