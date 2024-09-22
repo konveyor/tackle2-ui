@@ -578,10 +578,11 @@ export const ApplicationsTable: React.FC = () => {
           ? [
               <DropdownItem
                 key="applications-bulk-cancel"
-                isDisabled={selectedRows.some(
-                  (application: DecoratedApplication) =>
+                isDisabled={
+                  !selectedRows.some((application: DecoratedApplication) =>
                     isTaskCancellable(application)
-                )}
+                  )
+                }
                 onClick={() => {
                   handleCancelBulkAnalysis();
                 }}
