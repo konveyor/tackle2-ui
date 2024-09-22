@@ -17,9 +17,14 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 interface ISetMode {
   isSingleApp: boolean;
   isModeValid: boolean;
+  defaultValue: string;
 }
 
-export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
+export const SetMode: React.FC<ISetMode> = ({
+  isSingleApp,
+  isModeValid,
+  defaultValue,
+}) => {
   const { t } = useTranslation();
 
   const { watch, control } = useFormContext<AnalysisWizardFormValues>();
@@ -30,22 +35,22 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
       value: "source-code-deps",
       children: "Source code + dependencies",
     },
-    {
-      value: "source-code",
-      children: "Source code",
-    },
+    // {
+    //   value: "source-code",
+    //   children: "Source code",
+    // },
     {
       value: "binary",
       children: "Binary",
     },
   ];
 
-  if (isSingleApp) {
-    options.push({
-      value: "binary-upload",
-      children: "Upload a local binary",
-    });
-  }
+  // if (isSingleApp) {
+  //   options.push({
+  //     value: "binary-upload",
+  //     children: "Upload a local binary",
+  //   });
+  // }
 
   return (
     <Form
@@ -70,13 +75,13 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
             toggleId="analysis-mode-toggle"
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
-            value={value}
+            value={defaultValue}
             onChange={onChange}
             options={options}
           />
         )}
       />
-      {!isModeValid && (
+      {/* {!isModeValid && (
         <Alert
           variant="warning"
           isInline
@@ -84,7 +89,7 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
         >
           <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
-      )}
+      )} */}
       {mode === "source-code" && (
         <Alert
           variant="info"

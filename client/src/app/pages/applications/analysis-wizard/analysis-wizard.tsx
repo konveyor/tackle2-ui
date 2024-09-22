@@ -50,7 +50,41 @@ interface IAnalysisWizard {
   onClose: () => void;
   isOpen: boolean;
 }
-
+const determineMode = (
+  applications: Application[]
+): "binary" | "source-code-deps" | "" => {
+  // If only one application is selected
+  if (applications.length === 1) {
+    const app = applications[0];
+    // Check if the application has only source definitions or both source and binary
+    if (app.repository || (app.repository && app.binary)) {
+      return "source-code-deps"; // Return 'Source + Dependencies' if source or both
+    }
+    // Check if the application has only binary definitions
+    else if (app.binary) {
+      return "binary"; // Return 'Binary' if binary only
+    }
+    // If the application has no definitions
+    else {
+      return ""; // Return empty string if no definitions (no default selection)
+    }
+  }
+  // If more than one application is selected
+  else {
+    // Check if all applications are in "binary" mode
+    const allBinary = applications.every((app) => app.binary);
+    // Check if all applications are in "source-code-deps" mode (or a mix of source-code and binary)
+    const allSourceDeps = applications.every(
+      (app) => app.repository || app.binary
+    );
+    // If all applications are binary, return "binary"
+    if (allBinary) {
+      return "binary";
+    }
+    // If all applications are source-code-deps or there's a mix, return "source-code-deps"
+    return "source-code-deps";
+  }
+};
 const defaultTaskData: TaskData = {
   tagger: {
     enabled: true,
@@ -366,6 +400,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               isModeValid={isModeValid}
+              defaultValue={determineMode(applications)}
             />
           </>
         </WizardStep>,
