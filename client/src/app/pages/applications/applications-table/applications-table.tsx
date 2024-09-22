@@ -338,7 +338,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort"],
+    sortableColumns: ["name", "businessService", "tags", "effort","analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -348,6 +348,7 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
+      analysis: app.tasks.currentAnalyzer?.state || 0
     }),
     filterCategories: [
       {
@@ -510,18 +511,11 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.analysis").toLowerCase(),
           }) + "...",
-      
-          // taskStateToAnalyze.map(state,icon)=>{
-          //   value:
+        selectOptions: Array.from(taskStateToAnalyze).map(([taskState, displayStatus]) => ({
+          value: taskState, // The task state will be the value
+          label: t(`${displayStatus}`) // The display status translated using t()
+        })),
 
-          // } forEach.toString()}
-          // ApplicationAnalysisStatus.toString() 
-          // Object.entries(Analy)
-          selectOptions: Array.from(taskStateToAnalyze).map(([taskState, displayStatus]) => ({
-            value: taskState, // The task state will be the value
-            label: t(`${displayStatus}`) // The display status translated using t()
-          })),         
-        
         getItemValue: (item) => item?.tasks.currentAnalyzer?.state ||
           "No task"
       },
