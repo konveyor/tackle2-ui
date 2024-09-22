@@ -95,8 +95,13 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
             }
           }}
           dropzoneProps={{
-            accept: { "text/csv": [".csv"] },
-            onDropRejected: handleFileRejected,
+            accept: {
+              "text/csv": [".csv"],
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                [".xlsx"],
+              "application/vnd.ms-excel": [".xls"],
+              "application/vnd.oasis.opendocument.spreadsheet": [".ods"],
+            },
           }}
           onClearClick={() => {
             setFile(undefined);
@@ -106,7 +111,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem variant="error">
-                You should select a CSV file.
+                {t("errors.invalidFileFormat")}
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
