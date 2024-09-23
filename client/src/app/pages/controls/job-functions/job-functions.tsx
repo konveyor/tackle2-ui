@@ -217,7 +217,7 @@ export const JobFunctions: React.FC = () => {
                         </Td>
                         <ControlTableActionButtons
                           isDeleteEnabled={!!jobFunction.stakeholders}
-                          deleteTooltipMessage="Cannot remove a Job function associated with stakeholder(s)"
+                          deleteTooltipMessage={t("deleteTooltipMessage")}
                           onEdit={() => setCreateUpdateModalState(jobFunction)}
                           onDelete={() => deleteRow(jobFunction)}
                         />
