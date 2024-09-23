@@ -108,6 +108,7 @@
     "message": {
       "applicationsBulkDelete": "The selected application(s) will be deleted.",
       "delete": "This action cannot be undone.",
+      "deleteTooltipMessage": "Cannot remove a Job function associated with stakeholder(s)",
       "discardAssessment": "The assessment(s) for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
       "discardReview": "The review for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
       "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost.",
