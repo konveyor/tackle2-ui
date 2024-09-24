@@ -102,6 +102,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
               "application/vnd.ms-excel": [".xls"],
               "application/vnd.oasis.opendocument.spreadsheet": [".ods"],
             },
+            onDropRejected: handleFileRejected,
           }}
           onClearClick={() => {
             setFile(undefined);
@@ -111,7 +112,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem variant="error">
-                {t("errors.invalidFileFormat")}
+                You should select a CSV/EXEL/ODS file.
               </HelperTextItem>
             </HelperText>
           </FormHelperText>
