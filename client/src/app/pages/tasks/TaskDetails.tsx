@@ -6,17 +6,39 @@ import { Paths, TaskDetailsAttachmentRoute } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 import { formatPath } from "@app/utils/utils";
 import { TaskDetailsBase } from "./TaskDetailsBase";
+//path
+import { TaskActionColumnProps } from "./TaskActionColumn";
+//path
+import { useFetchApplicationById } from "@app/queries/applications";
+import { AnalysisDetailsAttachmentRoute } from "@app/Paths";
+import { TabKey } from "../applications/components/application-detail-drawer/application-detail-drawer";
 
-export const TaskDetails = () => {
+const { applicationId } = useParams<AnalysisDetailsAttachmentRoute>();
+const detailsPath = formatPath(Paths.applicationsAnalysisDetails, {
+  applicationId: applicationId,
+});
+const { application } = useFetchApplicationById(applicationId);
+
+export const TaskDetails = (isFApplication: TaskActionColumnProps) => {
   const { t } = useTranslation();
+  //bread
+  const appName: string = application?.name ?? t("terms.unknown");
+
   const { taskId, attachmentId } = useParams<TaskDetailsAttachmentRoute>();
-  const detailsPath = formatPath(Paths.taskDetails, { taskId });
+  const detailsPath = isFApplication
+    ? formatPath(Paths.applicationsTabTaskDetails, { taskId })
+    : formatPath(Paths.taskDetails, { taskId });
   return (
     <TaskDetailsBase
       breadcrumbs={[
         {
-          title: t("terms.tasks"),
-          path: Paths.tasks,
+          title: t(isFApplication ? "terms.applications" : "terms.tasks"),
+          path: isFApplication ? Paths.applications : Paths.tasks,
+        },
+
+        {
+          title: appName,
+          path: `${Paths.applications}/?activeItem=${applicationId}&TabKey=${TabKey.Tasks}`,
         },
         {
           title: t("titles.taskWithId", { taskId }),

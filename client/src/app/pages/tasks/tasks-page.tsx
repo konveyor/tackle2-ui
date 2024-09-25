@@ -265,6 +265,10 @@ export const TasksPage: React.FC = () => {
       : "",
   });
 
+  //path
+
+  const isFApplication = false;
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -356,7 +360,10 @@ export const TasksPage: React.FC = () => {
                           isActionCell
                           id={`row-actions-${task.id}`}
                         >
-                          <TaskActionColumn task={task} />
+                          <TaskActionColumn
+                            task={task}
+                            isFApplication={isFApplication}
+                          />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

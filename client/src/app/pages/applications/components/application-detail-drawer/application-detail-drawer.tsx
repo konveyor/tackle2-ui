@@ -97,7 +97,7 @@ export interface IApplicationDetailDrawerProps
   onEditClick: () => void;
 }
 
-enum TabKey {
+export enum TabKey {
   Details = 0,
   Tags,
   Reports,
@@ -557,6 +557,9 @@ const TabReportsContent: React.FC<{
 
 const TabTasksContent: React.FC<{}> = () => {
   const { t } = useTranslation();
+  //path
+
+  const isFApplication = true;
 
   const allAffectedApplicationsFilterCategories =
     useSharedAffectedApplicationFilterCategories();
@@ -696,9 +699,7 @@ const TabTasksContent: React.FC<{}> = () => {
               <Tr key={task.id} {...getTrProps({ item: task })}>
                 <Td {...getTdProps({ columnKey: "taskId" })}>{task.id}</Td>
                 <Td {...getTdProps({ columnKey: "taskKind" })}>{task.kind}</Td>
-                <Td {...getTdProps({ columnKey: "status" })}>
-                  {task.state}
-                </Td>{" "}
+                <Td {...getTdProps({ columnKey: "status" })}>{task.state}</Td>
                 {/*check if state=status*/}
                 <Td {...getTdProps({ columnKey: "priority" })}>
                   {task.priority}
@@ -708,7 +709,10 @@ const TabTasksContent: React.FC<{}> = () => {
                   isActionCell
                   id={`row-actions-${task.id}`}
                 >
-                  <TaskActionColumn task={task} />{" "}
+                  <TaskActionColumn
+                    task={task}
+                    isFApplication={isFApplication}
+                  />{" "}
                 </Td>
               </Tr>
             ))}

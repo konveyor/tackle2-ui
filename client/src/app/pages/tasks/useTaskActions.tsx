@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
+/*breadcrumbs*/
 
 const canCancel = (state: TaskState = "No task") =>
   !["Succeeded", "Failed", "Canceled"].includes(state);
@@ -60,8 +61,8 @@ const useAsyncTaskActions = () => {
 
   return { cancelTask, togglePreemption };
 };
-
-export const useTaskActions = (task: Task) => {
+//?
+export const useTaskActions = (task: Task, isFApplication?: boolean) => {
   const { cancelTask, togglePreemption } = useAsyncTaskActions();
   const { t } = useTranslation();
   const history = useHistory();
@@ -88,5 +89,18 @@ export const useTaskActions = (task: Task) => {
           })
         ),
     },
+    //   {
+    //       title:t("actions.taskDetails"),
+    //       onClick: () => {
+    //          /* we check if drawer open*/
+    //         history.push(
+    //           formatPath(
+    //             isFApplication ? Paths.applicationsTabTaskDetails : Paths.taskDetails,
+    //             { taskId: task.id }
+    //           )
+    //         );
+
+    //     },
+    // },
   ];
 };
