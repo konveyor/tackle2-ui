@@ -21,13 +21,11 @@ const { application } = useFetchApplicationById(applicationId);
 
 export const TaskDetails = (isFApplication: TaskActionColumnProps) => {
   const { t } = useTranslation();
-  //bread
+  /*bread*/
   const appName: string = application?.name ?? t("terms.unknown");
 
   const { taskId, attachmentId } = useParams<TaskDetailsAttachmentRoute>();
-  const detailsPath = isFApplication
-    ? formatPath(Paths.applicationsTabTaskDetails, { taskId })
-    : formatPath(Paths.taskDetails, { taskId });
+  const detailsPath = formatPath(Paths.taskDetails, { taskId });
   return (
     <TaskDetailsBase
       breadcrumbs={[
@@ -35,16 +33,17 @@ export const TaskDetails = (isFApplication: TaskActionColumnProps) => {
           title: t(isFApplication ? "terms.applications" : "terms.tasks"),
           path: isFApplication ? Paths.applications : Paths.tasks,
         },
-
-        {
-          title: appName,
-          path: `${Paths.applications}/?activeItem=${applicationId}&TabKey=${TabKey.Tasks}`,
-        },
+        isFApplication
+          ? {
+              title: appName,
+              path: `${Paths.applications}/?activeItem=${applicationId}&tabKey=${TabKey.Tasks}`,
+            }
+          : null,
         {
           title: t("titles.taskWithId", { taskId }),
           path: detailsPath,
         },
-      ]}
+      ].filter(Boolean)}
       detailsPath={detailsPath}
       formatTitle={(taskName) => `Task details for task ${taskId}, ${taskName}`}
       formatAttachmentPath={(attachmentId) =>

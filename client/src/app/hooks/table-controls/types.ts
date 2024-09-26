@@ -58,6 +58,7 @@ import { IColumnState } from "./column/useColumnState";
 export type TableFeature =
   | "filter"
   | "sort"
+  | "tabKey"
   | "pagination"
   | "selection"
   | "expansion"

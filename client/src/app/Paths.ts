@@ -42,9 +42,9 @@ export const DevPaths = {
   dependencies: "/dependencies",
   tasks: "/tasks",
   taskDetails: "/tasks/:taskId",
-  //bread
-  applicationsTabTaskDetails: "/applications/:taskId",
-  //
+  /*bread
+   applicationsTabTaskDetails: "/applications/:taskId",
+  */
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
 } as const;
 
