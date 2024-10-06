@@ -112,7 +112,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
           <FormHelperText>
             <HelperText>
               <HelperTextItem variant="error">
-                You should select a CSV/EXEL/ODS file.
+                {t("message.unsupportedFileType")}
               </HelperTextItem>
             </HelperText>
           </FormHelperText>

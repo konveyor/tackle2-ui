@@ -192,6 +192,7 @@
     "duplicateTag": "A tag with this name already exists. Use a different name.",
     "duplicateWave": "The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
+    "unsupportedFileType": "Unsupported file type. Only Excel, ODS, and CSV files are allowed.",
     "insecureTracker": "Insecure mode deactivates certificate verification. Use insecure mode for instances that have self-signed certificates.",
     "inheritedReviewTooltip": "This application is inheriting a review from an archetype.",
     "inheritedReviewTooltip_plural": "This application is inheriting reviews from {{count}} archetypes.",
