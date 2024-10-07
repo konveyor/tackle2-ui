@@ -110,7 +110,7 @@ export const RepositoriesMvn: React.FC = () => {
                         isAriaDisabled={inputDisabled}
                         onClick={() => setIsConfirmDialogOpen(true)}
                       >
-                        {isRWXSupported && isFetching ? (
+                        {isFetching ? (
                           <Text>
                             Loading...
                             <Spinner
