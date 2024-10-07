@@ -89,7 +89,10 @@ import { TaskState } from "@app/api/models";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationAnalysisStatus, taskStateToAnalyze } from "../components/application-analysis-status";
+import {
+  ApplicationAnalysisStatus,
+  taskStateToAnalyze,
+} from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -110,8 +113,6 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
-import { Item } from "@app/pages/migration-targets/components/dnd/item";
-import AnalysisDetails from "../analysis-details";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -239,7 +240,7 @@ export const ApplicationsTable: React.FC = () => {
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
+        appName: applicationsToDelete[0].name,
       }),
       variant: "success",
     });
@@ -338,7 +339,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort","analysis"],
+    sortableColumns: ["name", "businessService", "tags", "effort", "analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -348,7 +349,7 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
-      analysis: app.tasks.currentAnalyzer?.state || 0
+      analysis: app.tasks.currentAnalyzer?.state || 0,
     }),
     filterCategories: [
       {
@@ -503,6 +504,23 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
+      // {
+      //   categoryKey: "analysis",
+      //   title: t("terms.analysis"),
+      //   type: FilterType.multiselect,
+      //   placeholderText:
+      //     t("actions.filterBy", {
+      //       what: t("terms.analysis").toLowerCase(),
+      //     }) + "...",
+      //   selectOptions: Object.values(applications)
+      //     .map(a => ({
+      //       value: a?.tasks.currentAnalyzer?.state || "No Task",
+      //       label: a?.tasks.currentAnalyzer?.state || "Not Started",
+      //     }))
+      //     .filter((v, i, a) => a.findIndex(v2 => v2.label === v.label) === i)
+      //     .sort((a, b) => a.value.localeCompare(b.value)),
+      //   getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
+      // }
       {
         categoryKey: "analysis",
         title: t("terms.analysis"),
@@ -511,13 +529,18 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.analysis").toLowerCase(),
           }) + "...",
-        selectOptions: Array.from(taskStateToAnalyze).map(([taskState, displayStatus]) => ({
-          value: taskState, // The task state will be the value
-          label: t(`${displayStatus}`) // The display status translated using t()
-        })),
-
-        getItemValue: (item) => item?.tasks.currentAnalyzer?.state ||
-          "No task"
+        selectOptions: Object.values(applications)
+          .map((a) => {
+            let value = a?.tasks.currentAnalyzer?.state || "No Task";
+            if (value === "No Task") {
+              value = "No task";
+            }
+            const label = taskStateToAnalyze.get(value as TaskState) || value;
+            return { value, label };
+          })
+          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
+          .sort((a, b) => a.value.localeCompare(b.value)),
+        getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
     ],
     initialItemsPerPage: 10,
@@ -567,48 +590,48 @@ export const ApplicationsTable: React.FC = () => {
 
   const importDropdownItems = importWriteAccess
     ? [
-      <DropdownItem
-        key="import-applications"
-        component="button"
-        onClick={() => setIsApplicationImportModalOpen(true)}
-      >
-        {t("actions.import")}
-      </DropdownItem>,
-      <DropdownItem
-        key="manage-import-applications"
-        onClick={() => {
-          history.push(Paths.applicationsImports);
-        }}
-      >
-        {t("actions.manageImports")}
-      </DropdownItem>,
-    ]
+        <DropdownItem
+          key="import-applications"
+          component="button"
+          onClick={() => setIsApplicationImportModalOpen(true)}
+        >
+          {t("actions.import")}
+        </DropdownItem>,
+        <DropdownItem
+          key="manage-import-applications"
+          onClick={() => {
+            history.push(Paths.applicationsImports);
+          }}
+        >
+          {t("actions.manageImports")}
+        </DropdownItem>,
+      ]
     : [];
   const applicationDropdownItems = applicationWriteAccess
     ? [
-      <DropdownItem
-        key="applications-bulk-delete"
-        isDisabled={selectedRows.length < 1}
-        onClick={() => {
-          setApplicationsToDelete(selectedRows);
-        }}
-      >
-        {t("actions.delete")}
-      </DropdownItem>,
-      ...(credentialsReadAccess
-        ? [
-          <DropdownItem
-            key="manage-applications-credentials"
-            isDisabled={selectedRows.length < 1}
-            onClick={() => {
-              setSaveApplicationsCredentialsModalState(selectedRows);
-            }}
-          >
-            {t("actions.manageCredentials")}
-          </DropdownItem>,
-        ]
-        : []),
-    ]
+        <DropdownItem
+          key="applications-bulk-delete"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => {
+            setApplicationsToDelete(selectedRows);
+          }}
+        >
+          {t("actions.delete")}
+        </DropdownItem>,
+        ...(credentialsReadAccess
+          ? [
+              <DropdownItem
+                key="manage-applications-credentials"
+                isDisabled={selectedRows.length < 1}
+                onClick={() => {
+                  setSaveApplicationsCredentialsModalState(selectedRows);
+                }}
+              >
+                {t("actions.manageCredentials")}
+              </DropdownItem>,
+            ]
+          : []),
+      ]
     : [];
 
   const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
@@ -997,58 +1020,58 @@ export const ApplicationsTable: React.FC = () => {
                             onClick: () => assessSelectedApp(application),
                           },
                           assessmentWriteAccess &&
-                          (application.assessments?.length ?? 0) > 0 && {
-                            title: t("actions.discardAssessment"),
-                            onClick: () =>
-                              setAssessmentToDiscard(application),
-                          },
+                            (application.assessments?.length ?? 0) > 0 && {
+                              title: t("actions.discardAssessment"),
+                              onClick: () =>
+                                setAssessmentToDiscard(application),
+                            },
                           reviewsWriteAccess && {
                             title: t("actions.review"),
                             onClick: () => reviewSelectedApp(application),
                           },
                           reviewsWriteAccess &&
-                          application?.review && {
-                            title: t("actions.discardReview"),
-                            onClick: () => setReviewToDiscard(application),
-                          },
+                            application?.review && {
+                              title: t("actions.discardReview"),
+                              onClick: () => setReviewToDiscard(application),
+                            },
                           dependenciesWriteAccess && {
                             title: t("actions.manageDependencies"),
                             onClick: () =>
                               setApplicationDependenciesToManage(application),
                           },
                           credentialsReadAccess &&
-                          applicationWriteAccess && {
-                            title: t("actions.manageCredentials"),
-                            onClick: () =>
-                              setSaveApplicationsCredentialsModalState([
-                                application,
-                              ]),
-                          },
-                          analysesReadAccess &&
-                          !!application.tasks.currentAnalyzer && {
-                            title: t("actions.analysisDetails"),
-                            onClick: () => {
-                              const taskId =
-                                application.tasks.currentAnalyzer?.id;
-                              if (taskId && application.id) {
-                                history.push(
-                                  formatPath(
-                                    Paths.applicationsAnalysisDetails,
-                                    {
-                                      applicationId: application.id,
-                                      taskId,
-                                    }
-                                  )
-                                );
-                              }
+                            applicationWriteAccess && {
+                              title: t("actions.manageCredentials"),
+                              onClick: () =>
+                                setSaveApplicationsCredentialsModalState([
+                                  application,
+                                ]),
                             },
-                          },
+                          analysesReadAccess &&
+                            !!application.tasks.currentAnalyzer && {
+                              title: t("actions.analysisDetails"),
+                              onClick: () => {
+                                const taskId =
+                                  application.tasks.currentAnalyzer?.id;
+                                if (taskId && application.id) {
+                                  history.push(
+                                    formatPath(
+                                      Paths.applicationsAnalysisDetails,
+                                      {
+                                        applicationId: application.id,
+                                        taskId,
+                                      }
+                                    )
+                                  );
+                                }
+                              },
+                            },
                           tasksReadAccess &&
-                          tasksWriteAccess &&
-                          isTaskCancellable(application) && {
-                            title: t("actions.cancelAnalysis"),
-                            onClick: () => cancelAnalysis(application),
-                          },
+                            tasksWriteAccess &&
+                            isTaskCancellable(application) && {
+                              title: t("actions.cancelAnalysis"),
+                              onClick: () => cancelAnalysis(application),
+                            },
                           applicationWriteAccess && { isSeparator: true },
                           applicationWriteAccess && {
                             title: t("actions.delete"),
@@ -1151,10 +1174,11 @@ export const ApplicationsTable: React.FC = () => {
           )}
           titleIconVariant={"warning"}
           isOpen={applicationsToDelete.length > 0}
-          message={`${applicationsToDelete.length > 1
-            ? t("dialog.message.applicationsBulkDelete")
-            : ""
-            } ${t("dialog.message.delete")}`}
+          message={`${
+            applicationsToDelete.length > 1
+              ? t("dialog.message.applicationsBulkDelete")
+              : ""
+          } ${t("dialog.message.delete")}`}
           aria-label="Applications bulk delete"
           confirmBtnVariant={ButtonVariant.danger}
           confirmBtnLabel={t("actions.delete")}
