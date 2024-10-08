@@ -85,10 +85,14 @@ import {
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
+import { TaskState } from "@app/api/models";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
+import {
+  ApplicationAnalysisStatus,
+  taskStateToAnalyze,
+} from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -236,7 +240,7 @@ export const ApplicationsTable: React.FC = () => {
   const onDeleteApplicationSuccess = (appIDCount: number) => {
     pushNotification({
       title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
+        appName: applicationsToDelete[0].name,
       }),
       variant: "success",
     });
@@ -335,7 +339,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort"],
+    sortableColumns: ["name", "businessService", "tags", "effort", "analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -345,6 +349,7 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
+      analysis: app.tasks.currentAnalyzer?.state || 0,
     }),
     filterCategories: [
       {
@@ -367,7 +372,7 @@ export const ApplicationsTable: React.FC = () => {
         title: t("terms.archetypes"),
         type: FilterType.multiselect,
         placeholderText:
-          t("actions.filterBy", {
+          t("action s.filterBy", {
             what: t("terms.archetypes").toLowerCase(),
           }) + "...",
         selectOptions: referencedArchetypeRefs.map(({ name }) => ({
@@ -498,6 +503,44 @@ export const ApplicationsTable: React.FC = () => {
           { value: "unassessed", label: t("risks.unassessed") },
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
+      },
+      // {
+      //   categoryKey: "analysis",
+      //   title: t("terms.analysis"),
+      //   type: FilterType.multiselect,
+      //   placeholderText:
+      //     t("actions.filterBy", {
+      //       what: t("terms.analysis").toLowerCase(),
+      //     }) + "...",
+      //   selectOptions: Object.values(applications)
+      //     .map(a => ({
+      //       value: a?.tasks.currentAnalyzer?.state || "No Task",
+      //       label: a?.tasks.currentAnalyzer?.state || "Not Started",
+      //     }))
+      //     .filter((v, i, a) => a.findIndex(v2 => v2.label === v.label) === i)
+      //     .sort((a, b) => a.value.localeCompare(b.value)),
+      //   getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
+      // }
+      {
+        categoryKey: "analysis",
+        title: t("terms.analysis"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.analysis").toLowerCase(),
+          }) + "...",
+        selectOptions: Object.values(applications)
+          .map((a) => {
+            let value = a?.tasks.currentAnalyzer?.state || "No Task";
+            if (value === "No Task") {
+              value = "No task";
+            }
+            const label = taskStateToAnalyze.get(value as TaskState) || value;
+            return { value, label };
+          })
+          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
+          .sort((a, b) => a.value.localeCompare(b.value)),
+        getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
     ],
     initialItemsPerPage: 10,
