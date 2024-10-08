@@ -215,8 +215,11 @@ const TabDetailsContent: React.FC<{
                   application.tasks.currentAnalyzer.state === "Failed"
                     ? t("terms.unassigned")
                     : currentPageReports.length === 0
-                    ? "Congratulations! No issues were found"
-                    : `${minor} minor, ${critical} critical`}
+                    ? t("issues.noIssues")
+                    : t("issues.issuesFound", {
+                        minor: minor,
+                        critical: critical,
+                      })}
                 </Text>
               </ListItem>
               <ListItem>
