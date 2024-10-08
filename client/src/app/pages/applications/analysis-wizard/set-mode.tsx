@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SelectOptionProps,
   TextContent,
@@ -35,22 +35,23 @@ export const SetMode: React.FC<ISetMode> = ({
       value: "source-code-deps",
       children: "Source code + dependencies",
     },
-    // {
-    //   value: "source-code",
-    //   children: "Source code",
-    // },
+    {
+      value: "source-code",
+      children: "Source code",
+    },
     {
       value: "binary",
       children: "Binary",
     },
   ];
 
-  // if (isSingleApp) {
-  //   options.push({
-  //     value: "binary-upload",
-  //     children: "Upload a local binary",
-  //   });
-  // }
+  if (isSingleApp) {
+    options.push({
+      value: "binary-upload",
+      children: "Upload a local binary",
+    });
+  }
+  const [selectedValue, setSelectedValue] = useState(defaultValue);
 
   return (
     <Form
@@ -75,8 +76,11 @@ export const SetMode: React.FC<ISetMode> = ({
             toggleId="analysis-mode-toggle"
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
-            value={defaultValue}
-            onChange={onChange}
+            value={selectedValue}
+            onChange={(value) => {
+              setSelectedValue(value);
+              onChange(value); // עדכון של הערך בשדה
+            }}
             options={options}
           />
         )}

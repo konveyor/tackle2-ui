@@ -50,6 +50,7 @@ interface IAnalysisWizard {
   onClose: () => void;
   isOpen: boolean;
 }
+
 const determineMode = (
   applications: Application[]
 ): "binary" | "source-code-deps" | "" => {
@@ -374,12 +375,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const analyzableApplications = useAnalyzableApplications(applications, mode);
 
-  const isStepEnabled = (stepId: StepId) => {
-    return (
-      stepIdReached + 1 >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId)
-    );
-  };
+  const isStepEnabled = (stepId: StepId) => true; //{
+  //   return (
+  //     stepIdReached + 1 >= stepId &&
+  //     (firstInvalidStep === null || firstInvalidStep >= stepId)
+  //   );
+  // };
 
   const steps = [
     <WizardStep
