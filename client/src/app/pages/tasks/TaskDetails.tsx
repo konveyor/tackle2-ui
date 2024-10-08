@@ -2,41 +2,47 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { Paths, TaskDetailsAttachmentRoute } from "@app/Paths";
+import { Paths, TaskDetailsAttachmentRoute, TaskFromApp } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 import { formatPath } from "@app/utils/utils";
 import { TaskDetailsBase } from "./TaskDetailsBase";
-//path
-import { TaskActionColumnProps } from "./TaskActionColumn";
-//path
-import { useFetchApplicationById } from "@app/queries/applications";
-import { AnalysisDetailsAttachmentRoute } from "@app/Paths";
-import { TabKey } from "../applications/components/application-detail-drawer/application-detail-drawer";
+import { getTaskById } from "@app/api/rest";
+import { useState, useEffect } from "react";
 
-const { applicationId } = useParams<AnalysisDetailsAttachmentRoute>();
-const detailsPath = formatPath(Paths.applicationsAnalysisDetails, {
-  applicationId: applicationId,
-});
-const { application } = useFetchApplicationById(applicationId);
-
-export const TaskDetails = (isFApplication: TaskActionColumnProps) => {
+export const TaskDetails = () => {
   const { t } = useTranslation();
-  /*bread*/
-  const appName: string = application?.name ?? t("terms.unknown");
-
   const { taskId, attachmentId } = useParams<TaskDetailsAttachmentRoute>();
+  const { isFApplication } = useParams<TaskFromApp>();
+  const result = isFApplication === "true" ? true : false;
+  const [applicationName, setApplicationName] = useState<string | undefined>();
+  const [applicationId, setApplicationId] = useState<number | undefined>();
+
+  useEffect(() => {
+    const currentTask = getTaskById(Number(taskId));
+    currentTask
+      .then((task) => {
+        setApplicationName(task.application?.name);
+        setApplicationId(task.application?.id);
+      })
+      .catch((error) => {
+        console.error("Error fetching task:", error);
+      });
+  }, [taskId]);
+  const appName: string = applicationName ?? t("terms.unknown");
+  console.log(appName);
   const detailsPath = formatPath(Paths.taskDetails, { taskId });
+
   return (
     <TaskDetailsBase
       breadcrumbs={[
         {
-          title: t(isFApplication ? "terms.applications" : "terms.tasks"),
-          path: isFApplication ? Paths.applications : Paths.tasks,
+          title: t(result ? "terms.applications" : "terms.tasks"),
+          path: result ? Paths.applications : Paths.tasks,
         },
-        isFApplication
+        result
           ? {
               title: appName,
-              path: `${Paths.applications}/?activeItem=${applicationId}&tabKey=${TabKey.Tasks}`,
+              path: `${Paths.applications}/?activeItem=${applicationId}`,
             }
           : null,
         {
@@ -57,5 +63,4 @@ export const TaskDetails = (isFApplication: TaskActionColumnProps) => {
     />
   );
 };
-
 export default TaskDetails;

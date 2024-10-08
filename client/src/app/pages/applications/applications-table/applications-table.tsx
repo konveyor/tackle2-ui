@@ -330,7 +330,6 @@ export const ApplicationsTable: React.FC = () => {
     isActiveItemEnabled: true,
     persistTo: {
       activeItem: "urlParams",
-      tabKey: "urlParams",
       filter: "urlParams",
       pagination: "sessionStorage",
       sort: "sessionStorage",

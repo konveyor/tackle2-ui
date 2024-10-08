@@ -71,7 +71,7 @@ export const TasksPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters") ?? "";
-
+  const isFApplication = false;
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
@@ -264,10 +264,6 @@ export const TasksPage: React.FC = () => {
       ? dayjs(terminated).format("YYYY-MM-DD HH:mm:ss")
       : "",
   });
-
-  //path
-
-  const isFApplication = false;
 
   return (
     <>
