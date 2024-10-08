@@ -195,7 +195,8 @@ const TabDetailsContent: React.FC<{
     | AnalysisRuleReport
     | AnalysisIssueReport
   )[];
-  const minors = 0;
+  const minor = currentPageReports.filter((u) => u.effort === 1).length;
+  const critical = currentPageReports.filter((u) => u.effort > 1).length;
 
   return (
     <>
@@ -210,10 +211,12 @@ const TabDetailsContent: React.FC<{
                   Issues
                 </Link>
                 <Text component="small">
-                  {console.log(currentPageReports)}
-                  {(application.tasks.currentAnalyzer === undefined ||
-                    application.tasks.currentAnalyzer.state === "Failed") &&
-                    t("terms.unassigned")}
+                  {application.tasks.currentAnalyzer === undefined ||
+                  application.tasks.currentAnalyzer.state === "Failed"
+                    ? t("terms.unassigned")
+                    : currentPageReports.length === 0
+                    ? "Congratulations! No issues were found"
+                    : `${minor} minor, ${critical} critical`}
                 </Text>
               </ListItem>
               <ListItem>
