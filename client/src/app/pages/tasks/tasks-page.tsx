@@ -71,7 +71,7 @@ export const TasksPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters") ?? "";
-
+  const isFApplication = false;
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
@@ -356,7 +356,10 @@ export const TasksPage: React.FC = () => {
                           isActionCell
                           id={`row-actions-${task.id}`}
                         >
-                          <TaskActionColumn task={task} />
+                          <TaskActionColumn
+                            task={task}
+                            isFApplication={isFApplication}
+                          />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
