@@ -34,6 +34,8 @@ import {
   Ref,
   Archetype,
   TaskDashboard,
+  AnalysisRuleReport,
+  AnalysisIssueReport,
 } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
@@ -65,6 +67,7 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
+import { useFetchIssueReports } from "@app/queries/issues";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -182,6 +185,19 @@ const TabDetailsContent: React.FC<{
         .filter((fullArchetype) => fullArchetype?.review)
         .filter(Boolean);
 
+  const issueReportsQuery = useFetchIssueReports(application.id);
+  const {
+    result: { data, total: totalReportCount },
+    isFetching: isFetchingReports,
+    fetchError: reportsFetchError,
+  } = issueReportsQuery;
+  const currentPageReports = data as (
+    | AnalysisRuleReport
+    | AnalysisIssueReport
+  )[];
+  const minor = currentPageReports.filter((u) => u.effort === 1).length;
+  const critical = currentPageReports.filter((u) => u.effort > 1).length;
+
   return (
     <>
       <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
@@ -194,6 +210,17 @@ const TabDetailsContent: React.FC<{
                 <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
                   Issues
                 </Link>
+                <Text component="small">
+                  {application.tasks.currentAnalyzer === undefined ||
+                  application.tasks.currentAnalyzer.state === "Failed"
+                    ? t("terms.unassigned")
+                    : currentPageReports.length === 0
+                    ? t("issues.noIssues")
+                    : t("issues.issuesFound", {
+                        minor: minor,
+                        critical: critical,
+                      })}
+                </Text>
               </ListItem>
               <ListItem>
                 <Link
