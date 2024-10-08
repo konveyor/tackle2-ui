@@ -513,7 +513,7 @@ export const ApplicationsTable: React.FC = () => {
             value: a?.tasks.currentAnalyzer?.state || "No Task",
             label: a?.tasks.currentAnalyzer?.state || "Not Started",
           }))
-          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
+          .filter((v, i, a) => a.findIndex((v3) => v3.label === v.label) === i)
           .sort((a, b) => a.value.localeCompare(b.value)),
         getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
