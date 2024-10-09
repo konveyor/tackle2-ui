@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -53,8 +53,14 @@ interface IAnalysisWizard {
 
 const determineMode = (
   applications: Application[]
-): "binary" | "source-code-deps" | "" => {
+):
+  | "binary"
+  | "source-code"
+  | "source-code-deps"
+  | "binary-upload"
+  | undefined => {
   // If only one application is selected
+  console.log(applications.length);
   if (applications.length === 1) {
     const app = applications[0];
     // Check if the application has only source definitions or both source and binary
@@ -67,7 +73,7 @@ const determineMode = (
     }
     // If the application has no definitions
     else {
-      return ""; // Return empty string if no definitions (no default selection)
+      return undefined; // Return empty string if no definitions (no default selection)
     }
   }
   // If more than one application is selected
@@ -198,10 +204,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: null,
-      mode: "source-code-deps",
+      mode: determineMode(applications),
       formLabels: [],
       selectedTargets: [],
-      // defaults will be passed as initialFilterValues to the table hook
       targetFilters: undefined,
       selectedSourceLabels: [],
       withKnownLibs: "app",
@@ -222,6 +227,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     resolver: yupResolver(allFieldsSchema),
     mode: "all",
   });
+
+  // Using useEffect to update the form's mode when the applications change
+  useEffect(() => {
+    const mode = determineMode(applications);
+
+    // Check if the mode is not undefined
+    if (mode) {
+      methods.setValue("mode", mode); // Update the mode value in the form
+    }
+  }, [applications]); // Trigger the effect when 'applications' changes
 
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
@@ -401,7 +416,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               isModeValid={isModeValid}
-              defaultValue={determineMode(applications)}
+              //defaultValue={determineMode(applications)}
             />
           </>
         </WizardStep>,

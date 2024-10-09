@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   SelectOptionProps,
   TextContent,
@@ -17,13 +17,13 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 interface ISetMode {
   isSingleApp: boolean;
   isModeValid: boolean;
-  defaultValue: string;
+  //defaultValue: string;
 }
 
 export const SetMode: React.FC<ISetMode> = ({
   isSingleApp,
   isModeValid,
-  defaultValue,
+  //defaultValue,
 }) => {
   const { t } = useTranslation();
 
@@ -51,7 +51,7 @@ export const SetMode: React.FC<ISetMode> = ({
       children: "Upload a local binary",
     });
   }
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
+  //const [selectedValue, setSelectedValue] = useState(defaultValue);
 
   return (
     <Form
@@ -76,9 +76,9 @@ export const SetMode: React.FC<ISetMode> = ({
             toggleId="analysis-mode-toggle"
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
-            value={selectedValue}
+            value={value}
             onChange={(value) => {
-              setSelectedValue(value);
+              //setSelectedValue(value);
               onChange(value); // עדכון של הערך בשדה
             }}
             options={options}
