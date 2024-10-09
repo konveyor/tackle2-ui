@@ -72,7 +72,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
-import { Assessment, Ref } from "@app/api/models";
+import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -365,7 +365,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort","analysis"],
+    sortableColumns: ["name", "businessService", "tags", "effort", "analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -375,7 +375,7 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
-      analysis:app.tasks.currentAnalyzer?.state || ""
+      analysis: app.tasks.currentAnalyzer?.state || "",
     }),
     filterCategories: [
       {
@@ -530,6 +530,7 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
+
       {
         categoryKey: "analysis",
         title: t("terms.analysis"),
@@ -538,12 +539,25 @@ export const ApplicationsTable: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.analysis").toLowerCase(),
           }) + "...",
-        selectOptions: Array.from(taskStateToAnalyze).map(
-          ([taskState, displayStatus]) => ({
-            value: taskState,
-            label: t(`${displayStatus}`),
+
+        selectOptions: Object.values(applications)
+          .map((a) => {
+            let value = a?.tasks.currentAnalyzer?.state || "No Task";
+
+            if (value === "No Task") {
+              value = "No task";
+            }
+
+            let label = taskStateToAnalyze.get(value as TaskState) || value;
+
+            if (label === "NotStarted") {
+              label = "Not started";
+            }
+            return { value, label };
           })
-        ),
+          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
+          .sort((a, b) => a.value.localeCompare(b.value)),
+
         getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
     ],
