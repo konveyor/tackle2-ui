@@ -66,7 +66,7 @@ import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
-import { TaskStates } from "@app/queries/tasks";
+import { TaskStates, useFetchTaskByID } from "@app/queries/tasks";
 import { useFetchIssueReports } from "@app/queries/issues";
 
 export interface IApplicationDetailDrawerProps
@@ -197,6 +197,13 @@ const TabDetailsContent: React.FC<{
   )[];
   const minor = currentPageReports.filter((u) => u.effort === 1).length;
   const critical = currentPageReports.filter((u) => u.effort > 1).length;
+
+  const { task, isFetching, fetchError, refetch } = useFetchTaskByID(
+    application.tasks.currentAnalyzer?.id
+  );
+  const targets = task?.data?.rules?.labels?.included.filter((t) =>
+    t.startsWith("konveyor.io/target=")
+  );
 
   return (
     <>
@@ -330,6 +337,12 @@ const TabDetailsContent: React.FC<{
         onEditClick={onEditClick}
         onCloseClick={onCloseClick}
       />
+      <TextContent className={spacing.mtLg}>
+        <Title headingLevel="h3" size="md">
+          Targets
+        </Title>
+        {targets?.map((t) => <Text component="small">{t}</Text>)}
+      </TextContent>
     </>
   );
 };
