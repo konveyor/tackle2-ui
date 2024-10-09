@@ -105,6 +105,8 @@ interface ParsedLabel {
   labelValue: string;
 }
 
+export const toLabelValue = (label?: string) => label?.split("=").pop() ?? "";
+
 export const getParsedLabel = (label: string | null): ParsedLabel => {
   if (label === null) {
     return {
@@ -116,7 +118,7 @@ export const getParsedLabel = (label: string | null): ParsedLabel => {
   const char1 = label.indexOf("/") + 1;
   const char2 = label.lastIndexOf("=");
   const type = label.substring(char1, char2);
-  const value = label.split("=").pop();
+  const value = toLabelValue(label);
 
   return {
     labelType: type || "",
