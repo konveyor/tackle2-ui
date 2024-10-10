@@ -17,9 +17,14 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 interface ISetMode {
   isSingleApp: boolean;
   isModeValid: boolean;
+  //defaultValue: string;
 }
 
-export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
+export const SetMode: React.FC<ISetMode> = ({
+  isSingleApp,
+  isModeValid,
+  //defaultValue,
+}) => {
   const { t } = useTranslation();
 
   const { watch, control } = useFormContext<AnalysisWizardFormValues>();
@@ -46,6 +51,7 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
       children: "Upload a local binary",
     });
   }
+  //const [selectedValue, setSelectedValue] = useState(defaultValue);
 
   return (
     <Form
@@ -71,12 +77,15 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
             value={value}
-            onChange={onChange}
+            onChange={(value) => {
+              //setSelectedValue(value);
+              onChange(value); // עדכון של הערך בשדה
+            }}
             options={options}
           />
         )}
       />
-      {!isModeValid && (
+      {/* {!isModeValid && (
         <Alert
           variant="warning"
           isInline
@@ -84,7 +93,7 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
         >
           <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
         </Alert>
-      )}
+      )} */}
       {mode === "source-code" && (
         <Alert
           variant="info"
