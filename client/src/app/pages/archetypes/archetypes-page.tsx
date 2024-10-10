@@ -17,6 +17,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   Table,
@@ -27,8 +28,7 @@ import {
   Td,
   ActionsColumn,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
-
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -473,6 +473,17 @@ const Archetypes: React.FC = () => {
                             }
                           />
                         </Td>
+                        {archetypeWriteAccess && (
+                          <Td isActionCell id="pencil-action">
+                            <Tooltip content={t("actions.edit")}>
+                              <Button
+                                variant="plain"
+                                icon={<PencilAltIcon />}
+                                onClick={() => setArchetypeToEdit(archetype)}
+                              />
+                            </Tooltip>
+                          </Td>
+                        )}
                         <Td isActionCell>
                           {(archetypeWriteAccess ||
                             assessmentWriteAccess ||
@@ -506,15 +517,6 @@ const Archetypes: React.FC = () => {
                                         title: t("actions.review"),
                                         onClick: () =>
                                           reviewSelectedArchetype(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.edit"),
-                                        onClick: () =>
-                                          setArchetypeToEdit(archetype),
                                       },
                                     ]
                                   : []),
