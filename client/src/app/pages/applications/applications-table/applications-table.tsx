@@ -72,7 +72,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
-import { Assessment, Ref } from "@app/api/models";
+import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -88,7 +88,10 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
+import {
+  ApplicationAnalysisStatus,
+  taskStateToAnalyze,
+} from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -509,11 +512,17 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.analysis").toLowerCase(),
           }) + "...",
         selectOptions: Object.values(applications)
-          .map((a) => ({
-            value: a?.tasks.currentAnalyzer?.state || "No Task",
-            label: a?.tasks.currentAnalyzer?.state || "Not Started",
-          }))
-          .filter((v, i, a) => a.findIndex((v3) => v3.label === v.label) === i)
+          .map((a) => {
+            let value = a?.tasks.currentAnalyzer?.state || "No Task";
+            if (value === "No Task") {
+              value = "No task";
+            }
+            let label = taskStateToAnalyze.get(value as TaskState) || value;
+            console.log(label + "," + value);
+            if (label === "NotStarted") label = "Not started";
+            return { value, label };
+          })
+          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
           .sort((a, b) => a.value.localeCompare(b.value)),
         getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
