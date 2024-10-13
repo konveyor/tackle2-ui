@@ -85,14 +85,10 @@ import {
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { TaskState } from "@app/api/models";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import {
-  ApplicationAnalysisStatus,
-  taskStateToAnalyze,
-} from "../components/application-analysis-status";
+import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -238,12 +234,20 @@ export const ApplicationsTable: React.FC = () => {
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appName: applicationsToDelete[0].name,
-      }),
-      variant: "success",
-    });
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIdCount: appIDCount,
+        }),
+        variant: "success",
+      });
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -339,7 +343,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort", "analysis"],
+    sortableColumns: ["name", "businessService", "tags", "effort"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -372,7 +376,7 @@ export const ApplicationsTable: React.FC = () => {
         title: t("terms.archetypes"),
         type: FilterType.multiselect,
         placeholderText:
-          t("action s.filterBy", {
+          t("actions.filterBy", {
             what: t("terms.archetypes").toLowerCase(),
           }) + "...",
         selectOptions: referencedArchetypeRefs.map(({ name }) => ({
@@ -503,44 +507,6 @@ export const ApplicationsTable: React.FC = () => {
           { value: "unassessed", label: t("risks.unassessed") },
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
-      },
-      // {
-      //   categoryKey: "analysis",
-      //   title: t("terms.analysis"),
-      //   type: FilterType.multiselect,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.analysis").toLowerCase(),
-      //     }) + "...",
-      //   selectOptions: Object.values(applications)
-      //     .map(a => ({
-      //       value: a?.tasks.currentAnalyzer?.state || "No Task",
-      //       label: a?.tasks.currentAnalyzer?.state || "Not Started",
-      //     }))
-      //     .filter((v, i, a) => a.findIndex(v2 => v2.label === v.label) === i)
-      //     .sort((a, b) => a.value.localeCompare(b.value)),
-      //   getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
-      // }
-      {
-        categoryKey: "analysis",
-        title: t("terms.analysis"),
-        type: FilterType.multiselect,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.analysis").toLowerCase(),
-          }) + "...",
-        selectOptions: Object.values(applications)
-          .map((a) => {
-            let value = a?.tasks.currentAnalyzer?.state || "No Task";
-            if (value === "No Task") {
-              value = "No task";
-            }
-            const label = taskStateToAnalyze.get(value as TaskState) || value;
-            return { value, label };
-          })
-          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
-          .sort((a, b) => a.value.localeCompare(b.value)),
-        getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
       },
     ],
     initialItemsPerPage: 10,
