@@ -339,7 +339,7 @@ const TabDetailsContent: React.FC<{
       />
       <TextContent className={spacing.mtLg}>
         <Title headingLevel="h3" size="md">
-          Targets
+          {t("terms.Targets")}
         </Title>
         {targets?.map((t) => <Text component="small">{t}</Text>)}
       </TextContent>
