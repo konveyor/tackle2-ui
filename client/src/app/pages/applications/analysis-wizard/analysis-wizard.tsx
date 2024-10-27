@@ -55,42 +55,32 @@ const determineMode = (
   applications: Application[]
 ):
   | "binary"
-  | "source-code"
   | "source-code-deps"
+  | "source-code"
   | "binary-upload"
   | undefined => {
   // If only one application is selected
-  console.log(applications.length);
   if (applications.length === 1) {
-    const app = applications[0];
-    // Check if the application has only source definitions or both source and binary
-    if (app.repository || (app.repository && app.binary)) {
-      return "source-code-deps"; // Return 'Source + Dependencies' if source or both
-    }
-    // Check if the application has only binary definitions
-    else if (app.binary) {
-      return "binary"; // Return 'Binary' if binary only
-    }
-    // If the application has no definitions
-    else {
-      return undefined; // Return empty string if no definitions (no default selection)
-    }
+    const { repository, binary } = applications[0];
+    // If the application has a repository or both repository and binary definitions, return "source-code-deps"
+    // If the application has only binary definitions, return "binary"
+    // If no definitions are present, return undefined
+    return repository || (repository && binary)
+      ? "source-code-deps"
+      : binary && binary !== ""
+      ? "binary"
+      : undefined;
   }
-  // If more than one application is selected
-  else {
-    // Check if all applications are in "binary" mode
-    const allBinary = applications.every((app) => app.binary);
-    // Check if all applications are in "source-code-deps" mode (or a mix of source-code and binary)
-    const allSourceDeps = applications.every(
-      (app) => app.repository || app.binary
-    );
-    // If all applications are binary, return "binary"
-    if (allBinary) {
-      return "binary";
-    }
-    // If all applications are source-code-deps or there's a mix, return "source-code-deps"
-    return "source-code-deps";
-  }
+  // Check if all selected applications have only binary definitions
+  const allBinary = applications.every((app) => app.binary);
+  // Check if all selected applications have repository or binary definitions
+  const allSourceDeps = applications.every(
+    (app) => app.repository || app.binary
+  );
+  // If all applications are binary, return "binary"
+  // If all applications are repository or a mix of repository and binary, return "source-code-deps"
+  // If neither condition is met, return undefined
+  return allBinary ? "binary" : allSourceDeps ? "source-code-deps" : undefined;
 };
 const defaultTaskData: TaskData = {
   tagger: {
@@ -228,15 +218,18 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     mode: "all",
   });
 
-  // Using useEffect to update the form's mode when the applications change
   useEffect(() => {
     const mode = determineMode(applications);
 
-    // Check if the mode is not undefined
+    // Check if the mode is undefined
     if (mode) {
       methods.setValue("mode", mode); // Update the mode value in the form
+    } else {
+      // If the mode is undefined, you can decide what to do
+      // For example: set a default value or do nothing
+      methods.setValue("mode", "source-code-deps"); // Here you can replace it with your default value
     }
-  }, [applications]); // Trigger the effect when 'applications' changes
+  }, [applications]); // Trigger the effect when `applications` changes
 
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
@@ -416,7 +409,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             <SetMode
               isSingleApp={applications.length === 1 ? true : false}
               isModeValid={isModeValid}
-              //defaultValue={determineMode(applications)}
             />
           </>
         </WizardStep>,
