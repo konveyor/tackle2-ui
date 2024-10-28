@@ -215,6 +215,20 @@ export const ApplicationsTable: React.FC = () => {
         selectedFormat === "yaml"
           ? yaml.dump(tasks, { indent: 2 })
           : JSON.stringify(tasks, null, 2);
+
+      const blob = new Blob([data], {
+        type:
+          selectedFormat === "json" ? "application/json" : "application/x-yaml",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a"); // שינוי שם למשתנה
+      downloadLink.href = url;
+      downloadLink.download = `logs - ${ids}.${selectedFormat}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+
       setIsDownloadModalOpen(false);
     } catch (error) {
       console.error("Error fetching tasks:", error);
