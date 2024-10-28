@@ -358,6 +358,24 @@ export function getTaskByIdAndFormat(
     });
 }
 
+export function getTasksByIds(
+  ids: number[],
+  format: "json" | "yaml"
+): Promise<Task[]> {
+  const isYaml = format === "yaml";
+  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const responseType = isYaml ? "text" : "json";
+
+  return axios
+    .post<Task[]>(`${TASKS}/multiple`, ids, {
+      headers: headers,
+      responseType: responseType,
+    })
+    .then((response) => {
+      return response.data;
+    });
+}
+
 export const getTasksDashboard = () =>
   axios
     .get<TaskDashboard[]>(`${TASKS}/report/dashboard`)
