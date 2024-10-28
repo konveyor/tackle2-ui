@@ -270,50 +270,6 @@ export const MultiselectFilterControl = <TItem,>({
             isOpen={isFilterDropdownOpen}
           >
             {groups && groups.length > 0 && (
-              // <SelectList id={withPrefix("select-typeahead-listbox")}>
-              //   {groups.map((groupLabel) => (
-              //     <React.Fragment key={groupLabel}>
-              //       <SelectOption
-              //         isDisabled
-              //         hasCheckbox={false}
-              //         key={`label-${groupLabel}`}
-              //       >
-              //         <strong>{groupLabel}</strong>
-              //       </SelectOption>
-
-              //       {filteredOptions
-              //         .filter((option) => option.groupLabel === groupLabel)
-              //         .map(({ label, value, optionProps = {} }, index) => (
-              //           <SelectOption
-              //             {...optionProps}
-              //             {...(!optionProps.isDisabled && {
-              //               hasCheckbox: true,
-              //             })}
-              //             key={value}
-              //             id={withPrefix(`option-${index}`)}
-              //             value={value}
-              //             isFocused={focusedItemIndex === index}
-              //             isSelected={filterValue?.includes(value)}
-              //           >
-              //             {label ?? value}
-              //           </SelectOption>
-              //         ))}
-              //     </React.Fragment>
-              //   ))}
-
-              //   {filteredOptions.length === 0 && (
-              //     <SelectOption
-              //       isDisabled
-              //       hasCheckbox={false}
-              //       key={NO_RESULTS}
-              //       value={NO_RESULTS}
-              //       isSelected={false}
-              //     >
-              //       {`No results found for "${inputValue}"`}
-              //     </SelectOption>
-              //   )}
-              // </SelectList>
-
               <SelectList id={withPrefix("select-typeahead-listbox")}>
                 {groups.map((groupLabel) => (
                   <React.Fragment key={groupLabel}>
