@@ -76,7 +76,11 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById } from "@app/api/rest";
+import {
+  getArchetypeById,
+  getAssessmentsByItemId,
+  getTasksByIds,
+} from "@app/api/rest";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -119,6 +123,7 @@ import {
   useDecoratedApplications,
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import yaml from "js-yaml";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -155,7 +160,12 @@ export const ApplicationsTable: React.FC = () => {
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
+
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const [selectedFormat, setSelectedFormat] = useState<"json" | "yaml">("json");
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
     null
@@ -204,6 +214,23 @@ export const ApplicationsTable: React.FC = () => {
       message: "Canceled",
       variant: "info",
     });
+  };
+
+  const handleDownload = async () => {
+    const ids = selectedRows
+      .map((row) => row.tasks.currentAnalyzer?.id)
+      .filter((id): id is number => typeof id === "number");
+
+    try {
+      const tasks = await getTasksByIds(ids, selectedFormat);
+      const data =
+        selectedFormat === "yaml"
+          ? yaml.dump(tasks, { indent: 2 })
+          : JSON.stringify(tasks, null, 2);
+      setIsDownloadModalOpen(false);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
   };
 
   const failedCancelTask = () => {
@@ -654,23 +681,20 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
-        ...(tasksReadAccess && tasksWriteAccess
-          ? [
-              <DropdownItem
-                key="applications-bulk-cancel"
-                isDisabled={
-                  !selectedRows.some((application: DecoratedApplication) =>
-                    isTaskCancellable(application)
-                  )
-                }
-                onClick={() => {
-                  handleCancelBulkAnalysis();
-                }}
-              >
-                {t("actions.cancelAnalysis")}
-              </DropdownItem>,
-            ]
-          : []),
+        <DropdownItem
+          key="applications-bulk-download"
+          isDisabled={
+            !selectedRows.some(
+              (application: DecoratedApplication) =>
+                application.tasks.currentAnalyzer?.id !== undefined
+            )
+          }
+          onClick={() => {
+            setIsDownloadModalOpen(true);
+          }}
+        >
+          {t("actions.download", { what: "analysis details" })}
+        </DropdownItem>,
         ...(credentialsReadAccess
           ? [
               <DropdownItem
