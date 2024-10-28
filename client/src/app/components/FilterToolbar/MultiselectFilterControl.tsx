@@ -281,7 +281,6 @@ export const MultiselectFilterControl = <TItem,>({
                       <SelectOption
                         isDisabled
                         hasCheckbox={false}
-                        onClick={(event) => {}}
                       >
                         {openGroups.includes(groupLabel!) ? (
                           <CaretDownIcon />
