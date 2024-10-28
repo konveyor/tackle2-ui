@@ -14,6 +14,7 @@ import {
   ToolbarChip,
   ToolbarFilter,
 } from "@patternfly/react-core";
+import { CaretDownIcon, CaretRightIcon } from "@patternfly/react-icons";
 import { IFilterControlProps } from "./FilterControl";
 import {
   FilterSelectOptionProps,
@@ -237,6 +238,19 @@ export const MultiselectFilterControl = <TItem,>({
     )
   );
 
+  const [openGroups, setOpenGroups] = React.useState<string[]>([]);
+
+  const toggleGroup = (groupLabel: string) => {
+    console.log("Toggled group:", groupLabel); // הוסף שורת לוג
+
+    setOpenGroups(
+      (prev) =>
+        prev.includes(groupLabel)
+          ? prev.filter((label) => label !== groupLabel) // סגור את הקבוצה
+          : [...prev, groupLabel] // פתח את הקבוצה
+    );
+  };
+
   return (
     <>
       {
@@ -259,48 +273,98 @@ export const MultiselectFilterControl = <TItem,>({
             isOpen={isFilterDropdownOpen}
           >
             {groups && groups.length > 0 && (
+              // <SelectList id={withPrefix("select-typeahead-listbox")}>
+              //   {groups.map((groupLabel) => (
+              //     <React.Fragment key={groupLabel}>
+              //       <SelectOption
+              //         isDisabled
+              //         hasCheckbox={false}
+              //         key={`label-${groupLabel}`}
+              //       >
+              //         <strong>{groupLabel}</strong>
+              //       </SelectOption>
+
+              //       {filteredOptions
+              //         .filter((option) => option.groupLabel === groupLabel)
+              //         .map(({ label, value, optionProps = {} }, index) => (
+              //           <SelectOption
+              //             {...optionProps}
+              //             {...(!optionProps.isDisabled && {
+              //               hasCheckbox: true,
+              //             })}
+              //             key={value}
+              //             id={withPrefix(`option-${index}`)}
+              //             value={value}
+              //             isFocused={focusedItemIndex === index}
+              //             isSelected={filterValue?.includes(value)}
+              //           >
+              //             {label ?? value}
+              //           </SelectOption>
+              //         ))}
+              //     </React.Fragment>
+              //   ))}
+
+              //   {filteredOptions.length === 0 && (
+              //     <SelectOption
+              //       isDisabled
+              //       hasCheckbox={false}
+              //       key={NO_RESULTS}
+              //       value={NO_RESULTS}
+              //       isSelected={false}
+              //     >
+              //       {`No results found for "${inputValue}"`}
+              //     </SelectOption>
+              //   )}
+              // </SelectList>
+
               <SelectList id={withPrefix("select-typeahead-listbox")}>
                 {groups.map((groupLabel) => (
                   <React.Fragment key={groupLabel}>
-                    <SelectOption
-                      isDisabled
-                      hasCheckbox={false}
-                      key={`label-${groupLabel}`}
+                    <div
+                      onClick={(event) => {
+                        // event.stopPropagation(); // לעצור את הורשת האירוע
+                        console.log("Clicked group:", groupLabel); // בדוק אם זה מדפיס את שם הקבוצה
+                        toggleGroup(groupLabel!);
+                      }} // הוסף לחיצה
                     >
-                      <strong>{groupLabel}</strong>
-                    </SelectOption>
-
-                    {filteredOptions
-                      .filter((option) => option.groupLabel === groupLabel)
-                      .map(({ label, value, optionProps = {} }, index) => (
-                        <SelectOption
-                          {...optionProps}
-                          {...(!optionProps.isDisabled && {
-                            hasCheckbox: true,
-                          })}
-                          key={value}
-                          id={withPrefix(`option-${index}`)}
-                          value={value}
-                          isFocused={focusedItemIndex === index}
-                          isSelected={filterValue?.includes(value)}
-                        >
-                          {label ?? value}
-                        </SelectOption>
-                      ))}
+                      <SelectOption
+                        isDisabled
+                        hasCheckbox={false}
+                        //SelectOption לא עובד בתגית
+                        onClick={(event) => {
+                          // event.stopPropagation(); // לעצור את הורשת האירוע
+                          console.log("Clicked group:", groupLabel); // בדוק אם זה מדפיס את שם הקבוצה
+                          // toggleGroup(groupLabel!);
+                        }} // הוסף לחיצה
+                      >
+                        {openGroups.includes(groupLabel!) ? (
+                          <CaretDownIcon />
+                        ) : (
+                          <CaretRightIcon />
+                        )}
+                        <strong>{groupLabel}</strong>
+                      </SelectOption>
+                    </div>
+                    {openGroups.includes(groupLabel!) &&
+                      filteredOptions
+                        .filter((option) => option.groupLabel === groupLabel)
+                        .map(({ label, value, optionProps = {} }, index) => (
+                          <SelectOption
+                            {...optionProps}
+                            {...(!optionProps.isDisabled && {
+                              hasCheckbox: true,
+                            })}
+                            key={value}
+                            id={withPrefix(`option-${index}`)}
+                            value={value}
+                            isFocused={focusedItemIndex === index}
+                            isSelected={filterValue?.includes(value)}
+                          >
+                            {label ?? value}
+                          </SelectOption>
+                        ))}
                   </React.Fragment>
                 ))}
-
-                {filteredOptions.length === 0 && (
-                  <SelectOption
-                    isDisabled
-                    hasCheckbox={false}
-                    key={NO_RESULTS}
-                    value={NO_RESULTS}
-                    isSelected={false}
-                  >
-                    {`No results found for "${inputValue}"`}
-                  </SelectOption>
-                )}
               </SelectList>
             )}
             {(!groups || groups.length == 0) && (
