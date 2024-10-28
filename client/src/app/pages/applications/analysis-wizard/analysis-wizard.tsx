@@ -166,6 +166,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       mode: "source-code-deps",
       formLabels: [],
       selectedTargets: [],
+      // defaults will be passed as initialFilterValues to the table hook
+      targetFilters: undefined,
       selectedSourceLabels: [],
       withKnownLibs: "app",
       includedPackages: [],

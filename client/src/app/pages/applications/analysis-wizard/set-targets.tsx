@@ -101,7 +101,7 @@ interface SetTargetsInternalProps {
   isLoading: boolean;
   isError: boolean;
   languageProviders: string[];
-  initialFilters: string[];
+  applicationProviders: string[];
 }
 
 const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
@@ -109,7 +109,7 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
   isLoading,
   isError,
   languageProviders,
-  initialFilters = [],
+  applicationProviders = [],
 }) => {
   const { t } = useTranslation();
 
@@ -177,13 +177,23 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     tableName: "target-cards",
     items: targets,
     idProperty: "name",
-    initialFilterValues: { name: initialFilters },
+    initialFilterValues: { name: applicationProviders },
     columnNames: {
       name: "name",
     },
     isFilterEnabled: true,
     isPaginationEnabled: false,
     isLoading,
+    persistTo: {
+      filter: {
+        write(value) {
+          setValue("targetFilters", value as Record<string, string[]>);
+        },
+        read() {
+          return getValues().targetFilters;
+        },
+      },
+    },
     filterCategories: [
       {
         selectOptions: languageProviders?.map((language) => ({
@@ -281,7 +291,7 @@ export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
   return (
     <SetTargetsInternal
       {...{
-        initialFilters: applicationProviders,
+        applicationProviders,
         targets,
         isError,
         isLoading,
