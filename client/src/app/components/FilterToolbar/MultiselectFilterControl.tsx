@@ -229,6 +229,14 @@ export const MultiselectFilterControl = <TItem,>({
   const withGroupPrefix = (group: string) =>
     group === category.title ? group : `${category.title}/${group}`;
 
+  const groups = Array.from(
+    new Set(
+      filteredOptions
+        .filter((item) => item && item.groupLabel)
+        .map((item) => item.groupLabel)
+    )
+  );
+
   return (
     <>
       {
@@ -250,35 +258,82 @@ export const MultiselectFilterControl = <TItem,>({
             onSelect={(_, selection) => onSelect(selection as string)}
             isOpen={isFilterDropdownOpen}
           >
-            <SelectList id={withPrefix("select-typeahead-listbox")}>
-              {filteredOptions.map(
-                ({ groupLabel, label, value, optionProps = {} }, index) => (
+            {groups && groups.length > 0 && (
+              <SelectList id={withPrefix("select-typeahead-listbox")}>
+                {groups.map((groupLabel) => (
+                  <React.Fragment key={groupLabel}>
+                    <SelectOption
+                      isDisabled
+                      hasCheckbox={false}
+                      key={`label-${groupLabel}`}
+                    >
+                      <strong>{groupLabel}</strong>
+                    </SelectOption>
+
+                    {filteredOptions
+                      .filter((option) => option.groupLabel === groupLabel)
+                      .map(({ label, value, optionProps = {} }, index) => (
+                        <SelectOption
+                          {...optionProps}
+                          {...(!optionProps.isDisabled && {
+                            hasCheckbox: true,
+                          })}
+                          key={value}
+                          id={withPrefix(`option-${index}`)}
+                          value={value}
+                          isFocused={focusedItemIndex === index}
+                          isSelected={filterValue?.includes(value)}
+                        >
+                          {label ?? value}
+                        </SelectOption>
+                      ))}
+                  </React.Fragment>
+                ))}
+
+                {filteredOptions.length === 0 && (
                   <SelectOption
-                    {...optionProps}
-                    {...(!optionProps.isDisabled && { hasCheckbox: true })}
-                    key={value}
-                    id={withPrefix(`option-${index}`)}
-                    value={value}
-                    isFocused={focusedItemIndex === index}
-                    isSelected={filterValue?.includes(value)}
+                    isDisabled
+                    hasCheckbox={false}
+                    key={NO_RESULTS}
+                    value={NO_RESULTS}
+                    isSelected={false}
                   >
-                    {!!groupLabel && <Label>{groupLabel}</Label>}{" "}
-                    {label ?? value}
+                    {`No results found for "${inputValue}"`}
                   </SelectOption>
-                )
-              )}
-              {filteredOptions.length === 0 && (
-                <SelectOption
-                  isDisabled
-                  hasCheckbox={false}
-                  key={NO_RESULTS}
-                  value={NO_RESULTS}
-                  isSelected={false}
-                >
-                  {`No results found for "${inputValue}"`}
-                </SelectOption>
-              )}
-            </SelectList>
+                )}
+              </SelectList>
+            )}
+            {(!groups || groups.length == 0) && (
+              <SelectList id={withPrefix("select-typeahead-listbox")}>
+                {filteredOptions.map(
+                  ({ groupLabel, label, value, optionProps = {} }, index) => (
+                    <SelectOption
+                      {...optionProps}
+                      {...(!optionProps.isDisabled && { hasCheckbox: true })}
+                      key={value}
+                      id={withPrefix(`option-${index}`)}
+                      value={value}
+                      isFocused={focusedItemIndex === index}
+                      isSelected={filterValue?.includes(value)}
+                    >
+                      {!!groupLabel && <Label>{groupLabel}</Label>}{" "}
+                      {label ?? value}
+                    </SelectOption>
+                  )
+                )}
+                {filteredOptions.length === 0 && (
+                  <SelectOption
+                    isDisabled
+                    hasCheckbox={false}
+                    key={NO_RESULTS}
+                    value={NO_RESULTS}
+                    isSelected={false}
+                  >
+                    {`No results found for "${inputValue}"`}
+                  </SelectOption>
+                )}
+              </SelectList>
+            )}
           </Select>
         </ToolbarFilter>
       }
