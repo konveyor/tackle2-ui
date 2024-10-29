@@ -365,9 +365,10 @@ export function getTasksByIds(
   const isYaml = format === "yaml";
   const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
   const responseType = isYaml ? "text" : "json";
+  const filterParam = `id:(${ids.join("|")})`;
 
   return axios
-    .post<Task[]>(`${TASKS}/multiple`, ids, {
+    .get<Task[]>(`${TASKS}`, {
       headers: headers,
       responseType: responseType,
     })
