@@ -371,6 +371,9 @@ export function getTasksByIds(
     .get<Task[]>(`${TASKS}`, {
       headers: headers,
       responseType: responseType,
+      params: {
+        filter: filterParam,
+      },
     })
     .then((response) => {
       return response.data;
