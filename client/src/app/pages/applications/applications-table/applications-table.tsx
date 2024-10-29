@@ -235,7 +235,7 @@ export const ApplicationsTable: React.FC = () => {
           selectedFormat === "json" ? "application/json" : "application/x-yaml",
       });
       const url = URL.createObjectURL(blob);
-      const downloadLink = document.createElement("a"); // שינוי שם למשתנה
+      const downloadLink = document.createElement("a");
       downloadLink.href = url;
       downloadLink.download = `logs - ${ids}.${selectedFormat}`;
       document.body.appendChild(downloadLink);
@@ -1463,30 +1463,25 @@ export const ApplicationsTable: React.FC = () => {
         onClose={() => setIsDownloadModalOpen(false)}
       >
         <FormGroup label="Select Format" fieldId="format-select">
-          {" "}
           <div>
-            {" "}
             <Button
               variant={selectedFormat === "json" ? "primary" : "secondary"}
               onClick={() => setSelectedFormat("json")}
             >
-              {" "}
-              {<CodeIcon />} JSON{" "}
-            </Button>{" "}
+              {<CodeIcon />} JSON
+            </Button>
             <Button
               variant={selectedFormat === "yaml" ? "primary" : "secondary"}
               onClick={() => setSelectedFormat("yaml")}
             >
-              {" "}
-              {<CodeIcon />} YAML{" "}
-            </Button>{" "}
-          </div>{" "}
-          <p>Selected Format: {selectedFormat}</p>{" "}
-        </FormGroup>{" "}
+              {<CodeIcon />} YAML
+            </Button>
+          </div>
+          <p>Selected Format: {selectedFormat}</p>
+        </FormGroup>
         <Button variant="primary" onClick={handleDownload}>
-          {" "}
-          {t("actions.download")}{" "}
-        </Button>{" "}
+          {t("actions.download")}
+        </Button>
       </Modal>
     </ConditionalRender>
   );
