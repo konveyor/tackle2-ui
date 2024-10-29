@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const nodeRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState<boolean | undefined>(false);
   const node = nodeRef.current;
 
   // state is set from IntersectionObserver callbacks which may not align with React lifecycle
@@ -22,14 +22,19 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
   }, []);
 
   useEffect(() => {
+    if (enable && !node) {
+      // use falsy value different than initial value - state change will trigger render()
+      // otherwise we need to wait for the next render() to read node ref
+      setVisibleSafe(undefined);
+      return undefined;
+    }
+
     if (!enable || !node) {
       return undefined;
     }
 
     // Observer with default options - the whole view port used.
     // Note that if root element is used then it needs to be the ancestor of the target.
-    // In case of infinite scroller the target is always within the (scrollable!)parent
-    // even if the node is technically hidden from the user.
     // https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#root
     const observer = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]) =>
