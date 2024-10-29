@@ -16,8 +16,10 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  FormGroup,
 } from "@patternfly/react-core";
 import {
+  CodeIcon,
   PencilAltIcon,
   TagIcon,
   WarningTriangleIcon,
@@ -1357,6 +1359,38 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </div>
+      <Modal
+        isOpen={isDownloadModalOpen}
+        variant="small"
+        title={t("actions.download", { what: "analysis details reports" })}
+        onClose={() => setIsDownloadModalOpen(false)}
+      >
+        <FormGroup label="Select Format" fieldId="format-select">
+          {" "}
+          <div>
+            {" "}
+            <Button
+              variant={selectedFormat === "json" ? "primary" : "secondary"}
+              onClick={() => setSelectedFormat("json")}
+            >
+              {" "}
+              {<CodeIcon />} JSON{" "}
+            </Button>{" "}
+            <Button
+              variant={selectedFormat === "yaml" ? "primary" : "secondary"}
+              onClick={() => setSelectedFormat("yaml")}
+            >
+              {" "}
+              {<CodeIcon />} YAML{" "}
+            </Button>{" "}
+          </div>{" "}
+          <p>Selected Format: {selectedFormat}</p>{" "}
+        </FormGroup>{" "}
+        <Button variant="primary" onClick={handleDownload}>
+          {" "}
+          {t("actions.download")}{" "}
+        </Button>{" "}
+      </Modal>
     </ConditionalRender>
   );
 };
