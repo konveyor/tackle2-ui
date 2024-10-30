@@ -241,8 +241,6 @@ export const MultiselectFilterControl = <TItem,>({
   const [openGroups, setOpenGroups] = React.useState<string[]>([]);
 
   const toggleGroup = (groupLabel: string) => {
-    console.log("Toggled group:", groupLabel);
-
     setOpenGroups((prev) =>
       prev.includes(groupLabel)
         ? prev.filter((label) => label !== groupLabel)
@@ -277,16 +275,13 @@ export const MultiselectFilterControl = <TItem,>({
                   <React.Fragment key={groupLabel}>
                     <div
                       onClick={(event) => {
-                        console.log("Clicked group:", groupLabel);
                         toggleGroup(groupLabel!);
                       }}
                     >
                       <SelectOption
                         isDisabled
                         hasCheckbox={false}
-                        onClick={(event) => {
-                          console.log("Clicked group:", groupLabel);
-                        }}
+                        onClick={(event) => {}}
                       >
                         {openGroups.includes(groupLabel!) ? (
                           <CaretDownIcon />
