@@ -155,9 +155,9 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationsToDelete, setApplicationsToDelete] = useState<
     DecoratedApplication[]
   >([]);
-  const [applicationsToCancel, setApplicationsToCancel] = useState<
-    DecoratedApplication[]
-  >([]);
+  const [tasksToCancel, setTasksToCancel] = useState<DecoratedApplication[]>(
+    []
+  );
   const [assessmentToDiscard, setAssessmentToDiscard] =
     useState<DecoratedApplication | null>(null);
 
@@ -655,13 +655,10 @@ export const ApplicationsTable: React.FC = () => {
       );
   };
   const handleCancelBulkAnalysis = () => {
-    const runningAppsToCancel = selectedRows.filter((application) =>
+    const runningTasksToCancel = selectedRows.filter((application) =>
       isTaskCancellable(application)
     );
-    setApplicationsToCancel(runningAppsToCancel);
-    runningAppsToCancel.forEach((application) => {
-      cancelAnalysis(application);
-    });
+    setTasksToCancel(runningTasksToCancel);
   };
 
   const assessSelectedApp = async (application: DecoratedApplication) => {
@@ -1172,6 +1169,16 @@ export const ApplicationsTable: React.FC = () => {
               .filter((application) => application.id)
               .map((application) => application.id);
             if (ids) bulkDeleteApplication({ ids: ids });
+          }}
+        />
+        <ConfirmDialog
+          onCancel={() => setTasksToCancel([])}
+          onClose={() => setTasksToCancel([])}
+          onConfirm={() => {
+            tasksToCancel.forEach((application) => {
+              cancelAnalysis(application);
+            });
+            setTasksToCancel([]);
           }}
         />
         <ConfirmDialog
