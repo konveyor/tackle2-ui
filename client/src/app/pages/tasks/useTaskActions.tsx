@@ -72,7 +72,7 @@ export const useTaskActions = (task: Task) => {
       isAriaDisabled: !canCancel(task.state),
       tooltipProps: {
         content: !canCancel(task.state)
-          ? `${t("message.cancelNotAvailable", { statusName: task.state })}`
+          ? t("message.cancelNotAvailable", { statusName: task.state })
           : "",
       },
       onClick: () => cancelTask(task.id),
@@ -85,9 +85,9 @@ export const useTaskActions = (task: Task) => {
       onClick: () => togglePreemption(task),
       tooltipProps: {
         content: !canTogglePreemption(task.state)
-          ? `${t("message.togglePreemptionNotAvailable", {
+          ? t("message.togglePreemptionNotAvailable", {
               statusName: task.state,
-            })}`
+            })
           : "",
       },
     },
