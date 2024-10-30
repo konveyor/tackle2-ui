@@ -61,7 +61,7 @@ const useAsyncTaskActions = () => {
   return { cancelTask, togglePreemption };
 };
 
-export const useTaskActions = (task: Task) => {
+export const useTaskActions = (task: Task, isFApplication: boolean) => {
   const { cancelTask, togglePreemption } = useAsyncTaskActions();
   const { t } = useTranslation();
   const history = useHistory();
@@ -85,6 +85,7 @@ export const useTaskActions = (task: Task) => {
         history.push(
           formatPath(Paths.taskDetails, {
             taskId: task.id,
+            isFApplication: isFApplication,
           })
         ),
     },
