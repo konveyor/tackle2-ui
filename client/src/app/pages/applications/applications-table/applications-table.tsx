@@ -1172,6 +1172,27 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
         <ConfirmDialog
+          title={t(
+            tasksToCancel.length > 1
+              ? "dialog.title.cancel"
+              : "dialog.title.cancelWithName",
+            {
+              what:
+                tasksToCancel.length > 1
+                  ? t("terms.tasks").toLowerCase()
+                  : t("terms.task").toLowerCase(),
+              name: tasksToCancel.length === 1 && tasksToCancel[0].name,
+            }
+          )}
+          titleIconVariant={"warning"}
+          isOpen={tasksToCancel.length > 0}
+          message={`${
+            tasksToCancel.length > 1 ? t("dialog.message.TasksBulkCancel") : ""
+          } ${t("dialog.message.cancel")}`}
+          aria-label="Tasks bulk cancel"
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.cancelTasks")}
+          cancelBtnLabel={t("actions.cancel")}
           onCancel={() => setTasksToCancel([])}
           onClose={() => setTasksToCancel([])}
           onConfirm={() => {
