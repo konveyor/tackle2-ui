@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import * as React from "react";
 import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -59,29 +59,20 @@ const determineMode = (
   | "source-code"
   | "binary-upload"
   | undefined => {
-  // If only one application is selected
-  if (applications.length === 1) {
-    const { repository, binary } = applications[0];
-    // If the application has a repository or both repository and binary definitions, return "source-code-deps"
-    // If the application has only binary definitions, return "binary"
-    // If no definitions are present, return undefined
+  if (applications.length === 0) return undefined;
+  const modes = applications.map((app) => {
+    const { repository, binary } = app;
     return repository || (repository && binary)
       ? "source-code-deps"
       : binary && binary !== ""
       ? "binary"
       : undefined;
-  }
-  // Check if all selected applications have only binary definitions
-  const allBinary = applications.every((app) => app.binary);
-  // Check if all selected applications have repository or binary definitions
-  const allSourceDeps = applications.every(
-    (app) => app.repository || app.binary
-  );
-  // If all applications are binary, return "binary"
-  // If all applications are repository or a mix of repository and binary, return "source-code-deps"
-  // If neither condition is met, return undefined
-  return allBinary ? "binary" : allSourceDeps ? "source-code-deps" : undefined;
+  });
+  const firstMode = modes[0];
+  const allSame = modes.every((mode) => mode === firstMode);
+  return allSame ? firstMode : undefined;
 };
+
 const defaultTaskData: TaskData = {
   tagger: {
     enabled: true,
@@ -194,9 +185,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: null,
-      mode: determineMode(applications),
+      mode: determineMode(applications) ?? "source-code-deps",
       formLabels: [],
       selectedTargets: [],
+      // defaults will be passed as initialFilterValues to the table hook
       targetFilters: undefined,
       selectedSourceLabels: [],
       withKnownLibs: "app",
@@ -217,19 +209,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     resolver: yupResolver(allFieldsSchema),
     mode: "all",
   });
-
-  useEffect(() => {
-    const mode = determineMode(applications);
-
-    // Check if the mode is undefined
-    if (mode) {
-      methods.setValue("mode", mode); // Update the mode value in the form
-    } else {
-      // If the mode is undefined, you can decide what to do
-      // For example: set a default value or do nothing
-      methods.setValue("mode", "source-code-deps"); // Here you can replace it with your default value
-    }
-  }, [applications]); // Trigger the effect when `applications` changes
 
   const { handleSubmit, watch, reset } = methods;
   const values = watch();
