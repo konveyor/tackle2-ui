@@ -16,8 +16,10 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  FormGroup,
 } from "@patternfly/react-core";
 import {
+  CodeIcon,
   PencilAltIcon,
   TagIcon,
   WarningTriangleIcon,
@@ -71,7 +73,11 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
+import {
+  getArchetypeById,
+  getAssessmentsByItemId,
+  getTasksByIds,
+} from "@app/api/rest";
 import { Assessment, Ref } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -109,6 +115,7 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
+import yaml from "js-yaml";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -145,7 +152,12 @@ export const ApplicationsTable: React.FC = () => {
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
+
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const [selectedFormat, setSelectedFormat] = useState<"json" | "yaml">("json");
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
     null
@@ -192,6 +204,42 @@ export const ApplicationsTable: React.FC = () => {
       message: "Canceled",
       variant: "info",
     });
+  };
+
+  const handleDownload = async () => {
+    const ids = selectedRows
+      .map((row) => row.tasks.currentAnalyzer?.id)
+      .filter((id): id is number => typeof id === "number");
+
+    try {
+      const tasks = await getTasksByIds(ids);
+      const data =
+        selectedFormat === "yaml"
+          ? yaml.dump(tasks, { indent: 2 })
+          : JSON.stringify(tasks, null, 2);
+
+      const blob = new Blob([data], {
+        type:
+          selectedFormat === "json" ? "application/json" : "application/x-yaml",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `logs - ${ids}.${selectedFormat}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+
+      setIsDownloadModalOpen(false);
+    } catch (error) {
+      setIsDownloadModalOpen(false);
+      console.error("Error fetching tasks:", error);
+      pushNotification({
+        title: "download failed",
+        variant: "danger",
+      });
+    }
   };
 
   const failedCancelTask = () => {
@@ -574,6 +622,20 @@ export const ApplicationsTable: React.FC = () => {
           }}
         >
           {t("actions.delete")}
+        </DropdownItem>,
+        <DropdownItem
+          key="applications-bulk-download"
+          isDisabled={
+            !selectedRows.some(
+              (application: DecoratedApplication) =>
+                application.tasks.currentAnalyzer?.id !== undefined
+            )
+          }
+          onClick={() => {
+            setIsDownloadModalOpen(true);
+          }}
+        >
+          {t("actions.download", { what: "analysis details" })}
         </DropdownItem>,
         ...(credentialsReadAccess
           ? [
@@ -1302,6 +1364,33 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </div>
+      <Modal
+        isOpen={isDownloadModalOpen}
+        variant="small"
+        title={t("actions.download", { what: "analysis details reports" })}
+        onClose={() => setIsDownloadModalOpen(false)}
+      >
+        <FormGroup label="Select Format" fieldId="format-select">
+          <div>
+            <Button
+              variant={selectedFormat === "json" ? "primary" : "secondary"}
+              onClick={() => setSelectedFormat("json")}
+            >
+              {<CodeIcon />} JSON
+            </Button>
+            <Button
+              variant={selectedFormat === "yaml" ? "primary" : "secondary"}
+              onClick={() => setSelectedFormat("yaml")}
+            >
+              {<CodeIcon />} YAML
+            </Button>
+          </div>
+          <p>Selected Format: {selectedFormat}</p>
+        </FormGroup>
+        <Button variant="primary" onClick={handleDownload}>
+          {t("actions.download")}
+        </Button>
+      </Modal>
     </ConditionalRender>
   );
 };
