@@ -245,7 +245,12 @@ export const ApplicationsTable: React.FC = () => {
 
       setIsDownloadModalOpen(false);
     } catch (error) {
+      setIsDownloadModalOpen(false);
       console.error("Error fetching tasks:", error);
+      pushNotification({
+        title: "download failed",
+        variant: "danger",
+      });
     }
   };
 
