@@ -71,9 +71,7 @@ export const SetMode: React.FC<ISetMode> = ({ isSingleApp, isModeValid }) => {
             toggleAriaLabel="Analysis mode dropdown toggle"
             aria-label={name}
             value={value}
-            onChange={(value) => {
-              onChange(value); // Update the value in the field
-            }}
+            onChange={onChange}
             options={options}
           />
         )}
