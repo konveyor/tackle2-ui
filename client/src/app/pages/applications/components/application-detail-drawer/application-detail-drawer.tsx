@@ -200,6 +200,9 @@ const TabDetailsContent: React.FC<{
     (a) => a.length
   );
 
+  const taskState = application.tasks.currentAnalyzer?.state ?? "";
+  const taskSucceeded = TaskStates.Success.includes(taskState);
+
   return (
     <>
       <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
@@ -213,8 +216,7 @@ const TabDetailsContent: React.FC<{
                   Issues
                 </Link>
                 <Text component="small">
-                  {application.tasks.currentAnalyzer === undefined ||
-                  application.tasks.currentAnalyzer.state === "Failed"
+                  {!taskSucceeded
                     ? t("terms.unassigned")
                     : currentPageReports.length === 0
                     ? t("issues.noIssues")
