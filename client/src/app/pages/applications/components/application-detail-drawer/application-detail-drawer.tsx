@@ -64,7 +64,7 @@ import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
-import { TaskStates } from "@app/queries/tasks";
+import { TaskStates, useFetchTaskByID } from "@app/queries/tasks";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -181,6 +181,11 @@ const TabDetailsContent: React.FC<{
         .map((archetypeRef) => archetypesById[archetypeRef.id])
         .filter((fullArchetype) => fullArchetype?.review)
         .filter(Boolean);
+
+  const { task } = useFetchTaskByID(application.tasks.currentAnalyzer?.id);
+  const targets = task?.data?.rules?.labels?.included.filter((t) =>
+    t.startsWith("konveyor.io/target=")
+  );
 
   return (
     <>
@@ -303,6 +308,18 @@ const TabDetailsContent: React.FC<{
         onEditClick={onEditClick}
         onCloseClick={onCloseClick}
       />
+      <TextContent className={spacing.mtLg}>
+        <Title headingLevel="h3" size="md">
+          {t("terms.targets")}
+        </Title>
+        {targets?.map((t) => (
+          <Text component="small" key={t!}>
+            {t}
+          </Text>
+        ))}
+        {targets?.length == 0 ||
+          (!targets && <EmptyTextMessage message={t("terms.none")} />)}
+      </TextContent>
     </>
   );
 };
