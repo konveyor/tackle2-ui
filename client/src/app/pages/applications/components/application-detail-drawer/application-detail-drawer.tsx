@@ -189,8 +189,6 @@ const TabDetailsContent: React.FC<{
   const issueReportsQuery = useFetchIssueReports(application.id);
   const {
     result: { data, total: totalReportCount },
-    isFetching: isFetchingReports,
-    fetchError: reportsFetchError,
   } = issueReportsQuery;
   const currentPageReports = data as (
     | AnalysisRuleReport
