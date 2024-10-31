@@ -34,8 +34,6 @@ import {
   Ref,
   Archetype,
   TaskDashboard,
-  AnalysisRuleReport,
-  AnalysisIssueReport,
 } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
@@ -190,10 +188,7 @@ const TabDetailsContent: React.FC<{
   const {
     result: { data, total: totalReportCount },
   } = issueReportsQuery;
-  const currentPageReports = data as (
-    | AnalysisRuleReport
-    | AnalysisIssueReport
-  )[];
+  const currentPageReports = data;
   const [minor, critical] = fork(currentPageReports, (u) => u.effort <= 1).map(
     (a) => a.length
   );
