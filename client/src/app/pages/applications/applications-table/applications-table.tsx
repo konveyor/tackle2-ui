@@ -224,7 +224,7 @@ export const ApplicationsTable: React.FC = () => {
       .filter((id): id is number => typeof id === "number");
 
     try {
-      const tasks = await getTasksByIds(ids, selectedFormat);
+      const tasks = await getTasksByIds(ids);
       const data =
         selectedFormat === "yaml"
           ? yaml.dump(tasks, { indent: 2 })
