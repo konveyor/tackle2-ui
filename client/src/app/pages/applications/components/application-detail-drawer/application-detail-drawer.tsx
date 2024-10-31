@@ -68,6 +68,7 @@ import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
 import { useFetchIssueReports } from "@app/queries/issues";
+import { fork } from "radash";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -195,8 +196,9 @@ const TabDetailsContent: React.FC<{
     | AnalysisRuleReport
     | AnalysisIssueReport
   )[];
-  const minor = currentPageReports.filter((u) => u.effort === 1).length;
-  const critical = currentPageReports.filter((u) => u.effort > 1).length;
+  const [minor, critical] = fork(currentPageReports, (u) => u.effort <= 1).map(
+    (a) => a.length
+  );
 
   return (
     <>
