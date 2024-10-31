@@ -182,9 +182,7 @@ const TabDetailsContent: React.FC<{
         .filter((fullArchetype) => fullArchetype?.review)
         .filter(Boolean);
 
-  const { task, isFetching, fetchError, refetch } = useFetchTaskByID(
-    application.tasks.currentAnalyzer?.id
-  );
+  const { task } = useFetchTaskByID(application.tasks.currentAnalyzer?.id);
   const targets = task?.data?.rules?.labels?.included.filter((t) =>
     t.startsWith("konveyor.io/target=")
   );
@@ -314,7 +312,13 @@ const TabDetailsContent: React.FC<{
         <Title headingLevel="h3" size="md">
           {t("terms.targets")}
         </Title>
-        {targets?.map((t) => <Text component="small">{t}</Text>)}
+        {targets?.map((t) => (
+          <Text component="small" key={t!}>
+            {t}
+          </Text>
+        ))}
+        {targets?.length == 0 ||
+          (!targets && <EmptyTextMessage message={t("terms.none")} />)}
       </TextContent>
     </>
   );
