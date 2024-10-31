@@ -358,19 +358,11 @@ export function getTaskByIdAndFormat(
     });
 }
 
-export function getTasksByIds(
-  ids: number[],
-  format: "json" | "yaml"
-): Promise<Task[]> {
-  const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
-  const responseType = isYaml ? "text" : "json";
+export function getTasksByIds(ids: number[]): Promise<Task[]> {
   const filterParam = `id:(${ids.join("|")})`;
 
   return axios
     .get<Task[]>(`${TASKS}`, {
-      headers: headers,
-      responseType: responseType,
       params: {
         filter: filterParam,
       },
