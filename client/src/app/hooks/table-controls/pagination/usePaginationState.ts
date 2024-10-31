@@ -1,5 +1,5 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { IFeaturePersistenceArgs } from "../types";
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 /**
@@ -94,7 +94,7 @@ export const usePaginationState = <
       ? {
           persistTo,
           keys: ["pageNumber", "itemsPerPage"],
-          serialize: (state) => {
+          serialize: (state: Partial<IActivePagination>) => {
             const { pageNumber, itemsPerPage } = state || {};
             return {
               pageNumber: pageNumber ? String(pageNumber) : undefined,
@@ -116,7 +116,13 @@ export const usePaginationState = <
           persistTo,
           key: "pagination",
         }
-      : { persistTo }),
+      : isPersistenceProvider(persistTo)
+      ? {
+          persistTo: "provider",
+          serialize: persistTo.write,
+          deserialize: () => persistTo.read() as IActivePagination,
+        }
+      : { persistTo: "state" }),
   });
   const { pageNumber, itemsPerPage } = paginationState || defaultValue;
   const setPageNumber = (num: number) =>

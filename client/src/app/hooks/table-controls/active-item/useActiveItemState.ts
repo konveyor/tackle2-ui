@@ -1,5 +1,5 @@
 import { parseMaybeNumericString } from "@app/utils/utils";
-import { IFeaturePersistenceArgs } from "../types";
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
 
 /**
@@ -76,7 +76,13 @@ export const useActiveItemState = <
           persistTo,
           key: "activeItem",
         }
-      : { persistTo }),
+      : isPersistenceProvider(persistTo)
+      ? {
+          persistTo: "provider",
+          serialize: persistTo.write,
+          deserialize: () => persistTo.read() as string | number | null,
+        }
+      : { persistTo: "state" }),
   });
   return { activeItemId, setActiveItemId };
 };

@@ -6,6 +6,10 @@ on:
       - "main"
 
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "hack/**"
+      - "*.md"
     branches:
       - "main"
 
