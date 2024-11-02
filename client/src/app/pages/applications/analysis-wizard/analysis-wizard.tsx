@@ -60,17 +60,21 @@ const determineMode = (
   | "binary-upload"
   | undefined => {
   if (applications.length === 0) return undefined;
-  const modes = applications.map((app) => {
-    const { repository, binary } = app;
-    return repository || (repository && binary)
-      ? "source-code-deps"
-      : binary && binary !== ""
-      ? "binary"
-      : undefined;
-  });
-  const firstMode = modes[0];
-  const allSame = modes.every((mode) => mode === firstMode);
-  return allSame ? firstMode : undefined;
+
+  const modes = Array.from(
+    new Set(
+      applications.map((app) => {
+        const { repository, binary } = app;
+        return repository || (repository && binary)
+          ? "source-code-deps"
+          : binary && binary !== ""
+          ? "binary"
+          : undefined;
+      })
+    )
+  );
+
+  return modes.length === 1 ? modes[0] : undefined;
 };
 
 const defaultTaskData: TaskData = {
