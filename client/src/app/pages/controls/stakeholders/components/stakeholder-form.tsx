@@ -72,16 +72,13 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
       .email(t("validation.email"))
-      .test(
-        "Duplicate email",
-        "A stakeholder with this email address already exists. Use a different email address.",
-        (value) =>
-          duplicateFieldCheck(
-            "email",
-            stakeholders,
-            stakeholder || null,
-            value || ""
-          )
+      .test("Duplicate email", t("duplicateEmail"), (value) =>
+        duplicateFieldCheck(
+          "email",
+          stakeholders,
+          stakeholder || null,
+          value || ""
+        )
       ),
     name: string()
       .trim()
@@ -90,7 +87,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "A stakeholder with this name already exists. Use a different name.",
+        t("duplicateName", { type: "An stakeholder group" }),
         (value) =>
           duplicateNameCheck(stakeholders, stakeholder || null, value || "")
       ),

@@ -142,7 +142,7 @@ export const useApplicationFormHook = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "An application with this name already exists. Use a different name.",
+          t("duplicateName", { type: "An application" }),
           (value) =>
             duplicateNameCheck(
               existingApplications,
@@ -176,46 +176,50 @@ export const useApplicationFormHook = ({
         .when("branch", {
           is: (branch: string) => branch?.length > 0,
           then: (schema) =>
-            customURLValidation(schema).required("Enter repository url."),
+            customURLValidation(schema).required(
+              t("validation.requiredRepositoryURL")
+            ),
           otherwise: (schema) => customURLValidation(schema),
         })
         .when("rootPath", {
           is: (rootPath: string) => rootPath?.length > 0,
           then: (schema) =>
-            customURLValidation(schema).required("Enter repository url."),
+            customURLValidation(schema).required(
+              t("validation.requiredRepositoryURL")
+            ),
           otherwise: (schema) => customURLValidation(schema),
         }),
       group: string()
         .when("artifact", {
           is: (artifact: string) => artifact?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when("version", {
           is: (version: string) => version?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         }),
       artifact: string()
         .when("group", {
           is: (group: string) => group?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when("version", {
           is: (version: string) => version?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         }),
       version: string()
         .when("group", {
           is: (group: string) => group?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when("artifact", {
           is: (artifact: string) => artifact?.length > 0,
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         }),
     },

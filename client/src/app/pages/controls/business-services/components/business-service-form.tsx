@@ -71,7 +71,7 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "A business service with this name already exists. Use a different name.",
+        t("duplicateName", { type: "A business service" }),
         (value) => {
           return duplicateNameCheck(
             businessServices || [],

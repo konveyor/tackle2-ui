@@ -538,7 +538,21 @@
     "minCount_plural": "At least {{count}} {{types}} must be selected.",
     "minLength": "This field must contain at least {{length}} characters.",
     "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
-    "required": "This field is required."
+    "required": "This field is required.",
+    "unsupportedMode": "Selected mode not supported for selected applications",
+    "requiredFile": "A file is required",
+    "minOneRequired": "At least one {{type}} is required",
+    "requiredRepositoryURL": "Repository URL is required",
+    "duplicateName": "{type} with this name already exists. Use a different name.",
+    "enterRepositoryUrl": "Enter repository url.",
+    "duplicateEmail": "A stakeholder with this email address already exists. Use a different email address.",
+    "invalidDateFormat": "Date must be formatted as MM/DD/YYYY",
+    "nameInvalid": "Name is invalid. The name must be between 3 and 120 characters.",
+    "startDateAfterToday": "Start date can be no sooner than today.",
+    "endDateAfterStartDate": "End date must be after start date",
+    "validEmail": "Username must be a valid email",
+    "requiredField": "{{field}} is a required field",
+    "minOneRequiredRuleFile": "At least 1 valid custom rule file must be uploaded."
   },
   "wizard": {
     "alert": {

@@ -122,7 +122,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "A custom target with this name already exists. Use a different name.",
+          t("duplicateName", { type: "A custom target" }),
           (value) => duplicateNameCheck(targets, target || null, value || "")
         ),
       description: yup.string(),
@@ -136,7 +136,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           then: yup
             .array()
             .of(customRulesFilesSchema)
-            .min(1, "At least 1 valid custom rule file must be uploaded."),
+            .min(1, t("validation.minOneRequiredRuleFile")),
           otherwise: (schema) => schema,
         }),
       repositoryType: yup.mixed<string>().when("rulesKind", {
