@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
+import * as XLSX from "xlsx";
 
 import {
   ActionGroup,
@@ -39,13 +40,35 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
     setIsFileRejected(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!file) {
       return;
     }
+
+    let fileToUpload = file;
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() || "";
+
+    if (["xls", "xlsx", "ods"].includes(fileExtension)) {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+
+      const csvData = XLSX.utils.sheet_to_csv(
+        workbook.Sheets[workbook.SheetNames[0]]
+      );
+      const blob = new Blob([csvData], { type: "text/csv" });
+
+      fileToUpload = new File(
+        [blob],
+        file.name.replace(/\.(xls|xlsx|ods)$/, ".csv"),
+        {
+          type: "text/csv",
+        }
+      );
+    }
+
     const formData = new FormData();
-    formData.set("file", file);
-    formData.set("fileName", file.name);
+    formData.set("file", fileToUpload);
+    formData.set("fileName", fileToUpload.name);
     formData.set(
       "createEntities",
       isCreateEntitiesChecked === true ? "true" : "false"
