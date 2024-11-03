@@ -164,7 +164,7 @@ const TaskItem: React.FC<{
         task.priority ?? 0
       }`;
 
-  const taskActionItems = useTaskActions(task._, false);
+  const taskActionItems = useTaskActions(task._);
 
   return (
     <NotificationDrawerListItem

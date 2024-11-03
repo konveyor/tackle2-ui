@@ -50,7 +50,7 @@ import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { TaskActionColumn } from "./TaskActionColumn";
 
-const taskStateToLabel: Record<TaskState, string> = {
+export const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
   "not supported": "",
   Canceled: "taskState.Canceled",
@@ -71,7 +71,6 @@ export const TasksPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters") ?? "";
-  const isFApplication = false;
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
@@ -356,10 +355,7 @@ export const TasksPage: React.FC = () => {
                           isActionCell
                           id={`row-actions-${task.id}`}
                         >
-                          <TaskActionColumn
-                            task={task}
-                            isFApplication={isFApplication}
-                          />
+                          <TaskActionColumn task={task} />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

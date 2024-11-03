@@ -3,6 +3,7 @@ export const DevPaths = {
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
+  applicationsTaskDetails: "/applications/:applicationId/tasks/:taskId",
   applicationsAnalysisDetailsAttachment:
     "/applications/:applicationId/analysis-details/:taskId/attachments/:attachmentId",
   applicationsAnalysisTab: "/applications/analysis-tab",
@@ -41,7 +42,7 @@ export const DevPaths = {
 
   dependencies: "/dependencies",
   tasks: "/tasks",
-  taskDetails: "/tasks/:taskId/:isFApplication",
+  taskDetails: "/tasks/:taskId",
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
 } as const;
 
@@ -108,7 +109,5 @@ export interface AnalysisDetailsAttachmentRoute {
 export interface TaskDetailsAttachmentRoute {
   taskId: string;
   attachmentId: string;
-}
-export interface TaskFromApp {
-  isFApplication: string;
+  applicationId: string;
 }

@@ -86,6 +86,8 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -107,6 +109,7 @@ export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({ application, task, onCloseClick, onEditClick }) => {
   const { t } = useTranslation();
+
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
@@ -179,7 +182,7 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Tasks}
               title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
             >
-              <TabTasksContent application={application} />
+              <TabTasksContent application={application} task={task} />
             </Tab>
           )}
         </Tabs>
@@ -552,11 +555,10 @@ const TabReportsContent: React.FC<{
   );
 };
 
-const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
-  application,
-}) => {
-  const isFApplication = true;
-
+const TabTasksContent: React.FC<{
+  application: DecoratedApplication;
+  task: TaskDashboard | null;
+}> = ({ application, task }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const urlParams = new URLSearchParams(window.location.search);
@@ -570,12 +572,11 @@ const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
       taskId: "Task ID",
       taskKind: "Task Kind",
       status: "Status",
-      priority: "Priority",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    sortableColumns: ["taskId", "taskKind", "status", "priority"],
+    sortableColumns: ["taskId", "taskKind", "status"],
     initialSort: { columnKey: "taskId", direction: "asc" },
     initialFilterValues: deserializedFilterValues,
     filterCategories: [
@@ -624,7 +625,6 @@ const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
         taskId: "id",
         taskKind: "kind",
         status: "status",
-        priority: "priority",
       },
       implicitFilters: [
         {
@@ -642,6 +642,7 @@ const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
     currentPageItems: currentPageItems,
     totalItemCount,
     isLoading: isFetching,
+    variant: "compact",
     selectionState: useSelectionState({
       items: currentPageItems,
       isEqual: (a, b) => a.name === b.name,
@@ -697,10 +698,6 @@ const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
                 modifier="nowrap"
               />
               <Th {...getThProps({ columnKey: "status" })} modifier="nowrap" />
-              <Th
-                {...getThProps({ columnKey: "priority" })}
-                modifier="nowrap"
-              />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -719,40 +716,31 @@ const TabTasksContent: React.FC<{ application: DecoratedApplication }> = ({
                   item={task}
                   rowIndex={rowIndex}
                 >
-                  <Td width={10} {...getTdProps({ columnKey: "taskId" })}>
-                    {task.id}
-                  </Td>
-                  <Td
-                    width={10}
-                    modifier="nowrap"
-                    {...getTdProps({ columnKey: "taskKind" })}
-                  >
+                  <Td {...getTdProps({ columnKey: "taskId" })}>{task.id}</Td>
+                  <Td {...getTdProps({ columnKey: "taskKind" })}>
                     {task.kind}
                   </Td>
-                  <Td
-                    width={10}
-                    modifier="nowrap"
-                    {...getTdProps({ columnKey: "status" })}
-                  >
-                    {task.state}
+                  <Td {...getTdProps({ columnKey: "status" })}>
+                    <IconWithLabel
+                      icon={<TaskStateIcon state={task.state} />}
+                      label={
+                        <Link
+                          to={formatPath(Paths.applicationsTaskDetails, {
+                            applicationId: application.id,
+                            taskId: task.id,
+                          })}
+                        >
+                          {t(taskStateToLabel[task.state ?? "No task"])}
+                        </Link>
+                      }
+                    />
                   </Td>
                   <Td
-                    width={10}
-                    modifier="nowrap"
-                    {...getTdProps({ columnKey: "priority" })}
-                  >
-                    {task.priority || 0}
-                  </Td>
-                  <Td
-                    width={10}
                     key={`row-actions-${task.id}`}
                     isActionCell
                     id={`row-actions-${task.id}`}
                   >
-                    <TaskActionColumn
-                      task={task}
-                      isFApplication={isFApplication}
-                    />
+                    <TaskActionColumn task={task} />
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
