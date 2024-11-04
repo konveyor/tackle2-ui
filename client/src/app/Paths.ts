@@ -4,6 +4,7 @@ export const DevPaths = {
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
   applicationsTaskDetails: "/applications/:applicationId/tasks/:taskId",
+  applicationPopoverTasks: "/applications/tasks/:taskId",
   applicationsAnalysisDetailsAttachment:
     "/applications/:applicationId/analysis-details/:taskId/attachments/:attachmentId",
   applicationsAnalysisTab: "/applications/analysis-tab",

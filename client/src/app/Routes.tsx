@@ -91,6 +91,11 @@ export const devRoutes: IRoute<DevPathValues>[] = [
     exact: true,
   },
   {
+    path: Paths.applicationPopoverTasks,
+    comp: TaskDetails,
+    exact: true,
+  },
+  {
     path: Paths.applicationsAnalysisDetailsAttachment,
     comp: AnalysisDetails,
     exact: false,

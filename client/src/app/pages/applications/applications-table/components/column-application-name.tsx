@@ -97,7 +97,7 @@ const linkToTasks = (applicationName: string) => {
 };
 
 const linkToDetails = (task: TaskDashboard) => {
-  return formatPath(Paths.taskDetails, {
+  return formatPath(Paths.applicationPopoverTasks, {
     taskId: task.id,
   });
 };

@@ -14,6 +14,9 @@ export const TaskDetails = () => {
     useParams<TaskDetailsAttachmentRoute>();
   const currentPath = window.location.pathname;
   const isFromApplication = currentPath.includes("application") ? true : false;
+  const isContainApplicationId = currentPath.includes(applicationId)
+    ? true
+    : false;
   const { application } = useFetchApplicationById(applicationId);
 
   const appName: string = application?.name ?? t("terms.unknown");
@@ -32,7 +35,7 @@ export const TaskDetails = () => {
           title: t(isFromApplication ? "terms.applications" : "terms.tasks"),
           path: isFromApplication ? Paths.applications : Paths.tasks,
         },
-        isFromApplication
+        isFromApplication && isContainApplicationId
           ? {
               title: appName,
               path: `${Paths.applications}/?activeItem=${applicationId}`,
