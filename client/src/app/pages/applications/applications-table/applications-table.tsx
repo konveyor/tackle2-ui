@@ -16,11 +16,12 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  FormSelect,
+  FormSelectOption,
+  TextContent,
   OverflowMenu,
-  FormGroup,
 } from "@patternfly/react-core";
 import {
-  CodeIcon,
   PencilAltIcon,
   TagIcon,
   WarningTriangleIcon,
@@ -167,7 +168,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
-  const [selectedFormat, setSelectedFormat] = useState<"json" | "yaml">("json");
+  const [selectedFormat, setSelectedFormat] = useState<string>("json");
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
     null
@@ -190,6 +191,17 @@ export const ApplicationsTable: React.FC = () => {
   const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
     dayjs()
   );
+
+  const onChange = (
+    _event: React.FormEvent<HTMLSelectElement>,
+    value: string
+  ) => {
+    setSelectedFormat(value);
+  };
+  const formats = [
+    { value: "json", label: "JSON", disabled: false },
+    { value: "yaml", label: "YAML", disabled: false },
+  ];
 
   const [
     saveApplicationsCredentialsModalState,
@@ -1462,31 +1474,28 @@ export const ApplicationsTable: React.FC = () => {
         />
       </div>
       <Modal
-        isOpen={isDownloadModalOpen}
         variant="small"
         title={t("actions.download", { what: "analysis details reports" })}
+        isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
       >
-        <FormGroup label="Select Format" fieldId="format-select">
-          <div>
-            <Button
-              variant={selectedFormat === "json" ? "primary" : "secondary"}
-              onClick={() => setSelectedFormat("json")}
-            >
-              {<CodeIcon />} JSON
-            </Button>
-            <Button
-              variant={selectedFormat === "yaml" ? "primary" : "secondary"}
-              onClick={() => setSelectedFormat("yaml")}
-            >
-              {<CodeIcon />} YAML
-            </Button>
-          </div>
-          <p>Selected Format: {selectedFormat}</p>
-        </FormGroup>
-        <Button variant="primary" onClick={handleDownload}>
-          {t("actions.download")}
-        </Button>
+        <TextContent>{"Select format"}</TextContent>
+
+        <FormSelect
+          value={selectedFormat}
+          onChange={onChange}
+          aria-label="FormSelect Input"
+          ouiaId="BasicFormSelect"
+        >
+          {formats.map((option, index) => (
+            <FormSelectOption
+              isDisabled={option.disabled}
+              key={index}
+              value={option.value}
+              label={option.label}
+            />
+          ))}
+        </FormSelect>
       </Modal>
     </ConditionalRender>
   );
