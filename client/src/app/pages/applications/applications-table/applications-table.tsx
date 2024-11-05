@@ -716,7 +716,7 @@ export const ApplicationsTable: React.FC = () => {
           {t("actions.delete")}
         </DropdownItem>,
         <DropdownItem
-          key="applications-bulk-download"
+          key="analysis-bulk-download"
           isDisabled={
             !selectedRows.some(
               (application: DecoratedApplication) =>
