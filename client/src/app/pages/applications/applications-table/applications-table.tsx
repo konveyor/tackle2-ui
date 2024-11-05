@@ -199,6 +199,7 @@ export const ApplicationsTable: React.FC = () => {
     setSelectedFormat(value);
   };
   const formats = [
+    { value: "select one", label: "Select one", disabled: true },
     { value: "json", label: "JSON", disabled: false },
     { value: "yaml", label: "YAML", disabled: false },
   ];
@@ -1475,12 +1476,23 @@ export const ApplicationsTable: React.FC = () => {
       </div>
       <Modal
         variant="small"
-        title={t("actions.download", { what: "analysis details reports" })}
+        title={t("actions.download", { what: "analysis details" })}
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={handleDownload}>
+            Download
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => setIsDownloadModalOpen(false)}
+          >
+            Cancel
+          </Button>,
+        ]}
       >
         <TextContent>{"Select format"}</TextContent>
-
         <FormSelect
           value={selectedFormat}
           onChange={onChange}
