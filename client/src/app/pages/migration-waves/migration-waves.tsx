@@ -391,186 +391,182 @@ export const MigrationWaves: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 {currentPageItems?.map((migrationWave, rowIndex) => {
-                  return (
-                    <Tbody
-                      key={migrationWave.id}
-                      isExpanded={isCellExpanded(migrationWave)}
-                    >
-                      <Tr {...getTrProps({ item: migrationWave })}>
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={migrationWave}
-                          rowIndex={rowIndex}
+                  <Tbody
+                    key={migrationWave.id}
+                    isExpanded={isCellExpanded(migrationWave)}
+                  >
+                    <Tr {...getTrProps({ item: migrationWave })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={migrationWave}
+                        rowIndex={rowIndex}
+                      >
+                        <Td width={25} {...getTdProps({ columnKey: "name" })}>
+                          {migrationWave.name}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "startDate" })}
                         >
-                          <Td width={25} {...getTdProps({ columnKey: "name" })}>
-                            {migrationWave.name}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "startDate" })}
-                          >
-                            {dayjs(migrationWave.startDate)
-                              .tz(currentTimezone)
-                              .format("MM/DD/YYYY")}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "endDate" })}
-                          >
-                            {dayjs(migrationWave.endDate)
-                              .tz(currentTimezone)
-                              .format("MM/DD/YYYY")}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({
-                              columnKey: "applications",
-                              isCompoundExpandToggle: true,
-                              item: migrationWave,
-                              rowIndex,
-                            })}
-                          >
-                            {migrationWave?.applications?.length.toString()}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({
-                              columnKey: "stakeholders",
-                              isCompoundExpandToggle: true,
-                              item: migrationWave,
-                              rowIndex,
-                            })}
-                          >
-                            {migrationWave.allStakeholders.length}
-                          </Td>
-                          <Td
-                            width={20}
-                            {...getTdProps({
-                              columnKey: "status",
-                              isCompoundExpandToggle:
-                                !!migrationWave.applications.length ||
-                                migrationWave.status === "No Issues",
-                              item: migrationWave,
-                              rowIndex,
-                            })}
-                          >
-                            {migrationWave.applications.length
-                              ? migrationWave.status
-                              : "--"}
-                          </Td>
-                          <Td isActionCell id="pencil-action">
-                            <Tooltip content={t("actions.edit")}>
-                              <Button
-                                variant="plain"
-                                icon={<PencilAltIcon />}
-                                onClick={() => setWaveModalState(migrationWave)}
-                              />
-                            </Tooltip>
-                          </Td>
-                          <Td isActionCell id="row-actions">
-                            <ActionsColumn
-                              open={isRowDropdownOpen === migrationWave.id}
-                              items={[
-                                {
-                                  isAriaDisabled:
-                                    migrationWave.applications?.length < 1,
-                                  tooltipProps: {
-                                    content:
-                                      migrationWave.applications?.length < 1
-                                        ? "No applications are available for assignment."
-                                        : "",
-                                  },
-                                  title: t("composed.manage", {
-                                    what: t("terms.applications").toLowerCase(),
-                                  }),
-                                  onClick: () => {
-                                    {
-                                      setWaveToManageModalState(migrationWave);
-                                    }
-                                  },
+                          {dayjs(migrationWave.startDate)
+                            .tz(currentTimezone)
+                            .format("MM/DD/YYYY")}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "endDate" })}
+                        >
+                          {dayjs(migrationWave.endDate)
+                            .tz(currentTimezone)
+                            .format("MM/DD/YYYY")}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({
+                            columnKey: "applications",
+                            isCompoundExpandToggle: true,
+                            item: migrationWave,
+                            rowIndex,
+                          })}
+                        >
+                          {migrationWave?.applications?.length.toString()}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({
+                            columnKey: "stakeholders",
+                            isCompoundExpandToggle: true,
+                            item: migrationWave,
+                            rowIndex,
+                          })}
+                        >
+                          {migrationWave.allStakeholders.length}
+                        </Td>
+                        <Td
+                          width={20}
+                          {...getTdProps({
+                            columnKey: "status",
+                            isCompoundExpandToggle:
+                              !!migrationWave.applications.length ||
+                              migrationWave.status === "No Issues",
+                            item: migrationWave,
+                            rowIndex,
+                          })}
+                        >
+                          {migrationWave.applications.length
+                            ? migrationWave.status
+                            : "--"}
+                        </Td>
+                        <Td isActionCell id="pencil-action">
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() => setWaveModalState(migrationWave)}
+                            />
+                          </Tooltip>
+                        </Td>
+                        <Td isActionCell id="row-actions">
+                          <ActionsColumn
+                            open={isRowDropdownOpen === migrationWave.id}
+                            items={[
+                              {
+                                isAriaDisabled:
+                                  migrationWave.applications?.length < 1,
+                                tooltipProps: {
+                                  content:
+                                    migrationWave.applications?.length < 1
+                                      ? "No applications are available for assignment."
+                                      : "",
                                 },
-                                {
-                                  isAriaDisabled:
+                                title: t("composed.manage", {
+                                  what: t("terms.applications").toLowerCase(),
+                                }),
+                                onClick: () => {
+                                  {
+                                    setWaveToManageModalState(migrationWave);
+                                  }
+                                },
+                              },
+                              {
+                                isAriaDisabled:
+                                  migrationWave.applications?.length < 1 ||
+                                  !hasExportableApplications(
+                                    tickets,
+                                    migrationWave?.applications
+                                  ),
+                                tooltipProps: {
+                                  content:
                                     migrationWave.applications?.length < 1 ||
                                     !hasExportableApplications(
                                       tickets,
                                       migrationWave?.applications
-                                    ),
-                                  tooltipProps: {
-                                    content:
-                                      migrationWave.applications?.length < 1 ||
-                                      !hasExportableApplications(
-                                        tickets,
-                                        migrationWave?.applications
-                                      )
-                                        ? "No applications are available for export."
-                                        : "",
-                                  },
-                                  title: t("terms.exportToIssue"),
-                                  onClick: () => {
-                                    if (
-                                      hasExportableApplications(
-                                        tickets,
-                                        migrationWave?.applications
-                                      )
-                                    ) {
-                                      setApplicationsToExport(
-                                        migrationWave.fullApplications
-                                      );
-                                    }
-                                  },
+                                    )
+                                      ? "No applications are available for export."
+                                      : "",
                                 },
-                                {
-                                  title: t("actions.delete"),
-                                  onClick: () => {
-                                    setMigrationWaveToDelete({
-                                      id: migrationWave.id,
-                                      name: migrationWave.name,
-                                    });
-                                  },
-                                  isDanger: true,
+                                title: t("terms.exportToIssue"),
+                                onClick: () => {
+                                  if (
+                                    hasExportableApplications(
+                                      tickets,
+                                      migrationWave?.applications
+                                    )
+                                  ) {
+                                    setApplicationsToExport(
+                                      migrationWave.fullApplications
+                                    );
+                                  }
                                 },
-                              ]}
-                            />
-                          </Td>
-                        </TableRowContentWithControls>
-                      </Tr>
-                      {isCellExpanded(migrationWave) ? (
-                        <Tr isExpanded>
-                          <Td
-                            {...getExpandedContentTdProps({
-                              item: migrationWave,
-                            })}
-                          >
-                            <ExpandableRowContent>
-                              {isCellExpanded(migrationWave, "applications") &&
-                              !!migrationWave.applications.length ? (
-                                <WaveApplicationsTable
+                              },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => {
+                                  setMigrationWaveToDelete({
+                                    id: migrationWave.id,
+                                    name: migrationWave.name,
+                                  });
+                                },
+                                isDanger: true,
+                              },
+                            ]}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                    {isCellExpanded(migrationWave) ? (
+                      <Tr isExpanded>
+                        <Td
+                          {...getExpandedContentTdProps({
+                            item: migrationWave,
+                          })}
+                        >
+                          <ExpandableRowContent>
+                            {isCellExpanded(migrationWave, "applications") &&
+                            !!migrationWave.applications.length ? (
+                              <WaveApplicationsTable
+                                migrationWave={migrationWave}
+                                removeApplication={removeApplication}
+                              />
+                            ) : isCellExpanded(migrationWave, "stakeholders") &&
+                              !!migrationWave.allStakeholders.length ? (
+                              <WaveStakeholdersTable
+                                migrationWave={migrationWave}
+                              />
+                            ) : (
+                              isCellExpanded(migrationWave, "status") && (
+                                <WaveStatusTable
                                   migrationWave={migrationWave}
                                   removeApplication={removeApplication}
+                                  setCellExpanded={setCellExpanded}
                                 />
-                              ) : isCellExpanded(
-                                  migrationWave,
-                                  "stakeholders"
-                                ) && !!migrationWave.allStakeholders.length ? (
-                                <WaveStakeholdersTable
-                                  migrationWave={migrationWave}
-                                />
-                              ) : (
-                                isCellExpanded(migrationWave, "status") && (
-                                  <WaveStatusTable
-                                    migrationWave={migrationWave}
-                                    removeApplication={removeApplication}
-                                    setCellExpanded={setCellExpanded}
-                                  />
-                                )
-                              )}
-                            </ExpandableRowContent>
-                          </Td>
-                        </Tr>
-                      ) : null}
-                    </Tbody>
-                  );
+                              )
+                            )}
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </Tbody>;
                 })}
               </ConditionalTableBody>
             </Table>
