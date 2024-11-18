@@ -2,7 +2,6 @@ import React from "react";
 
 import { TaskState } from "@app/api/models";
 import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
-import { useTranslation } from "react-i18next";
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
@@ -34,30 +33,32 @@ export const ApplicationAnalysisStatus: React.FC<
 > = ({ state }) => {
   return <IconedStatus preset={getTaskStatus(state)} />;
 };
-export const mapAnalysisStateToLabel = (value: TaskState) => {
+
+export const mapAnalysisStateToLabel = (
+  value: TaskState,
+  t: (key: string) => string
+) => {
   const presetKey: IconedStatusPreset = getTaskStatus(value);
-  const { t } = useTranslation();
   const presets = buildPresets(t);
   const label = presets[presetKey]?.label ?? t("terms.unknown");
   return label;
 };
+
 export const buildPresets = (
   t: (key: string) => string
 ): Record<IconedStatusPreset, { label: string }> => ({
+  InProgressInheritedReviews: { label: t("terms.inProgress") },
+  InProgressInheritedAssessments: { label: t("terms.inProgress") },
+  InheritedReviews: { label: t("terms.completed") },
+  InheritedAssessments: { label: t("terms.completed") },
   Canceled: { label: t("terms.canceled") },
-  Scheduled: { label: t("terms.scheduled") },
   Completed: { label: t("terms.completed") },
   CompletedWithErrors: { label: t("terms.completedWithErrors") },
+  Error: { label: t("terms.error") },
   Failed: { label: t("terms.failed") },
   InProgress: { label: t("terms.inProgress") },
   NotStarted: { label: t("terms.notStarted") },
-  InheritedReviews: { label: t("terms.inheritedReviews") },
-  InProgressInheritedReviews: { label: t("terms.inProgressInheritedReviews") },
-  InProgressInheritedAssessments: {
-    label: t("terms.inProgressInheritedAssessments"),
-  },
-  InheritedAssessments: { label: t("terms.inheritedAssessments") },
-  Error: { label: t("terms.error") }, // Add Error with a label
+  Scheduled: { label: t("terms.scheduled") },
   Ok: { label: t("terms.ok") }, // Add Ok with a label
   Unknown: { label: t("terms.unknown") }, // Add Unknown with a label
 });
