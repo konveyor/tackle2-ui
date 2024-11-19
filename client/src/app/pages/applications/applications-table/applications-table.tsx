@@ -116,7 +116,6 @@ export const ApplicationsTable: React.FC = () => {
 
   const history = useHistory();
   const token = keycloak.tokenParsed;
-
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
     "create" | DecoratedApplication | null
@@ -156,7 +155,9 @@ export const ApplicationsTable: React.FC = () => {
   const [applicationsToDelete, setApplicationsToDelete] = useState<
     DecoratedApplication[]
   >([]);
-
+  const [tasksToCancel, setTasksToCancel] = useState<DecoratedApplication[]>(
+    []
+  );
   const [assessmentToDiscard, setAssessmentToDiscard] =
     useState<DecoratedApplication | null>(null);
 
@@ -214,7 +215,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const isTaskCancellable = (application: DecoratedApplication) => {
     const task = application.tasks.currentAnalyzer;
-    return !TaskStates.Terminal.includes(task?.state ?? "");
+    return !!task && !TaskStates.Terminal.includes(task?.state ?? "");
   };
 
   // TODO: Review the refetchInterval calculation for the application list
@@ -272,7 +273,6 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
   );
-
   const discardReview = async (application: DecoratedApplication) => {
     if (application.review) {
       deleteReview({
@@ -297,7 +297,6 @@ export const ApplicationsTable: React.FC = () => {
       });
     }
   );
-
   const discardAssessment = async (application: DecoratedApplication) => {
     if (application.assessments) {
       application.assessments.forEach((assessment) => {
@@ -575,6 +574,23 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
+        ...(tasksReadAccess && tasksWriteAccess
+          ? [
+              <DropdownItem
+                key="applications-bulk-cancel"
+                isDisabled={
+                  !selectedRows.some((application: DecoratedApplication) =>
+                    isTaskCancellable(application)
+                  )
+                }
+                onClick={() => {
+                  handleCancelBulkAnalysis();
+                }}
+              >
+                {t("actions.cancelAnalysis")}
+              </DropdownItem>,
+            ]
+          : []),
         ...(credentialsReadAccess
           ? [
               <DropdownItem
@@ -637,6 +653,12 @@ export const ApplicationsTable: React.FC = () => {
           archetypeId: archetypeRefsToOverride[0].id,
         })
       );
+  };
+  const handleCancelBulkAnalysis = () => {
+    const runningTasksToCancel = selectedRows.filter((application) =>
+      isTaskCancellable(application)
+    );
+    setTasksToCancel(runningTasksToCancel);
   };
 
   const assessSelectedApp = async (application: DecoratedApplication) => {
@@ -1148,6 +1170,37 @@ export const ApplicationsTable: React.FC = () => {
               .filter((application) => application.id)
               .map((application) => application.id);
             if (ids) bulkDeleteApplication({ ids: ids });
+          }}
+        />
+        <ConfirmDialog
+          title={t(
+            tasksToCancel.length > 1
+              ? "dialog.title.cancel"
+              : "dialog.title.cancelWithName",
+            {
+              what:
+                tasksToCancel.length > 1
+                  ? t("terms.tasks").toLowerCase()
+                  : t("terms.task").toLowerCase(),
+              name: tasksToCancel.length === 1 && tasksToCancel[0].name,
+            }
+          )}
+          titleIconVariant={"warning"}
+          isOpen={tasksToCancel.length > 0}
+          message={`${
+            tasksToCancel.length > 1 ? t("dialog.message.TasksBulkCancel") : ""
+          } ${t("dialog.message.cancel")}`}
+          aria-label="Tasks bulk cancel"
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.cancelTasks")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setTasksToCancel([])}
+          onClose={() => setTasksToCancel([])}
+          onConfirm={() => {
+            tasksToCancel.forEach((application) => {
+              cancelAnalysis(application);
+            });
+            setTasksToCancel([]);
           }}
         />
         <ConfirmDialog
