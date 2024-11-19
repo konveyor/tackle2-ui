@@ -13,6 +13,7 @@ import {
   UnknownIcon,
   TopologyIcon,
 } from "@patternfly/react-icons";
+import { buildPresetLabels } from "@app/pages/applications/components/application-analysis-status";
 
 export type IconedStatusPreset =
   | "InheritedReviews"
@@ -62,11 +63,12 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
   tooltipCount = 0,
 }: IIconedStatusProps) => {
   const { t } = useTranslation();
+  const messages = buildPresetLabels(t);
   const presets: IconedStatusPresetType = {
     InProgressInheritedReviews: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgressInheritedReviews.label,
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
@@ -75,7 +77,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InProgressInheritedAssessments: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgressInheritedAssessments.label,
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
@@ -84,7 +86,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InheritedReviews: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.InheritedReviews.label,
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
@@ -93,7 +95,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InheritedAssessments: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.InheritedAssessments.label,
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
@@ -102,36 +104,36 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     Canceled: {
       icon: <TimesCircleIcon />,
       status: "info",
-      label: t("terms.canceled"),
+      label: messages.Canceled.label,
     },
     Completed: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.Completed.label,
     },
     CompletedWithErrors: {
       icon: <ExclamationTriangleIcon />,
       status: "warning",
-      label: t("terms.completedWithErrors"),
+      label: messages.CompletedWithErrors.label,
     },
     Error: {
       icon: <ExclamationCircleIcon />,
       status: "danger",
-      label: t("terms.error"),
+      label: messages.Error.label,
     },
     Failed: {
       icon: <ExclamationCircleIcon />,
       status: "danger",
-      label: t("terms.failed"),
+      label: messages.Failed.label,
     },
     InProgress: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgress.label,
     },
     NotStarted: {
       icon: <TimesCircleIcon />,
-      label: t("terms.notStarted"),
+      label: messages.NotStarted.label,
     },
     Ok: {
       icon: <CheckCircleIcon />,
@@ -140,7 +142,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     Scheduled: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.scheduled"),
+      label: messages.Scheduled.label,
     },
     Unknown: {
       icon: <UnknownIcon />,

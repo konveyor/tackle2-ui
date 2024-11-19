@@ -39,12 +39,12 @@ export const mapAnalysisStateToLabel = (
   t: (key: string) => string
 ) => {
   const presetKey: IconedStatusPreset = getTaskStatus(value);
-  const presets = buildPresets(t);
-  const label = presets[presetKey]?.label ?? t("terms.unknown");
+  const presets = buildPresetLabels(t);
+  const label = presets[presetKey]?.label ?? presets.Unknown.label;
   return label;
 };
 
-export const buildPresets = (
+export const buildPresetLabels = (
   t: (key: string) => string
 ): Record<IconedStatusPreset, { label: string }> => ({
   InProgressInheritedReviews: { label: t("terms.inProgress") },
