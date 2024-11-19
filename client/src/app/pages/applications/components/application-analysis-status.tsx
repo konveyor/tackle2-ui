@@ -1,7 +1,11 @@
 import React from "react";
 
 import { TaskState } from "@app/api/models";
-import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
+import {
+  buildPresetLabels,
+  IconedStatus,
+  IconedStatusPreset,
+} from "@app/components/Icons";
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
@@ -43,22 +47,3 @@ export const mapAnalysisStateToLabel = (
   const label = presets[presetKey]?.label ?? presets.Unknown.label;
   return label;
 };
-
-export const buildPresetLabels = (
-  t: (key: string) => string
-): Record<IconedStatusPreset, { label: string }> => ({
-  InProgressInheritedReviews: { label: t("terms.inProgress") },
-  InProgressInheritedAssessments: { label: t("terms.inProgress") },
-  InheritedReviews: { label: t("terms.completed") },
-  InheritedAssessments: { label: t("terms.completed") },
-  Canceled: { label: t("terms.canceled") },
-  Completed: { label: t("terms.completed") },
-  CompletedWithErrors: { label: t("terms.completedWithErrors") },
-  Error: { label: t("terms.error") },
-  Failed: { label: t("terms.failed") },
-  InProgress: { label: t("terms.inProgress") },
-  NotStarted: { label: t("terms.notStarted") },
-  Scheduled: { label: t("terms.scheduled") },
-  Ok: { label: t("terms.ok") }, // Add Ok with a label
-  Unknown: { label: t("terms.unknown") }, // Add Unknown with a label
-});
