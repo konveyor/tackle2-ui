@@ -1,0 +1,15 @@
+{
+  "copyFiles": [
+    {
+      "from": [
+        "LICENSE",
+        "entrypoint.sh",
+        "**/package.json",
+        "*/dist/**/*",
+        "!hack/**/*",
+        "!**/node_modules/**/*"
+      ],
+      "to": "dist/"
+    }
+  ]
+}
