@@ -86,9 +86,6 @@ export const MigrationWaves: React.FC = () => {
 
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
-  const [isRowDropdownOpen, setIsRowDropdownOpen] = React.useState<
-    number | null
-  >(null);
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -390,7 +387,7 @@ export const MigrationWaves: React.FC = () => {
                 }
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((migrationWave, rowIndex) => {
+                {currentPageItems?.map((migrationWave, rowIndex) => (
                   <Tbody
                     key={migrationWave.id}
                     isExpanded={isCellExpanded(migrationWave)}
@@ -468,7 +465,6 @@ export const MigrationWaves: React.FC = () => {
                         </Td>
                         <Td isActionCell id="row-actions">
                           <ActionsColumn
-                            open={isRowDropdownOpen === migrationWave.id}
                             items={[
                               {
                                 isAriaDisabled:
@@ -566,8 +562,8 @@ export const MigrationWaves: React.FC = () => {
                         </Td>
                       </Tr>
                     ) : null}
-                  </Tbody>;
-                })}
+                  </Tbody>
+                ))}
               </ConditionalTableBody>
             </Table>
             <SimplePagination
