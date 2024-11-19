@@ -25,6 +25,8 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useSetting } from "@app/queries/settings";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateError } from "@app/components/StateError";
+import { universalComparator } from "@app/utils/utils";
+import { toLabelValue } from "@app/utils/rules-utils";
 
 interface SetTargetsProps {
   applications: Application[];
@@ -177,9 +179,12 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     tableName: "target-cards",
     items: targets,
     idProperty: "name",
-    initialFilterValues: { name: applicationProviders },
+    initialFilterValues: { provider: applicationProviders },
     columnNames: {
       name: "name",
+      provider: "provider",
+      custom: "custom",
+      labels: "labels",
     },
     isFilterEnabled: true,
     isPaginationEnabled: false,
@@ -200,10 +205,55 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
           value: language,
         })),
         placeholderText: "Filter by language...",
-        categoryKey: "name",
+        categoryKey: "provider",
         title: "Languages",
         type: FilterType.multiselect,
         matcher: (filter, target) => !!target.provider?.includes(filter),
+      },
+      {
+        placeholderText: "Filter by name...",
+        categoryKey: "name",
+        title: "Name",
+        type: FilterType.search,
+        matcher: (filter, target) =>
+          !!target.name?.toLowerCase().includes(filter.toLowerCase()),
+      },
+      {
+        placeholderText: "Filter by custom target...",
+        categoryKey: "custom",
+        title: "Custom target",
+        type: FilterType.select,
+        selectOptions: [
+          { value: "true", label: "Yes" },
+          { value: "false", label: "No" },
+        ],
+        matcher: (filter, target) => String(!!target.custom) === filter,
+      },
+      {
+        selectOptions: unique(
+          targets
+            .flatMap(({ labels }) => labels ?? [])
+            .map(({ name, label }) => ({
+              name,
+              label: toLabelValue(label),
+            })),
+          ({ label }) => label
+        )
+          .map(({ label, name }) => ({
+            value: label,
+            label: name,
+            chipLabel: label,
+          }))
+          .sort((a, b) => universalComparator(a.label, b.label)),
+
+        placeholderText: "Filter by labels...",
+        categoryKey: "labels",
+        title: "Labels",
+        type: FilterType.multiselect,
+        matcher: (filter, target) =>
+          (target.labels ?? [])
+            .map(({ label }) => toLabelValue(label))
+            .includes(filter),
       },
     ],
   });
