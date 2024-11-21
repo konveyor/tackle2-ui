@@ -62,11 +62,12 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
   tooltipCount = 0,
 }: IIconedStatusProps) => {
   const { t } = useTranslation();
+  const messages = buildPresetLabels(t);
   const presets: IconedStatusPresetType = {
     InProgressInheritedReviews: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgressInheritedReviews.label,
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
@@ -75,7 +76,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InProgressInheritedAssessments: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgressInheritedAssessments.label,
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
@@ -84,7 +85,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InheritedReviews: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.InheritedReviews.label,
       tooltipMessage: t("message.inheritedReviewTooltip", {
         count: tooltipCount,
       }),
@@ -93,7 +94,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     InheritedAssessments: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.InheritedAssessments.label,
       tooltipMessage: t("message.inheritedAssessmentTooltip", {
         count: tooltipCount,
       }),
@@ -102,36 +103,36 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     Canceled: {
       icon: <TimesCircleIcon />,
       status: "info",
-      label: t("terms.canceled"),
+      label: messages.Canceled.label,
     },
     Completed: {
       icon: <CheckCircleIcon />,
       status: "success",
-      label: t("terms.completed"),
+      label: messages.Completed.label,
     },
     CompletedWithErrors: {
       icon: <ExclamationTriangleIcon />,
       status: "warning",
-      label: t("terms.completedWithErrors"),
+      label: messages.CompletedWithErrors.label,
     },
     Error: {
       icon: <ExclamationCircleIcon />,
       status: "danger",
-      label: t("terms.error"),
+      label: messages.Error.label,
     },
     Failed: {
       icon: <ExclamationCircleIcon />,
       status: "danger",
-      label: t("terms.failed"),
+      label: messages.Failed.label,
     },
     InProgress: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.inProgress"),
+      label: messages.InProgress.label,
     },
     NotStarted: {
       icon: <TimesCircleIcon />,
-      label: t("terms.notStarted"),
+      label: messages.NotStarted.label,
     },
     Ok: {
       icon: <CheckCircleIcon />,
@@ -140,7 +141,7 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     Scheduled: {
       icon: <InProgressIcon />,
       status: "info",
-      label: t("terms.scheduled"),
+      label: messages.Scheduled.label,
     },
     Unknown: {
       icon: <UnknownIcon />,
@@ -162,3 +163,22 @@ export const IconedStatus: React.FC<IIconedStatusProps> = ({
     />
   );
 };
+
+export const buildPresetLabels = (
+  t: (key: string) => string
+): Record<IconedStatusPreset, { label: string }> => ({
+  InProgressInheritedReviews: { label: t("terms.inProgress") },
+  InProgressInheritedAssessments: { label: t("terms.inProgress") },
+  InheritedReviews: { label: t("terms.completed") },
+  InheritedAssessments: { label: t("terms.completed") },
+  Canceled: { label: t("terms.canceled") },
+  Completed: { label: t("terms.completed") },
+  CompletedWithErrors: { label: t("terms.completedWithErrors") },
+  Error: { label: t("terms.error") },
+  Failed: { label: t("terms.failed") },
+  InProgress: { label: t("terms.inProgress") },
+  NotStarted: { label: t("terms.notStarted") },
+  Scheduled: { label: t("terms.scheduled") },
+  Ok: { label: t("terms.ok") }, // Add Ok with a label
+  Unknown: { label: t("terms.unknown") }, // Add Unknown with a label
+});
