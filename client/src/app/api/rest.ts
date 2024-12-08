@@ -371,6 +371,9 @@ export const deleteTask = (id: number) => axios.delete<void>(`${TASKS}/${id}`);
 export const cancelTask = (id: number) =>
   axios.put<void>(`${TASKS}/${id}/cancel`);
 
+export const cancelTasks = (ids: number[]) =>
+  axios.put<void>(`${TASKS}/cancel/list`, ids);
+
 export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
   axios
     .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
