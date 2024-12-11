@@ -1082,6 +1082,7 @@ export const ApplicationsTable: React.FC = () => {
 
         <TaskGroupProvider>
           <AnalysisWizard
+            key={selectedRows.map(({ name }) => name).join()}
             applications={selectedRows}
             isOpen={isAnalyzeModalOpen}
             onClose={() => {
