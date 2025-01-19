@@ -372,7 +372,7 @@ export const cancelTask = (id: number) =>
   axios.put<void>(`${TASKS}/${id}/cancel`);
 
 export const cancelTasks = (ids: number[]) =>
-  axios.put<void>(`${TASKS}/cancel/list`, ids);
+  axios.put<void>(`${TASKS}/cancel?filter=id:(${ids.join("|")})`);
 
 export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
   axios
