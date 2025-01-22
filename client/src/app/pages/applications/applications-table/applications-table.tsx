@@ -80,6 +80,7 @@ import {
 import {
   TaskStates,
   useCancelTaskMutation,
+  useCancelTasksMutation,
   useFetchTaskDashboard,
 } from "@app/queries/tasks";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
@@ -202,15 +203,42 @@ export const ApplicationsTable: React.FC = () => {
       variant: "danger",
     });
   };
+  const completedCancelTasks = () => {
+    pushNotification({
+      title: "Tasks",
+      message: "Canceled",
+      variant: "info",
+    });
+  };
+  const failedCancelTasks = () => {
+    pushNotification({
+      title: "Tasks",
+      message: "Cancelation failed.",
+      variant: "danger",
+    });
+  };
 
   const { mutate: cancelTask } = useCancelTaskMutation(
     completedCancelTask,
     failedCancelTask
   );
+  const { mutate: cancelTasks } = useCancelTasksMutation(
+    completedCancelTasks,
+    failedCancelTasks
+  );
 
-  const cancelAnalysis = (application: DecoratedApplication) => {
-    const task = application.tasks.currentAnalyzer;
-    if (task?.id) cancelTask(task.id);
+  const cancelAnalysis = (
+    application: DecoratedApplication | DecoratedApplication[]
+  ) => {
+    if (!Array.isArray(application)) {
+      const task = application.tasks.currentAnalyzer;
+      if (task?.id) cancelTask(task.id);
+    } else {
+      const tasks = application
+        .map((app) => app.tasks.currentAnalyzer?.id)
+        .filter((id): id is number => id !== undefined);
+      cancelTasks(tasks);
+    }
   };
 
   const isTaskCancellable = (application: DecoratedApplication) => {
@@ -1196,9 +1224,7 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setTasksToCancel([])}
           onClose={() => setTasksToCancel([])}
           onConfirm={() => {
-            tasksToCancel.forEach((application) => {
-              cancelAnalysis(application);
-            });
+            cancelAnalysis(tasksToCancel);
             setTasksToCancel([]);
           }}
         />
