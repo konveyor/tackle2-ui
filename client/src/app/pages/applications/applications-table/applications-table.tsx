@@ -48,7 +48,11 @@ import {
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  formatPath,
+  getAxiosErrorMessage,
+  universalComparator,
+} from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import keycloak from "@app/keycloak";
 import {
@@ -91,7 +95,7 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import {
   ApplicationAnalysisStatus,
-  taskStateToAnalyze,
+  mapAnalysisStateToLabel,
 } from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
@@ -375,7 +379,10 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
-      analysis: app.tasks.currentAnalyzer?.state || "",
+      analysis: mapAnalysisStateToLabel(
+        (app.tasks.currentAnalyzer?.state as TaskState) || "No task",
+        t
+      ),
     }),
     filterCategories: [
       {
@@ -540,25 +547,15 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.analysis").toLowerCase(),
           }) + "...",
 
-        selectOptions: Object.values(applications)
+        selectOptions: applications
           .map((a) => {
-            let value = a?.tasks.currentAnalyzer?.state || "No Task";
-
-            if (value === "No Task") {
-              value = "No task";
-            }
-
-            let label = taskStateToAnalyze.get(value as TaskState) || value;
-
-            if (label === "NotStarted") {
-              label = "Not started";
-            }
+            const value = a.tasks.currentAnalyzer?.state || "No task";
+            const label = mapAnalysisStateToLabel(value as TaskState, t);
             return { value, label };
           })
           .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
-          .sort((a, b) => a.value.localeCompare(b.value)),
-
-        getItemValue: (item) => item?.tasks.currentAnalyzer?.state || "No Task",
+          .sort((a, b) => universalComparator(a.value, b.value)),
+        getItemValue: (item) => item.tasks.currentAnalyzer?.state || "No task",
       },
     ],
 
