@@ -554,7 +554,7 @@ export const ApplicationsTable: React.FC = () => {
             return { value, label };
           })
           .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
-          .sort((a, b) => universalComparator(a.value, b.value)),
+          .sort((a, b) => universalComparator(a.label, b.label)),
         getItemValue: (item) => item.tasks.currentAnalyzer?.state || "No task",
       },
     ],
