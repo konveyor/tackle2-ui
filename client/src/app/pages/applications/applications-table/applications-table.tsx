@@ -214,7 +214,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const isTaskCancellable = (application: DecoratedApplication) => {
     const task = application.tasks.currentAnalyzer;
-    return !TaskStates.Terminal.includes(task?.state ?? "");
+    return !!task && !TaskStates.Terminal.includes(task?.state ?? "");
   };
 
   // TODO: Review the refetchInterval calculation for the application list
