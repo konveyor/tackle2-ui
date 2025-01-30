@@ -163,6 +163,7 @@ const TaskItem: React.FC<{
     : `${task.id} (${task.addon}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
+
   const taskActionItems = useTaskActions(task._);
 
   return (
