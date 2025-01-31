@@ -504,7 +504,8 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "YAMLTemplate": "YAML template"
+    "YAMLTemplate": "YAML template",
+    "ok": "OK"
   },
   "titles": {
     "archetypeDrawer": "Archetype details",
