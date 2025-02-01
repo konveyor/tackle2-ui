@@ -63,7 +63,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       .max(40, t("validation.maxLength", { length: 40 }))
       .test(
         "Duplicate name",
-        "A tag type with this name already exists. Use a different name.",
+        t("duplicateName", { type: "A tag type" }),
         (value) => {
           return duplicateNameCheck(
             tagCategories || [],
