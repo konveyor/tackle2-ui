@@ -48,7 +48,7 @@ jobs:
           docker save -o /tmp/tackle2-ui.tar quay.io/konveyor/tackle2-ui:latest
 
       - name: Upload tackle2-ui image as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tackle2-ui
           path: /tmp/tackle2-ui.tar
