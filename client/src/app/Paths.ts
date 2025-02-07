@@ -3,6 +3,8 @@ export const DevPaths = {
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
+  applicationsTaskDetails: "/applications/:applicationId/tasks/:taskId",
+  applicationPopoverTasks: "/applications/tasks/:taskId",
   applicationsAnalysisDetailsAttachment:
     "/applications/:applicationId/analysis-details/:taskId/attachments/:attachmentId",
   applicationsAnalysisTab: "/applications/analysis-tab",
@@ -108,4 +110,5 @@ export interface AnalysisDetailsAttachmentRoute {
 export interface TaskDetailsAttachmentRoute {
   taskId: string;
   attachmentId: string;
+  applicationId: string;
 }
