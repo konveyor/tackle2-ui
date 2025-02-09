@@ -114,17 +114,3 @@ jobs:
 
       - name: Test
         run: npm run test -- --coverage --watchAll=false
-
-      - name: Upload to codecov (client)
-        # if: ${{ github.event.pull_request }}
-        uses: codecov/codecov-action@v4
-        with:
-          flags: client
-          directory: ./client/coverage
-
-      - name: Upload to codecov (server)
-        # if: ${{ github.event.pull_request }}
-        uses: codecov/codecov-action@v4
-        with:
-          flags: server
-          directory: ./server/coverage
