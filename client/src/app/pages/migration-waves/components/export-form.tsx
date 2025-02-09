@@ -73,9 +73,15 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     issueManager: yup
       .mixed<IssueManagerKind>()
       .required("Issue Manager is a required field"),
-    tracker: yup.string().required("Instance is a required field"),
-    project: yup.string().required("Project is a required field"),
-    kind: yup.string().required("Issue type is a required field"),
+    tracker: yup
+      .string()
+      .required(t("validation.requiredField", { field: "Instance" })),
+    project: yup
+      .string()
+      .required(t("validation.requiredField", { field: "Project" })),
+    kind: yup
+      .string()
+      .required(t("validation.requiredField", { field: "Issue type" })),
   });
 
   const {
