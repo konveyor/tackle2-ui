@@ -65,6 +65,29 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import {
+  useTableControlState,
+  useTableControlProps,
+} from "@app/hooks/table-controls";
+import { SimplePagination } from "@app/components/SimplePagination";
+import { useServerTasks } from "@app/queries/tasks";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import {
+  getHubRequestParams,
+  deserializeFilterUrlParams,
+} from "@app/hooks/table-controls";
+import { useSelectionState } from "@migtools/lib-ui";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TaskActionColumn } from "../../../../pages/tasks/TaskActionColumn";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -73,18 +96,20 @@ export interface IApplicationDetailDrawerProps
   onEditClick: () => void;
 }
 
-enum TabKey {
+export enum TabKey {
   Details = 0,
   Tags,
   Reports,
   Facts,
   Reviews,
+  Tasks,
 }
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({ application, task, onCloseClick, onEditClick }) => {
   const { t } = useTranslation();
+
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
@@ -150,6 +175,14 @@ export const ApplicationDetailDrawer: React.FC<
               title={<TabTitleText>{t("terms.review")}</TabTitleText>}
             >
               <ReviewFields application={application} />
+            </Tab>
+          )}
+          {!application ? null : (
+            <Tab
+              eventKey={TabKey.Tasks}
+              title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
+            >
+              <TabTasksContent application={application} task={task} />
             </Tab>
           )}
         </Tabs>
@@ -518,6 +551,209 @@ const TabReportsContent: React.FC<{
       </TextContent>
 
       {!isFetching && !!facts.length && <ApplicationFacts facts={facts} />}
+    </>
+  );
+};
+
+const TabTasksContent: React.FC<{
+  application: DecoratedApplication;
+  task: TaskDashboard | null;
+}> = ({ application, task }) => {
+  const { t } = useTranslation();
+  const history = useHistory();
+  const urlParams = new URLSearchParams(window.location.search);
+  const filters = urlParams.get("filters");
+  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
+  const tableControlState = useTableControlState({
+    tableName: "tasks-apps-table",
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.tasks,
+    columnNames: {
+      taskId: "Task ID",
+      taskKind: "Task Kind",
+      status: "Status",
+    },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    sortableColumns: ["taskId", "taskKind", "status"],
+    initialSort: { columnKey: "taskId", direction: "asc" },
+    initialFilterValues: deserializedFilterValues,
+    filterCategories: [
+      {
+        categoryKey: "id",
+        title: "ID",
+        type: FilterType.numsearch,
+        placeholderText: t("actions.filterBy", {
+          what: "ID...",
+        }),
+        getServerFilterValue: (value) => {
+          console.log("this id:", value);
+          return value ? value : [];
+        },
+      },
+      {
+        categoryKey: "kind",
+        title: t("terms.kind"),
+        type: FilterType.search,
+        placeholderText: t("actions.filterBy", {
+          what: t("terms.kind") + "...",
+        }),
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
+      {
+        categoryKey: "state",
+        title: t("terms.status"),
+        type: FilterType.search,
+        placeholderText: t("actions.filterBy", {
+          what: t("terms.status") + "...",
+        }),
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
+    ],
+    initialItemsPerPage: 10,
+  });
+
+  const {
+    result: { data: currentPageItems = [], total: totalItemCount },
+    isFetching,
+    fetchError,
+  } = useServerTasks(
+    getHubRequestParams({
+      ...tableControlState,
+      hubSortFieldKeys: {
+        taskId: "id",
+        taskKind: "kind",
+        status: "status",
+      },
+      implicitFilters: [
+        {
+          field: "application.id",
+          operator: "=",
+          value: application.id,
+        },
+      ],
+    }),
+    5000
+  );
+  const tableControls = useTableControlProps({
+    ...tableControlState,
+    idProperty: "id",
+    currentPageItems: currentPageItems,
+    totalItemCount,
+    isLoading: isFetching,
+    variant: "compact",
+    selectionState: useSelectionState({
+      items: currentPageItems,
+      isEqual: (a, b) => a.name === b.name,
+    }),
+  });
+
+  const {
+    numRenderedColumns,
+    propHelpers: {
+      toolbarProps,
+      filterToolbarProps,
+      paginationToolbarItemProps,
+      paginationProps,
+      tableProps,
+      getThProps,
+      getTrProps,
+      getTdProps,
+    },
+  } = tableControls;
+
+  const clearFilters = () => {
+    const currentPath = history.location.pathname;
+    const newSearch = new URLSearchParams(history.location.search);
+    newSearch.delete("filters");
+    history.push(`${currentPath}`);
+  };
+  return (
+    <>
+      <Toolbar
+        {...toolbarProps}
+        className={spacing.mtSm}
+        clearAllFilters={clearFilters}
+      >
+        <ToolbarContent>
+          <FilterToolbar {...filterToolbarProps} />
+          <ToolbarItem {...paginationToolbarItemProps}>
+            <SimplePagination
+              idPrefix="task-apps-table"
+              isTop
+              isCompact
+              paginationProps={paginationProps}
+            />
+          </ToolbarItem>
+        </ToolbarContent>
+      </Toolbar>
+      <Table {...tableProps} aria-label="task applications table">
+        <Thead>
+          <Tr>
+            <TableHeaderContentWithControls {...tableControls}>
+              <Th {...getThProps({ columnKey: "taskId" })} />
+              <Th
+                {...getThProps({ columnKey: "taskKind" })}
+                modifier="nowrap"
+              />
+              <Th {...getThProps({ columnKey: "status" })} modifier="nowrap" />
+            </TableHeaderContentWithControls>
+          </Tr>
+        </Thead>
+
+        <ConditionalTableBody
+          isLoading={isFetching}
+          isError={!!fetchError}
+          isNoData={totalItemCount === 0}
+          numRenderedColumns={numRenderedColumns}
+        >
+          <Tbody>
+            {currentPageItems?.map((task, rowIndex) => (
+              <Tr key={task.id} {...getTrProps({ item: task })}>
+                <TableRowContentWithControls
+                  {...tableControls}
+                  item={task}
+                  rowIndex={rowIndex}
+                >
+                  <Td {...getTdProps({ columnKey: "taskId" })}>{task.id}</Td>
+                  <Td {...getTdProps({ columnKey: "taskKind" })}>
+                    {task.kind}
+                  </Td>
+                  <Td {...getTdProps({ columnKey: "status" })}>
+                    <IconWithLabel
+                      icon={<TaskStateIcon state={task.state} />}
+                      label={
+                        <Link
+                          to={formatPath(Paths.applicationsTaskDetails, {
+                            applicationId: application.id,
+                            taskId: task.id,
+                          })}
+                        >
+                          {t(taskStateToLabel[task.state ?? "No task"])}
+                        </Link>
+                      }
+                    />
+                  </Td>
+                  <Td
+                    key={`row-actions-${task.id}`}
+                    isActionCell
+                    id={`row-actions-${task.id}`}
+                  >
+                    <TaskActionColumn task={task} />
+                  </Td>
+                </TableRowContentWithControls>
+              </Tr>
+            ))}
+          </Tbody>
+        </ConditionalTableBody>
+      </Table>
+      <SimplePagination
+        idPrefix="task-apps-table"
+        isTop={false}
+        isCompact
+        paginationProps={paginationProps}
+      />
     </>
   );
 };

@@ -93,12 +93,23 @@ export const useTaskActions = (task: Task) => {
     },
     {
       title: t("actions.taskDetails"),
-      onClick: () =>
-        history.push(
-          formatPath(Paths.taskDetails, {
-            taskId: task.id,
-          })
-        ),
+      onClick: () => {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes("application")) {
+          history.push(
+            formatPath(Paths.applicationsTaskDetails, {
+              applicationId: task.application?.id,
+              taskId: task?.id,
+            })
+          );
+        } else {
+          history.push(
+            formatPath(Paths.taskDetails, {
+              taskId: task?.id,
+            })
+          );
+        }
+      },
     },
   ];
 };
