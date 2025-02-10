@@ -358,6 +358,20 @@ export function getTaskByIdAndFormat(
     });
 }
 
+export function getTasksByIds(ids: number[]): Promise<Task[]> {
+  const filterParam = `id:(${ids.join("|")})`;
+
+  return axios
+    .get<Task[]>(`${TASKS}`, {
+      params: {
+        filter: filterParam,
+      },
+    })
+    .then((response) => {
+      return response.data;
+    });
+}
+
 export const getTasksDashboard = () =>
   axios
     .get<TaskDashboard[]>(`${TASKS}/report/dashboard`)
