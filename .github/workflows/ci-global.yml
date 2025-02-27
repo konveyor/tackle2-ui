@@ -60,4 +60,4 @@ jobs:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
-      ui_test_tags: "@tier0"
+      ui_test_tags: "@ci"
