@@ -163,6 +163,7 @@ const TaskItem: React.FC<{
     : `${task.id} (${task.addon}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
+
   const taskActionItems = useTaskActions(task._);
 
   return (
@@ -189,7 +190,9 @@ const TaskItem: React.FC<{
             <MenuToggle
               ref={toggleRef}
               isExpanded={actionsExpanded}
-              isDisabled={taskActionItems.every(({ isDisabled }) => isDisabled)}
+              isDisabled={taskActionItems.every(
+                ({ isAriaDisabled }) => isAriaDisabled
+              )}
               onClick={() => onActionsExpandToggle(!actionsExpanded)}
               variant="plain"
               aria-label={`Actions for task ${task.name}`}
@@ -199,11 +202,11 @@ const TaskItem: React.FC<{
           )}
         >
           <DropdownList>
-            {taskActionItems.map(({ title, onClick, isDisabled }) => (
+            {taskActionItems.map(({ title, onClick, isAriaDisabled }) => (
               <DropdownItem
                 key={title}
                 onClick={onClick}
-                isDisabled={isDisabled}
+                isDisabled={isAriaDisabled}
               >
                 {title}
               </DropdownItem>

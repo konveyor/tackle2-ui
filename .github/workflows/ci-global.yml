@@ -39,24 +39,25 @@ concurrency:
 jobs:
   build-and-upload-for-global-ci:
     runs-on: ubuntu-latest
+    outputs:
+      IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: save tackle2-ui image
+      - id: container
+        name: build the tackle2-ui container
+        env:
+          IMG_NAME: ttl.sh/tackle2-ui-${{ github.sha }}:2h
         run: |
-          docker build . -t quay.io/konveyor/tackle2-ui:latest
-          docker save -o /tmp/tackle2-ui.tar quay.io/konveyor/tackle2-ui:latest
-
-      - name: Upload tackle2-ui image as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: tackle2-ui
-          path: /tmp/tackle2-ui.tar
-          retention-days: 1
+          echo "IMG_NAME=${IMG_NAME}" >> "$GITHUB_OUTPUT"
+          docker build . -t ${IMG_NAME}
+          docker push ${IMG_NAME}
 
   run-global-ci:
     needs: build-and-upload-for-global-ci
-    uses: konveyor/ci/.github/workflows/global-ci.yml@main
+    uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
-      component_name: tackle2-ui
+      tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
+      run_ui_tests: true
+      ui_test_tags: "@ci"

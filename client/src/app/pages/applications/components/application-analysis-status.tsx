@@ -1,13 +1,16 @@
 import React from "react";
 
 import { TaskState } from "@app/api/models";
-import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
-
+import {
+  buildPresetLabels,
+  IconedStatus,
+  IconedStatusPreset,
+} from "@app/components/Icons";
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
 
-const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
+export const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
   ["not supported", "Canceled"],
   ["Canceled", "Canceled"],
   ["Created", "Scheduled"],
@@ -33,4 +36,14 @@ export const ApplicationAnalysisStatus: React.FC<
   ApplicationAnalysisStatusProps
 > = ({ state }) => {
   return <IconedStatus preset={getTaskStatus(state)} />;
+};
+
+export const mapAnalysisStateToLabel = (
+  state: TaskState,
+  t: (key: string) => string
+) => {
+  const presetKey: IconedStatusPreset = getTaskStatus(state);
+  const presets = buildPresetLabels(t);
+  const label = presets[presetKey]?.label ?? presets.Unknown.label;
+  return label;
 };

@@ -43,7 +43,6 @@ import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
 import { TagForm } from "./components/tag-form";
 import { TagCategoryForm } from "./components/tag-category-form";
 import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { Color } from "@app/components/Color";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -57,6 +56,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
 import { TagTable } from "./components/tag-table";
+import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
@@ -385,9 +385,9 @@ export const Tags: React.FC = () => {
                         >
                           {tagCategory.tags?.length || 0}
                         </Td>
-                        <AppTableActionButtons
+                        <ControlTableActionButtons
                           isDeleteEnabled={!!tagCategory.tags?.length}
-                          tooltipMessage={t(
+                          deleteTooltipMessage={t(
                             "message.cannotDeleteNonEmptyTagCategory"
                           )}
                           onEdit={() => setTagCategoryModalState(tagCategory)}
