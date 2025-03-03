@@ -16,6 +16,9 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  FormSelect,
+  FormSelectOption,
+  TextContent,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -75,7 +78,11 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
+import {
+  getArchetypeById,
+  getAssessmentsByItemId,
+  getTasksByIds,
+} from "@app/api/rest";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -117,6 +124,7 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
+import yaml from "js-yaml";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -152,7 +160,12 @@ export const ApplicationsTable: React.FC = () => {
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
+
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const [selectedFormat, setSelectedFormat] = useState<string>("json");
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
     null
@@ -175,6 +188,18 @@ export const ApplicationsTable: React.FC = () => {
   const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
     dayjs()
   );
+
+  const onChange = (
+    _event: React.FormEvent<HTMLSelectElement>,
+    value: string
+  ) => {
+    setSelectedFormat(value);
+  };
+  const formats = [
+    { value: "select one", label: "Select one", disabled: true },
+    { value: "json", label: "JSON", disabled: false },
+    { value: "yaml", label: "YAML", disabled: false },
+  ];
 
   const [
     saveApplicationsCredentialsModalState,
@@ -201,6 +226,42 @@ export const ApplicationsTable: React.FC = () => {
       message: "Canceled",
       variant: "info",
     });
+  };
+
+  const handleDownload = async () => {
+    const ids = selectedRows
+      .map((row) => row.tasks.currentAnalyzer?.id)
+      .filter((id): id is number => typeof id === "number");
+
+    try {
+      const tasks = await getTasksByIds(ids);
+      const data =
+        selectedFormat === "yaml"
+          ? yaml.dump(tasks, { indent: 2 })
+          : JSON.stringify(tasks, null, 2);
+
+      const blob = new Blob([data], {
+        type:
+          selectedFormat === "json" ? "application/json" : "application/x-yaml",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `logs - ${ids}.${selectedFormat}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+
+      setIsDownloadModalOpen(false);
+    } catch (error) {
+      setIsDownloadModalOpen(false);
+      console.error("Error fetching tasks:", error);
+      pushNotification({
+        title: "download failed",
+        variant: "danger",
+      });
+    }
   };
 
   const failedCancelTask = () => {
@@ -634,23 +695,20 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
-        ...(tasksReadAccess && tasksWriteAccess
-          ? [
-              <DropdownItem
-                key="applications-bulk-cancel"
-                isDisabled={
-                  !selectedRows.some((application: DecoratedApplication) =>
-                    isTaskCancellable(application)
-                  )
-                }
-                onClick={() => {
-                  handleCancelBulkAnalysis();
-                }}
-              >
-                {t("actions.cancelAnalysis")}
-              </DropdownItem>,
-            ]
-          : []),
+        <DropdownItem
+          key="analysis-bulk-download"
+          isDisabled={
+            !selectedRows.some(
+              (application: DecoratedApplication) =>
+                application.tasks.currentAnalyzer?.id !== undefined
+            )
+          }
+          onClick={() => {
+            setIsDownloadModalOpen(true);
+          }}
+        >
+          {t("actions.download", { what: "analysis details" })}
+        </DropdownItem>,
         ...(credentialsReadAccess
           ? [
               <DropdownItem
@@ -1413,6 +1471,41 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </div>
+      <Modal
+        variant="small"
+        title={t("actions.download", { what: "analysis details" })}
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={handleDownload}>
+            Download
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => setIsDownloadModalOpen(false)}
+          >
+            Cancel
+          </Button>,
+        ]}
+      >
+        <TextContent>{"Select format"}</TextContent>
+        <FormSelect
+          value={selectedFormat}
+          onChange={onChange}
+          aria-label="FormSelect Input"
+          ouiaId="BasicFormSelect"
+        >
+          {formats.map((option, index) => (
+            <FormSelectOption
+              isDisabled={option.disabled}
+              key={index}
+              value={option.value}
+              label={option.label}
+            />
+          ))}
+        </FormSelect>
+      </Modal>
     </ConditionalRender>
   );
 };
