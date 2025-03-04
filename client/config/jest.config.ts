@@ -46,6 +46,9 @@ const config: JestConfigWithTsJest = {
   transform: {
     "^.+\\.(js|mjs|ts|mts)x?$": "ts-jest",
   },
+  transformIgnorePatterns: [
+    "node_modules/(?!(keycloak-js)/)", // Ensure Jest processes keycloak-js
+  ],
 
   // Code to set up the testing framework before each test file in the suite is executed
   setupFilesAfterEnv: ["<rootDir>/src/app/test-config/setupTests.ts"],

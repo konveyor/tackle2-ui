@@ -7,6 +7,7 @@ import {
 
 import {
   cancelTask,
+  cancelTasks,
   deleteTask,
   getServerTasks,
   getTaskById,
@@ -182,6 +183,23 @@ export const useCancelTaskMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTask,
+    onSuccess: (response) => {
+      queryClient.invalidateQueries([TasksQueryKey]);
+      onSuccess && onSuccess(response.status);
+    },
+    onError: (err: Error) => {
+      onError && onError(err);
+    },
+  });
+};
+
+export const useCancelTasksMutation = (
+  onSuccess: (statusCode: number) => void,
+  onError: (err: Error | null) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: cancelTasks,
     onSuccess: (response) => {
       queryClient.invalidateQueries([TasksQueryKey]);
       onSuccess && onSuccess(response.status);

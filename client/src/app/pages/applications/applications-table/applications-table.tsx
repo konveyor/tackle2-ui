@@ -16,6 +16,7 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  OverflowMenu,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -48,7 +49,11 @@ import {
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+import {
+  formatPath,
+  getAxiosErrorMessage,
+  universalComparator,
+} from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import keycloak from "@app/keycloak";
 import {
@@ -72,7 +77,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
 import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
-import { Assessment, Ref } from "@app/api/models";
+import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -80,6 +85,7 @@ import {
 import {
   TaskStates,
   useCancelTaskMutation,
+  useCancelTasksMutation,
   useFetchTaskDashboard,
 } from "@app/queries/tasks";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
@@ -88,7 +94,10 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { ApplicationAnalysisStatus } from "../components/application-analysis-status";
+import {
+  ApplicationAnalysisStatus,
+  mapAnalysisStateToLabel,
+} from "../components/application-analysis-status";
 import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
@@ -202,15 +211,42 @@ export const ApplicationsTable: React.FC = () => {
       variant: "danger",
     });
   };
+  const completedCancelTasks = () => {
+    pushNotification({
+      title: "Tasks",
+      message: "Canceled",
+      variant: "info",
+    });
+  };
+  const failedCancelTasks = () => {
+    pushNotification({
+      title: "Tasks",
+      message: "Cancelation failed.",
+      variant: "danger",
+    });
+  };
 
   const { mutate: cancelTask } = useCancelTaskMutation(
     completedCancelTask,
     failedCancelTask
   );
+  const { mutate: cancelTasks } = useCancelTasksMutation(
+    completedCancelTasks,
+    failedCancelTasks
+  );
 
-  const cancelAnalysis = (application: DecoratedApplication) => {
-    const task = application.tasks.currentAnalyzer;
-    if (task?.id) cancelTask(task.id);
+  const cancelAnalysis = (
+    application: DecoratedApplication | DecoratedApplication[]
+  ) => {
+    if (!Array.isArray(application)) {
+      const task = application.tasks.currentAnalyzer;
+      if (task?.id) cancelTask(task.id);
+    } else {
+      const tasks = application
+        .map((app) => app.tasks.currentAnalyzer?.id)
+        .filter((id): id is number => id !== undefined);
+      cancelTasks(tasks);
+    }
   };
 
   const isTaskCancellable = (application: DecoratedApplication) => {
@@ -334,7 +370,7 @@ export const ApplicationsTable: React.FC = () => {
       sort: "sessionStorage",
     },
     isLoading: isFetchingApplications,
-    sortableColumns: ["name", "businessService", "tags", "effort"],
+    sortableColumns: ["name", "businessService", "tags", "effort", "analysis"],
     initialSort: { columnKey: "name", direction: "asc" },
     initialColumns: {
       name: { isIdentity: true },
@@ -344,6 +380,10 @@ export const ApplicationsTable: React.FC = () => {
       businessService: app.businessService?.name || "",
       tags: app.tags?.length || 0,
       effort: app.effort || 0,
+      analysis: mapAnalysisStateToLabel(
+        (app.tasks.currentAnalyzer?.state as TaskState) || "No task",
+        t
+      ),
     }),
     filterCategories: [
       {
@@ -498,7 +538,28 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
+
+      {
+        categoryKey: "analysis",
+        title: t("terms.analysis"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.analysis").toLowerCase(),
+          }) + "...",
+
+        selectOptions: applications
+          .map((a) => {
+            const value = a.tasks.currentAnalyzer?.state || "No task";
+            const label = mapAnalysisStateToLabel(value as TaskState, t);
+            return { value, label };
+          })
+          .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i)
+          .sort((a, b) => universalComparator(a.label, b.label)),
+        getItemValue: (item) => item.tasks.currentAnalyzer?.state || "No task",
+      },
     ],
+
     initialItemsPerPage: 10,
     hasActionsColumn: true,
     isSelectionEnabled: true,
@@ -977,89 +1038,88 @@ export const ApplicationsTable: React.FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-
-                    <Td isActionCell id="pencil-action">
-                      {applicationWriteAccess && (
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={[
-                          assessmentWriteAccess && {
-                            title: t("actions.assess"),
-                            onClick: () => assessSelectedApp(application),
-                          },
-                          assessmentWriteAccess &&
-                            (application.assessments?.length ?? 0) > 0 && {
-                              title: t("actions.discardAssessment"),
-                              onClick: () =>
-                                setAssessmentToDiscard(application),
+                    <Td isActionCell id="actions">
+                      <OverflowMenu breakpoint="sm">
+                        {applicationWriteAccess && (
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
+                        )}
+                        <ActionsColumn
+                          items={[
+                            assessmentWriteAccess && {
+                              title: t("actions.assess"),
+                              onClick: () => assessSelectedApp(application),
                             },
-                          reviewsWriteAccess && {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
-                          reviewsWriteAccess &&
-                            application?.review && {
-                              title: t("actions.discardReview"),
-                              onClick: () => setReviewToDiscard(application),
-                            },
-                          dependenciesWriteAccess && {
-                            title: t("actions.manageDependencies"),
-                            onClick: () =>
-                              setApplicationDependenciesToManage(application),
-                          },
-                          credentialsReadAccess &&
-                            applicationWriteAccess && {
-                              title: t("actions.manageCredentials"),
-                              onClick: () =>
-                                setSaveApplicationsCredentialsModalState([
-                                  application,
-                                ]),
-                            },
-                          analysesReadAccess &&
-                            !!application.tasks.currentAnalyzer && {
-                              title: t("actions.analysisDetails"),
-                              onClick: () => {
-                                const taskId =
-                                  application.tasks.currentAnalyzer?.id;
-                                if (taskId && application.id) {
-                                  history.push(
-                                    formatPath(
-                                      Paths.applicationsAnalysisDetails,
-                                      {
-                                        applicationId: application.id,
-                                        taskId,
-                                      }
-                                    )
-                                  );
-                                }
+                            assessmentWriteAccess &&
+                              (application.assessments?.length ?? 0) > 0 && {
+                                title: t("actions.discardAssessment"),
+                                onClick: () =>
+                                  setAssessmentToDiscard(application),
                               },
+                            reviewsWriteAccess && {
+                              title: t("actions.review"),
+                              onClick: () => reviewSelectedApp(application),
                             },
-                          tasksReadAccess &&
-                            tasksWriteAccess &&
-                            isTaskCancellable(application) && {
-                              title: t("actions.cancelAnalysis"),
-                              onClick: () => cancelAnalysis(application),
+                            reviewsWriteAccess &&
+                              application?.review && {
+                                title: t("actions.discardReview"),
+                                onClick: () => setReviewToDiscard(application),
+                              },
+                            dependenciesWriteAccess && {
+                              title: t("actions.manageDependencies"),
+                              onClick: () =>
+                                setApplicationDependenciesToManage(application),
                             },
-                          applicationWriteAccess && { isSeparator: true },
-                          applicationWriteAccess && {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              setApplicationsToDelete([application]),
-                            isDanger: true,
-                          },
-                        ].filter(Boolean)}
-                      />
+                            credentialsReadAccess &&
+                              applicationWriteAccess && {
+                                title: t("actions.manageCredentials"),
+                                onClick: () =>
+                                  setSaveApplicationsCredentialsModalState([
+                                    application,
+                                  ]),
+                              },
+                            analysesReadAccess &&
+                              !!application.tasks.currentAnalyzer && {
+                                title: t("actions.analysisDetails"),
+                                onClick: () => {
+                                  const taskId =
+                                    application.tasks.currentAnalyzer?.id;
+                                  if (taskId && application.id) {
+                                    history.push(
+                                      formatPath(
+                                        Paths.applicationsAnalysisDetails,
+                                        {
+                                          applicationId: application.id,
+                                          taskId,
+                                        }
+                                      )
+                                    );
+                                  }
+                                },
+                              },
+                            tasksReadAccess &&
+                              tasksWriteAccess &&
+                              isTaskCancellable(application) && {
+                                title: t("actions.cancelAnalysis"),
+                                onClick: () => cancelAnalysis(application),
+                              },
+                            applicationWriteAccess && { isSeparator: true },
+                            applicationWriteAccess && {
+                              title: t("actions.delete"),
+                              onClick: () =>
+                                setApplicationsToDelete([application]),
+                              isDanger: true,
+                            },
+                          ].filter(Boolean)}
+                        />
+                      </OverflowMenu>
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
@@ -1196,9 +1256,7 @@ export const ApplicationsTable: React.FC = () => {
           onCancel={() => setTasksToCancel([])}
           onClose={() => setTasksToCancel([])}
           onConfirm={() => {
-            tasksToCancel.forEach((application) => {
-              cancelAnalysis(application);
-            });
+            cancelAnalysis(tasksToCancel);
             setTasksToCancel([]);
           }}
         />

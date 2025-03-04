@@ -240,7 +240,9 @@
     "updateFailed": "Update failed.",
     "updateRequestSubmitted": "Update request submitted.",
     "cancelationFailed": "Cancelation failed.",
-    "cancelationRequestSubmitted": "Cancelation request submitted"
+    "cancelationRequestSubmitted": "Cancelation request submitted",
+    "cancelNotAvailable": "It is not possible to cancel a task that is in status {{statusName}}",
+    "togglePreemptionNotAvailable": "It is not possible to toggle preemption for a task that is in status {{statusName}}"
   },
   "proposedActions": {
     "refactor": "Refactor",
@@ -503,7 +505,8 @@
     "user": "User",
     "version": "Version",
     "workPriority": "Work priority",
-    "YAMLTemplate": "YAML template"
+    "YAMLTemplate": "YAML template",
+    "ok": "OK"
   },
   "titles": {
     "archetypeDrawer": "Archetype details",
