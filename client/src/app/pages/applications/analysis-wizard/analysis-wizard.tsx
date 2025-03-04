@@ -51,6 +51,31 @@ interface IAnalysisWizard {
   isOpen: boolean;
 }
 
+const determineMode = (
+  applications: Application[]
+):
+  | "binary"
+  | "source-code-deps"
+  | "source-code"
+  | "binary-upload"
+  | undefined => {
+  if (applications.length === 0) return undefined;
+
+  const modes = Array.from(
+    new Set(
+      applications.map((app) => {
+        const { repository, binary } = app;
+        return repository || (repository && binary)
+          ? "source-code-deps"
+          : binary && binary !== ""
+          ? "binary"
+          : undefined;
+      })
+    )
+  );
+  return modes.length === 1 ? modes[0] : undefined;
+};
+
 const defaultTaskData: TaskData = {
   tagger: {
     enabled: true,
@@ -163,7 +188,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const methods = useForm<AnalysisWizardFormValues>({
     defaultValues: {
       artifact: null,
-      mode: "source-code-deps",
+      mode: determineMode(applications) ?? "source-code-deps",
       formLabels: [],
       selectedTargets: [],
       // defaults will be passed as initialFilterValues to the table hook

@@ -79,5 +79,8 @@
     "webpack-dev-server": {
       "express": "$express"
     }
+  },
+  "dependencies": {
+    "axios": "^0.21.2"
   }
 }
