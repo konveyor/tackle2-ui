@@ -16,6 +16,7 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  OverflowMenu,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -1045,89 +1046,88 @@ export const ApplicationsTable: React.FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-
-                    <Td isActionCell id="pencil-action">
-                      {applicationWriteAccess && (
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={[
-                          assessmentWriteAccess && {
-                            title: t("actions.assess"),
-                            onClick: () => assessSelectedApp(application),
-                          },
-                          assessmentWriteAccess &&
-                            (application.assessments?.length ?? 0) > 0 && {
-                              title: t("actions.discardAssessment"),
-                              onClick: () =>
-                                setAssessmentToDiscard(application),
+                    <Td isActionCell id="actions">
+                      <OverflowMenu breakpoint="sm">
+                        {applicationWriteAccess && (
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
+                        )}
+                        <ActionsColumn
+                          items={[
+                            assessmentWriteAccess && {
+                              title: t("actions.assess"),
+                              onClick: () => assessSelectedApp(application),
                             },
-                          reviewsWriteAccess && {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
-                          reviewsWriteAccess &&
-                            application?.review && {
-                              title: t("actions.discardReview"),
-                              onClick: () => setReviewToDiscard(application),
-                            },
-                          dependenciesWriteAccess && {
-                            title: t("actions.manageDependencies"),
-                            onClick: () =>
-                              setApplicationDependenciesToManage(application),
-                          },
-                          credentialsReadAccess &&
-                            applicationWriteAccess && {
-                              title: t("actions.manageCredentials"),
-                              onClick: () =>
-                                setSaveApplicationsCredentialsModalState([
-                                  application,
-                                ]),
-                            },
-                          analysesReadAccess &&
-                            !!application.tasks.currentAnalyzer && {
-                              title: t("actions.analysisDetails"),
-                              onClick: () => {
-                                const taskId =
-                                  application.tasks.currentAnalyzer?.id;
-                                if (taskId && application.id) {
-                                  history.push(
-                                    formatPath(
-                                      Paths.applicationsAnalysisDetails,
-                                      {
-                                        applicationId: application.id,
-                                        taskId,
-                                      }
-                                    )
-                                  );
-                                }
+                            assessmentWriteAccess &&
+                              (application.assessments?.length ?? 0) > 0 && {
+                                title: t("actions.discardAssessment"),
+                                onClick: () =>
+                                  setAssessmentToDiscard(application),
                               },
+                            reviewsWriteAccess && {
+                              title: t("actions.review"),
+                              onClick: () => reviewSelectedApp(application),
                             },
-                          tasksReadAccess &&
-                            tasksWriteAccess &&
-                            isTaskCancellable(application) && {
-                              title: t("actions.cancelAnalysis"),
-                              onClick: () => cancelAnalysis(application),
+                            reviewsWriteAccess &&
+                              application?.review && {
+                                title: t("actions.discardReview"),
+                                onClick: () => setReviewToDiscard(application),
+                              },
+                            dependenciesWriteAccess && {
+                              title: t("actions.manageDependencies"),
+                              onClick: () =>
+                                setApplicationDependenciesToManage(application),
                             },
-                          applicationWriteAccess && { isSeparator: true },
-                          applicationWriteAccess && {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              setApplicationsToDelete([application]),
-                            isDanger: true,
-                          },
-                        ].filter(Boolean)}
-                      />
+                            credentialsReadAccess &&
+                              applicationWriteAccess && {
+                                title: t("actions.manageCredentials"),
+                                onClick: () =>
+                                  setSaveApplicationsCredentialsModalState([
+                                    application,
+                                  ]),
+                              },
+                            analysesReadAccess &&
+                              !!application.tasks.currentAnalyzer && {
+                                title: t("actions.analysisDetails"),
+                                onClick: () => {
+                                  const taskId =
+                                    application.tasks.currentAnalyzer?.id;
+                                  if (taskId && application.id) {
+                                    history.push(
+                                      formatPath(
+                                        Paths.applicationsAnalysisDetails,
+                                        {
+                                          applicationId: application.id,
+                                          taskId,
+                                        }
+                                      )
+                                    );
+                                  }
+                                },
+                              },
+                            tasksReadAccess &&
+                              tasksWriteAccess &&
+                              isTaskCancellable(application) && {
+                                title: t("actions.cancelAnalysis"),
+                                onClick: () => cancelAnalysis(application),
+                              },
+                            applicationWriteAccess && { isSeparator: true },
+                            applicationWriteAccess && {
+                              title: t("actions.delete"),
+                              onClick: () =>
+                                setApplicationsToDelete([application]),
+                              isDanger: true,
+                            },
+                          ].filter(Boolean)}
+                        />
+                      </OverflowMenu>
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
