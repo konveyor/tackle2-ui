@@ -20,8 +20,10 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
+  ActionsColumn,
   ExpandableRowContent,
   Table,
   Tbody,
@@ -62,7 +64,6 @@ import { WaveStatusTable } from "./components/wave-status-table";
 import { WaveForm } from "./components/migration-wave-form";
 import { ManageApplicationsForm } from "./components/manage-applications-form";
 import { deleteMigrationWave } from "@app/api/rest";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
@@ -70,6 +71,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { toRefs } from "@app/utils/model-utils";
 import { useFetchTickets } from "@app/queries/tickets";
 import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
+import { PencilAltIcon } from "@patternfly/react-icons";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -84,9 +86,6 @@ export const MigrationWaves: React.FC = () => {
 
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
-  const [isRowDropdownOpen, setIsRowDropdownOpen] = React.useState<
-    number | null
-  >(null);
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -455,102 +454,79 @@ export const MigrationWaves: React.FC = () => {
                             ? migrationWave.status
                             : "--"}
                         </Td>
-                        <Td isActionCell id="row-actions">
-                          <Dropdown
-                            isOpen={isRowDropdownOpen === migrationWave.id}
-                            onSelect={() => setIsRowDropdownOpen(null)}
-                            onOpenChange={(_isOpen) =>
-                              setIsRowDropdownOpen(null)
-                            }
-                            popperProps={{ position: "right" }}
-                            toggle={(
-                              toggleRef: React.Ref<MenuToggleElement>
-                            ) => (
-                              <MenuToggle
-                                ref={toggleRef}
-                                aria-label="row actions dropdown toggle"
-                                variant="plain"
-                                onClick={() => {
-                                  isRowDropdownOpen
-                                    ? setIsRowDropdownOpen(null)
-                                    : setIsRowDropdownOpen(migrationWave.id);
-                                }}
-                                isExpanded={isRowDropdownOpen === rowIndex}
-                              >
-                                <EllipsisVIcon />
-                              </MenuToggle>
-                            )}
-                            shouldFocusToggleOnSelect
-                          >
-                            <DropdownItem
-                              key="edit"
-                              component="button"
+                        <Td isActionCell id="pencil-action">
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
                               onClick={() => setWaveModalState(migrationWave)}
-                            >
-                              {t("actions.edit")}
-                            </DropdownItem>
-                            <ConditionalTooltip
-                              key="manage-app"
-                              isTooltipEnabled={applications.length === 0}
-                              content={
-                                "No applications are available for assignment."
-                              }
-                            >
-                              <DropdownItem
-                                key="manage-app"
-                                isAriaDisabled={applications.length === 0}
-                                onClick={() => {
-                                  setWaveToManageModalState(migrationWave);
-                                }}
-                              >
-                                {t("composed.manage", {
+                            />
+                          </Tooltip>
+                        </Td>
+                        <Td isActionCell id="row-actions">
+                          <ActionsColumn
+                            items={[
+                              {
+                                isAriaDisabled:
+                                  migrationWave.applications?.length < 1,
+                                tooltipProps: {
+                                  content:
+                                    migrationWave.applications?.length < 1
+                                      ? "No applications are available for assignment."
+                                      : "",
+                                },
+                                title: t("composed.manage", {
                                   what: t("terms.applications").toLowerCase(),
-                                })}
-                              </DropdownItem>
-                            </ConditionalTooltip>
-                            <ConditionalTooltip
-                              key="export-to-issue-manager"
-                              isTooltipEnabled={
-                                migrationWave.applications?.length < 1 ||
-                                !hasExportableApplications(
-                                  tickets,
-                                  migrationWave?.applications
-                                )
-                              }
-                              content={
-                                "No applications are available for export."
-                              }
-                            >
-                              <DropdownItem
-                                key="export-to-issue-manager"
-                                isAriaDisabled={
+                                }),
+                                onClick: () => {
+                                  {
+                                    setWaveToManageModalState(migrationWave);
+                                  }
+                                },
+                              },
+                              {
+                                isAriaDisabled:
                                   migrationWave.applications?.length < 1 ||
                                   !hasExportableApplications(
                                     tickets,
                                     migrationWave?.applications
-                                  )
-                                }
-                                onClick={() =>
-                                  setApplicationsToExport(
-                                    migrationWave.fullApplications
-                                  )
-                                }
-                              >
-                                {t("terms.exportToIssue")}
-                              </DropdownItem>
-                            </ConditionalTooltip>
-                            <DropdownItem
-                              key="delete"
-                              onClick={() =>
-                                setMigrationWaveToDelete({
-                                  id: migrationWave.id,
-                                  name: migrationWave.name,
-                                })
-                              }
-                            >
-                              {t("actions.delete")}
-                            </DropdownItem>
-                          </Dropdown>
+                                  ),
+                                tooltipProps: {
+                                  content:
+                                    migrationWave.applications?.length < 1 ||
+                                    !hasExportableApplications(
+                                      tickets,
+                                      migrationWave?.applications
+                                    )
+                                      ? "No applications are available for export."
+                                      : "",
+                                },
+                                title: t("terms.exportToIssue"),
+                                onClick: () => {
+                                  if (
+                                    hasExportableApplications(
+                                      tickets,
+                                      migrationWave?.applications
+                                    )
+                                  ) {
+                                    setApplicationsToExport(
+                                      migrationWave.fullApplications
+                                    );
+                                  }
+                                },
+                              },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => {
+                                  setMigrationWaveToDelete({
+                                    id: migrationWave.id,
+                                    name: migrationWave.name,
+                                  });
+                                },
+                                isDanger: true,
+                              },
+                            ]}
+                          />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
