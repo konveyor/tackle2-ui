@@ -30,6 +30,7 @@ import {
 import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];
@@ -182,6 +183,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
+      toolbarBulkExpanderProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
@@ -233,6 +235,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       </TextContent>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
+          <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
           <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>

@@ -34,16 +34,18 @@ export const useLocalTableControls = <
   const state = useTableControlState(args);
   const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
   const { columnState } = state;
+  const selectionState = useSelectionState({
+    items: args.items,
+    isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
+  });
+
   return useTableControlProps({
     ...args,
     ...state,
     ...derivedState,
-    // TODO we won't need this here once selection state is part of useTableControlState
-    selectionState: useSelectionState({
-      ...args,
-      isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
-    }),
-    idProperty: args.idProperty,
     ...columnState,
+    // TODO: Selection state could be refactored to be part of useTableControlState()
+    selectionState,
+    idProperty: args.idProperty,
   });
 };

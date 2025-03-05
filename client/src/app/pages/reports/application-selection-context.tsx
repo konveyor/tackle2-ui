@@ -15,11 +15,10 @@ const defaultState: IApplicationSelectionContext = {
   areAllSelected: false,
   selectedItems: [],
   isItemSelected: () => false,
-  isItemSelectable: () => true,
   selectAll: () => {},
-  selectMultiple: () => {},
-  setSelectedItems: () => {},
-  toggleItemSelected: () => {},
+  selectOnly: () => {},
+  selectItems: () => {},
+  selectItem: () => {},
 };
 
 export const ApplicationSelectionContext =

@@ -46,6 +46,7 @@ import { IFilterToolbarProps } from "@app/components/FilterToolbar";
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
 import { IColumnState } from "./column/useColumnState";
+import { ITToolbarBulkExpanderProps } from "@app/components/ToolbarBulkExpander";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -304,7 +305,6 @@ export type IUseTableControlPropsArgs<
   IFilterPropHelpersExternalArgs<TItem, TFilterCategoryKey> &
   ISortPropHelpersExternalArgs<TColumnKey, TSortableColumnKey> &
   IPaginationPropHelpersExternalArgs &
-  // ISelectionPropHelpersExternalArgs // TODO when we move selection from lib-ui
   IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
   IActiveItemPropHelpersExternalArgs<TItem> &
   ITableControlDerivedState<TItem> & {
@@ -445,7 +445,11 @@ export type ITableControls<
     /**
      * Props for the ToolbarBulkSelector component.
      */
-    toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem>;
+    toolbarBulkSelectorProps: IToolbarBulkSelectorProps;
+    /**
+     * Props for the ToolbarBulkExpander component.
+     */
+    toolbarBulkExpanderProps: ITToolbarBulkExpanderProps;
     /**
      * Returns props for the Td component used as the checkbox cell for each row when using the selection feature.
      */
@@ -516,4 +520,4 @@ export type IUseLocalTableControlsArgs<
       >
     | "selectionState" // TODO this won't be included here when selection is part of useTableControlState
   > &
-  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO this won't be included here when selection is part of useTableControlState
+  Pick<ISelectionStateArgs<TItem>, "initialSelected">; // TODO this won't be included here when selection is part of useTableControlState

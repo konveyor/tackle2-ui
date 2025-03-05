@@ -27,7 +27,7 @@ describe("useSelectionState", () => {
       })
     );
 
-    act(() => result.current.toggleItemSelected("A", true));
+    act(() => result.current.selectItem("A", true));
     expect(result.current.isItemSelected("A")).toBe(true);
   });
 
@@ -38,7 +38,7 @@ describe("useSelectionState", () => {
       })
     );
 
-    act(() => result.current.setSelectedItems(["A"]));
+    act(() => result.current.selectItems(["A"], true));
     expect(result.current.selectedItems).toEqual(["A"]);
   });
 
@@ -62,11 +62,10 @@ describe("useSelectionState", () => {
       useSelectionState<IFruit>({ items: fruits })
     );
     act(() =>
-      result.current.setSelectedItems([
-        { name: "Orange" },
-        { name: "Apple" },
-        { name: "Banana" },
-      ])
+      result.current.selectItems(
+        [{ name: "Orange" }, { name: "Apple" }, { name: "Banana" }],
+        true
+      )
     );
     expect(result.current.selectedItems).toEqual(fruits);
   });
@@ -89,7 +88,7 @@ describe("useSelectionState", () => {
         isEqual: (a, b) => a.name === b.name,
       })
     );
-    act(() => result.current.setSelectedItems([{ name: "Apple" }]));
+    act(() => result.current.selectItems([{ name: "Apple" }], true));
     expect(result.current.selectedItems).toEqual([{ name: "Apple" }]);
   });
 });

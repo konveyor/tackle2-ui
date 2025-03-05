@@ -70,6 +70,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { toRefs } from "@app/utils/model-utils";
 import { useFetchTickets } from "@app/queries/tickets";
 import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -240,6 +241,7 @@ export const MigrationWaves: React.FC = () => {
     selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
+      toolbarBulkExpanderProps,
       toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
@@ -275,6 +277,7 @@ export const MigrationWaves: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
+                <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
