@@ -1,9 +1,9 @@
-name: CI (global konveyor CI)
+name: CI (global konveyor CI) for release-0.6
 
 on:
   push:
     branches:
-      - "main"
+      - "release-0.6"
 
   pull_request:
     paths-ignore:
@@ -11,26 +11,9 @@ on:
       - "hack/**"
       - "*.md"
     branches:
-      - "main"
+      - "release-0.6"
 
   workflow_call:
-
-###
-# The global CI settings need to be adjusted for the `release-*`` branches such that:
-#  1. The operator uses the correct `:release-*` images
-#  2. The `*-tests_ref` use the correct branches
-#
-# on:
-#   push:
-#     branches:
-#       - 'main'
-#       - 'release-*'
-#
-#   pull_request:
-#     branches:
-#       - 'main'
-#       - 'release-*'
-##
 
 concurrency:
   group: ci-global-${{ github.ref }}
@@ -60,4 +43,5 @@ jobs:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
+      ui_tests_ref: "release-0.6"
       ui_test_tags: "@ci"
