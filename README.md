@@ -98,7 +98,7 @@ The React and Patternfly based UI is composed of web pages served by an http ser
   such as hot reload. The webpack-dev-server serves the UI on port **9000**. The `/auth` and `/hub`
   routes are forwarded to port **8080** for Express to handle.
 
-The Express [server/src/setupProxy.js](server/src/setupProxy.js) proxies use the environment
+The Express [common/src/proxies.ts](common/src/proxies.ts) proxies use the environment
 variables `TACKLE_HUB_URL` and `SSO_SERVER_URL` to define the backend endpoints:
 
 - If the Tackle Hub variable `TACKLE_HUB_URL` is not defined, the URL `http://localhost:9002` is
@@ -109,7 +109,7 @@ variables `TACKLE_HUB_URL` and `SSO_SERVER_URL` to define the backend endpoints:
 
 ### Running the UI outside the cluster
 
-To enable running the UI outside the cluster, port forwardings must be activated to route
+To enable running the UI outside the cluster, ports forwardings must be activated to route
 the Tackle Keycloak (SSO) and Tackle Hub requests to the services on the cluster. Use
 the script `npm run port-forward` to easily start the forwards. The script `npm run start:dev`
 will also setup port forwarding to all tackle2 services concurrently with starting the dev server.
