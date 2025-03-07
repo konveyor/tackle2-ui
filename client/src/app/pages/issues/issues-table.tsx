@@ -29,7 +29,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@app/hooks/useSelectionState";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";

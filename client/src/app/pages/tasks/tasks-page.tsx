@@ -40,7 +40,7 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@app/hooks/useSelectionState";
 import { useServerTasks } from "@app/queries/tasks";
 import { Task, TaskState } from "@app/api/models";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";

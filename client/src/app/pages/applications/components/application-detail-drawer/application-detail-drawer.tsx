@@ -78,9 +78,9 @@ import {
   getHubRequestParams,
   deserializeFilterUrlParams,
 } from "@app/hooks/table-controls";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@app/hooks/useSelectionState";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskActionColumn } from "../../../../pages/tasks/TaskActionColumn";
+import { TaskActionColumn } from "@app/pages/tasks/TaskActionColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
