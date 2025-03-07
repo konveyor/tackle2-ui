@@ -4,7 +4,7 @@ import {
   UseStorageTypeOptions,
   useLocalStorage,
   useSessionStorage,
-} from "@migtools/lib-ui";
+} from "@app/hooks/useStorage";
 import { DisallowCharacters } from "@app/utils/type-utils";
 
 type PersistToStateOptions = { persistTo?: "state" };
@@ -122,7 +122,7 @@ const usePersistenceProvider = <TValue>({
   deserialize,
   defaultValue,
 }: PersistToProvider<TValue>): [TValue, (val: TValue) => void] => {
-  // use default value if nulish value was deserialized
+  // use default value if nullish value was deserialized
   return [deserialize() ?? defaultValue, serialize];
 };
 

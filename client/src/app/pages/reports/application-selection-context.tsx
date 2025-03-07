@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useSelectionState, ISelectionState } from "@migtools/lib-ui";
+import {
+  useSelectionState,
+  ISelectionState,
+} from "@app/hooks/useSelectionState";
 import { Application } from "@app/api/models";
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {
