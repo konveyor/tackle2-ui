@@ -27,7 +27,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useSelectionState } from "@migtools/lib-ui";
+import { useSelectionState } from "@app/hooks/useSelectionState";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import { getParsedLabel } from "@app/utils/rules-utils";
