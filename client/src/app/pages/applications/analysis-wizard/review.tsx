@@ -42,7 +42,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
 
   const { watch } = useFormContext<AnalysisWizardFormValues>();
   const {
-    formLabels,
+    selectedTargetLabels,
     selectedSourceLabels,
     withKnownLibs,
     includedPackages,
@@ -83,13 +83,11 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {formLabels.length > 1
-              ? t("wizard.terms.targets")
-              : t("wizard.terms.target")}
+            {t("wizard.terms.target", { count: selectedTargetLabels.length })}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {formLabels.map((label, index) => {
+              {selectedTargetLabels.map((label, index) => {
                 const parsedLabel = getParsedLabel(label?.label);
                 if (parsedLabel.labelType === "target") {
                   return (
@@ -102,9 +100,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {selectedSourceLabels.length > 1
-              ? t("wizard.terms.sources")
-              : t("wizard.terms.source")}
+            {t("wizard.terms.source", { count: selectedSourceLabels.length })}
           </DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
