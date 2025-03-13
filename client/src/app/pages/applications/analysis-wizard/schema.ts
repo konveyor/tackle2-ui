@@ -55,14 +55,14 @@ const useModeStepSchema = ({
 };
 
 export interface TargetsStepValues {
-  formLabels: TargetLabel[];
   selectedTargets: Target[];
+  selectedTargetLabels: TargetLabel[];
   targetFilters?: Record<string, string[]>;
 }
 
 const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
   return yup.object({
-    formLabels: yup.array(),
+    selectedTargetLabels: yup.array(),
     selectedTargets: yup.array(),
     targetFilters: yup.object(),
   });
@@ -127,7 +127,7 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
         then: yup.array().of(customRulesFilesSchema),
         otherwise: (schema) => schema,
       })
-      .when(["formLabels", "rulesKind", "selectedTargets"], {
+      .when(["selectedTargetLabels", "rulesKind", "selectedTargets"], {
         is: (
           labels: TargetLabel[],
           rulesKind: string,
@@ -168,7 +168,6 @@ export interface OptionsStepValues {
 }
 
 const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
-  const { t } = useTranslation();
   return yup.object({
     excludedRulesTags: yup.array().of(yup.string().defined()),
     autoTaggingEnabled: yup.bool().defined(),
