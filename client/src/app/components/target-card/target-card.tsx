@@ -40,7 +40,7 @@ export interface TargetCardProps {
     target: Target
   ) => void;
   onSelectedCardTargetChange?: (value: string) => void;
-  formLabels?: TargetLabel[];
+  selectedTargetLabels?: TargetLabel[];
   handleProps?: any;
   readOnly?: boolean;
   onEdit?: () => void;
@@ -57,7 +57,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   item: target,
   readOnly = false,
   cardSelected = false,
-  formLabels,
+  selectedTargetLabels,
   onCardClick,
   onSelectedCardTargetChange,
   handleProps,
@@ -74,9 +74,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
     () => {
       const prevSelectedLabel =
-        formLabels?.find((formLabel) => {
+        selectedTargetLabels?.find((label) => {
           const labelNames = targetLabels.map((label) => label.name);
-          return labelNames?.includes(formLabel.name);
+          return labelNames?.includes(label.name);
         })?.name || "";
 
       return (

@@ -18,7 +18,7 @@ import { AnalysisWizardFormValues } from "./schema";
 import { useFetchTargets } from "@app/queries/targets";
 import { Application, Target } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
-import { getUpdatedFormLabels, toggleSelectedTargets } from "./utils";
+import { updateSelectedTargetLabels, toggleSelectedTargets } from "./utils";
 import { unique } from "radash";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useLocalTableControls } from "@app/hooks/table-controls";
@@ -119,11 +119,11 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     useFormContext<AnalysisWizardFormValues>();
 
   const values = getValues();
-  const formLabels = watch("formLabels");
+  const selectedTargetLabels = watch("selectedTargetLabels");
   const selectedTargets = watch("selectedTargets");
 
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
-    const otherSelectedLabels = formLabels?.filter((formLabel) => {
+    const otherSelectedLabels = selectedTargetLabels?.filter((formLabel) => {
       return formLabel.name !== selectedLabelName;
     });
     const matchingLabel =
@@ -143,7 +143,7 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         ?.labels?.filter((label) => label.name !== selectedLabelName)
         .map((label) => label.name) || "";
 
-    const isNewLabel = !formLabels
+    const isNewLabel = !selectedTargetLabels
       .map((label) => label.name)
       .includes(selectedLabelName);
     if (isNewLabel) {
@@ -151,7 +151,10 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         (label) => !matchingOtherLabelNames.includes(label.name)
       );
       matchingLabel &&
-        setValue("formLabels", [...filterConflictingLabels, matchingLabel]);
+        setValue("selectedTargetLabels", [
+          ...filterConflictingLabels,
+          matchingLabel,
+        ]);
     }
   };
 
@@ -166,13 +169,13 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     );
     setValue("selectedTargets", updatedSelectedTargets);
 
-    const updatedFormLabels = getUpdatedFormLabels(
+    const updatedSelectedTargetLabels = updateSelectedTargetLabels(
       isSelecting,
       selectedLabelName,
       target,
-      formLabels
+      selectedTargetLabels
     );
-    setValue("formLabels", updatedFormLabels);
+    setValue("selectedTargetLabels", updatedSelectedTargetLabels);
   };
 
   const tableControls = useLocalTableControls({
@@ -311,7 +314,7 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
                 onCardClick={(isSelecting, selectedLabelName, target) => {
                   handleOnCardClick(isSelecting, selectedLabelName, target);
                 }}
-                formLabels={formLabels}
+                selectedTargetLabels={selectedTargetLabels}
               />
             </GalleryItem>
           ))}
