@@ -5,11 +5,13 @@ type RuleFileType = "YAML" | "XML" | null;
 
 export const checkRuleFileType = (filename: string): RuleFileType => {
   const fileExtension = filename.split(".").pop()?.toLowerCase();
-  if (fileExtension === ("yaml" || "yml")) {
+  if (fileExtension === "yaml" || fileExtension === "yml") {
     return "YAML";
   } else if (fileExtension === "xml") {
     return "XML";
-  } else return null;
+  } else {
+    return null;
+  }
 };
 type ParsedYamlElement = { labels?: string[] };
 type ParsedYaml = ParsedYamlElement[] | {};
