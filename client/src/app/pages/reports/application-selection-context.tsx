@@ -18,7 +18,6 @@ const defaultState: IApplicationSelectionContext = {
   selectAll: () => {},
   selectOnly: () => {},
   selectItems: () => {},
-  selectItem: () => {},
 };
 
 export const ApplicationSelectionContext =

@@ -27,7 +27,7 @@ describe("useSelectionState", () => {
       })
     );
 
-    act(() => result.current.selectItem("A", true));
+    act(() => result.current.selectItems(["A"], true));
     expect(result.current.isItemSelected("A")).toBe(true);
   });
 

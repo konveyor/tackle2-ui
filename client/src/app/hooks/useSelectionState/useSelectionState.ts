@@ -10,7 +10,6 @@ export interface ISelectionState<T> {
   selectedItems: T[];
   isItemSelected: (item: T) => boolean;
   areAllSelected: boolean;
-  selectItem: (item: T, isSelected: boolean) => void;
   selectItems: (items: T[], isSelected: boolean) => void;
   selectOnly: (items: T[]) => void;
   selectAll: (isSelected: boolean) => void;
@@ -29,17 +28,6 @@ export const useSelectionState = <T>({
     [isEqual, selectedItems]
   );
 
-  const selectItem = React.useCallback(
-    (item: T, isSelecting) => {
-      if (isSelecting) {
-        setSelectedItems([...selectedItems, item]);
-      } else {
-        setSelectedItems(selectedItems.filter((i) => !isEqual(i, item)));
-      }
-    },
-    [isEqual, selectedItems, setSelectedItems]
-  );
-
   const selectItems = React.useCallback(
     (itemsSubset: T[], isSelecting: boolean) => {
       const otherSelectedItems = selectedItems.filter(
@@ -51,7 +39,7 @@ export const useSelectionState = <T>({
         setSelectedItems(otherSelectedItems);
       }
     },
-    [isEqual, selectedItems, setSelectedItems]
+    [isEqual, selectedItems]
   );
 
   const selectOnly = React.useCallback(
@@ -66,9 +54,15 @@ export const useSelectionState = <T>({
 
   const selectAll = React.useCallback(
     (isSelecting) => setSelectedItems(isSelecting ? items : []),
-    [items, setSelectedItems]
+    [items]
   );
-  const areAllSelected = selectedItems.length === items.length;
+
+  const areAllSelected = React.useMemo(() => {
+    return (
+      selectedItems.length === items.length &&
+      selectedItems.every((si) => items.some((i) => isEqual(si, i)))
+    );
+  }, [selectedItems, items, isEqual]);
 
   const selectedItemsInItemsOrder = React.useMemo(() => {
     if (selectedItems.length === 0) {
@@ -84,7 +78,6 @@ export const useSelectionState = <T>({
     selectedItems: selectedItemsInItemsOrder,
     isItemSelected,
     areAllSelected,
-    selectItem,
     selectItems,
     selectOnly,
     selectAll,
