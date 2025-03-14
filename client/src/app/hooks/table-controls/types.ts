@@ -176,11 +176,14 @@ export type IUseTableControlStateArgs<
    * Initial state for the columns feature. If omitted, all columns are enabled by default.
    */
   initialColumns?: Partial<Record<TColumnKey, ColumnSetting>>;
+  /**
+   * Is row selection enabled and therefore header and row columns should be reserved?
+   */
+  isSelectionEnabled?: boolean;
 } & IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
-  IPaginationStateArgs & {
-    isSelectionEnabled?: boolean; // TODO move this into useSelectionState when we move it from lib-ui
-  } & IExpansionStateArgs &
+  IPaginationStateArgs &
+  IExpansionStateArgs &
   IActiveItemStateArgs &
   ITablePersistenceArgs<TPersistenceKeyPrefix>;
 
@@ -444,11 +447,9 @@ export type ITableControls<
      * The two Trs for the expandable row and expanded content row should be contained in a Tbody with no other Tr components.
      */
     getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
-
     /**
      * Returns the visibility of a column
      */
-
     getColumnVisibility: (columnKey: TColumnKey) => boolean;
   };
 };

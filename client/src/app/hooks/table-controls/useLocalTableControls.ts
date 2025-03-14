@@ -1,5 +1,5 @@
 import { useTableControlProps } from "./useTableControlProps";
-import { ITableControls, IUseLocalTableControlsArgs } from "./types";
+import { IUseLocalTableControlsArgs } from "./types";
 import { getLocalTableControlDerivedState } from "./getLocalTableControlDerivedState";
 import { useTableControlState } from "./useTableControlState";
 
@@ -23,12 +23,14 @@ export const useLocalTableControls = <
     TFilterCategoryKey,
     TPersistenceKeyPrefix
   >
-): ITableControls<
-  TItem,
-  TColumnKey,
-  TSortableColumnKey,
-  TFilterCategoryKey,
-  TPersistenceKeyPrefix
+): ReturnType<
+  typeof useTableControlProps<
+    TItem,
+    TColumnKey,
+    TSortableColumnKey,
+    TFilterCategoryKey,
+    TPersistenceKeyPrefix
+  >
 > => {
   const state = useTableControlState(args);
   const derivedState = getLocalTableControlDerivedState({ ...args, ...state });

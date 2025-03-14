@@ -12,10 +12,10 @@ import {
 export interface IToolbarBulkSelectorProps {
   areAllSelected: boolean;
   itemCounts: {
-    items: number;
-    filtered?: number;
-    page: number;
     selected: number;
+    page: number;
+    filtered?: number;
+    totalItems: number;
   };
   onSelectNone: () => void;
   onSelectCurrentPage: () => void;
@@ -35,7 +35,7 @@ export interface IToolbarBulkSelectorProps {
  */
 export const ToolbarBulkSelector = ({
   areAllSelected,
-  itemCounts: { items, filtered, page, selected = 0 },
+  itemCounts: { totalItems, filtered, page, selected },
   onSelectNone,
   onSelectCurrentPage,
   onSelectAllFiltered,
@@ -94,7 +94,7 @@ export const ToolbarBulkSelector = ({
         key="select-all"
         component="button"
       >
-        {t("actions.selectAll", { count: items })}
+        {t("actions.selectAll", { count: totalItems })}
       </DropdownItem>
     ),
   ].filter(Boolean);

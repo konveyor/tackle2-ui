@@ -30,7 +30,7 @@ import {
 import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
+import { useBulkSelection } from "@app/hooks/useSelectionState/useBulkSelection";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];
@@ -86,7 +86,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     });
   };
 
-  const onUpdateMigrationWaveError = (error: AxiosError) => {
+  const onUpdateMigrationWaveError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.migrationWave").toLowerCase(),
@@ -116,7 +116,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     isPaginationEnabled: true,
     isExpansionEnabled: true,
     isSelectionEnabled: true,
-    initialSelected: assignedApplications,
     expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
@@ -179,12 +178,10 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
   });
   const {
     currentPageItems,
+    totalItemCount,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkExpanderProps,
-      toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -195,6 +192,17 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    items: availableApplications,
+    initialSelected: assignedApplications,
+    isEqual: (a, b) => a.id === b.id,
+    currentPageItems,
+    totalItemCount,
+  });
 
   const onSubmit = () => {
     const payload: MigrationWave = {
@@ -235,8 +243,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       </TextContent>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
-          <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
-          <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+          <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
@@ -282,6 +289,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
                 <Tr {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >
