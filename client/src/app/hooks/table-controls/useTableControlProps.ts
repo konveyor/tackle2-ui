@@ -53,17 +53,7 @@ export const useTableControlProps = <
   //       args object is passed to other other helpers which require other parts of it.
   //       For future additions, inspect `args` to see if it has anything more you need.
   const {
-    totalItemCount,
-    currentPageItems,
     forceNumRenderedColumns,
-    selectionState: {
-      selectedItems,
-      areAllSelected,
-      isItemSelected,
-      selectItem,
-      selectOnly,
-      selectAll,
-    },
     columnNames,
     idProperty,
     dataNameProperty,
@@ -109,23 +99,6 @@ export const useTableControlProps = <
   const toolbarProps: PropHelpers["toolbarProps"] = {
     className: variant === "compact" ? spacing.pt_0 : "",
     ...(isFilterEnabled && filterPropsForToolbar),
-  };
-
-  // TODO: Could be refactored into useSelectionPropHelpers
-  const toolbarBulkSelectorProps: PropHelpers["toolbarBulkSelectorProps"] = {
-    areAllSelected,
-    itemCounts: {
-      selected: selectedItems.length,
-      page: currentPageItems.length,
-      filtered: totalItemCount, // TODO: Adjust when enable onSelectAllFiltered
-      items: totalItemCount, // TODO: Adjust when enable onSelectAll
-    },
-    onSelectNone: () => selectAll(false),
-    onSelectCurrentPage: () => selectOnly(currentPageItems),
-    // TODO: send these functions only if we know local filtering is active. They don't make
-    //       sense in server side pagination/filter/sort.
-    // onSelectAllFiltered: () => selectOnly(filteredItems),
-    // onSelectAll: () => selectAll(true),
   };
 
   const toolbarBulkExpanderProps: PropHelpers["toolbarBulkExpanderProps"] = {
@@ -175,20 +148,6 @@ export const useTableControlProps = <
     };
   };
 
-  // TODO: Could be refactored into a useSelectionPropHelpers as part of getTdProps
-  const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
-    item,
-    rowIndex,
-  }) => ({
-    select: {
-      rowIndex,
-      onSelect: (_event, isSelecting) => {
-        selectItem(item, isSelecting);
-      },
-      isSelected: isItemSelected(item),
-    },
-  });
-
   const getColumnVisibility = (columnKey: TColumnKey) => {
     return columns.find((column) => column.id === columnKey)?.isVisible ?? true;
   };
@@ -210,8 +169,6 @@ export const useTableControlProps = <
       paginationProps,
       paginationToolbarItemProps,
       toolbarBulkExpanderProps,
-      toolbarBulkSelectorProps,
-      getSelectCheckboxTdProps,
       getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
       getColumnVisibility,

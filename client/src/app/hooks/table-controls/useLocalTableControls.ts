@@ -2,7 +2,6 @@ import { useTableControlProps } from "./useTableControlProps";
 import { ITableControls, IUseLocalTableControlsArgs } from "./types";
 import { getLocalTableControlDerivedState } from "./getLocalTableControlDerivedState";
 import { useTableControlState } from "./useTableControlState";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 
 /**
  * Provides all state, derived state, side-effects and prop helpers needed to manage a local/client-computed table.
@@ -34,18 +33,12 @@ export const useLocalTableControls = <
   const state = useTableControlState(args);
   const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
   const { columnState } = state;
-  const selectionState = useSelectionState({
-    items: args.items,
-    isEqual: (a, b) => a[args.idProperty] === b[args.idProperty],
-  });
 
   return useTableControlProps({
     ...args,
     ...state,
     ...derivedState,
     ...columnState,
-    // TODO: Selection state could be refactored to be part of useTableControlState()
-    selectionState,
     idProperty: args.idProperty,
   });
 };

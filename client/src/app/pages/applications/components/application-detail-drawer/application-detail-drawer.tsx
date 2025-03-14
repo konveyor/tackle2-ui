@@ -76,7 +76,6 @@ import {
   getHubRequestParams,
   deserializeFilterUrlParams,
 } from "@app/hooks/table-controls";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { TaskActionColumn } from "@app/pages/tasks/TaskActionColumn";
 import {
@@ -641,10 +640,6 @@ const TabTasksContent: React.FC<{
     totalItemCount,
     isLoading: isFetching,
     variant: "compact",
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {
