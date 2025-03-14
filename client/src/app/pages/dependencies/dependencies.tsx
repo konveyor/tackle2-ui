@@ -27,7 +27,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import { getParsedLabel } from "@app/utils/rules-utils";
@@ -109,10 +108,6 @@ export const Dependencies: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {

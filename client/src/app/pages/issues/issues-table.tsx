@@ -29,7 +29,6 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
@@ -231,11 +230,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     currentPageItems: currentPageReports,
     totalItemCount: totalReportCount,
     isLoading,
-    // TODO FIXME - we don't need selectionState but it's required by this hook?
-    selectionState: useSelectionState({
-      items: currentPageReports,
-      isEqual: (a, b) => a._ui_unique_id === b._ui_unique_id,
-    }),
   });
 
   // Only for singleApp mode

@@ -1,7 +1,6 @@
 import "./file-all-incidents-table.css";
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
 import { useFetchIncidents } from "@app/queries/issues";
@@ -64,11 +63,6 @@ export const FileAllIncidentsTable: React.FC<
     totalItemCount,
     isLoading: isFetching,
     variant: "compact",
-    // TODO FIXME - we don't need selectionState but it's required by this hook?
-    selectionState: useSelectionState({
-      items: currentPageIncidents,
-      isEqual: (a, b) => a.id === b.id,
-    }),
   });
 
   const {

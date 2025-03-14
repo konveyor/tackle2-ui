@@ -12,7 +12,6 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -107,11 +106,6 @@ export const AffectedApplications: React.FC = () => {
     currentPageItems: currentPageAppReports,
     totalItemCount,
     isLoading: isFetching,
-    // TODO FIXME - we don't need selectionState but it's required by this hook?
-    selectionState: useSelectionState({
-      items: currentPageAppReports,
-      isEqual: (a, b) => a.id === b.id,
-    }),
   });
 
   const {
