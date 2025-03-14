@@ -118,7 +118,7 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
-import { useBulkSelection } from "@app/hooks/useSelectionState/useBulkSelection";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();

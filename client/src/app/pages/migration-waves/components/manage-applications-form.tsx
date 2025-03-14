@@ -30,7 +30,7 @@ import {
 import { dedupeFunction } from "@app/utils/utils";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { useBulkSelection } from "@app/hooks/useSelectionState/useBulkSelection";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];

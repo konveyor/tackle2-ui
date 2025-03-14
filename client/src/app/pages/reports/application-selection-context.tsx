@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  useSelectionState,
-  ISelectionState,
-} from "@app/hooks/useSelectionState";
+import { useSelectionState, ISelectionState } from "@app/hooks/selection";
 import { Application } from "@app/api/models";
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {

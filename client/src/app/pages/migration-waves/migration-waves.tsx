@@ -71,7 +71,7 @@ import { toRefs } from "@app/utils/model-utils";
 import { useFetchTickets } from "@app/queries/tickets";
 import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
 import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
-import { useBulkSelection } from "@app/hooks/useSelectionState/useBulkSelection";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
