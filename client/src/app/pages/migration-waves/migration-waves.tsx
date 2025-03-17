@@ -259,7 +259,7 @@ export const MigrationWaves: React.FC = () => {
     selectedItems,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: migrationWaves,
+    items: currentPageItems,
     isEqual: (a, b) => a.id === b.id,
     currentPageItems,
     totalItemCount,

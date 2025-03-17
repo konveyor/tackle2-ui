@@ -197,7 +197,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     selectedItems,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: availableApplications,
+    items: currentPageItems,
     initialSelected: assignedApplications,
     isEqual: (a, b) => a.id === b.id,
     currentPageItems,

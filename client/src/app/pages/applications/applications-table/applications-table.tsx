@@ -589,7 +589,7 @@ export const ApplicationsTable: React.FC = () => {
     selectedItems: selectedRows,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: applications,
+    items: currentPageItems,
     isEqual: (a, b) => a.id === b.id,
     currentPageItems,
     totalItemCount,
