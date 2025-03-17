@@ -21,7 +21,7 @@ function doSelect<T>(
   selections: T[]
 ) {
   return selections.length === 0
-    ? fullSet
+    ? []
     : fullSet.filter((item) => selections.some((test) => isEqual(item, test)));
 }
 
