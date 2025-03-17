@@ -15,67 +15,78 @@ export interface ISelectionState<T> {
   selectAll: (isSelected: boolean) => void;
 }
 
+function doSelect<T>(
+  isEqual: (a: T, b: T) => boolean,
+  fullSet: T[],
+  selections: T[]
+) {
+  return selections.length === 0
+    ? fullSet
+    : fullSet.filter((item) => selections.some((test) => isEqual(item, test)));
+}
+
 export const useSelectionState = <T>({
   items,
   initialSelected = [],
   isEqual = (a, b) => a === b,
 }: ISelectionStateArgs<T>): ISelectionState<T> => {
-  const [selectedItems, setSelectedItems] =
-    React.useState<T[]>(initialSelected);
+  const [selectedSet, setSelectedSet] = React.useState<T[]>(
+    doSelect(isEqual, items, initialSelected)
+  );
 
   const isItemSelected = React.useCallback(
-    (item: T) => selectedItems.some((i) => isEqual(item, i)),
-    [isEqual, selectedItems]
+    (item: T) => selectedSet.some((i) => isEqual(item, i)),
+    [isEqual, selectedSet]
   );
 
   const selectItems = React.useCallback(
     (itemsSubset: T[], isSelecting: boolean) => {
-      const otherSelectedItems = selectedItems.filter(
-        (selected) => !itemsSubset.some((item) => isEqual(selected, item))
+      const verifiedItemsSubset = doSelect(isEqual, items, itemsSubset);
+      const selectedNotInItemsSubset = selectedSet.filter(
+        (selected) =>
+          !verifiedItemsSubset.some((item) => isEqual(selected, item))
       );
       if (isSelecting) {
-        setSelectedItems([...otherSelectedItems, ...itemsSubset]);
+        setSelectedSet([...selectedNotInItemsSubset, ...verifiedItemsSubset]);
       } else {
-        setSelectedItems(otherSelectedItems);
+        setSelectedSet(selectedNotInItemsSubset);
       }
     },
-    [isEqual, selectedItems]
+    [isEqual, items, selectedSet]
   );
 
   const selectOnly = React.useCallback(
     (toSelect: T[]) => {
-      const filtered = items.filter((item) =>
-        toSelect.find((sel) => isEqual(item, sel))
-      );
-      setSelectedItems(filtered);
+      const filtered = doSelect(isEqual, items, toSelect);
+      setSelectedSet(filtered);
     },
     [isEqual, items]
   );
 
   const selectAll = React.useCallback(
-    (isSelecting) => setSelectedItems(isSelecting ? items : []),
+    (isSelecting) => setSelectedSet(isSelecting ? items : []),
     [items]
   );
 
   const areAllSelected = React.useMemo(() => {
     return (
-      selectedItems.length === items.length &&
-      selectedItems.every((si) => items.some((i) => isEqual(si, i)))
+      selectedSet.length === items.length &&
+      selectedSet.every((si) => items.some((i) => isEqual(si, i)))
     );
-  }, [selectedItems, items, isEqual]);
+  }, [selectedSet, items, isEqual]);
 
-  const selectedItemsInItemsOrder = React.useMemo(() => {
-    if (selectedItems.length === 0) {
+  const selectedItems = React.useMemo(() => {
+    if (selectedSet.length === 0) {
       return [];
     }
     if (areAllSelected) {
       return items;
     }
     return items.filter(isItemSelected);
-  }, [areAllSelected, isItemSelected, items, selectedItems]);
+  }, [areAllSelected, isItemSelected, items, selectedSet]);
 
   return {
-    selectedItems: selectedItemsInItemsOrder,
+    selectedItems,
     isItemSelected,
     areAllSelected,
     selectItems,
