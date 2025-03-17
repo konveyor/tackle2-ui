@@ -1,1 +1,2 @@
-export * from "./useSelectionState";
+export * from "./useBulkSelection";
+export * from "../useSelectionState/useSelectionState";
