@@ -59,7 +59,10 @@ describe("useSelectionState", () => {
 
   it("Preserves the original order of items when selecting out of order", () => {
     const { result } = renderHook(() =>
-      useSelectionState<IFruit>({ items: fruits })
+      useSelectionState<IFruit>({
+        items: fruits,
+        isEqual: (a, b) => a.name === b.name,
+      })
     );
     act(() =>
       result.current.selectItems(
