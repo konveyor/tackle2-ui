@@ -118,6 +118,7 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -567,6 +568,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const {
     currentPageItems,
+    totalItemCount,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -577,14 +579,21 @@ export const ApplicationsTable: React.FC = () => {
       getThProps,
       getTrProps,
       getTdProps,
-      toolbarBulkSelectorProps,
       getColumnVisibility,
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
-
-    selectionState: { selectedItems: selectedRows },
     columnState,
   } = tableControls;
+
+  const {
+    selectedItems: selectedRows,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    items: currentPageItems,
+    isEqual: (a, b) => a.id === b.id,
+    currentPageItems,
+    totalItemCount,
+  });
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;
@@ -953,6 +962,7 @@ export const ApplicationsTable: React.FC = () => {
                 <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >
