@@ -4,99 +4,93 @@ export interface ISelectionStateArgs<T> {
   items: T[];
   initialSelected?: T[];
   isEqual?: (a: T, b: T) => boolean;
-  isItemSelectable?: (item: T) => boolean;
-  externalState?: [T[], React.Dispatch<React.SetStateAction<T[]>>];
 }
 
 export interface ISelectionState<T> {
   selectedItems: T[];
   isItemSelected: (item: T) => boolean;
-  isItemSelectable: (item: T) => boolean;
-  toggleItemSelected: (item: T, isSelecting?: boolean) => void;
-  selectMultiple: (items: T[], isSelecting: boolean) => void;
   areAllSelected: boolean;
-  selectAll: (isSelecting?: boolean) => void;
-  setSelectedItems: (items: T[]) => void;
+  selectItems: (items: T[], isSelected: boolean) => void;
+  selectOnly: (items: T[]) => void;
+  selectAll: (isSelected: boolean) => void;
+}
+
+function doSelect<T>(
+  isEqual: (a: T, b: T) => boolean,
+  fullSet: T[],
+  selections: T[]
+) {
+  return selections.length === 0
+    ? []
+    : fullSet.filter((item) => selections.some((test) => isEqual(item, test)));
 }
 
 export const useSelectionState = <T>({
   items,
   initialSelected = [],
   isEqual = (a, b) => a === b,
-  isItemSelectable = () => true,
-  externalState,
 }: ISelectionStateArgs<T>): ISelectionState<T> => {
-  const internalState = React.useState<T[]>(initialSelected);
-  const [selectedItems, setSelectedItems] = externalState || internalState;
-
-  const selectableItems = React.useMemo(
-    () => items.filter(isItemSelectable),
-    [items, isItemSelectable]
+  const [selectedSet, setSelectedSet] = React.useState<T[]>(
+    doSelect(isEqual, items, initialSelected)
   );
 
   const isItemSelected = React.useCallback(
-    (item: T) => selectedItems.some((i) => isEqual(item, i)),
-    [isEqual, selectedItems]
+    (item: T) => selectedSet.some((i) => isEqual(item, i)),
+    [isEqual, selectedSet]
   );
 
-  // If isItemSelectable changes and a selected item is no longer selectable, deselect it
-  React.useEffect(() => {
-    if (!selectedItems.every(isItemSelectable)) {
-      setSelectedItems(selectedItems.filter(isItemSelectable));
-    }
-  }, [isItemSelectable, selectedItems, setSelectedItems]);
-
-  const toggleItemSelected = React.useCallback(
-    (item: T, isSelecting = !isItemSelected(item)) => {
-      if (isSelecting && isItemSelectable(item)) {
-        setSelectedItems([...selectedItems, item]);
-      } else {
-        setSelectedItems(selectedItems.filter((i) => !isEqual(i, item)));
-      }
-    },
-    [isEqual, isItemSelectable, isItemSelected, selectedItems, setSelectedItems]
-  );
-
-  const selectMultiple = React.useCallback(
+  const selectItems = React.useCallback(
     (itemsSubset: T[], isSelecting: boolean) => {
-      const otherSelectedItems = selectedItems.filter(
-        (selected) => !itemsSubset.some((item) => isEqual(selected, item))
+      const verifiedItemsSubset = doSelect(isEqual, items, itemsSubset);
+      const selectedNotInItemsSubset = selectedSet.filter(
+        (selected) =>
+          !verifiedItemsSubset.some((item) => isEqual(selected, item))
       );
-      const itemsToSelect = itemsSubset.filter(isItemSelectable);
       if (isSelecting) {
-        setSelectedItems([...otherSelectedItems, ...itemsToSelect]);
+        setSelectedSet([...selectedNotInItemsSubset, ...verifiedItemsSubset]);
       } else {
-        setSelectedItems(otherSelectedItems);
+        setSelectedSet(selectedNotInItemsSubset);
       }
     },
-    [isEqual, isItemSelectable, selectedItems, setSelectedItems]
+    [isEqual, items, selectedSet]
+  );
+
+  const selectOnly = React.useCallback(
+    (toSelect: T[]) => {
+      const filtered = doSelect(isEqual, items, toSelect);
+      setSelectedSet(filtered);
+    },
+    [isEqual, items]
   );
 
   const selectAll = React.useCallback(
-    (isSelecting = true) =>
-      setSelectedItems(isSelecting ? selectableItems : []),
-    [selectableItems, setSelectedItems]
+    (isSelecting) => setSelectedSet(isSelecting ? items : []),
+    [items]
   );
-  const areAllSelected = selectedItems.length === selectableItems.length;
 
-  // Preserve original order of items
-  const selectedItemsInOrder = React.useMemo(() => {
-    if (areAllSelected) {
-      return selectableItems;
-    } else if (selectedItems.length > 0) {
-      return selectableItems.filter(isItemSelected);
+  const areAllSelected = React.useMemo(() => {
+    return (
+      selectedSet.length === items.length &&
+      selectedSet.every((si) => items.some((i) => isEqual(si, i)))
+    );
+  }, [selectedSet, items, isEqual]);
+
+  const selectedItems = React.useMemo(() => {
+    if (selectedSet.length === 0) {
+      return [];
     }
-    return [];
-  }, [areAllSelected, isItemSelected, selectableItems, selectedItems.length]);
+    if (areAllSelected) {
+      return items;
+    }
+    return items.filter(isItemSelected);
+  }, [areAllSelected, isItemSelected, items, selectedSet]);
 
   return {
-    selectedItems: selectedItemsInOrder,
+    selectedItems,
     isItemSelected,
-    isItemSelectable,
-    toggleItemSelected,
-    selectMultiple,
     areAllSelected,
+    selectItems,
+    selectOnly,
     selectAll,
-    setSelectedItems,
   };
 };
