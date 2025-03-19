@@ -51,14 +51,14 @@ export const ToolbarBulkSelector = ({
   };
 
   const isChecked = useMemo(() => {
-    if (areAllSelected) {
+    if (areAllSelected && totalItems > 0) {
       return true;
     }
     if (selected === 0) {
       return false;
     }
     return null;
-  }, [areAllSelected, selected]);
+  }, [areAllSelected, totalItems, selected]);
 
   const dropdownItems = [
     <DropdownItem
@@ -106,6 +106,7 @@ export const ToolbarBulkSelector = ({
         onOpenChange={(flag) => setIsOpen(flag)}
         toggle={(toggleRef) => (
           <MenuToggle
+            isDisabled={totalItems === 0}
             ref={toggleRef}
             onClick={() => setIsOpen(!isOpen)}
             splitButtonOptions={{
