@@ -9,7 +9,6 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useSelectionState } from "@app/hooks/useSelectionState";
 import { AnalysisAppDependency, AnalysisDependency } from "@app/api/models";
 import {
   useTableControlState,
@@ -141,11 +140,6 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
     currentPageItems: currentPageAppDependencies,
     totalItemCount,
     isLoading: isFetching,
-    // TODO FIXME - we don't need selectionState but it's required by this hook?
-    selectionState: useSelectionState({
-      items: currentPageAppDependencies,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {
