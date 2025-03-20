@@ -522,7 +522,8 @@
     "success": {
       "saveWhat": "{{type}} {{what}} was successfully saved.",
       "save": "{{type}} was successfully saved.",
-      "applicationDeleted": "{{appIDCount}} application(s) successfully deleted.",
+      "applicationDeleted": "Application {{appName}} successfully deleted.",
+      "applicationsDeleted": "{{appIDCount}} application(s) successfully deleted.",
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",

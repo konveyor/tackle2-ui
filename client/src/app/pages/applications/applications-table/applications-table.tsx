@@ -272,12 +272,20 @@ export const ApplicationsTable: React.FC = () => {
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
-      }),
-      variant: "success",
-    });
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIDCount: appIDCount,
+        }),
+        variant: "success",
+      });
     clearActiveItem();
     setApplicationsToDelete([]);
   };
