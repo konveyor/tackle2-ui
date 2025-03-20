@@ -25,16 +25,7 @@ export interface TableRowData {
 const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
   const { reviews } = useFetchReviews();
 
-  const {
-    allItems: allApplications,
-    selectedItems: selectedApplications,
-    areAllSelected: areAllApplicationsSelected,
-    isItemSelected: isApplicationSelected,
-    toggleItemSelected: toggleApplicationSelected,
-    selectAll: selectAllApplication,
-    setSelectedItems: setSelectedRows,
-    selectMultiple: selectMultipleApplications,
-  } = useContext(ApplicationSelectionContext);
+  const { allItems: allApplications } = useContext(ApplicationSelectionContext);
 
   const applicationsWithReviews: TableRowData[] = useMemo(() => {
     const combined = allApplications.map((app) => {
@@ -68,7 +59,6 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    selectionState,
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
 

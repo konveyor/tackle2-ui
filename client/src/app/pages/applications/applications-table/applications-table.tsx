@@ -118,6 +118,7 @@ import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "./useDecoratedApplications";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -271,12 +272,20 @@ export const ApplicationsTable: React.FC = () => {
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
-      }),
-      variant: "success",
-    });
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIDCount: appIDCount,
+        }),
+        variant: "success",
+      });
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -567,6 +576,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const {
     currentPageItems,
+    totalItemCount,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -577,14 +587,21 @@ export const ApplicationsTable: React.FC = () => {
       getThProps,
       getTrProps,
       getTdProps,
-      toolbarBulkSelectorProps,
       getColumnVisibility,
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
-
-    selectionState: { selectedItems: selectedRows },
     columnState,
   } = tableControls;
+
+  const {
+    selectedItems: selectedRows,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    items: currentPageItems,
+    isEqual: (a, b) => a.id === b.id,
+    currentPageItems,
+    totalItemCount,
+  });
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;
@@ -953,6 +970,7 @@ export const ApplicationsTable: React.FC = () => {
                 <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >

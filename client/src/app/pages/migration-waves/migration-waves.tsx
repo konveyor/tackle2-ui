@@ -70,6 +70,8 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { toRefs } from "@app/utils/model-utils";
 import { useFetchTickets } from "@app/queries/tickets";
 import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -236,11 +238,11 @@ export const MigrationWaves: React.FC = () => {
   });
   const {
     currentPageItems,
+    totalItemCount,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
+      toolbarBulkExpanderProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -252,6 +254,16 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded, setCellExpanded },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    items: currentPageItems,
+    isEqual: (a, b) => a.id === b.id,
+    currentPageItems,
+    totalItemCount,
+  });
 
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, migrationWaveWriteScopes);
@@ -275,7 +287,8 @@ export const MigrationWaves: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
-                <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+                <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
+                <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   {/* <RBAC
@@ -396,6 +409,7 @@ export const MigrationWaves: React.FC = () => {
                     <Tr {...getTrProps({ item: migrationWave })}>
                       <TableRowContentWithControls
                         {...tableControls}
+                        getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                         item={migrationWave}
                         rowIndex={rowIndex}
                       >

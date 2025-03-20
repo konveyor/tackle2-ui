@@ -1,4 +1,4 @@
-import { useLocalStorage } from "@migtools/lib-ui";
+import { useLocalStorage } from "@app/hooks/useStorage";
 import { ColumnSetting } from "../types";
 import { useEffect } from "react";
 
