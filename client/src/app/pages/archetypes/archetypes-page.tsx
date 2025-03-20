@@ -484,7 +484,7 @@ const Archetypes: React.FC = () => {
                             </Tooltip>
                           </Td>
                         )}
-                        <Td isActionCell>
+                        <Td isActionCell id="row-actions">
                           {(archetypeWriteAccess ||
                             assessmentWriteAccess ||
                             reviewsWriteAccess ||
