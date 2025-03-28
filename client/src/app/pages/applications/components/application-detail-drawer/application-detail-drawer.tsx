@@ -63,7 +63,7 @@ import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
-import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
+import { DecoratedApplication } from "../../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
