@@ -1,9 +1,21 @@
 import { useMemo } from "react";
-import { Application, Identity, TaskDashboard } from "@app/api/models";
+import {
+  Application,
+  Archetype,
+  AssessmentWithSectionOrder,
+  Identity,
+  TaskDashboard,
+} from "@app/api/models";
 import { group, listify, mapEntries, unique } from "radash";
 import { TaskStates } from "@app/queries/tasks";
 import { universalComparator } from "@app/utils/utils";
+import {
+  ApplicationAssessmentStatus,
+  buildApplicationAssessmentStatus,
+} from "@app/utils/application-assessment-status";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useFetchArchetypes } from "@app/queries/archetypes";
+import { useFetchAssessments } from "@app/queries/assessments";
 
 export interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];
@@ -41,9 +53,12 @@ export interface DecoratedApplication extends Application {
   };
   tasksStatus: ApplicationTasksStatus;
 
+  assessmentStatus: ApplicationAssessmentStatus;
+
   /** Contain directly referenced versions of `Ref[]` Application props */
   direct: {
     identities?: Identity[];
+    archetypes?: Archetype[];
   };
 }
 
@@ -97,7 +112,9 @@ const chooseApplicationTaskStatus = ({
 const decorateApplications = (
   applications: Application[],
   tasks: TaskDashboard[],
-  identities: Identity[]
+  identities: Identity[],
+  archetypes: Archetype[],
+  assessments: AssessmentWithSectionOrder[]
 ) => {
   const { tasksById, tasksByIdByKind } = groupTasks(tasks);
 
@@ -136,9 +153,19 @@ const decorateApplications = (
         currentAnalyzer: tasksByKind["analyzer"]?.[0],
       },
 
+      assessmentStatus: buildApplicationAssessmentStatus(
+        app,
+        archetypes,
+        assessments
+      ),
+
       direct: {
         identities: app.identities
-          ?.map((identity) => identities.find(({ id }) => id === identity.id))
+          ?.map(({ id: id1 }) => identities.find(({ id: id2 }) => id1 === id2))
+          ?.filter(Boolean),
+
+        archetypes: app.archetypes
+          ?.map(({ id: id1 }) => archetypes.find(({ id: id2 }) => id1 === id2))
           ?.filter(Boolean),
       },
     };
@@ -155,10 +182,19 @@ export const useDecoratedApplications = (
   tasks: TaskDashboard[]
 ) => {
   const { identities } = useFetchIdentities();
+  const { assessments } = useFetchAssessments();
+  const { archetypes } = useFetchArchetypes();
 
   const decoratedApplications = useMemo(
-    () => decorateApplications(applications, tasks, identities),
-    [applications, tasks, identities]
+    () =>
+      decorateApplications(
+        applications,
+        tasks,
+        identities,
+        archetypes,
+        assessments
+      ),
+    [applications, tasks, identities, archetypes, assessments]
   );
 
   const applicationNames = useMemo(
