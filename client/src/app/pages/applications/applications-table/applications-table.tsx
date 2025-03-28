@@ -71,7 +71,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
+import { getArchetypeById } from "@app/api/rest";
 import { Assessment, Ref } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -108,7 +108,7 @@ import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
   useDecoratedApplications,
-} from "./useDecoratedApplications";
+} from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
@@ -651,33 +651,17 @@ export const ApplicationsTable: React.FC = () => {
   const assessSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToAssess(application);
 
-    if (application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          const assessments = await getAssessmentsByItemId(
-            true,
-            archetypeRef.id
-          );
-
-          if (assessments && assessments.length > 0) {
-            setArchetypeRefsToOverride(application.archetypes);
-            break;
-          } else {
-            handleNavToAssessment(application);
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-        }
-      }
-    } else {
+    const archetypes = application.archetypes ?? [];
+    const { directStatus, inheritedStatus } = application.assessmentStatus;
+    if (
+      archetypes.length === 0 ||
+      directStatus === "partial" ||
+      directStatus === "complete" ||
+      inheritedStatus === "none"
+    ) {
       handleNavToAssessment(application);
+    } else {
+      setArchetypeRefsToOverride(archetypes);
     }
   };
 
@@ -913,7 +897,6 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
-                          isLoading={isFetchingApplications}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
