@@ -177,7 +177,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     initialSort: { columnKey: "name", direction: "asc" },
   });
   const {
-    // filteredItems,
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
@@ -198,7 +198,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
     isEqual: (a, b) => a.id === b.id,
-    // filteredItems,
+    filteredItems,
     currentPageItems,
     initialSelected: assignedApplications,
   });

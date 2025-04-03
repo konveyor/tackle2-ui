@@ -237,7 +237,7 @@ export const MigrationWaves: React.FC = () => {
     isLoading: isFetching,
   });
   const {
-    // filteredItems,
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
@@ -260,7 +260,7 @@ export const MigrationWaves: React.FC = () => {
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
     isEqual: (a, b) => a.id === b.id,
-    // filteredItems,
+    filteredItems,
     currentPageItems,
   });
 
