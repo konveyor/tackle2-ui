@@ -4,27 +4,29 @@ import { useSelectionState } from "../useSelectionState/useSelectionState";
 
 export interface BulkSelectionArgs<ItemType> {
   /**
-   * The full set of items that may be selected.  If this contains more items than in
-   * `currentPageItems`, then selection across multiple pages is possible.
-   */
-  items: ItemType[];
-  /**
    * Function to check if two items are equal.
    */
   isEqual?: (a: ItemType, b: ItemType) => boolean;
   /**
-   * Set of items to initially set as selected.
+   * The full list of items that may be selected.  Providing this list will enable "Select All"
+   * functionality.
    */
-  initialSelected?: ItemType[];
+  items?: ItemType[];
   /**
-   * Current set of items being displayed from either derived state pagination
-   * or server side pagination.
+   * The subset of `items` that satisfy the current filter state.  Providing this list will
+   * enable "Select All Filtered" functionality.
+   */
+  filteredItems?: ItemType[];
+  /**
+   * Current list of items being displayed from either derived state pagination
+   * or server side pagination.  This list is required and enables "Select Current Page"
+   * functionality.
    */
   currentPageItems: ItemType[];
   /**
-   * Count of all filtered items from either derived state filtering or server side filtering.
+   * List of items to initially set as selected.
    */
-  totalItemCount: number;
+  initialSelected?: ItemType[];
 }
 
 export interface BulkSelectionValues<ItemType> {
@@ -39,12 +41,14 @@ export interface BulkSelectionValues<ItemType> {
 }
 
 export const useBulkSelection = <T>({
-  items,
   isEqual = (a, b) => a === b,
-  initialSelected,
+  items,
+  filteredItems,
   currentPageItems,
-  totalItemCount,
+  initialSelected,
 }: BulkSelectionArgs<T>): BulkSelectionValues<T> => {
+  const biggestSetOfItems = items ?? filteredItems ?? currentPageItems;
+
   const {
     selectedItems,
     areAllSelected,
@@ -53,7 +57,7 @@ export const useBulkSelection = <T>({
     selectOnly,
     selectAll,
   } = useSelectionState({
-    items,
+    items: biggestSetOfItems,
     isEqual,
     initialSelected,
   });
@@ -63,15 +67,19 @@ export const useBulkSelection = <T>({
     itemCounts: {
       selected: selectedItems.length,
       page: currentPageItems.length,
-      filtered: totalItemCount, // TODO: Adjust when enable onSelectAllFiltered
-      totalItems: totalItemCount, // TODO: Adjust when enable onSelectAll
+      filtered: filteredItems ? filteredItems.length : undefined,
+      totalItems: biggestSetOfItems.length,
     },
+
     onSelectNone: () => selectAll(false),
+
     onSelectCurrentPage: () => selectOnly(currentPageItems),
-    // TODO: Send these functions only if we know local filtering is active. They don't make
-    //       sense in server side pagination/filter/sort.
-    // onSelectAllFiltered: () => selectOnly(filteredItems),
-    // onSelectAll: () => selectAll(true),
+
+    onSelectAllFiltered: filteredItems
+      ? () => selectOnly(filteredItems)
+      : undefined,
+
+    onSelectAll: items ? () => selectAll(true) : undefined,
   };
 
   const getSelectCheckboxTdProps: BulkSelectionValues<T>["propHelpers"]["getSelectCheckboxTdProps"] =
