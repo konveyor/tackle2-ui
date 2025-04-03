@@ -599,7 +599,8 @@ export const ApplicationsTable: React.FC = () => {
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
     isEqual: (a, b) => a.id === b.id,
-    items: applications,
+    // TODO: Pass `items` to also enable "select all items" if needed
+    // items: applications,
     filteredItems,
     currentPageItems,
   });
