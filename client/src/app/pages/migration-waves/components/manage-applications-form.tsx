@@ -177,8 +177,8 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     initialSort: { columnKey: "name", direction: "asc" },
   });
   const {
+    filteredItems,
     currentPageItems,
-    totalItemCount,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -197,11 +197,10 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     selectedItems,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: currentPageItems,
-    initialSelected: assignedApplications,
     isEqual: (a, b) => a.id === b.id,
+    filteredItems,
     currentPageItems,
-    totalItemCount,
+    initialSelected: assignedApplications,
   });
 
   const onSubmit = () => {
