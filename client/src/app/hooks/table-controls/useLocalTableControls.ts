@@ -1,6 +1,6 @@
 import { useTableControlProps } from "./useTableControlProps";
 import { IUseLocalTableControlsArgs } from "./types";
-import { getLocalTableControlDerivedState } from "./getLocalTableControlDerivedState";
+import { useLocalTableControlDerivedState } from "./useLocalTableControlDerivedState";
 import { useTableControlState } from "./useTableControlState";
 
 /**
@@ -33,7 +33,7 @@ export const useLocalTableControls = <
   >
 > => {
   const state = useTableControlState(args);
-  const derivedState = getLocalTableControlDerivedState({ ...args, ...state });
+  const derivedState = useLocalTableControlDerivedState({ ...args, ...state });
   const { columnState } = state;
 
   return useTableControlProps({
