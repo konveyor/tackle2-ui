@@ -237,8 +237,8 @@ export const MigrationWaves: React.FC = () => {
     isLoading: isFetching,
   });
   const {
+    // filteredItems,
     currentPageItems,
-    totalItemCount,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -259,10 +259,9 @@ export const MigrationWaves: React.FC = () => {
     selectedItems,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: currentPageItems,
     isEqual: (a, b) => a.id === b.id,
+    // filteredItems,
     currentPageItems,
-    totalItemCount,
   });
 
   // TODO: Check RBAC access

@@ -268,6 +268,10 @@ export type ITableControlLocalDerivedStateArgs<
  */
 export type ITableControlDerivedState<TItem> = {
   /**
+   * The unsorted set of items after filtering.
+   */
+  filteredItems?: TItem[];
+  /**
    * The items to be rendered on the current page of the table. These items have already been filtered, sorted and paginated.
    */
   currentPageItems: TItem[];
