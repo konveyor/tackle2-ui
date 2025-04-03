@@ -8,21 +8,23 @@ export interface BulkSelectionArgs<ItemType> {
    */
   isEqual?: (a: ItemType, b: ItemType) => boolean;
   /**
-   * The full set of items that may be selected.  If this contains more items than in
-   * `currentPageItems`, then selection across multiple pages is possible.
+   * The full list of items that may be selected.  Providing this list will enable "Select All"
+   * functionality.
    */
   items?: ItemType[];
   /**
-   * The subset of `items` that satisfy the current filter state.
+   * The subset of `items` that satisfy the current filter state.  Providing this list will
+   * enable "Select All Filtered" functionality.
    */
   filteredItems?: ItemType[];
   /**
-   * Current set of items being displayed from either derived state pagination
-   * or server side pagination.
+   * Current list of items being displayed from either derived state pagination
+   * or server side pagination.  This list is required and enables "Select Current Page"
+   * functionality.
    */
   currentPageItems: ItemType[];
   /**
-   * Set of items to initially set as selected.
+   * List of items to initially set as selected.
    */
   initialSelected?: ItemType[];
 }
