@@ -507,8 +507,8 @@ export const ApplicationsTable: React.FC = () => {
   });
 
   const {
+    filteredItems,
     currentPageItems,
-    totalItemCount,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -529,10 +529,11 @@ export const ApplicationsTable: React.FC = () => {
     selectedItems: selectedRows,
     propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
   } = useBulkSelection({
-    items: currentPageItems,
     isEqual: (a, b) => a.id === b.id,
+    // TODO: Pass `items` to also enable "select all items" if needed
+    // items: applications,
+    filteredItems,
     currentPageItems,
-    totalItemCount,
   });
 
   const clearFilters = () => {
