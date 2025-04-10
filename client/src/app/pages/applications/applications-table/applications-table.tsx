@@ -76,7 +76,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
+import { getArchetypeById } from "@app/api/rest";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -117,7 +117,8 @@ import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
   useDecoratedApplications,
-} from "./useDecoratedApplications";
+} from "../useDecoratedApplications";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -125,6 +126,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const history = useHistory();
   const token = keycloak.tokenParsed;
+
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
     "create" | DecoratedApplication | null
@@ -271,12 +273,20 @@ export const ApplicationsTable: React.FC = () => {
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
-      }),
-      variant: "success",
-    });
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIDCount: appIDCount,
+        }),
+        variant: "success",
+      });
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -566,6 +576,7 @@ export const ApplicationsTable: React.FC = () => {
   });
 
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
@@ -577,14 +588,22 @@ export const ApplicationsTable: React.FC = () => {
       getThProps,
       getTrProps,
       getTdProps,
-      toolbarBulkSelectorProps,
       getColumnVisibility,
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
-
-    selectionState: { selectedItems: selectedRows },
     columnState,
   } = tableControls;
+
+  const {
+    selectedItems: selectedRows,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a, b) => a.id === b.id,
+    // TODO: Pass `items` to also enable "select all items" if needed
+    // items: applications,
+    filteredItems,
+    currentPageItems,
+  });
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;
@@ -725,33 +744,17 @@ export const ApplicationsTable: React.FC = () => {
   const assessSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToAssess(application);
 
-    if (application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          const assessments = await getAssessmentsByItemId(
-            true,
-            archetypeRef.id
-          );
-
-          if (assessments && assessments.length > 0) {
-            setArchetypeRefsToOverride(application.archetypes);
-            break;
-          } else {
-            handleNavToAssessment(application);
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-        }
-      }
-    } else {
+    const archetypes = application.archetypes ?? [];
+    const { directStatus, inheritedStatus } = application.assessmentStatus;
+    if (
+      archetypes.length === 0 ||
+      directStatus === "partial" ||
+      directStatus === "complete" ||
+      inheritedStatus === "none"
+    ) {
       handleNavToAssessment(application);
+    } else {
+      setArchetypeRefsToOverride(archetypes);
     }
   };
 
@@ -953,6 +956,7 @@ export const ApplicationsTable: React.FC = () => {
                 <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >
@@ -986,7 +990,6 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
-                          isLoading={isFetchingApplications}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>

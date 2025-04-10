@@ -63,24 +63,21 @@ import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
-import { DecoratedApplication } from "../../applications-table/useDecoratedApplications";
+import { DecoratedApplication } from "../../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import {
-  useTableControlState,
-  useTableControlProps,
-} from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { useServerTasks } from "@app/queries/tasks";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
+  useTableControlState,
+  useTableControlProps,
   getHubRequestParams,
   deserializeFilterUrlParams,
 } from "@app/hooks/table-controls";
-import { useSelectionState } from "@migtools/lib-ui";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskActionColumn } from "../../../../pages/tasks/TaskActionColumn";
+import { TaskActionColumn } from "@app/pages/tasks/TaskActionColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -643,10 +640,6 @@ const TabTasksContent: React.FC<{
     totalItemCount,
     isLoading: isFetching,
     variant: "compact",
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {

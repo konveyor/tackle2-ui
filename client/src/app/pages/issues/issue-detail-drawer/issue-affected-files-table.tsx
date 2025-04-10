@@ -8,7 +8,6 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useSelectionState } from "@migtools/lib-ui";
 import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
 import {
   useTableControlState,
@@ -88,11 +87,6 @@ export const IssueAffectedFilesTable: React.FC<
     totalItemCount,
     isLoading: isFetching,
     variant: "compact",
-    // TODO FIXME - we don't need selectionState but it's required by this hook?
-    selectionState: useSelectionState({
-      items: currentPageFileReports,
-      isEqual: (a, b) => a.file === b.file,
-    }),
   });
 
   const {
