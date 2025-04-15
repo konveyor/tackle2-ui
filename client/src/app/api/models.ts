@@ -87,7 +87,6 @@ export interface JobFunction {
 export interface TagCategory {
   id: number;
   name: string;
-  rank?: number;
   colour?: string;
   tags?: Tag[];
 }

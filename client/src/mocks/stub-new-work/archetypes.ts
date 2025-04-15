@@ -98,25 +98,21 @@ const tagCategoryData: Record<string, Omit<TagCategory, "tags">> = {
   A: {
     id: 1,
     name: "Category Alpha",
-    rank: 5,
     colour: "#112233",
   },
   2: {
     id: 2,
     name: "Category Bravo",
-    rank: 7,
     colour: "#113322",
   },
   3: {
     id: 3,
     name: "Category Charlie",
-    rank: 9,
     colour: "#331122",
   },
   4: {
     id: 4,
     name: "Category Delta",
-    rank: 12,
     colour: "#332211",
   },
 };
