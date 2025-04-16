@@ -44,7 +44,7 @@ import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { TaskActionColumn } from "./TaskActionColumn";
-import { StateNoData } from "@app/components/StateNoData";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 export const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
@@ -308,7 +308,9 @@ export const TasksPage: React.FC = () => {
               isLoading={isFetching}
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
-              noDataEmptyState={<StateNoData />}
+              noDataEmptyState={
+                <NoDataEmptyState title={t("message.noResultsFoundTitle")} />
+              }
               numRenderedColumns={numRenderedColumns}
             >
               <Tbody>
