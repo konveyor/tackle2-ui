@@ -2,9 +2,6 @@ import React, { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Text,
@@ -22,7 +19,6 @@ import {
   Td,
   ThProps,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
 
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
@@ -48,6 +44,7 @@ import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { TaskActionColumn } from "./TaskActionColumn";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 export const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
@@ -312,13 +309,7 @@ export const TasksPage: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={t("message.noResultsFoundTitle")}
-                    headingLevel="h2"
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                  />
-                </EmptyState>
+                <NoDataEmptyState title={t("message.noResultsFoundTitle")} />
               }
               numRenderedColumns={numRenderedColumns}
             >
