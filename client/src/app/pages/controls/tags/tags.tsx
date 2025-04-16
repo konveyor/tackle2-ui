@@ -79,7 +79,7 @@ export const Tags: React.FC = () => {
   const isTagModalOpen = tagModalState !== null;
   const tagToUpdate = tagModalState !== "create" ? tagModalState : null;
 
-  const onDeleteTagSuccess = (response: any) => {
+  const onDeleteTagSuccess = () => {
     pushNotification({
       title: t("terms.tagDeleted"),
       variant: "success",
@@ -109,7 +109,7 @@ export const Tags: React.FC = () => {
     onDeleteTagError
   );
 
-  const onDeleteTagCategorySuccess = (response: any) => {
+  const onDeleteTagCategorySuccess = () => {
     pushNotification({
       title: t("terms.tagCategoryDeleted"),
       variant: "success",
@@ -167,7 +167,6 @@ export const Tags: React.FC = () => {
     items: tagCategories,
     columnNames: {
       tagCategory: t("terms.tagCategory"),
-      rank: t("terms.rank"),
       color: t("terms.color"),
       tagCount: t("terms.tagCount"),
     },
@@ -208,18 +207,6 @@ export const Tags: React.FC = () => {
         ),
       },
       {
-        categoryKey: "rank",
-        title: t("terms.rank"),
-        type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.rank").toLowerCase(),
-          }) + "...",
-        getItemValue: (item) => {
-          return item.rank?.toString() || "";
-        },
-      },
-      {
         categoryKey: "color",
         title: t("terms.color"),
         type: FilterType.search,
@@ -235,11 +222,10 @@ export const Tags: React.FC = () => {
       },
     ],
     initialItemsPerPage: 10,
-    sortableColumns: ["tagCategory", "rank", "tagCount"],
+    sortableColumns: ["tagCategory", "tagCount"],
     initialSort: { columnKey: "tagCategory", direction: "asc" },
     getSortValues: (item) => ({
       tagCategory: item?.name || "",
-      rank: typeof item?.rank === "number" ? item.rank : Number.MAX_VALUE,
       tagCount: item?.tags?.length || 0,
     }),
     isLoading: isFetching,
@@ -321,7 +307,6 @@ export const Tags: React.FC = () => {
                     {...getThProps({ columnKey: "tagCategory" })}
                     width={30}
                   />
-                  <Th {...getThProps({ columnKey: "rank" })} width={20} />
                   <Th {...getThProps({ columnKey: "color" })} width={20} />
                   <Th {...getThProps({ columnKey: "tagCount" })} width={20} />
                   <Th width={10} />
@@ -372,9 +357,6 @@ export const Tags: React.FC = () => {
                           {...getTdProps({ columnKey: "tagCategory" })}
                         >
                           {tagCategory.name}
-                        </Td>
-                        <Td width={10} {...getTdProps({ columnKey: "rank" })}>
-                          {tagCategory.rank}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "color" })}>
                           <Color hex={categoryColor} />
@@ -497,6 +479,7 @@ export const Tags: React.FC = () => {
           }}
         />
       )}
+
       {!!tagCategoryToDelete && (
         <ConfirmDialog
           title={t("dialog.title.deleteWithName", {
