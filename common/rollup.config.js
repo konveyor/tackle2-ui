@@ -31,6 +31,7 @@ const stringModule = ejs.render(
 
 console.log("Using branding assets from:", brandingPath);
 
+/** @type {import('rollup').RollupOptions} */
 const config = {
   input: "src/index.ts",
 
