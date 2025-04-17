@@ -42,11 +42,7 @@ import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
 import { Target } from "@app/api/models";
 import { DEFAULT_PROVIDER } from "./useMigrationProviderList";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import {
-  FilterToolbar,
-  FilterType,
-  FilterValue,
-} from "@app/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { unique } from "radash";
 
 export const MigrationTargets: React.FC = () => {
@@ -135,21 +131,19 @@ export const MigrationTargets: React.FC = () => {
         ]);
       }
 
-      // Make sure the new target's provider is part of the provider's filter so it can be seen
+      // Make sure the new target's provider is part of the providers filter so it can be seen
       if (filterState.filterValues["provider"]) {
-        let newProviderFilter: FilterValue = null;
-
         const targetProvider = response.data.provider;
-        if (targetProvider) {
-          const fv = filterState.filterValues["provider"];
-          newProviderFilter = fv.includes(targetProvider)
-            ? fv
-            : [...fv, targetProvider];
-        }
+        const fv = filterState.filterValues["provider"];
+        const newFv = !targetProvider
+          ? null
+          : fv.includes(targetProvider)
+          ? fv
+          : [...fv, targetProvider];
 
         filterState.setFilterValues({
-          name: filterState.filterValues["name"],
-          provider: newProviderFilter,
+          ...filterState.filterValues,
+          provider: newFv,
         });
       }
     }

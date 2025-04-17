@@ -78,7 +78,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const baseProviderList = useMigrationProviderList();
   const providerList = useMemo(
     () =>
-      unique([initialTarget?.provider, ...baseProviderList]).filter(Boolean),
+      unique([initialTarget?.provider, ...baseProviderList])
+        .filter(Boolean)
+        .sort(),
     [baseProviderList, initialTarget?.provider]
   );
   const providerListOptions = useMemo(
