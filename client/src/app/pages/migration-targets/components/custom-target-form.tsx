@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import {
   ActionGroup,
   Alert,
@@ -28,14 +28,7 @@ import {
 } from "@app/components/HookFormPFFields";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import {
-  IReadFile,
-  New,
-  ProviderType,
-  Rule,
-  Target,
-  TargetLabel,
-} from "@app/api/models";
+import { IReadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -49,18 +42,23 @@ import {
   useUpdateTargetMutation,
 } from "@app/queries/targets";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import {
+  DEFAULT_PROVIDER,
+  useMigrationProviderList,
+} from "../useMigrationProviderList";
+import { unique } from "radash";
 
 export interface CustomTargetFormProps {
   target?: Target | null;
   onSaved: (response: AxiosResponse<Target>) => void;
   onCancel: () => void;
-  providerType: ProviderType;
 }
 
 export interface CustomTargetFormValues {
   id: number;
   name: string;
   description?: string;
+  providerType?: string;
   imageID: number | null;
   customRulesFiles: IReadFile[];
   rulesKind: string;
@@ -75,9 +73,25 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target: initialTarget,
   onSaved,
   onCancel,
-  providerType,
 }) => {
   const { pushNotification } = useContext(NotificationsContext);
+  const baseProviderList = useMigrationProviderList();
+  const providerList = useMemo(
+    () =>
+      unique([initialTarget?.provider, ...baseProviderList])
+        .filter(Boolean)
+        .sort(),
+    [baseProviderList, initialTarget?.provider]
+  );
+  const providerListOptions = useMemo(
+    () =>
+      providerList.map((provider) => ({
+        value: provider,
+        toString: () => provider,
+      })),
+    [providerList]
+  );
+
   const { t } = useTranslation();
   const [target, setTarget] = useState(initialTarget);
   const [imageRejectedError, setImageRejectedError] = useState<string | null>(
@@ -126,6 +140,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           (value) => duplicateNameCheck(targets, target || null, value || "")
         ),
       description: yup.string(),
+      providerType: yup.string().oneOf(providerList),
       imageID: yup.number().defined().nullable(),
       rulesKind: yup.string().defined(),
       customRulesFiles: yup
@@ -180,6 +195,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       id: target?.id || 0,
       name: target?.name || "",
       description: target?.description || "",
+      providerType: target?.provider ?? DEFAULT_PROVIDER,
       imageID: target?.image?.id || null,
       customRulesFiles: getInitialCustomRulesFilesData(),
       rulesKind: !target
@@ -205,7 +221,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     getValues,
     setValue,
     control,
-    watch,
     setFocus,
     clearErrors,
     trigger,
@@ -223,9 +238,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       setTarget(undefined);
       setFilename("default.png");
     };
-  }, []);
+  }, [initialTarget]);
 
-  const watchAllFields = watch();
   const values = getValues();
 
   const {
@@ -307,7 +321,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             },
           }),
       },
-      provider: providerType || "Java",
+      provider: formValues.providerType,
     };
 
     if (target) {
@@ -354,7 +368,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
 
-  const onCreateTargetSuccess = (response: any) => {
+  const onCreateTargetSuccess = (response: AxiosResponse<Target>) => {
     onSaved(response);
     reset();
   };
@@ -371,12 +385,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onCreateTargetFailure
   );
 
-  const onUpdateTargetSuccess = (response: any) => {
+  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
     onSaved(response);
     reset();
   };
 
-  const onUpdateTargetFailure = (error: AxiosError) => {};
+  const onUpdateTargetFailure = (_error: AxiosError) => {};
 
   const { mutate: updateTarget } = useUpdateTargetMutation(
     onUpdateTargetSuccess,
@@ -416,11 +430,32 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
       <HookFormPFGroupController
         control={control}
+        name="providerType"
+        label="Provider"
+        fieldId="provider-type-select"
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            id="provider-type-select"
+            toggleId="provider-type-select-toggle"
+            toggleAriaLabel="Provider type select dropdown toggle"
+            aria-label={name}
+            value={value ? toOptionLike(value, providerListOptions) : undefined}
+            options={providerListOptions}
+            onChange={(selection) => {
+              const selectionValue = selection as OptionWithValue<string>;
+              onChange(selectionValue.value);
+            }}
+          />
+        )}
+      />
+
+      <HookFormPFGroupController
+        control={control}
         name="imageID"
         label={t("terms.image")}
         fieldId="custom-migration-target-upload-image"
         helperText="Upload a png or jpeg file (Max size: 1 MB)"
-        renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
+        renderInput={({ field: { onChange, name } }) => (
           <>
             {imageRejectedError && (
               <Alert
@@ -471,7 +506,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                     clearErrors("imageID");
                     trigger("imageID");
                   })
-                  .catch((err) => {
+                  .catch(() => {
                     setValue("imageID", null);
                   });
               }}
@@ -493,7 +528,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         label="Custom rules"
         fieldId="type-select"
         isRequired
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { value, onChange } }) => (
           <>
             <Radio
               id="manual"
@@ -573,6 +608,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           </MultipleFileUpload>
         </>
       )}
+
       {values?.rulesKind === "repository" && (
         <>
           <HookFormPFGroupController
@@ -622,7 +658,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             name="associatedCredentials"
             label="Associated credentials"
             fieldId="credentials-select"
-            renderInput={({ field: { value, name, onBlur, onChange } }) => (
+            renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 variant="typeahead"
                 id="associated-credentials-select"
