@@ -117,7 +117,7 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "An archetype with this name already exists. Use a different name.",
+        t("duplicateName", { type: "An archetype" }),
         (value) =>
           duplicateNameCheck(
             existingArchetypes,
