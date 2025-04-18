@@ -1110,7 +1110,7 @@ export const ApplicationsTable: React.FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-                    <Td isActionCell id="actions">
+                    <Td isActionCell id="action">
                       <OverflowMenu breakpoint="sm">
                         {applicationWriteAccess && (
                           <Tooltip content={t("actions.edit")}>
