@@ -1,23 +1,52 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: ":ghost: "
-
-    groups:
-      patternfly:
-        patterns:
-          - "@patternfly/*"
-        update-types:
-          - minor
-          - patch
-
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: daily
     commit-message:
       prefix: ":seedling: "
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: thursday
+    commit-message:
+      prefix: ":ghost: "
+
+    allow:
+      - dependency-type: direct
+
+    ignore:
+      - dependency-name: "@patternfly/*"
+      - update-types:
+          - version-update:semver-major
+
+    groups:
+      patternfly:
+        patterns:
+          - "@patternfly/*"
+
+      "server dependencies":
+        patterns:
+          - cookie
+          - ejs
+          - express
+          - http-proxy-middleware
+          - http-terminator
+
+      rollup:
+        patterns:
+          - "@rollup/*"
+          - "rollup"
+          - "rollup-*"
+
+      linting:
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - prettier
+          - lint-staged
+          - husky
+          - "*eslint-plugin-*"
