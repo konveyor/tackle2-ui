@@ -122,7 +122,6 @@ import {
   useDecoratedApplications,
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
-import yaml from "js-yaml";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -233,13 +232,12 @@ export const ApplicationsTable: React.FC = () => {
       .filter((id): id is number => typeof id === "number");
 
     try {
-      const tasks = await getTasksByIds(ids);
-      const data =
-        selectedFormat === "yaml"
-          ? yaml.dump(tasks, { indent: 2 })
-          : JSON.stringify(tasks, null, 2);
+      const tasks = await getTasksByIds(
+        ids,
+        selectedFormat === "yaml" ? "yaml" : "json"
+      );
 
-      const blob = new Blob([data], {
+      const blob = new Blob([JSON.stringify(tasks, null, 2)], {
         type:
           selectedFormat === "json" ? "application/json" : "application/x-yaml",
       });
