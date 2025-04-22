@@ -79,11 +79,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import {
-  getArchetypeById,
-  getAssessmentsByItemId,
-  getTasksByIds,
-} from "@app/api/rest";
+import { getArchetypeById, getTasksByIds } from "@app/api/rest";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -715,6 +711,23 @@ export const ApplicationsTable: React.FC = () => {
         >
           {t("actions.delete")}
         </DropdownItem>,
+        ...(tasksReadAccess && tasksWriteAccess
+          ? [
+              <DropdownItem
+                key="applications-bulk-cancel"
+                isDisabled={
+                  !selectedRows.some((application: DecoratedApplication) =>
+                    isTaskCancellable(application)
+                  )
+                }
+                onClick={() => {
+                  handleCancelBulkAnalysis();
+                }}
+              >
+                {t("actions.cancelAnalysis")}
+              </DropdownItem>,
+            ]
+          : []),
         <DropdownItem
           key="analysis-bulk-download"
           isDisabled={
