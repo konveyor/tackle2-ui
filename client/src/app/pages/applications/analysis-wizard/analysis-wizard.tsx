@@ -219,6 +219,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { mode, withKnownLibs, hasExcludedPackages } = values;
   const hasIncludedPackages = withKnownLibs.includes("select");
+
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
     fieldValues: AnalysisWizardFormValues
@@ -277,12 +278,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                   .filter(Boolean),
               ])
             ),
-            excluded: [],
-          },
-          path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
-          tags: {
             excluded: fieldValues.excludedRulesTags,
           },
+          path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
           ...(fieldValues.rulesKind === "repository" && {
             repository: {
               kind: fieldValues?.repositoryType,
