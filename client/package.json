@@ -75,7 +75,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
-    "css-minimizer-webpack-plugin": "^6.0.0",
+    "css-minimizer-webpack-plugin": "^7.0.2",
     "dotenv-webpack": "^8.1.0",
     "exports-loader": "^3.1.0",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
