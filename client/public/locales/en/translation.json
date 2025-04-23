@@ -353,7 +353,6 @@
     "credentialType": "Credential type",
     "criticality": "Criticality",
     "currentLandscape": "Current landscape",
-    "customTargetOfType": "custom migration target: {{type}}",
     "customTarget": "Custom migration target",
     "customTargets": "Custom migration targets",
     "customTargetsDetails": "Create and manage custom migration targets. You can also drag and drop the cards to rearrange them. Note that any changes to the layout here will be reflected in the Analysis wizard",
