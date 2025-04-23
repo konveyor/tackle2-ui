@@ -1,4 +1,8 @@
-import axios, { AxiosPromise, RawAxiosRequestHeaders } from "axios";
+import axios, {
+  AxiosPromise,
+  AxiosResponse,
+  RawAxiosRequestHeaders,
+} from "axios";
 
 import {
   AnalysisAppDependency,
@@ -463,11 +467,12 @@ export const deleteAllMigrationWaves = (
     .catch((error) => error);
 };
 
-export const updateTarget = (obj: Target): Promise<Target> =>
-  axios.put(`${TARGETS}/${obj.id}`, obj);
+export const updateTarget = (obj: Target) =>
+  axios.put<Target>(`${TARGETS}/${obj.id}`, obj);
 
-export const createTarget = (obj: New<Target>): Promise<Target> =>
-  axios.post(TARGETS, obj);
+export const createTarget = (
+  obj: New<Target>
+): Promise<AxiosResponse<Target>> => axios.post<Target>(TARGETS, obj);
 
 export const deleteTarget = (id: number): Promise<Target> =>
   axios.delete(`${TARGETS}/${id}`);

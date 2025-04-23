@@ -7,7 +7,7 @@ import {
   getTargets,
   updateTarget,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 export const TargetsQueryKey = "targets";
 
@@ -28,7 +28,7 @@ export const useFetchTargets = () => {
 };
 
 export const useUpdateTargetMutation = (
-  onSuccess: (res: Target) => void,
+  onSuccess: (res: AxiosResponse<Target>) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -74,7 +74,7 @@ export const useDeleteTargetMutation = (
 };
 
 export const useCreateTargetMutation = (
-  onSuccess: (res: Target) => void,
+  onSuccess: (res: AxiosResponse<Target>) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
