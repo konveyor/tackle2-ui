@@ -1,62 +1,94 @@
 import { useContext, useState } from "react";
-import { FileLoadError, IReadFile } from "@app/api/models";
+import { HubFile, IReadFile, Taskgroup } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useUploadFileMutation } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { CustomTargetFormValues } from "@app/pages/migration-targets/components/custom-target-form";
-import { UseFormReturn } from "react-hook-form";
 import { XMLValidator } from "fast-xml-parser";
 import XSDSchema from "./windup-jboss-ruleset.xsd";
 import { checkRuleFileType } from "../utils/rules-utils";
 import { DropEvent } from "@patternfly/react-core";
+import { load as loadYaml, YAMLException } from "js-yaml";
+import { counting } from "radash";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const xmllint = require("xmllint");
 
-export default function useRuleFiles(
-  taskgroupID: number | null | undefined,
-  existingRuleFiles: IReadFile[] = [],
-  methods?: UseFormReturn<CustomTargetFormValues>
-) {
+export interface ValidationFunctionResult {
+  state: "valid" | "error";
+  message?: string;
+}
+
+const validateXmlFile = (data: string): ValidationFunctionResult => {
+  // Filter out "data:text/xml;base64," from data
+  const validationObject = XMLValidator.validate(data, {
+    allowBooleanAttributes: true,
+  });
+
+  // If xml is valid, check against schema
+  if (validationObject === true) {
+    const currentSchema = XSDSchema;
+
+    const validationResult = xmllint.xmllint.validateXML({
+      xml: data,
+      schema: currentSchema,
+    });
+
+    if (validationResult.errors)
+      return {
+        state: "error",
+        message: validationResult?.errors?.toString(),
+      };
+    else return { state: "valid" };
+  } else
+    return {
+      state: "error",
+      message: validationObject?.err?.msg?.toString(),
+    };
+};
+
+const validateYamlFile = (data: string): ValidationFunctionResult => {
+  try {
+    loadYaml(data);
+    return {
+      state: "valid",
+    };
+  } catch (err) {
+    const yamlException = err as YAMLException;
+    return {
+      state: "error",
+      message: `${yamlException.reason} (ln: ${yamlException.mark.line}, col: ${yamlException.mark.column})`,
+    };
+  }
+};
+
+export interface UseRuleFilesParams {
+  ruleFiles: IReadFile[];
+  fileExists?: (fileName: string) => boolean;
+  onChangeRuleFiles: (ruleFiles: IReadFile[]) => void;
+  taskgroupId?: number;
+}
+
+export default function useRuleFiles({
+  ruleFiles,
+  onChangeRuleFiles,
+  fileExists,
+  taskgroupId,
+}: UseRuleFilesParams) {
   const { pushNotification } = useContext(NotificationsContext);
   const [uploadError, setUploadError] = useState("");
-  const [ruleFiles, setRuleFiles] = useState<IReadFile[]>(
-    taskgroupID ? [] : existingRuleFiles
-  );
-  const [showStatus, setShowStatus] = useState(true);
 
-  const onUploadError = (error: AxiosError) =>
-    console.log("File upload failed: ", error);
-
-  const onCreateRuleFileSuccess = (
-    response: any,
-    formData: FormData,
-    file: IReadFile
-  ) => {
-    setRuleFiles((oldRuleFiles) => {
-      const fileWithID: IReadFile = {
-        ...file,
-        ...{ responseID: response?.id },
-      };
-      const updatedFiles = [...oldRuleFiles];
-      const ruleFileToUpdate = ruleFiles.findIndex(
-        (ruleFile) => ruleFile.fileName === file.fileName
-      );
-      updatedFiles[ruleFileToUpdate] = fileWithID;
-
-      if (methods) {
-        methods.setValue(
-          "customRulesFiles",
-          updatedFiles.filter((ruleFile) => ruleFile.loadResult === "success"),
-          { shouldDirty: true, shouldValidate: true }
-        );
-      }
-      return updatedFiles;
-    });
+  const updateRuleFile = (updatedFile: IReadFile) => {
+    const updated = ruleFiles.slice();
+    const updateIndex = updated.findIndex(
+      ({ fileName }) => fileName === updatedFile.fileName
+    );
+    updated[updateIndex] = updatedFile;
+    onChangeRuleFiles(updated);
   };
 
-  const onCreateRuleFileFailure = (error: AxiosError) => {
+  const notifyOnUploadFail = (error: AxiosError) => {
     pushNotification({
       title: getAxiosErrorMessage(error),
       variant: "danger",
@@ -64,90 +96,60 @@ export default function useRuleFiles(
   };
 
   const { mutate: createRuleFile } = useCreateFileMutation(
-    onCreateRuleFileSuccess,
-    onCreateRuleFileFailure
-  );
-
-  const onUploadFileSuccess = (
-    response: any,
-    id: number,
-    path: string,
-    formData: IReadFile,
-    file: IReadFile
-  ) => {
-    //Set file ID for use in form submit
-    setRuleFiles((oldRuleFiles) => {
-      const fileWithID: IReadFile = {
+    (response: HubFile, _formData: FormData, file: IReadFile) => {
+      updateRuleFile({
         ...file,
-        ...{ responseID: response?.id },
-      };
-      const updatedFiles = [...oldRuleFiles];
-      const ruleFileToUpdate = ruleFiles.findIndex(
-        (ruleFile) => ruleFile.fileName === file.fileName
-      );
-      updatedFiles[ruleFileToUpdate] = fileWithID;
-
-      return updatedFiles;
-    });
-  };
-
-  const { mutate: uploadFile } = useUploadFileMutation(
-    onUploadFileSuccess,
-    onUploadError
+        responseID: response?.id,
+      });
+    },
+    notifyOnUploadFail
   );
 
-  const setStatus = () => {
-    if (ruleFiles.length < existingRuleFiles.length) {
-      return "inProgress";
-    } else if (ruleFiles.every((file) => file.loadResult === "success")) {
-      return "success";
-    } else {
-      return "danger";
-    }
-  };
-
-  const isFileIncluded = (name: string) =>
-    existingRuleFiles.some((file) => file.fileName === name);
-
-  const successfullyReadFileCount = ruleFiles.filter(
-    (fileData) => fileData.loadResult === "success"
-  ).length;
-
-  const getloadPercentage = (filename: string) => {
-    const readFile = ruleFiles.find((file) => file.fileName === filename);
-    if (readFile) return readFile.loadPercentage;
-    return 0;
-  };
-
-  const getloadResult = (filename: string) => {
-    const readFile = ruleFiles.find((file) => file.fileName === filename);
-    if (readFile) return readFile.loadResult;
-    return undefined;
-  };
+  const { mutate: uploadTaskgroupFile } = useUploadFileMutation(
+    (
+      response: AxiosResponse<Taskgroup>,
+      _id: number,
+      _path: string,
+      _formData: IReadFile,
+      file: IReadFile
+    ) => {
+      updateRuleFile({
+        ...file,
+        responseID: response?.data?.id,
+      });
+    },
+    notifyOnUploadFail
+  );
 
   const readFile = (file: File) => {
-    return new Promise<string | null>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
+      const ruleFile = ruleFiles.find(({ fileName }) => fileName === file.name);
+
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = () => reject(reader.error);
       reader.onprogress = (data) => {
-        if (data.lengthComputable) {
-          // setLoadPercentage((data.loaded / data.total) * 100);
+        if (ruleFile && data.lengthComputable) {
+          updateRuleFile({
+            ...ruleFile,
+            loadPercentage: (data.loaded / data.total) * 100,
+          });
         }
       };
       reader.readAsText(file);
     });
   };
 
-  // callback that will be called by the react dropzone with the newly dropped file objects
-  const handleFileDrop = (event: DropEvent, droppedFiles: File[]) => {
+  const handleFileDrop = (_event: DropEvent, droppedFiles: File[]) => {
     // identify what, if any, files are re-uploads of already uploaded files
     const currentFileNames = ruleFiles.map((file) => file.fileName);
     const reUploads = droppedFiles.filter((droppedFile) =>
       currentFileNames.includes(droppedFile.name)
     );
-    /** this promise chain is needed because if the file removal is done at the same time as the file adding react
-     * won't realize that the status items for the re-uploaded files needs to be re-rendered */
+
+    // this promise chain is needed because if the file removal is done at the same time as the
+    // file adding react won't realize that the status items for the re-uploaded files needs to
+    // be re-rendered
     Promise.resolve()
       .then(() => removeFiles(reUploads.map((file) => file.name)))
       .then(() => {
@@ -159,66 +161,64 @@ export default function useRuleFiles(
             };
           }
         );
-        setRuleFiles((prevRuleFiles) => [
-          ...prevRuleFiles,
-          ...droppedReadFiles,
-        ]);
+
+        const update = [...ruleFiles, ...droppedReadFiles];
+        onChangeRuleFiles(update);
       });
   };
 
   const removeFiles = (namesOfFilesToRemove: string[]) => {
     const updatedRuleFilesList = ruleFiles.filter(
-      (currentFile) =>
-        !namesOfFilesToRemove.some(
-          (fileName) => fileName === currentFile.fileName
-        )
+      (file) =>
+        !namesOfFilesToRemove.some((fileName) => fileName === file.fileName)
     );
-    setRuleFiles(updatedRuleFilesList);
+
     if (!updatedRuleFilesList.some((file) => file.loadResult === "danger")) {
       setUploadError("");
     }
-    if (methods) {
-      methods.setValue(
-        "customRulesFiles",
-        updatedRuleFilesList.filter(
-          (ruleFile) => ruleFile.loadResult === "success"
-        ),
-        { shouldDirty: true, shouldValidate: true }
-      );
-      methods.trigger("customRulesFiles");
-    }
+
+    onChangeRuleFiles(updatedRuleFilesList);
   };
 
   const handleFile = (file: File) => {
+    // Don't do anything for a File that is just a placeholder for an existing hub file
+    if (!file || file.type === "placeholder") {
+      return;
+    }
+
     readFile(file)
-      .then((data) => {
-        if (isFileIncluded(file.name) && !taskgroupID) {
-          //If existing file loaded in edit mode, add placeholder file for custom target form
-          handleReadSuccess(data || "", file);
-        } else {
-          if (isFileIncluded(file.name)) {
-            const error = new Error(`File "${file.name}" is already uploaded`);
-            handleReadFail(error, 100, file);
-          } else {
-            if (data) {
-              if (checkRuleFileType(file.name) === "XML") {
-                const validatedXMLResult = validateXMLFile(data);
-                if (validatedXMLResult.state === "valid") {
-                  handleReadSuccess(data, file);
-                } else {
-                  const error = new Error(
-                    `File "${file.name}" is not a valid XML: ${validatedXMLResult.message}`
-                  );
-                  handleReadFail(error, 100, file);
-                }
-              } else {
-                handleReadSuccess(data, file);
-              }
-            } else {
-              const error = new Error("error");
-              handleReadFail(error, 100, file);
-            }
+      .then((fileContents) => {
+        let error = undefined;
+
+        // Block duplicate file name uploads if a Taskgroup is available
+        if (fileExists && fileExists(file.name)) {
+          error = new Error(`File "${file.name}" is already uploaded`);
+        }
+
+        // Verify/lint the contents of an XML file
+        if (!error && checkRuleFileType(file.name) === "XML") {
+          const result = validateXmlFile(fileContents);
+          if (result.state === "error") {
+            error = new Error(
+              `File "${file.name}" is not valid XML: ${result.message}`
+            );
           }
+        }
+
+        // Verify/lint the contents of a YAML file
+        if (!error && checkRuleFileType(file.name) === "YAML") {
+          const result = validateYamlFile(fileContents);
+          if (result.state === "error") {
+            error = new Error(
+              `File "${file.name}" is not valid YAML: ${result.message}`
+            );
+          }
+        }
+
+        if (error) {
+          handleReadFail(error, 100, file);
+        } else {
+          handleReadSuccess(fileContents, file);
         }
       })
       .catch((error) => {
@@ -227,108 +227,66 @@ export default function useRuleFiles(
   };
 
   const handleReadSuccess = (data: string, file: File) => {
-    if (taskgroupID) {
-      // Upload file to bucket if bucket exists / in analysis wizard mode
-      const newFile: IReadFile = {
-        data,
-        fileName: file.name,
-        loadResult: "success",
-        loadPercentage: 100,
-        fullFile: file,
-      };
-      const formFile = new FormData();
-      newFile.fullFile && formFile.append("file", newFile.fullFile);
-      uploadFile({
-        id: taskgroupID as number,
+    const newFile: IReadFile = {
+      data,
+      fileName: file.name,
+      loadResult: "success",
+      loadPercentage: 100,
+      fullFile: file,
+    };
+
+    const formFile = new FormData();
+    newFile.fullFile && formFile.append("file", newFile.fullFile);
+
+    if (taskgroupId) {
+      uploadTaskgroupFile({
+        id: taskgroupId,
         path: `rules/${newFile.fileName}`,
         formData: formFile,
         file: newFile,
       });
     } else {
-      const newFile: IReadFile = {
-        data,
-        fileName: file.name,
-        loadResult: "success",
-        loadPercentage: 100,
-        fullFile: file,
-      };
-      const formFile = new FormData();
-      newFile.fullFile && formFile.append("file", newFile?.fullFile);
       createRuleFile({
         formData: formFile,
         file: newFile,
       });
     }
+
+    // Note: The ruleFile will be updated by the onSuccess handlers of the mutations
   };
 
   const handleReadFail = (error: Error, percentage: number, file: File) => {
-    setUploadError(error.toString());
+    setUploadError(error.message);
     const fileWithErrorState: IReadFile = {
-      loadError: error as FileLoadError,
+      loadError: error,
       fileName: file.name,
       loadResult: "danger",
       loadPercentage: percentage,
       fullFile: file,
     };
-    const updatedFiles = [...ruleFiles];
-    const ruleFileToUpdate = ruleFiles.findIndex(
-      (ruleFile) => ruleFile.fileName === file.name
-    );
-    updatedFiles[ruleFileToUpdate] = fileWithErrorState;
-
-    setRuleFiles(updatedFiles);
+    updateRuleFile(fileWithErrorState);
   };
 
-  // only show the status component once a file has been uploaded, but keep the status list component itself even if all files are removed
-  if (!showStatus && existingRuleFiles.length > 0) {
-    setShowStatus(true);
-  }
-  interface IParsedXMLFileStatus {
-    state: "valid" | "error";
-    message?: string;
-  }
+  const results = counting(ruleFiles, (r) => r.loadResult ?? "inProgress");
 
-  const validateXMLFile = (data: string): IParsedXMLFileStatus => {
-    // Filter out "data:text/xml;base64," from data
-    const validationObject = XMLValidator.validate(data, {
-      allowBooleanAttributes: true,
-    });
-
-    // If xml is valid, check against schema
-    if (validationObject === true) {
-      const currentSchema = XSDSchema;
-
-      const validationResult = xmllint.xmllint.validateXML({
-        xml: data,
-        schema: currentSchema,
-      });
-
-      if (validationResult.errors)
-        return {
-          state: "error",
-          message: validationResult?.errors?.toString(),
-        };
-      else return { state: "valid" };
-    } else
-      return {
-        state: "error",
-        message: validationObject?.err?.msg?.toString(),
-      };
-  };
+  const ruleFilesStatusText = `${results.success} of ${ruleFiles.length} files uploaded`;
+  const ruleFilesStatusIcon =
+    results.inProgress > 0
+      ? "inProgress"
+      : results.danger > 0
+      ? "danger"
+      : "success";
 
   return {
+    /** Manage the set of files when a new file is dropped or uploaded. */
     handleFileDrop,
-    removeFiles,
-    existingRuleFiles,
-    setRuleFiles,
-    ruleFiles,
-    showStatus,
-    uploadError,
-    setUploadError,
-    successfullyReadFileCount,
-    getloadPercentage,
-    getloadResult,
-    setStatus,
     handleFile,
+    removeFiles,
+
+    uploadError,
+    clearUploadError: () => setUploadError(""),
+
+    ruleFilesStatusText,
+    ruleFilesStatusIcon,
   };
 }
