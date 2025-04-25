@@ -22,12 +22,10 @@ import {
   BaseAnalysisRuleReport,
   BusinessService,
   Cache,
-  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
   InitialAssessment,
-  IReadFile,
   JobFunction,
   MigrationWave,
   MimeType,
@@ -88,7 +86,6 @@ export const TICKETS = HUB + "/tickets";
 export const FACTS = HUB + "/facts";
 
 export const TARGETS = HUB + "/targets";
-export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/report/dependencies";
@@ -116,16 +113,25 @@ export const ASSESSMENTS = HUB + "/assessments";
 
 export const PLATFORMS = HUB + "/platforms";
 
-const jsonHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/json",
+export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
+  json: {
+    Accept: "application/json",
+  },
+  form: {
+    Accept: "multipart/form-data",
+  },
+  file: {
+    Accept: "application/json",
+  },
+  yaml: {
+    Accept: "application/x-yaml",
+  },
+  plain: {
+    Accept: "test/plain",
+  },
 };
-const formHeaders: RawAxiosRequestHeaders = {
-  Accept: "multipart/form-data",
-};
-const fileHeaders: RawAxiosRequestHeaders = { Accept: "application/json" };
-const yamlHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/x-yaml",
-};
+
+export * from "./rest-files";
 
 type Direction = "asc" | "desc";
 
@@ -482,26 +488,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-export const createFile = ({
-  formData,
-  file,
-}: {
-  formData: FormData;
-  file: IReadFile;
-}) =>
-  axios
-    .post<HubFile>(`${FILES}/${file.fileName}`, formData, {
-      headers: fileHeaders,
-    })
-    .then((response) => {
-      return response.data;
-    });
-
-export const getTextFile = (id: number): Promise<string> =>
-  axios
-    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
-    .then((response) => response.data);
 
 export const getSettingById = <K extends keyof SettingTypes>(
   id: K

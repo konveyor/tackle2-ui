@@ -13,6 +13,7 @@ export const checkRuleFileType = (filename: string): RuleFileType => {
     return null;
   }
 };
+
 type ParsedYamlElement = { labels?: string[] };
 type ParsedYaml = ParsedYamlElement[] | {};
 

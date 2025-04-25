@@ -517,17 +517,10 @@ export interface ParsedRule {
   fileID?: number;
 }
 
-export type FileLoadError = {
-  name?: string;
-  message?: string;
-  stack?: string;
-  cause?: {};
-};
-
 export interface IReadFile {
   fileName: string;
   fullFile?: File;
-  loadError?: FileLoadError;
+  loadError?: Error;
   loadPercentage?: number;
   loadResult?: "danger" | "success";
   data?: string;
