@@ -84,8 +84,11 @@ export const UploadBinary: React.FC = () => {
     failedUpload
   );
 
-  const { mutate: removeFile, isLoading: isRemovingFile } =
-    useRemoveUploadedFileMutation(completedRemove, failedRemove);
+  const { mutate: removeFile } = useRemoveUploadedFileMutation(
+    completedRemove,
+    failedRemove
+  );
+
   const onCreateTaskgroupSuccess = (data: Taskgroup) => {
     updateTaskGroup(data);
   };
@@ -117,7 +120,6 @@ export const UploadBinary: React.FC = () => {
             uploadFile({
               id: data?.id,
               path: `binary/${droppedFiles[0].name}`,
-              formData: form,
               file: droppedFiles[0],
             });
         });
@@ -126,7 +128,6 @@ export const UploadBinary: React.FC = () => {
           uploadFile({
             id: taskGroup?.id,
             path: `binary/${droppedFiles[0].name}`,
-            formData: form,
             file: droppedFiles[0],
           });
       }
@@ -137,7 +138,7 @@ export const UploadBinary: React.FC = () => {
             setFileUploadProgress(0);
           }
         })
-        .catch((error) => {
+        .catch(() => {
           setValue("artifact", undefined);
           setFileUploadProgress(0);
           setFileUploadStatus("danger");
@@ -163,7 +164,7 @@ export const UploadBinary: React.FC = () => {
 
   const handleFile = (file: File) => {
     if (!artifact)
-      readFile(file).catch((error) => {
+      readFile(file).catch(() => {
         setValue("artifact", undefined);
         setFileUploadProgress(0);
         setFileUploadStatus("danger");

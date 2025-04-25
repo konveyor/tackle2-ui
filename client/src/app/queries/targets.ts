@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { HubFile, IReadFile, Target } from "@app/api/models";
+import { HubFile, Target } from "@app/api/models";
 import {
   createFile,
   createTarget,
@@ -96,18 +96,18 @@ export const useCreateTargetMutation = (
 };
 
 export const useCreateFileMutation = (
-  onSuccess?: (data: HubFile, formData: FormData, file: IReadFile) => void,
+  onSuccess?: (data: HubFile, file: File) => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, mutateAsync, error } = useMutation({
     mutationFn: createFile,
-    onSuccess: (data, { formData, file }) => {
-      onSuccess && onSuccess(data, formData, file);
+    onSuccess: (data, { file }) => {
+      onSuccess?.(data, file);
       queryClient.invalidateQueries([]);
     },
     onError: (err: AxiosError) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
   return {

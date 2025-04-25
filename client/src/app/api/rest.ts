@@ -14,12 +14,10 @@ import {
   Assessment,
   BusinessService,
   Cache,
-  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
   InitialAssessment,
-  IReadFile,
   JobFunction,
   MigrationWave,
   MimeType,
@@ -62,6 +60,7 @@ export const APP_IMPORTS = HUB + "/imports";
 export const APP_IMPORTS_SUMMARY = HUB + "/importsummaries";
 export const APP_IMPORTS_SUMMARY_CSV = HUB + "/importsummaries/download";
 export const APP_IMPORTS_SUMMARY_UPLOAD = HUB + "/importsummaries/upload";
+export const APPLICATION_MANIFEST = HUB + "/applications/{{id}}/manifest";
 export const APPLICATIONS = HUB + "/applications";
 export const ARCHETYPES = HUB + "/archetypes";
 export const ASSESSMENTS = HUB + "/assessments";
@@ -72,6 +71,7 @@ export const FACTS = HUB + "/facts";
 export const FILES = HUB + "/files";
 export const IDENTITIES = HUB + "/identities";
 export const JOB_FUNCTIONS = HUB + "/jobfunctions";
+export const MANIFESTS = HUB + "/manifests";
 export const MIGRATION_WAVES = HUB + "/migrationwaves";
 export const PLATFORMS = HUB + "/platforms";
 export const PROXIES = HUB + "/proxies";
@@ -91,22 +91,26 @@ export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
 export const TRACKERS = HUB + "/trackers";
 
-export const MANIFESTS = HUB + "/manifests";
-
-export const APPLICATION_MANIFEST = HUB + "/applications/{{id}}/manifest";
-
-const jsonHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/json",
-};
-const formHeaders: RawAxiosRequestHeaders = {
-  Accept: "multipart/form-data",
-};
-const fileHeaders: RawAxiosRequestHeaders = { Accept: "application/json" };
-const yamlHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/x-yaml",
+export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
+  json: {
+    Accept: "application/json",
+  },
+  form: {
+    Accept: "multipart/form-data",
+  },
+  file: {
+    Accept: "application/json",
+  },
+  yaml: {
+    Accept: "application/x-yaml",
+  },
+  plain: {
+    Accept: "test/plain",
+  },
 };
 
 export * from "./rest/analysis";
+export * from "./rest/files";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -147,7 +151,7 @@ export const getApplicationDependencies = (params?: DependencyParams) => {
   return axios
     .get<ApplicationDependency[]>(`${DEPENDENCIES}`, {
       params,
-      headers: jsonHeaders,
+      headers: HEADERS.json,
     })
     .then((response) => response.data);
 };
@@ -248,7 +252,7 @@ export const deleteAssessment = (id: number) => {
 // Identities
 //
 export const getIdentities = () => {
-  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
+  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: HEADERS.json });
 };
 
 export const createIdentity = (obj: New<Identity>) => {
@@ -363,7 +367,7 @@ export const getApplicationSummaryCSV = (id: string) => {
 export function getTaskById(id: number): Promise<Task> {
   return axios
     .get(`${TASKS}/${id}`, {
-      headers: { ...jsonHeaders },
+      headers: { ...HEADERS.json },
       responseType: "json",
     })
     .then((response) => {
@@ -377,7 +381,7 @@ export function getTaskByIdAndFormat(
   merged: boolean = false
 ): Promise<string> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
@@ -402,7 +406,7 @@ export function getTasksByIds(
   format: "json" | "yaml" = "json"
 ): Promise<Task[]> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
   const filterParam = `id:(${ids.join("|")})`;
 
@@ -460,16 +464,16 @@ export const deleteTaskgroup = (id: number): AxiosPromise =>
 export const uploadFileTaskgroup = ({
   id,
   path,
-  formData,
   file,
 }: {
   id: number;
   path: string;
-  formData: any;
-  file: any;
+  file: File;
 }) => {
+  const formData = new FormData();
+  formData.append("file", file);
   return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: formHeaders,
+    headers: HEADERS.form,
   });
 };
 
@@ -523,26 +527,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-export const createFile = ({
-  formData,
-  file,
-}: {
-  formData: FormData;
-  file: IReadFile;
-}) =>
-  axios
-    .post<HubFile>(`${FILES}/${file.fileName}`, formData, {
-      headers: fileHeaders,
-    })
-    .then((response) => {
-      return response.data;
-    });
-
-export const getTextFile = (id: number): Promise<string> =>
-  axios
-    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
-    .then((response) => response.data);
 
 // ---------------------------------------
 // Settings
