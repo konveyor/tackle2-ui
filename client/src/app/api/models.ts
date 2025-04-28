@@ -406,7 +406,7 @@ export interface TaskData {
   };
   rules?: {
     path: string;
-    tags: {
+    tags?: {
       excluded: string[];
     };
     repository?: Repository;
