@@ -523,13 +523,40 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       {values?.rulesKind === "manual" && (
         <CustomRuleFilesUpload
           ruleFiles={values.customRulesFiles}
-          onChangeRuleFiles={(ruleFiles: IReadFile[]) => {
-            setValue("customRulesFiles", ruleFiles, {
-              shouldDirty: true,
-              shouldValidate: true,
-            });
-            trigger("customRulesFiles");
+          onAddRuleFiles={(ruleFiles) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   existing.push(ruleFile);
+            //   existing.sort();
+            //   return existing;
+            // });
           }}
+          onRemoveRuleFiles={(ruleFiles) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   return existing.filter(
+            //     ({ fileName }) => fileName !== ruleFile.fileName
+            //   );
+            // });
+          }}
+          onChangeRuleFile={(ruleFile) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   const at = existing.findIndex(
+            //     ({ fileName }) => fileName !== ruleFile.fileName
+            //   );
+            //   if (at >= 0) existing[at] = ruleFile;
+            //   return existing;
+            // });
+          }}
+          // onChangeRuleFile={(ruleFile: IReadFile) => {
+          //   console.log("rule files:", ruleFiles);
+          //   setValue("customRulesFiles", ruleFiles, {
+          //     shouldDirty: true,
+          //     shouldValidate: true,
+          //   });
+          //   trigger("customRulesFiles");
+          // }}
         />
       )}
 
