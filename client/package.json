@@ -32,7 +32,7 @@
     "@patternfly/react-tokens": "5.2.1",
     "@react-keycloak/web": "^3.4.0",
     "@tanstack/react-query": "^4.22.0",
-    "@tanstack/react-query-devtools": "^4.22.0",
+    "@tanstack/react-query-devtools": "^5.74.8",
     "axios": "^1.6.8",
     "dayjs": "^1.11.13",
     "ejs": "^3.1.7",
