@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Alert,
-  AlertActionCloseButton,
   MultipleFileUpload,
   MultipleFileUploadMain,
   MultipleFileUploadStatus,
@@ -11,13 +10,15 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import useRuleFiles from "@app/hooks/useRuleFiles";
 import { IReadFile } from "@app/api/models";
+import { counting } from "radash";
 
 export interface CustomRuleFilesUploadProps {
   /** Set of rule files that have already been uploaded. */
   ruleFiles: IReadFile[];
 
-  /** Callback for when a file is added or removed.  Full set of files is always sent. */
-  onChangeRuleFiles: (ruleFiles: IReadFile[]) => void;
+  onAddRuleFiles: (ruleFiles: IReadFile[]) => void;
+  onRemoveRuleFiles: (ruleFiles: IReadFile[]) => void;
+  onChangeRuleFile: (ruleFile: IReadFile) => void;
 
   /** When provided, if a file name already exists, block the upload and display an error. */
   fileExists?: (filename: string) => boolean;
@@ -31,37 +32,45 @@ export interface CustomRuleFilesUploadProps {
 
 export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   ruleFiles,
-  onChangeRuleFiles,
+  onAddRuleFiles,
+  onRemoveRuleFiles,
+  onChangeRuleFile,
   fileExists,
   taskgroupId,
 }) => {
-  const {
-    handleFileDrop,
-    handleFile,
-    removeFiles,
-
-    uploadError,
-    clearUploadError,
-
-    ruleFilesStatusText,
-    ruleFilesStatusIcon,
-  } = useRuleFiles({ ruleFiles, fileExists, onChangeRuleFiles, taskgroupId });
+  const { handleFileDrop, handleFile } = useRuleFiles({
+    ruleFiles,
+    fileExists,
+    onAddRuleFiles,
+    onRemoveRuleFiles,
+    onChangeRuleFile,
+    taskgroupId,
+  });
 
   const showStatus = ruleFiles.length > 0;
+  const filesInError = ruleFiles.filter((file) => !!file.loadError);
+
+  const results = counting(ruleFiles, (r) => r.loadResult ?? "inProgress");
+
+  const ruleFilesStatusText = `${results.success} of ${ruleFiles.length} files uploaded`;
+  const ruleFilesStatusIcon =
+    results.inProgress > 0
+      ? "inProgress"
+      : results.danger > 0
+      ? "danger"
+      : "success";
 
   return (
     <>
-      {uploadError !== "" && (
+      {filesInError.map((file) => (
         <Alert
+          key={file.fileName}
           className={`${spacing.mtMd} ${spacing.mbMd}`}
           variant="danger"
           isInline
-          title={uploadError}
-          actionClose={
-            <AlertActionCloseButton onClose={() => clearUploadError()} />
-          }
+          title={file.loadError?.message}
         />
-      )}
+      ))}
 
       <MultipleFileUpload
         onFileDrop={handleFileDrop}
@@ -83,14 +92,14 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
             statusToggleText={ruleFilesStatusText}
             statusToggleIcon={ruleFilesStatusIcon}
           >
-            {ruleFiles.map((file) => (
+            {ruleFiles.map((ruleFile) => (
               <MultipleFileUploadStatusItem
-                file={file.fullFile}
-                key={file.fileName}
-                customFileHandler={handleFile}
-                onClearClick={() => removeFiles([file.fileName])}
-                progressValue={file.loadPercentage}
-                progressVariant={file.loadResult}
+                key={ruleFile.fileName}
+                file={ruleFile.fullFile}
+                customFileHandler={(file) => handleFile(ruleFile, file)}
+                onClearClick={() => onRemoveRuleFiles([ruleFile])}
+                progressValue={ruleFile.loadPercentage}
+                progressVariant={ruleFile.loadResult}
               />
             ))}
           </MultipleFileUploadStatus>

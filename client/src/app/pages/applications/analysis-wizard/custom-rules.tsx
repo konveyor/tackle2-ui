@@ -49,6 +49,7 @@ import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useTaskGroup } from "./components/TaskGroupContext";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import { localeNumericCompare } from "@app/utils/utils";
 
 export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
@@ -440,8 +441,34 @@ export const CustomRules: React.FC = () => {
               customRulesFiles.some((file) => file.fileName === fileName)
             }
             ruleFiles={newRuleFiles}
-            onChangeRuleFiles={(ruleFiles: IReadFile[]) => {
-              setNewRuleFiles(ruleFiles);
+            onAddRuleFiles={(ruleFiles) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                existing.push(...ruleFiles);
+                existing.sort((a, b) =>
+                  localeNumericCompare(a.fileName, b.fileName)
+                );
+                return existing;
+              });
+            }}
+            onRemoveRuleFiles={(ruleFiles) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                const namesToRemove = ruleFiles.map(({ fileName }) => fileName);
+                return existing.filter(
+                  ({ fileName }) => !namesToRemove.includes(fileName)
+                );
+              });
+            }}
+            onChangeRuleFile={(ruleFile: IReadFile) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                const at = existing.findIndex(
+                  ({ fileName }) => fileName !== ruleFile.fileName
+                );
+                if (at >= 0) existing[at] = ruleFile;
+                return existing;
+              });
             }}
           />
         </Modal>
