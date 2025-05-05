@@ -36,7 +36,9 @@ and generate necessary assets to deploy it to an OpenShift cluster.
 - Add [Discovery Manifest](#discovery-manifest) to hold discovered information
 - Add a target Configuration/Asset [Repository](#repository) where generated assets will be stored
 
-Application
+- Add validation of the coordinates to the schema (pulled from the source platform kind -> platform definitions)
+
+Implementation Details:
 
 - CRUD to add:
   - Source Platform
@@ -51,12 +53,12 @@ Application
   - Retrieve Configurations for all selected applications
   - :thinking: Generate Assets for all selected applications
 - Views:
-  - **Table page** (Migration / Application inventory)
-    - Application row:
+  - **Table page** (Location: Migration / Application inventory)
+    - Column changes:
       - Make sure the configuration discovery task is included in the task popover
       - :thinking: Status icon for "discovery manifest" (not ready, ready, discovered)
       - :thinking: Status icon for "assets generated" (not ready, ready, generated)
-    - Application row kebab actions:
+    - Record kebab actions:
       - Retrieve Configurations
       - Generate Assets
     - Toolbar (kebab) actions:
@@ -64,14 +66,14 @@ Application
       - Single application generate assets
       - Multiselect/Bulk update source platform
       - Multiselect/Bulk retrieve configurations
-      - Multiselect/Bulk generate assets
+      - :thinking: Multiselect/Bulk generate assets
     - Selected application drawer:
       - Views of source platform fields
       - View of discovery manifest
   - **Edit modal**
     - Add fields for each CRUD item
     - :spiral_notepad: The discovery manifest will need special treatment as it'll probably be a
-      document and not a simple text field
+      document or dictionary, and not a simple text field
     - :thinking: Convert the modal to a page? The modal will need to be scrolled with the
       extra fields so moving to a page may help with layout
 
@@ -83,7 +85,7 @@ Application
 - :thinking: Add **target platform schema defined** information to be used as generator inputs
   for all applications attached to the archetype when generating assets?
 
-Archetype
+Implementation Details:
 
 - CRUD to add:
   - Target platform
@@ -93,7 +95,9 @@ Archetype
   - :thinking: Generate Assets for all applications associated to the archetype
 - ~~Bulk Actions~~
 - Views:
-  - **Table page** (Migration / Archetypes)
+  - **Table page** (Location: Migration / Archetypes)
+    - New columns:
+      - Count of Target Platforms
     - Record kebab actions:
       - :thinking: Retrieve Configurations for X Applications
       - :thinking: Generate Assets for X Applications
@@ -102,7 +106,7 @@ Archetype
       - Target platform tab
   - **Edit modal**
     - Associate to zero-or-more target platforms
-    - Option to create a new target platform on the page if needed
+    - :thinking: Create a new target platform on the page?
     - :thinking: Covert the edit modal to a page?
 
 ### Source Platform
@@ -120,25 +124,27 @@ Archetype
     [addition information schema](#additional-information-schemas) attached to the discovery
     provider
 
-Source Platform
+Implementation Details:
 
 - CRUD:
   - Add a new page: Administration / Source Platforms
   - Page will be a general table view with add/edit modal
-  - Table columns:
-    - Name
-    - Provider Type
-    - Credentials Attached?
-    - :thinking: Count of associated applications
 - Actions:
   - Edit
   - Delete
+  - Discover applications
 - ~~Bulk Actions~~
 - Views:
-  - **Table page** (Administration / Source Platforms)
+  - **Table page** (Location: Administration / Source Platforms)
+    - Columns:
+      - Name
+      - Provider Type
+      - Credentials Attached?
+      - :thinking: Count of associated applications
     - Record kebab actions:
       - Edit
       - Delete
+      - Discover applications
     - Toolbar (kebab) actions:
       - Create
     - Selected item drawer:
@@ -157,7 +163,7 @@ Source Platform
 `DiscoveryManifest` is a new entity:
 
 - Holds the platform and runtime information discovered for an application from a single
-  source platform as a YAML document
+  source platform as a YAML document or key/value pair dictionary
 - One-to-one mapping to an Application
 - Contents are read-only
 - Document format is constant across all provider types
@@ -165,7 +171,7 @@ Source Platform
 - :question: Keep a history over multiple discovery task runs?
 - :question: Could this just be a normal file attachment?
 
-Discovery Manifest
+Implementation Details:
 
 - ~~CRUD to add~~
 - ~~Actions~~
@@ -174,28 +180,105 @@ Discovery Manifest
   - Read-only for the user
   - Only accessible as part of an Application, therefore only viewable as part of the
     application views
+  - :thinking: May be best to display in a modal accessed from the row actions or the detail drawer
 
-### Repository
+### Repository (optional as an implementation detail)
 
-`Repository` is a new entity for a location in SCM:
+<details>
+<summary>Adding this entity is optional as an implementation detail</summary>
 
-- Type (git, svn)
-- URL
-- branch -- for git, this could be any commitish (branch, tag, commit id)
-- path
-- credentials (all repos need read permission, only some will need write/push permissions)
+`Repository` is a new entity:
 
-Repository
+- Describes a location in SCM
+- Base data:
+  - Name
+  - Type (git, svn)
+  - URL
+  - branch -- for git, this could be any commitish (branch, tag, commit id)
+  - path
+  - credentials (all repos need read permission, only some will need write/push permissions)
+
+Implementation Details:
 
 - CRUD to add:
-  - :spiral_notepad: Current inline on a lot of forms, so would need to allow selection, add, edit inline with those forms
+  - Add a new page: Migration / Repositories
+  - Page will be a general table view with add/edit modal
+  - :spiral_notepad: Current inline on a lot of forms, so would need to allow selection, add, edit
+    inline with those forms
+  - :warning: Administration / Repositories already exists as a way to configure how git, subversion
+    and maven repositories are handled. That page's existence will need to be reconciled with the new
+    repository instance pages.
+- Actions:
+  - Edit
+  - Delete
+  - :question: Test connection
+- Bulk Actions:
+  - Change the credentials for all selected repositories
+- Views:
+  - **Table page** (Location: Migration / Repositories)
+    - Columns
+      - Name
+      - Type
+      - URL
+      - branch
+      - path
+      - credentials (exists icon and/or credential id)
+    - Record kebab actions:
+      - Edit
+      - :question: Test connection
+      - Delete
+    - Toolbar (kebab) actions:
+      - Bulk Delete
+      - Change the credentials for all selected repositories
+    - Selected item drawer:
+      - Base information
+      - :question: Test connection
+  - **Edit modal** - Name input - Type select - URL input with validation
+  </details>
+
+### Generator
+
+`Generator` is a new entity:
+
+- A generator associates a **generator type** (i.e. templating engine) with a set of template files
+- Initially the only generator type is Helm
+- Keep a list of **variables** (key + value) in the generator to be passed to the generator task
+- Allow definition of a set of **parameters** needed from other entities in the system when
+  generating assets with this generator (this could be an [additional information schema](#additional-information-schemas)
+  definition)
+- Base data:
+  - Name
+  - Icon
+  - Generator Type (based on available generator providers rest endpoint?)
+  - Description
+  - Template [repository](#repository)
+  - Variables (set of key/value pairs)
+  - Parameter definitions
+
+Implementation Details:
+
+- CRUD to add:
+  - Add a new page: Administration / Generators
+  - Page will be a general table view with add/edit modal
 - Actions:
 - Bulk Actions:
 - Views:
-  - **Table page** (Migration / Archetypes)
+  - **Table page** (Location: Administration / Generators)
+    - Columns:
+      - Name
+      - :question: Icon
+      - Generator Type
+      - Description
+      - Template repository id (with link)
+      - Variables count
+      - :thinking: Parameter definition summary (number of fields with popover?)
     - Record kebab actions:
+      - Edit
+      - Delete
     - Toolbar (kebab) actions:
+      - Bulk Delete
     - Selected item drawer:
+      - Base information
   - **Edit modal**
 
 ### Target Platform
@@ -204,31 +287,13 @@ Repository
 
 - ...
 
-Target Platform
+Implementation Details:
 
 - CRUD to add:
 - Actions:
 - Bulk Actions:
 - Views:
-  - **Table page** (Migration / Archetypes)
-    - Record kebab actions:
-    - Toolbar (kebab) actions:
-    - Selected item drawer:
-  - **Edit modal**
-
-### Generator
-
-`Generator` in a new entity:
-
-- ...
-
-Generator
-
-- CRUD to add:
-- Actions:
-- Bulk Actions:
-- Views:
-  - **Table page** (Migration / Archetypes)
+  - **Table page** (Location: Migration / Archetypes)
     - Record kebab actions:
     - Toolbar (kebab) actions:
     - Selected item drawer:
@@ -236,16 +301,16 @@ Generator
 
 ## Workflow Catalog
 
-| Workflows                                                                   |
-| :-------------------------------------------------------------------------- |
-| Manage source platforms                                                     |
-| Associate an application with a source platform                             |
-| Retrieve configurations for an application from its source platform         |
-| Discover and import a set of applications from a source platform            |
-| Manage generator templates                                                  |
-| Manage target platforms (as a collection of ordered generators)             |
-| Associate an archetype with a set of target platforms                       |
-| Generate assets for an applications + archetype + target platform selection |
+| Workflows                                                                                    |
+| :------------------------------------------------------------------------------------------- |
+| Manage source platforms                                                                      |
+| Associate an application with a source platform                                              |
+| Retrieve configurations for an application from its source platform (via coordinates schema) |
+| Discover and import a set of applications from a source platform (via discovery schema)      |
+| Manage generator templates                                                                   |
+| Manage target platforms (as a collection of ordered generators)                              |
+| Associate an archetype with a set of target platforms                                        |
+| Generate assets for an applications + archetype + target platform selection                  |
 
 ...
 
