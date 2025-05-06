@@ -71,7 +71,7 @@
     "rollup-plugin-copy": "^3.5.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
-    "type-fest": "^4.40.0",
+    "type-fest": "^4.41.0",
     "typescript": "^5.1.6"
   },
   "overrides": {
