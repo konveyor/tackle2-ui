@@ -75,8 +75,8 @@ Implementation Details:
       - View of discovery manifest
   - **Edit modal**
     - Add fields for each CRUD item
-    - :spiral_notepad: _Source platform coordinates_ will be [schema defined fields](#schema-defined-fields)
-    - :spiral_notepad: _Discovery manifest_ will need special treatment as it'll probably be a
+    - :spiral*notepad: \_Source platform coordinates* will be [schema defined fields](#schema-defined-fields)
+    - :spiral*notepad: \_Discovery manifest* will need special treatment as it'll probably be a
       json/yaml document or a dictionary/map
     - :thinking: Convert the modal to a page? The modal will need to be scrolled with the
       extra fields so moving to a page may help with layout
@@ -202,8 +202,7 @@ Implementation Details:
 - Initially the only generator type is Helm
 - Keep a list of **variables** (key + value) in the generator to be passed to the generator task
 - Allow definition of a set of **parameters** needed from other entities in the system when
-  generating assets with this generator (this could be an [additional information schema](#additional-information-schemas)
-  definition)
+  generating assets with this generator (could be as [schema defined fields](#schema-defined-fields))
 - Base data:
   - Name
   - Icon
