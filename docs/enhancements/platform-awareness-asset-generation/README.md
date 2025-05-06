@@ -23,28 +23,31 @@ and generate necessary assets to deploy it to an OpenShift cluster.
 |          [Archetype](#archetype)          |        :x:         | :heavy_check_mark: |
 |    [Source Platform](#source-platform)    | :heavy_check_mark: |        :x:         |
 | [Discovery Manifest](#discovery-manifest) | :heavy_check_mark: | :heavy_check_mark: |
-|         [Repository](#repository)         |        :x:         | :heavy_check_mark: |
 |    [Target Platform](#target-platform)    |        :x:         | :heavy_check_mark: |
 |          [Generator](#generator)          |        :x:         | :heavy_check_mark: |
+|         [Repository](#repository)         |        :x:         | :heavy_check_mark: |
 
 ### Application
 
 `Application` entity changes:
 
 - Associate to a single [Source Platform](#source-platform) for configuration discovery
-- Add source platform defined "Source Platform Coordinates"
-- Add [Discovery Manifest](#discovery-manifest) to hold discovered information
-- Add a target Configuration/Asset [Repository](#repository) where generated assets will be stored
-
-- Add validation of the coordinates to the schema (pulled from the source platform kind -> platform definitions)
+- Add "Source Platform Application Coordinates" for the source platform instance defined and
+  verified using [schema defined fields](#schema-defined-fields) pulled from the source platform's
+  kind
+- Add [Discovery Manifest](#discovery-manifest) to hold platform discovered information
+- Add a target asset [repository](#repository) where generated assets will be stored
 
 Implementation Details:
 
 - CRUD to add:
   - Source Platform
-  - Source Platform Coordinates
+  - Source Platform Application Coordinates
+    - [schema defined fields](#schema-defined-fields) to be presented and validated by a schema
+      attached to the source platform
+    - When changing the source platform, the coordinates will be invalid and the values removed
   - (view only) Discovery Manifest
-  - Configuration/Asset Repository
+  - Asset Repository
 - Actions:
   - Retrieve Configurations
   - Generate Assets
@@ -64,16 +67,17 @@ Implementation Details:
     - Toolbar (kebab) actions:
       - Single application retrieve configurations
       - Single application generate assets
-      - Multiselect/Bulk update source platform
-      - Multiselect/Bulk retrieve configurations
-      - :thinking: Multiselect/Bulk generate assets
+      - Multiselect application update source platform
+      - Multiselect application retrieve configurations
+      - :question: Multiselect application generate assets (:warning: This workflow is complicated if user input is required)
     - Selected application drawer:
-      - Views of source platform fields
+      - View of source platform and source platform coordinates
       - View of discovery manifest
   - **Edit modal**
     - Add fields for each CRUD item
-    - :spiral_notepad: The discovery manifest will need special treatment as it'll probably be a
-      document or dictionary, and not a simple text field
+    - :spiral_notepad: _Source platform coordinates_ will be [schema defined fields](#schema-defined-fields)
+    - :spiral_notepad: _Discovery manifest_ will need special treatment as it'll probably be a
+      json/yaml document or a dictionary/map
     - :thinking: Convert the modal to a page? The modal will need to be scrolled with the
       extra fields so moving to a page may help with layout
 
@@ -82,8 +86,8 @@ Implementation Details:
 `Archetype` entity changes:
 
 - Associate to zero-or-more [Target Platforms](#target-platform)
-- :thinking: Add **target platform schema defined** information to be used as generator inputs
-  for all applications attached to the archetype when generating assets?
+- :question: Will target platforms have [schema defined fields](#schema-defined-fields) for archetypes
+  to be used as generator inputs for all applications attached to the archetype when generating assets?
 
 Implementation Details:
 
@@ -103,7 +107,7 @@ Implementation Details:
       - :thinking: Generate Assets for X Applications
     - ~~Toolbar (kebab) actions~~
     - Selected item drawer:
-      - Target platform tab
+      - View of the archetype's associated target platforms
   - **Edit modal**
     - Associate to zero-or-more target platforms
     - :thinking: Create a new target platform on the page?
@@ -113,26 +117,34 @@ Implementation Details:
 
 `SourcePlatform` is a new entity:
 
-- Each source platform represents the **discovery provider addon schema defined** platform
-  coordinates for any available discovery provider addon (via hub rest endpoint)
+- Each source platform represents an instance of a platform type's platform coordinates
+- Each source platform type maps to a **discovery provider addon** defined in the operator
+  - The HUB rest endpoint takes care of collecting all of the necessary data and will provide
+    the UI with a normalized set of source platform types
+  - Each source platform backing discovery provider should also provide 2 sets of
+    [schema defined fields](#schema-defined-fields):
+    - **Platform coordinates schema** - Data to be stored with the source platform instance as the
+      information needed to connect to the platform
+    - **Application coordinates schema** - Data to be stored with an individual application as the
+      information needed to connect to a specific application on its associated source platform
+      instance
 - Associated to one-or-more [Application](#application)s for configuration discovery
 - Base Data:
   - Name
-  - Discovery Provider Platform Type (based on available discovery providers rest endpoint)
-  - Credentials
-  - Type dependent fields stored as a document defined by an
-    [addition information schema](#additional-information-schemas) attached to the discovery
-    provider
+  - Source platform type (based on available discovery providers rest endpoint)
+  - Platform coordinates from the platform type's platform coordinates schema
+  - Platform connection credentials
 
 Implementation Details:
 
 - CRUD:
   - Add a new page: Administration / Source Platforms
   - Page will be a general table view with add/edit modal
+  - When changing the source platform type, the platform coordinates will be invalid and the values removed
 - Actions:
   - Edit
   - Delete
-  - Discover applications
+  - Discover applications (:warning: complex workflow but could pattern after the CSV import functionality)
 - ~~Bulk Actions~~
 - Views:
   - **Table page** (Location: Administration / Source Platforms)
@@ -149,8 +161,8 @@ Implementation Details:
       - Create
     - Selected item drawer:
       - Base information
-      - View of the additional information document/fields
-      - :question: View of the additional information schema
+      - View of the platform coordinates
+      - :question: View of the application coordinates schema
   - **Edit modal**
     - Name input
     - Provider Type dropdown
@@ -164,12 +176,12 @@ Implementation Details:
 
 - Holds the platform and runtime information discovered for an application from a single
   source platform as a YAML document or key/value pair dictionary
+  - Contents are read-only to the user
+  - :thinking: If a YAML schema is available, it can be applied to the document viewer
+  - :question: Document format is constant across all provider types
+  - :question: Keep a history over multiple discovery task runs?
+  - :question: Could this just be a normal file attachment?
 - One-to-one mapping to an Application
-- Contents are read-only
-- Document format is constant across all provider types
-  - :thinking: If YAML schema is available, it can be applied to the document viewer
-- :question: Keep a history over multiple discovery task runs?
-- :question: Could this just be a normal file attachment?
 
 Implementation Details:
 
@@ -181,60 +193,6 @@ Implementation Details:
   - Only accessible as part of an Application, therefore only viewable as part of the
     application views
   - :thinking: May be best to display in a modal accessed from the row actions or the detail drawer
-
-### Repository (optional as an implementation detail)
-
-<details>
-<summary>Adding this entity is optional as an implementation detail</summary>
-
-`Repository` is a new entity:
-
-- Describes a location in SCM
-- Base data:
-  - Name
-  - Type (git, svn)
-  - URL
-  - branch -- for git, this could be any commitish (branch, tag, commit id)
-  - path
-  - credentials (all repos need read permission, only some will need write/push permissions)
-
-Implementation Details:
-
-- CRUD to add:
-  - Add a new page: Migration / Repositories
-  - Page will be a general table view with add/edit modal
-  - :spiral_notepad: Current inline on a lot of forms, so would need to allow selection, add, edit
-    inline with those forms
-  - :warning: Administration / Repositories already exists as a way to configure how git, subversion
-    and maven repositories are handled. That page's existence will need to be reconciled with the new
-    repository instance pages.
-- Actions:
-  - Edit
-  - Delete
-  - :question: Test connection
-- Bulk Actions:
-  - Change the credentials for all selected repositories
-- Views:
-  - **Table page** (Location: Migration / Repositories)
-    - Columns
-      - Name
-      - Type
-      - URL
-      - branch
-      - path
-      - credentials (exists icon and/or credential id)
-    - Record kebab actions:
-      - Edit
-      - :question: Test connection
-      - Delete
-    - Toolbar (kebab) actions:
-      - Bulk Delete
-      - Change the credentials for all selected repositories
-    - Selected item drawer:
-      - Base information
-      - :question: Test connection
-  - **Edit modal** - Name input - Type select - URL input with validation
-  </details>
 
 ### Generator
 
@@ -299,6 +257,66 @@ Implementation Details:
     - Selected item drawer:
   - **Edit modal**
 
+### Repository
+
+> [!CAUTION]
+> This entity as a first class entity is optional. It is a nice to have to be able to ref link
+> an entity to as many repository definitions as needed and/or share repositories between entities
+> as needed.
+
+<details>
+<summary>Adding this entity is optional as an implementation detail</summary>
+
+`Repository` is a new entity:
+
+- Describes a location in SCM
+- Base data:
+  - Name
+  - Type (git, svn)
+  - URL
+  - branch -- for git, this could be any commitish (branch, tag, commit id)
+  - path
+  - credentials (all repos need read permission, only some will need write/push permissions)
+
+Implementation Details:
+
+- CRUD to add:
+  - Add a new page: Migration / Repositories
+  - Page will be a general table view with add/edit modal
+  - :spiral_notepad: Current inline on a lot of forms, so would need to allow selection, add, edit
+    inline with those forms
+  - :warning: Administration / Repositories already exists as a way to configure how git, subversion
+    and maven repositories are handled. That page's existence will need to be reconciled with the new
+    repository instance pages.
+- Actions:
+  - Edit
+  - Delete
+  - :question: Test connection
+- Bulk Actions:
+  - Change the credentials for all selected repositories
+- Views:
+  - **Table page** (Location: Migration / Repositories)
+    - Columns
+      - Name
+      - Type
+      - URL
+      - branch
+      - path
+      - credentials (exists icon and/or credential id)
+    - Record kebab actions:
+      - Edit
+      - :question: Test connection
+      - Delete
+    - Toolbar (kebab) actions:
+      - Bulk Delete
+      - Change the credentials for all selected repositories
+    - Selected item drawer:
+      - Base information
+      - :question: Test connection
+  - **Edit modal** - Name input - Type select - URL input with validation
+
+</details>
+
 ## Workflow Catalog
 
 | Workflows                                                                                    |
@@ -314,15 +332,21 @@ Implementation Details:
 
 ...
 
-## Additional information schemas
+## Schema defined fields
 
-In a few places, the set of fields that are required will vary and depend on the selection
-of an entity. Once the related entity is selected, the set of fields to capture can be defined
-by an attached schema. An example of how this could work is how configuration fields are
-configured for vscode extensions:
+In a few places, the set of fields that are required for an entity will vary and depend on the
+selection of a related entity. Once the related entity is selected, the set of fields to capture
+can be defined by an attached schema. For example, an [Application](#application) will need to
+capture and store a set of platform coordinates once a [Source Platform](#source-platform) has
+been selected.
+
+### Schema
+
+An example of how schemas and UI handling could work is how configuration fields are
+managed in vscode extensions. It uses [json-schema](https://json-schema.org/) at its core.
 
 - [sample extension](https://github.com/microsoft/vscode-extension-samples/tree/main/configuration-sample)
-- [configuration contribution point](https://code.visualstudio.com/api/references/contribution-points#contributes.configuration).
+- [configuration contribution point](https://code.visualstudio.com/api/references/contribution-points#contributes.configuration)
 
 The schema definition does not need to be complicated, just basic variability is needed:
 
@@ -341,18 +365,45 @@ For example, an application's source platform may require a "space" and "applica
 and they both need at least 3 characters. The schema could look like:
 
 ```json
-[
-  "space": {
-    "label": "Name of the space where the application is deployed",
-    "required": true,
-    "type": "text",
-    "minLength": 3,
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://konveyor.io/platform-application-coordinates.schema.json",
+  "title": "Platform Application Coordinates",
+  "description": "The information needed per application for this platform's configuration discovery",
+  "type": "object",
+  "required": ["space", "application-name"],
+  "properties": {
+    "space": {
+      "description": "Name of the space where the application is deployed",
+      "type": "string",
+      "minLength": 3
+    },
+    "application-name": {
+      "description": "Deployed name of the application in the space",
+      "type": "string",
+      "minLength": 3
+    }
   }
-  "application-name": {
-    "label": "Deployed name of the application in the space",
-    "required": true,
-    "type": "text",
-    "minLength": 3,
-  }
-]
+}
 ```
+
+### UI Render
+
+For the UI, the schema defined fields can either drive a json editor with the a json-schema applied,
+or drive a dynamic form built from the json-schema and rendered as Patternfly components.
+
+- Document editor: Use the `@patternfly/react-code-editor` with the schema applied and only allow
+  saving when the document is schema valid. Any kind of document complexity would be allowed.
+
+- Dynamic form: Use a json-schema package to iterate over the fields and render `@patternfly/react-core`
+  components with json-schema validations applied. Only a subset of json-schema would be able to
+  be supported along the lines of when the vscode config editor handles. Complex objects would not
+  be allowed.
+
+### Storage
+
+Storing the fields and values is dependent on how the REST model allows storage. Some options:
+
+- Attaching a file that is the json or yaml version of the document
+- Attaching the fields as key/value pairs (a dictionary, Map, Record<>, or similar) directly to
+  the entity
