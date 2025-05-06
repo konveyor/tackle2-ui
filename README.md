@@ -69,7 +69,7 @@ Summary of tasks to setup a local environment:
 4. Run your [local dev server](#run-the-development-server)
 
 The most common and the recommended environment is to [setup minikube and deploy
-the operator](ocs/local-minikube-setup.md) there.
+the operator](docs/local-minikube-setup.md) there.
 
 A general guide for installing minikube and Konveyor is also available in the project
 documentation [Installing Konveyor](https://konveyor.github.io/konveyor/installation).
