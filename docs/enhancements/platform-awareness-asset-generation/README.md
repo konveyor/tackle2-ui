@@ -128,7 +128,13 @@ Implementation Details:
     - **Application coordinates schema** - Data to be stored with an individual application as the
       information needed to connect to a specific application on its associated source platform
       instance
-- Associated to one-or-more [Application](#application)s for configuration discovery
+- Associated to one-or-more [Application](#application)s for application configuration discovery
+- The "discover applications" action allows for the discovery and import of applications found
+  on the the source platform's instance.
+  - :warning: This action may be a complex workflow if we want confirmation from users before
+    importing applications.
+  - :thinking: Could pattern this action after the CSV application import functionality that uses
+    the manage imports page accessed off the application inventory.
 - Base Data:
   - Name
   - Source platform type (based on available discovery providers rest endpoint)
@@ -142,10 +148,11 @@ Implementation Details:
   - Page will be a general table view with add/edit modal
   - When changing the source platform type, the platform coordinates will be invalid and the values removed
 - Actions:
+  - Create
   - Edit
   - Delete
   - Discover applications (:warning: complex workflow but could pattern after the CSV import functionality)
-- ~~Bulk Actions~~
+- ~~Bulk Actions~~(added later if needed)
 - Views:
   - **Table page** (Location: Administration / Source Platforms)
     - Columns:
@@ -168,7 +175,7 @@ Implementation Details:
     - Provider Type dropdown
     - Credentials dropdown (include "None" as an option)
     - :thinking: Include a way to create the credentials if they don't already exist?
-    - Expandable Section that is dynamic based on the provider type additional information schema
+    - Expandable Section for the platform coordinates schema defined fields
 
 ### Discovery Manifest
 
@@ -198,17 +205,24 @@ Implementation Details:
 
 `Generator` is a new entity:
 
+- A generator will take, as input, a set of information from relevant hub entities, a set of template
+  files, and a defined template engine, then run the template engine and finally output a set of
+  asset files.
 - A generator associates a **generator type** (i.e. templating engine) with a set of template files
-- Initially the only generator type is Helm
+- Initially the only generator type will be `Helm`
+- The HUB rest endpoint takes care of collecting all of the necessary data and will provide
+  the UI with a normalized set of generator types
 - Keep a list of **variables** (key + value) in the generator to be passed to the generator task
-- Allow definition of a set of **parameters** needed from other entities in the system when
+  - Generic set of key/value pairs
+  - No schema defined fields needed
+- :thinking: Allow definition of a set of **parameters** needed from other entities in the system when
   generating assets with this generator (could be as [schema defined fields](#schema-defined-fields))
 - Base data:
   - Name
-  - Icon
-  - Generator Type (based on available generator providers rest endpoint?)
   - Description
-  - Template [repository](#repository)
+  - Icon
+  - Generator Type (based on hub generator type rest endpoint)
+  - Template [repository](#repository) + credentials
   - Variables (set of key/value pairs)
   - Parameter definitions
 
@@ -218,7 +232,10 @@ Implementation Details:
   - Add a new page: Administration / Generators
   - Page will be a general table view with add/edit modal
 - Actions:
-- Bulk Actions:
+  - Create
+  - Edit
+  - Delete
+- ~~Bulk Actions~~(added later as needed)
 - Views:
   - **Table page** (Location: Administration / Generators)
     - Columns:
@@ -226,35 +243,95 @@ Implementation Details:
       - :question: Icon
       - Generator Type
       - Description
-      - Template repository id (with link)
+      - Template repository
+      - Repository credentials
       - Variables count
       - :thinking: Parameter definition summary (number of fields with popover?)
+      - :thinking: Count of target platforms using the generator
     - Record kebab actions:
       - Edit
       - Delete
     - Toolbar (kebab) actions:
-      - Bulk Delete
+      - Create
+      - ~~Bulk Delete~~(added later as needed)
     - Selected item drawer:
       - Base information
+      - :question: View of the parameters schema
   - **Edit modal**
+    - Name input
+    - Description
+    - Generator Type dropdown
+    - Icon upload
+    - Template repository
+    - Template credentials
+    - Variables (:thinking: in another tab to keep the view more compact?)
+    - :spiral_notepad: Parameters are not editable, they either apply to other entities or are
+      captured just before and action is started
 
 ### Target Platform
 
-`TargetPlatform` is a new entity:
+`TargetPlatform` or `AssetPlan` is a new entity:
 
-- ...
+- A target platform allows taking an application plus archetype selection, composing entity
+  and discovery manifests information together, running a set of generators on those inputs,
+  collecting all of the outputs, and pushing the resulting files to a target SCM repository.
+- The resulting files are intended to be the files necessary to redeploy the application from
+  the source platform to a new target platform.
+- Generators are run in a priority order where files generated are not overridden by lower
+  priority generators.
+- Base Data:
+  - Name
+  - :question: Icon
+  - Description
+  - Source platform instance
+  - :question: Target platform instance (what entity would this map to?)
+  - Ordered list of Generators
 
 Implementation Details:
 
 - CRUD to add:
+  - :thinking: Two different options:
+    1. Add a new general table view page to manage as a top level entity
+       - Location: Administration / Target Platforms
+       - Entities may be shared between Archetypes
+       - Entity names would need to be unique in the system
+    2. Embed the Target Platform in the Archetype directly
+       - No sharing between Archetypes
+       - Entity names would need to be unique per Archetype
 - Actions:
-- Bulk Actions:
+  - Create
+  - Edit
+  - Delete
+  - Duplicate
+- ~~Bulk Actions~~(added later as needed)
 - Views:
-  - **Table page** (Location: Migration / Archetypes)
-    - Record kebab actions:
+  - **Table/Card page** (Location: Administration / Target Platforms) or via Archetype Details
+    - Columns/Card data:
+      - :question: Icon
+      - Name
+      - Description
+      - Source platform
+      - Target platform
+      - Generator count
+    - Record/Card kebab actions:
+      - Edit
+      - Delete
+      - Duplicate
     - Toolbar (kebab) actions:
-    - Selected item drawer:
+      - Create
+    - Selected item drawer/details view:
+      - Base information
+      - Ordered list of generators
   - **Edit modal**
+    - Name input
+    - Description
+    - :question: Icon Upload
+    - Source platform dropdown
+    - Target platform dropdown
+    - Section for the ordered list of generators, probably using a
+      [draggable](https://www.patternfly.org/components/dual-list-selector#draggable) or
+      [draggable with multiple drop zones](https://www.patternfly.org/components/dual-list-selector#draggable-with-multiple-drop-zones)
+      design
 
 ### Repository
 
