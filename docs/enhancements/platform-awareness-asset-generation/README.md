@@ -283,8 +283,8 @@ Implementation Details:
   - Name
   - :question: Icon
   - Description
-  - Source platform instance
-  - :question: Target platform instance (what entity would this map to?)
+  - Source platform type (platform id)
+  - Target platform type (platform id)
   - Ordered list of Generators
 
 Implementation Details:
@@ -406,7 +406,7 @@ Implementation Details:
 | Associate an archetype with a set of target platforms                                        |
 | Generate assets for an applications + archetype + target platform selection                  |
 
-...
+_(workflow details pending)_
 
 ## Schema defined fields
 
