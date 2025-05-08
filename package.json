@@ -79,5 +79,9 @@
     "webpack-dev-server": {
       "express": "$express"
     }
+  },
+  "dependencies": {
+    "@types/xlsx": "^0.0.35",
+    "xlsx": "^0.18.5"
   }
 }
