@@ -164,7 +164,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     defaultValues: {
       artifact: null,
       mode: "source-code-deps",
-      formLabels: [],
+      selectedTargetLabels: [],
       selectedTargets: [],
       // defaults will be passed as initialFilterValues to the table hook
       targetFilters: undefined,
@@ -266,7 +266,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.formLabels
+                ...fieldValues.selectedTargetLabels
                   .filter(
                     (label) =>
                       getParsedLabel(label.label).labelType !== "source"
