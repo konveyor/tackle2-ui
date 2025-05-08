@@ -146,31 +146,27 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     name: yup
       .string()
       .defined()
-      .test(
-        "min-char-check",
-        "Name is invalid. The name must be between 3 and 120 characters ",
-        (value) => {
-          if (value) {
-            const schema = yup
-              .string()
-              .min(3, t("validation.minLength", { length: 3 }))
-              .max(120, t("validation.maxLength", { length: 120 }));
-            return schema.isValidSync(value);
-          }
-          return true;
+      .test("min-char-check", t("nameInvalid"), (value) => {
+        if (value) {
+          const schema = yup
+            .string()
+            .min(3, t("validation.minLength", { length: 3 }))
+            .max(120, t("validation.maxLength", { length: 120 }));
+          return schema.isValidSync(value);
         }
-      ),
+        return true;
+      }),
     startDateStr: yup
       .string()
       .required(t("validation.required"))
       .test(
         "isValidFormat",
-        "Date must be formatted as MM/DD/YYYY",
+        t("invalidDateFormat"),
         (value) => !!value && dateStrFormatValidator(value)
       )
       .test(
         "noSoonerThanToday",
-        "Start date can be no sooner than today",
+        t("startDateAfterToday"),
         (value) => !dayjs(value).isBefore(dayjs(), "day")
       ),
     endDateStr: yup
@@ -178,13 +174,13 @@ export const WaveForm: React.FC<WaveFormProps> = ({
       .required(t("validation.required"))
       .test(
         "isValidFormat",
-        "Date must be formatted as MM/DD/YYYY",
+        t("invalidDateFormat"),
         (value) => !!value && dateStrFormatValidator(value)
       )
       .when("startDateStr", (startDateStr, schema: yup.StringSchema) =>
         schema.test(
           "afterStartDate",
-          "End date must be after start date",
+          t("endDateAfterStartDate"),
           (value) =>
             !startDateStr || dayjs(value).isAfter(dayjs(startDateStr), "day")
         )
