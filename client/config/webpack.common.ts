@@ -1,7 +1,6 @@
 import path from "path";
 import { Configuration } from "webpack";
 import CopyPlugin from "copy-webpack-plugin";
-import Dotenv from "dotenv-webpack";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 
@@ -151,10 +150,6 @@ const config: Configuration = {
   },
 
   plugins: [
-    new Dotenv({
-      systemvars: true,
-      silent: true,
-    }),
     new CopyPlugin({
       patterns: [
         {
