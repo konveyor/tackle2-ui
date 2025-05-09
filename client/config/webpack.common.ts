@@ -1,5 +1,5 @@
 import path from "path";
-import { Configuration } from "webpack";
+import { Configuration, DefinePlugin } from "webpack";
 import CopyPlugin from "copy-webpack-plugin";
 import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
@@ -150,6 +150,7 @@ const config: Configuration = {
   },
 
   plugins: [
+    new DefinePlugin({ "process.env": "{}" }),
     new CopyPlugin({
       patterns: [
         {
