@@ -250,14 +250,17 @@ const AssessmentSettings: React.FC = () => {
                 }
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((questionnaire, rowIndex) => {
-                  const formattedDate = dayjs(questionnaire.createTime)
-                    .utc()
-                    .format("YYYY-MM-DD HH:mm:ss");
+                <Tbody>
+                  {currentPageItems?.map((questionnaire, rowIndex) => {
+                    const formattedDate = dayjs(questionnaire.createTime)
+                      .utc()
+                      .format("YYYY-MM-DD HH:mm:ss");
 
-                  return (
-                    <Tbody key={questionnaire.id}>
-                      <Tr {...getTrProps({ item: questionnaire })}>
+                    return (
+                      <Tr
+                        key={questionnaire.id}
+                        {...getTrProps({ item: questionnaire })}
+                      >
                         <TableRowContentWithControls
                           {...tableControls}
                           item={questionnaire}
@@ -269,7 +272,7 @@ const AssessmentSettings: React.FC = () => {
                           >
                             {questionnaire.required}
                             <Switch
-                              id={`required-switch-${rowIndex.toString()}`}
+                              id={`required-switch-${questionnaire.id}`}
                               label="Yes"
                               labelOff="No"
                               isChecked={questionnaire.required}
@@ -376,9 +379,9 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
-                    </Tbody>
-                  );
-                })}
+                    );
+                  })}
+                </Tbody>
               </ConditionalTableBody>
             </Table>
             <SimplePagination

@@ -16,6 +16,10 @@ import {
   DropdownItem,
   Modal,
   Tooltip,
+  FormSelect,
+  FormSelectOption,
+  TextContent,
+  OverflowMenu,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -75,7 +79,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getAssessmentsByItemId } from "@app/api/rest";
+import { getArchetypeById, getTasksByIds } from "@app/api/rest";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
@@ -116,7 +120,8 @@ import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
   useDecoratedApplications,
-} from "./useDecoratedApplications";
+} from "../useDecoratedApplications";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -124,6 +129,7 @@ export const ApplicationsTable: React.FC = () => {
 
   const history = useHistory();
   const token = keycloak.tokenParsed;
+
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
     "create" | DecoratedApplication | null
@@ -152,7 +158,12 @@ export const ApplicationsTable: React.FC = () => {
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
+
   const isDependenciesModalOpen = applicationDependenciesToManage !== null;
+
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+
+  const [selectedFormat, setSelectedFormat] = useState<string>("json");
 
   const [assessmentToEdit, setAssessmentToEdit] = useState<Assessment | null>(
     null
@@ -175,6 +186,18 @@ export const ApplicationsTable: React.FC = () => {
   const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
     dayjs()
   );
+
+  const onChange = (
+    _event: React.FormEvent<HTMLSelectElement>,
+    value: string
+  ) => {
+    setSelectedFormat(value);
+  };
+  const formats = [
+    { value: "select one", label: "Select one", disabled: true },
+    { value: "json", label: "JSON", disabled: false },
+    { value: "yaml", label: "YAML", disabled: false },
+  ];
 
   const [
     saveApplicationsCredentialsModalState,
@@ -201,6 +224,41 @@ export const ApplicationsTable: React.FC = () => {
       message: "Canceled",
       variant: "info",
     });
+  };
+
+  const handleDownload = async () => {
+    const ids = selectedRows
+      .map((row) => row.tasks.currentAnalyzer?.id)
+      .filter((id): id is number => typeof id === "number");
+
+    try {
+      const tasks = await getTasksByIds(
+        ids,
+        selectedFormat === "yaml" ? "yaml" : "json"
+      );
+
+      const blob = new Blob([JSON.stringify(tasks, null, 2)], {
+        type:
+          selectedFormat === "json" ? "application/json" : "application/x-yaml",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `logs - ${ids}.${selectedFormat}`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+
+      setIsDownloadModalOpen(false);
+    } catch (error) {
+      setIsDownloadModalOpen(false);
+      console.error("Error fetching tasks:", error);
+      pushNotification({
+        title: "download failed",
+        variant: "danger",
+      });
+    }
   };
 
   const failedCancelTask = () => {
@@ -270,12 +328,20 @@ export const ApplicationsTable: React.FC = () => {
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
-    pushNotification({
-      title: t("toastr.success.applicationDeleted", {
-        appIDCount: appIDCount,
-      }),
-      variant: "success",
-    });
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIDCount: appIDCount,
+        }),
+        variant: "success",
+      });
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -565,6 +631,7 @@ export const ApplicationsTable: React.FC = () => {
   });
 
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
     propHelpers: {
@@ -576,14 +643,22 @@ export const ApplicationsTable: React.FC = () => {
       getThProps,
       getTrProps,
       getTdProps,
-      toolbarBulkSelectorProps,
       getColumnVisibility,
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
-
-    selectionState: { selectedItems: selectedRows },
     columnState,
   } = tableControls;
+
+  const {
+    selectedItems: selectedRows,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a, b) => a.id === b.id,
+    // TODO: Pass `items` to also enable "select all items" if needed
+    // items: applications,
+    filteredItems,
+    currentPageItems,
+  });
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;
@@ -651,6 +726,20 @@ export const ApplicationsTable: React.FC = () => {
               </DropdownItem>,
             ]
           : []),
+        <DropdownItem
+          key="analysis-bulk-download"
+          isDisabled={
+            !selectedRows.some(
+              (application: DecoratedApplication) =>
+                application.tasks.currentAnalyzer?.id !== undefined
+            )
+          }
+          onClick={() => {
+            setIsDownloadModalOpen(true);
+          }}
+        >
+          {t("actions.download", { what: "analysis details" })}
+        </DropdownItem>,
         ...(credentialsReadAccess
           ? [
               <DropdownItem
@@ -724,33 +813,17 @@ export const ApplicationsTable: React.FC = () => {
   const assessSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToAssess(application);
 
-    if (application?.archetypes?.length) {
-      for (const archetypeRef of application.archetypes) {
-        try {
-          const assessments = await getAssessmentsByItemId(
-            true,
-            archetypeRef.id
-          );
-
-          if (assessments && assessments.length > 0) {
-            setArchetypeRefsToOverride(application.archetypes);
-            break;
-          } else {
-            handleNavToAssessment(application);
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching archetype with ID ${archetypeRef.id}:`,
-            error
-          );
-          pushNotification({
-            title: t("terms.error"),
-            variant: "danger",
-          });
-        }
-      }
-    } else {
+    const archetypes = application.archetypes ?? [];
+    const { directStatus, inheritedStatus } = application.assessmentStatus;
+    if (
+      archetypes.length === 0 ||
+      directStatus === "partial" ||
+      directStatus === "complete" ||
+      inheritedStatus === "none"
+    ) {
       handleNavToAssessment(application);
+    } else {
+      setArchetypeRefsToOverride(archetypes);
     }
   };
 
@@ -952,6 +1025,7 @@ export const ApplicationsTable: React.FC = () => {
                 <Tr key={application.id} {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >
@@ -985,7 +1059,6 @@ export const ApplicationsTable: React.FC = () => {
                       >
                         <ApplicationAssessmentStatus
                           application={application}
-                          isLoading={isFetchingApplications}
                           key={`${application?.id}-assessment-status`}
                         />
                       </Td>
@@ -1037,89 +1110,88 @@ export const ApplicationsTable: React.FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-
-                    <Td isActionCell id="pencil-action">
-                      {applicationWriteAccess && (
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={[
-                          assessmentWriteAccess && {
-                            title: t("actions.assess"),
-                            onClick: () => assessSelectedApp(application),
-                          },
-                          assessmentWriteAccess &&
-                            (application.assessments?.length ?? 0) > 0 && {
-                              title: t("actions.discardAssessment"),
-                              onClick: () =>
-                                setAssessmentToDiscard(application),
+                    <Td isActionCell id="action">
+                      <OverflowMenu breakpoint="sm">
+                        {applicationWriteAccess && (
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
+                        )}
+                        <ActionsColumn
+                          items={[
+                            assessmentWriteAccess && {
+                              title: t("actions.assess"),
+                              onClick: () => assessSelectedApp(application),
                             },
-                          reviewsWriteAccess && {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
-                          reviewsWriteAccess &&
-                            application?.review && {
-                              title: t("actions.discardReview"),
-                              onClick: () => setReviewToDiscard(application),
-                            },
-                          dependenciesWriteAccess && {
-                            title: t("actions.manageDependencies"),
-                            onClick: () =>
-                              setApplicationDependenciesToManage(application),
-                          },
-                          credentialsReadAccess &&
-                            applicationWriteAccess && {
-                              title: t("actions.manageCredentials"),
-                              onClick: () =>
-                                setSaveApplicationsCredentialsModalState([
-                                  application,
-                                ]),
-                            },
-                          analysesReadAccess &&
-                            !!application.tasks.currentAnalyzer && {
-                              title: t("actions.analysisDetails"),
-                              onClick: () => {
-                                const taskId =
-                                  application.tasks.currentAnalyzer?.id;
-                                if (taskId && application.id) {
-                                  history.push(
-                                    formatPath(
-                                      Paths.applicationsAnalysisDetails,
-                                      {
-                                        applicationId: application.id,
-                                        taskId,
-                                      }
-                                    )
-                                  );
-                                }
+                            assessmentWriteAccess &&
+                              (application.assessments?.length ?? 0) > 0 && {
+                                title: t("actions.discardAssessment"),
+                                onClick: () =>
+                                  setAssessmentToDiscard(application),
                               },
+                            reviewsWriteAccess && {
+                              title: t("actions.review"),
+                              onClick: () => reviewSelectedApp(application),
                             },
-                          tasksReadAccess &&
-                            tasksWriteAccess &&
-                            isTaskCancellable(application) && {
-                              title: t("actions.cancelAnalysis"),
-                              onClick: () => cancelAnalysis(application),
+                            reviewsWriteAccess &&
+                              application?.review && {
+                                title: t("actions.discardReview"),
+                                onClick: () => setReviewToDiscard(application),
+                              },
+                            dependenciesWriteAccess && {
+                              title: t("actions.manageDependencies"),
+                              onClick: () =>
+                                setApplicationDependenciesToManage(application),
                             },
-                          applicationWriteAccess && { isSeparator: true },
-                          applicationWriteAccess && {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              setApplicationsToDelete([application]),
-                            isDanger: true,
-                          },
-                        ].filter(Boolean)}
-                      />
+                            credentialsReadAccess &&
+                              applicationWriteAccess && {
+                                title: t("actions.manageCredentials"),
+                                onClick: () =>
+                                  setSaveApplicationsCredentialsModalState([
+                                    application,
+                                  ]),
+                              },
+                            analysesReadAccess &&
+                              !!application.tasks.currentAnalyzer && {
+                                title: t("actions.analysisDetails"),
+                                onClick: () => {
+                                  const taskId =
+                                    application.tasks.currentAnalyzer?.id;
+                                  if (taskId && application.id) {
+                                    history.push(
+                                      formatPath(
+                                        Paths.applicationsAnalysisDetails,
+                                        {
+                                          applicationId: application.id,
+                                          taskId,
+                                        }
+                                      )
+                                    );
+                                  }
+                                },
+                              },
+                            tasksReadAccess &&
+                              tasksWriteAccess &&
+                              isTaskCancellable(application) && {
+                                title: t("actions.cancelAnalysis"),
+                                onClick: () => cancelAnalysis(application),
+                              },
+                            applicationWriteAccess && { isSeparator: true },
+                            applicationWriteAccess && {
+                              title: t("actions.delete"),
+                              onClick: () =>
+                                setApplicationsToDelete([application]),
+                              isDanger: true,
+                            },
+                          ].filter(Boolean)}
+                        />
+                      </OverflowMenu>
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
@@ -1413,6 +1485,41 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </div>
+      <Modal
+        variant="small"
+        title={t("actions.download", { what: "analysis details" })}
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+        actions={[
+          <Button key="confirm" variant="primary" onClick={handleDownload}>
+            Download
+          </Button>,
+          <Button
+            key="cancel"
+            variant="link"
+            onClick={() => setIsDownloadModalOpen(false)}
+          >
+            Cancel
+          </Button>,
+        ]}
+      >
+        <TextContent>{"Select format"}</TextContent>
+        <FormSelect
+          value={selectedFormat}
+          onChange={onChange}
+          aria-label="FormSelect Input"
+          ouiaId="BasicFormSelect"
+        >
+          {formats.map((option, index) => (
+            <FormSelectOption
+              isDisabled={option.disabled}
+              key={index}
+              value={option.value}
+              label={option.label}
+            />
+          ))}
+        </FormSelect>
+      </Modal>
     </ConditionalRender>
   );
 };

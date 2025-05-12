@@ -20,7 +20,7 @@ import { TaskDashboard } from "@app/api/models";
 import {
   ApplicationTasksStatus,
   DecoratedApplication,
-} from "../useDecoratedApplications";
+} from "../../useDecoratedApplications";
 
 interface StatusData {
   popoverVariant: PopoverProps["alertSeverityVariant"];

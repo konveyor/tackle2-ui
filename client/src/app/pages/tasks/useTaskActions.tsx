@@ -69,24 +69,47 @@ export const useTaskActions = (task: Task) => {
   return [
     {
       title: t("actions.cancel"),
-      isDisabled: !canCancel(task.state),
+      isAriaDisabled: !canCancel(task.state),
+      tooltipProps: {
+        content: !canCancel(task.state)
+          ? t("message.cancelNotAvailable", { statusName: task.state })
+          : "",
+      },
       onClick: () => cancelTask(task.id),
     },
     {
       title: task.policy?.preemptEnabled
         ? t("actions.disablePreemption")
         : t("actions.enablePreemption"),
-      isDisabled: !canTogglePreemption(task.state),
+      isAriaDisabled: !canTogglePreemption(task.state),
       onClick: () => togglePreemption(task),
+      tooltipProps: {
+        content: !canTogglePreemption(task.state)
+          ? t("message.togglePreemptionNotAvailable", {
+              statusName: task.state,
+            })
+          : "",
+      },
     },
     {
       title: t("actions.taskDetails"),
-      onClick: () =>
-        history.push(
-          formatPath(Paths.taskDetails, {
-            taskId: task.id,
-          })
-        ),
+      onClick: () => {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes("application")) {
+          history.push(
+            formatPath(Paths.applicationsTaskDetails, {
+              applicationId: task.application?.id,
+              taskId: task?.id,
+            })
+          );
+        } else {
+          history.push(
+            formatPath(Paths.taskDetails, {
+              taskId: task?.id,
+            })
+          );
+        }
+      },
     },
   ];
 };

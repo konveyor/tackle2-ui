@@ -87,7 +87,6 @@ export interface JobFunction {
 export interface TagCategory {
   id: number;
   name: string;
-  rank?: number;
   colour?: string;
   tags?: Tag[];
 }
@@ -407,7 +406,7 @@ export interface TaskData {
   };
   rules?: {
     path: string;
-    tags: {
+    tags?: {
       excluded: string[];
     };
     repository?: Repository;
@@ -844,7 +843,6 @@ export interface Archetype {
   review?: Ref;
   risk?: Risk;
 }
-export type ProviderType = "Java" | "Go";
 
 export interface QuestionWithSectionOrder extends Question {
   sectionOrder: number;
