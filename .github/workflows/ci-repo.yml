@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
@@ -37,7 +39,7 @@ jobs:
 
       - name: Did docs and hacks change?
         id: docs-and-hacks
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
         with:
           files: |
             docs/**

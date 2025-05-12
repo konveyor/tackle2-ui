@@ -1,5 +1,4 @@
 import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
-import { ISelectionStateArgs, useSelectionState } from "@migtools/lib-ui";
 import {
   DisallowCharacters,
   DiscriminatedArgs,
@@ -40,9 +39,9 @@ import {
   ToolbarProps,
 } from "@patternfly/react-core";
 import { IFilterToolbarProps } from "@app/components/FilterToolbar";
-import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
 import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
 import { IColumnState } from "./column/useColumnState";
+import { ITToolbarBulkExpanderProps } from "@app/components/ToolbarBulkExpander";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.
@@ -177,11 +176,14 @@ export type IUseTableControlStateArgs<
    * Initial state for the columns feature. If omitted, all columns are enabled by default.
    */
   initialColumns?: Partial<Record<TColumnKey, ColumnSetting>>;
+  /**
+   * Is row selection enabled and therefore header and row columns should be reserved?
+   */
+  isSelectionEnabled?: boolean;
 } & IFilterStateArgs<TItem, TFilterCategoryKey> &
   ISortStateArgs<TSortableColumnKey> &
-  IPaginationStateArgs & {
-    isSelectionEnabled?: boolean; // TODO move this into useSelectionState when we move it from lib-ui
-  } & IExpansionStateArgs &
+  IPaginationStateArgs &
+  IExpansionStateArgs &
   IActiveItemStateArgs &
   ITablePersistenceArgs<TPersistenceKeyPrefix>;
 
@@ -266,6 +268,10 @@ export type ITableControlLocalDerivedStateArgs<
  */
 export type ITableControlDerivedState<TItem> = {
   /**
+   * The unsorted set of items after filtering.
+   */
+  filteredItems?: TItem[];
+  /**
    * The items to be rendered on the current page of the table. These items have already been filtered, sorted and paginated.
    */
   currentPageItems: TItem[];
@@ -301,7 +307,6 @@ export type IUseTableControlPropsArgs<
   IFilterPropHelpersExternalArgs<TItem, TFilterCategoryKey> &
   ISortPropHelpersExternalArgs<TColumnKey, TSortableColumnKey> &
   IPaginationPropHelpersExternalArgs &
-  // ISelectionPropHelpersExternalArgs // TODO when we move selection from lib-ui
   IExpansionPropHelpersExternalArgs<TItem, TColumnKey> &
   IActiveItemPropHelpersExternalArgs<TItem> &
   ITableControlDerivedState<TItem> & {
@@ -322,11 +327,6 @@ export type IUseTableControlPropsArgs<
      * Whether there is a separate column for action buttons/menus at the right side of the table
      */
     hasActionsColumn?: boolean;
-    /**
-     * Selection state
-     * @todo this won't be included here when useSelectionState gets moved from lib-ui. It is separated from the other state temporarily and used only at render time.
-     */
-    selectionState: ReturnType<typeof useSelectionState<TItem>>;
     /**
      * The state for the columns feature. Returned by useColumnState.
      */
@@ -375,16 +375,11 @@ export type ITableControls<
   expansionDerivedState: IExpansionDerivedState<TItem, TColumnKey>;
   /**
    * Values derived at render time from the column feature state. Includes helper functions for convenience.
-   *
-   *
-   *
-   *
    */
   columnState: IColumnState<TColumnKey>;
   /**
    * Values derived at render time from the active-item feature state. Includes helper functions for convenience.
    */
-
   activeItemDerivedState: IActiveItemDerivedState<TItem>;
   /**
    * Prop helpers: where it all comes together.
@@ -440,16 +435,9 @@ export type ITableControls<
      */
     paginationToolbarItemProps: ToolbarItemProps;
     /**
-     * Props for the ToolbarBulkSelector component.
+     * Props for the ToolbarBulkExpander component.
      */
-    toolbarBulkSelectorProps: IToolbarBulkSelectorProps<TItem>;
-    /**
-     * Returns props for the Td component used as the checkbox cell for each row when using the selection feature.
-     */
-    getSelectCheckboxTdProps: (args: {
-      item: TItem;
-      rowIndex: number;
-    }) => Omit<TdProps, "ref">;
+    toolbarBulkExpanderProps: ITToolbarBulkExpanderProps;
     /**
      * Returns props for the Td component used as the expand toggle when using the single-expand variant of the expansion feature.
      */
@@ -463,11 +451,9 @@ export type ITableControls<
      * The two Trs for the expandable row and expanded content row should be contained in a Tbody with no other Tr components.
      */
     getExpandedContentTdProps: (args: { item: TItem }) => Omit<TdProps, "ref">;
-
     /**
      * Returns the visibility of a column
      */
-
     getColumnVisibility: (columnKey: TColumnKey) => boolean;
   };
 };
@@ -511,6 +497,4 @@ export type IUseLocalTableControlsArgs<
         TFilterCategoryKey,
         TPersistenceKeyPrefix
       >
-    | "selectionState" // TODO this won't be included here when selection is part of useTableControlState
-  > &
-  Pick<ISelectionStateArgs<TItem>, "initialSelected" | "isItemSelectable">; // TODO this won't be included here when selection is part of useTableControlState
+  >;

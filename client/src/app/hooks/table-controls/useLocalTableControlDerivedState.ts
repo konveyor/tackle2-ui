@@ -6,6 +6,7 @@ import {
   ITableControlDerivedState,
   ITableControlState,
 } from "./types";
+import { useMemo } from "react";
 
 /**
  * Returns table-level "derived state" (the results of local/client-computed filtering/sorting/pagination)
@@ -13,7 +14,7 @@ import {
  * - Takes "source of truth" state for all features and additional args.
  * @see useLocalTableControls
  */
-export const getLocalTableControlDerivedState = <
+export const useLocalTableControlDerivedState = <
   TItem,
   TColumnKey extends string,
   TSortableColumnKey extends TColumnKey,
@@ -35,19 +36,38 @@ export const getLocalTableControlDerivedState = <
     >
 ): ITableControlDerivedState<TItem> => {
   const { items, isPaginationEnabled = true } = args;
-  const { filteredItems } = getLocalFilterDerivedState({
-    ...args,
-    items,
-  });
-  const { sortedItems } = getLocalSortDerivedState({
-    ...args,
-    items: filteredItems,
-  });
-  const { currentPageItems } = getLocalPaginationDerivedState({
-    ...args,
-    items: sortedItems,
-  });
+
+  const { filteredItems } = useMemo(
+    () =>
+      getLocalFilterDerivedState({
+        items,
+        filterCategories: args.filterCategories,
+        filterState: args.filterState,
+      }),
+    [items, args.filterCategories, args.filterState]
+  );
+
+  const { sortedItems } = useMemo(
+    () =>
+      getLocalSortDerivedState({
+        items: filteredItems,
+        getSortValues: args.getSortValues,
+        sortState: args.sortState,
+      }),
+    [filteredItems, args.getSortValues, args.sortState]
+  );
+
+  const { currentPageItems } = useMemo(
+    () =>
+      getLocalPaginationDerivedState({
+        items: sortedItems,
+        paginationState: args.paginationState,
+      }),
+    [sortedItems, args.paginationState]
+  );
+
   return {
+    filteredItems,
     totalItemCount: filteredItems.length,
     currentPageItems: isPaginationEnabled ? currentPageItems : sortedItems,
   };

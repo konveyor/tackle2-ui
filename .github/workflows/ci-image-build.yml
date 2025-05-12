@@ -18,10 +18,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: What files changed?
         id: changed
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
         with:
           files: |
             Dockerfile

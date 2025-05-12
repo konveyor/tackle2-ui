@@ -6,23 +6,43 @@ import { Paths, TaskDetailsAttachmentRoute } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 import { formatPath } from "@app/utils/utils";
 import { TaskDetailsBase } from "./TaskDetailsBase";
+import { useFetchApplicationById } from "@app/queries/applications";
 
 export const TaskDetails = () => {
   const { t } = useTranslation();
-  const { taskId, attachmentId } = useParams<TaskDetailsAttachmentRoute>();
-  const detailsPath = formatPath(Paths.taskDetails, { taskId });
+  const { taskId, attachmentId, applicationId } =
+    useParams<TaskDetailsAttachmentRoute>();
+  const currentPath = window.location.pathname;
+  const isFromApplication = currentPath.includes("application") ? true : false;
+  const { application } = useFetchApplicationById(applicationId);
+
+  const appName: string = application?.name ?? t("terms.unknown");
+  console.log(appName);
+  const detailsPath = isFromApplication
+    ? formatPath(Paths.applicationsTaskDetails, {
+        applicationId: applicationId,
+        taskId: taskId,
+      })
+    : formatPath(Paths.taskDetails, { taskId });
+
   return (
     <TaskDetailsBase
       breadcrumbs={[
         {
-          title: t("terms.tasks"),
-          path: Paths.tasks,
+          title: t(isFromApplication ? "terms.applications" : "terms.tasks"),
+          path: isFromApplication ? Paths.applications : Paths.tasks,
         },
+        isFromApplication
+          ? {
+              title: appName,
+              path: `${Paths.applications}/?activeItem=${applicationId}`,
+            }
+          : null,
         {
           title: t("titles.taskWithId", { taskId }),
           path: detailsPath,
         },
-      ]}
+      ].filter(Boolean)}
       detailsPath={detailsPath}
       formatTitle={(taskName) => `Task details for task ${taskId}, ${taskName}`}
       formatAttachmentPath={(attachmentId) =>
@@ -36,5 +56,4 @@ export const TaskDetails = () => {
     />
   );
 };
-
 export default TaskDetails;

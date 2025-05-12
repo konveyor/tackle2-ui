@@ -7,7 +7,10 @@ import run from "@rollup/plugin-run";
 
 const buildAndRun = process.env?.ROLLUP_RUN === "true";
 
+/** @type {import('rollup').RollupOptions} */
 export default {
+  strictDeprecations: true,
+
   input: "src/index.js",
   output: {
     file: "dist/index.js",

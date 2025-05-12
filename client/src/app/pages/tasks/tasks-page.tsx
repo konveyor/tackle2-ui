@@ -2,9 +2,6 @@ import React, { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Text,
@@ -22,7 +19,6 @@ import {
   Td,
   ThProps,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
 
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
@@ -40,7 +36,6 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
-import { useSelectionState } from "@migtools/lib-ui";
 import { useServerTasks } from "@app/queries/tasks";
 import { Task, TaskState } from "@app/api/models";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
@@ -49,8 +44,9 @@ import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { TaskActionColumn } from "./TaskActionColumn";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
-const taskStateToLabel: Record<TaskState, string> = {
+export const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
   "not supported": "",
   Canceled: "taskState.Canceled",
@@ -71,7 +67,6 @@ export const TasksPage: React.FC = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters") ?? "";
-
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
 
   const tableControlState = useTableControlState({
@@ -190,10 +185,6 @@ export const TasksPage: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {
@@ -318,13 +309,7 @@ export const TasksPage: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={t("message.noResultsFoundTitle")}
-                    headingLevel="h2"
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                  />
-                </EmptyState>
+                <NoDataEmptyState title={t("message.noResultsFoundTitle")} />
               }
               numRenderedColumns={numRenderedColumns}
             >

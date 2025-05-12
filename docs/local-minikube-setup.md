@@ -114,7 +114,7 @@ images used, settings, and features enabled during the install.
 Configuration environment variable include:
 | variable | default | description |
 | --- | --- | --- |
-| TACKLE*CR | *(empty)\_ | Allows specifying the full Tackle CR |
+| TACKLE_CR | (empty) | Allows specifying the full Tackle CR |
 | ADDON_ANALYZER_IMAGE | quay.io/konveyor/tackle2-addon-analyzer:latest | image for the ADDON_ANALYZER pod |
 | ANALYZER_CONTAINER_REQUESTS_CPU | 0 | cpu count for the analyzer (0 is no restriction) |
 | ANALYZER_CONTAINER_REQUESTS_MEMORY | 0 | memory size for the analyzer (0 is no restriction) |
