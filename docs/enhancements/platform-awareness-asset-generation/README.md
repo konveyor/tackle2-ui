@@ -9,7 +9,7 @@ from a source platform, and from the discovered information, provides deployment
 for a target platform.
 
 The base use case is to pull an application from a CloudFoundry instance
-and generate necessary assets to deploy it to an OpenShift cluster.
+and generate necessary assets to deploy it to an Kubernetes cluster.
 
 > [!NOTE]
 > For any bulk actions, all information required for the action should be able to
