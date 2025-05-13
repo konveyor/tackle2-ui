@@ -32,7 +32,6 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { FEATURES_ENABLED } from "@app/FeatureFlags";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 
 type UserCredentials = "userpass" | "source";
@@ -413,17 +412,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     },
   ];
 
-  const jiraKindOptions: OptionWithValue<IdentityKind>[] = [
-    {
-      value: "basic-auth",
-      toString: () => `Basic Auth (Jira)`,
-    },
-    {
-      value: "bearer",
-      toString: () => `Bearer Token (Jira)`,
-    },
-  ];
-
   const kindOptions: OptionWithValue<IdentityKind>[] = [
     {
       value: "source",
@@ -437,7 +425,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       value: "proxy",
       toString: () => `Proxy`,
     },
-    ...(FEATURES_ENABLED.migrationWaves ? jiraKindOptions : []),
+    {
+      value: "basic-auth",
+      toString: () => `Basic Auth (Jira)`,
+    },
+    {
+      value: "bearer",
+      toString: () => `Bearer Token (Jira)`,
+    },
   ];
 
   const isPasswordEncrypted = identity?.password === values.password;
