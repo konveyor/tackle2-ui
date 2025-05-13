@@ -15,7 +15,6 @@ import { LayoutTheme } from "../LayoutUtils";
 import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
 
-import { FEATURES_ENABLED } from "@app/FeatureFlags";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import "./SidebarApp.css";
 import { ReactElement } from "react-markdown/lib/react-markdown";
@@ -122,33 +121,21 @@ export const MigrationSidebar = () => {
             {t("sidebar.controls")}
           </NavLink>
         </NavItem>
-        {FEATURES_ENABLED.migrationWaves ? (
-          <NavItem>
-            <NavLink
-              to={DevPaths.migrationWaves}
-              activeClassName="pf-m-current"
-            >
-              {t("sidebar.migrationWaves")}
-            </NavLink>
-          </NavItem>
-        ) : null}
-        {FEATURES_ENABLED.dynamicReports ? (
-          <>
-            <NavItem>
-              <NavLink to={DevPaths.issues} activeClassName="pf-m-current">
-                {t("sidebar.issues")}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-                to={DevPaths.dependencies}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.dependencies")}
-              </NavLink>
-            </NavItem>
-          </>
-        ) : null}
+        <NavItem>
+          <NavLink to={DevPaths.migrationWaves} activeClassName="pf-m-current">
+            {t("sidebar.migrationWaves")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink to={DevPaths.issues} activeClassName="pf-m-current">
+            {t("sidebar.issues")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
+            {t("sidebar.dependencies")}
+          </NavLink>
+        </NavItem>
         <NavItem>
           <NavLink to={DevPaths.tasks} activeClassName="pf-m-current">
             {t("sidebar.tasks")}
@@ -218,20 +205,18 @@ export const AdminSidebar = () => {
             Custom migration targets
           </NavLink>
         </NavItem>
-        {FEATURES_ENABLED.migrationWaves ? (
-          <NavExpandable
-            title="Issue management"
-            srText="SR Link"
-            groupId="admin-issue-management"
-            isExpanded
-          >
-            <NavItem>
-              <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
-                Jira
-              </NavLink>
-            </NavItem>
-          </NavExpandable>
-        ) : null}
+        <NavExpandable
+          title="Issue management"
+          srText="SR Link"
+          groupId="admin-issue-management"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
+              Jira
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
         <NavItem>
           <NavLink to={AdminPaths.assessment} activeClassName="pf-m-current">
             {t("terms.assessmentQuestionnaires")}
