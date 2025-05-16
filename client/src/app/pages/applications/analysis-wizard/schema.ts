@@ -36,20 +36,16 @@ const useModeStepSchema = ({
     mode: yup
       .mixed<AnalysisMode>()
       .required(t("validation.required"))
-      .test(
-        "isModeCompatible",
-        "Selected mode not supported for selected applications", // Message not exposed to the user
-        (mode) => {
-          const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
-          if (mode === "binary-upload") {
-            return analyzableApplications.length === 1;
-          }
-          return analyzableApplications.length > 0;
+      .test("isModeCompatible", t("validation.unsupportedMode"), (mode) => {
+        const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
+        if (mode === "binary-upload") {
+          return analyzableApplications.length === 1;
         }
-      ),
+        return analyzableApplications.length > 0;
+      }),
     artifact: yup.mixed<File>().when("mode", {
       is: "binary-upload",
-      then: (schema) => schema.required(),
+      then: (schema) => schema.required(t("validation.requiredFile")),
     }),
   });
 };
@@ -84,16 +80,27 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
     includedPackages: yup
       .array()
       .of(yup.string().defined())
-      .when("withKnownLibs", (withKnownLibs, schema) =>
-        withKnownLibs.includes("select") ? schema.min(1) : schema
-      ),
+      .when("withKnownLibs", {
+        is: (withKnownLibs: AnalysisScope) => withKnownLibs.includes("select"),
+        then: (schema) =>
+          schema.min(1, t("validation.minOneRequired", { type: "package" })),
+        otherwise: (schema) => schema,
+      }),
+
     hasExcludedPackages: yup.bool().defined(),
+
     excludedPackages: yup
       .array()
       .of(yup.string().defined())
-      .when("hasExcludedPackages", (hasExcludedPackages, schema) =>
-        hasExcludedPackages ? schema.min(1) : schema
-      ),
+      .when("hasExcludedPackages", {
+        is: true,
+        then: (schema) =>
+          schema.min(
+            1,
+            t("validation.minOneRequired", { type: "excluded package" })
+          ),
+        otherwise: (schema) => schema,
+      }),
   });
 };
 
@@ -117,6 +124,7 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 });
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
+  const { t } = useTranslation();
   return yup.object({
     rulesKind: yup.string().defined(),
     customRulesFiles: yup
@@ -134,7 +142,8 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
           selectedTargets: number
         ) =>
           labels.length === 0 && rulesKind === "manual" && selectedTargets <= 0,
-        then: (schema) => schema.min(1, "At least 1 Rule File is required"),
+        then: (schema) =>
+          schema.min(1, t("validation.minOneRequired", { type: "rule file" })),
       }),
     repositoryType: yup.mixed<string>().when("rulesKind", {
       is: "repository",
@@ -143,7 +152,9 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
     sourceRepository: yup.string().when("rulesKind", {
       is: "repository",
       then: (schema) =>
-        customURLValidation(schema).required("Enter repository url."),
+        customURLValidation(schema).required(
+          t("validation.requiredRepositoryURL")
+        ),
     }),
     branch: yup.mixed<string>().when("rulesKind", {
       is: "repository",

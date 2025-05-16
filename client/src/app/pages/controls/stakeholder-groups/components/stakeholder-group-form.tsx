@@ -76,7 +76,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "An stakeholder group with this name already exists. Use a different name.",
+        t("duplicateName", { type: "An stakeholder group" }),
         (value) => {
           return duplicateNameCheck(
             stakeholderGroups || [],
