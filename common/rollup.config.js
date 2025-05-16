@@ -10,6 +10,7 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import virtual from "@rollup/plugin-virtual";
 import ejs from "ejs";
+import commonjs from "@rollup/plugin-commonjs";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (...relativePath) => path.resolve(__dirname, ...relativePath);
@@ -59,6 +60,7 @@ const config = {
       targets: [{ src: `${brandingPath}/**/*`, dest: "dist/branding" }],
     }),
     nodeResolve(),
+    commonjs(),
     typescript(),
     virtual({
       "@branding/strings.json": stringModule,

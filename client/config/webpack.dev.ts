@@ -12,7 +12,6 @@ import {
   encodeEnv,
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
-  proxyMap,
   brandingStrings,
   brandingAssetPath,
 } from "@konveyor-ui/common";
@@ -25,15 +24,6 @@ const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
 interface Configuration extends WebpackConfiguration {
   devServer?: DevServerConfiguration;
 }
-
-const devServer: DevServerConfiguration = {
-  port: 9000,
-  historyApiFallback: {
-    disableDotRule: true,
-  },
-  hot: true,
-  proxy: proxyMap,
-};
 
 const config: Configuration = mergeWithRules({
   module: {
@@ -54,7 +44,13 @@ const config: Configuration = mergeWithRules({
     assetModuleFilename: "assets/[name][ext]",
   },
 
-  devServer,
+  devServer: {
+    port: 9003,
+    historyApiFallback: {
+      disableDotRule: true,
+    },
+    hot: true,
+  },
 
   module: {
     rules: [

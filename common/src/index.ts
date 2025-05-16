@@ -1,5 +1,4 @@
 export * from "./environment.js";
-export * from "./proxies.js";
 export * from "./branding.js";
 
 /**
