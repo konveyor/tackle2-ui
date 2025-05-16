@@ -84,7 +84,7 @@
     "msw": "^1.2.3",
     "raw-loader": "^4.0.2",
     "react-refresh": "^0.17.0",
-    "react-refresh-typescript": "^2.0.9",
+    "react-refresh-typescript": "^2.0.10",
     "source-map-explorer": "^2.5.2",
     "style-loader": "^3.3.4",
     "terser-webpack-plugin": "^5.3.14",
