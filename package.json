@@ -69,7 +69,7 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.40.1",
     "rollup-plugin-copy": "^3.5.0",
-    "ts-jest": "^29.1.1",
+    "ts-jest": "^29.3.4",
     "ts-node": "^10.9.1",
     "type-fest": "^4.41.0",
     "typescript": "^5.1.6",
