@@ -92,7 +92,7 @@ The React and Patternfly based UI is composed of web pages served by an http ser
 - In **production** mode, the application code is served as statically built UI assets. A small
   handler inserts relevant environment information on the root page. This configures how the UI
   runs in the browser. The server's listener port is configurable via environment variables and
-  defaults to **:9000**.
+  defaults to **:8080**.
 
 - In **development** mode, the application code is proxied to the client's webpack-dev-server
   running on port **:9003**. The server's listener port is configurable via environment variables

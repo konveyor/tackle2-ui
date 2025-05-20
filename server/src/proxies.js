@@ -4,6 +4,16 @@
 import * as cookie from "cookie";
 import { KONVEYOR_ENV } from "@konveyor-ui/common";
 
+/** @type Logger */
+const logger =
+  process.env.DEBUG === "1"
+    ? console
+    : {
+        info() {},
+        warn: console.warn,
+        error: console.error,
+      };
+
 /**
  * Add the Bearer token to the request if it is not already present, AND if
  * the token is part of the request as a cookie
@@ -40,15 +50,6 @@ const redirectIfUnauthorized = (proxyRes, req, res) => {
     proxyRes?.destroy();
   }
 };
-
-/** @type Logger */
-const logger = process.env.DEBUG
-  ? console
-  : {
-      info() {},
-      warn: console.warn,
-      error: console.error,
-    };
 
 /** @type Record<string, Options> */
 export default {

@@ -16,11 +16,14 @@ import {
 } from "@konveyor-ui/common";
 import proxies from "./proxies";
 
-console.log("KONVEYOR_ENV", KONVEYOR_ENV);
+const developmentMode = KONVEYOR_ENV.NODE_ENV === "development";
+const debugMode = process.env.DEBUG === "1";
+debugMode && console.log("KONVEYOR_ENV", KONVEYOR_ENV);
+
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const port = parseInt(KONVEYOR_ENV.PORT, 10) || 9000;
+const port = parseInt(KONVEYOR_ENV.PORT, 10) || developmentMode ? 9000 : 8080;
 
 const app = express();
 app.set("x-powered-by", false);
@@ -31,7 +34,7 @@ app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
 
 // In development, proxy to the dev server, otherwise serve the client/dist content
-if (KONVEYOR_ENV.NODE_ENV === "development") {
+if (developmentMode) {
   console.log("** development mode - proxying to webpack-dev-server **");
   app.use(createProxyMiddleware(proxies.devServer));
 } else {
