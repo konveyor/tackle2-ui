@@ -26,10 +26,5 @@
   "lint-staged": {
     "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
     "*.{css,json,md,yaml,yml}": "prettier --write"
-  },
-  "dependencies": {
-    "ejs": "^3.1.10",
-    "express": "^4.19.2",
-    "http-proxy-middleware": "^2.0.6"
   }
 }

@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 
 import express from "express";
 import ejs from "ejs";
-import cookieParser from "cookie-parser";
 import { createHttpTerminator } from "http-terminator";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
@@ -13,48 +12,50 @@ import {
   encodeEnv,
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
-  proxyMap,
   brandingStrings,
 } from "@konveyor-ui/common";
+import proxies from "./proxies";
+
+const developmentMode = KONVEYOR_ENV.NODE_ENV === "development";
+const debugMode = process.env.DEBUG === "1";
+debugMode && console.log("KONVEYOR_ENV", KONVEYOR_ENV);
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const port = parseInt(KONVEYOR_ENV.PORT, 10) || 8080;
+const port = parseInt(KONVEYOR_ENV.PORT, 10) || developmentMode ? 9000 : 8080;
 
 const app = express();
 app.set("x-powered-by", false);
-app.use(cookieParser());
 
-// Setup proxy handling
-for (const proxyPath in proxyMap) {
-  app.use(proxyPath, createProxyMiddleware(proxyMap[proxyPath]));
-}
+// Setup proxies for auth and hub
+app.use(createProxyMiddleware(proxies.auth));
+app.use(createProxyMiddleware(proxies.hub));
+app.use(createProxyMiddleware(proxies.kai));
 
-app.engine("ejs", ejs.renderFile);
-app.use(express.json());
-app.set("views", pathToClientDist);
-app.use(express.static(pathToClientDist));
+// In development, proxy to the dev server, otherwise serve the client/dist content
+if (developmentMode) {
+  console.log("** development mode - proxying to webpack-dev-server **");
+  app.use(createProxyMiddleware(proxies.devServer));
+} else {
+  app.engine("ejs", ejs.renderFile);
+  app.use(express.json());
+  app.set("views", pathToClientDist);
+  app.use(express.static(pathToClientDist));
 
-// Handle any request that hasn't already been handled by express.static or proxy
-app.get("*", (_, res) => {
-  if (KONVEYOR_ENV.NODE_ENV === "development") {
-    res.send(`
-      <style>pre { margin-left: 20px; }</style>
-      You're running in development mode! The UI is served by webpack-dev-server on port 9000: <a href="http://localhost:9000">http://localhost:9000</a><br /><br />
-      If you want to serve the UI via express to simulate production mode, run a full build with: <pre>npm run build</pre>
-      and then in two separate terminals, run: <pre>npm run port-forward</pre> and: <pre>npm run start</pre> and the UI will be served on port 8080.
-    `);
-  } else {
+  app.get("*splat", (_, res) => {
     res.render("index.html.ejs", {
       _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
       branding: brandingStrings,
     });
-  }
-});
+  });
+}
 
 // Start the server
-const server = app.listen(port, () => {
+const server = app.listen(port, (error) => {
+  if (error) {
+    throw error; // e.g. EADDRINUSE
+  }
   console.log(`Server listening on port::${port}`);
 });
 
