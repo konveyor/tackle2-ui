@@ -39,7 +39,7 @@ export const SetOptions: React.FC = () => {
     useFormContext<AnalysisWizardFormValues>();
 
   const {
-    formLabels,
+    selectedTargetLabels,
     excludedRulesTags,
     autoTaggingEnabled,
     advancedAnalysisEnabled,
@@ -96,14 +96,14 @@ export const SetOptions: React.FC = () => {
       </TextContent>
       <HookFormPFGroupController
         control={control}
-        name="formLabels"
-        label={t("wizard.terms.targets")}
+        name="selectedTargetLabels"
+        label={t("wizard.terms.target", { count: 2 })}
         fieldId="target-labels"
         renderInput={({
           field: { onChange, onBlur },
           fieldState: { isDirty, error, isTouched },
         }) => {
-          const targetSelections = formLabels
+          const targetSelections = selectedTargetLabels
             .map((formLabel) => {
               const parsedLabel = getParsedLabel(formLabel?.label);
               if (parsedLabel.labelType === "target") {
@@ -126,8 +126,12 @@ export const SetOptions: React.FC = () => {
                   (label) => label.label === selectionLabel
                 );
                 const updatedFormLabels = !matchingLabel
-                  ? formLabels
-                  : toggle(formLabels, matchingLabel, (tl) => tl.label);
+                  ? selectedTargetLabels
+                  : toggle(
+                      selectedTargetLabels,
+                      matchingLabel,
+                      (tl) => tl.label
+                    );
                 onChange(updatedFormLabels);
 
                 const updatedSelectedTargets =
@@ -163,7 +167,7 @@ export const SetOptions: React.FC = () => {
       <HookFormPFGroupController
         control={control}
         name="selectedSourceLabels"
-        label={t("wizard.terms.sources")}
+        label={t("wizard.terms.source", { count: 2 })}
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },

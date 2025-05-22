@@ -73,34 +73,31 @@ export const toggleSelectedTargets = (
   return toggle(selectedTargets, target, (t) => t.id);
 };
 
-export const getUpdatedFormLabels = (
+export const updateSelectedTargetLabels = (
   isSelecting: boolean,
   selectedLabelName: string,
   target: Target,
-  formLabels: TargetLabel[]
+  currentSelectedTargetLabels: TargetLabel[]
 ) => {
-  if (target.custom) {
-    const customTargetLabelNames = target.labels?.map((label) => label.name);
-    const otherSelectedLabels = formLabels?.filter(
-      (formLabel) => !customTargetLabelNames?.includes(formLabel.name)
-    );
-    return isSelecting && target.labels
-      ? [...otherSelectedLabels, ...target.labels]
-      : otherSelectedLabels;
-  } else {
-    const otherSelectedLabels = formLabels?.filter(
-      (formLabel) => formLabel.name !== selectedLabelName
-    );
-    if (isSelecting) {
-      const matchingLabel = target.labels?.find(
-        (label) => label.name === selectedLabelName
-      );
-      return matchingLabel
-        ? [...otherSelectedLabels, matchingLabel]
-        : otherSelectedLabels;
-    }
+  const testLabelNames = target.custom
+    ? (target.labels?.map((label) => label.name) ?? [])
+    : [selectedLabelName];
+
+  const otherSelectedLabels = currentSelectedTargetLabels.filter(
+    (label) => !testLabelNames.includes(label.name)
+  );
+
+  if (!isSelecting) {
     return otherSelectedLabels;
   }
+
+  const matchingTargetLabels = target.custom
+    ? target.labels
+    : target.labels?.filter((l) => l.name === selectedLabelName);
+
+  return matchingTargetLabels
+    ? [...otherSelectedLabels, ...matchingTargetLabels]
+    : otherSelectedLabels;
 };
 
 /**

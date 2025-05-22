@@ -9,7 +9,9 @@ export const checkRuleFileType = (filename: string): RuleFileType => {
     return "YAML";
   } else if (fileExtension === "xml") {
     return "XML";
-  } else return null;
+  } else {
+    return null;
+  }
 };
 type ParsedYamlElement = { labels?: string[] };
 type ParsedYaml = ParsedYamlElement[] | {};

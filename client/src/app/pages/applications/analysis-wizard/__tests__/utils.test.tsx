@@ -1,5 +1,5 @@
 import { Target, TargetLabel } from "@app/api/models";
-import { getUpdatedFormLabels } from "../utils";
+import { updateSelectedTargetLabels } from "../utils";
 
 const TARGET_LABELS: TargetLabel[] = [
   {
@@ -55,9 +55,9 @@ const TARGET_B: Target = {
   ],
 };
 
-describe("analysis-wizard utils", () => {
+describe("analysis-wizard utils - updateSelectedTargetLabels()", () => {
   it("add a label to an empty list", () => {
-    const theResult = getUpdatedFormLabels(
+    const theResult = updateSelectedTargetLabels(
       true,
       TARGET_LABELS[1].name,
       TARGET_A,
@@ -67,7 +67,7 @@ describe("analysis-wizard utils", () => {
   });
 
   it("add a label to a list with a label", () => {
-    const theResult = getUpdatedFormLabels(
+    const theResult = updateSelectedTargetLabels(
       true,
       TARGET_A.labels![1].name,
       TARGET_A,
@@ -77,7 +77,7 @@ describe("analysis-wizard utils", () => {
   });
 
   it("add a label to a list with with multiple labels", () => {
-    const theResult = getUpdatedFormLabels(
+    const theResult = updateSelectedTargetLabels(
       true,
       TARGET_A.labels![2].name,
       TARGET_A,
@@ -94,7 +94,7 @@ describe("analysis-wizard utils", () => {
     const labelA = TARGET_A.labels![0];
     const labelB = TARGET_B.labels![0];
 
-    const theResult = getUpdatedFormLabels(true, labelB.name, TARGET_B, [
+    const theResult = updateSelectedTargetLabels(true, labelB.name, TARGET_B, [
       labelA,
     ]);
     expect(theResult).toStrictEqual([labelA, labelB]);
@@ -103,14 +103,19 @@ describe("analysis-wizard utils", () => {
   it("remove a label from an empty list", () => {
     const label = TARGET_B.labels![0];
 
-    const theResult = getUpdatedFormLabels(false, label.name, TARGET_B, []);
+    const theResult = updateSelectedTargetLabels(
+      false,
+      label.name,
+      TARGET_B,
+      []
+    );
     expect(theResult).toStrictEqual([]);
   });
 
   it("remove a label", () => {
     const label = TARGET_B.labels![0];
 
-    const theResult = getUpdatedFormLabels(false, label.name, TARGET_B, [
+    const theResult = updateSelectedTargetLabels(false, label.name, TARGET_B, [
       TARGET_LABELS[0],
       label,
     ]);
@@ -120,7 +125,7 @@ describe("analysis-wizard utils", () => {
   it("remove a label from the middle of a list", () => {
     const label = TARGET_B.labels![0];
 
-    const theResult = getUpdatedFormLabels(false, label.name, TARGET_B, [
+    const theResult = updateSelectedTargetLabels(false, label.name, TARGET_B, [
       TARGET_LABELS[0],
       label,
       TARGET_LABELS[1],
