@@ -58,13 +58,13 @@ import { useTaskGroup } from "./components/TaskGroupContext";
 
 export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
-  const { taskGroup, updateTaskGroup } = useTaskGroup();
+  const { taskGroup } = useTaskGroup();
 
   const { watch, setValue, control, getValues } =
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
-  const { formLabels, customRulesFiles, rulesKind } = watch();
+  const { selectedTargetLabels, customRulesFiles, rulesKind } = watch();
   const initialActiveTabKeyValue = (value: string): number =>
     value === "manual" ? 0 : value === "repository" ? 1 : 0;
 
@@ -191,10 +191,10 @@ export const CustomRules: React.FC = () => {
                 onClick={() => {
                   customRulesFiles.forEach((file) => {
                     const { allLabels } = parseRules(file);
-                    const updatedFormLabels = formLabels.filter(
+                    const updatedFormLabels = selectedTargetLabels.filter(
                       (label) => !allLabels?.includes(label.label)
                     );
-                    setValue("formLabels", [...updatedFormLabels]);
+                    setValue("selectedTargetLabels", [...updatedFormLabels]);
                   });
 
                   // Remove rule file from list
@@ -402,7 +402,7 @@ export const CustomRules: React.FC = () => {
                 !ruleFiles.find((file) => file.loadResult === "success") ||
                 ruleFiles.some((file) => file.loadResult === "danger")
               }
-              onClick={(event) => {
+              onClick={() => {
                 let hasExistingRuleFile = null;
                 const validFiles = ruleFiles.filter(
                   (file) => file.loadResult === "success"
@@ -442,13 +442,13 @@ export const CustomRules: React.FC = () => {
                           label: label,
                         };
                       }) || [];
-                    const newLabels = formLabels.filter((label) => {
+                    const newLabels = selectedTargetLabels.filter((label) => {
                       const newLabelNames = formattedAllLabels.map(
                         (label) => label.name
                       );
                       return !newLabelNames.includes(label.name);
                     });
-                    setValue("formLabels", [
+                    setValue("selectedTargetLabels", [
                       ...newLabels,
                       ...formattedAllLabels,
                     ]);

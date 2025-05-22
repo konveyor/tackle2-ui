@@ -605,9 +605,9 @@
       "scope": "Scope",
       "setTargets": "Set targets",
       "source": "Source",
-      "sources": "Sources",
+      "source_plural": "Sources",
       "target": "Target",
-      "targets": "Targets",
+      "target_plural": "Targets",
       "transactionReport": "Transaction Report",
       "autoTagging": "Automated tagging"
     },
