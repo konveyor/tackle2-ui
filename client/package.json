@@ -37,7 +37,7 @@
     "dayjs": "^1.11.13",
     "fast-xml-parser": "^5.2.1",
     "file-saver": "^2.0.5",
-    "i18next": "^19.8.4",
+    "i18next": "^25.2.0",
     "i18next-http-backend": "^1.0.22",
     "js-yaml": "^4.1.0",
     "keycloak-js": "^26.1.0",
