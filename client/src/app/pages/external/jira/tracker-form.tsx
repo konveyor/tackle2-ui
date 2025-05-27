@@ -152,7 +152,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "An identity with this name already exists. Use a different name.",
+        t("duplicateName", { type: "An identity" }),
         (value) => duplicateNameCheck(trackers, tracker || null, value || "")
       )
       .required(t("validation.required")),
