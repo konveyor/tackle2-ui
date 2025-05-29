@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -25,6 +26,7 @@ import {
   TaskQueue,
   TaskDashboard,
 } from "@app/api/models";
+import { ApplicationsQueryKey } from "./applications";
 
 export const TaskStates = {
   Canceled: ["Canceled"],
@@ -67,6 +69,9 @@ const calculateSyntheticTaskDashboardState = (
 };
 
 export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
+  const previousActiveTasks = useRef(false);
+  const queryClient = useQueryClient();
+
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [TasksQueryKey, "/report/dashboard"],
     queryFn: getTasksDashboard,
@@ -79,7 +84,14 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
   });
 
   const hasActiveTasks =
-    data && data.some((task) => TaskStates.Queued.includes(task.state ?? ""));
+    data?.some((task) => TaskStates.Queued.includes(task.state ?? "")) ?? false;
+
+  useEffect(() => {
+    if (previousActiveTasks.current && !hasActiveTasks) {
+      queryClient.invalidateQueries([ApplicationsQueryKey]);
+    }
+    previousActiveTasks.current = hasActiveTasks;
+  }, [queryClient, hasActiveTasks]);
 
   return {
     tasks: data || [],
