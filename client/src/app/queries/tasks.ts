@@ -79,7 +79,7 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
   });
 
   const hasActiveTasks =
-    data && data.some((task) => TaskStates.Queued.includes(task.state ?? ""));
+    data?.some((task) => TaskStates.Queued.includes(task.state ?? "")) ?? false;
 
   return {
     tasks: data || [],
