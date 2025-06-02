@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
-import dayjs from "dayjs";
 
 // @patternfly
 import {
@@ -183,10 +182,6 @@ export const ApplicationsTable: React.FC = () => {
   const [reviewToDiscard, setReviewToDiscard] =
     useState<DecoratedApplication | null>(null);
 
-  const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
-    dayjs()
-  );
-
   const onChange = (
     _event: React.FormEvent<HTMLSelectElement>,
     value: string
@@ -216,7 +211,7 @@ export const ApplicationsTable: React.FC = () => {
   // ----- Table data fetches and mutations
   const { tagItems } = useFetchTagsWithTagItems();
 
-  const { tasks, hasActiveTasks } = useFetchTaskDashboard(isAnalyzeModalOpen);
+  const { tasks } = useFetchTaskDashboard(isAnalyzeModalOpen);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -311,14 +306,12 @@ export const ApplicationsTable: React.FC = () => {
     return !!task && !TaskStates.Terminal.includes(task?.state ?? "");
   };
 
-  // TODO: Review the refetchInterval calculation for the application list
+  // TODO: Perf concerns for this query: https://github.com/konveyor/tackle2-ui/issues/2350
   const {
     data: baseApplications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
-  } = useFetchApplications(() =>
-    hasActiveTasks || dayjs().isBefore(endOfAppImportPeriod) ? 5000 : false
-  );
+  } = useFetchApplications();
 
   const {
     applications,
@@ -1264,7 +1257,6 @@ export const ApplicationsTable: React.FC = () => {
           <ImportApplicationsForm
             onSaved={() => {
               setIsApplicationImportModalOpen(false);
-              setEndOfAppImportPeriod(dayjs().add(15, "s"));
             }}
           />
         </Modal>
