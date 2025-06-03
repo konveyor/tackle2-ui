@@ -47,7 +47,7 @@ export const JobFunctionForm: React.FC<JobFunctionFormProps> = ({
       .max(120, t("validation.maxLength", { length: 120 }))
       .test(
         "Duplicate name",
-        "A job function with this name already exists. Use a different name.",
+        t("duplicateName", { type: "A job function " }),
         (value) => {
           return duplicateNameCheck(
             jobFunctions || [],

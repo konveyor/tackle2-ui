@@ -190,7 +190,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .max(120, t("validation.maxLength", { length: 120 }))
         .test(
           "Duplicate name",
-          "An identity with this name already exists. Use a different name.",
+          t("duplicateName", { type: "An identity" }),
           (value) =>
             duplicateNameCheck(identities, identity || null, value || "")
         ),
@@ -287,7 +287,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           is: (value: string) => value === "proxy" || value === "jira",
           then: yup
             .string()
-            .required("This value is required")
+            .required(t("validation.required"))
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
           otherwise: (schema) => schema.trim(),
@@ -296,7 +296,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           is: (value: string) => value === "proxy",
           then: yup
             .string()
-            .required("This value is required")
+            .required(t("validation.required"))
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 })),
           otherwise: (schema) => schema.trim(),
@@ -305,10 +305,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           is: (value: string) => value === "jira",
           then: yup
             .string()
-            .email("Username must be a valid email")
+            .email(t("validation.validEmail"))
             .min(3, t("validation.minLength", { length: 3 }))
             .max(120, t("validation.maxLength", { length: 120 }))
-            .required("This value is required"),
+            .required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when(["kind", "userCredentials"], {
@@ -316,7 +316,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             kind === "source" && userCredentials === "userpass",
           then: (schema) =>
             schema
-              .required("This field is required.")
+              .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
               .max(120, t("validation.maxLength", { length: 120 })),
         }),
@@ -327,7 +327,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           is: (value: string) => value === "proxy",
           then: yup
             .string()
-            .required("This value is required")
+            .required(t("validation.required"))
             .min(3, t("validation.minLength", { length: 3 }))
             .max(220, t("validation.maxLength", { length: 220 })),
           otherwise: (schema) => schema.trim(),
@@ -336,7 +336,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           is: (value: string) => value === "basic-auth",
           then: yup
             .string()
-            .required("This value is required")
+            .required(t("validation.required"))
             .min(3, t("validation.minLength", { length: 3 }))
             .max(281, t("validation.maxLength", { length: 281 })),
           otherwise: (schema) => schema.trim(),
@@ -346,7 +346,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             kind === "source" && userCredentials === "userpass",
           then: (schema) =>
             schema
-              .required("This field is required.")
+              .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
               .max(120, t("validation.maxLength", { length: 120 })),
         }),
@@ -356,12 +356,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .when(["kind", "userCredentials"], {
           is: (kind: string, userCredentials: string) =>
             kind === "source" && userCredentials === "source",
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when("kind", {
           is: (kind: string) => kind === "bearer",
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         }),
       keyFilename: yup.string().defined(),
