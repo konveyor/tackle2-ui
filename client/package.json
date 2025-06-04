@@ -48,7 +48,7 @@
     "react-i18next": "^11.8.5",
     "react-markdown": "^8.0.7",
     "react-measure": "^2.5.2",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^7.6.2",
     "tinycolor2": "^1.6.0",
     "xmllint": "^0.1.1",
     "yup": "^0.32.11"
