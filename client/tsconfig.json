@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
 
-  "include": ["src/**/*", "config/**/*", "types/**/*"],
+  "include": ["src/**/*", "config/**/*"],
 
   "compilerOptions": {
     "outDir": "dist",
@@ -10,7 +10,6 @@
       "@app/*": ["src/app/*"],
       "@mocks/*": ["src/mocks/*"]
     },
-    "typeRoots": ["types/", "node_modules/@types", "../node_modules/@types"],
 
     "target": "es2020",
     "module": "es2020",
