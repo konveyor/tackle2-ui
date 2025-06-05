@@ -26,9 +26,7 @@ const config: JestConfigWithTsJest = {
     "react-i18next": "<rootDir>/__mocks__/react-i18next.js",
 
     // match the paths in tsconfig.json
-    "@app/(.*)": "<rootDir>/src/app/$1",
-    "@assets/(.*)":
-      "<rootDir>../node_modules/@patternfly/react-core/dist/styles/assets/$1",
+    "^@app/(.*)": "<rootDir>/src/app/$1",
     "^@mocks/(.*)$": "<rootDir>/src/mocks/$1",
   },
 
