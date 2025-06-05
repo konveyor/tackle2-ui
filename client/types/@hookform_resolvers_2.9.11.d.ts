@@ -13,10 +13,12 @@ declare module "@hookform/resolvers/yup" {
   import * as Yup from "yup";
   import type Lazy from "yup/lib/Lazy";
 
-  declare type Options<T extends Yup.AnyObjectSchema | Lazy<any>> = Parameters<
-    T["validate"]
-  >[1];
-  export declare type Resolver = <T extends Yup.AnyObjectSchema | Lazy<any>>(
+  declare type Options<T extends Yup.AnyObjectSchema | Lazy<unknown>> =
+    Parameters<T["validate"]>[1];
+
+  export declare type Resolver = <
+    T extends Yup.AnyObjectSchema | Lazy<unknown>,
+  >(
     schema: T,
     schemaOptions?: Options<T>,
     factoryOptions?: {
