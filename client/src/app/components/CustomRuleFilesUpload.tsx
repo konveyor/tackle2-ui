@@ -57,8 +57,8 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
     results.inProgress > 0
       ? "inProgress"
       : results.danger > 0
-      ? "danger"
-      : "success";
+        ? "danger"
+        : "success";
 
   return (
     <>

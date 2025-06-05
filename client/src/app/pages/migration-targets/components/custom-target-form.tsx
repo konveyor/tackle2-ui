@@ -138,22 +138,18 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       providerType: yup.string().oneOf(providerList),
       imageID: yup.number().defined().nullable(),
       rulesKind: yup.string().defined(),
-      customRulesFiles: yup
-        .array()
-        .of(customRulesFilesSchema)
-        .when("rulesKind", {
-          is: "manual",
-          then: yup
-            .array()
-            .of(customRulesFilesSchema)
-            .min(1, "At least 1 valid custom rule file must be uploaded.")
-            .test(
-              "All files are loaded successfully",
-              (value) =>
-                value?.every((cr) => cr.loadResult === "success") ?? false
-            ),
-          otherwise: (schema) => schema,
-        }),
+      customRulesFiles: yup.array(customRulesFilesSchema).when("rulesKind", {
+        is: "manual",
+        then: yup
+          .array(customRulesFilesSchema)
+          .min(1, "At least 1 valid custom rule file must be uploaded.")
+          .test(
+            "All files are loaded successfully",
+            (value) =>
+              value?.every((cr) => cr.loadResult === "success") ?? false
+          ),
+        otherwise: (schema) => schema,
+      }),
       repositoryType: yup.mixed<string>().when("rulesKind", {
         is: "repository",
         then: yup.mixed<string>().required(),
@@ -201,8 +197,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       rulesKind: !target
         ? "manual"
         : target?.ruleset?.rules?.length
-        ? "manual"
-        : "repository",
+          ? "manual"
+          : "repository",
       associatedCredentials: identities.find(
         (identity) => identity.id === target?.ruleset?.identity?.id
       )?.name,
