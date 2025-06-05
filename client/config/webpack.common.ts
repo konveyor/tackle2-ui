@@ -171,9 +171,6 @@ const config: Configuration = {
   ],
 
   resolve: {
-    alias: {
-      "react-dom": "@hot-loader/react-dom",
-    },
     extensions: [".js", ".ts", ".tsx", ".jsx"],
     plugins: [
       new TsconfigPathsPlugin({

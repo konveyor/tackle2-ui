@@ -2,7 +2,7 @@ import React, { FC, ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Application, Archetype, Assessment } from "@app/api/models";
-import { RenderHookOptions, renderHook } from "@testing-library/react-hooks";
+import { RenderHookOptions, renderHook } from "@testing-library/react";
 
 import { createContext, useContext } from "react";
 
