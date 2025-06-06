@@ -18,14 +18,8 @@ export const TargetItem = forwardRef<HTMLDivElement, TargetItemProps>(
     { target, style, onEdit, onDelete, activatorNodeRef, ...draggableProps },
     draggableContainerRef
   ) => {
-    const inlineStyles = {
-      height: 400,
-      width: "20em",
-      ...style,
-    } as React.CSSProperties;
-
     return (
-      <div style={inlineStyles} ref={draggableContainerRef}>
+      <div style={style} ref={draggableContainerRef}>
         <TargetCard
           item={target}
           dndSortHandle={
