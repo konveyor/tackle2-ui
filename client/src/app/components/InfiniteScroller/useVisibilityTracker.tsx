@@ -15,7 +15,7 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
     },
     []
   );
-  const setVisibleSafe = useCallback((newValue) => {
+  const setVisibleSafe = useCallback((newValue?: boolean) => {
     if (mounted.current) {
       setVisible(newValue);
     }
