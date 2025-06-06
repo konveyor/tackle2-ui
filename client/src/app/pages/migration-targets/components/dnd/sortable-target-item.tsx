@@ -1,8 +1,8 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TargetItem } from "./target-item";
 import { Target } from "@app/api/models";
+import { TargetItem } from "./target-item";
 
 interface SortableTargetItemProps {
   style?: React.CSSProperties;
@@ -29,8 +29,6 @@ export const SortableTargetItem: React.FC<SortableTargetItemProps> = ({
   const itemStyles = {
     transform: CSS.Transform.toString(transform),
     transition: [transition].filter(Boolean).join(", "),
-    height: 410,
-    width: "20em",
     ...style,
   } as React.CSSProperties;
 

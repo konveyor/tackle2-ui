@@ -21,7 +21,6 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableTargetItem } from "./components/dnd/sortable-target-item";
 import { TargetItem } from "./components/dnd/target-item";
-import { DndGrid } from "./components/dnd/grid";
 
 import {
   PageSection,
@@ -34,6 +33,7 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Gallery,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -268,7 +268,8 @@ export const MigrationTargets: React.FC = () => {
             </ToolbarGroup>
           </ToolbarContent>
         </Toolbar>
-
+      </PageSection>
+      <PageSection style={{ paddingBlockStart: 0 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -280,11 +281,12 @@ export const MigrationTargets: React.FC = () => {
             items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
             strategy={rectSortingStrategy}
           >
-            <DndGrid>
+            <Gallery hasGutter minWidths={{ default: "20em" }}>
               {filteredTargetsInOrder.map((target) => (
                 <SortableTargetItem
                   key={target.id}
                   target={target}
+                  style={{ height: "410px" }}
                   onEdit={() => {
                     setCreateUpdateModalState(target);
                   }}
@@ -295,7 +297,7 @@ export const MigrationTargets: React.FC = () => {
                 />
               ))}
               <div ref={targetsEndRef} />
-            </DndGrid>
+            </Gallery>
             <DragOverlay>
               {activeTarget ? <TargetItem target={activeTarget} /> : null}
             </DragOverlay>
