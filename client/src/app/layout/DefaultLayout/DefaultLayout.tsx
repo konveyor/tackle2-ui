@@ -10,7 +10,9 @@ import { useTaskManagerContext } from "@app/components/task-manager/TaskManagerC
 
 export interface DefaultLayoutProps {}
 
-export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
+export const DefaultLayout: React.FC<
+  React.PropsWithChildren & DefaultLayoutProps
+> = ({ children }) => {
   const pageId = "main-content-page-layout-horizontal-nav";
   const PageSkipToContent = (
     <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>

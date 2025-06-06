@@ -107,7 +107,6 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
           setIsFilterDropdownOpen(false);
         }}
         isOpen={isFilterDropdownOpen}
-        placeholder="Any"
         shouldFocusToggleOnSelect
       >
         <SelectList>
