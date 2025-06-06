@@ -1,38 +1,51 @@
 import React, { forwardRef } from "react";
-import { TargetCard } from "@app/components/target-card/target-card";
-import { useFetchTargets } from "@app/queries/targets";
+import { Button, ButtonVariant } from "@patternfly/react-core";
+import { GripVerticalIcon } from "@patternfly/react-icons";
 
-interface ItemProps {
-  id: number;
+import { TargetCard } from "@app/components/target-card/target-card";
+import { Target } from "@app/api/models";
+
+interface TargetItemProps {
+  target: Target;
   style?: React.CSSProperties;
-  ref?: React.ForwardedRef<any>;
-  handleProps?: any;
   onEdit?: () => void;
   onDelete?: () => void;
+  activatorNodeRef?: (element: HTMLElement | null) => void;
 }
 
-export const Item: React.FC<ItemProps> = forwardRef(
-  ({ id, style, handleProps, onEdit, onDelete }: ItemProps, ref) => {
-    const { targets } = useFetchTargets();
-    const matchingTarget = targets.find((target) => target.id === id);
+export const TargetItem = forwardRef<HTMLDivElement, TargetItemProps>(
+  (
+    { target, style, onEdit, onDelete, activatorNodeRef, ...draggableProps },
+    draggableContainerRef
+  ) => {
     const inlineStyles = {
       height: 400,
       width: "20em",
       ...style,
     } as React.CSSProperties;
+
     return (
-      <div ref={ref} style={inlineStyles}>
-        {matchingTarget && (
-          <TargetCard
-            item={matchingTarget}
-            handleProps={handleProps}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        )}
+      <div style={inlineStyles} ref={draggableContainerRef}>
+        <TargetCard
+          item={target}
+          dndSortHandle={
+            <Button
+              ref={activatorNodeRef}
+              className="grabbable"
+              id="drag-button"
+              aria-label="drag button"
+              variant={ButtonVariant.plain}
+              {...draggableProps}
+            >
+              <GripVerticalIcon />
+            </Button>
+          }
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       </div>
     );
   }
 );
 
-Item.displayName = "Item";
+TargetItem.displayName = "Item";
