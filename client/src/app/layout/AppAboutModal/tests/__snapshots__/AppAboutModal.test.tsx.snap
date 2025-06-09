@@ -125,20 +125,16 @@ exports[`AppAboutModal 1`] = `
                         data-ouia-safe="true"
                         data-pf-content="true"
                       >
-                        Konveyor
-                         is a project within the
-                        <a
-                          class=""
-                          data-ouia-component-id="OUIA-Generated-Text-5"
-                          data-ouia-component-type="PF5/Text"
-                          data-ouia-safe="true"
-                          data-pf-content="true"
-                          href="https://www.konveyor.io/"
-                          target="_blank"
-                        >
-                          Konveyor community
-                        </a>
-                        .
+                        about.bottom1
+                      </p>
+                      <p
+                        class=""
+                        data-ouia-component-id="OUIA-Generated-Text-5"
+                        data-ouia-component-type="PF5/Text"
+                        data-ouia-safe="true"
+                        data-pf-content="true"
+                      >
+                        about.bottom2
                       </p>
                       <p
                         class=""
@@ -147,67 +143,7 @@ exports[`AppAboutModal 1`] = `
                         data-ouia-safe="true"
                         data-pf-content="true"
                       >
-                        For more information, refer to
-                        <a
-                          class=""
-                          data-ouia-component-id="OUIA-Generated-Text-7"
-                          data-ouia-component-type="PF5/Text"
-                          data-ouia-safe="true"
-                          data-pf-content="true"
-                          href="https://konveyor.github.io/konveyor/"
-                          target="_blank"
-                        >
-                          Konveyor
-                           documentation
-                        </a>
-                        .
-                      </p>
-                      <p
-                        class=""
-                        data-ouia-component-id="OUIA-Generated-Text-8"
-                        data-ouia-component-type="PF5/Text"
-                        data-ouia-safe="true"
-                        data-pf-content="true"
-                      >
-                        The Icon Library used in this project is a derivative of the
-                         
-                        <a
-                          class=""
-                          data-ouia-component-id="OUIA-Generated-Text-9"
-                          data-ouia-component-type="PF5/Text"
-                          data-ouia-safe="true"
-                          data-pf-content="true"
-                          href="https://www.redhat.com/en/about/brand/standards/icons/standard-icons"
-                          target="_blank"
-                        >
-                          Standard Icons library
-                        </a>
-                        by
-                         
-                        <a
-                          class=""
-                          data-ouia-component-id="OUIA-Generated-Text-10"
-                          data-ouia-component-type="PF5/Text"
-                          data-ouia-safe="true"
-                          data-pf-content="true"
-                          href="https://www.redhat.com"
-                          target="_blank"
-                        >
-                          Red Hat
-                        </a>
-                        , used under
-                         
-                        <a
-                          class=""
-                          data-ouia-component-id="OUIA-Generated-Text-11"
-                          data-ouia-component-type="PF5/Text"
-                          data-ouia-safe="true"
-                          data-pf-content="true"
-                          href="https://creativecommons.org/licenses/by/4.0/"
-                          target="_blank"
-                        >
-                          CC BY 4.0
-                        </a>
+                        about.iconLibrary
                       </p>
                     </div>
                     <div

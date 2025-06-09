@@ -457,8 +457,8 @@ const Archetypes: React.FC = () => {
                               archetype.assessed
                                 ? "Completed"
                                 : archetype?.assessments?.length
-                                ? "InProgress"
-                                : "NotStarted"
+                                  ? "InProgress"
+                                  : "NotStarted"
                             }
                           />
                         </Td>
@@ -625,10 +625,7 @@ const Archetypes: React.FC = () => {
               values={{
                 applicationName: assessmentToDiscard?.name,
               }}
-            >
-              The assessment(s) for <strong>{assessmentToDiscard?.name}</strong>{" "}
-              will be discarded. Do you wish to continue?
-            </Trans>
+            />
           </span>
         }
         confirmBtnVariant={ButtonVariant.primary}
@@ -654,10 +651,7 @@ const Archetypes: React.FC = () => {
               values={{
                 applicationName: reviewToDiscard?.name,
               }}
-            >
-              The review for <strong>{reviewToDiscard?.name}</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
-            </Trans>
+            />
           </span>
         }
         confirmBtnVariant={ButtonVariant.primary}
