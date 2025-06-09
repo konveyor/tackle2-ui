@@ -1,20 +1,30 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
+  "$schema": "https://schemastore.org/tsconfig",
 
   "include": ["src/**/*"],
 
   "compilerOptions": {
-    "strict": true,
-    "target": "es2020",
-    "module": "node16",
-    "moduleResolution": "node16",
-
+    "baseUrl": ".",
     "outDir": "./dist",
+
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "lib": ["ES2022"],
+
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "preserveWatchOutput": true,
+
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
-    "resolveJsonModule": true,
+    "removeComments": true,
 
     "paths": {
       "@branding/strings.json": ["./src/branding-strings-stub.json"]
