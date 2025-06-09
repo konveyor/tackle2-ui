@@ -34,10 +34,9 @@ export interface BrandingStrings {
 //       to a stub JSON file.  In the next rollup build step, that import will
 //       be replaced by the rollup virtual plugin with a dynamically generated
 //       JSON import with the actual branding information.
-import * as stringsJson from "@branding/strings.json";
+import stringsJson from "@branding/strings.json";
 
-export const brandingStrings =
-  stringsJson.default as unknown as BrandingStrings;
+export const brandingStrings = stringsJson as unknown as BrandingStrings;
 
 /**
  * Return the `node_modules/` resolved path for the branding assets.
