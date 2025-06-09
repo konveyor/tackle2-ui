@@ -1,32 +1,38 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
+  "$schema": "https://schemastore.org/tsconfig.json",
 
   "include": ["src/**/*", "config/**/*", "types/**/*"],
 
   "compilerOptions": {
-    "outDir": "dist",
     "baseUrl": ".",
+    "outDir": "dist",
+
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    "strict": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "checkJs": false,
+
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "preserveWatchOutput": true,
+
     "paths": {
       "@app/*": ["src/app/*"],
       "@mocks/*": ["src/mocks/*"]
     },
-    "typeRoots": ["types/", "node_modules/@types", "../node_modules/@types"],
-
-    "target": "es2020",
-    "module": "es2020",
-    "moduleResolution": "bundler",
-
-    "allowJs": true,
-    "checkJs": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-
-    "noEmit": true
   },
 
   "ts-node": {
