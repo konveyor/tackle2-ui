@@ -1,10 +1,10 @@
 {
   "about": {
     "about": "About",
-    "bottom1": "{{brandType}} is a project within the <2>Konveyor community</2>.",
-    "bottom2": "For more information, refer to <1>{{brandType}} documentation</1>.",
+    "bottom1": "{{brandType}} is a project within the <Link>Konveyor community</Link>.",
+    "bottom2": "For more information, refer to <Link>{{brandType}} documentation</Link>.",
     "description": "{{brandType}} allows users to maintain their portfolio of applications with a full set of metadata and to assess their suitability for modernization leveraging a questionnaire based approach.",
-    "iconLibrary": "The Icon Library used in this project is a derivative of the <2>Standard Icons library</2> by <5>Red Hat</5>, used under <8>CC BY 4.0</8>",
+    "iconLibrary": "The Icon Library used in this project is a derivative of the <Link href=\"https://www.redhat.com/en/about/brand/standards/icons/standard-icons\">Standard Icons library</Link> by <Link href=\"https://www.redhat.com\">Red Hat</Link>, used under <Link href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</Link>",
     "introduction": "{{brandType}} is a collection of tools that supports large-scale application modernization and migration projects to Kubernetes."
   },
   "actions": {
@@ -116,8 +116,8 @@
       "TasksBulkCancel": "The selected task(s) will be canceled.",
       "delete": "This action cannot be undone.",
       "cancel": "This action cannot be undone.",
-      "discardAssessment": "The assessment(s) for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
-      "discardReview": "The review for <1>{{applicationName}}</1> will be discarded. Do you wish to continue?",
+      "discardAssessment": "The assessment(s) for <strong>{{applicationName}}</strong> will be discarded. Do you wish to continue?",
+      "discardReview": "The review for <strong>{{applicationName}}</strong> will be discarded. Do you wish to continue?",
       "leavePage": "Are you sure you want to leave this page? Be sure to save your changes, or they will be lost.",
       "pageError": "Oops! Something went wrong.",
       "refreshPage": "Try to refresh your page or contact your admin.",
@@ -125,7 +125,7 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <1>{{nameToDelete}}</1> below:"
+      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
@@ -301,8 +301,7 @@
     "affectedApplications": "Affected applications",
     "analysis": "Analysis",
     "answer": "Answer",
-    "application_one": "Application",
-    "application_other": "Applications",
+    "application": "Application",
     "applicationReview": "Application review",
     "application(s)": "Application(s)",
     "applications": "Applications",
@@ -312,8 +311,7 @@
     "applicationInformation": "Application information",
     "applicationFile": "Application file",
     "archetype": "Archetype",
-    "archetypes_one": "Archetypes",
-    "archetypes_other": "Archetypes",
+    "archetypes": "Archetypes",
     "artifact": "Artifact",
     "artifactAssociated": "Associated artifact",
     "artifactNotAssociated": "No associated artifact",
