@@ -36,6 +36,8 @@
   },
 
   "ts-node": {
-    "esm": true
+    "compilerOptions": {
+      "module": "commonjs" // node16 == commonjs or es2020 depending on package.json/type
+    }
   }
 }
