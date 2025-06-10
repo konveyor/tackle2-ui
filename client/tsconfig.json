@@ -22,7 +22,7 @@
     "allowJs": true,
     "checkJs": false,
 
-    "jsx": "react",
+    "jsx": "react-jsx",
     "noEmit": true,
     "declaration": true,
     "declarationMap": true,
