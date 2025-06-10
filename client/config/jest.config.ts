@@ -45,7 +45,7 @@ const config: JestConfigWithTsJest = {
     "^.+\\.(js|mjs|ts|mts)x?$": "ts-jest",
   },
   transformIgnorePatterns: [
-    "node_modules/(?!(keycloak-js)/)", // Ensure Jest processes keycloak-js
+    "node_modules/(?!(keycloak-js|react-error-boundary)/)", // Ensure Jest processes keycloak-js
   ],
 
   // Code to set up the testing framework before each test file in the suite is executed
