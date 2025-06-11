@@ -4,7 +4,8 @@ import {
   getValidatedFromError,
   getValidatedFromErrors,
   getToolbarChipKey,
-  gitUrlRegex,
+  gitRegularUrlRegex,
+  gitSshUrlRegex,
   standardURLRegex,
   formatPath,
   extractFirstSha,
@@ -76,12 +77,16 @@ describe("utils", () => {
 
     it("Regex should validate git URLs", () => {
       const testGitURLs = [
+        "ssh://git@github.com:konveyor/tackle2-ui.git",
+        "ssh://git@github.com:7999/konveyor/tackle2-ui.git",
         "git@github.com:konveyor/tackle2-ui.git",
         "http://github.com/konveyor/tackle2-ui.git",
       ];
 
       for (const url of testGitURLs) {
-        expect(gitUrlRegex.test(url)).toBe(true);
+        expect(gitRegularUrlRegex.test(url) || gitSshUrlRegex.test(url)).toBe(
+          true
+        );
       }
     });
 
@@ -93,7 +98,7 @@ describe("utils", () => {
       ];
 
       for (const url of testIncorrectGitURLs) {
-        const result = gitUrlRegex.test(url);
+        const result = gitRegularUrlRegex.test(url) || gitSshUrlRegex.test(url);
         console.log(`Testing URL: ${url}, Result: ${result}`);
 
         expect(result).toBe(false);
