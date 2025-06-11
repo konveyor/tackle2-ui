@@ -15,22 +15,20 @@ import { rest } from "msw";
 describe("Component: proxy-form", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    server.use(
+      rest.get("/hub/proxies", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/identities", (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            { id: 0, name: "proxy-cred", kind: "proxy" },
+            { id: 1, name: "maven-cred", kind: "maven" },
+            { id: 2, name: "source-cred", kind: "source" },
+          ])
+        );
+      })
+    );
   });
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  server.use(
-    rest.get("/hub/identities", (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json([
-          { id: 0, name: "proxy-cred", kind: "proxy" },
-          { id: 1, name: "maven-cred", kind: "maven" },
-          { id: 2, name: "source-cred", kind: "source" },
-        ])
-      );
-    })
-  );
 
   it("Display switch statements on initial load", async () => {
     render(<Proxies />);
@@ -66,19 +64,6 @@ describe("Component: proxy-form", () => {
   });
 
   it("Select http proxy identity", async () => {
-    server.use(
-      rest.get("/hub/identities", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            { id: 0, name: "proxy-cred", kind: "proxy" },
-            { id: 1, name: "maven-cred", kind: "maven" },
-            { id: 2, name: "source-cred", kind: "source" },
-          ])
-        );
-      })
-    );
-
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
     fireEvent.click(httpProxySwitch);
@@ -108,19 +93,6 @@ describe("Component: proxy-form", () => {
   });
 
   it("Select https proxy identity", async () => {
-    server.use(
-      rest.get("/hub/identities", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            { id: 0, name: "proxy-cred", kind: "proxy" },
-            { id: 1, name: "maven-cred", kind: "maven" },
-            { id: 2, name: "source-cred", kind: "source" },
-          ])
-        );
-      })
-    );
-
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
     fireEvent.click(httpsProxySwitch);

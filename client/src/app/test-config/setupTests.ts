@@ -33,6 +33,6 @@ afterAll(() => server.close());
 //   console.log(`Request to ${req.url.href} was matched with a handler`);
 // });
 
-// server.events.on("request:unhandled", (req) => {
-//   console.warn(`Request to ${req.url.href} was not handled`);
-// });
+server.events.on("request:unhandled", (req) => {
+  console.warn(`Request to ${req.url.href} was not handled`);
+});
