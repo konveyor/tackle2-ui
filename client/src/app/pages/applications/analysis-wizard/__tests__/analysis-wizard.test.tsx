@@ -53,9 +53,7 @@ const taskgroupData = {
 describe("<AnalysisWizard />", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  afterEach(() => {
-    server.resetHandlers();
+    server.use(rest.get("/hub/identities", (_, res, ctx) => res(ctx.json([]))));
   });
 
   let isAnalyzeModalOpen = true;

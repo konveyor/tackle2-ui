@@ -374,7 +374,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     getValues,
     setValue,
     control,
-    watch,
     resetField,
   } = useForm<IdentityFormValues>({
     defaultValues: {
@@ -399,8 +398,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
-
-  const watchAllFields = watch();
 
   const userCredentialsOptions: OptionWithValue<UserCredentials>[] = [
     {
@@ -729,6 +726,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           />
         </>
       )}
+
       <ActionGroup>
         <Button
           type="submit"
