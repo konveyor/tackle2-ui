@@ -15,20 +15,18 @@ import { rest } from "msw";
 
 describe("Component: application-form", () => {
   const mockChangeValue = jest.fn();
-  beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
-  afterAll(() => server.close());
 
   beforeEach(() => {
     jest.clearAllMocks();
+    server.use(
+      rest.get("/hub/businessservices", (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json([{ id: 1, name: "service" }]));
+      }),
+      rest.get("/hub/stakeholders", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/applications", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/tagCategories", (_, res, ctx) => res(ctx.json([])))
+    );
   });
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  server.use(
-    rest.get("/hub/businessservices", (req, res, ctx) => {
-      return res(ctx.status(200), ctx.json([{ id: 1, name: "service" }]));
-    })
-  );
 
   it("Validation tests", async () => {
     render(
