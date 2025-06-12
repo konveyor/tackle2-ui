@@ -65,6 +65,9 @@ const AssessmentSummary = lazy(
 
 const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
 const TaskDetails = lazy(() => import("./pages/tasks/TaskDetails"));
+const SourcePlatforms = lazy(
+  () => import("./pages/source-platforms/source-platforms")
+);
 
 export interface IRoute<T> {
   path: T;
@@ -247,6 +250,11 @@ export const adminRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: Jira,
     path: Paths.jira,
+    exact: false,
+  },
+  {
+    comp: SourcePlatforms,
+    path: Paths.sourcePlatforms,
     exact: false,
   },
 ];

@@ -61,6 +61,7 @@ export const AdminPaths = {
   assessment: "/assessment",
   questionnaire: "/questionnaire/:questionnaireId",
   jira: "/jira",
+  sourcePlatforms: "/source-platforms",
 } as const;
 
 export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];
