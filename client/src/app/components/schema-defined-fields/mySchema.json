@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Platform Configuration Schema",
+  "description": "Defines the structure and validation rules for platform metadata and coordinates.",
+  "type": "object",
+  "properties": {
+    "platformName": {
+      "type": "string",
+      "description": "Unique name of the platform.",
+      "minLength": 3
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version number in major.minor.patch format (e.g., 1.0.0)."
+    },
+    "coordinates": {
+      "type": "object",
+      "description": "Geographical coordinates of the platform.",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude, must be between -90 and 90."
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude, must be between -180 and 180."
+        }
+      },
+      "required": ["latitude", "longitude"]
+    },
+    "features": {
+      "type": "array",
+      "description": "List of features enabled for the platform.",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "Indicates if the platform is currently active."
+    }
+  },
+  "required": ["platformName", "version", "coordinates", "isActive"]
+}

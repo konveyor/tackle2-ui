@@ -222,6 +222,14 @@ export const AdminSidebar = () => {
             {t("terms.assessmentQuestionnaires")}
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            to={AdminPaths.sourcePlatforms}
+            activeClassName="pf-m-current"
+          >
+            {t("terms.sourcePlatforms")}
+          </NavLink>
+        </NavItem>
       </NavList>
     </PersonaSidebar>
   );
