@@ -27,9 +27,7 @@ const config: JestConfigWithTsJest = {
     "react-i18next": "<rootDir>/__mocks__/react-i18next.js",
 
     // match the paths in tsconfig.json
-    "@app/(.*)": "<rootDir>/src/app/$1",
-    "@assets/(.*)":
-      "<rootDir>../node_modules/@patternfly/react-core/dist/styles/assets/$1",
+    "^@app/(.*)": "<rootDir>/src/app/$1",
     "^@mocks/(.*)$": "<rootDir>/src/mocks/$1",
   },
 
@@ -47,7 +45,7 @@ const config: JestConfigWithTsJest = {
     "^.+\\.(js|mjs|ts|mts)x?$": "ts-jest",
   },
   transformIgnorePatterns: [
-    "node_modules/(?!(keycloak-js)/)", // Ensure Jest processes keycloak-js
+    "node_modules/(?!(keycloak-js|react-error-boundary)/)", // Ensure Jest processes keycloak-js
   ],
 
   // Code to set up the testing framework before each test file in the suite is executed
