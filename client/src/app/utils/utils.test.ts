@@ -4,9 +4,8 @@ import {
   getValidatedFromError,
   getValidatedFromErrors,
   getToolbarChipKey,
-  gitRegularUrlRegex,
-  gitSshUrlRegex,
-  standardURLRegex,
+  isValidGitUrl,
+  isValidStandardUrl,
   formatPath,
   extractFirstSha,
   collapseSpacesAndCompare,
@@ -71,72 +70,82 @@ describe("utils", () => {
     const result = getToolbarChipKey({ key: "myKey", node: "myNode" });
     expect(result).toBe("myKey");
   });
+});
 
-  describe("URL Regex tests", () => {
-    // Define your regex patterns here
+describe("URL validation tests", () => {
+  describe("Valid git URLs from various services", () => {
+    const testGitURLs = [
+      "ssh://git@github.com/konveyor/tackle2-ui.git",
+      "ssh://git@github.com:7999/konveyor/tackle2-ui.git",
+      "ssh://user@host.xz/~user/path/to/repo.git/",
+      "git@github.com:konveyor/tackle2-ui.git",
+      "git://host.xz/~user/path/to/repo.git/",
+      "https://host.xz/path/to/repo.git/",
+      "http://github.com/konveyor/tackle2-ui.git",
+      "http://github.com/konveyor/tackle2-ui.git/",
+      "https://github.com/konveyor/tackle2-ui.git#cafe012e",
+    ];
 
-    it("Regex should validate git URLs", () => {
-      const testGitURLs = [
-        "ssh://git@github.com:konveyor/tackle2-ui.git",
-        "ssh://git@github.com:7999/konveyor/tackle2-ui.git",
-        "git@github.com:konveyor/tackle2-ui.git",
-        "http://github.com/konveyor/tackle2-ui.git",
-      ];
+    for (const url of testGitURLs) {
+      it(`Valid git URL: "${url}"`, () => {
+        const result = isValidGitUrl(url);
+        expect(result).toBe(true);
+      });
+    }
+  });
 
-      for (const url of testGitURLs) {
-        expect(gitRegularUrlRegex.test(url) || gitSshUrlRegex.test(url)).toBe(
-          true
-        );
-      }
-    });
+  describe("Invalid git URLs", () => {
+    const testIncorrectGitURLs = [
+      "ssh://git@github.com:konveyor/tackle2-ui.git",
+      "git@github.com:konveyor/tackle2-ui",
+      "http://github.com/konveyor/tackle2-ui",
+      "https://",
+      "git@",
+      "http://github.com/konveyor",
+    ];
 
-    it("Regex should fail when validating incorrect git URLs", () => {
-      const testIncorrectGitURLs = [
-        "https://",
-        "git@",
-        "http://github.com/konveyor",
-      ];
-
-      for (const url of testIncorrectGitURLs) {
-        const result = gitRegularUrlRegex.test(url) || gitSshUrlRegex.test(url);
-        console.log(`Testing URL: ${url}, Result: ${result}`);
-
+    for (const url of testIncorrectGitURLs) {
+      it(`Invalid git URL: "${url}"`, () => {
+        const result = isValidGitUrl(url);
         expect(result).toBe(false);
-      }
-    });
+      });
+    }
+  });
 
-    it("Regex should validate standard URLs", () => {
-      const testStandardURLs = [
-        "http://www.foo.bar",
-        "www.foo.bar",
-        "https://www.github.com/ibolton336/tackle-testapp.git",
-      ];
+  describe("Valid standard URLs", () => {
+    const testStandardURLs = [
+      "http://www.foo.bar",
+      "www.foo.bar",
+      "https://www.github.com/ibolton336/tackle-testapp.git",
+    ];
 
-      for (const url of testStandardURLs) {
-        expect(standardURLRegex.test(url)).toBe(true);
-      }
-    });
+    for (const url of testStandardURLs) {
+      it(`Valid URL: "${url}"`, () => {
+        const result = isValidStandardUrl(url);
+        expect(result).toBe(true);
+      });
+    }
+  });
 
-    it("Regex should fail when validating broken standard URLs", () => {
-      const testBrokenURLs = [
-        "",
-        "http://",
-        "https://",
-        "http:",
-        "http://www.foo",
-        "http://wrong",
-        "wwwfoo.bar",
-        "foo.bar",
-        "www.foo.b",
-      ];
+  describe("Invalid standard URLs", () => {
+    const testBrokenURLs = [
+      "",
+      "http://",
+      "https://",
+      "http:",
+      "http://www.foo",
+      "http://wrong",
+      "wwwfoo.bar",
+      "foo.bar",
+      "www.foo.b",
+    ];
 
-      for (const url of testBrokenURLs) {
-        const result = standardURLRegex.test(url);
-        console.log(`Testing URL: ${url}, Result: ${result}`);
-
+    for (const url of testBrokenURLs) {
+      it(`Invalid URL: "${url}"`, () => {
+        const result = isValidStandardUrl(url);
         expect(result).toBe(false);
-      }
-    });
+      });
+    }
   });
 
   it("URL should match the same multiple times in a row", () => {
@@ -148,11 +157,11 @@ describe("utils", () => {
 
     const url = "https://github.com/ibolton336/tackle-testapp.git";
 
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
   });
 });
 
