@@ -93,3 +93,20 @@ minikube kubectl -- scale -n konveyor-tackle deployment tackle-hub --replicas=1
 ```
 
 Assuming the default `image_pull_policy=Always`, after the bounce the deployment and pod will be using the current image.
+
+#### Patch your Tackle CR to use a custom container
+
+```sh
+kubectl patch -n konveyor-tackle tackle tackle --type=merge --patch-file=/dev/stdin <<-EOF
+spec:
+  image_pull_policy: IfNotPresent
+  ui_image_fqin: quay.io/sdickers/tackle2-ui:test
+EOF
+```
+
+#### Pull the Keycloak SSO admin login secret
+
+```sh
+kubectl get secrets -n konveyor-tackle tackle-keycloak-sso -o=json \
+  | jq ".data|map_values(@base64d)"
+```
