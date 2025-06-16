@@ -146,7 +146,7 @@ export const customURLValidation = (schema: yup.StringSchema) => {
 
 export const formatPath = (
   path: AdminPathValues | DevPathValues,
-  data: Record<string, string>
+  data: Record<string, unknown>
 ) => {
   let url = path as string;
 
