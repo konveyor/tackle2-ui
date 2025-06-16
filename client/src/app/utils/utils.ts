@@ -116,12 +116,6 @@ export const isValidStandardUrl = (url: string) => standardURLRegex.test(url);
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
-const gitRegularUrlRegex =
-  /^(https?:\/\/[-\w.]+\/[-\w._]+\/[-\w._]+|git@[-\w.]+:[-\w._]+\/[-\w._]+)(\.git)?(\/?|#[-\d\w._]+)?$/;
-
-const gitSshUrlRegex =
-  /^ssh:\/\/(?:[-\w.]+@)?[-\w.]+(?:(?::\d{1,5})?\/|:)[-\w._]+\/[-\w._]+(\.git)?(\/?|#[-\d\w._]+)?$/;
-
 export const isValidGitUrl = (url: string) => {
   try {
     const r = gitUrlParse(url.at(-1) === "/" ? url.slice(0, -1) : url);
