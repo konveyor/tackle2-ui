@@ -27,7 +27,6 @@ yup.addMethod(
   ) {
     return this.test("repositoryUrl", message, function (value) {
       const type = this.parent[repositoryTypeField];
-      console.log("type", type, "value", value);
       if (value) {
         return type === "git"
           ? isValidGitUrl(value)
