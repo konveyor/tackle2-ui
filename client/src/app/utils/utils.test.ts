@@ -97,7 +97,10 @@ describe("URL validation tests", () => {
   describe("Invalid git URLs", () => {
     const testIncorrectGitURLs = [
       "ssh://git@github.com:konveyor/tackle2-ui.git",
+      "ssh://git@github.com/konveyor/tackle2-ui",
       "git@github.com:konveyor/tackle2-ui",
+      "httpsssh://git@github.com/konveyor/tackle2-ui",
+      "https://ssh://git@github.com/konveyor/tackle2-ui",
       "http://github.com/konveyor/tackle2-ui",
       "https://",
       "git@",

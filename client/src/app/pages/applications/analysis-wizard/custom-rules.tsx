@@ -60,7 +60,7 @@ export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
   const { taskGroup } = useTaskGroup();
 
-  const { watch, setValue, control, getValues } =
+  const { watch, setValue, control, trigger, getValues } =
     useFormContext<AnalysisWizardFormValues>();
   const values = getValues();
 
@@ -331,6 +331,7 @@ export const CustomRules: React.FC = () => {
                   onChange={(selection) => {
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
+                    trigger("sourceRepository");
                   }}
                 />
               )}

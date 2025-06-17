@@ -1,4 +1,3 @@
-import * as yup from "yup";
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
 import { AdminPathValues, DevPathValues } from "@app/Paths";
@@ -116,10 +115,10 @@ export const isValidStandardUrl = (url: string) => standardURLRegex.test(url);
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
-export const isValidGitUrl = (url: string) => {
+export const isValidGitUrl = (url: string): boolean => {
   try {
     const r = gitUrlParse(url.at(-1) === "/" ? url.slice(0, -1) : url);
-    return /(ssh|git|http|https)/.test(r.protocol) && r.git_suffix;
+    return /^(ssh|git|http|https)$/.test(r.protocol);
   } catch {
     return false;
   }
@@ -127,22 +126,7 @@ export const isValidGitUrl = (url: string) => {
 
 const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
 
-const isValidSvnUrl = (url: string) => svnUrlRegex.test(url);
-
-export const customURLValidation = (schema: yup.StringSchema) => {
-  const containsURL = (string: string) =>
-    isValidGitUrl(string) ||
-    isValidStandardUrl(string) ||
-    isValidSvnUrl(string);
-
-  return schema.test("urlValidation", "Must be a valid URL.", (value) => {
-    if (value) {
-      return containsURL(value);
-    } else {
-      return true;
-    }
-  });
-};
+export const isValidSvnUrl = (url: string) => svnUrlRegex.test(url);
 
 export const formatPath = (
   path: AdminPathValues | DevPathValues,
