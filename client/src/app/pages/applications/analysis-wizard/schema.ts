@@ -139,20 +139,14 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       }),
 
     // repository tab fields
-    repositoryType: yup
-      .string()
-      .oneOf(["git", "svn"])
-      .when("rulesKind", {
-        is: "repository",
-        then: (schema) => schema.required(),
-      }),
-    sourceRepository: yup
-      .string()
-      .repositoryUrl("repositoryType")
-      .when("rulesKind", {
-        is: "repository",
-        then: (schema) => schema.required(),
-      }),
+    repositoryType: yup.string().when("rulesKind", {
+      is: "repository",
+      then: (schema) => schema.oneOf(["git", "svn"]).required(),
+    }),
+    sourceRepository: yup.string().when("rulesKind", {
+      is: "repository",
+      then: (schema) => schema.repositoryUrl("repositoryType").required(),
+    }),
     branch: yup.string().when("rulesKind", {
       is: "repository",
       then: yup.string(),
