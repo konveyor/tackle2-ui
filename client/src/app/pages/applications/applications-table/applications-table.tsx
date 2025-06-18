@@ -672,84 +672,80 @@ export const ApplicationsTable: React.FC = () => {
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
-  const importDropdownItems = importWriteAccess
-    ? [
-        <DropdownItem
-          key="import-applications"
-          component="button"
-          onClick={() => setIsApplicationImportModalOpen(true)}
-        >
-          {t("actions.import")}
-        </DropdownItem>,
-        <DropdownItem
-          key="manage-import-applications"
-          onClick={() => {
-            history.push(Paths.applicationsImports);
-          }}
-        >
-          {t("actions.manageImports")}
-        </DropdownItem>,
-      ]
-    : [];
-  const applicationDropdownItems = applicationWriteAccess
-    ? [
-        <DropdownItem
-          key="applications-bulk-delete"
-          isDisabled={selectedRows.length < 1}
-          onClick={() => {
-            setApplicationsToDelete(selectedRows);
-          }}
-        >
-          {t("actions.delete")}
-        </DropdownItem>,
-        ...(tasksReadAccess && tasksWriteAccess
-          ? [
-              <DropdownItem
-                key="applications-bulk-cancel"
-                isDisabled={
-                  !selectedRows.some((application: DecoratedApplication) =>
-                    isTaskCancellable(application)
-                  )
-                }
-                onClick={() => {
-                  handleCancelBulkAnalysis();
-                }}
-              >
-                {t("actions.cancelAnalysis")}
-              </DropdownItem>,
-            ]
-          : []),
-        <DropdownItem
-          key="analysis-bulk-download"
-          isDisabled={
-            !selectedRows.some(
-              (application: DecoratedApplication) =>
-                application.tasks.currentAnalyzer?.id !== undefined
-            )
-          }
-          onClick={() => {
-            setIsDownloadModalOpen(true);
-          }}
-        >
-          {t("actions.download", { what: "analysis details" })}
-        </DropdownItem>,
-        ...(credentialsReadAccess
-          ? [
-              <DropdownItem
-                key="manage-applications-credentials"
-                isDisabled={selectedRows.length < 1}
-                onClick={() => {
-                  setSaveApplicationsCredentialsModalState(selectedRows);
-                }}
-              >
-                {t("actions.manageCredentials")}
-              </DropdownItem>,
-            ]
-          : []),
-      ]
-    : [];
-
-  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
+  const toolbarKebabItems = [
+    importWriteAccess && (
+      <DropdownItem
+        key="import-applications"
+        component="button"
+        onClick={() => setIsApplicationImportModalOpen(true)}
+      >
+        {t("actions.import")}
+      </DropdownItem>
+    ),
+    importWriteAccess && (
+      <DropdownItem
+        key="manage-import-applications"
+        onClick={() => {
+          history.push(Paths.applicationsImports);
+        }}
+      >
+        {t("actions.manageImports")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="applications-bulk-delete"
+        isDisabled={selectedRows.length < 1}
+        onClick={() => {
+          setApplicationsToDelete(selectedRows);
+        }}
+      >
+        {t("actions.delete")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
+      <DropdownItem
+        key="applications-bulk-cancel"
+        isDisabled={
+          !selectedRows.some((application: DecoratedApplication) =>
+            isTaskCancellable(application)
+          )
+        }
+        onClick={() => {
+          handleCancelBulkAnalysis();
+        }}
+      >
+        {t("actions.cancelAnalysis")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="analysis-bulk-download"
+        isDisabled={
+          !selectedRows.some(
+            (application: DecoratedApplication) =>
+              application.tasks.currentAnalyzer?.id !== undefined
+          )
+        }
+        onClick={() => {
+          setIsDownloadModalOpen(true);
+        }}
+      >
+        {t("actions.download", { what: "analysis details" })}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && credentialsReadAccess && (
+      <DropdownItem
+        key="manage-applications-credentials"
+        isDisabled={selectedRows.length < 1}
+        onClick={() => {
+          setSaveApplicationsCredentialsModalState(selectedRows);
+        }}
+      >
+        {t("actions.manageCredentials")}
+      </DropdownItem>
+    ),
+  ].filter(Boolean);
 
   /**
    * Analysis on the selected applications should be allowed if:
@@ -796,6 +792,7 @@ export const ApplicationsTable: React.FC = () => {
         })
       );
   };
+
   const handleCancelBulkAnalysis = () => {
     const runningTasksToCancel = selectedRows.filter((application) =>
       isTaskCancellable(application)
@@ -933,10 +930,10 @@ export const ApplicationsTable: React.FC = () => {
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup variant="icon-button-group">
-              {dropdownItems.length ? (
+              {toolbarKebabItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown
-                    dropdownItems={dropdownItems}
+                    dropdownItems={toolbarKebabItems}
                     ariaLabel="Application actions"
                   />
                 </ToolbarItem>
