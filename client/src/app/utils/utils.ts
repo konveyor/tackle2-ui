@@ -1,8 +1,9 @@
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
+import gitUrlParse from "git-url-parse";
+
 import { AdminPathValues, DevPathValues } from "@app/Paths";
 import i18n from "@app/i18n";
-import gitUrlParse from "git-url-parse";
 
 // Axios error
 
@@ -118,7 +119,7 @@ export const standardStrictURLRegex =
 export const isValidGitUrl = (url: string): boolean => {
   try {
     const r = gitUrlParse(url.at(-1) === "/" ? url.slice(0, -1) : url);
-    return /^(ssh|git|http|https)$/.test(r.protocol);
+    return /^(ssh|git|http|https)$/.test(r.protocol) && !!r.host;
   } catch {
     return false;
   }

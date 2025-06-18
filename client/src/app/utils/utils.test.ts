@@ -75,15 +75,23 @@ describe("utils", () => {
 describe("URL validation tests", () => {
   describe("Valid git URLs from various services", () => {
     const testGitURLs = [
+      "ssh://git@github.com/konveyor/tackle2-ui",
       "ssh://git@github.com/konveyor/tackle2-ui.git",
+      "ssh://git@github.com/konveyor/tackle2-ui.git/",
       "ssh://git@github.com:7999/konveyor/tackle2-ui.git",
       "ssh://user@host.xz/~user/path/to/repo.git/",
+      "git@github.com:konveyor/tackle2-ui",
       "git@github.com:konveyor/tackle2-ui.git",
       "git://host.xz/~user/path/to/repo.git/",
       "https://host.xz/path/to/repo.git/",
+      "http://github.com/konveyor/tackle2-ui",
+      "http://github.com:/konveyor/tackle2-ui", // no port number, ":" is ignored
+      "http://github.com/konveyor/tackle2-ui/",
       "http://github.com/konveyor/tackle2-ui.git",
       "http://github.com/konveyor/tackle2-ui.git/",
       "https://github.com/konveyor/tackle2-ui.git#cafe012e",
+      "https://github.com/konveyor",
+      "https://ssh://git@github.com/konveyor/tackle2-ui", // valid URL, "ssh" is the host
     ];
 
     for (const url of testGitURLs) {
@@ -97,14 +105,13 @@ describe("URL validation tests", () => {
   describe("Invalid git URLs", () => {
     const testIncorrectGitURLs = [
       "ssh://git@github.com:konveyor/tackle2-ui.git",
-      "ssh://git@github.com/konveyor/tackle2-ui",
-      "git@github.com:konveyor/tackle2-ui",
       "httpsssh://git@github.com/konveyor/tackle2-ui",
-      "https://ssh://git@github.com/konveyor/tackle2-ui",
-      "http://github.com/konveyor/tackle2-ui",
       "https://",
       "git@",
-      "http://github.com/konveyor",
+      "svn://host.xz/path/to/repo",
+      "ssh:://foo.com/org/repo",
+      "ssh:///foo.com/org/repo",
+      "random text",
     ];
 
     for (const url of testIncorrectGitURLs) {
