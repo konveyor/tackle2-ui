@@ -8,11 +8,10 @@ import {
   Popover,
   PopoverPosition,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
-// import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, New, TagRef } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
@@ -164,23 +163,17 @@ export const useApplicationFormHook = ({
         .max(250, t("validation.maxLength", { length: 250 })),
 
       // source code fields
-      kind: string().oneOf(["git", "subversion"]),
+      kind: string().oneOf(["", "git", "subversion"]),
+      sourceRepository: string().when("kind", {
+        is: (kind: string) => kind !== "",
+        then: (schema) => schema.repositoryUrl("kind").required(),
+      }),
       branch: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
       rootPath: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      sourceRepository: string()
-        .repositoryUrl("kind")
-        .when("branch", {
-          is: (branch: string) => branch?.length > 0,
-          then: (schema) => schema.required(),
-        })
-        .when("rootPath", {
-          is: (rootPath: string) => rootPath?.length > 0,
-          then: (schema) => schema.required(),
-        }),
 
       // binary fields
       group: string()
@@ -248,7 +241,7 @@ export const useApplicationFormHook = ({
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
 
-      kind: application?.repository?.kind || "git",
+      kind: application?.repository?.kind || "",
       sourceRepository: application?.repository?.url || "",
       branch: application?.repository?.branch || "",
       rootPath: application?.repository?.path || "",
@@ -363,6 +356,8 @@ export const ApplicationForm: React.FC<
   businessServiceOptions,
 }) => {
   const { t } = useTranslation();
+  const watchKind = useWatch({ control, name: "kind" });
+
   return (
     <Form>
       <ExpandableSection
@@ -534,7 +529,6 @@ export const ApplicationForm: React.FC<
             name="kind"
             label="Repository type"
             fieldId="repository-type-select"
-            isRequired
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 toggleId="repo-type-toggle"
@@ -555,6 +549,7 @@ export const ApplicationForm: React.FC<
             name="sourceRepository"
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
+            isRequired={kindOptions.some(({ value }) => value === watchKind)}
           />
           <HookFormPFTextInput
             control={control}
