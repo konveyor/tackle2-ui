@@ -93,3 +93,35 @@ minikube kubectl -- scale -n konveyor-tackle deployment tackle-hub --replicas=1
 ```
 
 Assuming the default `image_pull_policy=Always`, after the bounce the deployment and pod will be using the current image.
+
+#### Patch your Tackle CR to use a custom container
+
+First, build and push the container with your dev/custom work (quay.io or ttl.sh container registries can both work here):
+
+```sh
+export UI_IMAGE=quay.io/<username>/tackle2-ui:test1
+cd <repo_root>
+podman build --pull -t ${UI_IMAGE} .
+podman login -u='<quay push robot account>' -p='<encrypted password>' quay.io
+podman push ${UI_IMAGE}
+```
+
+Second patch the Tackle CR so the UI image uses the one just created:
+
+```sh
+export UI_IMAGE=quay.io/<username>/tackle2-ui:test1
+kubectl patch -n konveyor-tackle tackle tackle --type=merge --patch-file=/dev/stdin <<-EOF
+spec:
+  image_pull_policy: IfNotPresent
+  ui_image_fqin: ${UI_IMAGE}
+EOF
+```
+
+Note: This process can work with any of the images that can be set via Tackle CR's spec params.
+
+#### Pull the Keycloak SSO admin login secret
+
+```sh
+kubectl get secrets -n konveyor-tackle tackle-keycloak-sso -o=json \
+  | jq ".data|map_values(@base64d)"
+```
