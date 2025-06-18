@@ -7,8 +7,6 @@ import {
   DropdownItem,
   Flex,
   FlexItem,
-  Button,
-  ButtonVariant,
   Label,
   CardHeader,
   PanelMain,
@@ -18,7 +16,7 @@ import {
   StackItem,
   Bullseye,
 } from "@patternfly/react-core";
-import { GripVerticalIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 
@@ -41,8 +39,8 @@ export interface TargetCardProps {
   ) => void;
   onSelectedCardTargetChange?: (value: string) => void;
   selectedTargetLabels?: TargetLabel[];
-  handleProps?: any;
   readOnly?: boolean;
+  dndSortHandle?: React.ReactNode;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -60,7 +58,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   selectedTargetLabels,
   onCardClick,
   onSelectedCardTargetChange,
-  handleProps,
+  dndSortHandle,
   onEdit,
   onDelete,
 }) => {
@@ -149,37 +147,20 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       </CardHeader>
       <CardBody>
         <Flex>
-          <FlexItem>
-            {!readOnly && (
-              <Button
-                className="grabbable"
-                id="drag-button"
-                aria-label="drag button"
-                variant={ButtonVariant.plain}
-                {...handleProps}
-                {...handleProps?.listeners}
-                {...handleProps?.attributes}
-              >
-                <GripVerticalIcon />
-              </Button>
-            )}
-          </FlexItem>
+          <FlexItem>{dndSortHandle}</FlexItem>
           <FlexItem className={spacing.mlAuto}>
-            {readOnly && target.custom ? (
-              <Label color="grey">Custom</Label>
-            ) : (
-              target.custom && (
-                <KebabDropdown
-                  dropdownItems={[
-                    <DropdownItem key="edit-custom-card" onClick={onEdit}>
-                      {t("actions.edit")}
-                    </DropdownItem>,
-                    <DropdownItem key="delete-custom-card" onClick={onDelete}>
-                      {t("actions.delete")}
-                    </DropdownItem>,
-                  ]}
-                />
-              )
+            {target.custom && readOnly && <Label color="grey">Custom</Label>}
+            {target.custom && !readOnly && (
+              <KebabDropdown
+                dropdownItems={[
+                  <DropdownItem key="edit-custom-card" onClick={onEdit}>
+                    {t("actions.edit")}
+                  </DropdownItem>,
+                  <DropdownItem key="delete-custom-card" onClick={onDelete}>
+                    {t("actions.delete")}
+                  </DropdownItem>,
+                ]}
+              />
             )}
           </FlexItem>
         </Flex>

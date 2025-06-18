@@ -758,8 +758,8 @@ export interface Question {
   text: string;
   order: number;
   explanation?: string;
-  includeFor?: CategorizedTag[];
-  excludeFor?: CategorizedTag[];
+  includeFor?: QuestionnaireTag[];
+  excludeFor?: QuestionnaireTag[];
 }
 
 export interface Answer {
@@ -768,8 +768,8 @@ export interface Answer {
   risk: string;
   rationale?: string;
   mitigation?: string;
-  applyTags?: CategorizedTag[];
-  autoAnswerFor?: CategorizedTag[];
+  applyTags?: QuestionnaireTag[];
+  autoAnswerFor?: QuestionnaireTag[];
   autoAnswered?: boolean;
   selected?: boolean;
 }
@@ -803,9 +803,9 @@ export interface Assessment
   stakeholderGroups?: Ref[];
   required?: boolean;
 }
-export interface CategorizedTag {
-  category: TagCategory;
-  tag: Tag;
+export interface QuestionnaireTag {
+  category: string;
+  tag: string;
 }
 
 //TODO: update to use new api

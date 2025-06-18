@@ -53,4 +53,5 @@ declare module "*.xsd" {
   const src: string;
   export default src;
 }
+
 declare module "*.yaml";

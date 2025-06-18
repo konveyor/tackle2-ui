@@ -29,11 +29,12 @@ const results = {
   unresolved: [],
 };
 Object.entries(lockFile.packages).forEach(([name, p]) => {
-  const bucket = p.name?.startsWith("@konveyor-ui")
-    ? results.project
-    : p.resolved
-    ? results.resolved
-    : results.unresolved;
+  const bucket =
+    p.name?.startsWith("@konveyor-ui") || p.name === "@types/extra-types"
+      ? results.project
+      : p.resolved
+        ? results.resolved
+        : results.unresolved;
 
   bucket.push(
     removeUndefined({

@@ -1,17 +1,22 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Item } from "./item";
-interface SortableItemProps {
+import { Target } from "@app/api/models";
+import { TargetItem } from "./target-item";
+
+interface SortableTargetItemProps {
   style?: React.CSSProperties;
-  id: number;
+  target: Target;
   onEdit?: () => void;
   onDelete?: () => void;
 }
-export const SortableItem: React.FC<SortableItemProps> = (
-  { style, id, onEdit, onDelete },
-  ...props
-) => {
+
+export const SortableTargetItem: React.FC<SortableTargetItemProps> = ({
+  style,
+  target,
+  onEdit,
+  onDelete,
+}) => {
   const {
     attributes,
     listeners,
@@ -19,29 +24,24 @@ export const SortableItem: React.FC<SortableItemProps> = (
     transform,
     transition,
     setActivatorNodeRef,
-  } = useSortable({ id: id });
+  } = useSortable({ id: target.id });
 
-  const inlineStyles = {
+  const itemStyles = {
     transform: CSS.Transform.toString(transform),
     transition: [transition].filter(Boolean).join(", "),
-    height: 410,
-    width: "20em",
     ...style,
   } as React.CSSProperties;
 
   return (
-    <Item
+    <TargetItem
       ref={setNodeRef}
-      style={inlineStyles}
-      handleProps={{
-        ref: setActivatorNodeRef,
-        listeners: listeners,
-        attributes: attributes,
-      }}
+      style={itemStyles}
       onEdit={onEdit}
       onDelete={onDelete}
-      {...props}
-      id={id}
+      target={target}
+      activatorNodeRef={setActivatorNodeRef}
+      {...attributes}
+      {...listeners}
     />
   );
 };
