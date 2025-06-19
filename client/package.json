@@ -31,7 +31,7 @@
     "@patternfly/react-table": "5.2.4",
     "@patternfly/react-tokens": "5.2.1",
     "@react-keycloak/web": "3.4.0",
-    "@tanstack/react-query": "^4.22.0",
+    "@tanstack/react-query": "^5.80.10",
     "@tanstack/react-query-devtools": "^4.22.0",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",
