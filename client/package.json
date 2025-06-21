@@ -37,6 +37,7 @@
     "dayjs": "^1.11.13",
     "fast-xml-parser": "^5.2.5",
     "file-saver": "^2.0.5",
+    "git-url-parse": "^16.1.0",
     "i18next": "^19.8.4",
     "i18next-http-backend": "^1.0.22",
     "js-yaml": "^4.1.0",

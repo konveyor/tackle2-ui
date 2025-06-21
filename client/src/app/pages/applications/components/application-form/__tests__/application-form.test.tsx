@@ -29,92 +29,73 @@ describe("Component: application-form", () => {
   });
 
   it("Validation tests", async () => {
+    const data = {
+      name: "app-name",
+      businessService: "service",
+      repoType: "Git",
+      repoUrl: "https://github.com/username/tackle-testapp.git",
+    };
+
     render(
       <ApplicationFormModal application={null} onClose={mockChangeValue} />
     );
-    const nameInput = await screen.findByLabelText("Name *");
-    fireEvent.change(nameInput, {
-      target: { value: "app-name" },
-    });
-    await waitFor(
-      () => {
-        fireEvent.click(
-          screen.getByRole("button", {
-            name: /Business service select dropdown toggle/i,
-          })
-        );
-      },
-      {
-        timeout: 3000,
-      }
-    );
-
-    await userEvent.selectOptions(screen.getByRole("listbox"), ["service"]);
-
-    const sourceCodeButton = screen.getByRole("button", {
-      name: "terms.sourceCode",
-    });
-
-    await waitFor(
-      () => {
-        fireEvent.click(sourceCodeButton);
-      },
-      {
-        timeout: 3000,
-      }
-    );
-
-    const branchInput = screen.getByRole("textbox", {
-      name: "Repository branch",
-    });
-
-    await waitFor(
-      () => {
-        fireEvent.change(branchInput, {
-          target: { value: "branch-test" },
-        });
-      },
-      {
-        timeout: 3000,
-      }
-    );
 
     const createButton = screen.getByRole("button", { name: /submit/i });
-
     expect(createButton).not.toBeEnabled();
 
-    const rootInput = screen.getByRole("textbox", {
-      name: "terms.sourceRootPath",
-    });
-
-    await waitFor(
-      () => {
-        fireEvent.change(rootInput, {
-          target: { value: "path-test" },
-        });
-      },
-      {
-        timeout: 3000,
-      }
+    // Type in a name -- this is all that should be required right now
+    const nameInput = await screen.findByLabelText("Name *");
+    await waitFor(() =>
+      fireEvent.change(nameInput, {
+        target: { value: data.name },
+      })
     );
+    expect(createButton).toBeEnabled();
 
+    // select a business service from the mock data
+    await waitFor(() => {
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: /Business service select dropdown toggle/i,
+        })
+      );
+    });
+    await userEvent.selectOptions(screen.getByRole("listbox"), [
+      data.businessService,
+    ]);
+
+    // open the source code section
+    await waitFor(() => {
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: "terms.sourceCode",
+        })
+      );
+    });
+    expect(createButton).toBeEnabled();
+
+    // select a repository type of 'git'
+    await waitFor(() => {
+      fireEvent.click(
+        screen.getByRole("button", {
+          name: /Type select dropdown toggle/i,
+        })
+      );
+    });
+    await userEvent.selectOptions(screen.getByRole("listbox"), [data.repoType]);
     expect(createButton).not.toBeEnabled();
-    const urlInput = screen.getByRole("textbox", {
-      name: "terms.sourceRepo",
+
+    // type in a valid git repo URL, and the create button should be enabled again
+    await waitFor(() => {
+      fireEvent.change(
+        screen.getByRole("textbox", {
+          name: "source repository url",
+        }),
+        {
+          target: { value: data.repoUrl },
+        }
+      );
     });
-    const testURL = "https://github.com/username/tackle-testapp.git";
-
-    await waitFor(
-      () => {
-        fireEvent.change(urlInput, {
-          target: { value: testURL },
-        });
-      },
-      {
-        timeout: 3000,
-      }
-    );
-
     expect(createButton).toBeEnabled();
   }, 10000);
 });
