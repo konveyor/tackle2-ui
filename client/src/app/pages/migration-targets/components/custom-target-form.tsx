@@ -34,7 +34,7 @@ import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import useRuleFiles from "@app/hooks/useRuleFiles";
-import { customURLValidation, duplicateNameCheck } from "@app/utils/utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
 import {
   useCreateTargetMutation,
@@ -142,7 +142,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       description: yup.string(),
       providerType: yup.string().oneOf(providerList),
       imageID: yup.number().defined().nullable(),
-      rulesKind: yup.string().defined(),
+      rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
       customRulesFiles: yup
         .array()
         .of(customRulesFilesSchema)
@@ -154,14 +154,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             .min(1, "At least 1 valid custom rule file must be uploaded."),
           otherwise: (schema) => schema,
         }),
-      repositoryType: yup.mixed<string>().when("rulesKind", {
+      repositoryType: yup.string().oneOf(["git", "svn"]).when("rulesKind", {
         is: "repository",
-        then: yup.mixed<string>().required(),
+        then: yup.string().required(),
       }),
       sourceRepository: yup.string().when("rulesKind", {
         is: "repository",
-        then: (schema) =>
-          customURLValidation(schema).required("Enter repository url."),
+        then: yup.string().required().repositoryUrl("repositoryType"),
       }),
       branch: yup.mixed<string>().when("rulesKind", {
         is: "repository",
@@ -201,8 +200,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       rulesKind: !target
         ? "manual"
         : target?.ruleset?.rules?.length
-        ? "manual"
-        : "repository",
+          ? "manual"
+          : "repository",
       associatedCredentials: identities.find(
         (identity) => identity.id === target?.ruleset?.identity?.id
       )?.name,
@@ -630,6 +629,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
+                  trigger("sourceRepository");
                 }}
               />
             )}
