@@ -873,3 +873,13 @@ export interface GroupedStakeholderRef extends Ref {
   group: StakeholderType.Stakeholder | StakeholderType.StakeholderGroup;
   uniqueId: string;
 }
+
+export interface SourcePlatform {
+  id: number;
+  kind: string;
+  name: string;
+  url: string;
+  identity?: Ref;
+  applications?: Ref[];
+  coordinates?: Record<string, any>;
+}
