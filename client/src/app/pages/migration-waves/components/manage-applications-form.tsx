@@ -144,8 +144,8 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         },
         selectOptions: dedupeFunction(
           applications
-            .filter((app) => !!app.businessService?.name)
             .map((app) => app.businessService?.name)
+            .filter(Boolean)
             .map((name) => ({ key: name, value: name }))
         ),
       },
@@ -162,8 +162,8 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         },
         selectOptions: dedupeFunction(
           applications
-            .filter((app) => !!app.owner?.name)
             .map((app) => app.owner?.name)
+            .filter(Boolean)
             .map((name) => ({ key: name, value: name }))
         ),
       },

@@ -8,18 +8,13 @@ import {
   Popover,
   PopoverPosition,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
-// import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Application, New, TagRef } from "@app/api/models";
-import {
-  customURLValidation,
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-} from "@app/utils/utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import {
   matchItemsToRef,
   matchItemsToRefs,
@@ -166,25 +161,21 @@ export const useApplicationFormHook = ({
       comments: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
+
+      // source code fields
+      kind: string().oneOf(["", "git", "subversion"]),
+      sourceRepository: string().when("kind", {
+        is: (kind: string) => kind !== "",
+        then: (schema) => schema.repositoryUrl("kind").required(),
+      }),
       branch: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
       rootPath: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      sourceRepository: string()
-        .when("branch", {
-          is: (branch: string) => branch?.length > 0,
-          then: (schema) =>
-            customURLValidation(schema).required("Enter repository url."),
-          otherwise: (schema) => customURLValidation(schema),
-        })
-        .when("rootPath", {
-          is: (rootPath: string) => rootPath?.length > 0,
-          then: (schema) =>
-            customURLValidation(schema).required("Enter repository url."),
-          otherwise: (schema) => customURLValidation(schema),
-        }),
+
+      // binary fields
       group: string()
         .when("artifact", {
           is: (artifact: string) => artifact?.length > 0,
@@ -231,6 +222,7 @@ export const useApplicationFormHook = ({
 
   const {
     handleSubmit,
+    trigger,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
   } = useForm<FormValues>({
@@ -249,7 +241,7 @@ export const useApplicationFormHook = ({
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
 
-      kind: application?.repository?.kind || "git",
+      kind: application?.repository?.kind || "",
       sourceRepository: application?.repository?.url || "",
       branch: application?.repository?.branch || "",
       rootPath: application?.repository?.path || "",
@@ -323,11 +315,13 @@ export const useApplicationFormHook = ({
       toString: () => `Subversion`,
     },
   ];
+
   return {
     handleSubmit,
     onValidSubmit,
     setBasicExpanded,
     isBasicExpanded,
+    trigger,
     control,
     tagItems,
     stakeholdersOptions,
@@ -349,6 +343,7 @@ export const ApplicationForm: React.FC<
 > = ({
   setBasicExpanded,
   isBasicExpanded,
+  trigger,
   control,
   tagItems,
   stakeholdersOptions,
@@ -361,6 +356,8 @@ export const ApplicationForm: React.FC<
   businessServiceOptions,
 }) => {
   const { t } = useTranslation();
+  const watchKind = useWatch({ control, name: "kind" });
+
   return (
     <Form>
       <ExpandableSection
@@ -389,44 +386,28 @@ export const ApplicationForm: React.FC<
             label={t("terms.businessService")}
             fieldId="businessService"
             renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <SimpleSelectTypeahead
-                  toggleId="business-service-toggle"
-                  toggleAriaLabel="Business service select dropdown toggle"
-                  id="business-service-select"
-                  placeholderText={t("composed.selectOne", {
-                    what: t("terms.businessService").toLowerCase(),
-                  })}
-                  value={value}
-                  options={businessServiceOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection;
-                    onChange(selectionValue);
-                  }}
-                /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectOne", {
-                    what: t("terms.businessService").toLowerCase(),
-                  })}
-                  variant="typeahead"
-                  toggleId="business-service-toggle"
-                  id="business-service-select"
-                  toggleAriaLabel="Business service select dropdown toggle"
-                  aria-label={name}
-                  value={
-                    value
-                      ? toOptionLike(value, businessServiceOptions)
-                      : undefined
-                  }
-                  options={businessServiceOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  onClear={() => onChange("")}
-                />
-              </>
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.businessService").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="business-service-toggle"
+                id="business-service-select"
+                toggleAriaLabel="Business service select dropdown toggle"
+                aria-label={name}
+                value={
+                  value
+                    ? toOptionLike(value, businessServiceOptions)
+                    : undefined
+                }
+                options={businessServiceOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
+                onClear={() => onChange("")}
+              />
             )}
           />
 
@@ -449,37 +430,28 @@ export const ApplicationForm: React.FC<
             label={t("terms.owner")}
             fieldId="owner"
             renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <SimpleSelectTypeahead
-                  options={stakeholdersOptions}
-                  placeholderText={t("composed.selectAn", {
-                    what: t("terms.owner").toLowerCase(),
-                  })}
-                  onChange={onChange}
-                /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectAn", {
-                    what: t("terms.owner").toLowerCase(),
-                  })}
-                  variant="typeahead"
-                  toggleId="owner-toggle"
-                  id="owner-select"
-                  toggleAriaLabel="Owner select dropdown toggle"
-                  aria-label={name}
-                  value={
-                    value ? toOptionLike(value, stakeholdersOptions) : undefined
-                  }
-                  options={stakeholdersOptions}
-                  onClear={() => onChange("")}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    console.log({ selection });
-                    onChange(selectionValue.value);
-                  }}
-                  onBlur={onChange}
-                />
-              </>
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectAn", {
+                  what: t("terms.owner").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="owner-toggle"
+                id="owner-select"
+                toggleAriaLabel="Owner select dropdown toggle"
+                aria-label={name}
+                value={
+                  value ? toOptionLike(value, stakeholdersOptions) : undefined
+                }
+                options={stakeholdersOptions}
+                onClear={() => onChange("")}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  console.log({ selection });
+                  onChange(selectionValue.value);
+                }}
+                onBlur={onChange}
+              />
             )}
           />
           <HookFormPFGroupController
@@ -488,80 +460,52 @@ export const ApplicationForm: React.FC<
             label={t("terms.contributors")}
             fieldId="contributors"
             renderInput={({ field: { value, name, onChange } }) => (
-              <>
-                {/* <div>value: {value}</div>
-                <SimpleSelectTypeahead
-                  placeholderText={t("composed.selectMany", {
-                    what: t("terms.contributors").toLowerCase(),
-                  })}
-                  selectMultiple
-                  options={[
-                    {
-                      value: "testing",
-                    },
-                    {
-                      value: "Retail",
-                      isDisabled: true,
-                    },
-                    {
-                      value: "Finance and HR",
-                    },
-                  ]}
-                  onChange={(selection) => {
-                    const selectionValue = selection;
-                    onChange(selectionValue);
-                  }}
-                  noResultsFoundText={t("message.noResultsFoundTitle")}
-                /> */}
-                <SimpleSelect
-                  maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                  placeholderText={t("composed.selectMany", {
-                    what: t("terms.contributors").toLowerCase(),
-                  })}
-                  id="contributors-select"
-                  variant="typeaheadmulti"
-                  toggleId="contributors-select-toggle"
-                  toggleAriaLabel="contributors dropdown toggle"
-                  aria-label={name}
-                  value={value
-                    .map(
-                      (formContributor) =>
-                        stakeholders?.find(
-                          (stakeholder) => stakeholder.name === formContributor
-                        )
-                    )
-                    .map((matchingStakeholder) =>
-                      matchingStakeholder
-                        ? {
-                            value: matchingStakeholder.name,
-                            toString: () => matchingStakeholder.name,
-                          }
-                        : undefined
-                    )
-                    .filter((e) => e !== undefined)}
-                  options={stakeholdersOptions}
-                  onChange={(selection) => {
-                    const selectionWithValue =
-                      selection as OptionWithValue<string>;
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.contributors").toLowerCase(),
+                })}
+                id="contributors-select"
+                variant="typeaheadmulti"
+                toggleId="contributors-select-toggle"
+                toggleAriaLabel="contributors dropdown toggle"
+                aria-label={name}
+                value={value
+                  .map(
+                    (formContributor) =>
+                      stakeholders?.find(
+                        (stakeholder) => stakeholder.name === formContributor
+                      )
+                  )
+                  .map((matchingStakeholder) =>
+                    matchingStakeholder
+                      ? {
+                          value: matchingStakeholder.name,
+                          toString: () => matchingStakeholder.name,
+                        }
+                      : undefined
+                  )
+                  .filter((e) => e !== undefined)}
+                options={stakeholdersOptions}
+                onChange={(selection) => {
+                  const selectionWithValue =
+                    selection as OptionWithValue<string>;
 
-                    const currentValue = value || [];
-                    const e = currentValue.find(
-                      (f) => f === selectionWithValue.value
+                  const currentValue = value || [];
+                  const e = currentValue.find(
+                    (f) => f === selectionWithValue.value
+                  );
+                  if (e) {
+                    onChange(
+                      currentValue.filter((f) => f !== selectionWithValue.value)
                     );
-                    if (e) {
-                      onChange(
-                        currentValue.filter(
-                          (f) => f !== selectionWithValue.value
-                        )
-                      );
-                    } else {
-                      onChange([...currentValue, selectionWithValue.value]);
-                    }
-                  }}
-                  onClear={() => onChange([])}
-                  noResultsFoundText={t("message.noResultsFoundTitle")}
-                />
-              </>
+                  } else {
+                    onChange([...currentValue, selectionWithValue.value]);
+                  }
+                }}
+                onClear={() => onChange([])}
+                noResultsFoundText={t("message.noResultsFoundTitle")}
+              />
             )}
           />
           <HookFormPFTextArea
@@ -573,6 +517,7 @@ export const ApplicationForm: React.FC<
           />
         </div>
       </ExpandableSection>
+
       <ExpandableSection
         toggleText={t("terms.sourceCode")}
         className="toggle"
@@ -585,7 +530,6 @@ export const ApplicationForm: React.FC<
             name="kind"
             label="Repository type"
             fieldId="repository-type-select"
-            isRequired
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
                 toggleId="repo-type-toggle"
@@ -596,6 +540,7 @@ export const ApplicationForm: React.FC<
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
+                  trigger("sourceRepository");
                 }}
               />
             )}
@@ -605,6 +550,8 @@ export const ApplicationForm: React.FC<
             name="sourceRepository"
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
+            aria-label="source repository url"
+            isRequired={kindOptions.some(({ value }) => value === watchKind)}
           />
           <HookFormPFTextInput
             control={control}
@@ -622,6 +569,7 @@ export const ApplicationForm: React.FC<
           />
         </div>
       </ExpandableSection>
+
       <ExpandableSection
         toggleText={t("terms.binary")}
         className="toggle"

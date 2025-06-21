@@ -8,7 +8,6 @@ import {
 } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
-import { customURLValidation } from "@app/utils/utils";
 
 export const ANALYSIS_MODES = [
   "binary",
@@ -118,7 +117,9 @@ export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
   return yup.object({
-    rulesKind: yup.string().defined(),
+    rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
+
+    // manual tab fields
     customRulesFiles: yup
       .array()
       .of(customRulesFilesSchema)
@@ -136,22 +137,23 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
           labels.length === 0 && rulesKind === "manual" && selectedTargets <= 0,
         then: (schema) => schema.min(1, "At least 1 Rule File is required"),
       }),
-    repositoryType: yup.mixed<string>().when("rulesKind", {
+
+    // repository tab fields
+    repositoryType: yup.string().when("rulesKind", {
       is: "repository",
-      then: yup.mixed<string>().required(),
+      then: (schema) => schema.oneOf(["git", "svn"]).required(),
     }),
     sourceRepository: yup.string().when("rulesKind", {
       is: "repository",
-      then: (schema) =>
-        customURLValidation(schema).required("Enter repository url."),
+      then: (schema) => schema.repositoryUrl("repositoryType").required(),
     }),
-    branch: yup.mixed<string>().when("rulesKind", {
+    branch: yup.string().when("rulesKind", {
       is: "repository",
-      then: yup.mixed<string>(),
+      then: yup.string(),
     }),
-    rootPath: yup.mixed<string>().when("rulesKind", {
+    rootPath: yup.string().when("rulesKind", {
       is: "repository",
-      then: yup.mixed<string>(),
+      then: yup.string(),
     }),
     associatedCredentials: yup.mixed<any>().when("rulesKind", {
       is: "repository",

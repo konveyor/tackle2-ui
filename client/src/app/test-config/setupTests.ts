@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom";
 import { server } from "@mocks/server";
+
+// initialize libraries like is done in ../../index.tsx
 import "@app/dayjs";
+import "@app/yup";
 
 const mockInitialized = false;
 
