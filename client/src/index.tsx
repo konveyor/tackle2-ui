@@ -13,6 +13,7 @@ import { KeycloakProvider } from "@app/components/KeycloakProvider";
 
 import "@app/dayjs";
 import "@app/i18n";
+import "@app/yup";
 
 const queryClient = new QueryClient();
 

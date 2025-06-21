@@ -1,6 +1,7 @@
-import * as yup from "yup";
 import { AxiosError } from "axios";
 import { ToolbarChip } from "@patternfly/react-core";
+import gitUrlParse from "git-url-parse";
+
 import { AdminPathValues, DevPathValues } from "@app/Paths";
 import i18n from "@app/i18n";
 
@@ -61,7 +62,7 @@ export const duplicateNameCheck = <T extends { name?: string }>(
   nameValue: T["name"]
 ) => duplicateFieldCheck("name", itemList, currentItem, nameValue);
 
-export const dedupeFunction = (arr: any[]) =>
+export const dedupeFunction = <T extends { value: unknown }>(arr: T[]) =>
   arr?.filter(
     (value, index, self) =>
       index === self.findIndex((t) => t.value === value.value)
@@ -92,7 +93,7 @@ export const parseMaybeNumericString = (
   return isNaN(num) ? numOrStr : num;
 };
 
-export const objectKeys = <T extends Object>(obj: T) =>
+export const objectKeys = <T extends object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
 
 export const getValidatedFromErrors = (
@@ -107,35 +108,30 @@ export const getValidatedFromError = (error: unknown | undefined) => {
   return error ? "error" : "default";
 };
 
-export const standardURLRegex =
+const standardURLRegex =
   /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/;
 
-export const gitUrlRegex =
-  /^(https?:\/\/[-\w.]+\/[-\w._]+\/[-\w._]+|git@[-\w.]+:[-\w._]+\/[-\w._]+)(\.git)?(\/?|#[-\d\w._]+)?$/;
+export const isValidStandardUrl = (url: string) => standardURLRegex.test(url);
 
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
-export const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
-
-export const customURLValidation = (schema: yup.StringSchema) => {
-  const containsURL = (string: string) =>
-    gitUrlRegex.test(string) ||
-    standardURLRegex.test(string) ||
-    svnUrlRegex.test(string);
-
-  return schema.test("urlValidation", "Must be a valid URL.", (value) => {
-    if (value) {
-      return containsURL(value);
-    } else {
-      return true;
-    }
-  });
+export const isValidGitUrl = (url: string): boolean => {
+  try {
+    const r = gitUrlParse(url.at(-1) === "/" ? url.slice(0, -1) : url);
+    return /^(ssh|git|http|https)$/.test(r.protocol) && !!r.host;
+  } catch {
+    return false;
+  }
 };
+
+const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
+
+export const isValidSvnUrl = (url: string) => svnUrlRegex.test(url);
 
 export const formatPath = (
   path: AdminPathValues | DevPathValues,
-  data: any
+  data: Record<string, unknown>
 ) => {
   let url = path as string;
 
