@@ -549,6 +549,7 @@ export const ApplicationForm: React.FC<
             name="sourceRepository"
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
+            aria-label="source repository url"
             isRequired={kindOptions.some(({ value }) => value === watchKind)}
           />
           <HookFormPFTextInput
