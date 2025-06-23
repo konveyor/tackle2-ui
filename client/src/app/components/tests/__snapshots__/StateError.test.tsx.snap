@@ -21,7 +21,7 @@ exports[`StateError Renders without crashing 1`] = `
           </div>
           <h2
             class="pf-v5-c-title pf-m-lg"
-            data-ouia-component-id="OUIA-Generated-Title-1"
+            data-ouia-component-id="OUIA-Generated-Title-2"
             data-ouia-component-type="PF5/Title"
             data-ouia-safe="true"
           >
@@ -53,7 +53,7 @@ exports[`StateError Renders without crashing 1`] = `
         </div>
         <h2
           class="pf-v5-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-1"
+          data-ouia-component-id="OUIA-Generated-Title-2"
           data-ouia-component-type="PF5/Title"
           data-ouia-safe="true"
         >
