@@ -100,9 +100,10 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
       <Text component="p">{deleteObjectMessage}</Text>
       <Text component="p">{t("dialog.message.delete")}</Text>
       <Text component="p" className="confirm-deletion">
-        <Trans i18nKey="dialog.message.confirmDeletion">
-          Confirm deletion by typing <strong>{{ nameToDelete }}</strong> below:
-        </Trans>
+        <Trans
+          i18nKey="dialog.message.confirmDeletion"
+          values={{ nameToDelete }}
+        />
       </Text>
       <TextInput
         id="confirm-deletion-input"
