@@ -1329,11 +1329,12 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={assessmentToDiscard !== null}
           message={
             <span>
-              <Trans i18nKey="dialog.message.discardAssessment">
-                The assessment(s) for{" "}
-                <strong>{assessmentToDiscard?.name}</strong> discarded. Do you
-                wish to continue?
-              </Trans>
+              <Trans
+                i18nKey="dialog.message.discardAssessment"
+                values={{
+                  applicationName: assessmentToDiscard?.name,
+                }}
+              />
             </span>
           }
           confirmBtnVariant={ButtonVariant.primary}
@@ -1356,11 +1357,12 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={reviewToDiscard !== null}
           message={
             <span>
-              <Trans i18nKey="dialog.message.discardReview">
-                The review for <strong>{reviewToDiscard?.name}</strong> will be
-                discarded, as well as the review result. Do you wish to
-                continue?
-              </Trans>
+              <Trans
+                i18nKey="dialog.message.discardReview"
+                values={{
+                  applicationName: reviewToDiscard?.name,
+                }}
+              />
             </span>
           }
           confirmBtnVariant={ButtonVariant.primary}
