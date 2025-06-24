@@ -67,7 +67,6 @@ exports[`ConfirmDialog Renders without crashing 1`] = `
                 class="pf-v5-c-modal-box__title"
                 id="pf-modal-part-2"
               >
-                
                 <span
                   class="pf-v5-c-modal-box__title-text"
                 >
