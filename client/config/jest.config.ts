@@ -34,7 +34,7 @@ const config: JestConfigWithTsJest = {
   roots: ["<rootDir>/src"],
 
   // The test environment that will be used for testing
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
 
   // The pattern or patterns Jest uses to find test files
   testMatch: ["<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}"],
