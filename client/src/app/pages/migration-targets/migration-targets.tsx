@@ -1,4 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { AxiosError, AxiosResponse } from "axios";
+import { unique } from "radash";
+
 import {
   DndContext,
   closestCenter,
@@ -15,7 +19,9 @@ import {
   SortableContext,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { SortableItem } from "./components/dnd/sortable-item";
+import { SortableTargetItem } from "./components/dnd/sortable-target-item";
+import { TargetItem } from "./components/dnd/target-item";
+
 import {
   PageSection,
   PageSectionVariants,
@@ -27,13 +33,10 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Gallery,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
 
-import { Item } from "./components/dnd/item";
-import { DndGrid } from "./components/dnd/grid";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { CustomTargetForm } from "./components/custom-target-form";
@@ -43,7 +46,6 @@ import { Target } from "@app/api/models";
 import { DEFAULT_PROVIDER } from "./useMigrationProviderList";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { unique } from "radash";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
@@ -68,7 +70,7 @@ export const MigrationTargets: React.FC = () => {
     targetsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeTarget, setActiveTarget] = useState<Target | null>(null);
 
   const onDeleteTargetSuccess = (target: Target, id: number) => {
     pushNotification({
@@ -119,6 +121,7 @@ export const MigrationTargets: React.FC = () => {
           </Button>
         ),
       });
+
       // update target order
       if (
         targetOrderSetting.isSuccess &&
@@ -138,8 +141,8 @@ export const MigrationTargets: React.FC = () => {
         const newFv = !targetProvider
           ? null
           : fv.includes(targetProvider)
-          ? fv
-          : [...fv, targetProvider];
+            ? fv
+            : [...fv, targetProvider];
 
         filterState.setFilterValues({
           ...filterState.filterValues,
@@ -172,9 +175,14 @@ export const MigrationTargets: React.FC = () => {
     }
   }
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    setActiveId(active.id as number);
+  const handleDragEnd = () => {
+    setActiveTarget(null);
+  };
+
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    const activeId = active.id as number;
+    const activeTarget = targets.find((target) => target.id === activeId);
+    setActiveTarget(activeTarget ?? null);
   };
 
   const tableControls = useLocalTableControls({
@@ -260,22 +268,25 @@ export const MigrationTargets: React.FC = () => {
             </ToolbarGroup>
           </ToolbarContent>
         </Toolbar>
-
+      </PageSection>
+      <PageSection style={{ paddingBlockStart: 0 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
         >
           <SortableContext
             items={targetOrderSetting.isSuccess ? targetOrderSetting.data : []}
             strategy={rectSortingStrategy}
           >
-            <DndGrid>
+            <Gallery hasGutter minWidths={{ default: "20em" }}>
               {filteredTargetsInOrder.map((target) => (
-                <SortableItem
+                <SortableTargetItem
                   key={target.id}
-                  id={target.id}
+                  target={target}
+                  style={{ height: "410px" }}
                   onEdit={() => {
                     setCreateUpdateModalState(target);
                   }}
@@ -286,9 +297,9 @@ export const MigrationTargets: React.FC = () => {
                 />
               ))}
               <div ref={targetsEndRef} />
-            </DndGrid>
+            </Gallery>
             <DragOverlay>
-              {activeId ? <Item id={activeId} /> : null}
+              {activeTarget ? <TargetItem target={activeTarget} /> : null}
             </DragOverlay>
           </SortableContext>
         </DndContext>
