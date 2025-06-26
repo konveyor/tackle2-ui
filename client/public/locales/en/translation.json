@@ -33,6 +33,7 @@
     "disablePreemption": "Disable preemption",
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
+    "discoverApplications": "Discover applications",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -150,6 +151,7 @@
       "newApplication": "New application",
       "newBusinessService": "New business service",
       "newJobFunction": "New job function",
+      "newPlatform": "Create new platform",
       "newStakeholder": "New stakeholder",
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
@@ -159,6 +161,7 @@
       "updateApplication": "Update application",
       "updateBusinessService": "Update business service",
       "updateJobFunction": "Update job function",
+      "updatePlatform": "Update platform",
       "updateStakeholder": "Update stakeholder",
       "updateStakeholderGroup": "Update stakeholder group",
       "updateTag": "Update tag",
@@ -223,6 +226,9 @@
     "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideArchetypeReviewDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
     "overrideArchetypeReviewConfirmation": "Do you want to create a dedicated review for this application and override the inherited archetype review?",
+    "platformNoApplications": "No applications currently match the platform.",
+    "platformApplicationCount_one": "{{count}} application",
+    "platformApplicationCount_other": "{{count}} applications",
     "editApplicationReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "editArchetypeReviewConfirmation": "This archetype has already been reviewed. Do you want to continue?",
     "reasonForError": "The reported reason for the error:",
@@ -343,6 +349,7 @@
     "connected": "Connected",
     "contributors": "Contributors",
     "controls": "Controls",
+    "coordinates": "Coordinates",
     "create": "Create",
     "createdBy": "Created By",
     "credential": "Credential",
@@ -427,10 +434,12 @@
     "notYetReviewed": "Not yet reviewed",
     "other": "Other",
     "owner": "Owner",
+    "platform": "Platform",
     "pod": "Pod",
     "preemption": "Preemption",
     "priority": "Priority",
     "proposedAction": "Proposed action",
+    "providerType": "Provider type",
     "proxyConfig": "Proxy configuration",
     "proxyConfigDetails": "Manage connections to proxy servers",
     "question": "Question",
@@ -459,6 +468,7 @@
     "source": "Source",
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
+    "sourcePlatforms": "Source platforms",
     "sourceRepo": "Source Repository",
     "sourceRootPath": "Root path",
     "southboundDependencies": "Southbound dependencies",
@@ -510,6 +520,7 @@
   },
   "titles": {
     "archetypeDrawer": "Archetype details",
+    "platformDrawer": "Platform details",
     "taskManager": "Task Manager",
     "task": "Task",
     "taskWithId": "Task {{taskId}}"
@@ -530,7 +541,8 @@
       "deletedWhat": "{{type}} {{what}} was successfully deleted.",
       "deletedAll": "{{type}} {{what}} were successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
-      "reviewDiscarded": "Success! Review discarded for {{application}}."
+      "reviewDiscarded": "Success! Review discarded for {{application}}.",
+      "discoverApplications": "Success! Applications discovered on platform {{platformName}}."
     },
     "fail": {
       "create": "Failed to create {{type}}.",
@@ -550,7 +562,9 @@
     "minCount_other": "At least {{count}} {{types}} must be selected.",
     "minLength": "This field must contain at least {{length}} characters.",
     "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
-    "required": "This field is required."
+    "required": "This field is required.",
+    "url": "This field requires a valid URL.",
+    "duplicateName": "A {{type}} with this name already exists. Use a different name."
   },
   "wizard": {
     "alert": {

@@ -52,6 +52,7 @@ import {
   TrackerProject,
   TrackerProjectIssuetype,
   UnstructuredFact,
+  SourcePlatform,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -112,6 +113,8 @@ export const QUESTIONNAIRES = HUB + "/questionnaires";
 export const ARCHETYPES = HUB + "/archetypes";
 
 export const ASSESSMENTS = HUB + "/assessments";
+
+export const PLATFORMS = HUB + "/platforms";
 
 const jsonHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -822,3 +825,24 @@ export const updateArchetype = (archetype: Archetype): Promise<void> =>
 // success with code 204 and therefore no response content
 export const deleteArchetype = (id: number): Promise<void> =>
   axios.delete(`${ARCHETYPES}/${id}`);
+
+// ---------------------------------------
+// Platforms
+//
+export const getPlatforms = () =>
+  axios.get<SourcePlatform[]>(PLATFORMS).then(({ data }) => data);
+
+export const getPlatformById = (id: number | string) =>
+  axios.get<SourcePlatform>(`${PLATFORMS}/${id}`).then(({ data }) => data);
+
+// success with code 201 and created entity as response data
+export const createPlatform = (platform: New<SourcePlatform>) =>
+  axios.post<void>(PLATFORMS, platform).then((res) => res.data);
+
+// success with code 204 and therefore no response content
+export const updatePlatform = (platform: SourcePlatform) =>
+  axios.put<void>(`${PLATFORMS}/${platform.id}`, platform);
+
+// success with code 204 and therefore no response content
+export const deletePlatform = (id: number) =>
+  axios.delete<void>(`${PLATFORMS}/${id}`);

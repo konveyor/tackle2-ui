@@ -1,0 +1,10 @@
+{
+  "platformName": "My Awesome Cloud Platform",
+  "version": "2.1.0",
+  "coordinates": {
+    "latitude": 34.052235,
+    "longitude": -118.243683
+  },
+  "features": ["monitoring", "logging", "networking"],
+  "isActive": true
+}
