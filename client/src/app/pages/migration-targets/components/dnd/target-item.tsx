@@ -4,6 +4,7 @@ import { GripVerticalIcon } from "@patternfly/react-icons";
 
 import { TargetCard } from "@app/components/target-card/target-card";
 import { Target } from "@app/api/models";
+import "./target-item.css";
 
 interface TargetItemProps {
   target: Target;
