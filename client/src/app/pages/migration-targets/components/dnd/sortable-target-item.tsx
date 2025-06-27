@@ -28,7 +28,7 @@ export const SortableTargetItem: React.FC<SortableTargetItemProps> = ({
 
   const itemStyles = {
     transform: CSS.Transform.toString(transform),
-    transition: [transition].filter(Boolean).join(", "),
+    transition,
     ...style,
   } as React.CSSProperties;
 
