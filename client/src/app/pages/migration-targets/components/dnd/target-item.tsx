@@ -43,4 +43,4 @@ export const TargetItem = forwardRef<HTMLDivElement, TargetItemProps>(
   }
 );
 
-TargetItem.displayName = "Item";
+TargetItem.displayName = "TargetItem";
