@@ -65,6 +65,8 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
+import { useFetchIssueReports } from "@app/queries/issues";
+import { fork } from "radash";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -212,6 +214,18 @@ const TabDetailsContent: React.FC<{
         .filter((fullArchetype) => fullArchetype?.review)
         .filter(Boolean);
 
+  const issueReportsQuery = useFetchIssueReports(application.id);
+  const {
+    result: { data, total: totalReportCount },
+  } = issueReportsQuery;
+  const currentPageReports = data;
+  const [minor, critical] = fork(currentPageReports, (u) => u.effort <= 1).map(
+    (a) => a.length
+  );
+
+  const taskState = application.tasks.currentAnalyzer?.state ?? "";
+  const taskSucceeded = TaskStates.Success.includes(taskState);
+
   return (
     <>
       <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
@@ -224,6 +238,16 @@ const TabDetailsContent: React.FC<{
                 <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
                   Issues
                 </Link>
+                <Text component="small">
+                  {!taskSucceeded
+                    ? t("terms.unassigned")
+                    : currentPageReports.length === 0
+                    ? t("issues.noIssues")
+                    : t("issues.issuesFound", {
+                        minor: minor,
+                        critical: critical,
+                      })}
+                </Text>
               </ListItem>
               <ListItem>
                 <Link
