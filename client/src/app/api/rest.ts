@@ -22,12 +22,10 @@ import {
   BaseAnalysisRuleReport,
   BusinessService,
   Cache,
-  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
   InitialAssessment,
-  IReadFile,
   JobFunction,
   MigrationWave,
   MimeType,
@@ -88,7 +86,6 @@ export const TICKETS = HUB + "/tickets";
 export const FACTS = HUB + "/facts";
 
 export const TARGETS = HUB + "/targets";
-export const FILES = HUB + "/files";
 export const CACHE = HUB + "/cache/m2";
 
 export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/report/dependencies";
@@ -116,16 +113,25 @@ export const ASSESSMENTS = HUB + "/assessments";
 
 export const PLATFORMS = HUB + "/platforms";
 
-const jsonHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/json",
+export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
+  json: {
+    Accept: "application/json",
+  },
+  form: {
+    Accept: "multipart/form-data",
+  },
+  file: {
+    Accept: "application/json",
+  },
+  yaml: {
+    Accept: "application/x-yaml",
+  },
+  plain: {
+    Accept: "test/plain",
+  },
 };
-const formHeaders: RawAxiosRequestHeaders = {
-  Accept: "multipart/form-data",
-};
-const fileHeaders: RawAxiosRequestHeaders = { Accept: "application/json" };
-const yamlHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/x-yaml",
-};
+
+export * from "./rest-files";
 
 type Direction = "asc" | "desc";
 
@@ -148,7 +154,7 @@ export const getApplicationDependencies = (
   return axios
     .get(`${APPLICATION_DEPENDENCY}`, {
       params,
-      headers: jsonHeaders,
+      headers: HEADERS.json,
     })
     .then((response) => response.data);
 };
@@ -254,7 +260,7 @@ export const deleteAssessment = (id: number) => {
 };
 
 export const getIdentities = () => {
-  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
+  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: HEADERS.json });
 };
 
 export const createIdentity = (obj: New<Identity>) => {
@@ -331,7 +337,7 @@ export const getApplicationImports = (
 export function getTaskById(id: number): Promise<Task> {
   return axios
     .get(`${TASKS}/${id}`, {
-      headers: { ...jsonHeaders },
+      headers: { ...HEADERS.json },
       responseType: "json",
     })
     .then((response) => {
@@ -345,7 +351,7 @@ export function getTaskByIdAndFormat(
   merged: boolean = false
 ): Promise<string> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
@@ -370,7 +376,7 @@ export function getTasksByIds(
   format: "json" | "yaml" = "json"
 ): Promise<Task[]> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
   const filterParam = `id:(${ids.join("|")})`;
 
@@ -434,7 +440,7 @@ export const uploadFileTaskgroup = ({
   file: any;
 }) => {
   return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: formHeaders,
+    headers: HEADERS.form,
   });
 };
 
@@ -482,26 +488,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-export const createFile = ({
-  formData,
-  file,
-}: {
-  formData: FormData;
-  file: IReadFile;
-}) =>
-  axios
-    .post<HubFile>(`${FILES}/${file.fileName}`, formData, {
-      headers: fileHeaders,
-    })
-    .then((response) => {
-      return response.data;
-    });
-
-export const getTextFile = (id: number): Promise<string> =>
-  axios
-    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
-    .then((response) => response.data);
 
 export const getSettingById = <K extends keyof SettingTypes>(
   id: K

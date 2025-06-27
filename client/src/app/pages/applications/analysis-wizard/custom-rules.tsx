@@ -1,14 +1,9 @@
 import * as React from "react";
 import {
   Alert,
-  AlertActionCloseButton,
   Button,
   Form,
   Modal,
-  MultipleFileUpload,
-  MultipleFileUploadMain,
-  MultipleFileUploadStatus,
-  MultipleFileUploadStatusItem,
   Tab,
   Tabs,
   TabTitleText,
@@ -33,7 +28,6 @@ import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import {
   FilterCategory,
   FilterToolbar,
@@ -53,8 +47,9 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
-import useRuleFiles from "@app/hooks/useRuleFiles";
 import { useTaskGroup } from "./components/TaskGroupContext";
+import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import { localeNumericCompare } from "@app/utils/utils";
 
 export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
@@ -72,27 +67,51 @@ export const CustomRules: React.FC = () => {
     initialActiveTabKeyValue(rulesKind)
   );
 
-  const [isAddCustomRulesModalOpen, setCustomRulesModalOpen] =
-    React.useState(false);
+  const [newRuleFiles, setNewRuleFiles] = React.useState<IReadFile[] | null>(
+    null
+  );
 
-  const onCloseCustomRuleModal = () => {
-    setCustomRulesModalOpen(false);
+  const closeAddCustomRulesModal = () => {
+    setNewRuleFiles(null);
   };
 
-  const {
-    ruleFiles,
-    setRuleFiles,
-    handleFileDrop,
-    showStatus,
-    uploadError,
-    setUploadError,
-    setStatus,
-    getloadPercentage,
-    getloadResult,
-    successfullyReadFileCount,
-    handleFile,
-    removeFiles,
-  } = useRuleFiles(taskGroup?.id, values.customRulesFiles);
+  const onAddCustomRulesFiles = () => {
+    if (!newRuleFiles) {
+      return;
+    }
+
+    // Merge "success" loaded files to the customRulesFiles form field
+    const newCustomRulesFiles = [
+      ...customRulesFiles,
+      ...newRuleFiles.filter((file) => file.loadResult === "success"),
+    ];
+
+    setValue("customRulesFiles", newCustomRulesFiles, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    trigger("customRulesFiles");
+
+    // Find all labels in the rule files and push all of them to the selected target labels list
+    newCustomRulesFiles.forEach((file) => {
+      const { allLabels } = parseRules(file);
+
+      const formattedAllLabels =
+        allLabels?.map((label): TargetLabel => {
+          return {
+            name: getParsedLabel(label).labelValue,
+            label: label,
+          };
+        }) || [];
+
+      const newLabels = selectedTargetLabels.filter((label) => {
+        const newLabelNames = formattedAllLabels.map((label) => label.name);
+        return !newLabelNames.includes(label.name);
+      });
+
+      setValue("selectedTargetLabels", [...newLabels, ...formattedAllLabels]);
+    });
+  };
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -163,6 +182,7 @@ export const CustomRules: React.FC = () => {
   filteredItems?.forEach((item) => {
     const { source, target, total } = parseRules(item);
 
+    // TODO: See issue https://github.com/konveyor/tackle2-ui/issues/2249
     const sourceLabelName = getParsedLabel(source)?.labelValue ?? "";
     const targetLabelName = getParsedLabel(target)?.labelValue ?? "";
     const sourceTargetLabel = `${sourceLabelName} / ${targetLabelName}`;
@@ -276,7 +296,7 @@ export const CustomRules: React.FC = () => {
                       type="button"
                       aria-label="add rules"
                       variant="primary"
-                      onClick={() => setCustomRulesModalOpen(true)}
+                      onClick={() => setNewRuleFiles([])}
                     >
                       {t("composed.add", {
                         what: t("wizard.terms.rules").toLowerCase(),
@@ -385,80 +405,23 @@ export const CustomRules: React.FC = () => {
         </>
       )}
 
-      {isAddCustomRulesModalOpen && (
+      {newRuleFiles && (
         <Modal
-          isOpen={isAddCustomRulesModalOpen}
+          isOpen={!!newRuleFiles}
           variant="medium"
           title="Add rules"
-          onClose={() => {
-            setRuleFiles([]);
-            setUploadError("");
-            onCloseCustomRuleModal();
-          }}
+          onClose={closeAddCustomRulesModal}
           actions={[
             <Button
               key="add"
               variant="primary"
               isDisabled={
-                !ruleFiles.find((file) => file.loadResult === "success") ||
-                ruleFiles.some((file) => file.loadResult === "danger")
+                !newRuleFiles.some((file) => file.loadResult === "success") ||
+                newRuleFiles.some((file) => file.loadResult !== "success")
               }
               onClick={() => {
-                let hasExistingRuleFile = null;
-                const validFiles = ruleFiles.filter(
-                  (file) => file.loadResult === "success"
-                );
-                try {
-                  ruleFiles.forEach((ruleFile) => {
-                    hasExistingRuleFile = customRulesFiles.some(
-                      (file) => file.fileName === ruleFile.fileName
-                    );
-                    if (hasExistingRuleFile) {
-                      const error = new Error(
-                        `File "${ruleFile.fileName}" is already uploaded`
-                      );
-                      throw error.toString();
-                    }
-                  });
-                } catch (error) {
-                  setUploadError(error as string);
-                }
-
-                if (!hasExistingRuleFile) {
-                  const updatedCustomRulesFiles = [
-                    ...customRulesFiles,
-                    ...validFiles,
-                  ];
-                  setValue("customRulesFiles", updatedCustomRulesFiles, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                  updatedCustomRulesFiles.forEach((file) => {
-                    const { allLabels } = parseRules(file);
-
-                    const formattedAllLabels =
-                      allLabels?.map((label): TargetLabel => {
-                        return {
-                          name: getParsedLabel(label).labelValue,
-                          label: label,
-                        };
-                      }) || [];
-                    const newLabels = selectedTargetLabels.filter((label) => {
-                      const newLabelNames = formattedAllLabels.map(
-                        (label) => label.name
-                      );
-                      return !newLabelNames.includes(label.name);
-                    });
-                    setValue("selectedTargetLabels", [
-                      ...newLabels,
-                      ...formattedAllLabels,
-                    ]);
-                  });
-
-                  setRuleFiles([]);
-                  setUploadError("");
-                  setCustomRulesModalOpen(false);
-                }
+                onAddCustomRulesFiles();
+                closeAddCustomRulesModal();
               }}
             >
               Add
@@ -466,62 +429,49 @@ export const CustomRules: React.FC = () => {
             <Button
               key="cancel"
               variant="link"
-              onClick={() => {
-                setRuleFiles([]);
-                setUploadError("");
-                onCloseCustomRuleModal();
-              }}
+              onClick={closeAddCustomRulesModal}
             >
               Cancel
             </Button>,
           ]}
         >
-          <>
-            {uploadError !== "" && (
-              <Alert
-                className={`${spacing.mtMd} ${spacing.mbMd}`}
-                variant="danger"
-                isInline
-                title={uploadError}
-                actionClose={
-                  <AlertActionCloseButton onClose={() => setUploadError("")} />
-                }
-              />
-            )}
-            <MultipleFileUpload
-              onFileDrop={handleFileDrop}
-              dropzoneProps={{
-                accept: {
-                  "text/yaml": [".yml", ".yaml"],
-                  "text/xml": [".xml"],
-                },
-              }}
-            >
-              <MultipleFileUploadMain
-                titleIcon={<UploadIcon />}
-                titleText="Drag and drop files here"
-                titleTextSeparator="or"
-                infoText="Accepted file types: .yml, .yaml, .xml "
-              />
-              {showStatus && (
-                <MultipleFileUploadStatus
-                  statusToggleText={`${successfullyReadFileCount} of ${ruleFiles.length} files uploaded`}
-                  statusToggleIcon={setStatus()}
-                >
-                  {ruleFiles.map((file) => (
-                    <MultipleFileUploadStatusItem
-                      file={file.fullFile}
-                      key={file.fileName}
-                      customFileHandler={handleFile}
-                      onClearClick={() => removeFiles([file.fileName])}
-                      progressValue={getloadPercentage(file.fileName)}
-                      progressVariant={getloadResult(file.fileName)}
-                    />
-                  ))}
-                </MultipleFileUploadStatus>
-              )}
-            </MultipleFileUpload>
-          </>
+          <CustomRuleFilesUpload
+            key={newRuleFiles ? 1 : 0} // reset component state every modal open/close
+            taskgroupId={taskGroup?.id}
+            fileExists={(fileName) =>
+              customRulesFiles.some((file) => file.fileName === fileName)
+            }
+            ruleFiles={newRuleFiles}
+            onAddRuleFiles={(ruleFiles) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                existing.push(...ruleFiles);
+                existing.sort((a, b) =>
+                  localeNumericCompare(a.fileName, b.fileName)
+                );
+                return existing;
+              });
+            }}
+            onRemoveRuleFiles={(ruleFiles) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                const namesToRemove = ruleFiles.map(({ fileName }) => fileName);
+                return existing.filter(
+                  ({ fileName }) => !namesToRemove.includes(fileName)
+                );
+              });
+            }}
+            onChangeRuleFile={(ruleFile: IReadFile) => {
+              setNewRuleFiles((existing) => {
+                if (!existing) return existing;
+                const at = existing.findIndex(
+                  ({ fileName }) => fileName !== ruleFile.fileName
+                );
+                if (at >= 0) existing[at] = ruleFile;
+                return existing;
+              });
+            }}
+          />
         </Modal>
       )}
     </>
