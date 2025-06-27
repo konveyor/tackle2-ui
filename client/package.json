@@ -68,7 +68,7 @@
     "@types/react-measure": "^2.0.12",
     "@types/react-router-dom": "^5.1.7",
     "@types/tinycolor2": "^1.4.6",
-    "browserslist": "^4.25.0",
+    "browserslist": "^4.25.1",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
