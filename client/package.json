@@ -84,7 +84,7 @@
     "react-refresh": "^0.17.0",
     "react-refresh-typescript": "^2.0.10",
     "source-map-explorer": "^2.5.2",
-    "style-loader": "^3.3.4",
+    "style-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
