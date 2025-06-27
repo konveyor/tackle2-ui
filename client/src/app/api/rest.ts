@@ -154,7 +154,7 @@ export const getApplicationDependencies = (
   return axios
     .get(`${APPLICATION_DEPENDENCY}`, {
       params,
-      headers: jsonHeaders,
+      headers: HEADERS.json,
     })
     .then((response) => response.data);
 };
@@ -260,7 +260,7 @@ export const deleteAssessment = (id: number) => {
 };
 
 export const getIdentities = () => {
-  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
+  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: HEADERS.json });
 };
 
 export const createIdentity = (obj: New<Identity>) => {
@@ -337,7 +337,7 @@ export const getApplicationImports = (
 export function getTaskById(id: number): Promise<Task> {
   return axios
     .get(`${TASKS}/${id}`, {
-      headers: { ...jsonHeaders },
+      headers: { ...HEADERS.json },
       responseType: "json",
     })
     .then((response) => {
@@ -351,7 +351,7 @@ export function getTaskByIdAndFormat(
   merged: boolean = false
 ): Promise<string> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
@@ -376,7 +376,7 @@ export function getTasksByIds(
   format: "json" | "yaml" = "json"
 ): Promise<Task[]> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
   const filterParam = `id:(${ids.join("|")})`;
 
@@ -440,7 +440,7 @@ export const uploadFileTaskgroup = ({
   file: any;
 }) => {
   return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: formHeaders,
+    headers: HEADERS.form,
   });
 };
 

@@ -1,4 +1,4 @@
-import { useContext, useReducer } from "react";
+import { useContext } from "react";
 import { HubFile, IReadFile, Taskgroup } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AxiosError, AxiosResponse } from "axios";
@@ -101,7 +101,7 @@ export default function useRuleFiles({
   taskgroupId,
 }: UseRuleFilesParams) {
   const { pushNotification } = useContext(NotificationsContext);
-  const [state, dispatch] = useReducer(fileSetReducer, {});
+  // const [state, dispatch] = useReducer(fileSetReducer, {});
 
   const notifyOnUploadFail = (error: AxiosError) => {
     pushNotification({
