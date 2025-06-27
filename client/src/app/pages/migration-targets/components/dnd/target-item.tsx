@@ -27,8 +27,8 @@ export const TargetItem = forwardRef<HTMLDivElement, TargetItemProps>(
             <Button
               ref={activatorNodeRef}
               className="grabbable"
-              id="drag-button"
-              aria-label="drag button"
+              id={`target-${target.id}-drag-button`}
+              aria-label={`target ${target.name} drag button`}
               variant={ButtonVariant.plain}
               {...draggableProps}
             >
