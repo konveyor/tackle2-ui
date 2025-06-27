@@ -55,7 +55,7 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@testing-library/dom": "^8.20.1",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^12.1.5",
