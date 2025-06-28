@@ -3,7 +3,8 @@ import {
   isValidGitUrl,
   isValidStandardUrl,
   isValidSvnUrl,
-} from "./utils/utils";
+} from "@app/utils/utils";
+import { validateSettingsXml } from "@app/utils/maven-settings";
 
 export {};
 declare module "yup" {
@@ -15,6 +16,10 @@ declare module "yup" {
      * other type will use standard URL validation.
      */
     repositoryUrl(repositoryTypeField: string, message?: string): StringSchema;
+
+    validMavenSettingsXml(
+      skipValidation?: (value?: string) => boolean
+    ): StringSchema;
   }
 }
 
@@ -35,6 +40,27 @@ yup.addMethod(
             : isValidStandardUrl(value);
       }
       return false;
+    });
+  }
+);
+
+yup.addMethod(
+  yup.string,
+  "validMavenSettingsXml",
+  function (skipValidation?: (value?: string) => boolean) {
+    return this.test("validMavenSettingsXml", async function (value) {
+      if (skipValidation?.(value) ?? false) return true;
+
+      let resp: boolean | yup.ValidationError = false;
+      try {
+        resp = await validateSettingsXml(value);
+      } catch (e) {
+        resp = this.createError({
+          message: (e as Error).message,
+          path: "settings",
+        });
+      }
+      return resp;
     });
   }
 );
