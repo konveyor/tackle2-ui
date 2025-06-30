@@ -885,3 +885,25 @@ export interface SourcePlatform {
   coordinates?: Record<string, any>;
   discoverApplicationsState?: TaskState;
 }
+export interface ManifestDeployment {
+  name: string;
+  other?: number;
+}
+
+export interface ManifestSecret {
+  user?: string;
+  password?: string;
+}
+export interface ManifestContent {
+  name: string;
+  password?: string;
+  deployment?: ManifestDeployment;
+  service?: { name: string; other?: number };
+}
+
+export interface Manifest {
+  id: number;
+  content: ManifestContent;
+  secret: ManifestSecret;
+  application?: Ref;
+}

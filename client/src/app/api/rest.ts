@@ -47,8 +47,10 @@ import {
   SourcePlatform,
   AnalysisDependency,
   AnalysisAppDependency,
+  Manifest,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
+import { template } from "radash";
 
 // endpoint paths
 export const HUB = "/hub";
@@ -88,6 +90,10 @@ export const TICKETS = HUB + "/tickets";
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
 export const TRACKERS = HUB + "/trackers";
+
+export const MANIFESTS = HUB + "/manifests";
+
+export const APPLICATION_MANIFEST = HUB + "/applications/{{id}}/manifest";
 
 const jsonHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -275,6 +281,13 @@ export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
 
 export const getApplicationById = (id: number | string): Promise<Application> =>
   axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
+
+export const getApplicationManifest = (
+  applicationId: number | string
+): Promise<Manifest> =>
+  axios
+    .get<Manifest>(template(APPLICATION_MANIFEST, { id: applicationId }))
+    .then((response) => response.data);
 
 export const getApplications = (): Promise<Application[]> =>
   axios.get(APPLICATIONS).then((response) => response.data);

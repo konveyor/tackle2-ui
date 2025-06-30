@@ -34,6 +34,7 @@ import {
   Ref,
   Archetype,
   TaskDashboard,
+  Manifest,
 } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
@@ -85,6 +86,8 @@ import {
 } from "@app/components/TableControls";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
+import { useFetchApplicationManifest } from "@app/queries/applications";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -100,6 +103,7 @@ export enum TabKey {
   Facts,
   Reviews,
   Tasks,
+  Manifest,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -110,6 +114,8 @@ export const ApplicationDetailDrawer: React.FC<
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
+
+  const manifest = useFetchApplicationManifest(application?.id).manifest;
 
   return (
     <PageDrawerContent
@@ -180,6 +186,14 @@ export const ApplicationDetailDrawer: React.FC<
               title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
             >
               <TabTasksContent application={application} task={task} />
+            </Tab>
+          )}
+          {!application || !manifest ? null : (
+            <Tab
+              eventKey={TabKey.Manifest}
+              title={<TabTitleText>{t("terms.manifest")}</TabTitleText>}
+            >
+              <TabManifestContent manifest={manifest} />
             </Tab>
           )}
         </Tabs>
@@ -267,7 +281,7 @@ const TabDetailsContent: React.FC<{
             {application?.archetypes?.length ? (
               <>
                 <DescriptionListDescription>
-                  {application.archetypes.length ?? 0 > 0 ? (
+                  {(application.archetypes.length ?? 0) > 0 ? (
                     <ArchetypeLabels
                       archetypeRefs={application.archetypes as Ref[]}
                     />
@@ -748,5 +762,13 @@ const TabTasksContent: React.FC<{
         paginationProps={paginationProps}
       />
     </>
+  );
+};
+
+const TabManifestContent: React.FC<{
+  manifest: Manifest;
+}> = ({ manifest }) => {
+  return (
+    <SchemaDefinedField className={spacing.mtLg} jsonDocument={manifest} />
   );
 };
