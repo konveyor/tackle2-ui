@@ -414,6 +414,7 @@
     "label": "Label",
     "loading": "Loading",
     "lowRisk": "Low risk",
+    "manifest": "Manifest",
     "manualTags": "Manual Tags",
     "maintainers": "Maintainers",
     "mavenConfig": "Maven configuration",

@@ -53,6 +53,7 @@ import {
   TrackerProjectIssuetype,
   UnstructuredFact,
   SourcePlatform,
+  Manifest,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -115,6 +116,8 @@ export const ARCHETYPES = HUB + "/archetypes";
 export const ASSESSMENTS = HUB + "/assessments";
 
 export const PLATFORMS = HUB + "/platforms";
+
+export const MANIFESTS = HUB + "/manifests";
 
 const jsonHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -283,6 +286,13 @@ export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
 
 export const getApplicationById = (id: number | string): Promise<Application> =>
   axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
+
+export const getApplicationManifest = (
+  applicationId: number | string
+): Promise<Manifest> =>
+  axios
+    .get(`${APPLICATIONS}/${applicationId}/manifest`)
+    .then((response) => response.data);
 
 export const getApplications = (): Promise<Application[]> =>
   axios.get(APPLICATIONS).then((response) => response.data);
@@ -846,3 +856,23 @@ export const updatePlatform = (platform: SourcePlatform) =>
 // success with code 204 and therefore no response content
 export const deletePlatform = (id: number) =>
   axios.delete<void>(`${PLATFORMS}/${id}`);
+// Manifests
+//
+
+export const getManifests = (): Promise<Manifest[]> =>
+  axios.get(MANIFESTS).then(({ data }) => data);
+
+export const getManifestById = (id: number | string): Promise<Manifest> =>
+  axios.get(`${MANIFESTS}/${id}`).then(({ data }) => data);
+
+// success with code 201 and created entity as response data
+export const createManifest = (manifest: New<Manifest>) =>
+  axios.post<Manifest>(MANIFESTS, manifest).then((res) => res.data);
+
+// success with code 204 and therefore no response content
+export const updateManifest = (manifest: Manifest): Promise<void> =>
+  axios.put(`${MANIFESTS}/${manifest.id}`, manifest);
+
+// success with code 204 and therefore no response content
+export const deleteManifest = (id: number): Promise<void> =>
+  axios.delete(`${MANIFESTS}/${id}`);
