@@ -125,7 +125,13 @@ describe("URL validation tests", () => {
 
   describe("Valid svn URLs", () => {
     const testSvnURLs = [
+      "svn://host.testing",
+      "svn://host.testing/",
+      "svn://host.testing:3690",
+      "svn://host.testing:3690/repo",
       "svn://host.xz/path/to/repo/",
+      "svn://a.b.c.foo",
+      "svn://10.11.12.13",
       "svn://10.11.12.13/repo",
       "svn://10.11.12.13/svn/mtage-svn/book-server",
       "svn://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
@@ -134,7 +140,10 @@ describe("URL validation tests", () => {
       "https://host.xz/path/to/repo",
       "https://host.xz/path/to/repo/",
       "https://host.xz:/path/to/repo",
+      "https://host.xz:8080/path/to/repo",
+      "http://10.11.12.13",
       "http://10.11.12.13/repo",
+      "http://10.11.12.13:8080/repo",
       "https://10.11.12.13/svn/mtage-svn/book-server",
       "https://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
     ];
@@ -147,11 +156,48 @@ describe("URL validation tests", () => {
     }
   });
 
+  describe("Invalid svn URLs", () => {
+    const testSvnURLs = [
+      "",
+      "svn:",
+      "svn://",
+      "svn://host", // just a hostname, not FQDN
+      "svn://host/",
+      "svn://-host.testing/", // bad host label
+      "svn://host-.testing/",
+      "svn://host.-testing", // bad tld
+      "svn://host.testing-",
+      "svn://:3690", // no host
+      "svn://10.11.12", // bad IP
+      "svn://-10.11.12.13",
+      "svn://10-.11.12.13/",
+      "svn://foo.bar.ไทย/path", // non latin-1 charset TLD
+    ];
+
+    for (const url of testSvnURLs) {
+      it(`Invalid svn URL: "${url}"`, () => {
+        const result = isValidSvnUrl(url);
+        expect(result).toBe(false);
+      });
+    }
+  });
+
   describe("Valid standard URLs", () => {
     const testStandardURLs = [
+      "https://a.b.c.foo",
+      "http://www.foo",
       "http://www.foo.bar",
-      "www.foo.bar",
+      "http://www.foo.bar/zig",
+      "http://www.foo.bar:/zig",
+      "http://www.foo.bar:8080",
+      "http://www.foo.bar:8080/zig",
       "https://www.github.com/ibolton336/tackle-testapp.git",
+      "http://10.11.12.13",
+      "http://10.11.12.13/",
+      "http://10.11.12.13/path",
+      "http://10.11.12.13:8080",
+      "http://10.11.12.13:8080/",
+      "http://10.11.12.13:8080/path",
     ];
 
     for (const url of testStandardURLs) {
@@ -165,14 +211,25 @@ describe("URL validation tests", () => {
   describe("Invalid standard URLs", () => {
     const testBrokenURLs = [
       "",
+      "http:",
       "http://",
       "https://",
-      "http:",
-      "http://www.foo",
-      "http://wrong",
-      "wwwfoo.bar",
+      "http://host", // just a hostname, not a FQDN
+      "http://www-.foo", // bad host label
+      "http://www.-foo", // bad tld
+      "http://www.foo-", // bad tld
+      "http://foo.bar.ไทย/path", // non latin-1 charset TLD
+      "wwwfoo.bar", // no protocol
       "foo.bar",
       "www.foo.b",
+      "www.-foo.bar",
+      "www.10",
+      "-www.foo",
+      "www-.foo",
+      "www.foo.bar",
+      "www.foo.bar/zig/zag",
+      "www.foo.bar:8080",
+      "www.foo.bar:8080/zig/zag",
     ];
 
     for (const url of testBrokenURLs) {

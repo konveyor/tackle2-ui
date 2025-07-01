@@ -108,13 +108,25 @@ export const getValidatedFromError = (error: unknown | undefined) => {
   return error ? "error" : "default";
 };
 
-const standardURLRegex =
-  /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.\S{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.\S{2,}|www\.[a-zA-Z0-9]+\.\S{2,})$/;
-
-export const isValidStandardUrl = (url: string) => standardURLRegex.test(url);
-
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
+
+// URLs in Latin-1 (with non-capturing groups)
+//   protocol: https?:\/\/
+//   hostname label: [a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?
+//   hostname labels: [a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])*?
+//   tld: (?:\.[a-zA-Z]{2,}?)
+//   ip address (format but not validate): \d{1,3}(?:\.\d{1,3}){3}
+//   port: (?::\d*)?
+//   path: (?:\/.*)?
+// url: {{protocol}}({{hostname labels}}{{tld}})|{{ip address}}{{port}}{{path}}
+const standardUrlRegex =
+  /^https?:\/\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*?(?:\.[a-zA-Z]{2,}?)|\d{1,3}(?:\.\d{1,3}){3})(?::\d*)?(?:\/.*)?$/;
+
+const svnUrlRegex =
+  /^svn:\/\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*?(?:\.[a-zA-Z]{2,}?)|\d{1,3}(?:\.\d{1,3}){3})(?::\d*)?(?:\/.*)?$/;
+
+export const isValidStandardUrl = (url: string) => standardUrlRegex.test(url);
 
 export const isValidGitUrl = (url: string): boolean => {
   try {
@@ -124,8 +136,6 @@ export const isValidGitUrl = (url: string): boolean => {
     return false;
   }
 };
-
-const svnUrlRegex = /^svn:\/\/[\S/$.?#].\S*$/;
 
 export const isValidSvnUrl = (url: string) =>
   svnUrlRegex.test(url) || isValidStandardUrl(url);
