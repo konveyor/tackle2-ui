@@ -109,7 +109,7 @@ export const getValidatedFromError = (error: unknown | undefined) => {
 };
 
 const standardURLRegex =
-  /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/;
+  /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.\S{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.\S{2,}|www\.[a-zA-Z0-9]+\.\S{2,})$/;
 
 export const isValidStandardUrl = (url: string) => standardURLRegex.test(url);
 
@@ -125,9 +125,10 @@ export const isValidGitUrl = (url: string): boolean => {
   }
 };
 
-const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
+const svnUrlRegex = /^svn:\/\/[\S/$.?#].\S*$/;
 
-export const isValidSvnUrl = (url: string) => svnUrlRegex.test(url);
+export const isValidSvnUrl = (url: string) =>
+  svnUrlRegex.test(url) || isValidStandardUrl(url);
 
 export const formatPath = (
   path: AdminPathValues | DevPathValues,

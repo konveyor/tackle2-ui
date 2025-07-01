@@ -6,6 +6,7 @@ import {
   getToolbarChipKey,
   isValidGitUrl,
   isValidStandardUrl,
+  isValidSvnUrl,
   formatPath,
   extractFirstSha,
   collapseSpacesAndCompare,
@@ -118,6 +119,30 @@ describe("URL validation tests", () => {
       it(`Invalid git URL: "${url}"`, () => {
         const result = isValidGitUrl(url);
         expect(result).toBe(false);
+      });
+    }
+  });
+
+  describe("Valid svn URLs", () => {
+    const testSvnURLs = [
+      "svn://host.xz/path/to/repo/",
+      "svn://10.11.12.13/repo",
+      "svn://10.11.12.13/svn/mtage-svn/book-server",
+      "svn://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
+      "http://host.xz/path/to/repo",
+      "http://host.xz/path/to/repo/",
+      "https://host.xz/path/to/repo",
+      "https://host.xz/path/to/repo/",
+      "https://host.xz:/path/to/repo",
+      "http://10.11.12.13/repo",
+      "https://10.11.12.13/svn/mtage-svn/book-server",
+      "https://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
+    ];
+
+    for (const url of testSvnURLs) {
+      it(`Valid svn URL: "${url}"`, () => {
+        const result = isValidSvnUrl(url);
+        expect(result).toBe(true);
       });
     }
   });
