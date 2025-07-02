@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CodeEditor, Language } from "@patternfly/react-code-editor"; // Import CodeEditorControl
+import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
   EmptyStateIcon,
@@ -13,32 +13,31 @@ export { Language } from "@patternfly/react-code-editor";
 
 type ControlledEditor = {
   focus: () => void;
-  getPosition: () => object; // Add getPosition if you need to read cursor position
+  getPosition: () => object;
   setPosition: (position: object) => void;
-  getValue: () => string; // Important for getting the current editor content
+  getValue: () => string;
 };
 
 export interface ISchemaDefinedFieldProps {
-  // If you wanted to make it dynamic to load other schemas:
+  className?: string;
   jsonDocument: object | string;
-  jsonSchema: object | string;
+  jsonSchema?: object | string;
   onSchemaSaved?: (newSchemaContent: object) => void;
 }
 
 export const SchemaDefinedField = ({
-  onSchemaSaved = () => {},
+  className = "",
+  onSchemaSaved,
   jsonDocument,
   jsonSchema,
 }: ISchemaDefinedFieldProps) => {
   const editorRef = React.useRef<ControlledEditor>();
 
-  console.log("SchemaDefinedField rendered with jsonDocument:", jsonDocument);
   const initialCode = React.useMemo(
     () => JSON.stringify(jsonDocument, null, 2),
     [jsonDocument]
   );
-  const [currentCode, setCurrentCode] = React.useState(initialCode); // State to hold editable content
-
+  const [currentCode, setCurrentCode] = React.useState(initialCode);
   const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
   React.useEffect(() => {
     if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
@@ -61,19 +60,21 @@ export const SchemaDefinedField = ({
   const handleSave = () => {
     if (editorRef.current) {
       const contentToSave = editorRef.current.getValue();
-      onSchemaSaved(JSON.parse(contentToSave));
+      onSchemaSaved
+        ? onSchemaSaved(JSON.parse(contentToSave))
+        : console.log("No onSchemaSaved handler provided");
     }
   };
 
   return (
     <CodeEditor
-      className="schema-defined-field-viewer-code-editor"
+      className={`schema-defined-field-viewer-code-editor ${className}`}
       isCopyEnabled
       isDarkTheme
       isDownloadEnabled
       isLineNumbersVisible
-      isReadOnly={false}
-      height="sizeToFit"
+      isReadOnly={onSchemaSaved ? false : true}
+      height="600px"
       downloadFileName="my-schema-download.json"
       language={Language.json}
       code={currentCode}

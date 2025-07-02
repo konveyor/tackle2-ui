@@ -16,6 +16,7 @@ import {
   deleteBulkApplications,
   getApplicationById,
   getApplicationDependencies,
+  getApplicationManifest,
   getApplications,
   updateAllApplications,
   updateApplication,
@@ -26,7 +27,7 @@ import saveAs from "file-saver";
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 export const ReportQueryKey = "report";
-
+export const ApplicationManifestQueryKey = "applicationManifest";
 interface DownloadOptions {
   application: Application;
   mimeType: MimeType;
@@ -66,6 +67,26 @@ export const useFetchApplicationById = (id?: number | string) => {
 
   return {
     application: data,
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};
+
+export const useFetchApplicationManifest = (
+  applicationId?: number | string
+) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: [ApplicationManifestQueryKey, applicationId],
+    queryFn: () =>
+      applicationId === undefined
+        ? Promise.resolve(undefined)
+        : getApplicationManifest(applicationId),
+    onError: (error: AxiosError) => console.log("error, ", error),
+    enabled: applicationId !== undefined,
+  });
+
+  return {
+    manifest: data,
     isFetching: isLoading,
     fetchError: error,
   };
