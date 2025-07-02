@@ -2,7 +2,7 @@ import "@patternfly/patternfly/patternfly.css";
 import "@patternfly/patternfly/patternfly-addons.css";
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -17,14 +17,15 @@ import "@app/yup";
 const queryClient = new QueryClient();
 
 const renderApp = () => {
-  ReactDOM.render(
+  const container = document.getElementById("root");
+  const root = createRoot(container!);
+  root.render(
     <KeycloakProvider>
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </KeycloakProvider>,
-    document.getElementById("root")
+    </KeycloakProvider>
   );
 };
 

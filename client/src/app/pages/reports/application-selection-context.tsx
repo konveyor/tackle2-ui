@@ -27,7 +27,7 @@ export interface IApplicationSelectionContextProviderProps {
 }
 
 export const ApplicationSelectionContextProvider: React.FC<
-  IApplicationSelectionContextProviderProps
+  React.PropsWithChildren & IApplicationSelectionContextProviderProps
 > = ({ applications, children }) => {
   const [allItems, setAllItems] = useState<Application[]>([]);
   useEffect(() => {
