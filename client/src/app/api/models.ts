@@ -911,3 +911,11 @@ export interface Manifest {
   secret: ManifestSecret;
   application?: Ref;
 }
+
+export interface JsonSchemaObject {
+  type: string;
+  properties?: { [key: string]: any };
+  required?: string[];
+  title?: string;
+  description?: string;
+}
