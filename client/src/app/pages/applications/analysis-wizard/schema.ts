@@ -1,11 +1,5 @@
 import * as yup from "yup";
-import {
-  Application,
-  IReadFile,
-  FileLoadError,
-  TargetLabel,
-  Target,
-} from "@app/api/models";
+import { Application, IReadFile, TargetLabel, Target } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import { useAnalyzableApplicationsByMode } from "./utils";
 
@@ -108,7 +102,7 @@ export interface CustomRulesStepValues {
 export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
   fileName: yup.string().required(),
   fullFile: yup.mixed<File>(),
-  loadError: yup.mixed<FileLoadError>(),
+  loadError: yup.mixed<Error>(),
   loadPercentage: yup.number(),
   loadResult: yup.mixed<"danger" | "success" | undefined>(),
   data: yup.string(),

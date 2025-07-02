@@ -7,13 +7,8 @@ import {
   ButtonVariant,
   FileUpload,
   Form,
-  MultipleFileUpload,
-  MultipleFileUploadMain,
-  MultipleFileUploadStatus,
-  MultipleFileUploadStatusItem,
   Radio,
 } from "@patternfly/react-core";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -33,7 +28,6 @@ import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
-import useRuleFiles from "@app/hooks/useRuleFiles";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
 import {
@@ -47,6 +41,7 @@ import {
   useMigrationProviderList,
 } from "../useMigrationProviderList";
 import { unique } from "radash";
+import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 
 export interface CustomTargetFormProps {
   target?: Target | null;
@@ -98,7 +93,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     null
   );
 
-  const [filename, setFilename] = React.useState("default.png");
+  const [imageFilename, setImageFilename] = useState("default.png");
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
@@ -151,7 +146,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           then: yup
             .array()
             .of(customRulesFilesSchema)
-            .min(1, "At least 1 valid custom rule file must be uploaded."),
+            .min(1, "At least 1 valid custom rule file must be uploaded.")
+            .test(
+              "All files are loaded successfully",
+              (value) =>
+                value?.every((cr) => cr.loadResult === "success") ?? false
+            ),
           otherwise: (schema) => schema,
         }),
       repositoryType: yup.string().oneOf(["git", "svn"]).when("rulesKind", {
@@ -178,7 +178,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const getInitialCustomRulesFilesData = () =>
     target?.ruleset?.rules?.map((rule): IReadFile => {
-      const emptyFile = new File(["empty"], rule.name, {
+      const emptyFile = new File([], rule.name, {
         type: "placeholder",
       });
       return {
@@ -229,37 +229,23 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   useEffect(() => {
     setTarget(initialTarget);
     if (initialTarget?.image?.id === 1) {
-      setFilename("default.png");
+      setImageFilename("default.png");
     } else {
-      setFilename(initialTarget?.image?.name || "default.png");
+      setImageFilename(initialTarget?.image?.name || "default.png");
     }
     return () => {
       setTarget(undefined);
-      setFilename("default.png");
+      setImageFilename("default.png");
     };
   }, [initialTarget]);
 
   const values = getValues();
 
-  const {
-    ruleFiles,
-    handleFileDrop,
-    showStatus,
-    uploadError,
-    setUploadError,
-    setStatus,
-    getloadPercentage,
-    getloadResult,
-    successfullyReadFileCount,
-    handleFile,
-    removeFiles,
-  } = useRuleFiles(null, values.customRulesFiles, methods);
+  const onSubmit = async (formValues: CustomTargetFormValues) => {
+    const rules: Rule[] = [];
+    const labels: TargetLabel[] = [];
 
-  const onSubmit = (formValues: CustomTargetFormValues) => {
-    let rules: Rule[] = [];
-    let labels: TargetLabel[] = [];
-
-    ruleFiles.forEach((file) => {
+    formValues.customRulesFiles.forEach((file) => {
       if (file.data && file?.fullFile?.type !== "placeholder") {
         const { fileID, allLabels } = parseRules(file);
         const newRule: Rule = {
@@ -269,22 +255,21 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             id: fileID ? fileID : 0,
           },
         };
-        rules = [...rules, newRule];
-        labels = [
-          ...labels,
-          ...(allLabels?.map((label): TargetLabel => {
-            return {
+        rules.push(newRule);
+        labels.push(
+          ...(allLabels?.map(
+            (label): TargetLabel => ({
               name: getParsedLabel(label).labelValue,
-              label: label,
-            };
-          }) || []),
-        ];
+              label,
+            })
+          ) ?? [])
+        );
       } else {
         const matchingExistingRule = target?.ruleset?.rules.find(
           (ruleset) => ruleset.name === file.fileName
         );
         if (matchingExistingRule) {
-          rules = [...rules, matchingExistingRule];
+          rules.push(matchingExistingRule);
         }
       }
     });
@@ -293,10 +278,26 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       (identity) => identity.name === formValues.associatedCredentials
     );
 
+    // Upload the defaultImage for the task if no image is defined
+    let imageId = formValues.imageID;
+    if (imageId === null) {
+      try {
+        const res = await fetch(defaultImage);
+        const blob = await res.blob();
+        const defaultImageFile = new File([blob], "default.png", {
+          type: res.type,
+        });
+        const hubFile = await handleImageFileUpload(defaultImageFile);
+        imageId = hubFile.id;
+      } catch {
+        imageId = null;
+      }
+    }
+
     const payload: New<Target> = {
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
-      ...(formValues.imageID && { image: { id: formValues.imageID } }),
+      ...(imageId && { image: { id: imageId } }),
       custom: true,
       labels: labels.length ? labels : [],
       ruleset: {
@@ -324,44 +325,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     };
 
     if (target) {
-      formValues.imageID
-        ? updateTarget({ id: target.id, ...payload })
-        : fetch(defaultImage)
-            .then((res) => res.blob())
-            .then((res) => {
-              const defaultImageFile = new File([res], "default.png");
-              return handleFileUpload(defaultImageFile);
-            })
-            .then((res) => {
-              updateTarget({
-                id: target.id,
-                ...payload,
-                image: { id: res.id },
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+      updateTarget({ id: target.id, ...payload });
     } else {
-      formValues.imageID
-        ? createTarget(payload)
-        : fetch(defaultImage)
-            .then((res) => res.blob())
-            .then((res) => {
-              const defaultImageFile = new File([res], "default.png", {
-                type: res.type,
-              });
-              return handleFileUpload(defaultImageFile);
-            })
-            .then((res) => {
-              createTarget({
-                ...payload,
-                image: { id: res.id },
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+      createTarget(payload);
     }
   };
 
@@ -396,8 +362,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     onUpdateTargetFailure
   );
 
-  const handleFileUpload = async (file: File) => {
-    setFilename(file.name);
+  const handleImageFileUpload = async (file: File) => {
+    setImageFilename(file.name);
     const formFile = new FormData();
     formFile.append("file", file);
 
@@ -466,7 +432,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   <AlertActionCloseButton
                     onClose={() => {
                       onChange(null);
-                      setFilename("default.png");
+                      setImageFilename("default.png");
                       setValue("imageID", null);
                       setImageRejectedError(null);
                     }}
@@ -477,8 +443,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             <FileUpload
               id="custom-migration-target-upload-image"
               name={name}
-              value={filename}
-              filename={filename}
+              value={imageFilename}
+              filename={imageFilename}
               filenamePlaceholder="Drag and drop a file or upload one"
               dropzoneProps={{
                 accept: {
@@ -493,14 +459,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                       "Max image file size of 1 MB exceeded."
                     );
                   }
-                  setFilename(currentFile.file.name);
+                  setImageFilename(currentFile.file.name);
                 },
               }}
               validated={"default"}
-              onFileInputChange={async (_, file) => {
-                handleFileUpload(file)
-                  .then((res) => {
-                    setValue("imageID", res.id);
+              onFileInputChange={(_, file) => {
+                handleImageFileUpload(file)
+                  .then((hubFile) => {
+                    setValue("imageID", hubFile.id);
                     setFocus("imageID");
                     clearErrors("imageID");
                     trigger("imageID");
@@ -512,7 +478,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
               onClearClick={() => {
                 setImageRejectedError(null);
                 onChange(null);
-                setFilename("default.png");
+                setImageFilename("default.png");
                 setValue("imageID", null);
               }}
               browseButtonText="Upload"
@@ -554,58 +520,43 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
 
       {values?.rulesKind === "manual" && (
-        <>
-          {uploadError !== "" && (
-            <Alert
-              className={`${spacing.mtMd} ${spacing.mbMd}`}
-              variant="danger"
-              isInline
-              title={uploadError}
-              actionClose={
-                <AlertActionCloseButton onClose={() => setUploadError("")} />
-              }
-            />
-          )}
-          <MultipleFileUpload
-            onFileDrop={handleFileDrop}
-            dropzoneProps={{
-              accept: {
-                "text/xml": [".xml"],
-                "text/yaml": [".yml", ".yaml"],
-              },
-            }}
-          >
-            <MultipleFileUploadMain
-              titleIcon={<UploadIcon />}
-              titleText="Drag and drop files here"
-              titleTextSeparator="or"
-              infoText="Accepted file types: .yml, .yaml, .xml"
-            />
-            {showStatus && (
-              <MultipleFileUploadStatus
-                statusToggleText={`${successfullyReadFileCount} of ${ruleFiles.length} files uploaded`}
-                statusToggleIcon={setStatus()}
-              >
-                {ruleFiles.map((file) => (
-                  <MultipleFileUploadStatusItem
-                    file={file.fullFile}
-                    key={file.fileName}
-                    customFileHandler={(file) => {
-                      if (file.type === "placeholder") {
-                        return null;
-                      } else {
-                        return handleFile(file);
-                      }
-                    }}
-                    onClearClick={() => removeFiles([file.fileName])}
-                    progressValue={getloadPercentage(file.fileName)}
-                    progressVariant={getloadResult(file.fileName)}
-                  />
-                ))}
-              </MultipleFileUploadStatus>
-            )}
-          </MultipleFileUpload>
-        </>
+        <CustomRuleFilesUpload
+          ruleFiles={values.customRulesFiles}
+          onAddRuleFiles={(ruleFiles) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   existing.push(ruleFile);
+            //   existing.sort();
+            //   return existing;
+            // });
+          }}
+          onRemoveRuleFiles={(ruleFiles) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   return existing.filter(
+            //     ({ fileName }) => fileName !== ruleFile.fileName
+            //   );
+            // });
+          }}
+          onChangeRuleFile={(ruleFile) => {
+            // setNewRuleFiles((existing) => {
+            //   if (!existing) return existing;
+            //   const at = existing.findIndex(
+            //     ({ fileName }) => fileName !== ruleFile.fileName
+            //   );
+            //   if (at >= 0) existing[at] = ruleFile;
+            //   return existing;
+            // });
+          }}
+          // onChangeRuleFile={(ruleFile: IReadFile) => {
+          //   console.log("rule files:", ruleFiles);
+          //   setValue("customRulesFiles", ruleFiles, {
+          //     shouldDirty: true,
+          //     shouldValidate: true,
+          //   });
+          //   trigger("customRulesFiles");
+          // }}
+        />
       )}
 
       {values?.rulesKind === "repository" && (
