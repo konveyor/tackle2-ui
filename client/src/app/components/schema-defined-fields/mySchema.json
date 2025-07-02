@@ -33,19 +33,10 @@
       },
       "required": ["latitude", "longitude"]
     },
-    "features": {
-      "type": "array",
-      "description": "List of features enabled for the platform.",
-      "items": {
-        "type": "string"
-      },
-      "minItems": 1,
-      "uniqueItems": true
-    },
     "isActive": {
       "type": "boolean",
       "description": "Indicates if the platform is currently active."
     }
   },
-  "required": ["platformName", "version", "coordinates", "isActive"]
+  "required": ["platformName", "version", "coordinates"]
 }
