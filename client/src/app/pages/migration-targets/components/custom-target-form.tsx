@@ -10,7 +10,7 @@ import {
   Radio,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
@@ -23,13 +23,13 @@ import {
 } from "@app/components/HookFormPFFields";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { useCreateFileMutation } from "@app/queries/targets";
-import { IReadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
+import { UploadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import { duplicateNameCheck } from "@app/utils/utils";
-import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
+import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
 import {
   useCreateTargetMutation,
   useFetchTargets,
@@ -55,7 +55,7 @@ export interface CustomTargetFormValues {
   description?: string;
   providerType?: string;
   imageID: number | null;
-  customRulesFiles: IReadFile[];
+  customRulesFiles: UploadFile[];
   rulesKind: string;
   repositoryType?: string;
   sourceRepository?: string;
@@ -65,12 +65,12 @@ export interface CustomTargetFormValues {
 }
 
 const targetRulesetsToReadFiles = (target?: Target) =>
-  target?.ruleset?.rules?.map((rule): IReadFile => {
+  target?.ruleset?.rules?.map((rule): UploadFile => {
     return {
       fileName: rule.name,
       fullFile: new File([], rule.name, { type: "placeholder" }),
-      loadResult: "success",
-      loadPercentage: 100,
+      uploadProgress: 100,
+      status: "exists",
     };
   }) || [];
 
@@ -150,17 +150,19 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
       customRulesFiles: yup
         .array()
-        .of(customRulesFilesSchema)
+        .of(UploadFileSchema)
         .when("rulesKind", {
           is: "manual",
           then: yup
             .array()
-            .of(customRulesFilesSchema)
+            .of(UploadFileSchema)
             .min(1, "At least 1 valid custom rule file must be uploaded.")
             .test(
               "All files are loaded successfully",
               (value) =>
-                value?.every((cr) => cr.loadResult === "success") ?? false
+                value?.every(({ status }) =>
+                  ["exists", "uploaded"].includes(status ?? "")
+                ) ?? false
             ),
           otherwise: (schema) => schema,
         }),
@@ -224,6 +226,24 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     reset,
   } = methods;
 
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: "customRulesFiles",
+  });
+  console.log("customRulesFiles:", methods.watch("customRulesFiles"));
+
+  const filesToFieldsIndex = (files: UploadFile[]) => {
+    const indexes: number[] = [];
+    if (files && files.length > 0) {
+      fields.forEach(({ fileName }, index) => {
+        if (files.some((f) => fileName === f.fileName)) {
+          indexes.push(index);
+        }
+      });
+    }
+    return indexes;
+  };
+
   useEffect(() => {
     setTarget(initialTarget);
     if (initialTarget?.image?.id === 1) {
@@ -244,7 +264,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     const labels: TargetLabel[] = [];
 
     formValues.customRulesFiles.forEach((file) => {
-      if (file.data && file?.fullFile?.type !== "placeholder") {
+      // TODO: Double check that the rules and labels are being setup correctly for the target
+
+      if (file.data && file.status !== "exists") {
         const { fileID, allLabels } = parseRules(file);
         const newRule: Rule = {
           name: file.fileName,
@@ -326,6 +348,11 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     } else {
       createTarget(payload);
     }
+  };
+
+  const onCancelHandler = () => {
+    // TODO: Figure out what to do here.
+    onCancel();
   };
 
   const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
@@ -507,41 +534,22 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
       {values?.rulesKind === "manual" && (
         <CustomRuleFilesUpload
-          ruleFiles={values.customRulesFiles}
+          ruleFiles={fields}
           onAddRuleFiles={(ruleFiles) => {
-            // setNewRuleFiles((existing) => {
-            //   if (!existing) return existing;
-            //   existing.push(ruleFile);
-            //   existing.sort();
-            //   return existing;
-            // });
+            append(ruleFiles);
           }}
           onRemoveRuleFiles={(ruleFiles) => {
-            // setNewRuleFiles((existing) => {
-            //   if (!existing) return existing;
-            //   return existing.filter(
-            //     ({ fileName }) => fileName !== ruleFile.fileName
-            //   );
-            // });
+            const indexesToRemove = filesToFieldsIndex(ruleFiles);
+            if (indexesToRemove.length > 0) {
+              remove(indexesToRemove);
+            }
           }}
           onChangeRuleFile={(ruleFile) => {
-            // setNewRuleFiles((existing) => {
-            //   if (!existing) return existing;
-            //   const at = existing.findIndex(
-            //     ({ fileName }) => fileName !== ruleFile.fileName
-            //   );
-            //   if (at >= 0) existing[at] = ruleFile;
-            //   return existing;
-            // });
+            const index = fields.findIndex(
+              (f) => f.fileName === ruleFile.fileName
+            );
+            update(index, ruleFile);
           }}
-          // onChangeRuleFile={(ruleFile: IReadFile) => {
-          //   console.log("rule files:", ruleFiles);
-          //   setValue("customRulesFiles", ruleFiles, {
-          //     shouldDirty: true,
-          //     shouldValidate: true,
-          //   });
-          //   trigger("customRulesFiles");
-          // }}
         />
       )}
 
@@ -639,7 +647,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onCancelHandler}
         >
           {t("actions.cancel")}
         </Button>

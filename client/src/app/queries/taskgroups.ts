@@ -35,7 +35,7 @@ export const useSubmitTaskgroupMutation = (
   });
 };
 
-export const useRemoveUploadedFileMutation = (
+export const useRemoveTaskgroupFileMutation = (
   successCallback?: (data: AxiosResponse<Taskgroup>) => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
@@ -50,20 +50,23 @@ export const useRemoveUploadedFileMutation = (
   });
 };
 
-export const useUploadFileTaskgroupMutation = (
+export const useUploadTaskgroupFileMutation = (
   successCallback?: (
-    data: AxiosResponse<Taskgroup>,
+    data: AxiosResponse<void>,
     params: Parameters<typeof uploadFileTaskgroup>[0]
   ) => void,
-  errorCallback?: (err: AxiosError) => void
+  errorCallback?: (
+    err: AxiosError,
+    params: Parameters<typeof uploadFileTaskgroup>[0]
+  ) => void
 ) => {
   return useMutation({
     mutationFn: uploadFileTaskgroup,
     onSuccess: (response, params) => {
       successCallback?.(response, params);
     },
-    onError: (err: AxiosError) => {
-      errorCallback?.(err);
+    onError: (err: AxiosError, params) => {
+      errorCallback?.(err, params);
     },
   });
 };

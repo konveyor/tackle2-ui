@@ -461,6 +461,7 @@ export const submitTaskgroup = (obj: Taskgroup) =>
 export const deleteTaskgroup = (id: number): AxiosPromise =>
   axios.delete(`${TASKGROUPS}/${id}`);
 
+// returns a 204 and no content with a successful upload
 export const uploadFileTaskgroup = ({
   id,
   path,
@@ -472,7 +473,7 @@ export const uploadFileTaskgroup = ({
 }) => {
   const formData = new FormData();
   formData.append("file", file);
-  return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
+  return axios.post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
     headers: HEADERS.form,
   });
 };

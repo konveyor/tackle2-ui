@@ -95,9 +95,10 @@ export const useCreateTargetMutation = (
   };
 };
 
+// TODO: Move to `files.ts`
 export const useCreateFileMutation = (
   onSuccess?: (data: HubFile, file: File) => void,
-  onError?: (err: AxiosError) => void
+  onError?: (err: AxiosError, file: File) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, mutateAsync, error } = useMutation({
@@ -106,8 +107,8 @@ export const useCreateFileMutation = (
       onSuccess?.(data, file);
       queryClient.invalidateQueries([]);
     },
-    onError: (err: AxiosError) => {
-      onError?.(err);
+    onError: (err: AxiosError, { file }) => {
+      onError?.(err, file);
     },
   });
   return {
@@ -117,3 +118,5 @@ export const useCreateFileMutation = (
     error,
   };
 };
+
+// TODO: Add `useRemoveFileMutation` with id, name, path as the required rest fields

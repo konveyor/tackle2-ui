@@ -517,12 +517,22 @@ export interface ParsedRule {
   fileID?: number;
 }
 
-export interface IReadFile {
+export const UploadFileStatus = [
+  "exists",
+  "starting",
+  "reading",
+  "read",
+  "validated",
+  "uploaded",
+  "failed",
+] as const;
+
+export interface UploadFile {
   fileName: string;
-  fullFile?: File;
-  loadError?: Error;
-  loadPercentage?: number;
-  loadResult?: "danger" | "success";
+  fullFile: File;
+  loadError?: string;
+  uploadProgress: number;
+  status: (typeof UploadFileStatus)[number];
   data?: string;
   responseID?: number;
 }

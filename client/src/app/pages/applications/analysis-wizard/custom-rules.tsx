@@ -22,8 +22,9 @@ import {
   TableBody,
   TableHeader,
 } from "@patternfly/react-table/deprecated";
-import { useFormContext } from "react-hook-form";
+import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { unique } from "radash";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -34,7 +35,7 @@ import {
   FilterType,
 } from "@app/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { IReadFile, TargetLabel } from "@app/api/models";
+import { UploadFile, TargetLabel } from "@app/api/models";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 import "./wizard.css";
@@ -49,17 +50,44 @@ import { toOptionLike } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useTaskGroup } from "./components/TaskGroupContext";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
-import { localeNumericCompare } from "@app/utils/utils";
+
+const buildSetOfTargetLabelsFromUploadFiles = (
+  ruleFiles: UploadFile[],
+  existingLabels: TargetLabel[] = []
+) => {
+  const targetLabels = unique(
+    ruleFiles.reduce(
+      (acc, file) => {
+        const { allLabels } = parseRules(file);
+        const fileTargetLabels =
+          allLabels?.map(
+            (label): TargetLabel => ({
+              name: getParsedLabel(label).labelValue,
+              label,
+            })
+          ) ?? [];
+        acc.push(...fileTargetLabels);
+        return acc;
+      },
+      [...existingLabels]
+    ),
+    ({ name }) => name
+  );
+
+  return targetLabels;
+};
 
 export const CustomRules: React.FC = () => {
   const { t } = useTranslation();
-  const { taskGroup } = useTaskGroup();
+  const [showUploadFiles, setShowUploadFiles] = React.useState(false);
 
   const { watch, setValue, control, trigger, getValues } =
     useFormContext<AnalysisWizardFormValues>();
+
   const values = getValues();
 
   const { selectedTargetLabels, customRulesFiles, rulesKind } = watch();
+
   const initialActiveTabKeyValue = (value: string): number =>
     value === "manual" ? 0 : value === "repository" ? 1 : 0;
 
@@ -67,50 +95,46 @@ export const CustomRules: React.FC = () => {
     initialActiveTabKeyValue(rulesKind)
   );
 
-  const [newRuleFiles, setNewRuleFiles] = React.useState<IReadFile[] | null>(
-    null
-  );
-
-  const closeAddCustomRulesModal = () => {
-    setNewRuleFiles(null);
-  };
-
-  const onAddCustomRulesFiles = () => {
-    if (!newRuleFiles) {
-      return;
-    }
-
-    // Merge "success" loaded files to the customRulesFiles form field
+  const onAddRulesFiles = (ruleFiles: UploadFile[]) => {
+    // Merge successfully uploaded files to `customRulesFiles`
     const newCustomRulesFiles = [
       ...customRulesFiles,
-      ...newRuleFiles.filter((file) => file.loadResult === "success"),
+      ...ruleFiles.filter((file) => file.status === "uploaded"),
     ];
-
     setValue("customRulesFiles", newCustomRulesFiles, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    trigger("customRulesFiles");
 
-    // Find all labels in the rule files and push all of them to the selected target labels list
-    newCustomRulesFiles.forEach((file) => {
-      const { allLabels } = parseRules(file);
+    // Find all labels in the new rule files and push them to `selectedTargetLabels`
+    const uniqueNewTargetLabels = buildSetOfTargetLabelsFromUploadFiles(
+      ruleFiles,
+      selectedTargetLabels
+    );
+    setValue("selectedTargetLabels", uniqueNewTargetLabels);
+  };
 
-      const formattedAllLabels =
-        allLabels?.map((label): TargetLabel => {
-          return {
-            name: getParsedLabel(label).labelValue,
-            label: label,
-          };
-        }) || [];
-
-      const newLabels = selectedTargetLabels.filter((label) => {
-        const newLabelNames = formattedAllLabels.map((label) => label.name);
-        return !newLabelNames.includes(label.name);
-      });
-
-      setValue("selectedTargetLabels", [...newLabels, ...formattedAllLabels]);
+  const onRemoveRuleFile = (ruleFile: UploadFile) => {
+    // Remove the rule file from `customRulesFiles`
+    const newCustomRulesFiles = customRulesFiles.filter(
+      (file) => file.fileName !== ruleFile.fileName
+    );
+    setValue("customRulesFiles", newCustomRulesFiles, {
+      shouldValidate: true,
+      shouldDirty: true,
     });
+
+    // Update the labels ... remove the labels uniquely from the removed files
+    const removedLabels = buildSetOfTargetLabelsFromUploadFiles([ruleFile]);
+    const currentFileLabels =
+      buildSetOfTargetLabelsFromUploadFiles(newCustomRulesFiles);
+    const nonFileLabels = selectedTargetLabels.filter(
+      (l) =>
+        !removedLabels.find((r) => r.label === l.label) &&
+        !currentFileLabels.find((c) => c.label === l.label)
+    );
+
+    setValue("selectedTargetLabels", [...nonFileLabels, ...currentFileLabels]);
   };
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
@@ -135,7 +159,7 @@ export const CustomRules: React.FC = () => {
       };
     });
 
-  const filterCategories: FilterCategory<IReadFile, "name">[] = [
+  const filterCategories: FilterCategory<UploadFile, "name">[] = [
     {
       categoryKey: "name",
       title: t("terms.name"),
@@ -151,7 +175,7 @@ export const CustomRules: React.FC = () => {
   ];
 
   const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    values?.customRulesFiles || [],
+    customRulesFiles,
     filterCategories
   );
 
@@ -166,7 +190,7 @@ export const CustomRules: React.FC = () => {
       transforms: [cellWidth(20)],
     },
     {
-      title: `${t("wizard.terms.source")} /  ${t("wizard.terms.target")}`,
+      title: `${t("wizard.terms.source", { count: 2 })} / ${t("wizard.terms.target", { count: 2 })}`,
       transforms: [cellWidth(20)],
     },
     { title: t("wizard.terms.numberOfRules"), transforms: [cellWidth(10)] },
@@ -208,24 +232,7 @@ export const CustomRules: React.FC = () => {
                 id="remove-rule-button"
                 type="button"
                 variant="plain"
-                onClick={() => {
-                  customRulesFiles.forEach((file) => {
-                    const { allLabels } = parseRules(file);
-                    const updatedFormLabels = selectedTargetLabels.filter(
-                      (label) => !allLabels?.includes(label.label)
-                    );
-                    setValue("selectedTargetLabels", [...updatedFormLabels]);
-                  });
-
-                  // Remove rule file from list
-                  const updatedFileList = customRulesFiles.filter(
-                    (file) => file.fileName !== item.fileName
-                  );
-                  setValue("customRulesFiles", updatedFileList, {
-                    shouldValidate: true,
-                    shouldDirty: true,
-                  });
-                }}
+                onClick={() => onRemoveRuleFile(item)}
               >
                 <TrashIcon />
               </Button>
@@ -253,6 +260,7 @@ export const CustomRules: React.FC = () => {
             title={t("wizard.label.ruleFileRequiredDetails")}
           />
         )}
+
       <HookFormPFGroupController
         control={control}
         name="rulesKind"
@@ -272,6 +280,7 @@ export const CustomRules: React.FC = () => {
           </Tabs>
         )}
       />
+
       {activeTabKey === 0 && (
         <>
           <div className="line">
@@ -296,7 +305,7 @@ export const CustomRules: React.FC = () => {
                       type="button"
                       aria-label="add rules"
                       variant="primary"
-                      onClick={() => setNewRuleFiles([])}
+                      onClick={() => setShowUploadFiles(true)}
                     >
                       {t("composed.add", {
                         what: t("wizard.terms.rules").toLowerCase(),
@@ -327,6 +336,7 @@ export const CustomRules: React.FC = () => {
           )}
         </>
       )}
+
       {activeTabKey === 1 && (
         <>
           <Form className={spacing.mtLg}>
@@ -405,75 +415,112 @@ export const CustomRules: React.FC = () => {
         </>
       )}
 
-      {newRuleFiles && (
-        <Modal
-          isOpen={!!newRuleFiles}
-          variant="medium"
-          title="Add rules"
-          onClose={closeAddCustomRulesModal}
-          actions={[
-            <Button
-              key="add"
-              variant="primary"
-              isDisabled={
-                !newRuleFiles.some((file) => file.loadResult === "success") ||
-                newRuleFiles.some((file) => file.loadResult !== "success")
-              }
-              onClick={() => {
-                onAddCustomRulesFiles();
-                closeAddCustomRulesModal();
-              }}
-            >
-              Add
-            </Button>,
-            <Button
-              key="cancel"
-              variant="link"
-              onClick={closeAddCustomRulesModal}
-            >
-              Cancel
-            </Button>,
-          ]}
-        >
-          <CustomRuleFilesUpload
-            key={newRuleFiles ? 1 : 0} // reset component state every modal open/close
-            taskgroupId={taskGroup?.id}
-            fileExists={(fileName) =>
-              customRulesFiles.some((file) => file.fileName === fileName)
-            }
-            ruleFiles={newRuleFiles}
-            onAddRuleFiles={(ruleFiles) => {
-              setNewRuleFiles((existing) => {
-                if (!existing) return existing;
-                existing.push(...ruleFiles);
-                existing.sort((a, b) =>
-                  localeNumericCompare(a.fileName, b.fileName)
-                );
-                return existing;
-              });
-            }}
-            onRemoveRuleFiles={(ruleFiles) => {
-              setNewRuleFiles((existing) => {
-                if (!existing) return existing;
-                const namesToRemove = ruleFiles.map(({ fileName }) => fileName);
-                return existing.filter(
-                  ({ fileName }) => !namesToRemove.includes(fileName)
-                );
-              });
-            }}
-            onChangeRuleFile={(ruleFile: IReadFile) => {
-              setNewRuleFiles((existing) => {
-                if (!existing) return existing;
-                const at = existing.findIndex(
-                  ({ fileName }) => fileName !== ruleFile.fileName
-                );
-                if (at >= 0) existing[at] = ruleFile;
-                return existing;
-              });
-            }}
-          />
-        </Modal>
-      )}
+      <UploadNewRulesFiles
+        show={showUploadFiles}
+        existingFiles={customRulesFiles}
+        onAddFiles={onAddRulesFiles}
+        onClose={() => setShowUploadFiles(false)}
+      />
     </>
+  );
+};
+
+const UploadNewRulesFiles: React.FC<{
+  show: boolean;
+  existingFiles: UploadFile[];
+  onAddFiles: (newFiles: UploadFile[]) => void;
+  onClose: () => void;
+}> = ({ show, existingFiles, onAddFiles, onClose }) => {
+  const { taskGroup } = useTaskGroup();
+  const doesFileAlreadyExist = React.useCallback(
+    (fileName: string) => {
+      return existingFiles.some((existing) => existing.fileName === fileName);
+    },
+    [existingFiles]
+  );
+
+  const { control, watch } = useForm({
+    defaultValues: {
+      uploadedFiles: [] as UploadFile[],
+    },
+  });
+
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: "uploadedFiles",
+  });
+
+  const filesToFieldsIndex = (files: UploadFile[]) => {
+    const indexes: number[] = [];
+    if (files && files.length > 0) {
+      fields.forEach(({ fileName }, index) => {
+        if (files.some((f) => fileName === f.fileName)) {
+          indexes.push(index);
+        }
+      });
+    }
+    return indexes;
+  };
+
+  const uploadedFiles = watch("uploadedFiles");
+
+  const onCloseCancel = () => {
+    // TODO: The files already added should be deleted from the taskgroup
+    // useRemoveTaskgroupFileMutation()
+
+    onClose();
+  };
+
+  const onAdd = () => {
+    onAddFiles(fields);
+    onClose();
+  };
+
+  const isAddDisabled = !uploadedFiles.every(
+    ({ status }) => status === "uploaded"
+  );
+
+  return (
+    <Modal
+      isOpen={show}
+      variant="medium"
+      title="Add rules"
+      onClose={onCloseCancel}
+      actions={[
+        <Button
+          key="add"
+          variant="primary"
+          isDisabled={isAddDisabled}
+          onClick={onAdd}
+        >
+          Add
+        </Button>,
+        <Button key="cancel" variant="link" onClick={onCloseCancel}>
+          Cancel
+        </Button>,
+      ]}
+    >
+      <CustomRuleFilesUpload
+        key={show ? 1 : 0} // reset component state every modal open/close
+        taskgroupId={taskGroup?.id}
+        fileExists={doesFileAlreadyExist}
+        ruleFiles={fields}
+        onAddRuleFiles={(ruleFiles) => {
+          append(ruleFiles);
+        }}
+        onRemoveRuleFiles={(ruleFiles) => {
+          const indexesToRemove = filesToFieldsIndex(ruleFiles);
+          if (indexesToRemove.length > 0) {
+            remove(indexesToRemove);
+          }
+        }}
+        onChangeRuleFile={(ruleFile) => {
+          const index = filesToFieldsIndex([ruleFile])[0];
+          if (index) {
+            update(index, ruleFile);
+          }
+        }}
+      />
+    </Modal>
   );
 };

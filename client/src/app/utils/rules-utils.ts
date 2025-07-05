@@ -1,4 +1,4 @@
-import { IReadFile, ParsedRule } from "@app/api/models";
+import { UploadFile, ParsedRule } from "@app/api/models";
 import yaml from "js-yaml";
 
 type RuleFileType = "YAML" | null;
@@ -12,10 +12,30 @@ export const checkRuleFileType = (filename: string): RuleFileType => {
   }
 };
 
+export const validateYamlFile = (
+  data: string
+): {
+  state: "valid" | "error";
+  message?: string;
+} => {
+  try {
+    yaml.load(data);
+    return {
+      state: "valid",
+    };
+  } catch (err) {
+    const yamlException = err as yaml.YAMLException;
+    return {
+      state: "error",
+      message: `${yamlException.reason} (ln: ${yamlException.mark.line}, col: ${yamlException.mark.column})`,
+    };
+  }
+};
+
 type ParsedYamlElement = { labels?: string[] };
 type ParsedYaml = ParsedYamlElement[] | object;
 
-export const parseRules = (file: IReadFile): ParsedRule => {
+export const parseRules = (file: UploadFile): ParsedRule => {
   const fileType = checkRuleFileType(file.fileName);
 
   if (file.data !== undefined && fileType === "YAML") {

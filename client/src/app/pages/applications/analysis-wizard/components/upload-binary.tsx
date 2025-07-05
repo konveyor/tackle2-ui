@@ -11,8 +11,8 @@ import { useFormContext } from "react-hook-form";
 
 import {
   useCreateTaskgroupMutation,
-  useRemoveUploadedFileMutation,
-  useUploadFileTaskgroupMutation,
+  useRemoveTaskgroupFileMutation,
+  useUploadTaskgroupFileMutation,
 } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -79,12 +79,12 @@ export const UploadBinary: React.FC = () => {
     setError(error);
   };
 
-  const { mutate: uploadFile } = useUploadFileTaskgroupMutation(
+  const { mutate: uploadFile } = useUploadTaskgroupFileMutation(
     completedUpload,
     failedUpload
   );
 
-  const { mutate: removeFile } = useRemoveUploadedFileMutation(
+  const { mutate: removeFile } = useRemoveTaskgroupFileMutation(
     completedRemove,
     failedRemove
   );

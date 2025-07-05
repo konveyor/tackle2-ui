@@ -1,6 +1,13 @@
 import * as yup from "yup";
-import { Application, IReadFile, TargetLabel, Target } from "@app/api/models";
 import { useTranslation } from "react-i18next";
+
+import {
+  Application,
+  TargetLabel,
+  Target,
+  UploadFile,
+  UploadFileStatus,
+} from "@app/api/models";
 import { useAnalyzableApplicationsByMode } from "./utils";
 
 export const ANALYSIS_MODES = [
@@ -91,7 +98,7 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
 };
 
 export interface CustomRulesStepValues {
-  customRulesFiles: IReadFile[];
+  customRulesFiles: UploadFile[];
   rulesKind: string;
   repositoryType?: string;
   sourceRepository?: string;
@@ -99,14 +106,18 @@ export interface CustomRulesStepValues {
   rootPath?: string;
   associatedCredentials?: string;
 }
-export const customRulesFilesSchema: yup.SchemaOf<IReadFile> = yup.object({
+
+export const UploadFileSchema: yup.SchemaOf<UploadFile> = yup.object({
   fileName: yup.string().required(),
-  fullFile: yup.mixed<File>(),
-  loadError: yup.mixed<Error>(),
-  loadPercentage: yup.number(),
-  loadResult: yup.mixed<"danger" | "success" | undefined>(),
-  data: yup.string(),
-  responseID: yup.number(),
+  fullFile: yup.mixed<File>().required() as unknown as yup.SchemaOf<File>,
+  loadError: yup.string().optional(),
+  uploadProgress: yup.number().required().min(0).max(100),
+  status: yup
+    .mixed<(typeof UploadFileStatus)[number]>()
+    .oneOf([...UploadFileStatus])
+    .required(),
+  data: yup.string().optional(),
+  responseID: yup.number().optional(),
 });
 
 const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
@@ -116,10 +127,10 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
     // manual tab fields
     customRulesFiles: yup
       .array()
-      .of(customRulesFilesSchema)
+      .of(UploadFileSchema)
       .when("rulesKind", {
         is: "manual",
-        then: yup.array().of(customRulesFilesSchema),
+        then: yup.array().of(UploadFileSchema),
         otherwise: (schema) => schema,
       })
       .when(["selectedTargetLabels", "rulesKind", "selectedTargets"], {
@@ -149,9 +160,9 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       is: "repository",
       then: yup.string(),
     }),
-    associatedCredentials: yup.mixed<any>().when("rulesKind", {
+    associatedCredentials: yup.string().when("rulesKind", {
       is: "repository",
-      then: yup.mixed<any>(),
+      then: yup.string(),
     }),
   });
 };
