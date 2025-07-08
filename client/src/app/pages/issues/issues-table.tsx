@@ -33,7 +33,10 @@ import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
+
 import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
+import { useFetchApplications } from "@app/queries/applications";
+
 import {
   FilterType,
   FilterToolbar,
@@ -63,7 +66,6 @@ import {
   AnalysisRuleReport,
   Application,
 } from "@app/api/models";
-import { useFetchApplications } from "@app/queries/applications";
 import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";

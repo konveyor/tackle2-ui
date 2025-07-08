@@ -8,7 +8,6 @@ import {
 } from "@app/api/models";
 import {
   getRuleReports,
-  getIssues,
   getAppReports,
   getFileReports,
   getIncidents,
@@ -100,21 +99,6 @@ export const useFetchIssueReports = (
       total: issueReport?.total ?? 0,
       params: issueReport?.params ?? params,
     } as HubPaginatedResult<AnalysisIssueReport>,
-    isFetching: isLoading,
-    fetchError: error,
-    refetch,
-  };
-};
-
-export const useFetchIssues = (params: HubRequestParams = {}) => {
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: [IssuesQueryKey, params],
-    queryFn: () => getIssues(params),
-    onError: (error) => console.log("error, ", error),
-    keepPreviousData: true,
-  });
-  return {
-    result: data || { data: [], total: 0, params },
     isFetching: isLoading,
     fetchError: error,
     refetch,

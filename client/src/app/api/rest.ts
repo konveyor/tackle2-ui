@@ -5,12 +5,6 @@ import axios, {
 } from "axios";
 
 import {
-  AnalysisAppDependency,
-  AnalysisAppReport,
-  AnalysisDependency,
-  AnalysisFileReport,
-  AnalysisIncident,
-  AnalysisIssue,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -18,8 +12,6 @@ import {
   ApplicationImportSummary,
   Archetype,
   Assessment,
-  BaseAnalysisIssueReport,
-  BaseAnalysisRuleReport,
   BusinessService,
   Cache,
   HubFile,
@@ -53,68 +45,49 @@ import {
   TrackerProjectIssuetype,
   UnstructuredFact,
   SourcePlatform,
+  AnalysisDependency,
+  AnalysisAppDependency,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
-// TACKLE_HUB
+// endpoint paths
 export const HUB = "/hub";
 
+export const ANALYSIS_DEPS = HUB + "/analyses/report/dependencies";
+export const ANALYSIS_DEPS_APPS =
+  HUB + "/analyses/report/dependencies/applications";
+export const APP_IMPORTS = HUB + "/imports";
+export const APP_IMPORTS_SUMMARY = HUB + "/importsummaries";
+export const APP_IMPORTS_SUMMARY_CSV = HUB + "/importsummaries/download";
+export const APP_IMPORTS_SUMMARY_UPLOAD = HUB + "/importsummaries/upload";
+export const APPLICATIONS = HUB + "/applications";
+export const ARCHETYPES = HUB + "/archetypes";
+export const ASSESSMENTS = HUB + "/assessments";
 export const BUSINESS_SERVICES = HUB + "/businessservices";
-export const STAKEHOLDERS = HUB + "/stakeholders";
-export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
+export const CACHE = HUB + "/cache/m2";
+export const DEPENDENCIES = HUB + "/dependencies";
+export const FACTS = HUB + "/facts";
+export const FILES = HUB + "/files";
+export const IDENTITIES = HUB + "/identities";
 export const JOB_FUNCTIONS = HUB + "/jobfunctions";
+export const MIGRATION_WAVES = HUB + "/migrationwaves";
+export const PLATFORMS = HUB + "/platforms";
+export const PROXIES = HUB + "/proxies";
+export const QUESTIONNAIRES = HUB + "/questionnaires";
+export const REPORT = HUB + "/reports";
+export const REVIEWS = HUB + "/reviews";
+export const SETTINGS = HUB + "/settings";
+export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
+export const STAKEHOLDERS = HUB + "/stakeholders";
 export const TAG_CATEGORIES = HUB + "/tagcategories";
 export const TAGS = HUB + "/tags";
-export const MIGRATION_WAVES = HUB + "/migrationwaves";
-
-export const APPLICATIONS = HUB + "/applications";
-export const APPLICATION_DEPENDENCY = HUB + "/dependencies";
-export const REVIEWS = HUB + "/reviews";
-export const REPORT = HUB + "/reports";
-export const UPLOAD_FILE = HUB + "/importsummaries/upload";
-export const APP_IMPORT_SUMMARY = HUB + "/importsummaries";
-export const APP_IMPORT = HUB + "/imports";
-export const APP_IMPORT_CSV = HUB + "/importsummaries/download";
-
-export const IDENTITIES = HUB + "/identities";
-export const PROXIES = HUB + "/proxies";
-export const SETTINGS = HUB + "/settings";
-export const TASKS = HUB + "/tasks";
-export const TASKGROUPS = HUB + "/taskgroups";
-export const TRACKERS = HUB + "/trackers";
-export const TRACKER_PROJECTS = "projects";
-export const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
-export const TICKETS = HUB + "/tickets";
-export const FACTS = HUB + "/facts";
-
 export const TARGETS = HUB + "/targets";
-export const FILES = HUB + "/files";
-export const CACHE = HUB + "/cache/m2";
-
-export const ANALYSIS_DEPENDENCIES = HUB + "/analyses/report/dependencies";
-export const ANALYSIS_REPORT_RULES = HUB + "/analyses/report/rules";
-export const ANALYSIS_REPORT_ISSUES_APPS =
-  HUB + "/analyses/report/issues/applications";
-export const ANALYSIS_REPORT_APP_ISSUES =
-  HUB + "/analyses/report/applications/:applicationId/issues";
-export const ANALYSIS_REPORT_ISSUE_FILES =
-  HUB + "/analyses/report/issues/:issueId/files";
-
-export const ANALYSIS_REPORT_APP_DEPENDENCIES =
-  HUB + "/analyses/report/dependencies/applications";
-
-export const ANALYSIS_REPORT_FILES = HUB + "/analyses/report/issues/:id/files";
-export const ANALYSIS_ISSUES = HUB + "/analyses/issues";
-export const ANALYSIS_ISSUE_INCIDENTS =
-  HUB + "/analyses/issues/:issueId/incidents";
-
-export const QUESTIONNAIRES = HUB + "/questionnaires";
-
-export const ARCHETYPES = HUB + "/archetypes";
-
-export const ASSESSMENTS = HUB + "/assessments";
-
-export const PLATFORMS = HUB + "/platforms";
+export const TASKGROUPS = HUB + "/taskgroups";
+export const TASKS = HUB + "/tasks";
+export const TICKETS = HUB + "/tickets";
+export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
+export const TRACKER_PROJECTS = "projects"; // TODO: ????
+export const TRACKERS = HUB + "/trackers";
 
 const jsonHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -127,50 +100,73 @@ const yamlHeaders: RawAxiosRequestHeaders = {
   Accept: "application/x-yaml",
 };
 
-type Direction = "asc" | "desc";
+export * from "./rest/analysis";
 
-export const updateAllApplications = (
-  updatePromises: Promise<Application>[]
-) => {
-  return Promise.all(updatePromises)
-    .then((response) => response)
-    .catch((error) => error);
+/**
+ * Provide consistent fetch and processing for server side filtering and sorting with
+ * paginated results.
+ */
+export const getHubPaginatedResult = <T>(
+  url: string,
+  params: HubRequestParams = {}
+): Promise<HubPaginatedResult<T>> =>
+  axios
+    .get<T[]>(url, {
+      params: serializeRequestParamsForHub(params),
+    })
+    .then(({ data, headers }) => ({
+      data,
+      total: headers["x-total"] ? parseInt(headers["x-total"], 10) : 0,
+      params,
+    }));
+
+// ----------
+
+export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
+  return axios.post<ApplicationAdoptionPlan[]>(
+    `${REPORT}/adoptionplan`,
+    applicationIds.map((f) => ({ applicationId: f }))
+  );
 };
 
+// ---------------------------------------
+// Application Dependencies
+//
 interface DependencyParams {
   from?: string[];
   to?: string[];
 }
 
-export const getApplicationDependencies = (
-  params?: DependencyParams
-): Promise<ApplicationDependency[]> => {
+export const getApplicationDependencies = (params?: DependencyParams) => {
   return axios
-    .get(`${APPLICATION_DEPENDENCY}`, {
+    .get<ApplicationDependency[]>(`${DEPENDENCIES}`, {
       params,
       headers: jsonHeaders,
     })
     .then((response) => response.data);
 };
 
-export const createApplicationDependency = (
-  obj: ApplicationDependency
-): Promise<ApplicationDependency> => {
+export const createApplicationDependency = (obj: ApplicationDependency) => {
   return axios
-    .post(`${APPLICATION_DEPENDENCY}`, obj)
+    .post<ApplicationDependency>(`${DEPENDENCIES}`, obj)
     .then((response) => response.data);
 };
 
-export const deleteApplicationDependency = (
-  id: number
-): Promise<ApplicationDependency> => {
+export const deleteApplicationDependency = (id: number) => {
   return axios
-    .delete(`${APPLICATION_DEPENDENCY}/${id}`)
+    .delete<void>(`${DEPENDENCIES}/${id}`)
     .then((response) => response.data);
 };
 
+export const getDependencies = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPS, params);
+
+export const getAppDependencies = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisAppDependency>(ANALYSIS_DEPS_APPS, params);
+
+// ---------------------------------------
 // Reviews
-
+//
 export const getReviews = (): Promise<Review[]> => {
   return axios.get(`${REVIEWS}`).then((response) => response.data);
 };
@@ -191,20 +187,9 @@ export const deleteReview = (id: number): Promise<Review> => {
   return axios.delete(`${REVIEWS}/${id}`);
 };
 
-export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
-  return axios.post<ApplicationAdoptionPlan[]>(
-    `${REPORT}/adoptionplan`,
-    applicationIds.map((f) => ({ applicationId: f }))
-  );
-};
-
-export const getApplicationSummaryCSV = (id: string) => {
-  return axios.get<ArrayBuffer>(`${APP_IMPORT_CSV}?importSummary.id=${id}`, {
-    responseType: "arraybuffer",
-    headers: { Accept: "text/csv" },
-  });
-};
-
+// ---------------------------------------
+// Assessments
+//
 export const getAssessments = (): Promise<Assessment[]> =>
   axios.get(ASSESSMENTS).then((response) => response.data);
 
@@ -253,6 +238,9 @@ export const deleteAssessment = (id: number) => {
   return axios.delete<void>(`${ASSESSMENTS}/${id}`);
 };
 
+// ---------------------------------------
+// Identities
+//
 export const getIdentities = () => {
   return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
 };
@@ -269,7 +257,11 @@ export const deleteIdentity = (identity: Identity) => {
   return axios.delete<void>(`${IDENTITIES}/${identity.id}`);
 };
 
-// success with code 201 and created entity as response data
+// ---------------------------------------
+// Applications
+//
+
+/** success with code 201 and created entity as response data */
 export const createApplication = (application: New<Application>) =>
   axios
     .post<Application>(`${APPLICATIONS}`, application)
@@ -290,6 +282,7 @@ export const getApplications = (): Promise<Application[]> =>
 export const updateApplication = (obj: Application): Promise<Application> =>
   axios.put(`${APPLICATIONS}/${obj.id}`, obj);
 
+/** @deprecated Not used */
 export const getApplicationAnalysis = (
   applicationId: number,
   type: MimeType
@@ -306,28 +299,54 @@ export const getApplicationAnalysis = (
     }
   );
 
+export const updateAllApplications = (
+  updatePromises: Promise<Application>[]
+) => {
+  return Promise.all(updatePromises)
+    .then((response) => response)
+    .catch((error) => error);
+};
+
+// ---------------------------------------
+// Application Import
+//
 export const getApplicationsImportSummary = (): Promise<
   ApplicationImportSummary[]
-> => axios.get(APP_IMPORT_SUMMARY).then((response) => response.data);
+> => axios.get(APP_IMPORTS_SUMMARY).then((response) => response.data);
 
 export const getApplicationImportSummaryById = (
   id: number | string
 ): Promise<ApplicationImportSummary> =>
-  axios.get(`${APP_IMPORT_SUMMARY}/${id}`).then((response) => response.data);
+  axios.get(`${APP_IMPORTS_SUMMARY}/${id}`).then((response) => response.data);
 
 export const deleteApplicationImportSummary = (
   id: number
 ): Promise<ApplicationImportSummary> =>
-  axios.delete(`${APP_IMPORT_SUMMARY}/${id}`);
+  axios.delete(`${APP_IMPORTS_SUMMARY}/${id}`);
 
 export const getApplicationImports = (
   importSummaryID: number,
   isValid: boolean | string
 ): Promise<ApplicationImport[]> =>
   axios
-    .get(`${APP_IMPORT}?importSummary.id=${importSummaryID}&isValid=${isValid}`)
+    .get(
+      `${APP_IMPORTS}?importSummary.id=${importSummaryID}&isValid=${isValid}`
+    )
     .then((response) => response.data);
 
+export const getApplicationSummaryCSV = (id: string) => {
+  return axios.get<ArrayBuffer>(
+    `${APP_IMPORTS_SUMMARY_CSV}?importSummary.id=${id}`,
+    {
+      responseType: "arraybuffer",
+      headers: { Accept: "text/csv" },
+    }
+  );
+};
+
+// ---------------------------------------
+// Tasks
+//
 export function getTaskById(id: number): Promise<Task> {
   return axios
     .get(`${TASKS}/${id}`, {
@@ -411,6 +430,9 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
 export const updateTask = (task: Partial<Task> & { id: number }) =>
   axios.patch<Task>(`${TASKS}/${task.id}`, task);
 
+// ---------------------------------------
+// Task Groups
+//
 export const createTaskgroup = (obj: New<Taskgroup>) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
@@ -448,6 +470,9 @@ export const removeFileTaskgroup = ({
   return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
 };
 
+// ---------------------------------------
+// Migration Waves
+//
 export const getMigrationWaves = (): Promise<MigrationWave[]> =>
   axios.get(MIGRATION_WAVES).then((response) => response.data);
 
@@ -470,6 +495,9 @@ export const deleteAllMigrationWaves = (
     .catch((error) => error);
 };
 
+// ---------------------------------------
+// Targets
+//
 export const updateTarget = (obj: Target) =>
   axios.put<Target>(`${TARGETS}/${obj.id}`, obj);
 
@@ -503,6 +531,9 @@ export const getTextFile = (id: number): Promise<string> =>
     .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
     .then((response) => response.data);
 
+// ---------------------------------------
+// Settings
+//
 export const getSettingById = <K extends keyof SettingTypes>(
   id: K
 ): Promise<SettingTypes[K]> =>
@@ -516,13 +547,17 @@ export const updateSetting = <K extends keyof SettingTypes>(
     typeof obj.value == "boolean" ? obj.value.toString() : obj.value
   );
 
-export const getCache = (): Promise<Cache> =>
-  axios.get(CACHE).then((response) => response.data);
+// ---------------------------------------
+// Cache
+//
+export const getCache = () =>
+  axios.get<Cache>(CACHE).then((response) => response.data);
 
-export const deleteCache = (): Promise<Cache> => axios.delete(CACHE);
+export const deleteCache = () => axios.delete<void>(CACHE);
 
+// ---------------------------------------
 // Trackers
-
+//
 export const getTrackers = (): Promise<Tracker[]> =>
   axios.get(TRACKERS).then((response) => response.data);
 
@@ -550,83 +585,9 @@ export const getTrackerProjectIssuetypes = (
     )
     .then((response) => response.data);
 
-// Issues and Dependencies
-
-export const getHubPaginatedResult = <T>(
-  url: string,
-  params: HubRequestParams = {}
-): Promise<HubPaginatedResult<T>> =>
-  axios
-    .get<T[]>(url, {
-      params: serializeRequestParamsForHub(params),
-    })
-    .then(({ data, headers }) => ({
-      data,
-      total: headers["x-total"] ? parseInt(headers["x-total"], 10) : 0,
-      params,
-    }));
-
-export const getRuleReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_REPORT_RULES, params);
-
-export const getAppReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_REPORT_ISSUES_APPS, params);
-
-export const getIssueReports = (
-  applicationId?: number,
-  params: HubRequestParams = {}
-) =>
-  getHubPaginatedResult<BaseAnalysisIssueReport>(
-    ANALYSIS_REPORT_APP_ISSUES.replace(
-      "/:applicationId/",
-      `/${String(applicationId)}/`
-    ),
-    params
-  );
-
-export const getIssues = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisIssue>(ANALYSIS_ISSUES, params);
-
-export const getIssue = (issueId: number): Promise<AnalysisIssue> =>
-  axios
-    .get(`${ANALYSIS_ISSUES}/${String(issueId)}`)
-    .then((response) => response.data);
-
-export const getFileReports = (
-  issueId?: number,
-  params: HubRequestParams = {}
-) =>
-  issueId
-    ? getHubPaginatedResult<AnalysisFileReport>(
-        ANALYSIS_REPORT_ISSUE_FILES.replace(
-          "/:issueId/",
-          `/${String(issueId)}/`
-        ),
-        params
-      )
-    : Promise.reject();
-
-export const getIncidents = (
-  issueId?: number,
-  params: HubRequestParams = {}
-) =>
-  issueId
-    ? getHubPaginatedResult<AnalysisIncident>(
-        ANALYSIS_ISSUE_INCIDENTS.replace("/:issueId/", `/${String(issueId)}/`),
-        params
-      )
-    : Promise.reject();
-
-export const getDependencies = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPENDENCIES, params);
-
-export const getAppDependencies = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppDependency>(
-    ANALYSIS_REPORT_APP_DEPENDENCIES,
-    params
-  );
-
+// ---------------------------------------
 // Tickets
+//
 export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {
   const promises: AxiosPromise[] = [];
 
@@ -646,8 +607,9 @@ export const getTickets = (): Promise<Ticket[]> =>
 export const deleteTicket = (id: number): Promise<Ticket> =>
   axios.delete(`${TICKETS}/${id}`);
 
+// ---------------------------------------
 // Stakeholders
-
+//
 export const getStakeholders = (): Promise<Stakeholder[]> =>
   axios.get(STAKEHOLDERS).then((response) => response.data);
 
@@ -661,13 +623,9 @@ export const createStakeholder = (
 export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
   axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
 
+// ---------------------------------------
 // Stakeholder groups
-
-export enum StakeholderGroupSortBy {
-  NAME,
-  STAKEHOLDERS_COUNT,
-}
-
+//
 export const getStakeholderGroups = (): Promise<StakeholderGroup[]> =>
   axios.get(STAKEHOLDER_GROUPS).then((response) => response.data);
 
@@ -705,17 +663,9 @@ export const updateBusinessService = (obj: BusinessService) =>
 export const deleteBusinessService = (id: number | string) =>
   axios.delete<void>(`${BUSINESS_SERVICES}/${id}`);
 
+// ---------------------------------------
 // Job functions
-
-export enum JobFunctionSortBy {
-  NAME,
-}
-
-export interface JobFunctionSortByQuery {
-  field: JobFunctionSortBy;
-  direction?: Direction;
-}
-
+//
 export const getJobFunctions = (): Promise<JobFunction[]> =>
   axios.get(JOB_FUNCTIONS).then((response) => response.data);
 
@@ -729,8 +679,9 @@ export const updateJobFunction = (obj: JobFunction): Promise<JobFunction> =>
 export const deleteJobFunction = (id: number): Promise<JobFunction> =>
   axios.delete(`${JOB_FUNCTIONS}/${id}`);
 
+// ---------------------------------------
 // Tags
-
+//
 export const getTags = (): Promise<Tag[]> =>
   axios.get(TAGS).then((response) => response.data);
 
@@ -745,8 +696,9 @@ export const deleteTag = (id: number): Promise<Tag> =>
 export const updateTag = (obj: Tag): Promise<Tag> =>
   axios.put(`${TAGS}/${obj.id}`, obj);
 
+// ---------------------------------------
 // Tag categories
-
+//
 export const getTagCategories = (): Promise<Array<TagCategory>> =>
   axios.get(TAG_CATEGORIES).then((response) => response.data);
 
@@ -763,8 +715,9 @@ export const createTagCategory = (
 export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
   axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
 
+// ---------------------------------------
 // Facts
-
+//
 export const getFacts = (
   id: number | string | undefined
 ): Promise<UnstructuredFact> =>
@@ -773,16 +726,18 @@ export const getFacts = (
     ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
     : Promise.reject();
 
+// ---------------------------------------
 // Proxies
-
+//
 export const getProxies = (): Promise<Proxy[]> =>
   axios.get(PROXIES).then((response) => response.data);
 
 export const updateProxy = (obj: Proxy): Promise<Proxy> =>
   axios.put(`${PROXIES}/${obj.id}`, obj);
 
+// ---------------------------------------
 // Questionnaires
-
+//
 export const getQuestionnaires = (): Promise<Questionnaire[]> =>
   axios.get(QUESTIONNAIRES).then((response) => response.data);
 
