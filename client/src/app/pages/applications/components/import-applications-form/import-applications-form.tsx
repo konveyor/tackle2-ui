@@ -14,7 +14,7 @@ import {
   HelperTextItem,
 } from "@patternfly/react-core";
 
-import { UPLOAD_FILE } from "@app/api/rest";
+import { APP_IMPORTS_SUMMARY_UPLOAD } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 
@@ -57,7 +57,7 @@ export const ImportApplicationsForm: React.FC<ImportApplicationsFormProps> = ({
     };
     setIsSubmitting(true);
     axios
-      .post(UPLOAD_FILE, formData, config)
+      .post(APP_IMPORTS_SUMMARY_UPLOAD, formData, config)
       .then((response) => {
         pushNotification({
           title: t("toastr.success.fileSavedToBeProcessed"),
