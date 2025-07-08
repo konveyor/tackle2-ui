@@ -40,7 +40,7 @@ export const FileIncidentsDetailModal: React.FC<
     result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
     fetchError,
-  } = useFetchIncidents(fileReport.issueId, {
+  } = useFetchIncidents(fileReport.insightId, {
     filters: [{ field: "file", operator: "=", value: fileReport.file }],
     page: { pageNumber: 1, itemsPerPage: 5 },
   });

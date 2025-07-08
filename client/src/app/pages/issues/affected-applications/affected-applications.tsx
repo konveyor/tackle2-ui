@@ -81,12 +81,12 @@ export const AffectedApplications: React.FC = () => {
       ...tableControlState,
       implicitFilters: [
         {
-          field: "issue.ruleset",
+          field: "insight.ruleset",
           operator: "=",
           value: ruleset || "",
         },
         {
-          field: "issue.rule",
+          field: "insight.rule",
           operator: "=",
           value: rule || "",
         },
@@ -238,7 +238,7 @@ export const AffectedApplications: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <IssueDetailDrawer
-        issueId={activeItem?.issue.id || null}
+        issueId={activeItem?.insight.id || null}
         applicationName={activeItem?.name || null}
         onCloseClick={clearActiveItem}
       />

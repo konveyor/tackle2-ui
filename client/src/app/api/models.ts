@@ -616,8 +616,8 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
   id: number;
 }
 
-// Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
-// When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
+// Hub type: AppReport - Insights collated by application (but filtered by ruleset/rule)
+// When filtered by ruleset/rule, this object matches exactly one insight and includes that insight's details
 export interface AnalysisAppReport extends AnalysisIssue {
   id: number; // Application id
   name: string;
@@ -626,7 +626,7 @@ export interface AnalysisAppReport extends AnalysisIssue {
   businessService: string;
   incidents: number;
   files: number;
-  issue: {
+  insight: {
     id: number;
     name: string;
     ruleset: string;
@@ -658,7 +658,7 @@ export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {
-  issueId: number;
+  insightId: number;
   file: string;
   incidents: number;
   effort: number;
