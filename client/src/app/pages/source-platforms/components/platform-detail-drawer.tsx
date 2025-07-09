@@ -99,7 +99,10 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
             eventKey={TabKey.Coordinates}
             title={<TabTitleText>{t("terms.coordinates")}</TabTitleText>}
           >
-            <SchemaDefinedField jsonDocument={myJson} jsonSchema={mySchema} />
+            <SchemaDefinedField
+              baseJsonDocument={myJson}
+              jsonSchema={mySchema}
+            />
           </Tab>
           <Tab
             eventKey={TabKey.Applications}

@@ -885,3 +885,11 @@ export interface SourcePlatform {
   coordinates?: Record<string, any>;
   discoverApplicationsState?: TaskState;
 }
+
+export interface JsonSchemaObject {
+  type: string;
+  properties?: { [key: string]: any };
+  required?: string[];
+  title?: string;
+  description?: string;
+}
