@@ -38,7 +38,7 @@
     "fast-xml-parser": "^5.2.5",
     "file-saver": "^2.0.5",
     "git-url-parse": "^16.1.0",
-    "i18next": "^25.3.0",
+    "i18next": "^25.3.2",
     "i18next-http-backend": "^3.0.2",
     "js-yaml": "^4.1.0",
     "keycloak-js": "^26.1.0",
