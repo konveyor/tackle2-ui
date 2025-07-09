@@ -233,7 +233,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - maven", async () => {
-    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
@@ -255,20 +255,29 @@ describe("Component: identity-form", () => {
       "Upload your Settings file or paste its contents below. *"
     );
 
-    //TODO:
+    // TODO:
     // Unable to test file upload due to lack of ID in PF code.
-    //We need an ID field for the input with type=file for the drop event to work
-    const testSettingsFile =
-      '<?xml version="1.0" encoding="UTF-8"?>' +
-      '<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 http://maven.apache.org/xsd/settings-1.2.0.xsd">' +
-      "<profiles><profile><id>github</id></profile></profiles>" +
-      "</settings>";
+    // We need an ID field for the input with type=file for the drop event to work
+    const testSettingsFile = `
+
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 http://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <profiles>
+    <profile>
+      <id>github</id>
+    </profile>
+  </profiles>
+</settings>
+
+`.trim();
+
     await waitFor(
       () =>
         fireEvent.change(mavenUpload, {
           target: { value: testSettingsFile },
         }),
-
       {
         timeout: 3000,
       }
@@ -276,11 +285,11 @@ describe("Component: identity-form", () => {
 
     const createButton = screen.getByRole("button", { name: /submit/i });
 
-    expect(createButton).toBeEnabled();
+    await waitFor(() => expect(createButton).toBeEnabled());
   });
 
   it("Identity form validation test - proxy", async () => {
-    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
