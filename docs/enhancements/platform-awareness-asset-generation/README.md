@@ -75,8 +75,8 @@ Implementation Details:
       - View of discovery manifest
   - **Edit modal**
     - Add fields for each CRUD item
-    - :spiral*notepad: \_Source platform coordinates* will be [schema defined fields](#schema-defined-fields)
-    - :spiral*notepad: \_Discovery manifest* will need special treatment as it'll probably be a
+    - :notebook: _Source platform coordinates_ will be [schema defined fields](#schema-defined-fields)
+    - :notebook: _Discovery manifest_ will need special treatment as it'll probably be a
       json/yaml document or a dictionary/map
     - :thinking: Convert the modal to a page? The modal will need to be scrolled with the
       extra fields so moving to a page may help with layout
@@ -265,7 +265,7 @@ Implementation Details:
     - Template repository
     - Template credentials
     - Variables (:thinking: in another tab to keep the view more compact?)
-    - :spiral_notepad: Parameters are not editable, they either apply to other entities or are
+    - :notebook: Parameters are not editable, they either apply to other entities or are
       captured just before and action is started
 
 ### Target Platform
@@ -359,7 +359,7 @@ Implementation Details:
 - CRUD to add:
   - Add a new page: Migration / Repositories
   - Page will be a general table view with add/edit modal
-  - :spiral_notepad: Current inline on a lot of forms, so would need to allow selection, add, edit
+  - :notebook: Current inline on a lot of forms, so would need to allow selection, add, edit
     inline with those forms
   - :warning: Administration / Repositories already exists as a way to configure how git, subversion
     and maven repositories are handled. That page's existence will need to be reconciled with the new
