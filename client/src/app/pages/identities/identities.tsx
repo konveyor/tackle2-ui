@@ -31,7 +31,6 @@ import {
 import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { IdentityForm } from "./components/identity-form";
-import { validateXML } from "./components/identity-form/validateXML";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -393,7 +392,6 @@ export const Identities: React.FC = () => {
         <IdentityForm
           identity={identityToUpdate ? identityToUpdate : undefined}
           onClose={() => setCreateUpdateModalState(null)}
-          xmlValidator={validateXML}
         />
       </Modal>
 

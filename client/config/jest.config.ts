@@ -17,7 +17,6 @@ const config: JestConfigWithTsJest = {
   moduleNameMapper: {
     // stub out files that don't matter for tests
     "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js",
-    "\\.(xsd)$": "<rootDir>/__mocks__/styleMock.js",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/__mocks__/fileMock.js",
     "@patternfly/react-icons/dist/esm/icons/":
@@ -45,6 +44,7 @@ const config: JestConfigWithTsJest = {
   // Process js/jsx/mjs/mjsx/ts/tsx/mts/mtsx with `ts-jest`
   transform: {
     "^.+\\.(js|mjs|ts|mts)x?$": "ts-jest",
+    "^.+\\.xsd$": "<rootDir>/__mocks__/raw-loader.js",
   },
   transformIgnorePatterns: [
     "node_modules/(?!(keycloak-js)/)", // Ensure Jest processes keycloak-js

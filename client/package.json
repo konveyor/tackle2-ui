@@ -52,6 +52,7 @@
     "react-router-dom": "^5.2.0",
     "tinycolor2": "^1.6.0",
     "xmllint": "^0.1.1",
+    "xmllint-wasm": "^5.0.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {
