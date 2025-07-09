@@ -30,7 +30,7 @@ export async function validateSettingsXml(contents?: string) {
   });
 
   if (validationObject !== true) {
-    throw new Error(validationObject?.err?.msg?.toString());
+    throw new Error(validationObject?.err?.msg ?? "Invalid XML format");
   }
 
   // xml is valid, pick a schema to validate against
@@ -46,7 +46,7 @@ export async function validateSettingsXml(contents?: string) {
     }
 
     const xmlns = settings.getAttribute("xmlns") ?? "";
-    const matches = /maven.apache.org\/SETTINGS\/(\d+\.\d+.\d+)$/.exec(xmlns);
+    const matches = /maven.apache.org\/SETTINGS\/(\d+\.\d+\.\d+)$/.exec(xmlns);
     if (matches) {
       const version = matches[1];
       if (version in XSD_BY_NAME) {

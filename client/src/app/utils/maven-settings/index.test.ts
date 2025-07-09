@@ -23,7 +23,7 @@ const testSettingsFile = `
 
 `.trim();
 
-describe("Text maven settings xml validation", () => {
+describe("Test maven settings xml validation", () => {
   it("empty content is ok", async () => {
     expect(await validateSettingsXml(undefined)).toBe(false);
     expect(await validateSettingsXml("")).toBe(false);
