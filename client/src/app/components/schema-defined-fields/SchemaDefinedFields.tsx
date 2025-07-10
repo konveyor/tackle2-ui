@@ -20,12 +20,14 @@ type ControlledEditor = {
 
 export interface ISchemaDefinedFieldProps {
   // If you wanted to make it dynamic to load other schemas:
+  className?: string;
   jsonDocument: object | string;
   jsonSchema: object | string;
   onSchemaSaved?: (newSchemaContent: object) => void;
 }
 
 export const SchemaDefinedField = ({
+  className,
   onSchemaSaved = () => {},
   jsonDocument,
   jsonSchema,
@@ -67,13 +69,13 @@ export const SchemaDefinedField = ({
 
   return (
     <CodeEditor
-      className="schema-defined-field-viewer-code-editor"
+      className={className}
       isCopyEnabled
       isDarkTheme
       isDownloadEnabled
       isLineNumbersVisible
       isReadOnly={false}
-      height="sizeToFit"
+      height="600px"
       downloadFileName="my-schema-download.json"
       language={Language.json}
       code={currentCode}

@@ -19,6 +19,7 @@ import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { UnlinkIcon } from "@patternfly/react-icons";
+import { useFetchPlatformById } from "@app/queries/platforms";
 
 export const ApplicationDetailFields: React.FC<{
   application: Application | null;
@@ -28,6 +29,8 @@ export const ApplicationDetailFields: React.FC<{
   const { t } = useTranslation();
   const { tickets } = useFetchTickets();
   const { mutate: deleteTicket, isLoading } = useDeleteTicketMutation();
+  const { platform } = useFetchPlatformById(application?.platform?.id);
+
   const matchingTicket = tickets?.find(
     (ticket) => ticket.application?.id === application?.id
   );
@@ -211,6 +214,22 @@ export const ApplicationDetailFields: React.FC<{
           <EmptyTextMessage message={t("terms.notAvailable")} />
         )}
       </Text>
+      <Title headingLevel="h3" size="md">
+        {t("terms.sourcePlatform")}
+      </Title>
+      {platform ? (
+        <Text
+          component="small"
+          cy-data="sourcePlatform"
+          className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+        >
+          Name: {platform?.name} <br />
+          Kind: {platform?.kind} <br />
+          URL: {platform?.url} <br />
+        </Text>
+      ) : (
+        <EmptyTextMessage message={t("terms.notAvailable")} />
+      )}
     </>
   );
 };

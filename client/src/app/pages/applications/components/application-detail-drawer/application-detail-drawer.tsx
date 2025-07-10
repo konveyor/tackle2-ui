@@ -85,6 +85,8 @@ import {
 } from "@app/components/TableControls";
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
+import { usePlatformCoordinatesProvider } from "../../usePlatformCoordinatesProvider";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -100,6 +102,7 @@ export enum TabKey {
   Facts,
   Reviews,
   Tasks,
+  PlatformCoordinates,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -180,6 +183,14 @@ export const ApplicationDetailDrawer: React.FC<
               title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
             >
               <TabTasksContent application={application} task={task} />
+            </Tab>
+          )}
+          {!application || !application.platform ? null : (
+            <Tab
+              eventKey={TabKey.PlatformCoordinates}
+              title={<TabTitleText>Platform Coordinates</TabTitleText>}
+            >
+              <TabPlatformCoordinatesContent application={application} />
             </Tab>
           )}
         </Tabs>
@@ -267,7 +278,7 @@ const TabDetailsContent: React.FC<{
             {application?.archetypes?.length ? (
               <>
                 <DescriptionListDescription>
-                  {application.archetypes.length ?? 0 > 0 ? (
+                  {(application.archetypes.length ?? 0 > 0) ? (
                     <ArchetypeLabels
                       archetypeRefs={application.archetypes as Ref[]}
                     />
@@ -362,6 +373,20 @@ const TabTagsContent: React.FC<{
 
       <ApplicationTags application={application} />
     </>
+  );
+};
+
+const TabPlatformCoordinatesContent: React.FC<{
+  application: DecoratedApplication;
+}> = ({ application }) => {
+  // TODO: get the platform coordinates from the application
+  const { schema, document } = usePlatformCoordinatesProvider();
+  return (
+    <SchemaDefinedField
+      className={spacing.mtLg}
+      jsonSchema={schema}
+      jsonDocument={document}
+    />
   );
 };
 
