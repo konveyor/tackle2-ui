@@ -3,6 +3,7 @@ import axios, {
   AxiosResponse,
   RawAxiosRequestHeaders,
 } from "axios";
+import { template } from "radash";
 
 import {
   Application,
@@ -48,48 +49,57 @@ import {
   Manifest,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
-import { template } from "radash";
 
 // endpoint paths
-export const HUB = "/hub";
+export { template };
+export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
+  let path = "";
+  tsa.forEach((str) => {
+    path += str;
+    if (vals.length > 0) {
+      path += String(vals.shift());
+    }
+  });
 
-export const ANALYSIS_DEPS = HUB + "/analyses/report/dependencies";
-export const ANALYSIS_DEPS_APPS =
-  HUB + "/analyses/report/dependencies/applications";
-export const APP_IMPORTS = HUB + "/imports";
-export const APP_IMPORTS_SUMMARY = HUB + "/importsummaries";
-export const APP_IMPORTS_SUMMARY_CSV = HUB + "/importsummaries/download";
-export const APP_IMPORTS_SUMMARY_UPLOAD = HUB + "/importsummaries/upload";
-export const APPLICATION_MANIFEST = HUB + "/applications/{{id}}/manifest";
-export const APPLICATIONS = HUB + "/applications";
-export const ARCHETYPES = HUB + "/archetypes";
-export const ASSESSMENTS = HUB + "/assessments";
-export const BUSINESS_SERVICES = HUB + "/businessservices";
-export const CACHE = HUB + "/cache/m2";
-export const DEPENDENCIES = HUB + "/dependencies";
-export const FACTS = HUB + "/facts";
-export const FILES = HUB + "/files";
-export const IDENTITIES = HUB + "/identities";
-export const JOB_FUNCTIONS = HUB + "/jobfunctions";
-export const MANIFESTS = HUB + "/manifests";
-export const MIGRATION_WAVES = HUB + "/migrationwaves";
-export const PLATFORMS = HUB + "/platforms";
-export const PROXIES = HUB + "/proxies";
-export const QUESTIONNAIRES = HUB + "/questionnaires";
-export const REPORT = HUB + "/reports";
-export const REVIEWS = HUB + "/reviews";
-export const SETTINGS = HUB + "/settings";
-export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
-export const STAKEHOLDERS = HUB + "/stakeholders";
-export const TAG_CATEGORIES = HUB + "/tagcategories";
-export const TAGS = HUB + "/tags";
-export const TARGETS = HUB + "/targets";
-export const TASKGROUPS = HUB + "/taskgroups";
-export const TASKS = HUB + "/tasks";
-export const TICKETS = HUB + "/tickets";
+  return `/hub${path}`;
+}
+
+export const ANALYSIS_DEPS = hub`/analyses/report/dependencies`;
+export const ANALYSIS_DEPS_APPS = hub`/analyses/report/dependencies/applications`;
+export const APP_IMPORTS = hub`/imports`;
+export const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
+export const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
+export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
+export const APPLICATION_MANIFEST = hub`/applications/{{id}}/manifest`;
+export const APPLICATIONS = hub`/applications`;
+export const ARCHETYPES = hub`/archetypes`;
+export const ASSESSMENTS = hub`/assessments`;
+export const BUSINESS_SERVICES = hub`/businessservices`;
+export const CACHE = hub`/cache/m2`;
+export const DEPENDENCIES = hub`/dependencies`;
+export const FACTS = hub`/facts`;
+export const FILES = hub`/files`;
+export const IDENTITIES = hub`/identities`;
+export const JOB_FUNCTIONS = hub`/jobfunctions`;
+export const MANIFESTS = hub`/manifests`;
+export const MIGRATION_WAVES = hub`/migrationwaves`;
+export const PLATFORMS = hub`/platforms`;
+export const PROXIES = hub`/proxies`;
+export const QUESTIONNAIRES = hub`/questionnaires`;
+export const REPORT = hub`/reports`;
+export const REVIEWS = hub`/reviews`;
+export const SETTINGS = hub`/settings`;
+export const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
+export const STAKEHOLDERS = hub`/stakeholders`;
+export const TAG_CATEGORIES = hub`/tagcategories`;
+export const TAGS = hub`/tags`;
+export const TARGETS = hub`/targets`;
+export const TASKGROUPS = hub`/taskgroups`;
+export const TASKS = hub`/tasks`;
+export const TICKETS = hub`/tickets`;
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
-export const TRACKERS = HUB + "/trackers";
+export const TRACKERS = hub`/trackers`;
 
 export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
   json: {
