@@ -67,7 +67,7 @@ export interface CustomTargetFormValues {
 const targetRulesetsToReadFiles = (target?: Target) =>
   target?.ruleset?.rules?.map((rule): UploadFile => {
     return {
-      id: rule.file?.id,
+      fileId: rule.file?.id,
       fileName: rule.name,
       fullFile: new File([], rule.name, { type: "placeholder" }),
       uploadProgress: 100,
@@ -268,7 +268,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             name: file.fileName,
             labels: allLabels,
             file: {
-              id: file.id,
+              id: file.fileId,
             },
           };
         }

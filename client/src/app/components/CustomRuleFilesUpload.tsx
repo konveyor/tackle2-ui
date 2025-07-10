@@ -156,7 +156,7 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
       if (ruleFile) {
         onChangeRuleFile({
           ...ruleFile,
-          id: hubFile?.id,
+          fileId: hubFile?.id,
           uploadProgress: 100,
           status: "uploaded",
         });

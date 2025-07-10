@@ -108,7 +108,7 @@ export interface CustomRulesStepValues {
 }
 
 export const UploadFileSchema: yup.SchemaOf<UploadFile> = yup.object({
-  id: yup.number().optional(),
+  fileId: yup.number().optional(),
   fileName: yup.string().required(),
   fullFile: yup.mixed<File>().required() as unknown as yup.SchemaOf<File>,
   uploadProgress: yup.number().required().min(0).max(100),

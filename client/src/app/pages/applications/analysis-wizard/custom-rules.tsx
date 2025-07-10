@@ -207,9 +207,9 @@ export const CustomRules: React.FC = () => {
     const { source, target, total } = parseRules(item);
 
     // TODO: See issue https://github.com/konveyor/tackle2-ui/issues/2249
-    const sourceLabelName = getParsedLabel(source)?.labelValue ?? "";
-    const targetLabelName = getParsedLabel(target)?.labelValue ?? "";
-    const sourceTargetLabel = `${sourceLabelName} / ${targetLabelName}`;
+    const sources = getParsedLabel(source).labelValue || t("wizard.terms.none");
+    const targets = getParsedLabel(target).labelValue || t("wizard.terms.none");
+    const sourceTargetLabel = `${sources} / ${targets}`;
 
     rows.push({
       entity: item,
@@ -416,6 +416,7 @@ export const CustomRules: React.FC = () => {
       )}
 
       <UploadNewRulesFiles
+        key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
         existingFiles={customRulesFiles}
         onAddFiles={onAddRulesFiles}
@@ -439,7 +440,7 @@ const UploadNewRulesFiles: React.FC<{
     [existingFiles]
   );
 
-  const { control, watch } = useForm({
+  const { control } = useForm({
     defaultValues: {
       uploadedFiles: [] as UploadFile[],
     },
@@ -462,12 +463,8 @@ const UploadNewRulesFiles: React.FC<{
     return indexes;
   };
 
-  const uploadedFiles = watch("uploadedFiles");
-
   const onCloseCancel = () => {
-    // TODO: The files already added should be deleted from the taskgroup
-    // useRemoveTaskgroupFileMutation()
-
+    // TODO: Consider any uploaded files and delete them from hub if necessary
     onClose();
   };
 
@@ -476,9 +473,7 @@ const UploadNewRulesFiles: React.FC<{
     onClose();
   };
 
-  const isAddDisabled = !uploadedFiles.every(
-    ({ status }) => status === "uploaded"
-  );
+  const isAddDisabled = !fields.every(({ status }) => status === "uploaded");
 
   return (
     <Modal
@@ -501,7 +496,6 @@ const UploadNewRulesFiles: React.FC<{
       ]}
     >
       <CustomRuleFilesUpload
-        key={show ? 1 : 0} // reset component state every modal open/close
         taskgroupId={taskGroup?.id}
         fileExists={doesFileAlreadyExist}
         ruleFiles={fields}
@@ -515,10 +509,10 @@ const UploadNewRulesFiles: React.FC<{
           }
         }}
         onChangeRuleFile={(ruleFile) => {
-          const index = filesToFieldsIndex([ruleFile])[0];
-          if (index) {
-            update(index, ruleFile);
-          }
+          const index = fields.findIndex(
+            (f) => f.fileName === ruleFile.fileName
+          );
+          update(index, ruleFile);
         }}
       />
     </Modal>

@@ -528,7 +528,7 @@ export const UploadFileStatus = [
 ] as const;
 
 export interface UploadFile {
-  id?: number;
+  fileId?: number;
   fileName: string;
   fullFile: File;
   uploadProgress: number;
