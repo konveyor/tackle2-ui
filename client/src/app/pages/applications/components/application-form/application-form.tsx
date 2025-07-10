@@ -37,6 +37,10 @@ import {
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import {
+  useFetchPlatformById,
+  useFetchPlatforms,
+} from "@app/queries/platforms";
 
 export interface FormValues {
   id: number;
@@ -55,6 +59,7 @@ export interface FormValues {
   artifact: string;
   version: string;
   packaging: string;
+  sourcePlatform: string;
 }
 
 export interface ApplicationFormProps {
@@ -78,14 +83,25 @@ export const useApplicationFormHook = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
+    sourcePlatforms,
+    sourcePlatformToRef,
   } = useApplicationFormData({
     onActionSuccess: onClose,
   });
+
+  const { platform } = useFetchPlatformById(application?.platform?.id);
 
   const businessServiceOptions = businessServices.map((businessService) => {
     return {
       value: businessService.name,
       toString: () => businessService.name,
+    };
+  });
+
+  const sourcePlatformOptions = sourcePlatforms.map((sourcePlatform) => {
+    return {
+      value: sourcePlatform.name,
+      toString: () => sourcePlatform.name,
     };
   });
 
@@ -249,6 +265,7 @@ export const useApplicationFormHook = ({
       artifact: getBinaryInitialValue(application, "artifact"),
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
+      sourcePlatform: platform?.name || "",
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -292,6 +309,7 @@ export const useApplicationFormHook = ({
       // Values not editable on the form but still need to be passed through
       identities: application?.identities ?? undefined,
       migrationWave: application?.migrationWave ?? null,
+      platform: sourcePlatformToRef(formValues.sourcePlatform),
     };
 
     if (application) {
@@ -334,6 +352,7 @@ export const useApplicationFormHook = ({
     isCancelDisabled: isSubmitting || isValidating,
     stakeholders,
     businessServiceOptions,
+    sourcePlatformOptions,
     onSubmit: handleSubmit(onValidSubmit),
   };
 };
@@ -354,6 +373,7 @@ export const ApplicationForm: React.FC<
   isBinaryExpanded,
   stakeholders,
   businessServiceOptions,
+  sourcePlatformOptions,
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
@@ -514,6 +534,34 @@ export const ApplicationForm: React.FC<
             fieldId="comments"
             resizeOrientation="vertical"
           />
+          <HookFormPFGroupController
+            control={control}
+            name="sourcePlatform"
+            label={t("terms.sourcePlatform")}
+            fieldId="sourcePlatform"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.sourcePlatform").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="source-platform-toggle"
+                id="source-platform-select"
+                toggleAriaLabel="Source platform select dropdown toggle"
+                aria-label={name}
+                value={
+                  value ? toOptionLike(value, sourcePlatformOptions) : undefined
+                }
+                options={sourcePlatformOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
+                onClear={() => onChange("")}
+              />
+            )}
+          />
         </div>
       </ExpandableSection>
 
@@ -633,6 +681,7 @@ const useApplicationFormData = ({
   const { businessServices } = useFetchBusinessServices();
   const { stakeholders } = useFetchStakeholders();
   const { data: existingApplications } = useFetchApplications();
+  const { platforms: sourcePlatforms } = useFetchPlatforms();
 
   // Helpers
   const idsToTagRefs = (ids: number[] | undefined | null) =>
@@ -640,6 +689,9 @@ const useApplicationFormData = ({
 
   const businessServiceToRef = (name: string | undefined | null) =>
     matchItemsToRef(businessServices, (i) => i.name, name);
+
+  const sourcePlatformToRef = (name: string | undefined | null) =>
+    matchItemsToRef(sourcePlatforms, (i) => i.name, name);
 
   const stakeholderToRef = (name: string | undefined | null) =>
     matchItemsToRef(stakeholders, (i) => i.name, name);
@@ -702,5 +754,7 @@ const useApplicationFormData = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
+    sourcePlatforms,
+    sourcePlatformToRef,
   };
 };
