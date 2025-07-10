@@ -726,12 +726,12 @@ export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
 // ---------------------------------------
 // Facts
 //
-export const getFacts = (
-  id: number | string | undefined
-): Promise<UnstructuredFact> =>
-  //TODO: Address this when moving to structured facts api
+export const getFacts = (id: number | string | undefined) =>
+  // TODO: Address this when moving to structured facts api
   id
-    ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
+    ? axios
+        .get<UnstructuredFact>(`${APPLICATIONS}/${id}/facts`)
+        .then((response) => response.data)
     : Promise.reject();
 
 // ---------------------------------------

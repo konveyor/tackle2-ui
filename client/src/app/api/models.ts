@@ -206,6 +206,7 @@ export interface Identity {
 }
 
 export interface Proxy {
+  id?: number;
   host: string;
   kind: "http" | "https";
   port: number;
@@ -213,7 +214,6 @@ export interface Proxy {
   identity?: Ref;
   createTime?: string;
   createUser?: string;
-  id: any;
   enabled: boolean;
 }
 
@@ -422,7 +422,7 @@ export interface TaskData {
 
 export interface TaskgroupTask {
   name: string;
-  data: any;
+  data: unknown;
   application: Ref;
 }
 
@@ -709,12 +709,12 @@ export interface WaveWithStatus extends MigrationWave {
   fullApplications: Application[];
   allStakeholders: StakeholderWithRole[];
 }
-export type UnstructuredFact = any;
+export type UnstructuredFact = never;
 
 export type Fact = {
   name: string;
-  //TODO: Address this when moving to structured facts api
-  data: any;
+  // TODO: Address this when moving to structured facts api
+  data: unknown;
 };
 
 export type HubFile = {
@@ -724,7 +724,7 @@ export type HubFile = {
 };
 
 export interface LooseQuestionnaire {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface Questionnaire {
