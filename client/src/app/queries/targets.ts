@@ -95,7 +95,6 @@ export const useCreateTargetMutation = (
   };
 };
 
-// TODO: Move to `files.ts`
 export const useCreateFileMutation = (
   onSuccess?: (data: HubFile, file: File) => void,
   onError?: (err: AxiosError, file: File) => void
