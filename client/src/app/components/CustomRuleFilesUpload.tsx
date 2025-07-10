@@ -12,7 +12,7 @@ import { counting } from "radash";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { UploadFile } from "@app/api/models";
+import { HubFile, UploadFile } from "@app/api/models";
 import { useCreateFileMutation } from "@app/queries/targets";
 import { useUploadTaskgroupFileMutation } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -98,7 +98,7 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
         if (progressEvent.lengthComputable) {
           onChangeRuleFile({
             ...ruleFile,
-            uploadProgress: (progressEvent.loaded / progressEvent.total) * 100,
+            uploadProgress: (progressEvent.loaded / progressEvent.total) * 10,
           });
         }
       };
@@ -107,29 +107,19 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   };
 
   const readVerifyAndUploadFile = (ruleFile: UploadFile, file: File) => {
-    // Don't do anything for a File that is already uploaded or is just a
-    // placeholder for an existing hub file
-    if (
-      ruleFile.status === "exists" || // TODO: check this check, maybe status !== "starting"
-      ruleFile.uploadProgress === 100 ||
-      file.type === "placeholder"
-    ) {
+    if (["exists", "uploaded", "failed"].includes(ruleFile.status)) {
       return;
     }
 
-    // Block duplicate file name uploads
-    if (fileExists?.(file.name)) {
-      onChangeRuleFile({
-        ...ruleFile,
-        loadError: `File "${file.name}" is already uploaded`,
-        status: "failed",
-      });
-      return;
-    }
-
-    readFile(ruleFile, file)
+    Promise.resolve()
+      .then(() => {
+        if (fileExists?.(file.name)) {
+          throw new Error(`File "${file.name}" is already uploaded`);
+        }
+      })
+      .then(() => readFile(ruleFile, file))
       .then(async (fileContents) => {
-        onChangeRuleFile({ ...ruleFile, uploadProgress: 100, status: "read" });
+        onChangeRuleFile({ ...ruleFile, uploadProgress: 10, status: "read" });
 
         // Verify/lint the contents of a YAML file
         if (checkRuleFileType(file.name) === "YAML") {
@@ -140,13 +130,18 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
             );
           }
         }
-        onChangeRuleFile({ ...ruleFile, status: "validated" });
+        onChangeRuleFile({
+          ...ruleFile,
+          uploadProgress: 20,
+          status: "validated",
+          contents: fileContents,
+        });
 
-        // Upload the file!  Note: The ruleFile is updated by the onSuccess handlers of the mutation
+        // Upload the file to hub!
+        // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
         uploadFile(file, taskgroupId);
       })
       .catch((error) => {
-        console.log("reading FAIL", file.name, ", Error: ", error.message);
         onChangeRuleFile({
           ...ruleFile,
           loadError: error.message,
@@ -156,21 +151,28 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   };
 
   const { uploadFile } = useFileUploader(
-    (file) => {
-      onChangeRuleFile({
-        ...ruleFileByName(file.name)!,
-        uploadProgress: 100,
-        status: "uploaded",
-      });
+    (file, hubFile) => {
+      const ruleFile = ruleFileByName(file.name);
+      if (ruleFile) {
+        onChangeRuleFile({
+          ...ruleFile,
+          id: hubFile?.id,
+          uploadProgress: 100,
+          status: "uploaded",
+        });
+      }
     },
     (error, file) => {
       const msg = getAxiosErrorMessage(error);
 
-      onChangeRuleFile({
-        ...ruleFileByName(file.name)!,
-        loadError: msg,
-        status: "failed",
-      });
+      const ruleFile = ruleFileByName(file.name);
+      if (ruleFile) {
+        onChangeRuleFile({
+          ...ruleFile,
+          loadError: msg,
+          status: "failed",
+        });
+      }
 
       pushNotification({ title: msg, variant: "danger" });
     }
@@ -178,9 +180,6 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   // <---- upload file handling
 
   const removeFile = (toRemove: UploadFile) => {
-    // TODO: The file also be deleted (from HUB or from the taskgroup)
-    // useRemoveUploadedFileMutation()
-
     onRemoveRuleFiles([toRemove]);
   };
 
@@ -253,11 +252,11 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
 };
 
 function useFileUploader(
-  onSuccess: (file: File) => void,
+  onSuccess: (file: File, hubFile?: HubFile) => void,
   onError: (e: AxiosError, file: File) => void
 ) {
   const { mutate: createRuleFile } = useCreateFileMutation(
-    (_, file) => onSuccess(file),
+    (hubFile, file) => onSuccess(file, hubFile),
     (e, file) => onError(e, file)
   );
 

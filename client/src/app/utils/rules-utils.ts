@@ -38,8 +38,8 @@ type ParsedYaml = ParsedYamlElement[] | object;
 export const parseRules = (file: UploadFile): ParsedRule => {
   const fileType = checkRuleFileType(file.fileName);
 
-  if (file.data !== undefined && fileType === "YAML") {
-    const yamlDoc: ParsedYaml = yaml.load(file.data) as ParsedYaml;
+  if (file.contents !== undefined && fileType === "YAML") {
+    const yamlDoc: ParsedYaml = yaml.load(file.contents) as ParsedYaml;
     const yamlList = Array.isArray(yamlDoc) ? yamlDoc : [yamlDoc];
     const yamlLabels = Array.from(
       new Set(

@@ -26,7 +26,7 @@ import { useCreateFileMutation } from "@app/queries/targets";
 import { UploadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
+import { toOptionLike, toRef } from "@app/utils/model-utils";
 import { useFetchIdentities } from "@app/queries/identities";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
@@ -67,6 +67,7 @@ export interface CustomTargetFormValues {
 const targetRulesetsToReadFiles = (target?: Target) =>
   target?.ruleset?.rules?.map((rule): UploadFile => {
     return {
+      id: rule.file?.id,
       fileName: rule.name,
       fullFile: new File([], rule.name, { type: "placeholder" }),
       uploadProgress: 100,
@@ -230,7 +231,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     control,
     name: "customRulesFiles",
   });
-  console.log("customRulesFiles:", methods.watch("customRulesFiles"));
 
   const filesToFieldsIndex = (files: UploadFile[]) => {
     const indexes: number[] = [];
@@ -260,39 +260,36 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   const values = getValues();
 
   const onSubmit = async (formValues: CustomTargetFormValues) => {
-    const rules: Rule[] = [];
-    const labels: TargetLabel[] = [];
+    const rules: Rule[] = formValues.customRulesFiles
+      .map((file) => {
+        if (file.contents) {
+          const { allLabels } = parseRules(file);
+          return {
+            name: file.fileName,
+            labels: allLabels,
+            file: {
+              id: file.id,
+            },
+          };
+        }
 
-    formValues.customRulesFiles.forEach((file) => {
-      // TODO: Double check that the rules and labels are being setup correctly for the target
-
-      if (file.data && file.status !== "exists") {
-        const { fileID, allLabels } = parseRules(file);
-        const newRule: Rule = {
-          name: file.fileName,
-          labels: allLabels,
-          file: {
-            id: fileID ? fileID : 0,
-          },
-        };
-        rules.push(newRule);
-        labels.push(
-          ...(allLabels?.map(
-            (label): TargetLabel => ({
-              name: getParsedLabel(label).labelValue,
-              label,
-            })
-          ) ?? [])
-        );
-      } else {
-        const matchingExistingRule = target?.ruleset?.rules.find(
+        const existingRule = target?.ruleset?.rules.find(
           (ruleset) => ruleset.name === file.fileName
         );
-        if (matchingExistingRule) {
-          rules.push(matchingExistingRule);
-        }
-      }
-    });
+        return existingRule;
+      })
+      .filter(Boolean);
+
+    const labels: TargetLabel[] = rules.reduce<TargetLabel[]>((acc, rule) => {
+      const targetLabels =
+        rule.labels?.map<TargetLabel>((label) => ({
+          name: getParsedLabel(label).labelValue,
+          label,
+        })) ?? [];
+
+      acc.push(...targetLabels);
+      return acc;
+    }, []);
 
     const associatedCredentials = formValues.associatedCredentials
       ? identities.find(({ name }) => name === formValues.associatedCredentials)
@@ -321,7 +318,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       custom: true,
       labels: labels.length ? labels : [],
       ruleset: {
-        id: target && target.custom ? target.ruleset.id : undefined,
+        id: target?.custom ? target.ruleset.id : undefined,
         name: formValues.name.trim(),
         rules: rules,
         ...(formValues.rulesKind === "repository" && {
@@ -331,14 +328,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             branch: formValues?.branch?.trim(),
             path: formValues?.rootPath?.trim(),
           },
+          identity: toRef(associatedCredentials),
         }),
-        ...(formValues.rulesKind === "repository" &&
-          associatedCredentials && {
-            identity: {
-              id: associatedCredentials.id,
-              name: associatedCredentials.name,
-            },
-          }),
       },
       provider: formValues.providerType,
     };
@@ -351,14 +342,14 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   };
 
   const onCancelHandler = () => {
-    // TODO: Consider if uploaded files need to be removed when canceling an edit
-    //       instead of relying on background HUB file reaping
+    // TODO: Consider any uploaded files and delete them from hub if necessary
     onCancel();
   };
 
   const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
 
   const onCreateTargetSuccess = (response: AxiosResponse<Target>) => {
+    // TODO: Consider any removed files and delete them from hub if necessary
     onSaved(response);
     reset();
   };
@@ -376,6 +367,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
+    // TODO: Consider any removed files and delete them from hub if necessary
     onSaved(response);
     reset();
   };
@@ -543,6 +535,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             const indexesToRemove = filesToFieldsIndex(ruleFiles);
             if (indexesToRemove.length > 0) {
               remove(indexesToRemove);
+              // TODO: Track removed files so they can be delete after a successful create/update
             }
           }}
           onChangeRuleFile={(ruleFile) => {

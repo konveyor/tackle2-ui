@@ -528,12 +528,13 @@ export const UploadFileStatus = [
 ] as const;
 
 export interface UploadFile {
+  id?: number;
   fileName: string;
   fullFile: File;
-  loadError?: string;
   uploadProgress: number;
   status: (typeof UploadFileStatus)[number];
-  data?: string;
+  contents?: string;
+  loadError?: string;
   responseID?: number;
 }
 
