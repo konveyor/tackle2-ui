@@ -351,7 +351,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   };
 
   const onCancelHandler = () => {
-    // TODO: Figure out what to do here.
+    // TODO: Consider if uploaded files need to be removed when canceling an edit
+    //       instead of relying on background HUB file reaping
     onCancel();
   };
 
