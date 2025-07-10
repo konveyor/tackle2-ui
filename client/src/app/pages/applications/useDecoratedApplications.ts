@@ -93,16 +93,16 @@ const chooseApplicationTaskStatus = ({
   return !tasks.exist
     ? "None"
     : tasks.latestHasRunning
-    ? "Running"
-    : tasks.latestHasQueued
-    ? "Queued"
-    : tasks.latestHasFailed
-    ? "Failed"
-    : tasks.latestHasCanceled
-    ? "Canceled"
-    : tasks.latestHasSuccessWithErrors
-    ? "SuccessWithErrors"
-    : "Success";
+      ? "Running"
+      : tasks.latestHasQueued
+        ? "Queued"
+        : tasks.latestHasFailed
+          ? "Failed"
+          : tasks.latestHasCanceled
+            ? "Canceled"
+            : tasks.latestHasSuccessWithErrors
+              ? "SuccessWithErrors"
+              : "Success";
 };
 
 /**

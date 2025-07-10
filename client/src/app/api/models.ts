@@ -875,6 +875,8 @@ export interface GroupedStakeholderRef extends Ref {
   uniqueId: string;
 }
 
+export interface JsonDocument extends Record<string, unknown> {}
+
 export interface SourcePlatform {
   id: number;
   kind: string;
@@ -882,6 +884,22 @@ export interface SourcePlatform {
   url: string;
   identity?: Ref;
   applications?: Ref[];
-  coordinates?: Record<string, any>;
+  coordinates?: JsonDocument;
   discoverApplicationsState?: TaskState;
+}
+export interface ManifestDeployment {
+  name: string;
+  other?: number;
+}
+
+export interface ManifestSecret {
+  user?: string;
+  password?: string;
+}
+
+export interface Manifest {
+  id: number;
+  content: JsonDocument;
+  secret: ManifestSecret;
+  application?: Ref;
 }
