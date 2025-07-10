@@ -45,7 +45,7 @@ describe("Component: identity-form", () => {
     fireEvent.click(typeSelector);
 
     const sourceControlOption = await screen.findByText("Source Control");
-    fireEvent.click(sourceControlOption);
+    await waitFor(() => fireEvent.click(sourceControlOption));
 
     const userCredentialsSelector = await screen.findByLabelText(
       "User credentials select dropdown toggle"
@@ -165,7 +165,7 @@ describe("Component: identity-form", () => {
     expect(nameInput).toHaveValue("identity-name");
     expect(userInput).toHaveValue("username");
     expect(passwordInput).toHaveValue("password");
-    expect(createButton).toBeEnabled();
+    await waitFor(() => expect(createButton).toBeEnabled());
 
     // focus off password then focus back on should 1. clear the password and 2. disable the create button
     await waitFor(() => {
@@ -334,7 +334,7 @@ describe("Component: identity-form", () => {
 
     const createButton = screen.getByRole("button", { name: /submit/i });
 
-    expect(createButton).toBeEnabled();
+    await waitFor(() => expect(createButton).toBeEnabled());
 
     // focus off password then focus back on should 1. clear the password and 2. disable the create button
     await waitFor(() => {

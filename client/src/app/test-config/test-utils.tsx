@@ -1,8 +1,13 @@
 import React, { FC, ReactElement } from "react";
-import { render, RenderOptions } from "@testing-library/react";
+import {
+  render,
+  renderHook,
+  RenderHookOptions,
+  RenderOptions,
+} from "@testing-library/react";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Application, Archetype, Assessment } from "@app/api/models";
-import { RenderHookOptions, renderHook } from "@testing-library/react-hooks";
 
 import { createContext, useContext } from "react";
 
@@ -59,7 +64,6 @@ const customRenderHook = <TProps, TResult>(
 };
 
 export * from "@testing-library/react";
-
 export { customRender as render };
 export { customRenderHook as renderHook };
 

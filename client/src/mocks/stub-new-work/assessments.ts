@@ -47,26 +47,14 @@ const mockAssessmentArray: Assessment[] = [
                 risk: "green",
                 autoAnswerFor: [
                   {
-                    category: {
-                      name: "Cat 1",
-                      id: 23,
-                    },
-                    tag: {
-                      id: 34,
-                      name: "Tag 1",
-                    },
+                    category: "Cat 1",
+                    tag: "Tag 1",
                   },
                 ],
                 applyTags: [
                   {
-                    category: {
-                      name: "Cat 1",
-                      id: 23,
-                    },
-                    tag: {
-                      id: 34,
-                      name: "Tag 1",
-                    },
+                    category: "Cat 1",
+                    tag: "Tag 1",
                   },
                 ],
                 selected: true,

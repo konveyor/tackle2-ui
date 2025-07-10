@@ -133,7 +133,7 @@ export const RepositoriesMvn: React.FC = () => {
                   <Alert
                     variant="danger"
                     isInline
-                    title={mvnInsecureSetting.error}
+                    title={mvnInsecureSetting.error as string}
                   />
                 )}
                 <Tooltip
