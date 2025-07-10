@@ -65,7 +65,7 @@ import { Paths } from "@app/Paths";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../useDecoratedApplications";
-import { TaskStates } from "@app/queries/tasks";
+import { TaskStates, useFetchTaskByID } from "@app/queries/tasks";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -226,6 +226,11 @@ const TabDetailsContent: React.FC<{
         .filter((fullArchetype) => fullArchetype?.review)
         .filter(Boolean);
 
+  const { task } = useFetchTaskByID(application.tasks.currentAnalyzer?.id);
+  const targets = task?.data?.rules?.labels?.included.filter((t) =>
+    t.startsWith("konveyor.io/target=")
+  );
+
   return (
     <>
       <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
@@ -347,6 +352,18 @@ const TabDetailsContent: React.FC<{
         onEditClick={onEditClick}
         onCloseClick={onCloseClick}
       />
+      <TextContent className={spacing.mtLg}>
+        <Title headingLevel="h3" size="md">
+          {t("terms.targets")}
+        </Title>
+        {targets?.map((t) => (
+          <Text component="small" key={t!}>
+            {t}
+          </Text>
+        ))}
+        {targets?.length == 0 ||
+          (!targets && <EmptyTextMessage message={t("terms.none")} />)}
+      </TextContent>
     </>
   );
 };
