@@ -9,8 +9,6 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Text,
-  Modal,
-  ModalVariant,
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
@@ -30,7 +28,7 @@ import {
 } from "@app/queries/identities";
 import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { IdentityForm } from "./components/identity-form";
+import { IdentityFormModal } from "./components/identity-form";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -57,11 +55,11 @@ export const Identities: React.FC = () => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
-    "create" | Identity | null
-  >(null);
-  const isCreateUpdateModalOpen = createUpdateModalState !== null;
+    "create" | Identity | undefined
+  >(undefined);
+  const isCreateUpdateModalOpen = createUpdateModalState !== undefined;
   const identityToUpdate =
-    createUpdateModalState !== "create" ? createUpdateModalState : null;
+    createUpdateModalState !== "create" ? createUpdateModalState : undefined;
 
   const onDeleteIdentitySuccess = (identity: Identity) => {
     pushNotification({
@@ -373,57 +371,43 @@ export const Identities: React.FC = () => {
             />
           </div>
         </ConditionalRender>
-      </PageSection>
 
-      <Modal
-        id="credential.modal"
-        title={
-          identityToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.credential").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.credential").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
-        isOpen={isCreateUpdateModalOpen}
-        onClose={() => setCreateUpdateModalState(null)}
-      >
-        <IdentityForm
-          identity={identityToUpdate ? identityToUpdate : undefined}
-          onClose={() => setCreateUpdateModalState(null)}
+        <IdentityFormModal
+          isOpen={isCreateUpdateModalOpen}
+          identity={identityToUpdate}
+          onClose={() => setCreateUpdateModalState(undefined)}
         />
-      </Modal>
 
-      {isConfirmDialogOpen && (
-        <ConfirmDialog
-          title={t("dialog.title.deleteWithName", {
-            what: t("terms.credential").toLowerCase(),
-            name: identityToDelete?.name,
-          })}
-          titleIconVariant={"warning"}
-          message={
-            dependentApplications?.length
-              ? `${`The credentials are being used by ${dependentApplications.length} application(s). Deleting these credentials will also remove them from the associated applications.`}
-          ${t("dialog.message.delete")}`
-              : `${t("dialog.message.delete")}`
-          }
-          isOpen={true}
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setIsConfirmDialogOpen(false)}
-          onClose={() => setIsConfirmDialogOpen(false)}
-          onConfirm={() => {
-            if (identityToDelete) {
-              deleteIdentity(identityToDelete);
-              setIdentityToDelete(undefined);
+        {isConfirmDialogOpen && (
+          <ConfirmDialog
+            title={t("dialog.title.deleteWithName", {
+              what: t("terms.credential").toLowerCase(),
+              name: identityToDelete?.name,
+            })}
+            titleIconVariant={"warning"}
+            message={
+              dependentApplications?.length
+                ? t("confirmDeleteOfInUseCredentials", {
+                    count: dependentApplications.length,
+                  })
+                : t("dialog.message.delete")
             }
-            setIsConfirmDialogOpen(false);
-          }}
-        />
-      )}
+            isOpen={true}
+            confirmBtnVariant={ButtonVariant.danger}
+            confirmBtnLabel={t("actions.delete")}
+            cancelBtnLabel={t("actions.cancel")}
+            onCancel={() => setIsConfirmDialogOpen(false)}
+            onClose={() => setIsConfirmDialogOpen(false)}
+            onConfirm={() => {
+              if (identityToDelete) {
+                deleteIdentity(identityToDelete);
+                setIdentityToDelete(undefined);
+              }
+              setIsConfirmDialogOpen(false);
+            }}
+          />
+        )}
+      </PageSection>
     </>
   );
 };

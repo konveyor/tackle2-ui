@@ -51,17 +51,10 @@ export interface IdentityFormProps {
   onClose: () => void;
 }
 
-/** Reset IdentityForm's state when the identity changes. */
-const IdentityFormWrapper: React.FC<IdentityFormProps> = ({
+export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity,
-  ...rest
+  onClose,
 }) => {
-  return <IdentityForm key={identity?.id ?? 0} {...rest} />;
-};
-
-export { IdentityFormWrapper as IdentityForm };
-
-const IdentityForm: React.FC<IdentityFormProps> = ({ identity, onClose }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 

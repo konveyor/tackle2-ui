@@ -126,7 +126,9 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:"
+      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:",
+      "confirmDeleteOfInUseCredentials_one": "The credential is being used by {{count}} application. Deleting this credential will also remove it from the associated application. This action cannot be undone.",
+      "confirmDeleteOfInUseCredentials_other": "The credential is being used by {{count}} applications. Deleting this credential will also remove it from the associated applications. This action cannot be undone."
     },
     "title": {
       "applicationAnalysis": "Application analysis",
