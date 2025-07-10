@@ -121,6 +121,7 @@ import {
   useDecoratedApplications,
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -692,17 +693,7 @@ export const ApplicationsTable: React.FC = () => {
         {t("actions.manageImports")}
       </DropdownItem>
     ),
-    applicationWriteAccess && (
-      <DropdownItem
-        key="applications-bulk-delete"
-        isDisabled={selectedRows.length < 1}
-        onClick={() => {
-          setApplicationsToDelete(selectedRows);
-        }}
-      >
-        {t("actions.delete")}
-      </DropdownItem>
-    ),
+    <DropdownSeparator key="breakpoint" />,
     applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
       <DropdownItem
         key="applications-bulk-cancel"
@@ -743,6 +734,48 @@ export const ApplicationsTable: React.FC = () => {
         }}
       >
         {t("actions.manageCredentials")}
+      </DropdownItem>
+    ),
+    <DropdownSeparator key="breakpoint" />,
+    <DropdownItem
+      key="change-source-platform-applications"
+      component="button"
+      isDisabled={selectedRows.length < 2}
+      onClick={() => console.log("change source platform")}
+    >
+      {t("actions.changeSourcePlatform")}
+    </DropdownItem>,
+    <DropdownItem
+      key="retrieve-configurations-for-applications"
+      component="button"
+      isDisabled={selectedRows.length < 1}
+      onClick={() => console.log("retrieve configurations")}
+    >
+      {t("actions.retrieveConfigurations")}
+    </DropdownItem>,
+    <DropdownItem
+      key="generate-assets-for-applications"
+      component="button"
+      isDisabled={selectedRows.length < 1}
+      onClick={() => console.log("generate assets")}
+    >
+      {t("actions.generateAssets")}
+    </DropdownItem>,
+    <DropdownSeparator key="breakpoint" />,
+    applicationWriteAccess && (
+      <DropdownItem
+        key="applications-bulk-delete"
+        isDisabled={selectedRows.length < 1}
+        className={
+          selectedRows.length < 1
+            ? "pf-v5-u-color-200"
+            : "pf-v5-u-danger-color-100"
+        }
+        onClick={() => {
+          setApplicationsToDelete(selectedRows);
+        }}
+      >
+        {t("actions.delete")}
       </DropdownItem>
     ),
   ].filter(Boolean);
@@ -1172,6 +1205,16 @@ export const ApplicationsTable: React.FC = () => {
                                 title: t("actions.cancelAnalysis"),
                                 onClick: () => cancelAnalysis(application),
                               },
+                            applicationWriteAccess && { isSeparator: true },
+                            applicationWriteAccess && {
+                              title: t("actions.retrieveConfigurations"),
+                              onClick: () =>
+                                console.log("retrieve configurations"),
+                            },
+                            applicationWriteAccess && {
+                              title: t("actions.generateAssets"),
+                              onClick: () => console.log("generate assets"),
+                            },
                             applicationWriteAccess && { isSeparator: true },
                             applicationWriteAccess && {
                               title: t("actions.delete"),

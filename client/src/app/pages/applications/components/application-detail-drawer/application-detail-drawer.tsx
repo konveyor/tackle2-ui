@@ -76,6 +76,7 @@ import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { useFetchApplicationManifest } from "@app/queries/applications";
+import { usePlatformCoordinatesProvider } from "../../usePlatformCoordinatesProvider";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -91,6 +92,7 @@ export enum TabKey {
   Reviews,
   Tasks,
   Manifest,
+  PlatformCoordinates,
 }
 
 export const ApplicationDetailDrawer: React.FC<
@@ -181,6 +183,14 @@ export const ApplicationDetailDrawer: React.FC<
               title={<TabTitleText>{t("terms.manifest")}</TabTitleText>}
             >
               <TabManifestContent manifest={manifest} />
+            </Tab>
+          )}
+          {!application || !application.platform ? null : (
+            <Tab
+              eventKey={TabKey.PlatformCoordinates}
+              title={<TabTitleText>Platform Coordinates</TabTitleText>}
+            >
+              <TabPlatformCoordinatesContent application={application} />
             </Tab>
           )}
         </Tabs>
@@ -345,6 +355,20 @@ const TabTagsContent: React.FC<{
 
       <ApplicationTags application={application} />
     </>
+  );
+};
+
+const TabPlatformCoordinatesContent: React.FC<{
+  application: DecoratedApplication;
+}> = ({ application }) => {
+  // TODO: get the platform coordinates from the application
+  const { schema, document } = usePlatformCoordinatesProvider();
+  return (
+    <SchemaDefinedField
+      className={spacing.mtLg}
+      baseJsonDocument={document}
+      jsonSchema={schema}
+    />
   );
 };
 

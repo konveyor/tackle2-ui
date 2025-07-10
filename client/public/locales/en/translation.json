@@ -68,7 +68,10 @@
     "unlink": "Unlink",
     "view": "View",
     "viewErrorReport": "View error report",
-    "viewArchetypes": "View archetypes"
+    "viewArchetypes": "View archetypes",
+    "retrieveConfigurations": "Retrieve configurations",
+    "changeSourcePlatform": "Change source platform",
+    "generateAssets": "Generate assets"
   },
   "colors": {
     "black": "Black",
@@ -482,6 +485,7 @@
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
     "sourcePlatforms": "Source platforms",
+    "sourcePlatform": "Source platform",
     "sourceRepo": "Source Repository",
     "sourceRootPath": "Root path",
     "southboundDependencies": "Southbound dependencies",
