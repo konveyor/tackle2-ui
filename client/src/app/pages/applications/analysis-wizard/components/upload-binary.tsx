@@ -10,9 +10,8 @@ import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { useFormContext } from "react-hook-form";
 
 import {
-  useCreateTaskgroupMutation,
-  useRemoveUploadedFileMutation,
-  useUploadFileTaskgroupMutation,
+  useRemoveTaskgroupFileMutation,
+  useUploadTaskgroupFileMutation,
 } from "@app/queries/taskgroups";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -21,15 +20,29 @@ import { uploadLimit } from "@app/Constants";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { AnalysisWizardFormValues } from "../schema";
 import { useTaskGroup } from "./TaskGroupContext";
-import { Taskgroup } from "@app/api/models";
-import { defaultTaskgroup } from "../analysis-wizard";
+
+const readFile = (file: File, onProgress: (percent: number) => void) => {
+  return new Promise<string | null>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.onprogress = (data) => {
+      if (data.lengthComputable) {
+        onProgress((data.loaded / data.total) * 100);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 export const UploadBinary: React.FC = () => {
-  const { taskGroup, updateTaskGroup } = useTaskGroup();
+  const { pushNotification } = React.useContext(NotificationsContext);
+  const { taskGroup, createTaskGroup } = useTaskGroup();
+
   const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
   const artifact = watch("artifact");
 
-  const [error, setError] = React.useState<AxiosError>();
+  const [errorMessage, setErrorMessage] = React.useState<string>();
 
   const [fileUploadProgress, setFileUploadProgress] = React.useState<
     number | undefined
@@ -39,15 +52,17 @@ export const UploadBinary: React.FC = () => {
     "danger" | "success" | "warning" | undefined
   >(artifact ? "success" : undefined);
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const uploadLimitInBytes = parseInt(uploadLimit.slice(0, -1)) * 1_000_000;
 
   const completedUpload = () => {
     pushNotification({
       title: "Uploaded binary file.",
       variant: "success",
     });
-    setFileUploadStatus("success");
+
+    setErrorMessage(undefined);
     setFileUploadProgress(100);
+    setFileUploadStatus("success");
   };
 
   const failedUpload = (error: AxiosError) => {
@@ -56,16 +71,27 @@ export const UploadBinary: React.FC = () => {
       message: "Binary file upload failed.",
       variant: "danger",
     });
-    setFileUploadStatus("danger");
+
+    setErrorMessage(getAxiosErrorMessage(error));
     setFileUploadProgress(0);
-    setError(error);
+    setFileUploadStatus("danger");
   };
+
+  const { mutate: uploadFile } = useUploadTaskgroupFileMutation(
+    completedUpload,
+    failedUpload
+  );
 
   const completedRemove = () => {
     pushNotification({
       title: "Removed binary file.",
       variant: "success",
     });
+
+    setErrorMessage(undefined);
+    setFileUploadProgress(0);
+    setFileUploadStatus(undefined);
+    setValue("artifact", null);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -74,110 +100,72 @@ export const UploadBinary: React.FC = () => {
       message: "Binary file removal failed.",
       variant: "danger",
     });
+
+    setErrorMessage(getAxiosErrorMessage(error));
     setFileUploadStatus("danger");
     setFileUploadProgress(0);
-    setError(error);
   };
 
-  const { mutate: uploadFile } = useUploadFileTaskgroupMutation(
-    completedUpload,
-    failedUpload
+  const { mutate: removeFile } = useRemoveTaskgroupFileMutation(
+    completedRemove,
+    failedRemove
   );
 
-  const { mutate: removeFile, isLoading: isRemovingFile } =
-    useRemoveUploadedFileMutation(completedRemove, failedRemove);
-  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    updateTaskGroup(data);
-  };
-
-  const onCreateTaskgroupError = (error: Error | unknown) => {
-    console.log("Taskgroup creation failed: ", error);
-    pushNotification({
-      title: "Taskgroup creation failed",
-      variant: "danger",
-    });
-  };
-
-  const { mutateAsync: createTaskgroup } = useCreateTaskgroupMutation(
-    onCreateTaskgroupSuccess,
-    onCreateTaskgroupError
-  );
-
+  // -----> upload file handling (drop -> handleFile -> read -> upload)
   const handleFileDrop = (_: DropEvent, droppedFiles: File[]) => {
-    if (droppedFiles[0]) {
-      setError(undefined);
+    const droppedFile = droppedFiles[0];
+    if (!droppedFile) {
+      return;
+    }
+
+    setErrorMessage(undefined);
+    setFileUploadProgress(0);
+    setFileUploadStatus(undefined);
+    setValue("artifact", droppedFile);
+  };
+
+  const readAndUploadFile = async (file: File) => {
+    try {
+      await readFile(
+        file,
+        (percent) => setFileUploadProgress(Math.round(20 * percent)) // first 20% is reading the file
+      );
+
+      const taskGroupId = taskGroup
+        ? taskGroup.id
+        : (await createTaskGroup()).id;
+
+      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
+      uploadFile({
+        id: taskGroupId,
+        path: `binary/${file.name}`,
+        file,
+      }); // remaining 80% is uploading the file
+    } catch (e) {
+      setErrorMessage((e as Error).message);
       setFileUploadProgress(0);
-      setFileUploadStatus(undefined);
-      const form = new FormData();
-      form.append("file", droppedFiles[0]);
-      if (!taskGroup) {
-        createTaskgroup(defaultTaskgroup).then((data) => {
-          updateTaskGroup(data);
-          data.id &&
-            uploadFile({
-              id: data?.id,
-              path: `binary/${droppedFiles[0].name}`,
-              formData: form,
-              file: droppedFiles[0],
-            });
-        });
-      } else {
-        taskGroup.id &&
-          uploadFile({
-            id: taskGroup?.id,
-            path: `binary/${droppedFiles[0].name}`,
-            formData: form,
-            file: droppedFiles[0],
-          });
-      }
-      readFile(droppedFiles[0])
-        .then((data) => {
-          if (data) {
-            setValue("artifact", droppedFiles[0]);
-            setFileUploadProgress(0);
-          }
-        })
-        .catch((error) => {
-          setValue("artifact", undefined);
-          setFileUploadProgress(0);
-          setFileUploadStatus("danger");
-        });
+      setFileUploadStatus("danger");
     }
   };
 
-  const uploadLimitInBytes = parseInt(uploadLimit.slice(0, -1)) * 1_000_000;
-
-  const readFile = (file: File) => {
-    return new Promise<string | null>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.onprogress = (data) => {
-        if (data.lengthComputable) {
-          setFileUploadProgress((data.loaded / data.total) * 100);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleFile = (file: File) => {
-    if (!artifact)
-      readFile(file).catch((error) => {
-        setValue("artifact", undefined);
-        setFileUploadProgress(0);
-        setFileUploadStatus("danger");
+  const removeUploadedFile = (file: File) => {
+    if (taskGroup) {
+      removeFile({
+        id: taskGroup.id,
+        path: `binary/${file.name}`,
       });
+    }
   };
+  // <---- upload file handling
 
   return (
     <>
-      {error && (
+      {errorMessage && (
         <Alert
           className={`${spacing.mtMd} ${spacing.mbMd}`}
           variant="danger"
           isInline
-          title={getAxiosErrorMessage(error)}
+          title={errorMessage}
         />
       )}
       <MultipleFileUpload
@@ -207,19 +195,10 @@ export const UploadBinary: React.FC = () => {
         )}
         {artifact && (
           <MultipleFileUploadStatusItem
-            file={artifact}
             key={artifact.name}
-            customFileHandler={handleFile}
-            onClearClick={() => {
-              setFileUploadStatus(undefined);
-              setFileUploadProgress(undefined);
-              setValue("artifact", null);
-              taskGroup?.id &&
-                removeFile({
-                  id: taskGroup?.id,
-                  path: `binary/${artifact}`,
-                });
-            }}
+            file={artifact}
+            customFileHandler={readAndUploadFile}
+            onClearClick={() => removeUploadedFile(artifact)}
             progressAriaLabel={"text"}
             progressValue={fileUploadProgress}
             progressVariant={fileUploadStatus}

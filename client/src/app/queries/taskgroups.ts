@@ -7,7 +7,7 @@ import {
   submitTaskgroup,
   uploadFileTaskgroup,
 } from "@app/api/rest";
-import { IReadFile, Taskgroup } from "@app/api/models";
+import { Taskgroup } from "@app/api/models";
 import { AxiosError, AxiosResponse } from "axios";
 import { TasksQueryKey } from "./tasks";
 
@@ -35,7 +35,7 @@ export const useSubmitTaskgroupMutation = (
   });
 };
 
-export const useRemoveUploadedFileMutation = (
+export const useRemoveTaskgroupFileMutation = (
   successCallback?: (data: AxiosResponse<Taskgroup>) => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
@@ -49,18 +49,24 @@ export const useRemoveUploadedFileMutation = (
     },
   });
 };
-export const useUploadFileTaskgroupMutation = (
-  successCallback?: (data: AxiosResponse<Taskgroup>) => void,
-  errorCallback?: (err: AxiosError) => void
+
+export const useUploadTaskgroupFileMutation = (
+  successCallback?: (
+    data: AxiosResponse<void>,
+    params: Parameters<typeof uploadFileTaskgroup>[0]
+  ) => void,
+  errorCallback?: (
+    err: AxiosError,
+    params: Parameters<typeof uploadFileTaskgroup>[0]
+  ) => void
 ) => {
   return useMutation({
     mutationFn: uploadFileTaskgroup,
-    mutationKey: ["upload"],
-    onSuccess: (data) => {
-      successCallback && successCallback(data);
+    onSuccess: (response, params) => {
+      successCallback?.(response, params);
     },
-    onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
+    onError: (err: AxiosError, params) => {
+      errorCallback?.(err, params);
     },
   });
 };
@@ -77,27 +83,6 @@ export const useDeleteTaskgroupMutation = (
     onError: (err) => {
       onError(err);
       queryClient.invalidateQueries([TasksQueryKey]);
-    },
-  });
-};
-
-export const useUploadFileMutation = (
-  onSuccess: (
-    data: AxiosResponse<Taskgroup>,
-    id: number,
-    path: string,
-    formData: any,
-    file: IReadFile
-  ) => void,
-  errorCallback: (err: AxiosError) => void
-) => {
-  return useMutation({
-    mutationFn: uploadFileTaskgroup,
-    onSuccess: (data, { id, path, formData, file }) => {
-      onSuccess(data, id, path, formData, file);
-    },
-    onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
     },
   });
 };

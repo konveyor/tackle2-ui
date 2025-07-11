@@ -622,7 +622,8 @@
       "target_one": "Target",
       "target_other": "Targets",
       "transactionReport": "Transaction Report",
-      "autoTagging": "Automated tagging"
+      "autoTagging": "Automated tagging",
+      "none": "(none)"
     },
     "title": {
       "advancedOptions": "Advanced options",
