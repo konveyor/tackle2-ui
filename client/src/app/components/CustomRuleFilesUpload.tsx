@@ -106,48 +106,45 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
     });
   };
 
-  const readVerifyAndUploadFile = (ruleFile: UploadFile, file: File) => {
+  const readVerifyAndUploadFile = async (ruleFile: UploadFile, file: File) => {
     if (["exists", "uploaded", "failed"].includes(ruleFile.status)) {
       return;
     }
 
-    Promise.resolve()
-      .then(() => {
-        if (fileExists?.(file.name)) {
-          throw new Error(`File "${file.name}" is already uploaded`);
-        }
-      })
-      .then(() => readFile(ruleFile, file))
-      .then(async (fileContents) => {
-        onChangeRuleFile({ ...ruleFile, uploadProgress: 10, status: "read" });
+    try {
+      if (fileExists?.(file.name)) {
+        throw new Error(`File "${file.name}" is already uploaded`);
+      }
 
-        // Verify/lint the contents of a YAML file
-        if (checkRuleFileType(file.name) === "YAML") {
-          const result = validateYamlFile(fileContents);
-          if (result.state === "error") {
-            throw new Error(
-              `File "${file.name}" is not valid YAML: ${result.message}`
-            );
-          }
-        }
-        onChangeRuleFile({
-          ...ruleFile,
-          uploadProgress: 20,
-          status: "validated",
-          contents: fileContents,
-        });
+      const fileContents = await readFile(ruleFile, file);
+      onChangeRuleFile({ ...ruleFile, uploadProgress: 10, status: "read" });
 
-        // Upload the file to hub!
-        // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
-        uploadFile(file, taskgroupId);
-      })
-      .catch((error) => {
-        onChangeRuleFile({
-          ...ruleFile,
-          loadError: error.message,
-          status: "failed",
-        });
+      // Verify/lint the contents of a YAML file
+      if (checkRuleFileType(file.name) === "YAML") {
+        const result = validateYamlFile(fileContents);
+        if (result.state === "error") {
+          throw new Error(
+            `File "${file.name}" is not valid YAML: ${result.message}`
+          );
+        }
+      }
+      onChangeRuleFile({
+        ...ruleFile,
+        uploadProgress: 20,
+        status: "validated",
+        contents: fileContents,
       });
+
+      // Upload the file to hub!
+      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
+      uploadFile(file, taskgroupId);
+    } catch (error) {
+      onChangeRuleFile({
+        ...ruleFile,
+        loadError: (error as Error).message,
+        status: "failed",
+      });
+    }
   };
 
   const { uploadFile } = useFileUploader(
