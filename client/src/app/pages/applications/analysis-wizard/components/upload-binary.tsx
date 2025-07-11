@@ -135,6 +135,7 @@ export const UploadBinary: React.FC = () => {
         ? taskGroup.id
         : (await createTaskGroup()).id;
 
+      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
       uploadFile({
         id: taskGroupId,
         path: `binary/${file.name}`,

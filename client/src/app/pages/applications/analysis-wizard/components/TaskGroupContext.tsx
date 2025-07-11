@@ -50,7 +50,6 @@ export const TaskGroupProvider: React.FunctionComponent<TaskGroupProvider> = ({
   const createTaskGroup = async () => {
     if (!taskGroup) {
       const newTaskGroup = await mutateAsync(defaultTaskgroup);
-      setTaskGroup(newTaskGroup);
       return newTaskGroup;
     }
     return taskGroup;
