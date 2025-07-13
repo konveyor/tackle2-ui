@@ -63,10 +63,10 @@ export const Identities: React.FC = () => {
   const identityToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
-  const onDeleteIdentitySuccess = (identityName: string) => {
+  const onDeleteIdentitySuccess = (identity: Identity) => {
     pushNotification({
       title: t("toastr.success.deletedWhat", {
-        what: identityName,
+        what: identity.name,
         type: t("terms.credential"),
       }),
       variant: "success",
@@ -417,7 +417,7 @@ export const Identities: React.FC = () => {
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() => {
             if (identityToDelete) {
-              deleteIdentity({ identity: identityToDelete });
+              deleteIdentity(identityToDelete);
               setIdentityToDelete(undefined);
             }
             setIsConfirmDialogOpen(false);

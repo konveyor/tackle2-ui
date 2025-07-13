@@ -7,24 +7,22 @@ import {
   updateIdentity,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Identity } from "@app/api/models";
+import { Identity, New } from "@app/api/models";
 
 export const IdentitiesQueryKey = "identities";
 
 export const useUpdateIdentityMutation = (
-  onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (identity: Identity) => void,
+  onError: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation({
     mutationFn: updateIdentity,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (_, identity) => {
+      onSuccess(identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError,
   });
   return {
     mutate,
@@ -34,19 +32,17 @@ export const useUpdateIdentityMutation = (
 };
 
 export const useCreateIdentityMutation = (
-  onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (identity: Identity, identityToCreate: New<Identity>) => void,
+  onError: (err: AxiosError, identityToCreate: New<Identity>) => void
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, mutate, error } = useMutation({
     mutationFn: createIdentity,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (data, identityToCreate) => {
+      onSuccess(data, identityToCreate);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError,
   });
   return {
     mutate,
@@ -58,7 +54,7 @@ export const useCreateIdentityMutation = (
 export const useFetchIdentities = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
-    queryFn: async () => (await getIdentities()).data,
+    queryFn: getIdentities,
     onError: (error) => console.log("error, ", error),
   });
   return {
@@ -70,20 +66,19 @@ export const useFetchIdentities = () => {
 };
 
 export const useDeleteIdentityMutation = (
-  onSuccess: (identityName: string) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (identity: Identity) => void,
+  onError: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
 
   const { isLoading, mutate, error } = useMutation({
-    mutationFn: ({ identity }: { identity: Identity }) =>
-      deleteIdentity(identity),
-    onSuccess: (_, vars) => {
-      onSuccess(vars.identity.name);
+    mutationFn: deleteIdentity,
+    onSuccess: (_, identity) => {
+      onSuccess(identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
+    onError: (err: AxiosError, identity) => {
+      onError(err, identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
   });

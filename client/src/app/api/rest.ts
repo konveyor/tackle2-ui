@@ -80,6 +80,7 @@ export const DEPENDENCIES = hub`/dependencies`;
 export const FACTS = hub`/facts`;
 export const FILES = hub`/files`;
 export const IDENTITIES = hub`/identities`;
+export const IDENTITY = hub`/identities/{{id}}`;
 export const JOB_FUNCTIONS = hub`/jobfunctions`;
 export const MANIFESTS = hub`/manifests`;
 export const MIGRATION_WAVES = hub`/migrationwaves`;
@@ -262,19 +263,23 @@ export const deleteAssessment = (id: number) => {
 // Identities
 //
 export const getIdentities = () => {
-  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: HEADERS.json });
+  return axios
+    .get<Identity[]>(IDENTITIES, { headers: HEADERS.json })
+    .then((response) => response.data);
 };
 
-export const createIdentity = (obj: New<Identity>) => {
-  return axios.post<Identity>(`${IDENTITIES}`, obj);
+export const createIdentity = (identity: New<Identity>) => {
+  return axios
+    .post<Identity>(IDENTITIES, identity)
+    .then((response) => response.data);
 };
 
-export const updateIdentity = (obj: Identity) => {
-  return axios.put<void>(`${IDENTITIES}/${obj.id}`, obj);
+export const updateIdentity = (identity: Identity) => {
+  return axios.put<void>(template(IDENTITY, { id: identity.id }), identity);
 };
 
 export const deleteIdentity = (identity: Identity) => {
-  return axios.delete<void>(`${IDENTITIES}/${identity.id}`);
+  return axios.delete<void>(template(IDENTITY, { id: identity.id }));
 };
 
 // ---------------------------------------
