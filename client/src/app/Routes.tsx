@@ -10,7 +10,6 @@ import { RouteWrapper } from "./components/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "@app/components/ErrorFallback";
-import { FEATURES_ENABLED } from "./FeatureFlags";
 
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
@@ -66,6 +65,9 @@ const AssessmentSummary = lazy(
 
 const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
 const TaskDetails = lazy(() => import("./pages/tasks/TaskDetails"));
+const SourcePlatforms = lazy(
+  () => import("./pages/source-platforms/source-platforms")
+);
 
 export interface IRoute<T> {
   path: T;
@@ -150,49 +152,41 @@ export const devRoutes: IRoute<DevPathValues>[] = [
     comp: Reports,
     exact: false,
   },
-  ...(FEATURES_ENABLED.migrationWaves
-    ? [
-        {
-          path: Paths.migrationWaves,
-          comp: MigrationWaves,
-          exact: false,
-        },
-      ]
-    : []),
-  ...(FEATURES_ENABLED.dynamicReports
-    ? [
-        {
-          path: Paths.issuesAllAffectedApplications,
-          comp: AffectedApplications,
-          exact: false,
-        },
-        {
-          path: Paths.issuesAllTab,
-          comp: Issues,
-          exact: false,
-        },
-        {
-          path: Paths.issuesSingleAppTab,
-          comp: Issues,
-          exact: false,
-        },
-        {
-          path: Paths.issuesSingleAppSelected,
-          comp: Issues,
-          exact: false,
-        },
-        {
-          path: Paths.issues,
-          comp: Issues,
-          exact: false,
-        },
-        {
-          path: Paths.dependencies,
-          comp: Dependencies,
-          exact: false,
-        },
-      ]
-    : []),
+  {
+    path: Paths.migrationWaves,
+    comp: MigrationWaves,
+    exact: false,
+  },
+  {
+    path: Paths.issuesAllAffectedApplications,
+    comp: AffectedApplications,
+    exact: false,
+  },
+  {
+    path: Paths.issuesAllTab,
+    comp: Issues,
+    exact: false,
+  },
+  {
+    path: Paths.issuesSingleAppTab,
+    comp: Issues,
+    exact: false,
+  },
+  {
+    path: Paths.issuesSingleAppSelected,
+    comp: Issues,
+    exact: false,
+  },
+  {
+    path: Paths.issues,
+    comp: Issues,
+    exact: false,
+  },
+  {
+    path: Paths.dependencies,
+    comp: Dependencies,
+    exact: false,
+  },
   {
     path: Paths.archetypes,
     comp: Archetypes,
@@ -253,15 +247,16 @@ export const adminRoutes: IRoute<AdminPathValues>[] = [
   },
   { comp: Proxies, path: Paths.proxies, exact: false },
   { comp: MigrationTargets, path: Paths.migrationTargets, exact: false },
-  ...(FEATURES_ENABLED.migrationWaves
-    ? [
-        {
-          comp: Jira,
-          path: Paths.jira,
-          exact: false,
-        },
-      ]
-    : []),
+  {
+    comp: Jira,
+    path: Paths.jira,
+    exact: false,
+  },
+  {
+    comp: SourcePlatforms,
+    path: Paths.sourcePlatforms,
+    exact: false,
+  },
 ];
 
 export const AppRoutes = () => {

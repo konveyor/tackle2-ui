@@ -11,15 +11,10 @@ import {
 } from "@patternfly/react-core";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { XMLValidator } from "fast-xml-parser";
 
-import "./identity-form.css";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity, IdentityKind, New } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-import schema0 from "./schema-1.0.0.xsd";
-import schema1 from "./schema-1.1.0.xsd";
-import schema2 from "./schema-1.2.0.xsd";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
   useCreateIdentityMutation,
@@ -27,13 +22,13 @@ import {
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
 import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
-import { XMLLintValidationResult } from "./validateXML";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { FEATURES_ENABLED } from "@app/FeatureFlags";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+
+import "./identity-form.css";
 
 type UserCredentials = "userpass" | "source";
 
@@ -53,16 +48,11 @@ interface IdentityFormValues {
 export interface IdentityFormProps {
   identity?: Identity;
   onClose: () => void;
-  xmlValidator?: (
-    value: string,
-    currentSchema: string
-  ) => XMLLintValidationResult;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity: initialIdentity,
   onClose,
-  xmlValidator,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -209,72 +199,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           then: yup
             .string()
             .required()
-            .test({
-              name: "xml-validation",
-              test: function (value) {
-                // If the field is unchanged, it must be valid (it's encrypted, so we can't parse it as XML)
-                if (value === identity?.settings) return true;
-
-                if (value) {
-                  const validationObject = XMLValidator.validate(value, {
-                    allowBooleanAttributes: true,
-                  });
-
-                  //if xml is valid, check against schema
-                  if (validationObject === true) {
-                    let currentSchemaName = "";
-                    let currentSchema = "";
-                    const supportedSchemaNames = ["1.2.0", "1.1.0", "1.0.0"];
-                    if (window.DOMParser) {
-                      const parser = new DOMParser();
-                      const xmlDoc = parser.parseFromString(value, "text/xml");
-                      const settingsElement =
-                        xmlDoc.getElementsByTagName("settings")[0]?.innerHTML ||
-                        "";
-
-                      supportedSchemaNames.forEach((schemaName) => {
-                        if (settingsElement.includes(schemaName)) {
-                          currentSchemaName = schemaName;
-                        }
-                      });
-                      switch (currentSchemaName) {
-                        case "1.0.0":
-                          currentSchema = schema0;
-                          break;
-                        case "1.1.0":
-                          currentSchema = schema1;
-                          break;
-                        case "1.2.0":
-                          currentSchema = schema2;
-                          break;
-                        default:
-                          break;
-                      }
-                    }
-                    const validationResult =
-                      xmlValidator && xmlValidator(value, currentSchema);
-
-                    if (!validationResult?.errors) {
-                      //valid against  schema
-                      return true;
-                    } else {
-                      //not valid against  schema
-                      return this.createError({
-                        message: validationResult?.errors?.toString(),
-                        path: "settings",
-                      });
-                    }
-                  } else {
-                    return this.createError({
-                      message: validationObject?.err?.msg?.toString(),
-                      path: "settings",
-                    });
-                  }
-                } else {
-                  return false;
-                }
-              },
-            }),
+            .validMavenSettingsXml((value) => value === identity?.settings),
         }),
       settingsFilename: yup.string().defined(),
       userCredentials: yup.mixed<UserCredentials>().when("kind", {
@@ -374,7 +299,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     getValues,
     setValue,
     control,
-    watch,
     resetField,
   } = useForm<IdentityFormValues>({
     defaultValues: {
@@ -400,8 +324,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
 
-  const watchAllFields = watch();
-
   const userCredentialsOptions: OptionWithValue<UserCredentials>[] = [
     {
       value: "userpass",
@@ -410,17 +332,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     {
       value: "source",
       toString: () => `Source Private Key/Passphrase`,
-    },
-  ];
-
-  const jiraKindOptions: OptionWithValue<IdentityKind>[] = [
-    {
-      value: "basic-auth",
-      toString: () => `Basic Auth (Jira)`,
-    },
-    {
-      value: "bearer",
-      toString: () => `Bearer Token (Jira)`,
     },
   ];
 
@@ -437,7 +348,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       value: "proxy",
       toString: () => `Proxy`,
     },
-    ...(FEATURES_ENABLED.migrationWaves ? jiraKindOptions : []),
+    {
+      value: "basic-auth",
+      toString: () => `Basic Auth (Jira)`,
+    },
+    {
+      value: "bearer",
+      toString: () => `Bearer Token (Jira)`,
+    },
   ];
 
   const isPasswordEncrypted = identity?.password === values.password;
@@ -729,6 +647,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           />
         </>
       )}
+
       <ActionGroup>
         <Button
           type="submit"

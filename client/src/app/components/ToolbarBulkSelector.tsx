@@ -114,7 +114,7 @@ export const ToolbarBulkSelector = ({
                 <MenuToggleCheckbox
                   id="bulk-selected-items-checkbox"
                   key="bulk-select-checkbox"
-                  aria-label={t("actions.selectPage")}
+                  aria-label={t("actions.selectPage", { count: page })}
                   onChange={(checked) => {
                     if (checked) {
                       onSelectCurrentPage();

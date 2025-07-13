@@ -137,6 +137,7 @@ export interface Application {
   risk?: Risk;
   confidence?: number;
   effort?: number;
+  platform?: Ref;
 }
 
 export interface Review {
@@ -615,8 +616,8 @@ export interface AnalysisIssue extends AnalysisIssuesCommonFields {
   id: number;
 }
 
-// Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
-// When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
+// Hub type: AppReport - Insights collated by application (but filtered by ruleset/rule)
+// When filtered by ruleset/rule, this object matches exactly one insight and includes that insight's details
 export interface AnalysisAppReport extends AnalysisIssue {
   id: number; // Application id
   name: string;
@@ -625,7 +626,7 @@ export interface AnalysisAppReport extends AnalysisIssue {
   businessService: string;
   incidents: number;
   files: number;
-  issue: {
+  insight: {
     id: number;
     name: string;
     ruleset: string;
@@ -657,7 +658,7 @@ export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
 
 // Hub type: FileReport - Incidents collated by file
 export interface AnalysisFileReport {
-  issueId: number;
+  insightId: number;
   file: string;
   incidents: number;
   effort: number;
@@ -872,4 +873,33 @@ export enum StakeholderType {
 export interface GroupedStakeholderRef extends Ref {
   group: StakeholderType.Stakeholder | StakeholderType.StakeholderGroup;
   uniqueId: string;
+}
+
+export interface JsonDocument extends Record<string, unknown> {}
+
+export interface SourcePlatform {
+  id: number;
+  kind: string;
+  name: string;
+  url: string;
+  identity?: Ref;
+  applications?: Ref[];
+  coordinates?: JsonDocument;
+  discoverApplicationsState?: TaskState;
+}
+export interface ManifestDeployment {
+  name: string;
+  other?: number;
+}
+
+export interface ManifestSecret {
+  user?: string;
+  password?: string;
+}
+
+export interface Manifest {
+  id: number;
+  content: JsonDocument;
+  secret: ManifestSecret;
+  application?: Ref;
 }

@@ -20,6 +20,15 @@ export interface AppAboutModalProps {
 const TRANSPARENT_1x1_GIF =
   "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw== ";
 
+const AboutLink: React.FC<React.PropsWithChildren<{ href?: string }>> = ({
+  href,
+  children,
+}) => (
+  <Text href={href} component={TextVariants.a} target="_blank">
+    {children}
+  </Text>
+);
+
 export const AppAboutModal: React.FC<AppAboutModalProps> = ({
   isOpen,
   onClose,
@@ -48,62 +57,34 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         </Text>
 
         <Text component={TextVariants.p}>
-          <Trans i18nKey={"about.bottom1"}>
-            {{ brandType: about.displayName }} is a project within the
-            <Text
-              component={TextVariants.a}
-              href="https://www.konveyor.io/"
-              target="_blank"
-            >
-              Konveyor community
-            </Text>
-            .
-          </Trans>
+          <Trans
+            i18nKey={"about.bottom1"}
+            values={{ brandType: about.displayName }}
+            components={{
+              Link: <AboutLink href="https://www.konveyor.io/" />,
+            }}
+          />
         </Text>
 
         {about.documentationUrl ? (
           <Text component={TextVariants.p}>
-            <Trans i18nKey={"about.bottom2"}>
-              For more information, refer to
-              <Text
-                component={TextVariants.a}
-                href={about.documentationUrl}
-                target="_blank"
-              >
-                {{ brandType: about.displayName }} documentation
-              </Text>
-              .
-            </Trans>
+            <Trans
+              i18nKey={"about.bottom2"}
+              values={{ brandType: about.displayName }}
+              components={{
+                Link: <AboutLink href={about.documentationUrl} />,
+              }}
+            />
           </Text>
         ) : null}
 
         <Text component={TextVariants.p}>
-          <Trans i18nKey="about.iconLibrary">
-            The Icon Library used in this project is a derivative of the{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://www.redhat.com/en/about/brand/standards/icons/standard-icons"
-              target="_blank"
-            >
-              Standard Icons library
-            </Text>
-            by{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://www.redhat.com"
-              target="_blank"
-            >
-              Red Hat
-            </Text>
-            , used under{" "}
-            <Text
-              component={TextVariants.a}
-              href="https://creativecommons.org/licenses/by/4.0/"
-              target="_blank"
-            >
-              CC BY 4.0
-            </Text>
-          </Trans>
+          <Trans
+            i18nKey="about.iconLibrary"
+            components={{
+              Link: <AboutLink />,
+            }}
+          ></Trans>
         </Text>
       </TextContent>
       <TextContent className="pf-v5-u-py-xl">

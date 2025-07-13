@@ -251,4 +251,6 @@ export enum TablePersistenceKeyPrefix {
   dependencyApplications = "da",
   archetypes = "ar",
   tasks = "t",
+  platforms = "p",
+  platformApplications = "pa",
 }

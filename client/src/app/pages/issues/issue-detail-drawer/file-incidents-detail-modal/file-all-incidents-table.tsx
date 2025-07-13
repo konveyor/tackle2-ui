@@ -45,7 +45,7 @@ export const FileAllIncidentsTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchIncidents(
-    fileReport.issueId,
+    fileReport.insightId,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: { line: "line", message: "message" },

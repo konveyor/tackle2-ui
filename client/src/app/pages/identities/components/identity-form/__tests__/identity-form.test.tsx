@@ -6,25 +6,22 @@ import {
   fireEvent,
 } from "@app/test-config/test-utils";
 
-import { IdentityForm } from "..";
 import "@testing-library/jest-dom";
 import { server } from "@mocks/server";
 import { rest } from "msw";
 
-describe("Component: identity-form", () => {
-  beforeAll(() => server.listen({ onUnhandledRequest: "bypass" }));
+import { IdentityForm } from "..";
 
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
+describe("Component: identity-form", () => {
+  beforeEach(() =>
+    server.use(
+      rest.get("http://localhost/hub/identities", (_req, res, ctx) => {
+        return res(ctx.json([]));
+      })
+    )
+  );
 
   const mockChangeValue = jest.fn();
-  const data: any = [];
-
-  server.use(
-    rest.get("*", (req, res, ctx) => {
-      return res(ctx.json(data));
-    })
-  );
 
   it("Display form on initial load", async () => {
     render(<IdentityForm onClose={mockChangeValue} />);
@@ -40,16 +37,14 @@ describe("Component: identity-form", () => {
     expect(typeSelector).toBeInTheDocument();
   });
 
-  it("Check dynamic form rendering", async () => {
+  it("Check dynamic form rendering - Source Control", async () => {
     render(<IdentityForm onClose={mockChangeValue} />);
     const typeSelector = await screen.findByLabelText(
       "Type select dropdown toggle"
     );
-
     fireEvent.click(typeSelector);
 
     const sourceControlOption = await screen.findByText("Source Control");
-
     fireEvent.click(sourceControlOption);
 
     const userCredentialsSelector = await screen.findByLabelText(
@@ -57,10 +52,9 @@ describe("Component: identity-form", () => {
     );
     expect(userCredentialsSelector).toBeInTheDocument();
 
+    // Check User credentials Username/Password
     fireEvent.click(userCredentialsSelector);
-
     const userPassOption = await screen.findByText("Username/Password");
-
     fireEvent.click(userPassOption);
 
     const userInput = await screen.findByLabelText("Username *");
@@ -69,12 +63,11 @@ describe("Component: identity-form", () => {
     const passwordInput = await screen.findByLabelText("Password *");
     expect(passwordInput).toBeInTheDocument();
 
+    // Check User credentials Source Private Key/Passphrase
     fireEvent.click(userCredentialsSelector);
-
     const sourceOption = await screen.findByText(
       "Source Private Key/Passphrase"
     );
-
     fireEvent.click(sourceOption);
 
     const credentialKeyFileUpload = await screen.findByLabelText(
@@ -86,18 +79,29 @@ describe("Component: identity-form", () => {
       "Private Key Passphrase"
     );
     expect(credentialKeyPassphrase).toBeInTheDocument();
+  });
 
+  it("Check dynamic form rendering - Maven Settings File", async () => {
+    render(<IdentityForm onClose={mockChangeValue} />);
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
+    );
     fireEvent.click(typeSelector);
 
     const mavenSettingsOption = await screen.findByText("Maven Settings File");
-
     fireEvent.click(mavenSettingsOption);
 
     const mavenSettingsUpload = await screen.findByLabelText(
       "Upload your Settings file or paste its contents below. *"
     );
     expect(mavenSettingsUpload).toBeInTheDocument();
+  });
 
+  it("Check dynamic form rendering - Proxy", async () => {
+    render(<IdentityForm onClose={mockChangeValue} />);
+    const typeSelector = await screen.findByLabelText(
+      "Type select dropdown toggle"
+    );
     fireEvent.click(typeSelector);
 
     const proxyOption = await screen.findByText("Proxy");
@@ -111,56 +115,43 @@ describe("Component: identity-form", () => {
     expect(proxyPasswordInput).toBeInTheDocument();
   });
 
-  it("Identity form validation test - source - username/password", async () => {
+  it("Identity form validation test - Source Control / username/password", async () => {
     render(<IdentityForm onClose={mockChangeValue} />);
-
-    const identityNameInput = await screen.findByLabelText("Name *");
-
-    fireEvent.change(identityNameInput, {
-      target: { value: "identity-name" },
-    });
 
     const typeSelector = await screen.findByLabelText(
       "Type select dropdown toggle"
     );
-
     fireEvent.click(typeSelector);
 
     const sourceControlOption = await screen.findByText("Source Control");
-
     fireEvent.click(sourceControlOption);
 
     const userCredentialsSelector = await screen.findByLabelText(
       "User credentials select dropdown toggle"
     );
-
     fireEvent.click(userCredentialsSelector);
 
     const userPassOption = await screen.findByText("Username/Password");
-
     fireEvent.click(userPassOption);
 
+    const nameInput = await screen.findByLabelText("Name *");
     const userInput = await screen.findByLabelText("Username *");
-
-    await waitFor(
-      () => {
-        fireEvent.change(userInput, {
-          target: { value: "username" },
-        });
-      },
-      {
-        timeout: 3000,
-      }
-    );
-
     const passwordInput = await screen.findByLabelText("Password *");
-
-    const createButton = screen.getByRole("button", { name: /submit/i });
+    const createButton = await screen.findByRole("button", { name: /submit/i });
 
     expect(createButton).not.toBeEnabled();
 
+    // fill out the form
     await waitFor(
       () => {
+        fireEvent.change(nameInput, {
+          target: { value: "identity-name" },
+        });
+
+        fireEvent.change(userInput, {
+          target: { value: "username" },
+        });
+
         fireEvent.change(passwordInput, {
           target: { value: "password" },
         });
@@ -170,6 +161,9 @@ describe("Component: identity-form", () => {
       }
     );
 
+    // verify field contents have enabled the create button
+    expect(nameInput).toHaveValue("identity-name");
+    expect(userInput).toHaveValue("username");
     expect(passwordInput).toHaveValue("password");
     expect(createButton).toBeEnabled();
 
@@ -239,7 +233,7 @@ describe("Component: identity-form", () => {
   });
 
   it("Identity form validation test - maven", async () => {
-    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 
@@ -261,20 +255,29 @@ describe("Component: identity-form", () => {
       "Upload your Settings file or paste its contents below. *"
     );
 
-    //TODO:
+    // TODO:
     // Unable to test file upload due to lack of ID in PF code.
-    //We need an ID field for the input with type=file for the drop event to work
-    const testSettingsFile =
-      '<?xml version="1.0" encoding="UTF-8"?>' +
-      '<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 http://maven.apache.org/xsd/settings-1.2.0.xsd">' +
-      "<profiles><profile><id>github</id></profile></profiles>" +
-      "</settings>";
+    // We need an ID field for the input with type=file for the drop event to work
+    const testSettingsFile = `
+
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 http://maven.apache.org/xsd/settings-1.2.0.xsd">
+  <profiles>
+    <profile>
+      <id>github</id>
+    </profile>
+  </profiles>
+</settings>
+
+`.trim();
+
     await waitFor(
       () =>
         fireEvent.change(mavenUpload, {
           target: { value: testSettingsFile },
         }),
-
       {
         timeout: 3000,
       }
@@ -282,11 +285,11 @@ describe("Component: identity-form", () => {
 
     const createButton = screen.getByRole("button", { name: /submit/i });
 
-    expect(createButton).toBeEnabled();
+    await waitFor(() => expect(createButton).toBeEnabled());
   });
 
   it("Identity form validation test - proxy", async () => {
-    render(<IdentityForm onClose={mockChangeValue} xmlValidator={jest.fn()} />);
+    render(<IdentityForm onClose={mockChangeValue} />);
 
     const identityNameInput = await screen.findByLabelText("Name *");
 

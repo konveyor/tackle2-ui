@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
-import dayjs from "dayjs";
 
 // @patternfly
 import {
@@ -183,10 +182,6 @@ export const ApplicationsTable: React.FC = () => {
   const [reviewToDiscard, setReviewToDiscard] =
     useState<DecoratedApplication | null>(null);
 
-  const [endOfAppImportPeriod, setEndOfAppImportPeriod] = useState<dayjs.Dayjs>(
-    dayjs()
-  );
-
   const onChange = (
     _event: React.FormEvent<HTMLSelectElement>,
     value: string
@@ -216,7 +211,7 @@ export const ApplicationsTable: React.FC = () => {
   // ----- Table data fetches and mutations
   const { tagItems } = useFetchTagsWithTagItems();
 
-  const { tasks, hasActiveTasks } = useFetchTaskDashboard(isAnalyzeModalOpen);
+  const { tasks } = useFetchTaskDashboard(isAnalyzeModalOpen);
 
   const completedCancelTask = () => {
     pushNotification({
@@ -311,14 +306,12 @@ export const ApplicationsTable: React.FC = () => {
     return !!task && !TaskStates.Terminal.includes(task?.state ?? "");
   };
 
-  // TODO: Review the refetchInterval calculation for the application list
+  // TODO: Perf concerns for this query: https://github.com/konveyor/tackle2-ui/issues/2350
   const {
     data: baseApplications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
-  } = useFetchApplications(() =>
-    hasActiveTasks || dayjs().isBefore(endOfAppImportPeriod) ? 5000 : false
-  );
+  } = useFetchApplications();
 
   const {
     applications,
@@ -679,84 +672,80 @@ export const ApplicationsTable: React.FC = () => {
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
-  const importDropdownItems = importWriteAccess
-    ? [
-        <DropdownItem
-          key="import-applications"
-          component="button"
-          onClick={() => setIsApplicationImportModalOpen(true)}
-        >
-          {t("actions.import")}
-        </DropdownItem>,
-        <DropdownItem
-          key="manage-import-applications"
-          onClick={() => {
-            history.push(Paths.applicationsImports);
-          }}
-        >
-          {t("actions.manageImports")}
-        </DropdownItem>,
-      ]
-    : [];
-  const applicationDropdownItems = applicationWriteAccess
-    ? [
-        <DropdownItem
-          key="applications-bulk-delete"
-          isDisabled={selectedRows.length < 1}
-          onClick={() => {
-            setApplicationsToDelete(selectedRows);
-          }}
-        >
-          {t("actions.delete")}
-        </DropdownItem>,
-        ...(tasksReadAccess && tasksWriteAccess
-          ? [
-              <DropdownItem
-                key="applications-bulk-cancel"
-                isDisabled={
-                  !selectedRows.some((application: DecoratedApplication) =>
-                    isTaskCancellable(application)
-                  )
-                }
-                onClick={() => {
-                  handleCancelBulkAnalysis();
-                }}
-              >
-                {t("actions.cancelAnalysis")}
-              </DropdownItem>,
-            ]
-          : []),
-        <DropdownItem
-          key="analysis-bulk-download"
-          isDisabled={
-            !selectedRows.some(
-              (application: DecoratedApplication) =>
-                application.tasks.currentAnalyzer?.id !== undefined
-            )
-          }
-          onClick={() => {
-            setIsDownloadModalOpen(true);
-          }}
-        >
-          {t("actions.download", { what: "analysis details" })}
-        </DropdownItem>,
-        ...(credentialsReadAccess
-          ? [
-              <DropdownItem
-                key="manage-applications-credentials"
-                isDisabled={selectedRows.length < 1}
-                onClick={() => {
-                  setSaveApplicationsCredentialsModalState(selectedRows);
-                }}
-              >
-                {t("actions.manageCredentials")}
-              </DropdownItem>,
-            ]
-          : []),
-      ]
-    : [];
-
-  const dropdownItems = [...importDropdownItems, ...applicationDropdownItems];
+  const toolbarKebabItems = [
+    importWriteAccess && (
+      <DropdownItem
+        key="import-applications"
+        component="button"
+        onClick={() => setIsApplicationImportModalOpen(true)}
+      >
+        {t("actions.import")}
+      </DropdownItem>
+    ),
+    importWriteAccess && (
+      <DropdownItem
+        key="manage-import-applications"
+        onClick={() => {
+          history.push(Paths.applicationsImports);
+        }}
+      >
+        {t("actions.manageImports")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="applications-bulk-delete"
+        isDisabled={selectedRows.length < 1}
+        onClick={() => {
+          setApplicationsToDelete(selectedRows);
+        }}
+      >
+        {t("actions.delete")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
+      <DropdownItem
+        key="applications-bulk-cancel"
+        isDisabled={
+          !selectedRows.some((application: DecoratedApplication) =>
+            isTaskCancellable(application)
+          )
+        }
+        onClick={() => {
+          handleCancelBulkAnalysis();
+        }}
+      >
+        {t("actions.cancelAnalysis")}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="analysis-bulk-download"
+        isDisabled={
+          !selectedRows.some(
+            (application: DecoratedApplication) =>
+              application.tasks.currentAnalyzer?.id !== undefined
+          )
+        }
+        onClick={() => {
+          setIsDownloadModalOpen(true);
+        }}
+      >
+        {t("actions.download", { what: "analysis details" })}
+      </DropdownItem>
+    ),
+    applicationWriteAccess && credentialsReadAccess && (
+      <DropdownItem
+        key="manage-applications-credentials"
+        isDisabled={selectedRows.length < 1}
+        onClick={() => {
+          setSaveApplicationsCredentialsModalState(selectedRows);
+        }}
+      >
+        {t("actions.manageCredentials")}
+      </DropdownItem>
+    ),
+  ].filter(Boolean);
 
   /**
    * Analysis on the selected applications should be allowed if:
@@ -803,6 +792,7 @@ export const ApplicationsTable: React.FC = () => {
         })
       );
   };
+
   const handleCancelBulkAnalysis = () => {
     const runningTasksToCancel = selectedRows.filter((application) =>
       isTaskCancellable(application)
@@ -940,10 +930,10 @@ export const ApplicationsTable: React.FC = () => {
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup variant="icon-button-group">
-              {dropdownItems.length ? (
+              {toolbarKebabItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown
-                    dropdownItems={dropdownItems}
+                    dropdownItems={toolbarKebabItems}
                     ariaLabel="Application actions"
                   />
                 </ToolbarItem>
@@ -1264,7 +1254,6 @@ export const ApplicationsTable: React.FC = () => {
           <ImportApplicationsForm
             onSaved={() => {
               setIsApplicationImportModalOpen(false);
-              setEndOfAppImportPeriod(dayjs().add(15, "s"));
             }}
           />
         </Modal>
@@ -1340,11 +1329,12 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={assessmentToDiscard !== null}
           message={
             <span>
-              <Trans i18nKey="dialog.message.discardAssessment">
-                The assessment(s) for{" "}
-                <strong>{assessmentToDiscard?.name}</strong> discarded. Do you
-                wish to continue?
-              </Trans>
+              <Trans
+                i18nKey="dialog.message.discardAssessment"
+                values={{
+                  applicationName: assessmentToDiscard?.name,
+                }}
+              />
             </span>
           }
           confirmBtnVariant={ButtonVariant.primary}
@@ -1367,11 +1357,12 @@ export const ApplicationsTable: React.FC = () => {
           isOpen={reviewToDiscard !== null}
           message={
             <span>
-              <Trans i18nKey="dialog.message.discardReview">
-                The review for <strong>{reviewToDiscard?.name}</strong> will be
-                discarded, as well as the review result. Do you wish to
-                continue?
-              </Trans>
+              <Trans
+                i18nKey="dialog.message.discardReview"
+                values={{
+                  applicationName: reviewToDiscard?.name,
+                }}
+              />
             </span>
           }
           confirmBtnVariant={ButtonVariant.primary}

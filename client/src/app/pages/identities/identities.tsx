@@ -31,7 +31,6 @@ import {
 import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { IdentityForm } from "./components/identity-form";
-import { validateXML } from "./components/identity-form/validateXML";
 import { useFetchTrackers } from "@app/queries/trackers";
 import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -110,8 +109,8 @@ export const Identities: React.FC = () => {
         what: item.name,
       });
     } else if (
-      applications?.some(
-        (app) => app?.identities?.some((id) => id.id === item.id)
+      applications?.some((app) =>
+        app?.identities?.some((id) => id.id === item.id)
       )
     ) {
       return t("message.blockedDeleteApplication", {
@@ -132,9 +131,8 @@ export const Identities: React.FC = () => {
 
   const dependentApplications = React.useMemo(() => {
     if (identityToDelete) {
-      const res = applications?.filter(
-        (app) =>
-          app?.identities?.map((id) => id.id).includes(identityToDelete.id)
+      const res = applications?.filter((app) =>
+        app?.identities?.map((id) => id.id).includes(identityToDelete.id)
       );
       return res;
     }
@@ -343,11 +341,10 @@ export const Identities: React.FC = () => {
                                 (tracker) =>
                                   tracker?.identity?.id === identity.id
                               ) ||
-                              applications?.some(
-                                (app) =>
-                                  app?.identities?.some(
-                                    (id) => id.id === identity.id
-                                  )
+                              applications?.some((app) =>
+                                app?.identities?.some(
+                                  (id) => id.id === identity.id
+                                )
                               ) ||
                               targets?.some(
                                 (target) =>
@@ -375,29 +372,29 @@ export const Identities: React.FC = () => {
             />
           </div>
         </ConditionalRender>
-
-        <Modal
-          id="credential.modal"
-          title={
-            identityToUpdate
-              ? t("dialog.title.update", {
-                  what: t("terms.credential").toLowerCase(),
-                })
-              : t("dialog.title.new", {
-                  what: t("terms.credential").toLowerCase(),
-                })
-          }
-          variant={ModalVariant.medium}
-          isOpen={isCreateUpdateModalOpen}
-          onClose={() => setCreateUpdateModalState(null)}
-        >
-          <IdentityForm
-            identity={identityToUpdate ? identityToUpdate : undefined}
-            onClose={() => setCreateUpdateModalState(null)}
-            xmlValidator={validateXML}
-          />
-        </Modal>
       </PageSection>
+
+      <Modal
+        id="credential.modal"
+        title={
+          identityToUpdate
+            ? t("dialog.title.update", {
+                what: t("terms.credential").toLowerCase(),
+              })
+            : t("dialog.title.new", {
+                what: t("terms.credential").toLowerCase(),
+              })
+        }
+        variant={ModalVariant.medium}
+        isOpen={isCreateUpdateModalOpen}
+        onClose={() => setCreateUpdateModalState(null)}
+      >
+        <IdentityForm
+          identity={identityToUpdate ? identityToUpdate : undefined}
+          onClose={() => setCreateUpdateModalState(null)}
+        />
+      </Modal>
+
       {isConfirmDialogOpen && (
         <ConfirmDialog
           title={t("dialog.title.deleteWithName", {
