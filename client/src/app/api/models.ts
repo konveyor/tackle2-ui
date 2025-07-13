@@ -875,6 +875,12 @@ export interface GroupedStakeholderRef extends Ref {
   uniqueId: string;
 }
 
+export interface TargetProfile {
+  // [key: string]: any;
+  id: number;
+  name: string;
+}
+
 export interface SourcePlatform {
   id: number;
   kind: string;
@@ -883,5 +889,17 @@ export interface SourcePlatform {
   identity?: Ref;
   applications?: Ref[];
   coordinates?: Record<string, any>;
+  discoverApplicationsState?: TaskState;
+}
+export interface AssetGenerator {
+  id: number;
+  kind: string;
+  name: string;
+  description?: string;
+  repository?: Repository;
+  parameters?: Record<string, any>;
+  values?: Record<string, any>;
+  identity?: Ref;
+  profiles?: Ref[];
   discoverApplicationsState?: TaskState;
 }

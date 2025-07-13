@@ -53,6 +53,7 @@ import {
   TrackerProjectIssuetype,
   UnstructuredFact,
   SourcePlatform,
+  AssetGenerator,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -115,6 +116,8 @@ export const ARCHETYPES = HUB + "/archetypes";
 export const ASSESSMENTS = HUB + "/assessments";
 
 export const PLATFORMS = HUB + "/platforms";
+
+export const ASSET_GENERATORS = HUB + "/generators";
 
 const jsonHeaders: RawAxiosRequestHeaders = {
   Accept: "application/json",
@@ -846,3 +849,31 @@ export const updatePlatform = (platform: SourcePlatform) =>
 // success with code 204 and therefore no response content
 export const deletePlatform = (id: number) =>
   axios.delete<void>(`${PLATFORMS}/${id}`);
+
+// ---------------------------------------
+// Asset Generators
+//
+export const getGenerators = () =>
+  axios.get<AssetGenerator[]>(ASSET_GENERATORS).then(({ data }) => data);
+
+export const getGeneratorById = (id: number | string) =>
+  axios
+    .get<AssetGenerator>(`${ASSET_GENERATORS}/${id}`)
+    .then(({ data }) => data);
+
+// success with code 201 and created entity as response data
+export const createGenerator = (generator: New<AssetGenerator>) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated
+  return axios
+    .post<void>(ASSET_GENERATORS, generatorWithoutDescription)
+    .then((res) => res.data);
+};
+
+// success with code 204 and therefore no response content
+export const updateGenerator = (generator: AssetGenerator) =>
+  axios.put<void>(`${ASSET_GENERATORS}/${generator.id}`, generator);
+
+// success with code 204 and therefore no response content
+export const deleteGenerator = (id: number) =>
+  axios.delete<void>(`${ASSET_GENERATORS}/${id}`);

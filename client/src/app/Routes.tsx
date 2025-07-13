@@ -68,7 +68,9 @@ const TaskDetails = lazy(() => import("./pages/tasks/TaskDetails"));
 const SourcePlatforms = lazy(
   () => import("./pages/source-platforms/source-platforms")
 );
-
+const AssetGenerators = lazy(
+  () => import("./pages/asset-generators/asset-generators")
+);
 export interface IRoute<T> {
   path: T;
   comp: React.ComponentType<any>;
@@ -255,6 +257,11 @@ export const adminRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: SourcePlatforms,
     path: Paths.sourcePlatforms,
+    exact: false,
+  },
+  {
+    comp: AssetGenerators,
+    path: Paths.assetGenerators,
     exact: false,
   },
 ];

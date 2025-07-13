@@ -253,4 +253,5 @@ export enum TablePersistenceKeyPrefix {
   tasks = "t",
   platforms = "p",
   platformApplications = "pa",
+  generators = "ag",
 }
