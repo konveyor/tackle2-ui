@@ -705,6 +705,7 @@ const TabTasksContent: React.FC<{
                 modifier="nowrap"
               />
               <Th {...getThProps({ columnKey: "status" })} modifier="nowrap" />
+              <Th screenReaderText="row actions" />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

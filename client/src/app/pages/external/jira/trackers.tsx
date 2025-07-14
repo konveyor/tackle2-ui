@@ -219,6 +219,7 @@ export const JiraTrackers: React.FC = () => {
                     <Th {...getThProps({ columnKey: "url" })} />
                     <Th {...getThProps({ columnKey: "kind" })} />
                     <Th {...getThProps({ columnKey: "connection" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

@@ -309,7 +309,7 @@ export const Tags: React.FC = () => {
                   />
                   <Th {...getThProps({ columnKey: "color" })} width={20} />
                   <Th {...getThProps({ columnKey: "tagCount" })} width={20} />
-                  <Th width={10} />
+                  <Th screenReaderText="row actions" width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

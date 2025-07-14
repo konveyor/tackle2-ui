@@ -137,6 +137,9 @@ exports[`Test snapshot 1`] = `
                       aria-expanded="false"
                       aria-label="mobile dropdown"
                       class="pf-v5-c-menu-toggle pf-m-plain"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"
+                      data-ouia-component-type="PF5/MenuToggle"
+                      data-ouia-safe="true"
                       type="button"
                     >
                       <test-file-stub
@@ -297,6 +300,9 @@ exports[`Test snapshot 1`] = `
                     aria-expanded="false"
                     aria-label="mobile dropdown"
                     class="pf-v5-c-menu-toggle pf-m-plain"
+                    data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"
+                    data-ouia-component-type="PF5/MenuToggle"
+                    data-ouia-safe="true"
                     type="button"
                   >
                     <test-file-stub

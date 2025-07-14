@@ -400,6 +400,8 @@ const Archetypes: React.FC = () => {
                       width={10}
                     />
                     <Th {...getThProps({ columnKey: "review" })} width={10} />
+                    <Th screenReaderText="primary action" />
+                    <Th screenReaderText="secondary actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
