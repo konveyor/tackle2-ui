@@ -14,7 +14,7 @@ import {
   getTaskByIdAndFormat,
   getTaskQueue,
   getTasksDashboard,
-  getTextFile,
+  getTextFileById,
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
@@ -262,7 +262,7 @@ export const useFetchTaskAttachmentById = ({
 }) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskAttachmentByIDQueryKey, attachmentId],
-    queryFn: () => (attachmentId ? getTextFile(attachmentId) : undefined),
+    queryFn: () => (attachmentId ? getTextFileById(attachmentId) : undefined),
     enabled,
   });
 
