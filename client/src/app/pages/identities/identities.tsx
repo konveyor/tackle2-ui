@@ -15,6 +15,8 @@ import {
   Title,
   Toolbar,
   ToolbarContent,
+  OverflowMenu,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -42,15 +44,12 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { DefaultLabel } from "./components/DefaultLabel";
 import { KIND_VALUES, lookupDefaults } from "./utils";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
-
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] =
-    React.useState<boolean>(false);
 
   const [identityToDelete, setIdentityToDelete] = React.useState<Identity>();
 
@@ -267,12 +266,17 @@ export const Identities: React.FC = () => {
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-            <Table {...tableProps} aria-label="Business service table">
+
+            <Table
+              {...tableProps}
+              id="identities-table"
+              aria-label="Business service table"
+            >
               <Thead>
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th width={25} {...getThProps({ columnKey: "name" })} />
-                    <Th />
+                    <Th {...getThProps({ columnKey: "default" })} />
                     <Th
                       width={25}
                       {...getThProps({ columnKey: "description" })}
@@ -306,79 +310,87 @@ export const Identities: React.FC = () => {
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
-                  {currentPageItems?.map((identity, rowIndex) => {
-                    const typeFormattedString = KIND_VALUES.find(
-                      (type) => type.key === identity.kind
-                    );
-                    return (
-                      <Tr
-                        key={identity.name}
-                        {...getTrProps({ item: identity })}
+                  {currentPageItems?.map((identity, rowIndex) => (
+                    <Tr key={identity.name} {...getTrProps({ item: identity })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={identity}
+                        rowIndex={rowIndex}
                       >
-                        <TableRowContentWithControls
-                          {...tableControls}
-                          item={identity}
-                          rowIndex={rowIndex}
+                        <Td
+                          modifier="truncate"
+                          width={25}
+                          {...getTdProps({ columnKey: "name" })}
                         >
-                          <Td
-                            modifier="truncate"
-                            width={25}
-                            {...getTdProps({ columnKey: "name" })}
-                          >
-                            {identity.name}
-                          </Td>
-                          <Td {...getTdProps({ columnKey: "default" })}>
-                            <DefaultLabel identity={identity} />
-                          </Td>
-                          <Td
-                            modifier="truncate"
-                            width={25}
-                            {...getTdProps({ columnKey: "description" })}
-                          >
-                            {identity.description}
-                          </Td>
-                          <Td
-                            modifier="truncate"
-                            width={20}
-                            {...getTdProps({ columnKey: "type" })}
-                          >
-                            {typeFormattedString?.value}
-                          </Td>
-                          <Td
-                            width={10}
-                            {...getTdProps({ columnKey: "createdBy" })}
-                          >
-                            {identity.createUser}
-                          </Td>
+                          {identity.name}
+                        </Td>
+                        <Td
+                          modifier="fitContent"
+                          {...getTdProps({ columnKey: "default" })}
+                        >
+                          <DefaultLabel identity={identity} />
+                        </Td>
+                        <Td
+                          modifier="truncate"
+                          width={25}
+                          {...getTdProps({ columnKey: "description" })}
+                        >
+                          {identity.description}
+                        </Td>
+                        <Td
+                          modifier="truncate"
+                          width={20}
+                          {...getTdProps({ columnKey: "type" })}
+                        >
+                          {KIND_VALUES.find(
+                            (type) => type.key === identity.kind
+                          ) ?? identity.kind}
+                        </Td>
+                        <Td
+                          width={10}
+                          {...getTdProps({ columnKey: "createdBy" })}
+                        >
+                          {identity.createUser}
+                        </Td>
 
-                          {/* TODO: Refactor actions.  Have "Edit", "Delete", "Set as default", "Remove as default" */}
-                          <AppTableActionButtons
-                            isDeleteEnabled={
-                              trackers.some(
-                                (tracker) =>
-                                  tracker?.identity?.id === identity.id
-                              ) ||
-                              applications?.some((app) =>
-                                app?.identities?.some(
-                                  (id) => id.id === identity.id
-                                )
-                              ) ||
-                              targets?.some(
-                                (target) =>
-                                  target?.ruleset?.identity?.id === identity.id
+                        {/* TODO: Refactor actions.  Have "Edit", "Delete", "Set as default", "Remove as default" */}
+                        <Td isActionCell id="row-actions">
+                          <OverflowMenu breakpoint="sm">
+                            <Tooltip content={t("actions.edit")}>
+                              <Button
+                                variant="plain"
+                                icon={<PencilAltIcon />}
+                                onClick={() =>
+                                  setCreateUpdateModalState(identity)
+                                }
+                              />
+                            </Tooltip>
+                          </OverflowMenu>
+                        </Td>
+                        <AppTableActionButtons
+                          isDeleteEnabled={
+                            trackers.some(
+                              (tracker) => tracker?.identity?.id === identity.id
+                            ) ||
+                            applications?.some((app) =>
+                              app?.identities?.some(
+                                (id) => id.id === identity.id
                               )
-                            }
-                            tooltipMessage={getBlockDeleteMessage(identity)}
-                            onEdit={() => setCreateUpdateModalState(identity)}
-                            onDelete={() => {
-                              setIdentityToDelete(identity);
-                              setIsConfirmDialogOpen(true);
-                            }}
-                          />
-                        </TableRowContentWithControls>
-                      </Tr>
-                    );
-                  })}
+                            ) ||
+                            targets?.some(
+                              (target) =>
+                                target?.ruleset?.identity?.id === identity.id
+                            )
+                          }
+                          tooltipMessage={getBlockDeleteMessage(identity)}
+                          onEdit={() => {}}
+                          onDelete={() => {
+                            setIdentityToDelete(identity);
+                          }}
+                        />
+                      </TableRowContentWithControls>
+                    </Tr>
+                  ))}
                 </Tbody>
               </ConditionalTableBody>
             </Table>
@@ -397,7 +409,7 @@ export const Identities: React.FC = () => {
           onClose={() => setCreateUpdateModalState(undefined)}
         />
 
-        {isConfirmDialogOpen && (
+        {identityToDelete && (
           <ConfirmDialog
             title={t("dialog.title.deleteWithName", {
               what: t("terms.credential").toLowerCase(),
@@ -415,14 +427,11 @@ export const Identities: React.FC = () => {
             confirmBtnVariant={ButtonVariant.danger}
             confirmBtnLabel={t("actions.delete")}
             cancelBtnLabel={t("actions.cancel")}
-            onCancel={() => setIsConfirmDialogOpen(false)}
-            onClose={() => setIsConfirmDialogOpen(false)}
+            onCancel={() => setIdentityToDelete(undefined)}
+            onClose={() => setIdentityToDelete(undefined)}
             onConfirm={() => {
-              if (identityToDelete) {
-                deleteIdentity(identityToDelete);
-                setIdentityToDelete(undefined);
-              }
-              setIsConfirmDialogOpen(false);
+              deleteIdentity(identityToDelete);
+              setIdentityToDelete(undefined);
             }}
           />
         )}
