@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
+import { AxiosError } from "axios";
 import {
   ActionGroup,
+  Alert,
   Button,
   ButtonVariant,
   FileUpload,
   Form,
+  Switch,
 } from "@patternfly/react-core";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,6 +29,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { KIND_OPTIONS } from "../../utils";
 
 import "./identity-form.css";
 
@@ -35,7 +39,7 @@ interface IdentityFormValues {
   name: string;
   description: string;
   kind: IdentityKind;
-  default?: boolean;
+  default: boolean;
 
   settings: string;
   settingsFilename: string;
@@ -48,11 +52,13 @@ interface IdentityFormValues {
 
 export interface IdentityFormProps {
   identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
   onClose: () => void;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
   identity,
+  defaultIdentities,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -86,6 +92,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         }),
         variant: "success",
       });
+      onClose();
     },
     (error) => notifyError(getAxiosErrorMessage(error))
   );
@@ -99,15 +106,17 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         }),
         variant: "success",
       });
+      onClose();
     },
 
     (error) => notifyError(getAxiosErrorMessage(error))
   );
+  const { mutateAsync: updateIdentityAsync } = useUpdateIdentityMutation();
 
-  const onSubmit = ({ kind, ...formValues }: IdentityFormValues) => {
+  const onSubmit = async ({ kind, ...formValues }: IdentityFormValues) => {
     const payload: New<Identity> = {
       kind: kind,
-      // TODO: default
+      default: formValues.default,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
 
@@ -158,12 +167,26 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       });
     }
 
-    if (identity) {
-      updateIdentity({ id: identity.id, ...payload });
-    } else {
-      createIdentity(payload);
+    try {
+      // Unset the existing default if necessary
+      const existingDefault = defaultIdentities?.[kind];
+      if (
+        payload.default &&
+        existingDefault &&
+        (!identity || existingDefault.id !== identity.id)
+      ) {
+        await updateIdentityAsync({ ...existingDefault, default: false });
+      }
+
+      // Update/Create!
+      if (identity) {
+        updateIdentity({ id: identity.id, ...payload });
+      } else {
+        createIdentity(payload);
+      }
+    } catch (e) {
+      notifyError(getAxiosErrorMessage(e as AxiosError));
     }
-    onClose();
   };
 
   const { identities } = useFetchIdentities();
@@ -192,7 +215,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .mixed<IdentityKind>()
         .oneOf([...IdentityKinds])
         .required(),
-      default: yup.bool(),
+      default: yup.bool().defined(),
 
       userCredentials: yup.mixed<UserCredentials>().when("kind", {
         is: "source",
@@ -283,18 +306,19 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const methods = useForm<IdentityFormValues>({
     defaultValues: {
+      name: identity?.name || "",
       description: identity?.description || "",
-      key: identity?.key || "",
-      keyFilename: "",
       kind: identity?.kind,
+      default: identity?.default ?? false,
       userCredentials: identity?.kind
         ? getUserCredentialsInitialValue({ ...identity })
         : undefined,
-      name: identity?.name || "",
-      password: identity?.password || "",
       settings: identity?.settings || "",
       settingsFilename: "",
       user: identity?.user || "",
+      password: identity?.password || "",
+      key: identity?.key || "",
+      keyFilename: "",
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -308,29 +332,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   } = methods;
 
   const values = getValues();
-
-  const kindOptions: OptionWithValue<IdentityKind>[] = [
-    {
-      value: "source",
-      toString: () => `Source Control`,
-    },
-    {
-      value: "maven",
-      toString: () => `Maven Settings File`,
-    },
-    {
-      value: "proxy",
-      toString: () => `Proxy`,
-    },
-    {
-      value: "basic-auth",
-      toString: () => `Basic Auth (Jira)`,
-    },
-    {
-      value: "bearer",
-      toString: () => `Bearer Token (Jira)`,
-    },
-  ];
 
   return (
     <FormProvider {...methods}>
@@ -361,8 +362,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               toggleId="type-select-toggle"
               toggleAriaLabel="Type select dropdown toggle"
               aria-label={name}
-              value={value ? toOptionLike(value, kindOptions) : undefined}
-              options={kindOptions}
+              value={value ? toOptionLike(value, KIND_OPTIONS) : undefined}
+              options={KIND_OPTIONS}
               onChange={(selection) => {
                 const selectionValue =
                   selection as OptionWithValue<IdentityKind>;
@@ -375,10 +376,18 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           )}
         />
 
-        {values?.kind === "source" && <KindSourceForm identity={identity} />}
+        {values?.kind === "source" && (
+          <KindSourceForm
+            identity={identity}
+            defaultIdentities={defaultIdentities}
+          />
+        )}
 
         {values?.kind === "maven" && (
-          <KindMavenSettingsFileForm identity={identity} />
+          <KindMavenSettingsFileForm
+            identity={identity}
+            defaultIdentities={defaultIdentities}
+          />
         )}
 
         {values?.kind === "proxy" && (
@@ -439,9 +448,14 @@ const USER_CREDENTIALS_OPTIONS: OptionWithValue<UserCredentials>[] = [
   },
 ];
 
-const KindSourceForm: React.FC<{ identity?: Identity }> = ({ identity }) => {
+const KindSourceForm: React.FC<{
+  identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
+}> = ({ identity, defaultIdentities }) => {
   const { control, getValues, setValue, resetField } = useFormContext();
   const values = getValues();
+
+  const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
 
   const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
@@ -452,8 +466,11 @@ const KindSourceForm: React.FC<{ identity?: Identity }> = ({ identity }) => {
 
   const isPasswordEncrypted = identity?.password === values.password;
   const isKeyEncrypted = identity?.key === values.key;
-
-  const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
+  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isReplacingDefault =
+    values.default &&
+    kindDefault &&
+    (!identity || kindDefault.id !== identity.id);
 
   return (
     <>
@@ -485,6 +502,37 @@ const KindSourceForm: React.FC<{ identity?: Identity }> = ({ identity }) => {
           />
         )}
       />
+      <HookFormPFGroupController
+        control={control}
+        name="default"
+        fieldId="default"
+        label="Default credential?"
+        renderInput={({ field: { onChange, value, name, ref } }) => (
+          <>
+            <Switch
+              id="default"
+              name={name}
+              label="Use as the source control credential if an application does not have one assigned?"
+              isChecked={value}
+              onChange={(_, checked) => onChange(checked)}
+              ref={ref}
+            />
+            {isReplacingDefault && (
+              <Alert
+                isInline
+                className="alert-replacing-default"
+                variant="warning"
+                title="Default credential will change"
+              >
+                Credential <b>{kindDefault.name}</b> is currently set as the
+                source control default credential. Selecting this credential as
+                the default will apply to all applications without an explicitly
+                set source control credential.
+              </Alert>
+            )}
+          </>
+        )}
+      />
 
       {values?.userCredentials === "userpass" && (
         <KindSimpleUsernamePasswordForm
@@ -512,7 +560,6 @@ const KindSourceForm: React.FC<{ identity?: Identity }> = ({ identity }) => {
                 filename={values.keyFilename}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 dropzoneProps={{
-                  // TODO: Add dropzone props for types and extensions
                   onDropRejected: () => setIsKeyFileRejected(true),
                 }}
                 validated={isKeyFileRejected ? "error" : "default"}
@@ -559,9 +606,10 @@ const KindSourceForm: React.FC<{ identity?: Identity }> = ({ identity }) => {
   );
 };
 
-const KindMavenSettingsFileForm: React.FC<{ identity?: Identity }> = ({
-  identity,
-}) => {
+const KindMavenSettingsFileForm: React.FC<{
+  identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
+}> = ({ identity, defaultIdentities }) => {
   const { control, getValues, setValue } = useFormContext();
   const values = getValues();
 
@@ -569,52 +617,90 @@ const KindMavenSettingsFileForm: React.FC<{ identity?: Identity }> = ({
   const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
 
   const isSettingsEncrypted = identity?.settings === values.settings;
+  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isReplacingDefault =
+    values.default &&
+    kindDefault &&
+    (!identity || kindDefault.id !== identity.id);
 
   return (
-    <HookFormPFGroupController
-      control={control}
-      name="settings"
-      fieldId="settings"
-      label="Upload your Settings file or paste its contents below."
-      isRequired={values.kind === "maven"}
-      errorsSuppressed={isLoading}
-      renderInput={({ field: { onChange, value, name } }) => (
-        <FileUpload
-          data-testid="maven-settings-upload"
-          id="settings"
-          name={name}
-          type="text"
-          value={isSettingsEncrypted ? "[Encrypted]" : (value ?? "")}
-          filename={values.settingsFilename}
-          filenamePlaceholder="Drag and drop a file or upload one"
-          dropzoneProps={{
-            accept: { "text/xml": [".xml"] },
-            onDropRejected: () => setIsSettingsFileRejected(true),
-          }}
-          validated={isSettingsFileRejected ? "error" : "default"}
-          onFileInputChange={(_, file) => {
-            setValue("settingsFilename", file.name);
-            setIsSettingsFileRejected(false);
-          }}
-          onDataChange={(_, value: string) => {
-            onChange(value);
-          }}
-          onTextChange={(_, value: string) => {
-            onChange(value);
-          }}
-          onClearClick={() => {
-            onChange("");
-            setValue("settingsFilename", "");
-            setIsSettingsFileRejected(false);
-          }}
-          onReadStarted={() => setIsLoading(true)}
-          onReadFinished={() => setIsLoading(false)}
-          isLoading={isLoading}
-          allowEditingUploadedText
-          browseButtonText="Upload"
-        />
-      )}
-    />
+    <>
+      <HookFormPFGroupController
+        control={control}
+        name="default"
+        fieldId="default"
+        label="Default credential?"
+        renderInput={({ field: { onChange, value, name, ref } }) => (
+          <>
+            <Switch
+              id="default"
+              name={name}
+              label="Use as the maven settings file credential if an application does not have one assigned?"
+              isChecked={value}
+              onChange={(_, checked) => onChange(checked)}
+              ref={ref}
+            />
+            {isReplacingDefault && (
+              <Alert
+                isInline
+                className="alert-replacing-default"
+                variant="warning"
+                title="Default credential will change"
+              >
+                Credential <b>{kindDefault.name}</b> is currently set as the
+                maven settings file default credential. Selecting this
+                credential as the default will apply to all applications without
+                an explicitly set maven settings file credential.
+              </Alert>
+            )}
+          </>
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="settings"
+        fieldId="settings"
+        label="Upload your Settings file or paste its contents below."
+        isRequired={values.kind === "maven"}
+        errorsSuppressed={isLoading}
+        renderInput={({ field: { onChange, value, name } }) => (
+          <FileUpload
+            data-testid="maven-settings-upload"
+            id="settings"
+            name={name}
+            type="text"
+            value={isSettingsEncrypted ? "[Encrypted]" : (value ?? "")}
+            filename={values.settingsFilename}
+            filenamePlaceholder="Drag and drop a file or upload one"
+            dropzoneProps={{
+              accept: { "text/xml": [".xml"] },
+              onDropRejected: () => setIsSettingsFileRejected(true),
+            }}
+            validated={isSettingsFileRejected ? "error" : "default"}
+            onFileInputChange={(_, file) => {
+              setValue("settingsFilename", file.name);
+              setIsSettingsFileRejected(false);
+            }}
+            onDataChange={(_, value: string) => {
+              onChange(value);
+            }}
+            onTextChange={(_, value: string) => {
+              onChange(value);
+            }}
+            onClearClick={() => {
+              onChange("");
+              setValue("settingsFilename", "");
+              setIsSettingsFileRejected(false);
+            }}
+            onReadStarted={() => setIsLoading(true)}
+            onReadFinished={() => setIsLoading(false)}
+            isLoading={isLoading}
+            allowEditingUploadedText
+            browseButtonText="Upload"
+          />
+        )}
+      />
+    </>
   );
 };
 

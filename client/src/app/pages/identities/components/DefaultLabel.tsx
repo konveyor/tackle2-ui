@@ -4,7 +4,7 @@ import { Icon, Tooltip } from "@patternfly/react-core";
 import StarIcon from "@patternfly/react-icons/dist/esm/icons/star-icon";
 
 import { Identity } from "@app/api/models";
-import { TYPE_OPTIONS } from "../identities";
+import { KIND_VALUES } from "../utils";
 
 export interface DefaultLabelProps {
   identity: Identity;
@@ -21,7 +21,7 @@ export const DefaultLabel: React.FC<{ identity: Identity }> = ({
   }
 
   const typeName =
-    TYPE_OPTIONS.find(({ key }) => key === identity.kind)?.value ??
+    KIND_VALUES.find(({ key }) => key === identity.kind)?.value ??
     identity.kind;
 
   return (

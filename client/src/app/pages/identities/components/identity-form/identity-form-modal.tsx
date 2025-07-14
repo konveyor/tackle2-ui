@@ -12,6 +12,7 @@ export const IdentityFormModal: React.FC<IdentityFormModalProps> = ({
   isOpen,
   identity,
   onClose,
+  ...rest
 }) => {
   const { t } = useTranslation();
   return (
@@ -34,6 +35,7 @@ export const IdentityFormModal: React.FC<IdentityFormModalProps> = ({
         key={identity?.id ?? 0}
         identity={identity}
         onClose={onClose}
+        {...rest}
       />
     </Modal>
   );

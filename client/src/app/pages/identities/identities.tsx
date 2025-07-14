@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -18,7 +18,7 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { Identity, ITypeOptions } from "@app/api/models";
+import { Identity, IdentityKind } from "@app/api/models";
 import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -44,14 +44,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { DefaultLabel } from "./components/DefaultLabel";
-
-export const TYPE_OPTIONS: Array<ITypeOptions> = [
-  { key: "source", value: "Source Control" },
-  { key: "maven", value: "Maven Settings File" },
-  { key: "proxy", value: "Proxy" },
-  { key: "basic-auth", value: "Basic Auth (Jira)" },
-  { key: "bearer", value: "Bearer Token (Jira)" },
-];
+import { KIND_VALUES, lookupDefaults } from "./utils";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
@@ -101,6 +94,10 @@ export const Identities: React.FC = () => {
     isFetching,
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities(5_000);
+  const defaultIdentities: Record<IdentityKind, Identity | undefined> = useMemo(
+    () => lookupDefaults(identities),
+    [identities]
+  );
 
   const getBlockDeleteMessage = (item: Identity) => {
     if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {
@@ -169,7 +166,7 @@ export const Identities: React.FC = () => {
         title: "Type",
         type: FilterType.select,
         placeholderText: "Filter by type...",
-        selectOptions: TYPE_OPTIONS.map(({ key, value }) => ({
+        selectOptions: KIND_VALUES.map(({ key, value }) => ({
           value: key,
           label: value,
         })),
@@ -310,7 +307,7 @@ export const Identities: React.FC = () => {
               >
                 <Tbody>
                   {currentPageItems?.map((identity, rowIndex) => {
-                    const typeFormattedString = TYPE_OPTIONS.find(
+                    const typeFormattedString = KIND_VALUES.find(
                       (type) => type.key === identity.kind
                     );
                     return (
@@ -353,6 +350,8 @@ export const Identities: React.FC = () => {
                           >
                             {identity.createUser}
                           </Td>
+
+                          {/* TODO: Refactor actions.  Have "Edit", "Delete", "Set as default", "Remove as default" */}
                           <AppTableActionButtons
                             isDeleteEnabled={
                               trackers.some(
@@ -394,6 +393,7 @@ export const Identities: React.FC = () => {
         <IdentityFormModal
           isOpen={isCreateUpdateModalOpen}
           identity={identityToUpdate}
+          defaultIdentities={defaultIdentities}
           onClose={() => setCreateUpdateModalState(undefined)}
         />
 

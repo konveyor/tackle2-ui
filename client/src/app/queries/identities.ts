@@ -12,20 +12,21 @@ import { Identity, New } from "@app/api/models";
 export const IdentitiesQueryKey = "identities";
 
 export const useUpdateIdentityMutation = (
-  onSuccess: (identity: Identity) => void,
-  onError: (err: AxiosError, identity: Identity) => void
+  onSuccess?: (identity: Identity) => void,
+  onError?: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isLoading, mutate, mutateAsync, error } = useMutation({
     mutationFn: updateIdentity,
     onSuccess: (_, identity) => {
-      onSuccess(identity);
+      onSuccess?.(identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
     },
     onError,
   });
   return {
     mutate,
+    mutateAsync,
     isLoading,
     error,
   };
