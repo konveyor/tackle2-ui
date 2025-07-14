@@ -80,8 +80,6 @@ export const Identities: React.FC = () => {
     });
   };
 
-  const { targets } = useFetchTargets();
-
   const onDeleteIdentityError = (error: AxiosError) => {
     pushNotification({
       title: getAxiosErrorMessage(error),
@@ -93,6 +91,8 @@ export const Identities: React.FC = () => {
     onDeleteIdentitySuccess,
     onDeleteIdentityError
   );
+
+  const { targets } = useFetchTargets();
   const { data: applications } = useFetchApplications();
   const { trackers } = useFetchTrackers();
 
@@ -100,7 +100,7 @@ export const Identities: React.FC = () => {
     identities,
     isFetching,
     fetchError: fetchErrorIdentities,
-  } = useFetchIdentities();
+  } = useFetchIdentities(5_000);
 
   const getBlockDeleteMessage = (item: Identity) => {
     if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {

@@ -51,11 +51,12 @@ export const useCreateIdentityMutation = (
   };
 };
 
-export const useFetchIdentities = () => {
+export const useFetchIdentities = (refetchInterval: number | false = false) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
     queryFn: getIdentities,
     onError: (error) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     identities: data || [],

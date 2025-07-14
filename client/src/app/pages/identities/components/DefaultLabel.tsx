@@ -17,7 +17,7 @@ export const DefaultLabel: React.FC<{ identity: Identity }> = ({
   const isDefault = identity.default;
 
   if (!isDefault) {
-    return null;
+    return <Icon />;
   }
 
   const typeName =
