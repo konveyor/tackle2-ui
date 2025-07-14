@@ -121,6 +121,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
               <Th {...getThProps({ columnKey: "appName" })} />
               <Th {...getThProps({ columnKey: "status" })} />
               <Th {...getThProps({ columnKey: "issue" })} />
+              <Th screenReaderText="row actions" />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

@@ -74,6 +74,9 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "questionnaires" })} />
+              {application || archetype ? (
+                <Th screenReaderText="row actions" />
+              ) : null}
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

@@ -175,6 +175,7 @@ export const JobFunctions: React.FC = () => {
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} width={90} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

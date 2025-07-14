@@ -380,6 +380,7 @@ export const MigrationWaves: React.FC = () => {
                     <Th {...getThProps({ columnKey: "applications" })} />
                     <Th {...getThProps({ columnKey: "stakeholders" })} />
                     <Th {...getThProps({ columnKey: "status" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

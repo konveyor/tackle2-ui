@@ -990,7 +990,7 @@ export const ApplicationsTable: React.FC = () => {
                     }}
                   />
                 )}
-                <Th width={10} />
+                <Th screenReaderText="row actions" />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>

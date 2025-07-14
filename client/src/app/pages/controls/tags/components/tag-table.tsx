@@ -24,7 +24,7 @@ export const TagTable: React.FC<TabTableProps> = ({
       <Thead noWrap>
         <Tr>
           <Th>{t("terms.tagName")}</Th>
-          <Td />
+          <Th screenReaderText="row actions" />
         </Tr>
       </Thead>
       <Tbody>

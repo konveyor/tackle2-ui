@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 import { useTranslation } from "react-i18next";
@@ -278,7 +278,6 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
       getTdProps,
       getExpandedContentTdProps,
     },
-    sortState,
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
@@ -335,8 +334,8 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
           <Tbody>
             {currentPageItems?.map((item, rowIndex) => {
               return (
-                <>
-                  <Tr key={item.questionId} {...getTrProps({ item: item })}>
+                <Fragment key={item.questionId}>
+                  <Tr {...getTrProps({ item: item })}>
                     <TableRowContentWithControls
                       {...tableControls}
                       item={item}
@@ -395,7 +394,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       </Td>
                     </Tr>
                   ) : null}
-                </>
+                </Fragment>
               );
             })}
           </Tbody>
