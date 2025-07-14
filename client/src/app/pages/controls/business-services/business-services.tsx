@@ -218,6 +218,7 @@ export const BusinessServices: React.FC = () => {
                   <Th {...getThProps({ columnKey: "name" })} />
                   <Th {...getThProps({ columnKey: "description" })} />
                   <Th {...getThProps({ columnKey: "owner" })} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

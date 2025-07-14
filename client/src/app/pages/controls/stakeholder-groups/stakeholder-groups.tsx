@@ -233,7 +233,7 @@ export const StakeholderGroups: React.FC = () => {
                     width={25}
                   />
                   <Th {...getThProps({ columnKey: "count" })} width={40} />
-                  <Th width={10} />
+                  <Th screenReaderText="row actions" width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

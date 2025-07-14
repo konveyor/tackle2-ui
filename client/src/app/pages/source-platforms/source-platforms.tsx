@@ -275,6 +275,8 @@ const SourcePlatforms: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "providerType" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th screenReaderText="primary action" />
+                    <Th screenReaderText="secondary actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

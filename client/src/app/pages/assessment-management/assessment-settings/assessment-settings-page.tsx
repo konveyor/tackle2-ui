@@ -230,6 +230,7 @@ const AssessmentSettings: React.FC = () => {
                     <Th {...getThProps({ columnKey: "questions" })} />
                     <Th {...getThProps({ columnKey: "rating" })} />
                     <Th {...getThProps({ columnKey: "createTime" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>

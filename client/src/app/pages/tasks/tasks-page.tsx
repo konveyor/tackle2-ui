@@ -300,7 +300,7 @@ export const TasksPage: React.FC = () => {
                         info={tooltips[id]}
                       />
                     ))}
-                  <Th width={10} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

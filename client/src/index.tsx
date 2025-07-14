@@ -1,5 +1,4 @@
-import "@patternfly/patternfly/patternfly.css";
-import "@patternfly/patternfly/patternfly-addons.css";
+import "@patternfly/react-core/dist/styles/base.css";
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -13,6 +12,7 @@ import { KeycloakProvider } from "@app/components/KeycloakProvider";
 import "@app/dayjs";
 import "@app/i18n";
 import "@app/yup";
+import "@app/code-editor";
 
 const queryClient = new QueryClient();
 

@@ -268,6 +268,7 @@ export const Identities: React.FC = () => {
                     />
                     <Th width={25} {...getThProps({ columnKey: "type" })} />
                     <Th {...getThProps({ columnKey: "createdBy" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
