@@ -254,7 +254,13 @@
     "cancelationFailed": "Cancelation failed.",
     "cancelationRequestSubmitted": "Cancelation request submitted",
     "cancelNotAvailable": "It is not possible to cancel a task that is in status {{statusName}}",
-    "togglePreemptionNotAvailable": "It is not possible to toggle preemption for a task that is in status {{statusName}}"
+    "togglePreemptionNotAvailable": "It is not possible to toggle preemption for a task that is in status {{statusName}}",
+    "defaultCredentials": {
+      "mavenSwitchLabel": "Use as the maven settings file credential if an application does not have one assigned?",
+      "mavenChangeWarning": "Credential <strong>{{name}}</strong> is currently set as the maven settings file default credential. Selecting this credential as the default will apply to all applications without an explicitly set maven settings file credential.",
+      "sourceSwitchLabel": "Use as the source control credential if an application does not have one assigned?",
+      "sourceChangeWarning": "Credential <strong>{{name}}</strong> is currently set as the source control default credential. Selecting this credential as the default will apply to all applications without an explicitly set source control credential."
+    }
   },
   "proposedActions": {
     "refactor": "Refactor",

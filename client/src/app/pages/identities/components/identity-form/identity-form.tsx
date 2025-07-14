@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { AxiosError } from "axios";
 import {
@@ -452,6 +452,7 @@ const KindSourceForm: React.FC<{
   identity?: Identity;
   defaultIdentities?: Record<IdentityKind, Identity | undefined>;
 }> = ({ identity, defaultIdentities }) => {
+  const { t } = useTranslation();
   const { control, getValues, setValue, resetField } = useFormContext();
   const values = getValues();
 
@@ -495,6 +496,7 @@ const KindSourceForm: React.FC<{
                 selection as OptionWithValue<UserCredentials>;
               onChange(selectionValue.value);
               // So we don't retain the values from the wrong type of credential
+              resetField("default");
               resetField("user");
               resetField("key");
               resetField("password");
@@ -512,7 +514,7 @@ const KindSourceForm: React.FC<{
             <Switch
               id="default"
               name={name}
-              label="Use as the source control credential if an application does not have one assigned?"
+              label={t("message.defaultCredentials.sourceSwitchLabel")}
               isChecked={value}
               onChange={(_, checked) => onChange(checked)}
               ref={ref}
@@ -524,10 +526,12 @@ const KindSourceForm: React.FC<{
                 variant="warning"
                 title="Default credential will change"
               >
-                Credential <b>{kindDefault.name}</b> is currently set as the
-                source control default credential. Selecting this credential as
-                the default will apply to all applications without an explicitly
-                set source control credential.
+                <Trans
+                  i18nKey="message.defaultCredentials.sourceChangeWarning"
+                  values={{
+                    name: kindDefault.name,
+                  }}
+                />
               </Alert>
             )}
           </>
@@ -610,6 +614,7 @@ const KindMavenSettingsFileForm: React.FC<{
   identity?: Identity;
   defaultIdentities?: Record<IdentityKind, Identity | undefined>;
 }> = ({ identity, defaultIdentities }) => {
+  const { t } = useTranslation();
   const { control, getValues, setValue } = useFormContext();
   const values = getValues();
 
@@ -635,7 +640,7 @@ const KindMavenSettingsFileForm: React.FC<{
             <Switch
               id="default"
               name={name}
-              label="Use as the maven settings file credential if an application does not have one assigned?"
+              label={t("message.defaultCredentials.sourceSwitchLabel")}
               isChecked={value}
               onChange={(_, checked) => onChange(checked)}
               ref={ref}
@@ -647,10 +652,12 @@ const KindMavenSettingsFileForm: React.FC<{
                 variant="warning"
                 title="Default credential will change"
               >
-                Credential <b>{kindDefault.name}</b> is currently set as the
-                maven settings file default credential. Selecting this
-                credential as the default will apply to all applications without
-                an explicitly set maven settings file credential.
+                <Trans
+                  i18nKey="message.defaultCredentials.mavenChangeWarning"
+                  values={{
+                    name: kindDefault.name,
+                  }}
+                />
               </Alert>
             )}
           </>
