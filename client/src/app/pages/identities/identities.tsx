@@ -43,6 +43,15 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon } from "@patternfly/react-icons";
+import { DefaultLabel } from "./components/DefaultLabel";
+
+export const TYPE_OPTIONS: Array<ITypeOptions> = [
+  { key: "source", value: "Source Control" },
+  { key: "maven", value: "Maven Settings File" },
+  { key: "proxy", value: "Proxy" },
+  { key: "basic-auth", value: "Basic Auth (Jira)" },
+  { key: "bearer", value: "Bearer Token (Jira)" },
+];
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
@@ -93,14 +102,6 @@ export const Identities: React.FC = () => {
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities();
 
-  const typeOptions: Array<ITypeOptions> = [
-    { key: "source", value: "Source Control" },
-    { key: "maven", value: "Maven Settings File" },
-    { key: "proxy", value: "Proxy" },
-    { key: "basic-auth", value: "Basic Auth (Jira)" },
-    { key: "bearer", value: "Bearer Token (Jira)" },
-  ];
-
   const getBlockDeleteMessage = (item: Identity) => {
     if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {
       return t("message.blockedDeleteTracker", {
@@ -144,9 +145,9 @@ export const Identities: React.FC = () => {
     items: identities,
     columnNames: {
       name: t("terms.name"),
+      default: "",
       description: t("terms.description"),
       type: t("terms.type"),
-
       createdBy: t("terms.createdBy"),
     },
     isFilterEnabled: true,
@@ -168,7 +169,7 @@ export const Identities: React.FC = () => {
         title: "Type",
         type: FilterType.select,
         placeholderText: "Filter by type...",
-        selectOptions: typeOptions.map(({ key, value }) => ({
+        selectOptions: TYPE_OPTIONS.map(({ key, value }) => ({
           value: key,
           label: value,
         })),
@@ -185,6 +186,20 @@ export const Identities: React.FC = () => {
         }),
         getItemValue: (item: Identity) => {
           return item.createUser || "";
+        },
+      },
+      {
+        categoryKey: "",
+        title: "Default credential",
+        type: FilterType.select,
+        placeholderText: "Filter by default...",
+        selectOptions: [
+          { value: "true", label: "Default" },
+          { value: "false", label: "Not Default" },
+        ],
+        matcher: (filter, item) => {
+          const matchDefault = filter === "true";
+          return item.default === matchDefault;
         },
       },
     ],
@@ -260,6 +275,7 @@ export const Identities: React.FC = () => {
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th width={25} {...getThProps({ columnKey: "name" })} />
+                    <Th />
                     <Th
                       width={25}
                       {...getThProps({ columnKey: "description" })}
@@ -294,7 +310,7 @@ export const Identities: React.FC = () => {
               >
                 <Tbody>
                   {currentPageItems?.map((identity, rowIndex) => {
-                    const typeFormattedString = typeOptions.find(
+                    const typeFormattedString = TYPE_OPTIONS.find(
                       (type) => type.key === identity.kind
                     );
                     return (
@@ -313,6 +329,9 @@ export const Identities: React.FC = () => {
                             {...getTdProps({ columnKey: "name" })}
                           >
                             {identity.name}
+                          </Td>
+                          <Td {...getTdProps({ columnKey: "default" })}>
+                            <DefaultLabel identity={identity} />
                           </Td>
                           <Td
                             modifier="truncate"
