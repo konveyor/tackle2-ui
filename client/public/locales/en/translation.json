@@ -60,6 +60,8 @@
     "selectNone": "Select none (0 items)",
     "selectPage_one": "Select page ({{count}} item)",
     "selectPage_other": "Select page ({{count}} items)",
+    "setAsDefault": "Set as default",
+    "removeDefault": "Remove default",
     "submitReview": "Submit review",
     "taskDetails": "Task details",
     "unlink": "Unlink",
@@ -189,10 +191,6 @@
     "applicationEffortTooltip": "This column shows the total application effort.",
     "affectedAppEffortTooltip": "This column shows the calculated effort for all incidents related to this file.",
     "binaryPackaging": "Packaging will default to JAR if left empty.",
-    "blockedDeleteTracker": "Cannot delete {{what}} because it is associated with a tracker.",
-    "blockedDeleteApplication": "Cannot delete {{what}} because it is associated with an application.",
-    "blockedDeleteTarget": "Cannot delete {{what}} because it is associated with a target.",
-    "defaultBlockedDelete": "Cannot delete {{what}} because it is associated with another object.",
     "cannotDeleteJobFunctionWithStakeholders": "Cannot remove a Job function associated with stakeholder(s)",
     "cannotDeleteApplicationsAssignedToMigrationWave": "Cannot delete applications that are assigned to a migration wave.",
     "cannotDeleteNonEmptyTagCategory": "Cannot delete a tag category that contains tags.",
@@ -497,6 +495,7 @@
     "tagsAssessment": "Assessment Tags",
     "tagsCriteria": "Criteria Tags",
     "target": "Target",
+    "targets": "Targets",
     "tagCategory": "Tag category",
     "tagCategoryDeleted": "Tag category deleted",
     "tagCategories": "Tag categories",
@@ -505,6 +504,7 @@
     "teamMember": "team member",
     "terminated": "Terminated",
     "ticket": "Ticket",
+    "trackers": "Trackers",
     "trivialButMigratable": "Trivial but migratable",
     "type": "Type",
     "unassessed": "Unassessed",
@@ -552,7 +552,8 @@
   },
   "tooltip": {
     "priority": "Tasks priority, a non-negative number, impacts tasks scheduling policy. Lowest priority is 0. Higher priority tasks run before lower priority tasks.",
-    "preemption": "If enabled, allows the scheduler to reschedule other running tasks to free cluster resources needed to run higher priority tasks."
+    "preemption": "If enabled, allows the scheduler to reschedule other running tasks to free cluster resources needed to run higher priority tasks.",
+    "defaultIdentity": "Credential {{name}} is the default credential for {{type}} types."
   },
   "validation": {
     "email": "This field requires a valid email.",
@@ -631,6 +632,31 @@
     },
     "tooltip": {
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
+    }
+  },
+  "credentials": {
+    "delete": {
+      "application_one": "1 application",
+      "application_other": "{{count}} applications",
+      "target_one": "1 target",
+      "target_other": "{{count}} targets",
+      "tracker_one": "1 tracker",
+      "tracker_other": "{{count}} trackers",
+      "deleteInUse": "This credential is explicitly use by {{attached, list}}. Deleting this credential will remove it from these items. This action cannot be undone.",
+      "warnDeleteInUse": "Cannot delete {{what}} because it is explicitly associated with {{attached, list}}."
+    },
+    "default": {
+      "changeTitle": "Default credential will change",
+      "mavenSwitchLabel": "Use as the maven settings file credential if an application does not have one assigned?",
+      "mavenChangeWarning": "Credential <strong>{{name}}</strong> is currently set as the maven settings file default credential. Selecting this credential as the default will apply to all applications without an explicitly set maven settings file credential.",
+      "sourceSwitchLabel": "Use as the source control credential if an application does not have one assigned?",
+      "sourceChangeWarning": "Credential <strong>{{name}}</strong> is currently set as the source control default credential. Selecting this credential as the default will apply to all applications without an explicitly set source control credential."
+    },
+    "confirm": {
+      "setAsDefaultTitle": "Set {{name}} as default?",
+      "setAsDefaultMessage": "Credential <strong>{{name}}</strong> is currently set as the {{typeString}} default credential. Setting this credential as the default will apply to all {{typeString}} type credential uses where the credential is not explicitly set.",
+      "removeDefaultTitle": "Remove {{name}} as default?",
+      "removeDefaultMessage": "This credential will no longer be used as the default credential for {{typeString}} types."
     }
   }
 }
