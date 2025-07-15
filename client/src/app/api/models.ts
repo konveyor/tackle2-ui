@@ -183,12 +183,15 @@ export interface ApplicationImport {
   isValid: boolean;
 }
 
-export type IdentityKind =
-  | "source"
-  | "maven"
-  | "proxy"
-  | "basic-auth"
-  | "bearer";
+export const IdentityKinds = [
+  "source",
+  "maven",
+  "proxy",
+  "basic-auth",
+  "bearer",
+] as const;
+
+export type IdentityKind = (typeof IdentityKinds)[number];
 
 export interface Identity {
   id: number;
@@ -197,6 +200,7 @@ export interface Identity {
   createTime?: string;
 
   kind: IdentityKind;
+  default?: boolean;
   name: string;
   description?: string;
   user?: string;
