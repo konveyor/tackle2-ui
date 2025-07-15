@@ -646,6 +646,7 @@
       "warnDeleteInUse": "Cannot delete {{what}} because it is explicitly associated with {{attached, list}}."
     },
     "default": {
+      "changeTitle": "Default credential will change",
       "mavenSwitchLabel": "Use as the maven settings file credential if an application does not have one assigned?",
       "mavenChangeWarning": "Credential <strong>{{name}}</strong> is currently set as the maven settings file default credential. Selecting this credential as the default will apply to all applications without an explicitly set maven settings file credential.",
       "sourceSwitchLabel": "Use as the source control credential if an application does not have one assigned?",

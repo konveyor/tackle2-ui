@@ -524,7 +524,7 @@ const KindSourceForm: React.FC<{
                 isInline
                 className="alert-replacing-default"
                 variant="warning"
-                title="Default credential will change"
+                title={t("credentials.default.changeTitle")}
               >
                 <Trans
                   i18nKey="credentials.default.sourceChangeWarning"
@@ -650,7 +650,7 @@ const KindMavenSettingsFileForm: React.FC<{
                 isInline
                 className="alert-replacing-default"
                 variant="warning"
-                title="Default credential will change"
+                title={t("credentials.default.changeTitle")}
               >
                 <Trans
                   i18nKey="credentials.default.mavenChangeWarning"
