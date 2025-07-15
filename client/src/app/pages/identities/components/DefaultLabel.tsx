@@ -17,7 +17,7 @@ export const DefaultLabel: React.FC<{ identity: Identity }> = ({
   const isDefault = identity.default;
 
   if (!isDefault) {
-    return <Icon />;
+    return <Icon aria-label="not default" />;
   }
 
   const typeName =
@@ -31,7 +31,7 @@ export const DefaultLabel: React.FC<{ identity: Identity }> = ({
         type: typeName,
       })}
     >
-      <Icon>
+      <Icon aria-label="default">
         <StarIcon />
       </Icon>
     </Tooltip>

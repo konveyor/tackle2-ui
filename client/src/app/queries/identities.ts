@@ -19,8 +19,8 @@ export const useUpdateIdentityMutation = (
   const { isLoading, mutate, mutateAsync, error } = useMutation({
     mutationFn: updateIdentity,
     onSuccess: (_, identity) => {
-      onSuccess?.(identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
+      onSuccess?.(identity);
     },
     onError,
   });
@@ -40,8 +40,8 @@ export const useCreateIdentityMutation = (
   const { isLoading, mutate, error } = useMutation({
     mutationFn: createIdentity,
     onSuccess: (data, identityToCreate) => {
-      onSuccess(data, identityToCreate);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
+      onSuccess(data, identityToCreate);
     },
     onError,
   });
@@ -76,12 +76,12 @@ export const useDeleteIdentityMutation = (
   const { isLoading, mutate, error } = useMutation({
     mutationFn: deleteIdentity,
     onSuccess: (_, identity) => {
-      onSuccess(identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
+      onSuccess(identity);
     },
     onError: (err: AxiosError, identity) => {
-      onError(err, identity);
       queryClient.invalidateQueries([IdentitiesQueryKey]);
+      onError(err, identity);
     },
   });
   return {

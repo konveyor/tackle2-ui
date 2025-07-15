@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
@@ -15,10 +15,18 @@ import {
   Title,
   Toolbar,
   ToolbarContent,
-  OverflowMenu,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import {
+  ActionsColumn,
+  IAction,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 
 import { Identity, IdentityKind } from "@app/api/models";
 import { AxiosError } from "axios";
@@ -27,12 +35,12 @@ import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import {
   useDeleteIdentityMutation,
   useFetchIdentities,
+  useUpdateIdentityMutation,
 } from "@app/queries/identities";
 import { useFetchApplications } from "@app/queries/applications";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { IdentityFormModal } from "./components/identity-form";
 import { useFetchTrackers } from "@app/queries/trackers";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -46,93 +54,36 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { DefaultLabel } from "./components/DefaultLabel";
-import { KIND_VALUES, lookupDefaults } from "./utils";
+import { KIND_STRINGS, KIND_VALUES, lookupDefaults } from "./utils";
+import { objectify } from "radash";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
 
   const [identityToDelete, setIdentityToDelete] = React.useState<Identity>();
-
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const [identityToDefault, setIdentityToDefault] = React.useState<Identity>();
+  const [identityToRemoveDefault, setIdentityToRemoveDefault] =
+    React.useState<Identity>();
 
   const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
     "create" | Identity | undefined
   >(undefined);
-  const isCreateUpdateModalOpen = createUpdateModalState !== undefined;
-  const identityToUpdate =
-    createUpdateModalState !== "create" ? createUpdateModalState : undefined;
-
-  const onDeleteIdentitySuccess = (identity: Identity) => {
-    pushNotification({
-      title: t("toastr.success.deletedWhat", {
-        what: identity.name,
-        type: t("terms.credential"),
-      }),
-      variant: "success",
-    });
-  };
-
-  const onDeleteIdentityError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteIdentity } = useDeleteIdentityMutation(
-    onDeleteIdentitySuccess,
-    onDeleteIdentityError
-  );
-
-  const { targets } = useFetchTargets();
-  const { data: applications } = useFetchApplications();
-  const { trackers } = useFetchTrackers();
 
   const {
     identities,
     isFetching,
     fetchError: fetchErrorIdentities,
   } = useFetchIdentities(5_000);
-  const defaultIdentities: Record<IdentityKind, Identity | undefined> = useMemo(
-    () => lookupDefaults(identities),
-    [identities]
-  );
 
-  const getBlockDeleteMessage = (item: Identity) => {
-    if (trackers.some((tracker) => tracker?.identity?.id === item.id)) {
-      return t("message.blockedDeleteTracker", {
-        what: item.name,
-      });
-    } else if (
-      applications?.some((app) =>
-        app?.identities?.some((id) => id.id === item.id)
-      )
-    ) {
-      return t("message.blockedDeleteApplication", {
-        what: item.name,
-      });
-    } else if (
-      targets?.some((target) => target?.ruleset?.identity?.id === item.id)
-    ) {
-      return t("message.blockedDeleteTarget", {
-        what: item.name,
-      });
-    } else {
-      return t("message.defaultBlockedDelete", {
-        what: item.name,
-      });
-    }
-  };
-
-  const dependentApplications = React.useMemo(() => {
-    if (identityToDelete) {
-      const res = applications?.filter((app) =>
-        app?.identities?.map((id) => id.id).includes(identityToDelete.id)
-      );
-      return res;
-    }
-    return [];
-  }, [applications, identityToDelete]);
+  const {
+    identityMeta,
+    defaultIdentities,
+    getDeleteTooltip,
+    getDeleteConfirmMessage,
+    doDeleteIdentity,
+    doAssignDefaultIdentity,
+    doRemoveDefaultIdentity,
+  } = useIdentityMeta(identities);
 
   const tableControls = useLocalTableControls({
     tableName: "identities-table",
@@ -276,14 +227,18 @@ export const Identities: React.FC = () => {
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th width={25} {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "default" })} />
+                    <Th
+                      aria-label="is credential the default"
+                      {...getThProps({ columnKey: "default" })}
+                    />
                     <Th
                       width={25}
                       {...getThProps({ columnKey: "description" })}
                     />
                     <Th width={25} {...getThProps({ columnKey: "type" })} />
                     <Th {...getThProps({ columnKey: "createdBy" })} />
-                    <Th screenReaderText="row actions" />
+                    <Th screenReaderText="primary action" />
+                    <Th screenReaderText="secondary actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -344,7 +299,7 @@ export const Identities: React.FC = () => {
                         >
                           {KIND_VALUES.find(
                             (type) => type.key === identity.kind
-                          ) ?? identity.kind}
+                          )?.value ?? identity.kind}
                         </Td>
                         <Td
                           width={10}
@@ -353,41 +308,60 @@ export const Identities: React.FC = () => {
                           {identity.createUser}
                         </Td>
 
-                        {/* TODO: Refactor actions.  Have "Edit", "Delete", "Set as default", "Remove as default" */}
-                        <Td isActionCell id="row-actions">
-                          <OverflowMenu breakpoint="sm">
-                            <Tooltip content={t("actions.edit")}>
-                              <Button
-                                variant="plain"
-                                icon={<PencilAltIcon />}
-                                onClick={() =>
-                                  setCreateUpdateModalState(identity)
-                                }
-                              />
-                            </Tooltip>
-                          </OverflowMenu>
+                        <Td isActionCell id="pencil-action">
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              id="edit-action"
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setCreateUpdateModalState(identity)
+                              }
+                            />
+                          </Tooltip>
                         </Td>
-                        <AppTableActionButtons
-                          isDeleteEnabled={
-                            trackers.some(
-                              (tracker) => tracker?.identity?.id === identity.id
-                            ) ||
-                            applications?.some((app) =>
-                              app?.identities?.some(
-                                (id) => id.id === identity.id
-                              )
-                            ) ||
-                            targets?.some(
-                              (target) =>
-                                target?.ruleset?.identity?.id === identity.id
-                            )
-                          }
-                          tooltipMessage={getBlockDeleteMessage(identity)}
-                          onEdit={() => {}}
-                          onDelete={() => {
-                            setIdentityToDelete(identity);
-                          }}
-                        />
+                        <Td isActionCell id="row-actions">
+                          <ActionsColumn
+                            items={(
+                              [
+                                identityMeta[identity.id].okToSetAsDefault && {
+                                  title: t("actions.setAsDefault"),
+                                  onClick: () => {
+                                    if (defaultIdentities[identity.kind]) {
+                                      setIdentityToDefault(identity);
+                                    } else {
+                                      // TODO: Maybe we want to confirm this first since it will
+                                      //       rerun tech-discovery and language-discovery on all
+                                      //       applications w/o credentials
+                                      doAssignDefaultIdentity(identity);
+                                    }
+                                  },
+                                },
+
+                                identityMeta[identity.id].okToRemoveDefault && {
+                                  title: t("actions.removeDefault"),
+                                  onClick: () => {
+                                    setIdentityToRemoveDefault(identity);
+                                  },
+                                },
+
+                                { isSeparator: true },
+                                {
+                                  isDanger: true,
+                                  title: t("actions.delete"),
+                                  onClick: () => {
+                                    setIdentityToDelete(identity);
+                                  },
+                                  isAriaDisabled:
+                                    identityMeta[identity.id].inUse,
+                                  tooltipProps: {
+                                    content: getDeleteTooltip(identity),
+                                  },
+                                },
+                              ] as IAction[]
+                            ).filter(Boolean)}
+                          />
+                        </Td>
                       </TableRowContentWithControls>
                     </Tr>
                   ))}
@@ -403,26 +377,24 @@ export const Identities: React.FC = () => {
         </ConditionalRender>
 
         <IdentityFormModal
-          isOpen={isCreateUpdateModalOpen}
-          identity={identityToUpdate}
+          isOpen={createUpdateModalState !== undefined}
+          identity={
+            createUpdateModalState === "create"
+              ? undefined
+              : createUpdateModalState
+          }
           defaultIdentities={defaultIdentities}
           onClose={() => setCreateUpdateModalState(undefined)}
         />
 
-        {identityToDelete && (
+        {identityToDelete ? (
           <ConfirmDialog
             title={t("dialog.title.deleteWithName", {
               what: t("terms.credential").toLowerCase(),
-              name: identityToDelete?.name,
+              name: identityToDelete.name,
             })}
             titleIconVariant={"warning"}
-            message={
-              dependentApplications?.length
-                ? t("confirmDeleteOfInUseCredentials", {
-                    count: dependentApplications.length,
-                  })
-                : t("dialog.message.delete")
-            }
+            message={getDeleteConfirmMessage(identityToDelete)}
             isOpen={true}
             confirmBtnVariant={ButtonVariant.danger}
             confirmBtnLabel={t("actions.delete")}
@@ -430,12 +402,207 @@ export const Identities: React.FC = () => {
             onCancel={() => setIdentityToDelete(undefined)}
             onClose={() => setIdentityToDelete(undefined)}
             onConfirm={() => {
-              deleteIdentity(identityToDelete);
+              doDeleteIdentity(identityToDelete);
               setIdentityToDelete(undefined);
             }}
           />
-        )}
+        ) : null}
+
+        {identityToDefault ? (
+          <ConfirmDialog
+            title={t("credentials.confirm.setAsDefaultTitle", {
+              name: identityToDefault.name,
+            })}
+            titleIconVariant={"warning"}
+            message={
+              <Trans
+                i18nKey={"credentials.confirm.setAsDefaultMessage"}
+                values={{
+                  name: defaultIdentities[identityToDefault.kind]?.name,
+                  typeString:
+                    KIND_STRINGS[identityToDefault.kind] ??
+                    identityToDefault.kind,
+                }}
+              />
+            }
+            isOpen={true}
+            confirmBtnVariant={ButtonVariant.primary}
+            confirmBtnLabel={t("actions.accept")}
+            cancelBtnLabel={t("actions.cancel")}
+            onCancel={() => setIdentityToDefault(undefined)}
+            onClose={() => setIdentityToDefault(undefined)}
+            onConfirm={() => {
+              doAssignDefaultIdentity(identityToDefault);
+              setIdentityToDefault(undefined);
+            }}
+          />
+        ) : null}
+
+        {identityToRemoveDefault ? (
+          <ConfirmDialog
+            title={t("credentials.confirm.removeDefaultTitle", {
+              name: identityToRemoveDefault.name,
+            })}
+            titleIconVariant={"warning"}
+            message={t("credentials.confirm.removeDefaultMessage", {
+              typeString:
+                KIND_STRINGS[identityToRemoveDefault.kind] ??
+                identityToRemoveDefault.kind,
+            })}
+            isOpen={true}
+            confirmBtnVariant={ButtonVariant.primary}
+            confirmBtnLabel={t("actions.accept")}
+            cancelBtnLabel={t("actions.cancel")}
+            onCancel={() => setIdentityToRemoveDefault(undefined)}
+            onClose={() => setIdentityToRemoveDefault(undefined)}
+            onConfirm={() => {
+              doRemoveDefaultIdentity(identityToRemoveDefault);
+              setIdentityToRemoveDefault(undefined);
+            }}
+          />
+        ) : null}
       </PageSection>
     </>
   );
+};
+
+const useIdentityMeta = (identities: Identity[]) => {
+  const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+  const { trackers } = useFetchTrackers();
+  const { targets } = useFetchTargets();
+  const { data: applications } = useFetchApplications();
+
+  const defaultIdentities: Record<IdentityKind, Identity | undefined> = useMemo(
+    () => lookupDefaults(identities),
+    [identities]
+  );
+
+  const identityMeta = objectify(
+    identities,
+    ({ id }) => id,
+    ({ id, default: isDefault, kind }) => {
+      const someTrackers = trackers.filter((t) => t.identity?.id === id).length;
+      const someApplications = applications.filter((a) =>
+        a.identities?.some((i) => i.id === id)
+      ).length;
+      const someTargets = targets.filter(
+        (t) => t.ruleset?.identity?.id === id
+      ).length;
+
+      const okToSetAsDefault = !isDefault && ["source", "maven"].includes(kind);
+      const okToRemoveDefault = isDefault && ["source", "maven"].includes(kind);
+
+      return {
+        id,
+        someTrackers,
+        someApplications,
+        someTargets,
+        inUse: someTrackers > 0 || someApplications > 0 || someTargets > 0,
+        okToSetAsDefault,
+        okToRemoveDefault,
+      };
+    }
+  );
+
+  const getDeleteTooltip = (item: Identity) => {
+    const meta = identityMeta[item.id];
+    if (!meta.inUse) {
+      return undefined;
+    }
+
+    const inUseList = [
+      meta.someApplications &&
+        t("credentials.delete.application", { count: meta.someApplications }),
+      meta.someTargets &&
+        t("credentials.delete.target", { count: meta.someTargets }),
+      meta.someTrackers &&
+        t("credentials.delete.tracker", { count: meta.someTrackers }),
+    ].filter(Boolean);
+
+    return t("credentials.delete.warnDeleteInUse", {
+      what: item.name,
+      attached: inUseList,
+    });
+  };
+
+  const getDeleteConfirmMessage = (item: Identity) => {
+    const meta = identityMeta[item.id];
+    if (!meta.inUse) {
+      return t("dialog.message.delete");
+    }
+
+    const inUseList = [
+      meta.someApplications &&
+        t("credentials.delete.application", { count: meta.someApplications }),
+      meta.someTargets &&
+        t("credentials.delete.target", { count: meta.someTargets }),
+      meta.someTrackers &&
+        t("credentials.delete.tracker", { count: meta.someTrackers }),
+    ].filter(Boolean);
+
+    return t("credentials.delete.deleteInUse", {
+      attached: inUseList,
+    });
+  };
+
+  const onMutationError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: doDeleteIdentity } = useDeleteIdentityMutation(
+    (identity: Identity) => {
+      pushNotification({
+        title: t("toastr.success.deletedWhat", {
+          what: identity.name,
+          type: t("terms.credential"),
+        }),
+        variant: "success",
+      });
+    },
+    onMutationError
+  );
+
+  const { mutate: updateIdentity } = useUpdateIdentityMutation((identity) => {
+    pushNotification({
+      title: t("toastr.success.saveWhat", {
+        what: identity.name,
+        type: t("terms.credential"),
+      }),
+      variant: "success",
+    });
+  }, onMutationError);
+
+  const { mutateAsync: updateIdentityAsync } = useUpdateIdentityMutation();
+
+  const doAssignDefaultIdentity = async (newDefault: Identity) => {
+    try {
+      // Unset the existing default if necessary
+      const existingDefault = defaultIdentities[newDefault.kind];
+      if (existingDefault && existingDefault.id !== newDefault.id) {
+        await updateIdentityAsync({ ...existingDefault, default: false });
+      }
+
+      updateIdentity({ ...newDefault, default: true });
+    } catch (e) {
+      onMutationError(e as AxiosError);
+    }
+  };
+
+  const doRemoveDefaultIdentity = (identity: Identity) => {
+    updateIdentity({ ...identity, default: false });
+  };
+
+  return {
+    identityMeta,
+    defaultIdentities,
+    getDeleteTooltip,
+    getDeleteConfirmMessage,
+    doDeleteIdentity,
+    doAssignDefaultIdentity,
+    doRemoveDefaultIdentity,
+  };
 };

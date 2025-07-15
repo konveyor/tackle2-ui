@@ -514,7 +514,7 @@ const KindSourceForm: React.FC<{
             <Switch
               id="default"
               name={name}
-              label={t("message.defaultCredentials.sourceSwitchLabel")}
+              label={t("credentials.default.sourceSwitchLabel")}
               isChecked={value}
               onChange={(_, checked) => onChange(checked)}
               ref={ref}
@@ -527,7 +527,7 @@ const KindSourceForm: React.FC<{
                 title="Default credential will change"
               >
                 <Trans
-                  i18nKey="message.defaultCredentials.sourceChangeWarning"
+                  i18nKey="credentials.default.sourceChangeWarning"
                   values={{
                     name: kindDefault.name,
                   }}
@@ -640,7 +640,7 @@ const KindMavenSettingsFileForm: React.FC<{
             <Switch
               id="default"
               name={name}
-              label={t("message.defaultCredentials.sourceSwitchLabel")}
+              label={t("credentials.default.sourceSwitchLabel")}
               isChecked={value}
               onChange={(_, checked) => onChange(checked)}
               ref={ref}
@@ -653,7 +653,7 @@ const KindMavenSettingsFileForm: React.FC<{
                 title="Default credential will change"
               >
                 <Trans
-                  i18nKey="message.defaultCredentials.mavenChangeWarning"
+                  i18nKey="credentials.default.mavenChangeWarning"
                   values={{
                     name: kindDefault.name,
                   }}
