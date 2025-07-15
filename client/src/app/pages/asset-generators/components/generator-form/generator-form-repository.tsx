@@ -12,7 +12,7 @@ import { toOptionLike } from "@app/utils/model-utils";
 interface GeneratorFormRepositoryProps {
   control: Control<any>;
   trigger: UseFormTrigger<any>;
-  kindOptions: any[];
+  kindOptions: OptionWithValue<string>[];
 }
 
 export const GeneratorFormRepository: React.FC<
@@ -32,7 +32,7 @@ export const GeneratorFormRepository: React.FC<
         <HookFormPFGroupController
           control={control}
           name="kind"
-          label="Repository type"
+          label={t("terms.repositoryType")}
           fieldId="repository-type-select"
           renderInput={({ field: { value, name, onChange } }) => (
             <SimpleSelect
