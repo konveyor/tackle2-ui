@@ -16,11 +16,16 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 
-export interface IGeneratorCollectionTable {
-  collection?: Record<string, any>;
+interface GeneratorCollectionItem {
+  key: string;
+  value: string;
 }
 
-const GeneratorCollectionTable: React.FC<IGeneratorCollectionTable> = ({
+export interface GeneratorCollectionTableProps {
+  collection?: GeneratorCollectionItem[];
+}
+
+const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
   collection,
 }) => {
   const { t } = useTranslation();
@@ -30,18 +35,18 @@ const GeneratorCollectionTable: React.FC<IGeneratorCollectionTable> = ({
     persistTo: "state",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.generatorCollections,
     columnNames: {
-      id: "ID",
-      name: "Name",
+      key: "key",
+      value: "value",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    sortableColumns: ["id"],
-    initialSort: { columnKey: "id", direction: "asc" },
+    sortableColumns: ["key"],
+    initialSort: { columnKey: "key", direction: "asc" },
     filterCategories: [
       {
-        categoryKey: "id",
-        title: "ID",
+        categoryKey: "key",
+        title: "Key",
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -53,19 +58,11 @@ const GeneratorCollectionTable: React.FC<IGeneratorCollectionTable> = ({
     initialItemsPerPage: 10,
   });
 
-  const collectionArray = collection
-    ? Object.entries(collection).map(([key, value]) => ({
-        id: key,
-        name: key,
-        value,
-      }))
-    : [];
-
   const tableControls = useTableControlProps({
     ...tableControlState,
-    idProperty: "id",
-    currentPageItems: collectionArray,
-    totalItemCount: collectionArray.length,
+    idProperty: "key",
+    currentPageItems: collection || [],
+    totalItemCount: (collection || []).length,
     isLoading: false,
   });
 
@@ -102,27 +99,30 @@ const GeneratorCollectionTable: React.FC<IGeneratorCollectionTable> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "id" })} />
-              <Th {...getThProps({ columnKey: "name" })} />
+              <Th {...getThProps({ columnKey: "key" })} />
+              <Th {...getThProps({ columnKey: "value" })} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
         <ConditionalTableBody
           isLoading={false}
           isError={false}
-          isNoData={true}
+          isNoData={!collection || collection.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {collectionArray.map((item, rowIndex) => (
-              <Tr key={item.id} {...getTrProps({ item })}>
+            {collection?.map((item, rowIndex) => (
+              <Tr key={item.key} {...getTrProps({ item })}>
                 <TableRowContentWithControls
                   {...tableControls}
                   item={item}
                   rowIndex={rowIndex}
                 >
-                  <Td width={70} {...getTdProps({ columnKey: "id" })}>
-                    {item.id}
+                  <Td width={70} {...getTdProps({ columnKey: "key" })}>
+                    {item.key}
+                  </Td>
+                  <Td width={70} {...getTdProps({ columnKey: "value" })}>
+                    {item.value}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>

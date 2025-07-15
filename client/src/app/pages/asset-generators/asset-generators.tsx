@@ -171,7 +171,6 @@ const AssetGenerators: React.FC = () => {
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
-  console.log("tableControls", tableControls);
 
   const CreateButton = () => (
     <Button
@@ -189,11 +188,10 @@ const AssetGenerators: React.FC = () => {
     const currentPath = history.location.pathname;
     const newSearch = new URLSearchParams(history.location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    history.push(`${currentPath}?${newSearch.toString()}`);
     filterToolbarProps.setFilterValues({});
   };
 
-  console.log("generators", generators);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -316,29 +314,6 @@ const AssetGenerators: React.FC = () => {
                             />
                           </Tooltip>
                         </Td>
-
-                        {/* <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={[
-                              ...[
-                                {
-                                  title: t("actions.discoverApplications"),
-                                  onClick: () =>
-                                    discoverApplications(generator.id),
-                                },
-                              ],
-                              { isSeparator: true },
-                              ...[
-                                {
-                                  title: t("actions.delete"),
-                                  onClick: () =>
-                                    setGeneratorToDelete(generator),
-                                  isDanger: true,
-                                },
-                              ],
-                            ]}
-                          />
-                        </Td> */}
                       </TableRowContentWithControls>
                     </Tr>
                   ))}

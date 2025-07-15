@@ -9,7 +9,6 @@ import {
   ActionGroup,
   Button,
   ButtonVariant,
-  ExpandableSection,
   Form,
 } from "@patternfly/react-core";
 
@@ -24,7 +23,7 @@ import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { SimpleSelect } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useGeneratorProviderList } from "../../useGeneratorProviderList";
@@ -33,9 +32,10 @@ import {
   useFetchGenerators,
   useUpdateGeneratorMutation,
 } from "@app/queries/generators";
-import { toOptionLike } from "@app/utils/model-utils";
-import { KeyValueFields } from "../fields-mapper/generator-fields-mapper";
 import { parametersToArray, arrayToParameters } from "../../utils";
+import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
+import { GeneratorFormParameters as GeneratorParametersSection } from "./generator-form-parameters";
+import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
 
 export interface GeneratorFormValues {
   kind: string;
@@ -78,9 +78,6 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
-  const [isParametersExpanded, setParametersExpanded] = React.useState(false);
-  const [isValuesExpanded, setValuesExpanded] = React.useState(false);
 
   const providersList = useGeneratorProviderList();
 
@@ -291,87 +288,17 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         />
 
         {/* Repository section */}
-        <ExpandableSection
-          toggleText={t("terms.sourceCode")}
-          className="toggle"
-          onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
-          isExpanded={isSourceCodeExpanded}
-        >
-          <div className="pf-v5-c-form">
-            <HookFormPFGroupController
-              control={control}
-              name="kind"
-              label="Repository type"
-              fieldId="repository-type-select"
-              renderInput={({ field: { value, name, onChange } }) => (
-                <SimpleSelect
-                  toggleId="repo-type-toggle"
-                  toggleAriaLabel="Type select dropdown toggle"
-                  aria-label={name}
-                  value={value ? toOptionLike(value, kindOptions) : undefined}
-                  options={kindOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                    trigger("repository.url");
-                  }}
-                />
-              )}
-            />
-            <HookFormPFTextInput
-              control={control}
-              name="repository.url"
-              label={t("terms.sourceRepo")}
-              fieldId="repository.url"
-              aria-label="source repository url"
-              // isRequired={true} //{kindOptions.some(({ value }) => value === watchKind)}
-            />
-            <HookFormPFTextInput
-              control={control}
-              type="text"
-              aria-label="Repository branch"
-              name="repository.branch"
-              label={t("terms.sourceBranch")}
-              fieldId="branch"
-            />
-            <HookFormPFTextInput
-              control={control}
-              name="repository.path"
-              label={t("terms.sourceRootPath")}
-              fieldId="path"
-            />
-          </div>
-        </ExpandableSection>
+        <GeneratorRepositorySection
+          control={control}
+          trigger={trigger}
+          kindOptions={kindOptions}
+        />
 
         {/* Parameters section */}
-        <ExpandableSection
-          toggleText={t("terms.parameters")}
-          className="toggle"
-          onToggle={() => setParametersExpanded(!isParametersExpanded)}
-          isExpanded={isParametersExpanded}
-        >
-          <div className="pf-v5-c-form">
-            <KeyValueFields
-              collection={generator?.parameters || {}}
-              name="parameters"
-            />
-          </div>
-        </ExpandableSection>
+        <GeneratorParametersSection collection={generator?.parameters || {}} />
 
         {/* Values section */}
-        <ExpandableSection
-          toggleText={t("terms.values")}
-          className="toggle"
-          onToggle={() => setValuesExpanded(!isValuesExpanded)}
-          isExpanded={isValuesExpanded}
-        >
-          <div className="pf-v5-c-form">
-            <KeyValueFields
-              collection={generator?.values || {}}
-              name="values"
-            />
-          </div>
-        </ExpandableSection>
+        <GeneratorValuesSection collection={generator?.values || {}} />
 
         <ActionGroup>
           <Button
@@ -401,10 +328,8 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
 
 const useGeneratorFormData = ({
   onActionSuccess = () => {},
-  onActionFail = () => {},
 }: {
   onActionSuccess?: () => void;
-  onActionFail?: () => void;
 } = {}) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -439,7 +364,6 @@ const useGeneratorFormData = ({
       title: getAxiosErrorMessage(error),
       variant: "danger",
     });
-    onActionFail();
   };
 
   const { mutate: createGenerator } = useCreateGeneratorMutation(

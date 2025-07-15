@@ -1,7 +1,6 @@
 import "./generator-detail-drawer.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   TextContent,
   Text,
@@ -16,13 +15,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AssetGenerator } from "@app/api/models";
-
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
-
-// just until we get those from the hub
-import myJson from "@app/components/schema-defined-fields/myJson.json";
-import mySchema from "@app/components/schema-defined-fields/mySchema.json";
 import GeneratorCollectionTable from "./generator-collection-table";
 import { parametersToArray } from "../utils";
 
@@ -33,8 +26,8 @@ export interface IGeneratorDetailDrawerProps {
 
 enum TabKey {
   Details = 0,
-  Coordinates,
-  Profiles,
+  Parameters,
+  Values,
 }
 
 const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
@@ -88,23 +81,59 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
                   {generator?.kind}
                 </DescriptionListDescription>
               </DescriptionListGroup>
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t("terms.url")}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {generator?.repository?.url || ""}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
+              {generator?.repository?.url && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.repositoryUrl")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {generator?.repository?.url || ""}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              )}
+              {generator?.repository?.branch && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.repositoryBranch")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {generator?.repository?.branch || ""}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              )}
+              {generator?.repository?.kind && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.repositoryKind")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {generator?.repository?.kind || ""}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              )}
+              {generator?.repository?.path && (
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.repositoryPath")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {generator?.repository?.path || ""}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+              )}
             </DescriptionList>
           </Tab>
           <Tab
-            eventKey={TabKey.Coordinates}
-            title={<TabTitleText>{t("terms.coordinates")}</TabTitleText>}
+            eventKey={TabKey.Parameters}
+            title={<TabTitleText>{t("terms.parameters")}</TabTitleText>}
           >
-            <SchemaDefinedField jsonDocument={myJson} jsonSchema={mySchema} />
+            <GeneratorCollectionTable
+              collection={parametersToArray(generator?.parameters || {}) || []}
+            />
           </Tab>
           <Tab
-            eventKey={TabKey.Profiles}
-            title={<TabTitleText>{t("terms.Profiles")}</TabTitleText>}
+            eventKey={TabKey.Values}
+            title={<TabTitleText>{t("terms.values")}</TabTitleText>}
           >
             <GeneratorCollectionTable
               collection={parametersToArray(generator?.values || {}) || []}

@@ -1,15 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { GridItem, Grid, Button } from "@patternfly/react-core";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 import RemovableField from "./RemovableField";
-
-interface KeyValuePair {
-  key: string;
-  value: string;
-}
 
 const AddMapping: React.FC<{
   onAdd: () => void;
@@ -67,22 +61,6 @@ const KeyValueFieldItem = ({
   );
 };
 
-export const getFormikArrayItemFieldName = (
-  arrayFieldName: string,
-  idx: number
-) => {
-  return `${arrayFieldName}[${idx}]`;
-};
-
-// Helper function to convert collection to array format
-const collectionToArray = (collection: Record<string, any>): KeyValuePair[] => {
-  if (!collection || Object.keys(collection).length === 0) return [];
-  return Object.entries(collection).map(([key, value]) => ({
-    key,
-    value: String(value),
-  }));
-};
-
 export const KeyValueFields = ({
   collection,
   name,
@@ -93,7 +71,7 @@ export const KeyValueFields = ({
   const { control } = useFormContext();
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  const { fields, append, insert, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name,
   });
