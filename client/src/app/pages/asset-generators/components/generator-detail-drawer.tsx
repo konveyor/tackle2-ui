@@ -23,7 +23,8 @@ import { SchemaDefinedField } from "@app/components/schema-defined-fields/Schema
 // just until we get those from the hub
 import myJson from "@app/components/schema-defined-fields/myJson.json";
 import mySchema from "@app/components/schema-defined-fields/mySchema.json";
-import GeneratorProfilesTable from "./generator-profiles-table";
+import GeneratorCollectionTable from "./generator-collection-table";
+import { parametersToArray } from "../utils";
 
 export interface IGeneratorDetailDrawerProps {
   onCloseClick: () => void;
@@ -105,7 +106,9 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
             eventKey={TabKey.Profiles}
             title={<TabTitleText>{t("terms.Profiles")}</TabTitleText>}
           >
-            <GeneratorProfilesTable generatorProfiles={generator?.profiles} />
+            <GeneratorCollectionTable
+              collection={parametersToArray(generator?.values || {}) || []}
+            />
           </Tab>
         </Tabs>
       </div>

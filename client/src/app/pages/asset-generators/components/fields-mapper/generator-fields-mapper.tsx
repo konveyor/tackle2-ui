@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GridItem, Grid, Button } from "@patternfly/react-core";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
@@ -31,9 +31,11 @@ const AddMapping: React.FC<{
 const KeyValueFieldItem = ({
   index,
   onRemove,
+  name,
 }: {
   index: number;
   onRemove: () => void;
+  name: string;
 }) => {
   const { control } = useFormContext();
 
@@ -43,21 +45,21 @@ const KeyValueFieldItem = ({
         <GridItem span={6}>
           <InputField
             control={control}
-            name={`parameters.${index}.key`}
+            name={`${name}.${index}.key`}
             label="Key"
-            fieldId={`parameter-key-${index}`}
+            fieldId={`${name}-key-${index}`}
             isRequired
-            data-testid={`parameter-key-${index}`}
+            data-testid={`${name}-key-${index}`}
           />
         </GridItem>
         <GridItem span={6}>
           <InputField
             control={control}
-            name={`parameters.${index}.value`}
+            name={`${name}.${index}.value`}
             label="Value"
-            fieldId={`parameter-value-${index}`}
+            fieldId={`${name}-value-${index}`}
             isRequired
-            data-testid={`parameter-value-${index}`}
+            data-testid={`${name}-value-${index}`}
           />
         </GridItem>
       </Grid>
@@ -83,49 +85,53 @@ const collectionToArray = (collection: Record<string, any>): KeyValuePair[] => {
 
 export const KeyValueFields = ({
   collection,
+  name,
 }: {
   collection: Record<string, any>;
+  name: string;
 }) => {
   const { control } = useFormContext();
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, insert, remove } = useFieldArray({
     control,
-    name: "parameters",
+    name,
   });
 
-  // Initialize fields only once when component mounts
+  // Initialize fields when collection changes
   useEffect(() => {
-    if (fields.length === 0) {
+    if (!hasInitialized) {
       if (collection && Object.keys(collection).length > 0) {
-        const arrayData = collectionToArray(collection);
-        arrayData.forEach((item) => {
-          append(item);
-        });
+        const keyValuePairs = Object.entries(collection).map(
+          ([key, value]) => ({ key, value: String(value) })
+        );
+        append(keyValuePairs);
       } else {
-        // Add one empty field if no data
         append({ key: "", value: "" });
       }
+      setHasInitialized(true);
     }
-  }, []);
+  }, [append, collection, hasInitialized]);
 
-  const handleAddParameter = () => {
+  const handleAddField = () => {
     append({ key: "", value: "" });
   };
 
   return (
-    <Grid className="mac-ip-mapping">
+    <Grid className="generator-field-mapping">
       <Grid hasGutter>
         <GridItem span={6}>
           {fields.map((field, index) => (
             <KeyValueFieldItem
-              key={field.id}
+              key={`${name}-${field.id}`}
               index={index}
               onRemove={() => remove(index)}
+              name={name}
             />
           ))}
         </GridItem>
         <GridItem>
-          <AddMapping onAdd={handleAddParameter} />
+          <AddMapping onAdd={handleAddField} />
         </GridItem>
       </Grid>
     </Grid>

@@ -35,6 +35,7 @@ import {
 } from "@app/queries/generators";
 import { toOptionLike } from "@app/utils/model-utils";
 import { KeyValueFields } from "../fields-mapper/generator-fields-mapper";
+import { parametersToArray, arrayToParameters } from "../../utils";
 
 export interface GeneratorFormValues {
   kind: string;
@@ -42,10 +43,8 @@ export interface GeneratorFormValues {
   description: string;
   repository: Repository;
   credentials?: string;
-  parameters?: Array<{
-    key: string;
-    value: string;
-  }>;
+  parameters?: Array<{ key: string; value: string }>;
+  values?: Array<{ key: string; value: string }>;
 }
 
 export interface GeneratorFormProps {
@@ -81,6 +80,8 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
   const { t } = useTranslation();
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isParametersExpanded, setParametersExpanded] = React.useState(false);
+  const [isValuesExpanded, setValuesExpanded] = React.useState(false);
+
   const providersList = useGeneratorProviderList();
 
   const { existingGenerators, createGenerator, updateGenerator } =
@@ -138,32 +139,6 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
     branch: "",
   };
 
-  // Helper functions to convert between Record and Array formats
-  const parametersToArray = (
-    params: Record<string, any> | undefined
-  ): Array<{ key: string; value: string }> => {
-    if (!params) return [];
-    return Object.entries(params).map(([key, value]) => ({
-      key,
-      value: String(value),
-    }));
-  };
-
-  const arrayToParameters = (
-    params: Array<{ key: string; value: string }> | undefined
-  ): Record<string, any> => {
-    if (!params) return {};
-    return params.reduce(
-      (acc, { key, value }) => {
-        if (key.trim()) {
-          acc[key.trim()] = value;
-        }
-        return acc;
-      },
-      {} as Record<string, any>
-    );
-  };
-
   const formMethods = useForm<GeneratorFormValues>({
     defaultValues: !generator
       ? {
@@ -173,6 +148,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
           repository: emptyRepository,
           credentials: "",
           parameters: [],
+          values: [],
         }
       : {
           kind: generator.kind,
@@ -182,7 +158,14 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
           credentials: identities.find(
             (identity) => identity.id === generator.identity?.id
           )?.name,
-          parameters: parametersToArray(generator.parameters),
+          parameters:
+            Object.keys(generator?.parameters || {}).length > 0
+              ? parametersToArray(generator.parameters)
+              : [{ key: "", value: "" }],
+          values:
+            Object.keys(generator?.values || {}).length > 0
+              ? parametersToArray(generator.values)
+              : [{ key: "", value: "" }],
         },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -201,7 +184,6 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
   };
 
   const onValidSubmit = (values: GeneratorFormValues) => {
-    console.log("values", values);
     const payload: New<AssetGenerator> = {
       name: values.name,
       kind: values.kind,
@@ -216,6 +198,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         : undefined,
       identity: getIdentity(values.credentials),
       parameters: arrayToParameters(values.parameters),
+      values: arrayToParameters(values.values),
     };
     const identity = getIdentity(values.credentials);
     if (identity) {
@@ -368,7 +351,25 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
           isExpanded={isParametersExpanded}
         >
           <div className="pf-v5-c-form">
-            <KeyValueFields collection={generator?.parameters || {}} />
+            <KeyValueFields
+              collection={generator?.parameters || {}}
+              name="parameters"
+            />
+          </div>
+        </ExpandableSection>
+
+        {/* Values section */}
+        <ExpandableSection
+          toggleText={t("terms.values")}
+          className="toggle"
+          onToggle={() => setValuesExpanded(!isValuesExpanded)}
+          isExpanded={isValuesExpanded}
+        >
+          <div className="pf-v5-c-form">
+            <KeyValueFields
+              collection={generator?.values || {}}
+              name="values"
+            />
           </div>
         </ExpandableSection>
 

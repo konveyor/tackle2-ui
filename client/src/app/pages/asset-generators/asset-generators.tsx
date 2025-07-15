@@ -20,16 +20,8 @@ import {
   Tooltip,
   Popover,
 } from "@patternfly/react-core";
-import {
-  Table,
-  Tbody,
-  Th,
-  Thead,
-  Tr,
-  Td,
-  ActionsColumn,
-} from "@patternfly/react-table";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
+import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
@@ -201,32 +193,7 @@ const AssetGenerators: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const changeTaskStatus = (generatorId: number, newStatus: TaskState) => {
-    setGenerators(
-      generators?.map((generator) =>
-        generator.id === generatorId
-          ? { ...generator, discoverApplicationsState: newStatus }
-          : generator
-      )
-    );
-  };
-
-  const discoverApplications = (generatorId: number) => {
-    const generator = generators?.find((g) => g.id === generatorId);
-    if (generator) {
-      changeTaskStatus(generatorId, "Pending");
-      // Simulate a task status change, in a real application this would be an API call
-      setTimeout(() => {
-        changeTaskStatus(generatorId, "Succeeded");
-        pushNotification({
-          title: t("toastr.success.discoverApplications", {
-            generatorName: generator.name,
-          }),
-          variant: "success",
-        });
-      }, 2000); // Simulate a delay for the task completion
-    }
-  };
+  console.log("generators", generators);
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -323,10 +290,10 @@ const AssetGenerators: React.FC = () => {
                           {generator?.repository?.url}
                         </Td>
                         <Td {...getTdProps({ columnKey: "parameters" })}>
-                          {generator?.parameters?.length || 0}
+                          {Object.keys(generator?.parameters || {}).length}
                         </Td>
                         <Td {...getTdProps({ columnKey: "values" })}>
-                          {generator?.values?.length || 0}
+                          {Object.keys(generator?.values || {}).length || 0}
                         </Td>
 
                         <Td isActionCell id="pencil-action">
@@ -339,8 +306,18 @@ const AssetGenerators: React.FC = () => {
                           </Tooltip>
                         </Td>
 
-                        <Td isActionCell id="row-actions">
-                          {/* Actions column */}
+                        <Td isActionCell id="delete-action">
+                          <Tooltip content={t("actions.delete")}>
+                            <Button
+                              variant="plain"
+                              icon={<TrashIcon />}
+                              onClick={() => setGeneratorToDelete(generator)}
+                              isDanger={true}
+                            />
+                          </Tooltip>
+                        </Td>
+
+                        {/* <Td isActionCell id="row-actions">
                           <ActionsColumn
                             items={[
                               ...[
@@ -361,7 +338,7 @@ const AssetGenerators: React.FC = () => {
                               ],
                             ]}
                           />
-                        </Td>
+                        </Td> */}
                       </TableRowContentWithControls>
                     </Tr>
                   ))}

@@ -864,16 +864,21 @@ export const getGeneratorById = (id: number | string) =>
 // success with code 201 and created entity as response data
 export const createGenerator = (generator: New<AssetGenerator>) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated
+  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated with description support
   return axios
     .post<void>(ASSET_GENERATORS, generatorWithoutDescription)
     .then((res) => res.data);
 };
 
 // success with code 204 and therefore no response content
-export const updateGenerator = (generator: AssetGenerator) =>
-  axios.put<void>(`${ASSET_GENERATORS}/${generator.id}`, generator);
-
+export const updateGenerator = (generator: AssetGenerator) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated with description support
+  return axios.put<void>(
+    `${ASSET_GENERATORS}/${generator.id}`,
+    generatorWithoutDescription
+  );
+};
 // success with code 204 and therefore no response content
 export const deleteGenerator = (id: number) =>
   axios.delete<void>(`${ASSET_GENERATORS}/${id}`);

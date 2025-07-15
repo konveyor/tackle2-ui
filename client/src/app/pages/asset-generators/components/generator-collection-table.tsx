@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Ref } from "@app/api/models";
 import {
   useTableControlState,
   useTableControlProps,
@@ -17,19 +16,19 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 
-export interface IGeneratorProfilesTable {
-  generatorProfiles?: Ref[];
+export interface IGeneratorCollectionTable {
+  collection?: Record<string, any>;
 }
 
-const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
-  generatorProfiles,
+const GeneratorCollectionTable: React.FC<IGeneratorCollectionTable> = ({
+  collection,
 }) => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlState({
-    tableName: "generator-profiles-table",
+    tableName: "generator-collection-table",
     persistTo: "state",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.generators,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.generatorCollections,
     columnNames: {
       id: "ID",
       name: "Name",
@@ -37,12 +36,12 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    sortableColumns: ["name"],
-    initialSort: { columnKey: "name", direction: "asc" },
+    sortableColumns: ["id"],
+    initialSort: { columnKey: "id", direction: "asc" },
     filterCategories: [
       {
-        categoryKey: "generator.name",
-        title: "Profile Name",
+        categoryKey: "id",
+        title: "ID",
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -54,11 +53,19 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
     initialItemsPerPage: 10,
   });
 
+  const collectionArray = collection
+    ? Object.entries(collection).map(([key, value]) => ({
+        id: key,
+        name: key,
+        value,
+      }))
+    : [];
+
   const tableControls = useTableControlProps({
     ...tableControlState,
     idProperty: "id",
-    currentPageItems: generatorProfiles ?? [],
-    totalItemCount: generatorProfiles?.length ?? 0,
+    currentPageItems: collectionArray,
+    totalItemCount: collectionArray.length,
     isLoading: false,
   });
 
@@ -83,7 +90,7 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
-              idPrefix="generator-profiles-table"
+              idPrefix="generator-collection-table"
               isTop
               isCompact
               paginationProps={paginationProps}
@@ -107,15 +114,15 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {generatorProfiles?.map((profile, rowIndex) => (
-              <Tr key={profile.id} {...getTrProps({ item: profile })}>
+            {collectionArray.map((item, rowIndex) => (
+              <Tr key={item.id} {...getTrProps({ item })}>
                 <TableRowContentWithControls
                   {...tableControls}
-                  item={profile}
+                  item={item}
                   rowIndex={rowIndex}
                 >
-                  <Td width={70} {...getTdProps({ columnKey: "name" })}>
-                    {profile.name}
+                  <Td width={70} {...getTdProps({ columnKey: "id" })}>
+                    {item.id}
                   </Td>
                 </TableRowContentWithControls>
               </Tr>
@@ -124,7 +131,7 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
         </ConditionalTableBody>
       </Table>
       <SimplePagination
-        idPrefix="dependency-profiles-table"
+        idPrefix="generator-collection-table"
         isTop={false}
         isCompact
         paginationProps={paginationProps}
@@ -133,4 +140,4 @@ const GeneratorProfilesTable: React.FC<IGeneratorProfilesTable> = ({
   );
 };
 
-export default GeneratorProfilesTable;
+export default GeneratorCollectionTable;
