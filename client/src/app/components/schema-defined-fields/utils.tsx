@@ -1,4 +1,5 @@
 import { JsonSchemaObject } from "@app/api/models";
+import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 export const jsonSchemaToYupSchema = (
@@ -103,6 +104,20 @@ export const jsonSchemaToYupSchema = (
   }
 
   return yup.mixed(); // Fallback for unknown types
+};
+
+export const jsonSchemaToYupResolver = (
+  jsonSchema: JsonSchemaObject,
+  t: (key: string, options?: Record<string, unknown>) => string = (k, v) =>
+    `${k}: ${JSON.stringify(v)}`
+) => {
+  const baseYupSchema = jsonSchemaToYupSchema(jsonSchema, t);
+
+  if (baseYupSchema instanceof yup.ObjectSchema) {
+    return yupResolver(baseYupSchema);
+  }
+
+  return yupResolver(yup.object({ field: baseYupSchema }));
 };
 
 export const isComplexSchema = (schema: JsonSchemaObject): boolean => {

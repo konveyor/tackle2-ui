@@ -2,7 +2,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 
 import {
   Card,
@@ -18,7 +17,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { JsonSchemaObject } from "@app/api/models";
-import { jsonSchemaToYupSchema } from "./utils";
+import { jsonSchemaToYupResolver } from "./utils";
 
 export interface JsonSchemaValues {
   [key: string]: string | string[] | boolean | JsonSchemaValues | undefined;
@@ -54,7 +53,7 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
     formState: { errors },
     watch,
   } = useForm<JsonSchemaValues>({
-    resolver: yupResolver(jsonSchemaToYupSchema(jsonSchema, t)),
+    resolver: jsonSchemaToYupResolver(jsonSchema, t),
     defaultValues: jsonDocument,
     mode: "all",
   });
