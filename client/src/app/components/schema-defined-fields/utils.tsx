@@ -3,81 +3,106 @@ import * as yup from "yup";
 
 export const jsonSchemaToYupSchema = (
   jsonSchema: JsonSchemaObject,
-  t: (key: string, options?: any) => string
-): yup.AnyObjectSchema => {
-  const schemaShape: { [key: string]: yup.AnySchema } = {};
+  t: (key: string, options?: Record<string, unknown>) => string = (k, v) =>
+    `${k}: ${JSON.stringify(v)}`
+): yup.AnySchema => {
+  if (jsonSchema.type === "array") {
+    let schema = yup.array();
+    if (jsonSchema.items) {
+      schema = schema.of(jsonSchemaToYupSchema(jsonSchema.items, t));
+    }
+    // TODO: minItems, maxItems, uniqueItems
+    return schema;
+  }
+
+  if (jsonSchema.type === "object" && !jsonSchema.properties) {
+    return yup.object();
+  }
 
   if (jsonSchema.type === "object" && jsonSchema.properties) {
-    for (const key in jsonSchema.properties) {
-      const prop = jsonSchema.properties[key];
-      let yupField: yup.AnySchema;
+    const props: Record<string, any> = {};
 
-      switch (prop.type) {
-        case "string": {
-          let stringSchema = yup.string();
-          if (prop.minLength)
-            stringSchema = stringSchema.min(
-              prop.minLength,
-              t("validation.minLength", { length: prop.minLength })
-            );
-          if (prop.maxLength)
-            stringSchema = stringSchema.max(
-              prop.maxLength,
-              t("validation.maxLength", { length: prop.maxLength })
-            );
-          if (prop.pattern)
-            stringSchema = stringSchema.matches(
-              new RegExp(prop.pattern),
-              prop.description || t("validation.invalidFormat")
-            );
-          if (prop.enum)
-            stringSchema = stringSchema.oneOf(
-              prop.enum,
-              t("validation.invalidValue")
-            );
-          yupField = stringSchema;
-          break;
-        }
-        case "number":
-        case "integer": {
-          let numberSchema = yup
-            .number()
-            .typeError(t("validation.mustBeNumber"));
-          if (prop.minimum !== undefined)
-            numberSchema = numberSchema.min(
-              prop.minimum,
-              t("validation.min", { value: prop.minimum })
-            );
-          if (prop.maximum !== undefined)
-            numberSchema = numberSchema.max(
-              prop.maximum,
-              t("validation.max", { value: prop.maximum })
-            );
-          yupField = numberSchema;
-          break;
-        }
-        case "boolean": {
-          yupField = yup.boolean();
-          break;
-        }
-        case "object": {
-          yupField = jsonSchemaToYupSchema(prop, t); // Recursive call for nested objects
-          break;
-        }
-        default: {
-          yupField = yup.mixed(); // Fallback for unknown types
-          break;
+    for (const [key, prop] of Object.entries(jsonSchema.properties)) {
+      const propSchema = jsonSchemaToYupSchema(prop, t);
+
+      if (jsonSchema.required?.includes(key)) {
+        props[key] = propSchema.required(
+          t("validation.required", { name: key })
+        );
+      } else {
+        // For optional object properties with properties, use lazy validation
+        // to avoid validating internal structure when the object is undefined
+        if (prop.type === "object" && prop.properties) {
+          props[key] = yup.lazy((value) => {
+            if (value === undefined || value === null) {
+              return yup.mixed().optional();
+            }
+            return propSchema;
+          });
+        } else {
+          props[key] = propSchema.optional();
         }
       }
-
-      if (jsonSchema.required && jsonSchema.required.includes(key)) {
-        yupField = yupField.required(t("validation.required"));
-      }
-
-      schemaShape[key] = yupField;
     }
+
+    let objectSchema = yup.object(props);
+
+    // Only apply noUnknown() if additionalProperties is explicitly false
+    if (jsonSchema.additionalProperties === false) {
+      objectSchema = objectSchema.strict().noUnknown();
+    }
+
+    return objectSchema;
   }
-  return yup.object().shape(schemaShape);
+
+  if (jsonSchema.type === "string") {
+    let stringSchema = yup.string().strict();
+    if (jsonSchema.minLength)
+      stringSchema = stringSchema.min(
+        jsonSchema.minLength,
+        t("validation.minLength", { length: jsonSchema.minLength })
+      );
+    if (jsonSchema.maxLength)
+      stringSchema = stringSchema.max(
+        jsonSchema.maxLength,
+        t("validation.maxLength", { length: jsonSchema.maxLength })
+      );
+    if (jsonSchema.pattern)
+      stringSchema = stringSchema.matches(
+        new RegExp(jsonSchema.pattern),
+        jsonSchema.description || t("validation.invalidFormat")
+      );
+    if (jsonSchema.enum)
+      stringSchema = stringSchema.oneOf(
+        jsonSchema.enum,
+        t("validation.invalidValue")
+      );
+    return stringSchema;
+  }
+
+  if (jsonSchema.type === "number" || jsonSchema.type === "integer") {
+    let numberSchema = yup
+      .number()
+      .strict()
+      .typeError(t("validation.mustBeNumber"));
+    if (jsonSchema.minimum !== undefined)
+      numberSchema = numberSchema.min(
+        jsonSchema.minimum,
+        t("validation.min", { value: jsonSchema.minimum })
+      );
+    if (jsonSchema.maximum !== undefined)
+      numberSchema = numberSchema.max(
+        jsonSchema.maximum,
+        t("validation.max", { value: jsonSchema.maximum })
+      );
+    return numberSchema;
+  }
+
+  if (jsonSchema.type === "boolean") {
+    return yup.boolean().strict();
+  }
+
+  return yup.mixed(); // Fallback for unknown types
 };
 
 export const isComplexSchema = (schema: JsonSchemaObject): boolean => {

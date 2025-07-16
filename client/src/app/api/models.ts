@@ -913,9 +913,37 @@ export interface Manifest {
 }
 
 export interface JsonSchemaObject {
-  type: string;
-  properties?: { [key: string]: any };
-  required?: string[];
+  type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;
+
+  /** For type string, RegEx pattern */
+  pattern?: string;
+
+  /** For type string, min length */
+  minLength?: number;
+
+  /** For type string, max length */
+  maxLength?: number;
+
+  /** For type string, enum values */
+  enum?: string[];
+
+  /** For type number, minimum value */
+  minimum?: number;
+
+  /** For type number, maximum value */
+  maximum?: number;
+
+  /** For type array */
+  items?: JsonSchemaObject;
+
+  /** For type object, defined properties */
+  properties?: { [key: string]: JsonSchemaObject };
+
+  /** For type object, what property names are required */
+  required?: string[];
+
+  /** For type object, whether additional properties are allowed */
+  additionalProperties?: boolean;
 }
