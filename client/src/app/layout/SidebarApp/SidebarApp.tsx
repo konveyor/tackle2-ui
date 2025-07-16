@@ -230,6 +230,14 @@ export const AdminSidebar = () => {
             {t("terms.sourcePlatforms")}
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink
+            to={AdminPaths.assetGenerators}
+            activeClassName="pf-m-current"
+          >
+            {t("terms.generators")}
+          </NavLink>
+        </NavItem>
       </NavList>
     </PersonaSidebar>
   );
