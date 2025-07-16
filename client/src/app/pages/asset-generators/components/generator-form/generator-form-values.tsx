@@ -7,7 +7,7 @@ interface GeneratorFormValuesProps {
   collection: Record<string, any>;
 }
 
-export const GeneratorFormValues: React.FC<GeneratorFormValuesProps> = ({
+const GeneratorFormValuesComponent: React.FC<GeneratorFormValuesProps> = ({
   collection,
 }) => {
   const { t } = useTranslation();
@@ -26,3 +26,5 @@ export const GeneratorFormValues: React.FC<GeneratorFormValuesProps> = ({
     </ExpandableSection>
   );
 };
+
+export const GeneratorFormValues = React.memo(GeneratorFormValuesComponent);

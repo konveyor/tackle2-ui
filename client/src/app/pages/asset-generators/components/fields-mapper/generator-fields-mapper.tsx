@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { GridItem, Grid, Button } from "@patternfly/react-core";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 import RemovableField from "./RemovableField";
 
-const AddMapping: React.FC<{
+const AddMappingComponent: React.FC<{
   onAdd: () => void;
 }> = ({ onAdd }) => {
   return (
@@ -22,7 +22,9 @@ const AddMapping: React.FC<{
   );
 };
 
-const KeyValueFieldItem = ({
+const AddMapping = React.memo(AddMappingComponent);
+
+const KeyValueFieldItemComponent = ({
   index,
   onRemove,
   name,
@@ -61,6 +63,8 @@ const KeyValueFieldItem = ({
   );
 };
 
+const KeyValueFieldItem = React.memo(KeyValueFieldItemComponent);
+
 export const KeyValueFields = ({
   collection,
   name,
@@ -91,9 +95,9 @@ export const KeyValueFields = ({
     }
   }, [append, collection, hasInitialized]);
 
-  const handleAddField = () => {
+  const handleAddField = useCallback(() => {
     append({ key: "", value: "" });
-  };
+  }, [append]);
 
   return (
     <Grid className="generator-field-mapping">

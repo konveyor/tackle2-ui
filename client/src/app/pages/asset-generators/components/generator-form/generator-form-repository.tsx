@@ -55,7 +55,6 @@ export const GeneratorFormRepository: React.FC<
           label={t("terms.sourceRepo")}
           fieldId="repository.url"
           aria-label="source repository url"
-          // isRequired={true} //{kindOptions.some(({ value }) => value === watchKind)}
         />
         <HookFormPFTextInput
           control={control}

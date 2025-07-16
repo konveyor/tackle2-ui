@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -30,20 +31,8 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const tableControlState = useTableControlState({
-    tableName: "generator-collection-table",
-    persistTo: "state",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.generatorCollections,
-    columnNames: {
-      key: "key",
-      value: "value",
-    },
-    isFilterEnabled: true,
-    isSortEnabled: true,
-    isPaginationEnabled: true,
-    sortableColumns: ["key"],
-    initialSort: { columnKey: "key", direction: "asc" },
-    filterCategories: [
+  const filterCategories = useMemo(
+    () => [
       {
         categoryKey: "key",
         title: "Key",
@@ -52,9 +41,31 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+        getServerFilterValue: (value: any) => (value ? [`*${value[0]}*`] : []),
       },
     ],
+    [t]
+  );
+
+  const columnNames = useMemo(
+    () => ({
+      key: "key",
+      value: "value",
+    }),
+    []
+  );
+
+  const tableControlState = useTableControlState({
+    tableName: "generator-collection-table",
+    persistTo: "state",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.generatorCollections,
+    columnNames,
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    sortableColumns: ["key"],
+    initialSort: { columnKey: "key", direction: "asc" },
+    filterCategories,
     initialItemsPerPage: 10,
   });
 
@@ -139,5 +150,7 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
     </>
   );
 };
+
+GeneratorCollectionTable.displayName = "GeneratorCollectionTable";
 
 export default GeneratorCollectionTable;

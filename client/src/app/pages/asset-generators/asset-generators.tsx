@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -44,6 +44,26 @@ import GeneratorDetailDrawer from "./components/generator-detail-drawer";
 import GeneratorForm from "./components/generator-form";
 import { useFetchGenerators } from "@app/queries/generators";
 
+// Static empty state configuration
+const NO_DATA_EMPTY_STATE = (
+  <EmptyState variant="sm">
+    <EmptyStateHeader
+      titleText="No generators have been created"
+      headingLevel="h2"
+      icon={<EmptyStateIcon icon={CubesIcon} />}
+    />
+    <EmptyStateBody>Create a new generator to get started.</EmptyStateBody>
+  </EmptyState>
+);
+
+// Static column configuration
+const COLUMN_NAMES = {
+  name: "terms.name",
+  repository: "terms.repository",
+  parameters: "terms.parameters",
+  values: "terms.values",
+};
+
 const AssetGenerators: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -80,48 +100,46 @@ const AssetGenerators: React.FC = () => {
     }
   }, [baseGenerators]);
 
-  const onError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
+  const onError = useCallback(
+    (error: AxiosError) => {
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    },
+    [pushNotification]
+  );
 
-  const { mutate: deleteGenerator } = useDeleteGeneratorMutation(
-    (generatorDeleted: AssetGenerator) =>
+  const onDeleteSuccess = useCallback(
+    (generatorDeleted: AssetGenerator) => {
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: generatorDeleted.name,
           type: t("terms.generator"),
         }),
         variant: "success",
-      }),
+      });
+    },
+    [pushNotification, t]
+  );
+
+  const { mutate: deleteGenerator } = useDeleteGeneratorMutation(
+    onDeleteSuccess,
     onError
   );
 
-  const tableControls = useLocalTableControls({
-    tableName: "generators-table",
-    persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.generators,
-    idProperty: "id",
-    dataNameProperty: "name",
-    items: generators || [],
-    isLoading: isFetching,
-    hasActionsColumn: true,
+  const columnNames = useMemo(
+    () => ({
+      name: t(COLUMN_NAMES.name),
+      repository: t(COLUMN_NAMES.repository),
+      parameters: t(COLUMN_NAMES.parameters),
+      values: t(COLUMN_NAMES.values),
+    }),
+    [t]
+  );
 
-    columnNames: {
-      name: t("terms.name"),
-      repository: t("terms.repository"),
-      parameters: t("terms.parameters"),
-      values: t("terms.values"),
-    },
-
-    isFilterEnabled: true,
-    isSortEnabled: true,
-    isPaginationEnabled: true,
-    isActiveItemEnabled: true,
-
-    filterCategories: [
+  const filterCategories = useMemo(
+    () => [
       {
         categoryKey: "name",
         title: t("terms.name"),
@@ -130,7 +148,7 @@ const AssetGenerators: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (generator) => {
+        getItemValue: (generator: AssetGenerator) => {
           return generator?.name ?? "";
         },
       },
@@ -142,17 +160,39 @@ const AssetGenerators: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.repository").toLowerCase(),
           }) + "...",
-        getItemValue: (generator) => {
+        getItemValue: (generator: AssetGenerator) => {
           return generator?.repository?.url ?? "";
         },
       },
     ],
+    [t]
+  );
 
-    sortableColumns: ["name", "repository"],
-    getSortValues: (generator) => ({
+  const getSortValues = useCallback(
+    (generator: AssetGenerator) => ({
       name: generator.name ?? "",
       repository: generator.repository?.url ?? "",
     }),
+    []
+  );
+
+  const tableControls = useLocalTableControls({
+    tableName: "generators-table",
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.generators,
+    idProperty: "id",
+    dataNameProperty: "name",
+    items: generators || [],
+    isLoading: isFetching,
+    hasActionsColumn: true,
+    columnNames,
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
+    filterCategories,
+    sortableColumns: ["name", "repository"],
+    getSortValues,
     initialSort: { columnKey: "name", direction: "asc" },
   });
 
@@ -172,25 +212,59 @@ const AssetGenerators: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const CreateButton = () => (
-    <Button
-      type="button"
-      id="create-new-generator"
-      aria-label="Create new generator"
-      variant={ButtonVariant.primary}
-      onClick={() => setOpenCreateGenerator(true)}
-    >
-      {t("dialog.title.newGenerator")}
-    </Button>
+  const handleCreateGenerator = useCallback(() => {
+    setOpenCreateGenerator(true);
+  }, []);
+
+  const handleCloseCreateGenerator = useCallback(() => {
+    setOpenCreateGenerator(false);
+  }, []);
+
+  const handleEditGenerator = useCallback((generator: AssetGenerator) => {
+    setGeneratorToEdit(generator);
+  }, []);
+
+  const handleCloseEditGenerator = useCallback(() => {
+    setGeneratorToEdit(null);
+  }, []);
+
+  const handleDeleteGenerator = useCallback((generator: AssetGenerator) => {
+    setGeneratorToDelete(generator);
+  }, []);
+
+  const handleCancelDelete = useCallback(() => {
+    setGeneratorToDelete(null);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (generatorToDelete) {
+      deleteGenerator(generatorToDelete);
+      setGeneratorToDelete(null);
+    }
+  }, [generatorToDelete, deleteGenerator]);
+
+  const CreateButton = useCallback(
+    () => (
+      <Button
+        type="button"
+        id="create-new-generator"
+        aria-label="Create new generator"
+        variant={ButtonVariant.primary}
+        onClick={handleCreateGenerator}
+      >
+        {t("dialog.title.newGenerator")}
+      </Button>
+    ),
+    [t, handleCreateGenerator]
   );
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     const currentPath = history.location.pathname;
     const newSearch = new URLSearchParams(history.location.search);
     newSearch.delete("filters");
     history.push(`${currentPath}?${newSearch.toString()}`);
     filterToolbarProps.setFilterValues({});
-  };
+  }, [history, filterToolbarProps]);
 
   return (
     <>
@@ -246,18 +320,7 @@ const AssetGenerators: React.FC = () => {
                 isLoading={isFetching}
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
-                noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText="No generators have been created"
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
-                    <EmptyStateBody>
-                      Create a new generator to get started.
-                    </EmptyStateBody>
-                  </EmptyState>
-                }
+                noDataEmptyState={NO_DATA_EMPTY_STATE}
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>
@@ -299,7 +362,7 @@ const AssetGenerators: React.FC = () => {
                             <Button
                               variant="plain"
                               icon={<PencilAltIcon />}
-                              onClick={() => setGeneratorToEdit(generator)}
+                              onClick={() => handleEditGenerator(generator)}
                             />
                           </Tooltip>
                         </Td>
@@ -309,7 +372,7 @@ const AssetGenerators: React.FC = () => {
                             <Button
                               variant="plain"
                               icon={<TrashIcon />}
-                              onClick={() => setGeneratorToDelete(generator)}
+                              onClick={() => handleDeleteGenerator(generator)}
                               isDanger={true}
                             />
                           </Tooltip>
@@ -339,9 +402,9 @@ const AssetGenerators: React.FC = () => {
         title={t("dialog.title.newGenerator")}
         variant="medium"
         isOpen={openCreateGenerator}
-        onClose={() => setOpenCreateGenerator(false)}
+        onClose={handleCloseCreateGenerator}
       >
-        <GeneratorForm onClose={() => setOpenCreateGenerator(false)} />
+        <GeneratorForm onClose={handleCloseCreateGenerator} />
       </Modal>
 
       {/* Edit modal */}
@@ -349,12 +412,12 @@ const AssetGenerators: React.FC = () => {
         title={t("dialog.title.updateGenerator")}
         variant="medium"
         isOpen={!!generatorToEdit}
-        onClose={() => setGeneratorToEdit(null)}
+        onClose={handleCloseEditGenerator}
       >
         <GeneratorForm
           key={generatorToEdit?.id ?? -1}
           generator={generatorToEdit}
-          onClose={() => setGeneratorToEdit(null)}
+          onClose={handleCloseEditGenerator}
         />
       </Modal>
 
@@ -370,14 +433,9 @@ const AssetGenerators: React.FC = () => {
         confirmBtnVariant={ButtonVariant.danger}
         confirmBtnLabel={t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => setGeneratorToDelete(null)}
-        onClose={() => setGeneratorToDelete(null)}
-        onConfirm={() => {
-          if (generatorToDelete) {
-            deleteGenerator(generatorToDelete);
-            setGeneratorToDelete(null);
-          }
-        }}
+        onCancel={handleCancelDelete}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
       />
     </>
   );

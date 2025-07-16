@@ -11,7 +11,7 @@ export type UiIconProps = {
 const UiIcon: React.FC<UiIconProps> = (props) => {
   return (
     <Icon
-      size={props.size ? props.size : "md"}
+      size={props.size || "md"}
       status={props.status}
       className={props.className}
     >
@@ -19,5 +19,7 @@ const UiIcon: React.FC<UiIconProps> = (props) => {
     </Icon>
   );
 };
+
+UiIcon.displayName = "UiIcon";
 
 export default UiIcon;

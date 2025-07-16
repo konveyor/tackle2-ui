@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { useForm, FormProvider } from "react-hook-form";
@@ -52,7 +52,8 @@ export interface GeneratorFormProps {
   onClose: () => void;
 }
 
-const kindOptions = [
+// Static configuration moved outside component to prevent recreation
+const KIND_OPTIONS = [
   {
     value: "git",
     toString: () => `Git`,
@@ -62,6 +63,13 @@ const kindOptions = [
     toString: () => `Subversion`,
   },
 ];
+
+const EMPTY_REPOSITORY: Repository = {
+  kind: "",
+  url: "",
+  path: "",
+  branch: "",
+};
 
 // Wait for all data to be ready before rendering so existing data is rendered!
 export const GeneratorForm: React.FC<GeneratorFormProps> = ({ ...rest }) => {
@@ -87,83 +95,105 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
     });
 
   const { identities } = useFetchIdentities();
-  const identitiesOptions = identities.map((identity) => identity.name);
 
-  const validationSchema = yup.object().shape({
-    kind: yup
-      .string()
-      .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 })),
+  // Memoize identity options to prevent recreation
+  const identitiesOptions = useMemo(
+    () => identities.map((identity) => identity.name),
+    [identities]
+  );
 
-    name: yup
-      .string()
-      .trim()
-      .required(t("validation.required"))
-      .min(3, t("validation.minLength", { length: 3 }))
-      .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        t("validation.duplicateName", { type: "platform" }),
-        (value) =>
-          existingGenerators
-            ? duplicateNameCheck(
-                existingGenerators,
-                generator || null,
-                value ?? ""
-              )
-            : false
-      ),
+  // Memoize validation schema to prevent recreation
+  const validationSchema = useMemo(
+    () =>
+      yup.object().shape({
+        kind: yup
+          .string()
+          .trim()
+          .required(t("validation.required"))
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 })),
 
-    // url: yup
-    //   .string()
-    //   .trim()
-    //   .required(t("validation.required"))
-    //   .url(t("validation.url")),
+        name: yup
+          .string()
+          .trim()
+          .required(t("validation.required"))
+          .min(3, t("validation.minLength", { length: 3 }))
+          .max(120, t("validation.maxLength", { length: 120 }))
+          .test(
+            "Duplicate name",
+            t("validation.duplicateName", { type: "platform" }),
+            (value) =>
+              existingGenerators
+                ? duplicateNameCheck(
+                    existingGenerators,
+                    generator || null,
+                    value ?? ""
+                  )
+                : false
+          ),
 
-    credentials: yup
-      .string()
-      .trim()
-      .max(250, t("validation.maxLength", { length: 250 }))
-      .nullable(),
-  });
+        description: yup
+          .string()
+          .trim()
+          .max(100, t("validation.maxLength", { length: 100 })),
 
-  const emptyRepository: Repository = {
-    kind: "",
-    url: "",
-    path: "",
-    branch: "",
-  };
+        credentials: yup
+          .string()
+          .trim()
+          .max(250, t("validation.maxLength", { length: 250 }))
+          .nullable(),
+
+        repository: yup.object().shape({
+          url: yup.string().trim().url(t("validation.validUrl")),
+
+          branch: yup
+            .string()
+            .trim()
+            .max(50, t("validation.maxLength", { length: 50 })),
+
+          path: yup
+            .string()
+            .trim()
+            .max(100, t("validation.maxLength", { length: 100 })),
+        }),
+      }),
+    [t, existingGenerators, generator]
+  );
+
+  const defaultValues = useMemo(
+    () =>
+      !generator
+        ? {
+            kind: "",
+            name: "",
+            description: "",
+            repository: EMPTY_REPOSITORY,
+            credentials: "",
+            parameters: [],
+            values: [],
+          }
+        : {
+            kind: generator.kind,
+            name: generator.name,
+            description: generator.description || "",
+            repository: generator.repository || EMPTY_REPOSITORY,
+            credentials: identities.find(
+              (identity) => identity.id === generator.identity?.id
+            )?.name,
+            parameters:
+              Object.keys(generator?.parameters || {}).length > 0
+                ? parametersToArray(generator.parameters)
+                : [{ key: "", value: "" }],
+            values:
+              Object.keys(generator?.values || {}).length > 0
+                ? parametersToArray(generator.values)
+                : [{ key: "", value: "" }],
+          },
+    [generator, identities]
+  );
 
   const formMethods = useForm<GeneratorFormValues>({
-    defaultValues: !generator
-      ? {
-          kind: "",
-          name: "",
-          description: "",
-          repository: emptyRepository,
-          credentials: "",
-          parameters: [],
-          values: [],
-        }
-      : {
-          kind: generator.kind,
-          name: generator.name,
-          description: generator.description || "",
-          repository: generator.repository || emptyRepository,
-          credentials: identities.find(
-            (identity) => identity.id === generator.identity?.id
-          )?.name,
-          parameters:
-            Object.keys(generator?.parameters || {}).length > 0
-              ? parametersToArray(generator.parameters)
-              : [{ key: "", value: "" }],
-          values:
-            Object.keys(generator?.values || {}).length > 0
-              ? parametersToArray(generator.values)
-              : [{ key: "", value: "" }],
-        },
+    defaultValues,
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
@@ -175,42 +205,50 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
     control,
   } = formMethods;
 
-  const getIdentity = (identityName: string | undefined) => {
-    const temp = identities.find((identity) => identity.name === identityName);
-    return temp ? { id: temp.id, name: temp.name } : undefined;
-  };
+  const getIdentity = useCallback(
+    (identityName: string | undefined) => {
+      const temp = identities.find(
+        (identity) => identity.name === identityName
+      );
+      return temp ? { id: temp.id, name: temp.name } : undefined;
+    },
+    [identities]
+  );
 
-  const onValidSubmit = (values: GeneratorFormValues) => {
-    const payload: New<AssetGenerator> = {
-      name: values.name,
-      kind: values.kind,
-      description: values.description,
-      repository: values.repository
-        ? {
-            kind: values.repository.kind?.trim(),
-            url: values.repository.url?.trim(),
-            branch: values.repository.branch?.trim(),
-            path: values.repository.path?.trim(),
-          }
-        : undefined,
-      identity: getIdentity(values.credentials),
-      parameters: arrayToParameters(values.parameters),
-      values: arrayToParameters(values.values),
-    };
-    const identity = getIdentity(values.credentials);
-    if (identity) {
-      payload.identity = identity;
-    }
+  const onValidSubmit = useCallback(
+    (values: GeneratorFormValues) => {
+      const payload: New<AssetGenerator> = {
+        name: values.name,
+        kind: values.kind,
+        description: values.description,
+        repository: values.repository
+          ? {
+              kind: values.repository.kind?.trim(),
+              url: values.repository.url?.trim(),
+              branch: values.repository.branch?.trim(),
+              path: values.repository.path?.trim(),
+            }
+          : undefined,
+        identity: getIdentity(values.credentials),
+        parameters: arrayToParameters(values.parameters),
+        values: arrayToParameters(values.values),
+      };
+      const identity = getIdentity(values.credentials);
+      if (identity) {
+        payload.identity = identity;
+      }
 
-    if (generator) {
-      updateGenerator({
-        id: generator.id,
-        ...payload,
-      });
-    } else {
-      createGenerator(payload);
-    }
-  };
+      if (generator) {
+        updateGenerator({
+          id: generator.id,
+          ...payload,
+        });
+      } else {
+        createGenerator(payload);
+      }
+    },
+    [generator, getIdentity, updateGenerator, createGenerator]
+  );
 
   return (
     <FormProvider {...formMethods}>
@@ -291,7 +329,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         <GeneratorRepositorySection
           control={control}
           trigger={trigger}
-          kindOptions={kindOptions}
+          kindOptions={KIND_OPTIONS}
         />
 
         {/* Parameters section */}
@@ -342,7 +380,8 @@ const useGeneratorFormData = ({
   const onCreateSuccess = () => {
     pushNotification({
       title: t("toastr.success.createWhat", {
-        type: t("terms.generator").toLocaleLowerCase(),
+        type: t("terms.new"),
+        what: t("terms.generator").toLocaleLowerCase(),
       }),
       variant: "success",
     });
