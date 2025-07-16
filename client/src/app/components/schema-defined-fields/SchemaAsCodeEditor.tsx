@@ -8,6 +8,7 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { SaveControl } from "./SaveControl";
+import { JsonSchemaObject } from "@app/api/models";
 
 export { Language } from "@patternfly/react-code-editor";
 
@@ -20,12 +21,16 @@ type ControlledEditor = {
 
 export interface ISchemaAsCodeEditorProps {
   jsonDocument: object;
+  jsonSchema?: JsonSchemaObject;
   onDocumentSaved?: (newSchemaContent: object) => void;
+  isReadOnly?: boolean;
 }
 
 export const SchemaAsCodeEditor = ({
-  onDocumentSaved,
   jsonDocument,
+  jsonSchema,
+  onDocumentSaved,
+  isReadOnly = false,
 }: ISchemaAsCodeEditorProps) => {
   const editorRef = React.useRef<ControlledEditor>();
 
@@ -56,7 +61,7 @@ export const SchemaAsCodeEditor = ({
     if (editorRef.current) {
       const contentToSave = editorRef.current.getValue();
       try {
-        onDocumentSaved && onDocumentSaved(JSON.parse(contentToSave));
+        onDocumentSaved?.(JSON.parse(contentToSave));
       } catch (error) {
         console.error("Invalid JSON:", error);
       }
@@ -70,14 +75,27 @@ export const SchemaAsCodeEditor = ({
       isDarkTheme
       isDownloadEnabled
       isLineNumbersVisible
-      isReadOnly={onDocumentSaved ? false : true}
+      isReadOnly={isReadOnly || !onDocumentSaved}
       height="600px"
       downloadFileName="my-schema-download.json"
       language={Language.json}
       code={currentCode}
-      onChange={handleCodeChange}
-      onEditorDidMount={(editor) => {
+      onCodeChange={handleCodeChange}
+      onEditorDidMount={(editor, monaco) => {
         editorRef.current = editor as ControlledEditor;
+        if (jsonSchema) {
+          monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+            validate: true,
+            schemaValidation: "error",
+            schemas: [
+              {
+                uri: "http://konveyor.io/dynamic",
+                fileMatch: ["*"],
+                schema: jsonSchema,
+              },
+            ],
+          });
+        }
       }}
       editorProps={{
         onValidate: (markers) => {
@@ -96,12 +114,14 @@ export const SchemaAsCodeEditor = ({
         </div>
       }
       customControls={[
-        <SaveControl
-          key="save-json"
-          onSave={handleSave}
-          isVisible={okToSave}
-        />,
-      ]}
+        !isReadOnly && (
+          <SaveControl
+            key="save-json"
+            onSave={handleSave}
+            isDisabled={!okToSave}
+          />
+        ),
+      ].filter(Boolean)}
     />
   );
 };

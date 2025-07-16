@@ -11,6 +11,7 @@ export interface ISchemaDefinedFieldProps {
   baseJsonDocument: object;
   jsonSchema?: JsonSchemaObject;
   onDocumentSaved?: (newJsonDocument: object) => void;
+  isReadOnly?: boolean;
 }
 
 export const SchemaDefinedField = ({
@@ -18,39 +19,48 @@ export const SchemaDefinedField = ({
   baseJsonDocument,
   jsonSchema,
   onDocumentSaved,
+  isReadOnly = false,
 }: ISchemaDefinedFieldProps) => {
-  const [isJsonView, setIsJsonView] = React.useState<boolean>(false);
+  const [isJsonView, setIsJsonView] = React.useState<boolean>(!jsonSchema);
   const [jsonDocument, setJsonDocument] =
     React.useState<object>(baseJsonDocument);
 
+  const onSavedHandler = !onDocumentSaved
+    ? undefined
+    : (newJsonDocument: object) => {
+        setJsonDocument(newJsonDocument);
+        onDocumentSaved?.(newJsonDocument);
+      };
+
   return (
     <Panel className={className}>
-      <PanelHeader>
-        <Switch
-          id="json-toggle"
-          label="JSON"
-          isChecked={isJsonView}
-          onChange={() => setIsJsonView(!isJsonView)}
-          isDisabled={!jsonSchema || isComplexSchema(jsonSchema)}
-        />
-      </PanelHeader>
+      {jsonSchema ? (
+        <PanelHeader>
+          <Switch
+            id="json-toggle"
+            label="JSON"
+            isChecked={isJsonView}
+            onChange={() => setIsJsonView(!isJsonView)}
+            isDisabled={!jsonSchema || isComplexSchema(jsonSchema)}
+          />
+        </PanelHeader>
+      ) : null}
+
       <PanelMain maxHeight="100%">
         {isJsonView || !jsonSchema ? (
           <SchemaAsCodeEditor
+            isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
-            onDocumentSaved={(newJsonDocument) => {
-              setJsonDocument(newJsonDocument);
-              onDocumentSaved && onDocumentSaved(newJsonDocument);
-            }}
+            jsonSchema={jsonSchema}
+            onDocumentSaved={onSavedHandler}
           />
         ) : (
           <SchemaAsFields
+            isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
-            onDocumentSaved={(newJsonDocument) => {
-              onDocumentSaved && onDocumentSaved(newJsonDocument);
-            }}
-            onDocumentChanged={(newJsonDocument) => {
+            onDocumentSaved={onSavedHandler}
+            onDocumentChanged={(newJsonDocument: object) => {
               setJsonDocument(newJsonDocument);
             }}
           />
