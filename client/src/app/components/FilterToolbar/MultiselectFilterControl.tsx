@@ -38,9 +38,7 @@ export const MultiselectFilterControl = <TItem,>({
   showToolbarItem,
   isDisabled = false,
   isScrollable = false,
-}: React.PropsWithChildren<
-  IMultiselectFilterControlProps<TItem>
->): JSX.Element | null => {
+}: IMultiselectFilterControlProps<TItem>): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
   const textInputRef = React.useRef<HTMLInputElement>();

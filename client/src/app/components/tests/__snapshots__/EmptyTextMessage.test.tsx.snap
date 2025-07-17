@@ -7,7 +7,7 @@ exports[`EmptyTextMessage Renders without crashing 1`] = `
     <div>
       <p
         class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-        data-ouia-component-id="OUIA-Generated-Text-1"
+        data-ouia-component-id="OUIA-Generated-Text-2"
         data-ouia-component-type="PF5/Text"
         data-ouia-safe="true"
         data-pf-content="true"
@@ -21,7 +21,7 @@ exports[`EmptyTextMessage Renders without crashing 1`] = `
   "container": <div>
     <p
       class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-      data-ouia-component-id="OUIA-Generated-Text-1"
+      data-ouia-component-id="OUIA-Generated-Text-2"
       data-ouia-component-type="PF5/Text"
       data-ouia-safe="true"
       data-pf-content="true"

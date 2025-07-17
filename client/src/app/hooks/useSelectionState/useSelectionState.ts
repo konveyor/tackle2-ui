@@ -64,7 +64,7 @@ export const useSelectionState = <T>({
   );
 
   const selectAll = React.useCallback(
-    (isSelecting) => setSelectedSet(isSelecting ? items : []),
+    (isSelecting: boolean) => setSelectedSet(isSelecting ? items : []),
     [items]
   );
 
