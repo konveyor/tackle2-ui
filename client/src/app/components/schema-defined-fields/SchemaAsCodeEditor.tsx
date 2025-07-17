@@ -9,6 +9,8 @@ import {
 } from "@patternfly/react-core";
 import { SaveControl } from "./SaveControl";
 import { JsonSchemaObject } from "@app/api/models";
+import { jsonSchemaToYupSchema } from "./utils";
+import { useMemo } from "react";
 
 export { Language } from "@patternfly/react-code-editor";
 
@@ -23,6 +25,7 @@ export interface ISchemaAsCodeEditorProps {
   jsonDocument: object;
   jsonSchema?: JsonSchemaObject;
   onDocumentSaved?: (newSchemaContent: object) => void;
+  onDocumentChanged?: (newSchemaContent: object) => void;
   isReadOnly?: boolean;
 }
 
@@ -30,6 +33,7 @@ export const SchemaAsCodeEditor = ({
   jsonDocument,
   jsonSchema,
   onDocumentSaved,
+  onDocumentChanged,
   isReadOnly = false,
 }: ISchemaAsCodeEditorProps) => {
   const editorRef = React.useRef<ControlledEditor>();
@@ -53,17 +57,30 @@ export const SchemaAsCodeEditor = ({
     }
   };
 
+  const validator = useMemo(() => {
+    return !jsonSchema ? undefined : jsonSchemaToYupSchema(jsonSchema);
+  }, [jsonSchema]);
+
   const handleCodeChange = (newValue: string) => {
     setCurrentCode(newValue);
+    if (onDocumentChanged && (!validator || validator.isValidSync(newValue))) {
+      try {
+        onDocumentChanged(JSON.parse(newValue));
+      } catch (error) {
+        // ignore invalid JSON, the change will be ignored
+      }
+    }
   };
 
-  const handleSave = () => {
-    if (editorRef.current) {
+  const handleSave = async () => {
+    if (editorRef.current && okToSave) {
       const contentToSave = editorRef.current.getValue();
       try {
+        await validator?.isValid(contentToSave);
         onDocumentSaved?.(JSON.parse(contentToSave));
       } catch (error) {
         console.error("Invalid JSON:", error);
+        // TODO: Use useNotify() to toast the error to the user
       }
     }
   };
@@ -75,12 +92,12 @@ export const SchemaAsCodeEditor = ({
       isDarkTheme
       isDownloadEnabled
       isLineNumbersVisible
-      isReadOnly={isReadOnly || !onDocumentSaved}
+      isReadOnly={isReadOnly}
       height="600px"
       downloadFileName="my-schema-download.json"
       language={Language.json}
       code={currentCode}
-      onCodeChange={handleCodeChange}
+      onChange={handleCodeChange}
       onEditorDidMount={(editor, monaco) => {
         editorRef.current = editor as ControlledEditor;
         if (jsonSchema) {

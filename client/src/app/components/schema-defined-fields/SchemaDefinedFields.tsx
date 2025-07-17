@@ -32,6 +32,10 @@ export const SchemaDefinedField = ({
         onDocumentSaved?.(newJsonDocument);
       };
 
+  const onChangeHandler = (newJsonDocument: object) => {
+    setJsonDocument(newJsonDocument);
+  };
+
   return (
     <Panel className={className}>
       {jsonSchema ? (
@@ -53,6 +57,7 @@ export const SchemaDefinedField = ({
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
             onDocumentSaved={onSavedHandler}
+            onDocumentChanged={onChangeHandler}
           />
         ) : (
           <SchemaAsFields
@@ -60,9 +65,7 @@ export const SchemaDefinedField = ({
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
             onDocumentSaved={onSavedHandler}
-            onDocumentChanged={(newJsonDocument: object) => {
-              setJsonDocument(newJsonDocument);
-            }}
+            onDocumentChanged={onChangeHandler}
           />
         )}
       </PanelMain>
