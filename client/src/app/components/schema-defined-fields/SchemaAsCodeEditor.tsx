@@ -63,21 +63,25 @@ export const SchemaAsCodeEditor = ({
 
   const handleCodeChange = (newValue: string) => {
     setCurrentCode(newValue);
-    if (onDocumentChanged && (!validator || validator.isValidSync(newValue))) {
+    if (onDocumentChanged) {
       try {
-        onDocumentChanged(JSON.parse(newValue));
+        const asJson = JSON.parse(newValue);
+        if (!validator || validator.isValidSync(asJson)) {
+          onDocumentChanged(asJson);
+        }
       } catch (error) {
         // ignore invalid JSON, the change will be ignored
       }
     }
   };
 
-  const handleSave = async () => {
-    if (editorRef.current && okToSave) {
-      const contentToSave = editorRef.current.getValue();
+  const handleSave = () => {
+    if (editorRef.current && okToSave && onDocumentSaved) {
       try {
-        await validator?.isValid(contentToSave);
-        onDocumentSaved?.(JSON.parse(contentToSave));
+        const asJson = JSON.parse(editorRef.current.getValue());
+        if (!validator || validator.isValidSync(asJson)) {
+          onDocumentSaved(asJson);
+        }
       } catch (error) {
         console.error("Invalid JSON:", error);
         // TODO: Use useNotify() to toast the error to the user
