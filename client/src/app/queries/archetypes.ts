@@ -37,7 +37,9 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
         setFilteredArchetypes([]);
       }
 
-      queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [assessmentsByItemIdQueryKey],
+      });
     },
     onError: (error: AxiosError) => console.log(error),
   });
@@ -82,7 +84,7 @@ export const useCreateArchetypeMutation = (
     mutationFn: createArchetype,
     onSuccess: (archetype) => {
       onSuccess(archetype);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
     },
     onError: onError,
   });
@@ -98,8 +100,8 @@ export const useUpdateArchetypeMutation = (
     mutationFn: updateArchetype,
     onSuccess: (_, { id }) => {
       onSuccess(id);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, id]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPE_QUERY_KEY, id] });
     },
     onError: onError,
   });
@@ -115,8 +117,10 @@ export const useDeleteArchetypeMutation = (
     mutationFn: (archetype: Archetype) => deleteArchetype(archetype.id),
     onSuccess: (_, archetype) => {
       onSuccess(archetype);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [ARCHETYPE_QUERY_KEY, archetype.id],
+      });
     },
     onError: onError,
   });
