@@ -912,6 +912,7 @@ export interface Manifest {
   application?: Ref;
 }
 
+// Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;

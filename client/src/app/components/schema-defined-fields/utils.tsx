@@ -1,12 +1,17 @@
 import { JsonSchemaObject } from "@app/api/models";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { TFunction } from "i18next";
 import * as yup from "yup";
 
 export const jsonSchemaToYupSchema = (
   jsonSchema: JsonSchemaObject,
-  t: (key: string, options?: Record<string, unknown>) => string = (k, v) =>
-    `${k}: ${JSON.stringify(v)}`
+  translate?:
+    | TFunction<"translation", undefined>
+    | ((k: string, v?: object) => string)
 ): yup.AnySchema => {
+  const fallbackT = (k: string, v?: object) => `${k}: ${JSON.stringify(v)}`;
+  const t = translate || fallbackT;
+
   if (jsonSchema.type === "array") {
     let schema = yup.array();
     if (jsonSchema.items) {
@@ -21,7 +26,10 @@ export const jsonSchemaToYupSchema = (
   }
 
   if (jsonSchema.type === "object" && jsonSchema.properties) {
-    const props: Record<string, any> = {};
+    const props: Record<
+      string,
+      yup.AnySchema | ReturnType<typeof yup.lazy<yup.AnySchema>>
+    > = {};
 
     for (const [key, prop] of Object.entries(jsonSchema.properties)) {
       const propSchema = jsonSchemaToYupSchema(prop, t);
@@ -34,7 +42,7 @@ export const jsonSchemaToYupSchema = (
         // For optional object properties with properties, use lazy validation
         // to avoid validating internal structure when the object is undefined
         if (prop.type === "object" && prop.properties) {
-          props[key] = yup.lazy((value) => {
+          props[key] = yup.lazy<yup.AnySchema>((value) => {
             if (value === undefined || value === null) {
               return yup.mixed().optional();
             }
@@ -108,10 +116,9 @@ export const jsonSchemaToYupSchema = (
 
 export const jsonSchemaToYupResolver = (
   jsonSchema: JsonSchemaObject,
-  t: (key: string, options?: Record<string, unknown>) => string = (k, v) =>
-    `${k}: ${JSON.stringify(v)}`
+  translate?: TFunction<"translation", undefined>
 ) => {
-  const baseYupSchema = jsonSchemaToYupSchema(jsonSchema, t);
+  const baseYupSchema = jsonSchemaToYupSchema(jsonSchema, translate);
 
   if (baseYupSchema instanceof yup.ObjectSchema) {
     return yupResolver(baseYupSchema);
