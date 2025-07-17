@@ -1,7 +1,7 @@
 {
   "$schema": "https://schemastore.org/tsconfig.json",
 
-  "include": ["src/**/*", "config/**/*"],
+  "include": ["src/**/*", "config/**/*", "types/**/*"],
 
   "compilerOptions": {
     "baseUrl": ".",
@@ -11,6 +11,7 @@
     "moduleResolution": "bundler",
     "target": "es2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "typeRoots": ["types", "node_modules/@types", "../node_modules/@types"],
 
     "strict": true,
     "resolveJsonModule": true,
@@ -32,7 +33,7 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@mocks/*": ["src/mocks/*"]
-    },
+    }
   },
 
   "ts-node": {

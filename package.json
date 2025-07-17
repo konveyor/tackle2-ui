@@ -31,7 +31,6 @@
     ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write"
   },
   "workspaces": [
-    "extra-types",
     "common",
     "server",
     "client"
