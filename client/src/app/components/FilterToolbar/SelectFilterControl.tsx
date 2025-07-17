@@ -29,8 +29,9 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
   showToolbarItem,
   isDisabled = false,
   isScrollable = false,
-}: React.PropsWithChildren<
-  ISelectFilterControlProps<TItem, TFilterCategoryKey>
+}: ISelectFilterControlProps<
+  TItem,
+  TFilterCategoryKey
 >): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
 
@@ -47,7 +48,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
       return {
         key: value,
         node: chipLabel ?? label ?? value,
-      };
+      } as ToolbarChip;
     })
     .filter(Boolean);
 
@@ -107,7 +108,6 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
           setIsFilterDropdownOpen(false);
         }}
         isOpen={isFilterDropdownOpen}
-        placeholder="Any"
         shouldFocusToggleOnSelect
       >
         <SelectList>

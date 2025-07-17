@@ -436,6 +436,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             variant={ModalVariant.large}
           >
             <Wizard
+              data-testid="analysis-wizard"
               onClose={handleCancel}
               onSave={handleSubmit(onSubmit)}
               onStepChange={(_event, currentStep: WizardStepType) =>

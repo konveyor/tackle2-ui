@@ -1,9 +1,14 @@
-import "@testing-library/jest-dom";
 import { server } from "@mocks/server";
+
+// init @testing-library
+import "@testing-library/jest-dom";
+import { configure } from "@testing-library/react";
 
 // initialize libraries like is done in ../../index.tsx
 import "@app/dayjs";
 import "@app/yup";
+
+configure({ reactStrictMode: true });
 
 const mockInitialized = false;
 

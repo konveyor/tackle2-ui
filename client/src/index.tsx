@@ -1,7 +1,7 @@
 import "@patternfly/react-core/dist/styles/base.css";
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -17,14 +17,15 @@ import "@app/code-editor";
 const queryClient = new QueryClient();
 
 const renderApp = () => {
-  ReactDOM.render(
+  const container = document.getElementById("root");
+  const root = createRoot(container!);
+  root.render(
     <KeycloakProvider>
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </KeycloakProvider>,
-    document.getElementById("root")
+    </KeycloakProvider>
   );
 };
 

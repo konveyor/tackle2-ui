@@ -20,7 +20,7 @@ export interface AppAboutModalProps {
 const TRANSPARENT_1x1_GIF =
   "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw== ";
 
-const AboutLink: React.FC<React.PropsWithChildren<{ href?: string }>> = ({
+const AboutLink: React.FC<{ href?: string; children?: React.ReactNode }> = ({
   href,
   children,
 }) => (
