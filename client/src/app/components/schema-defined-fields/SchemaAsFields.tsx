@@ -1,4 +1,3 @@
-/* eslint-disable no-case-declarations */
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
@@ -16,10 +15,6 @@ import {
 } from "@app/components/HookFormPFFields";
 import { JsonSchemaObject } from "@app/api/models";
 import { jsonSchemaToYupResolver } from "./utils";
-
-export interface JsonSchemaValues {
-  [key: string]: string | string[] | boolean | JsonSchemaValues | undefined;
-}
 
 export interface SchemaAsFieldsProps {
   jsonDocument: object;
@@ -108,17 +103,15 @@ const BooleanField: React.FC<FieldProps> = ({
       fieldId={fieldId}
       isRequired={required}
       renderInput={({ field: { value, onChange } }) => (
-        <>
-          <Checkbox
-            id={fieldId}
-            label={fieldSchema.title || fieldKey}
-            isDisabled={isReadOnly}
-            isChecked={!!value}
-            onChange={onChange}
-            aria-invalid={!isValid}
-            aria-describedby={errorMessage ? `${fieldId}-helper` : undefined}
-          />
-        </>
+        <Checkbox
+          id={fieldId}
+          label={fieldSchema.title || fieldKey}
+          isDisabled={isReadOnly}
+          isChecked={!!value}
+          onChange={onChange}
+          aria-invalid={!isValid}
+          aria-describedby={`${fieldId}-helper`}
+        />
       )}
     />
   );
@@ -174,8 +167,7 @@ const SchemaField: React.FC<SchemaFieldProps> = ({
   path,
   parentSchema,
 }) => {
-  const required =
-    parentSchema?.required && parentSchema.required.includes(fieldKey);
+  const required = parentSchema?.required?.includes(fieldKey) ?? false;
 
   switch (fieldSchema.type) {
     case "string":
@@ -233,7 +225,7 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const methods = useForm<JsonSchemaValues>({
+  const methods = useForm({
     resolver: jsonSchemaToYupResolver(jsonSchema, t),
     defaultValues: jsonDocument,
     mode: "all",
@@ -260,24 +252,24 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
     return () => subscription();
   }, [subscribe, onDocumentChanged]);
 
-  const onValidSubmit = (values: JsonSchemaValues) => {
+  const onValidSubmit = (values: object) => {
     onDocumentSaved?.(values);
   };
 
   return (
     <FormProvider {...methods}>
       <Form onSubmit={handleSubmit(onValidSubmit)} id="schema-as-fields-form">
-        {Object.keys(jsonSchema?.properties || {}).map((key) =>
-          jsonSchema.properties ? (
+        {Object.entries(jsonSchema?.properties || {}).map(
+          ([key, fieldSchema]) => (
             <SchemaField
               isReadOnly={isReadOnly}
               key={key}
               fieldKey={key}
-              fieldSchema={jsonSchema.properties[key]}
+              fieldSchema={fieldSchema}
               path={key}
               parentSchema={jsonSchema}
             />
-          ) : null
+          )
         )}
       </Form>
     </FormProvider>

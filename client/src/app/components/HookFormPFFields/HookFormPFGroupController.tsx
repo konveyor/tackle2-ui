@@ -74,7 +74,7 @@ export const HookFormPFGroupController = <
         >
           {renderInput({ field, fieldState, formState })}
           {helperText || shouldDisplayError ? (
-            <FormHelperText>
+            <FormHelperText id={`${fieldId}-helper`}>
               <HelperText>
                 <HelperTextItem
                   variant={shouldDisplayError ? "error" : "default"}
