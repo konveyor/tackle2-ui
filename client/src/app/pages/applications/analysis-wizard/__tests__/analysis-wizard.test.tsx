@@ -1,6 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@app/test-config/test-utils";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@app/test-config/test-utils";
 import { AnalysisWizard } from "../analysis-wizard";
 import userEvent from "@testing-library/user-event";
 import { server } from "@mocks/server";
@@ -60,7 +65,7 @@ describe("<AnalysisWizard />", () => {
   const setAnalyzeModalOpen = (toggle: boolean) =>
     (isAnalyzeModalOpen = toggle);
 
-  it.skip("allows to cancel an analysis wizard", async () => {
+  it("allows to cancel an analysis wizard", async () => {
     render(
       <AnalysisWizard
         applications={[applicationData1, applicationData2]}
@@ -75,7 +80,7 @@ describe("<AnalysisWizard />", () => {
     expect(cancelButton).toBeEnabled();
   });
 
-  it.skip("has next button disabled when applications mode have no binary source defined", async () => {
+  it("has next button disabled when applications mode have no binary source defined", async () => {
     render(
       <AnalysisWizard
         applications={[applicationData1, applicationData2]}
@@ -93,7 +98,7 @@ describe("<AnalysisWizard />", () => {
     await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
-  it.skip("has next button disabled when applications mode have no source code defined", async () => {
+  it("has next button disabled when applications mode have no source code defined", async () => {
     render(
       <AnalysisWizard
         applications={[applicationData1, applicationData2]}
@@ -142,7 +147,7 @@ describe("<AnalysisWizard />", () => {
     });
     await userEvent.click(sourceCodePlusDependencies);
 
-    screen.debug(screen.getAllByRole("button", { hidden: true }));
+    // screen.debug(screen.getAllByRole("button", { hidden: true }));
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
@@ -150,7 +155,7 @@ describe("<AnalysisWizard />", () => {
     await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
-  //TODO
+  // TODO
   it.skip("can run analysis on applications with a binary definition using defaults", async () => {
     const applicationsData = [
       {
@@ -179,7 +184,13 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    // set default mode "Binary"
+    // set mode to "Binary"
+    const modeSelector = await screen.findByLabelText("Source for analysis");
+    expect(modeSelector).toBeInTheDocument();
+    fireEvent.click(modeSelector);
+    const binaryOption = await screen.findByText("Binary");
+    fireEvent.click(binaryOption);
+
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
     await waitFor(() => expect(warning).not.toBeInTheDocument());
@@ -220,7 +231,7 @@ describe("<AnalysisWizard />", () => {
     expect(runButton).toBeEnabled();
   });
 
-  it.skip("cannot upload a binary file when analyzing multiple applications", async () => {
+  it("cannot upload a binary file when analyzing multiple applications", async () => {
     render(
       <AnalysisWizard
         applications={[applicationData1, applicationData2]}
