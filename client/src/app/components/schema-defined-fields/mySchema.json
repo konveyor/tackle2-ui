@@ -36,6 +36,11 @@
     "isActive": {
       "type": "boolean",
       "description": "Indicates if the platform is currently active."
+    },
+    "port": {
+      "title": "Connection port",
+      "description": "This is a longer description of port",
+      "type": "integer"
     }
   },
   "required": ["platformName", "version", "coordinates"]
