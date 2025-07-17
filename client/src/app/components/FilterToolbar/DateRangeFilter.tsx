@@ -30,16 +30,13 @@ import {
  * 2) setFilterValue - accepts the list of ranges.<br>
  *
  */
-
 export const DateRangeFilter = <TItem,>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
   isDisabled = false,
-}: React.PropsWithChildren<
-  IFilterControlProps<TItem, string>
->): JSX.Element | null => {
+}: IFilterControlProps<TItem, string>): JSX.Element | null => {
   const selectedFilters = filterValue ?? [];
 
   const validFilters =

@@ -8,11 +8,11 @@ import { PageContentWithDrawerProvider } from "@app/components/PageDrawerContext
 import { TaskManagerDrawer } from "@app/components/task-manager/TaskManagerDrawer";
 import { useTaskManagerContext } from "@app/components/task-manager/TaskManagerContext";
 
-export interface DefaultLayoutProps {}
+export interface DefaultLayoutProps {
+  children?: React.ReactNode;
+}
 
-export const DefaultLayout: React.FC<
-  React.PropsWithChildren & DefaultLayoutProps
-> = ({ children }) => {
+export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
   const pageId = "main-content-page-layout-horizontal-nav";
   const PageSkipToContent = (
     <SkipToContent href={`#${pageId}`}>Skip to content</SkipToContent>
