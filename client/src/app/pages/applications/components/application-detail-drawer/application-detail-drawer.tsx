@@ -191,7 +191,11 @@ export const ApplicationDetailDrawer: React.FC<
 
 const ApplicationArchetypes: React.FC<{
   application: DecoratedApplication;
-}> = ({ application: { archetypes } }) => {
+}> = ({
+  application: {
+    direct: { archetypes },
+  },
+}) => {
   const { t } = useTranslation();
   return (archetypes?.length ?? 0) > 0 ? (
     <LabelsFromItems items={archetypes} color="grey" />
