@@ -26,7 +26,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
-import { Identity, MimeType, Manifest } from "@app/api/models";
+import { Identity, MimeType, Manifest, Archetype } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
 import { useFetchIdentities } from "@app/queries/identities";
@@ -189,58 +189,21 @@ export const ApplicationDetailDrawer: React.FC<
   );
 };
 
-const ApplicationArchetypes: React.FC<{
+const ApplicationArchetypesLabels: React.FC<{
   application: DecoratedApplication;
+  filter?: (archetype: Archetype) => boolean;
+  color?: Parameters<typeof LabelsFromItems>[0]["color"];
 }> = ({
   application: {
     direct: { archetypes },
   },
+  filter = () => true,
+  color = "grey",
 }) => {
   const { t } = useTranslation();
-  return (archetypes?.length ?? 0) > 0 ? (
-    <LabelsFromItems items={archetypes} color="grey" />
-  ) : (
-    <EmptyTextMessage message={t("terms.none")} />
-  );
-};
-
-const ApplicationArchetypesAssessed: React.FC<{
-  application: DecoratedApplication;
-}> = ({
-  application: {
-    direct: { archetypes },
-  },
-}) => {
-  const { t } = useTranslation();
-
-  // Filter matches the archetype table's assessment column
-  const assessedArchetypes = !archetypes
-    ? []
-    : archetypes.filter((archetype) => archetype.assessed).filter(Boolean);
-
-  return (assessedArchetypes?.length ?? 0) > 0 ? (
-    <LabelsFromItems items={assessedArchetypes} color="grey" />
-  ) : (
-    <EmptyTextMessage message={t("terms.none")} />
-  );
-};
-
-const ApplicationArchetypesReviewed: React.FC<{
-  application: DecoratedApplication;
-}> = ({
-  application: {
-    direct: { archetypes },
-  },
-}) => {
-  const { t } = useTranslation();
-
-  // Filter matches the archetype table's review column
-  const reviewedArchetypes = !archetypes
-    ? []
-    : archetypes.filter((archetype) => archetype.review).filter(Boolean);
-
-  return (reviewedArchetypes?.length ?? 0) > 0 ? (
-    <LabelsFromItems items={reviewedArchetypes} color="grey" />
+  const filteredArchetypes = !archetypes ? [] : archetypes.filter(filter);
+  return (filteredArchetypes?.length ?? 0) > 0 ? (
+    <LabelsFromItems items={filteredArchetypes} color={color} />
   ) : (
     <EmptyTextMessage message={t("terms.none")} />
   );
@@ -304,7 +267,7 @@ const TabDetailsContent: React.FC<{
             {t("terms.associatedArchetypes")}
           </DescriptionListTerm>
           <DescriptionListDescription>
-            <ApplicationArchetypes application={application} />
+            <ApplicationArchetypesLabels application={application} />
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -313,7 +276,13 @@ const TabDetailsContent: React.FC<{
             {t("terms.archetypesAssessed")}
           </DescriptionListTerm>
           <DescriptionListDescription>
-            <ApplicationArchetypesAssessed application={application} />
+            <ApplicationArchetypesLabels
+              application={application}
+              filter={
+                // Filter matches the archetype table's assessment column
+                (archetype) => !!archetype.assessed
+              }
+            />
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -322,7 +291,13 @@ const TabDetailsContent: React.FC<{
             {t("terms.archetypesReviewed")}
           </DescriptionListTerm>
           <DescriptionListDescription>
-            <ApplicationArchetypesReviewed application={application} />
+            <ApplicationArchetypesLabels
+              application={application}
+              filter={
+                // Filter matches the archetype table's review column
+                (archetype) => !!archetype.review
+              }
+            />
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>
