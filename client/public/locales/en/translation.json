@@ -49,6 +49,7 @@
     "manageImports": "Manage imports",
     "next": "Next",
     "override": "Override",
+    "reset": "Reset",
     "review": "Review",
     "save": "Save",
     "saveAndReview": "Save and review",
@@ -566,7 +567,10 @@
     "minOneStakeholderOrGroupRequired": "At least one stakeholder or stakeholder groups is required.",
     "required": "This field is required.",
     "url": "This field requires a valid URL.",
-    "duplicateName": "A {{type}} with this name already exists. Use a different name."
+    "duplicateName": "A {{type}} with this name already exists. Use a different name.",
+    "invalidFormat": "Invalid format",
+    "invalidValue": "Invalid value",
+    "mustBeNumber": "Must be a number"
   },
   "wizard": {
     "alert": {
