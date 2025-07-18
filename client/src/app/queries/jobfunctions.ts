@@ -7,12 +7,11 @@ import {
   updateJobFunction,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const JobFunctionsQueryKey = "jobfunctions";
 
 export const useFetchJobFunctions = (
-  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+  refetchInterval: number | false = false
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [JobFunctionsQueryKey],
@@ -60,19 +59,20 @@ export const useUpdateJobFunctionMutation = (
 };
 
 export const useDeleteJobFunctionMutation = (
-  onSuccess: (res: JobFunction) => void,
+  onSuccess: (id: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   const { isPending, mutate, error } = useMutation({
     mutationFn: deleteJobFunction,
-    onSuccess: (data) => {
-      onSuccess(data);
-      queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
+    onSuccess: (_, id) => {
+      onSuccess(id);
     },
     onError: (err: AxiosError) => {
       onError(err);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
     },
   });
