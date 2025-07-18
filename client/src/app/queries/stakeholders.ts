@@ -8,6 +8,10 @@ import {
 import { AxiosError } from "axios";
 import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { BusinessServicesQueryKey } from "./businessservices";
+import { MigrationWavesQueryKey } from "./migration-waves";
+import { assessmentsQueryKey } from "./assessments";
+import { ARCHETYPES_QUERY_KEY } from "./archetypes";
 
 export const StakeholdersQueryKey = "stakeholders";
 
@@ -74,6 +78,10 @@ export const useUpdateStakeholderMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [StakeholdersQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [BusinessServicesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [assessmentsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
     },
     onError: onError,
   });
@@ -90,6 +98,10 @@ export const useDeleteStakeholderMutation = (
     onSuccess: (res) => {
       onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [StakeholdersQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [BusinessServicesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [assessmentsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
     },
     onError: onError,
   });
