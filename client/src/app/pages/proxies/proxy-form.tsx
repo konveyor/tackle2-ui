@@ -235,7 +235,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             label="HTTP proxy port"
             fieldId="port"
             isRequired
-            type="number"
+            type="integer"
             className={spacing.mMd}
           />
           <Controller
@@ -321,7 +321,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId="port"
             name="httpsPort"
             isRequired
-            type="number"
+            type="integer"
             className={spacing.mMd}
           />
           <Controller
