@@ -7,20 +7,18 @@ import {
   updateJobFunction,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
-export interface IJobFunctionFetchState {
-  jobFunctions: JobFunction[];
-  isFetching: boolean;
-  fetchError: any;
-  refetch: any;
-}
 export const JobFunctionsQueryKey = "jobfunctions";
 
-export const useFetchJobFunctions = (): IJobFunctionFetchState => {
+export const useFetchJobFunctions = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [JobFunctionsQueryKey],
     queryFn: getJobFunctions,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     jobFunctions: data || [],
@@ -40,7 +38,7 @@ export const useCreateJobFunctionMutation = (
     mutationFn: createJobFunction,
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
     },
     onError,
   });
@@ -55,7 +53,7 @@ export const useUpdateJobFunctionMutation = (
     mutationFn: updateJobFunction,
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
     },
     onError: onError,
   });
@@ -67,20 +65,20 @@ export const useDeleteJobFunctionMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: deleteJobFunction,
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([JobFunctionsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [JobFunctionsQueryKey] });
     },
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };

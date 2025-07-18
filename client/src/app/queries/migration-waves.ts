@@ -13,6 +13,7 @@ import { TicketsQueryKey, useFetchTickets } from "./tickets";
 import { TrackersQueryKey } from "./trackers";
 import { useFetchApplications } from "./applications";
 import { useFetchStakeholders } from "./stakeholders";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const MigrationWavesQueryKey = "migration-waves";
 
@@ -26,13 +27,15 @@ export const useCreateMigrationWaveMutation = (
     mutationFn: createMigrationWave,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError,
   });
 };
 
-export const useFetchMigrationWaves = () => {
+export const useFetchMigrationWaves = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { tickets } = useFetchTickets();
   const { stakeholders } = useFetchStakeholders();
   const { data: applications } = useFetchApplications();
@@ -41,9 +44,10 @@ export const useFetchMigrationWaves = () => {
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [MigrationWavesQueryKey],
     queryFn: getMigrationWaves,
-    refetchInterval: 5000,
+    refetchInterval,
     onError: (error) => console.log("error, ", error),
-    onSuccess: () => queryClient.invalidateQueries([TrackersQueryKey]),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] }),
     select: (waves) =>
       getWavesWithStatus(waves, tickets, stakeholders, applications),
   });
@@ -64,7 +68,7 @@ export const useUpdateMigrationWaveMutation = (
     mutationFn: updateMigrationWave,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError: onError,
   });
@@ -75,13 +79,12 @@ export const useDeleteMigrationWaveMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id }: { id: number; name: string }) =>
       deleteMigrationWave(id),
     onSuccess: (_, vars) => {
       onSuccess(vars.name);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError,
   });
@@ -96,7 +99,7 @@ export const useDeleteAllMigrationWavesMutation = (
     mutationFn: deleteAllMigrationWaves,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError: onError,
   });
@@ -110,8 +113,8 @@ export const useDeleteTicketMutation = (
     mutationFn: deleteTicket,
     onSuccess: (res) => {
       onSuccess && onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
-      queryClient.invalidateQueries([TicketsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TicketsQueryKey] });
     },
     onError: onError,
   });

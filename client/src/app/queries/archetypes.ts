@@ -12,11 +12,14 @@ import {
 import { assessmentsByItemIdQueryKey } from "./assessments";
 import { useMemo } from "react";
 import { objectify } from "radash";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
 
-export const useFetchArchetypes = () => {
+export const useFetchArchetypes = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const queryClient = useQueryClient();
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [ARCHETYPES_QUERY_KEY],
@@ -27,6 +30,7 @@ export const useFetchArchetypes = () => {
       });
     },
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
 
   const archetypesById = useMemo(() => {
@@ -34,7 +38,7 @@ export const useFetchArchetypes = () => {
   }, [data]);
 
   return {
-    archetypes: data,
+    archetypes: data || [],
     archetypesById,
     isFetching: isLoading,
     isSuccess,
@@ -43,13 +47,17 @@ export const useFetchArchetypes = () => {
   };
 };
 
-export const useFetchArchetypeById = (id?: number | string) => {
+export const useFetchArchetypeById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ARCHETYPE_QUERY_KEY, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getArchetypeById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {

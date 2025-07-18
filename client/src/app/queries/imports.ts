@@ -6,6 +6,7 @@ import {
   getApplicationImportSummaryById,
   getApplicationsImportSummary,
 } from "@app/api/rest";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ImportSummariesQueryKey = "importsummaries";
 export const ImportsQueryKey = "imports";
@@ -13,12 +14,14 @@ export const ImportQueryKey = "import";
 
 export const useFetchImports = (
   importSummaryID: number,
-  isValid: boolean | string
+  isValid: boolean | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [ImportsQueryKey, importSummaryID, isValid],
     queryFn: () => getApplicationImports(importSummaryID, isValid),
     onError: (error) => console.log(error),
+    refetchInterval,
   });
   return {
     imports: data || [],
@@ -28,11 +31,13 @@ export const useFetchImports = (
   };
 };
 
-export const useFetchImportSummaries = () => {
+export const useFetchImportSummaries = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [ImportSummariesQueryKey],
     queryFn: getApplicationsImportSummary,
-    refetchInterval: 5000,
+    refetchInterval,
     onError: (error) => console.log(error),
   });
   return {
@@ -67,7 +72,7 @@ export const useDeleteImportSummaryMutation = (
     mutationFn: deleteApplicationImportSummary,
     onSuccess: () => {
       onSuccess && onSuccess();
-      queryClient.invalidateQueries([ImportSummariesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ImportSummariesQueryKey] });
     },
     onError: (err: Error) => {
       onError && onError(err);

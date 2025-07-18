@@ -17,11 +17,12 @@ import { universalComparator } from "@app/utils/utils";
 export const TagsQueryKey = "tags";
 export const TagCategoriesQueryKey = "tagcategories";
 
-export const useFetchTags = () => {
+export const useFetchTags = (refetchInterval: number | false = false) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TagsQueryKey],
     queryFn: getTags,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     tags: data || [],
@@ -31,11 +32,14 @@ export const useFetchTags = () => {
   };
 };
 
-export const useFetchTagCategories = () => {
+export const useFetchTagCategories = (
+  refetchInterval: number | false = false
+) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [TagCategoriesQueryKey, TagsQueryKey],
     queryFn: getTagCategories,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval,
   });
 
   return {
@@ -58,11 +62,13 @@ export interface TagItemType {
   tooltip?: string;
 }
 
-export const useFetchTagsWithTagItems = () => {
+export const useFetchTagsWithTagItems = (
+  refetchInterval: number | false = false
+) => {
   // fetching tag categories with their tags is to most compact way to get all of
   // that information in a single call
   const { tagCategories, isFetching, isSuccess, fetchError, refetch } =
-    useFetchTagCategories();
+    useFetchTagCategories(refetchInterval);
 
   // transform the tag categories in a list of tags with category refs
   const tags = useMemo(
@@ -113,11 +119,15 @@ export const useCreateTagMutation = (
     mutationFn: createTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
   });
 };
@@ -132,11 +142,11 @@ export const useCreateTagCategoryMutation = (
     mutationFn: createTagCategory,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
   });
 };
@@ -151,11 +161,15 @@ export const useUpdateTagMutation = (
     mutationFn: updateTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
   });
 };
@@ -170,11 +184,11 @@ export const useUpdateTagCategoryMutation = (
     mutationFn: updateTagCategory,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
   });
 };
@@ -188,11 +202,15 @@ export const useDeleteTagMutation = (
     mutationFn: deleteTag,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey, TagsQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+      });
     },
   });
 };
@@ -207,11 +225,11 @@ export const useDeleteTagCategoryMutation = (
     mutationFn: deleteTagCategory,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TagCategoriesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
     },
   });
 };
