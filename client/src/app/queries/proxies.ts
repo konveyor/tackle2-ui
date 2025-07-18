@@ -1,15 +1,18 @@
-import { useState } from "react";
 import { AxiosError } from "axios";
 import { getProxies, updateProxy } from "@app/api/rest";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ProxiesTasksQueryKey = "proxies";
 
-export const useFetchProxies = () => {
+export const useFetchProxies = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, data, error } = useQuery({
     queryKey: [ProxiesTasksQueryKey],
     queryFn: getProxies,
     onError: (error) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     proxies: data || [],
@@ -27,7 +30,7 @@ export const useUpdateProxyMutation = (
     mutationFn: updateProxy,
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([ProxiesTasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ProxiesTasksQueryKey] });
     },
     onError: onError,
   });

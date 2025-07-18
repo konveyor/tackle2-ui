@@ -26,11 +26,11 @@ export const useSubmitTaskgroupMutation = (
     mutationFn: submitTaskgroup,
     onSuccess: (data) => {
       onSuccess(data);
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
     },
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
     },
   });
 };
@@ -82,7 +82,7 @@ export const useDeleteTaskgroupMutation = (
     onSuccess,
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
     },
   });
 };

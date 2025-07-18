@@ -9,15 +9,19 @@ import {
   getPlatforms,
   updatePlatform,
 } from "@app/api/rest";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const PLATFORMS_QUERY_KEY = "platforms";
 export const PLATFORM_QUERY_KEY = "platform";
 
-export const useFetchPlatforms = () => {
+export const useFetchPlatforms = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [PLATFORMS_QUERY_KEY],
     queryFn: getPlatforms,
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
 
   return {
@@ -29,13 +33,17 @@ export const useFetchPlatforms = () => {
   };
 };
 
-export const useFetchPlatformById = (id?: number | string) => {
+export const useFetchPlatformById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [PLATFORM_QUERY_KEY, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getPlatformById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {
@@ -55,7 +63,7 @@ export const useCreatePlatformMutation = (
     mutationFn: createPlatform,
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([PLATFORMS_QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
     },
     onError: onError,
   });
@@ -71,8 +79,8 @@ export const useUpdatePlatformMutation = (
     mutationFn: updatePlatform,
     onSuccess: (_, { id }) => {
       onSuccess(id);
-      queryClient.invalidateQueries([PLATFORMS_QUERY_KEY]);
-      queryClient.invalidateQueries([PLATFORM_QUERY_KEY, id]);
+      queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [PLATFORM_QUERY_KEY, id] });
     },
     onError: onError,
   });
@@ -88,8 +96,10 @@ export const useDeletePlatformMutation = (
     mutationFn: (platform: SourcePlatform) => deletePlatform(platform.id),
     onSuccess: (_, platform) => {
       onSuccess(platform);
-      queryClient.invalidateQueries([PLATFORMS_QUERY_KEY]);
-      queryClient.invalidateQueries([PLATFORM_QUERY_KEY, platform.id]);
+      queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [PLATFORM_QUERY_KEY, platform.id],
+      });
     },
     onError: onError,
   });

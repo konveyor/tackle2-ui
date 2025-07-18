@@ -26,7 +26,8 @@ export const IncidentsQueryKey = "incidents";
 
 export const useFetchRuleReports = (
   enabled: boolean,
-  params: HubRequestParams = {}
+  params: HubRequestParams = {},
+  refetchInterval: number | false = false
 ) => {
   const {
     data: ruleReport,
@@ -39,6 +40,7 @@ export const useFetchRuleReports = (
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
     enabled,
+    refetchInterval,
   });
 
   const withUiId = useWithUiId(
@@ -57,12 +59,16 @@ export const useFetchRuleReports = (
   };
 };
 
-export const useFetchAppReports = (params: HubRequestParams = {}) => {
+export const useFetchAppReports = (
+  params: HubRequestParams = {},
+  refetchInterval: number | false = false
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [AppReportsQueryKey, params],
     queryFn: () => getAppReports(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
   return {
     result: data || { data: [], total: 0, params },
@@ -74,7 +80,8 @@ export const useFetchAppReports = (params: HubRequestParams = {}) => {
 
 export const useFetchIssueReports = (
   applicationId?: number,
-  params: HubRequestParams = {}
+  params: HubRequestParams = {},
+  refetchInterval: number | false = false
 ) => {
   const {
     data: issueReport,
@@ -87,6 +94,7 @@ export const useFetchIssueReports = (
     queryFn: () => getIssueReports(applicationId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
 
   const withUiId = useWithUiId(
@@ -105,12 +113,16 @@ export const useFetchIssueReports = (
   };
 };
 
-export const useFetchIssue = (issueId?: number) => {
+export const useFetchIssue = (
+  issueId?: number,
+  refetchInterval: number | false = false
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [IssueQueryKey, issueId],
     queryFn: () => getIssue(issueId!),
     onError: (error) => console.log("error, ", error),
     enabled: !!issueId,
+    refetchInterval,
   });
   return {
     result: { data },
@@ -122,7 +134,8 @@ export const useFetchIssue = (issueId?: number) => {
 
 export const useFetchFileReports = (
   issueId?: number,
-  params: HubRequestParams = {}
+  params: HubRequestParams = {},
+  refetchInterval: number | false = false
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: issueId !== undefined,
@@ -130,6 +143,7 @@ export const useFetchFileReports = (
     queryFn: () => getFileReports(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
   return {
     result: data || { data: [], total: 0, params },
@@ -141,7 +155,8 @@ export const useFetchFileReports = (
 
 export const useFetchIncidents = (
   issueId?: number,
-  params: HubRequestParams = {}
+  params: HubRequestParams = {},
+  refetchInterval: number | false = false
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: issueId !== undefined,
@@ -149,6 +164,7 @@ export const useFetchIncidents = (
     queryFn: () => getIncidents(issueId, params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
   return {
     result: data || { data: [], total: 0, params },

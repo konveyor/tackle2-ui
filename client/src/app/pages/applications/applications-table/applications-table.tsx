@@ -1199,7 +1199,6 @@ export const ApplicationsTable: React.FC = () => {
           application={activeItem}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
-          task={activeItem?.tasks?.currentAnalyzer ?? null}
         />
 
         <TaskGroupProvider>

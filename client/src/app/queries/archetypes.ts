@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AxiosError } from "axios";
-import { Application, Archetype } from "@app/api/models";
+import { Archetype } from "@app/api/models";
 import {
   createArchetype,
   deleteArchetype,
@@ -10,44 +10,35 @@ import {
   updateArchetype,
 } from "@app/api/rest";
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { objectify } from "radash";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";
 
-export const useFetchArchetypes = (forApplication?: Application | null) => {
-  const [filteredArchetypes, setFilteredArchetypes] = useState<Archetype[]>([]);
-
+export const useFetchArchetypes = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const queryClient = useQueryClient();
-  const { isLoading, isSuccess, error, refetch } = useQuery({
-    queryKey: [ARCHETYPES_QUERY_KEY, forApplication?.id],
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
+    queryKey: [ARCHETYPES_QUERY_KEY],
     queryFn: getArchetypes,
-    onSuccess: (fetchedArchetypes) => {
-      if (!forApplication) {
-        setFilteredArchetypes(fetchedArchetypes);
-      } else if (Array.isArray(forApplication.archetypes)) {
-        const archetypeIds = forApplication.archetypes.map(
-          (archetype) => archetype.id
-        );
-        const filtered = fetchedArchetypes.filter((archetype) =>
-          archetypeIds.includes(archetype.id)
-        );
-        setFilteredArchetypes(filtered);
-      } else {
-        setFilteredArchetypes([]);
-      }
-
-      queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [assessmentsByItemIdQueryKey],
+      });
     },
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
 
   const archetypesById = useMemo(() => {
-    return Object.fromEntries(filteredArchetypes.map((a) => [a.id, a]));
-  }, [filteredArchetypes]);
+    return !data ? {} : objectify(data, ({ id }) => id);
+  }, [data]);
 
   return {
-    archetypes: filteredArchetypes,
+    archetypes: data || [],
     archetypesById,
     isFetching: isLoading,
     isSuccess,
@@ -56,13 +47,17 @@ export const useFetchArchetypes = (forApplication?: Application | null) => {
   };
 };
 
-export const useFetchArchetypeById = (id?: number | string) => {
+export const useFetchArchetypeById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ARCHETYPE_QUERY_KEY, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getArchetypeById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {
@@ -82,7 +77,7 @@ export const useCreateArchetypeMutation = (
     mutationFn: createArchetype,
     onSuccess: (archetype) => {
       onSuccess(archetype);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
     },
     onError: onError,
   });
@@ -98,8 +93,8 @@ export const useUpdateArchetypeMutation = (
     mutationFn: updateArchetype,
     onSuccess: (_, { id }) => {
       onSuccess(id);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, id]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPE_QUERY_KEY, id] });
     },
     onError: onError,
   });
@@ -115,8 +110,10 @@ export const useDeleteArchetypeMutation = (
     mutationFn: (archetype: Archetype) => deleteArchetype(archetype.id),
     onSuccess: (_, archetype) => {
       onSuccess(archetype);
-      queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [ARCHETYPE_QUERY_KEY, archetype.id],
+      });
     },
     onError: onError,
   });

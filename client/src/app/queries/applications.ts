@@ -23,6 +23,7 @@ import {
 } from "@app/api/rest";
 import { assessmentsByItemIdQueryKey } from "./assessments";
 import saveAs from "file-saver";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
@@ -34,17 +35,22 @@ interface DownloadOptions {
 }
 
 export const useFetchApplications = (
-  refetchInterval: number | false | (() => number | false) = 5000
+  refetchInterval:
+    | number
+    | false
+    | (() => number | false) = DEFAULT_REFETCH_INTERVAL
 ) => {
   const queryClient = useQueryClient();
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
-    refetchInterval: refetchInterval,
     onSuccess: () => {
-      queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [assessmentsByItemIdQueryKey],
+      });
     },
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
   return {
     data: data || [],
@@ -56,13 +62,17 @@ export const useFetchApplications = (
 
 export const ApplicationQueryKey = "application";
 
-export const useFetchApplicationById = (id?: number | string) => {
+export const useFetchApplicationById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ApplicationQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getApplicationById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {
@@ -73,7 +83,8 @@ export const useFetchApplicationById = (id?: number | string) => {
 };
 
 export const useFetchApplicationManifest = (
-  applicationId?: number | string
+  applicationId?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ApplicationManifestQueryKey, applicationId],
@@ -83,6 +94,7 @@ export const useFetchApplicationManifest = (
         : getApplicationManifest(applicationId),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: applicationId !== undefined,
+    refetchInterval,
   });
 
   return {
@@ -101,7 +113,7 @@ export const useUpdateApplicationMutation = (
     mutationFn: updateApplication,
     onSuccess: (_res, payload) => {
       onSuccess(payload);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
@@ -116,7 +128,7 @@ export const useUpdateAllApplicationsMutation = (
     mutationFn: updateAllApplications,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
@@ -131,7 +143,7 @@ export const useCreateApplicationMutation = (
     mutationFn: createApplication,
     onSuccess: (application: Application, payload: New<Application>) => {
       onSuccess(application, payload);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
@@ -146,7 +158,7 @@ export const useDeleteApplicationMutation = (
     mutationFn: ({ id }: { id: number }) => deleteApplication(id),
     onSuccess: (_res) => {
       onSuccess(1);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
@@ -161,7 +173,7 @@ export const useBulkDeleteApplicationMutation = (
     mutationFn: ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
     onSuccess: (res, vars) => {
       onSuccess(vars.ids.length);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
@@ -266,7 +278,9 @@ export const useCreateApplicationDependency = ({
   return useMutation({
     mutationFn: createApplicationDependency,
     onSuccess: () => {
-      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [ApplicationDependencyQueryKey],
+      });
       if (onSuccess) {
         onSuccess();
       }
@@ -285,7 +299,9 @@ export const useDeleteApplicationDependency = () => {
   return useMutation({
     mutationFn: deleteApplicationDependency,
     onSuccess: () => {
-      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [ApplicationDependencyQueryKey],
+      });
     },
   });
 };
