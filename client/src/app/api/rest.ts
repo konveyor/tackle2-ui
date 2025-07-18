@@ -211,8 +211,8 @@ export const deleteReview = (id: number): Promise<Review> => {
 // ---------------------------------------
 // Assessments
 //
-export const getAssessments = (): Promise<Assessment[]> =>
-  axios.get(ASSESSMENTS).then((response) => response.data);
+export const getAssessments = () =>
+  axios.get<Assessment[]>(ASSESSMENTS).then((response) => response.data);
 
 export const getAssessmentsByItemId = (
   isArchetype: boolean,
