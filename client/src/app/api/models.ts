@@ -895,6 +895,18 @@ export interface SourcePlatform {
   coordinates?: JsonDocument;
   discoverApplicationsState?: TaskState;
 }
+export interface AssetGenerator {
+  id: number;
+  kind: string;
+  name: string;
+  description?: string;
+  repository?: Repository;
+  parameters?: Record<string, any>;
+  values?: Record<string, any>;
+  identity?: Ref;
+  profiles?: Ref[];
+  discoverApplicationsState?: TaskState;
+}
 export interface ManifestDeployment {
   name: string;
   other?: number;
