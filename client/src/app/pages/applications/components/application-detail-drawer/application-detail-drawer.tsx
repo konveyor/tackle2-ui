@@ -770,6 +770,10 @@ const TabManifestContent: React.FC<{
   manifest: Manifest;
 }> = ({ manifest }) => {
   return (
-    <SchemaDefinedField className={spacing.mtLg} jsonDocument={manifest} />
+    <SchemaDefinedField
+      className={spacing.mtLg}
+      baseJsonDocument={manifest}
+      isReadOnly
+    />
   );
 };

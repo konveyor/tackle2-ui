@@ -1,6 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@app/test-config/test-utils";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@app/test-config/test-utils";
 import { AnalysisWizard } from "../analysis-wizard";
 import userEvent from "@testing-library/user-event";
 import { server } from "@mocks/server";
@@ -121,16 +126,18 @@ describe("<AnalysisWizard />", () => {
   });
 
   it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
-    render(
+    let isOpen = true;
+    const { container } = render(
       <AnalysisWizard
         applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
+        isOpen={isOpen}
         onClose={() => {
-          setAnalyzeModalOpen(false);
+          isOpen = false;
         }}
       />
     );
 
+    expect(container).toBeVisible();
     const mode = screen.getByText(/binary|source code/i);
     await userEvent.click(mode);
 
@@ -138,8 +145,9 @@ describe("<AnalysisWizard />", () => {
       name: "Source code + dependencies",
       hidden: true,
     });
-
     await userEvent.click(sourceCodePlusDependencies);
+
+    // screen.debug(screen.getAllByRole("button", { hidden: true }));
 
     const alert = screen.getByText(/warning alert:/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
@@ -147,7 +155,7 @@ describe("<AnalysisWizard />", () => {
     await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
   });
 
-  //TODO
+  // TODO
   it.skip("can run analysis on applications with a binary definition using defaults", async () => {
     const applicationsData = [
       {
@@ -176,7 +184,13 @@ describe("<AnalysisWizard />", () => {
       />
     );
 
-    // set default mode "Binary"
+    // set mode to "Binary"
+    const modeSelector = await screen.findByLabelText("Source for analysis");
+    expect(modeSelector).toBeInTheDocument();
+    fireEvent.click(modeSelector);
+    const binaryOption = await screen.findByText("Binary");
+    fireEvent.click(binaryOption);
+
     const warning = screen.queryByLabelText(/warning alert/i);
     const nextButton = screen.getByRole("button", { name: /next/i });
     await waitFor(() => expect(warning).not.toBeInTheDocument());

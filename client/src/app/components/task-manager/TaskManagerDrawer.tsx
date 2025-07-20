@@ -59,83 +59,76 @@ interface TaskManagerTask {
 
 const PAGE_SIZE = 20;
 
-interface TaskManagerDrawerProps {
-  ref?: React.ForwardedRef<HTMLElement>;
-}
+export const TaskManagerDrawer = forwardRef((_props, ref) => {
+  const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
+  const { tasks, hasNextPage, fetchNextPage, pageSize } = useTaskManagerData();
 
-export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
-  (_props, ref) => {
-    const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
-    const { tasks, hasNextPage, fetchNextPage, pageSize } =
-      useTaskManagerData();
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
+    number | boolean
+  >(false);
 
-    const [expandedItems, setExpandedItems] = useState<number[]>([]);
-    const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
-      number | boolean
-    >(false);
+  const closeDrawer = () => {
+    setIsExpanded(!isExpanded);
+    setExpandedItems([]);
+  };
 
-    const closeDrawer = () => {
-      setIsExpanded(!isExpanded);
-      setExpandedItems([]);
-    };
-
-    return (
-      <NotificationDrawer ref={ref}>
-        <NotificationDrawerHeader
-          title="Task Manager"
-          customText={`${queuedCount} queued`}
-          onClose={closeDrawer}
-        >
-          <Link to="/tasks">View All Tasks</Link>
-        </NotificationDrawerHeader>
-        <NotificationDrawerBody>
-          {tasks.length == 0 ? (
-            <EmptyState variant={EmptyStateVariant.full}>
-              <EmptyStateHeader
-                headingLevel="h2"
-                titleText="There are no queued tasks"
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-              />
-              <EmptyStateBody>
-                No tasks are currently ready, postponed, blocked, pending or
-                running. Completed and cancelled tasks may be viewed on the full
-                task list.
-              </EmptyStateBody>
-            </EmptyState>
-          ) : (
-            <InfiniteScroller
-              fetchMore={fetchNextPage}
-              hasMore={hasNextPage}
-              itemCount={tasks?.length ?? 0}
-              pageSize={pageSize}
-            >
-              <NotificationDrawerList>
-                {tasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    expanded={expandedItems.includes(task.id)}
-                    onExpandToggle={(expand) => {
-                      setExpandedItems(
-                        expand
-                          ? [...expandedItems, task.id]
-                          : expandedItems.filter((i) => i !== task.id)
-                      );
-                    }}
-                    actionsExpanded={task.id === taskWithExpandedActions}
-                    onActionsExpandToggle={(flag: boolean) =>
-                      setTaskWithExpandedAction(flag && task.id)
-                    }
-                  />
-                ))}
-              </NotificationDrawerList>
-            </InfiniteScroller>
-          )}
-        </NotificationDrawerBody>
-      </NotificationDrawer>
-    );
-  }
-);
+  return (
+    <NotificationDrawer ref={ref}>
+      <NotificationDrawerHeader
+        title="Task Manager"
+        customText={`${queuedCount} queued`}
+        onClose={closeDrawer}
+      >
+        <Link to="/tasks">View All Tasks</Link>
+      </NotificationDrawerHeader>
+      <NotificationDrawerBody>
+        {tasks.length == 0 ? (
+          <EmptyState variant={EmptyStateVariant.full}>
+            <EmptyStateHeader
+              headingLevel="h2"
+              titleText="There are no queued tasks"
+              icon={<EmptyStateIcon icon={CubesIcon} />}
+            />
+            <EmptyStateBody>
+              No tasks are currently ready, postponed, blocked, pending or
+              running. Completed and cancelled tasks may be viewed on the full
+              task list.
+            </EmptyStateBody>
+          </EmptyState>
+        ) : (
+          <InfiniteScroller
+            fetchMore={fetchNextPage}
+            hasMore={hasNextPage}
+            itemCount={tasks?.length ?? 0}
+            pageSize={pageSize}
+          >
+            <NotificationDrawerList>
+              {tasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  expanded={expandedItems.includes(task.id)}
+                  onExpandToggle={(expand) => {
+                    setExpandedItems(
+                      expand
+                        ? [...expandedItems, task.id]
+                        : expandedItems.filter((i) => i !== task.id)
+                    );
+                  }}
+                  actionsExpanded={task.id === taskWithExpandedActions}
+                  onActionsExpandToggle={(flag: boolean) =>
+                    setTaskWithExpandedAction(flag && task.id)
+                  }
+                />
+              ))}
+            </NotificationDrawerList>
+          </InfiniteScroller>
+        )}
+      </NotificationDrawerBody>
+    </NotificationDrawer>
+  );
+});
 TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
 const TaskStateToIcon: React.FC<{ taskState: TaskState }> = ({ taskState }) => (

@@ -24,9 +24,7 @@ export interface IFilterControlProps<TItem, TFilterCategoryKey extends string> {
 export const FilterControl = <TItem, TFilterCategoryKey extends string>({
   category,
   ...props
-}: React.PropsWithChildren<
-  IFilterControlProps<TItem, TFilterCategoryKey>
->): JSX.Element | null => {
+}: IFilterControlProps<TItem, TFilterCategoryKey>): JSX.Element | null => {
   if (category.type === FilterType.select) {
     return (
       <SelectFilterControl

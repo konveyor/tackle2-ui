@@ -40,7 +40,7 @@ export const ToolbarBulkSelector = ({
   onSelectCurrentPage,
   onSelectAllFiltered,
   onSelectAll,
-}: React.PropsWithChildren<IToolbarBulkSelectorProps>): JSX.Element | null => {
+}: IToolbarBulkSelectorProps): JSX.Element | null => {
   const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);

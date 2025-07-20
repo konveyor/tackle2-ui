@@ -25,8 +25,9 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   showToolbarItem,
   isNumeric,
   isDisabled = false,
-}: React.PropsWithChildren<
-  ISearchFilterControlProps<TItem, TFilterCategoryKey>
+}: ISearchFilterControlProps<
+  TItem,
+  TFilterCategoryKey
 >): JSX.Element | null => {
   // Keep internal copy of value until submitted by user
   const [inputValue, setInputValue] = React.useState(filterValue?.[0] || "");
