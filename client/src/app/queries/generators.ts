@@ -8,21 +8,28 @@ import {
   getGeneratorById,
   getGenerators,
   updateGenerator,
-} from "@app/api/rest";
+} from "@app/api/rest/generators";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const GENERATORS_QUERY_KEY = "generators";
 export const GENERATOR_QUERY_KEY = "generator";
 
-export const useFetchGenerators = () => {
+export const useFetchGenerators = (
+  refetchInterval:
+    | number
+    | false
+    | (() => number | false) = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [GENERATORS_QUERY_KEY],
     queryFn: getGenerators,
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
 
   return {
     generators: data,
-    isFetching: isLoading,
+    isLoading,
     isSuccess,
     error,
     refetch,
@@ -40,7 +47,7 @@ export const useFetchGeneratorById = (id?: number | string) => {
 
   return {
     generator: data,
-    isFetching: isLoading,
+    isLoading,
     fetchError: error,
   };
 };
@@ -55,7 +62,7 @@ export const useCreateGeneratorMutation = (
     mutationFn: createGenerator,
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([GENERATORS_QUERY_KEY]);
+      queryClient.invalidateQueries({ queryKey: [GENERATORS_QUERY_KEY] });
     },
     onError: onError,
   });

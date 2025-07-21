@@ -4,10 +4,12 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 import RemovableField from "./RemovableField";
+import { useTranslation } from "react-i18next";
 
 const AddMappingComponent: React.FC<{
   onAdd: () => void;
 }> = ({ onAdd }) => {
+  const { t } = useTranslation();
   return (
     <Button
       icon={<PlusCircleIcon />}
@@ -17,7 +19,7 @@ const AddMappingComponent: React.FC<{
       data-testid="add-generator-parameter"
       variant="link"
     >
-      Add Parameter
+      {t("actions.addParameter")}
     </Button>
   );
 };
