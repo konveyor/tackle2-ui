@@ -24,17 +24,22 @@ import {
 import { QuestionnairesQueryKey } from "./questionnaires";
 import { ARCHETYPE_QUERY_KEY } from "./archetypes";
 import { ApplicationsQueryKey } from "./applications";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";
 export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
-export const useFetchAssessments = () => {
+export const useFetchAssessments = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { isLoading, data, error } = useQuery({
     queryKey: [assessmentsQueryKey],
     queryFn: getAssessments,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval,
   });
+
   const assessmentsWithOrder: AssessmentWithSectionOrder[] = useMemo(
     () => data?.map(addSectionOrderToQuestions) || [],
     [data]
@@ -59,16 +64,21 @@ export const useCreateAssessmentMutation = (
       createAssessment(assessment, isArchetype),
     onSuccess: (res) => {
       const isArchetype = !!res?.archetype?.id;
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        res?.application?.id,
-        isArchetype,
-      ]);
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        res?.archetype?.id,
-        isArchetype,
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: [
+          assessmentsByItemIdQueryKey,
+          res?.application?.id,
+          isArchetype,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          assessmentsByItemIdQueryKey,
+          res?.archetype?.id,
+          isArchetype,
+        ],
+      });
+      onSuccess(res.name);
     },
     onError: onError,
   });
@@ -89,18 +99,22 @@ export const useUpdateAssessmentMutation = (
       onSuccess && onSuccess(args.name);
       const isArchetype = !!args.archetype?.id;
 
-      queryClient.invalidateQueries([QuestionnairesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
 
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args.application?.id,
-        isArchetype,
-      ]);
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args.archetype?.id,
-        isArchetype,
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: [
+          assessmentsByItemIdQueryKey,
+          args.application?.id,
+          isArchetype,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          assessmentsByItemIdQueryKey,
+          args.archetype?.id,
+          isArchetype,
+        ],
+      });
     },
     onError: onError,
   });
@@ -122,25 +136,29 @@ export const useDeleteAssessmentMutation = (
     }) => {
       const deletedAssessment = deleteAssessment(args.assessmentId);
 
-      queryClient.invalidateQueries([assessmentQueryKey, args?.assessmentId]);
+      queryClient.invalidateQueries({
+        queryKey: [assessmentQueryKey, args?.assessmentId],
+      });
 
       const isArchetype = !!args.archetypeId;
 
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args?.archetypeId,
-        isArchetype,
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: [assessmentsByItemIdQueryKey, args?.archetypeId, isArchetype],
+      });
 
-      queryClient.invalidateQueries([
-        assessmentsByItemIdQueryKey,
-        args?.applicationId,
-        isArchetype,
-      ]);
+      queryClient.invalidateQueries({
+        queryKey: [
+          assessmentsByItemIdQueryKey,
+          args?.applicationId,
+          isArchetype,
+        ],
+      });
 
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
-      queryClient.invalidateQueries([assessmentsQueryKey]);
-      queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, args?.archetypeId]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [assessmentsQueryKey] });
+      queryClient.invalidateQueries({
+        queryKey: [ARCHETYPE_QUERY_KEY, args?.archetypeId],
+      });
 
       return deletedAssessment;
     },
@@ -182,11 +200,9 @@ export const useFetchAssessmentsByItemId = (
   const queryClient = useQueryClient();
 
   const invalidateAssessmentsQuery = () => {
-    queryClient.invalidateQueries([
-      assessmentsByItemIdQueryKey,
-      itemId,
-      isArchetype,
-    ]);
+    queryClient.invalidateQueries({
+      queryKey: [assessmentsByItemIdQueryKey, itemId, isArchetype],
+    });
   };
   const assessmentsWithOrder: AssessmentWithSectionOrder[] =
     data?.map(addSectionOrderToQuestions) || [];
@@ -220,7 +236,7 @@ const removeSectionOrderFromQuestions = (
     ...assessmentWithOrder,
     sections: assessmentWithOrder.sections.map((section) => ({
       ...section,
-      questions: section.questions.map(({ sectionOrder, ...rest }) => rest),
+      questions: section.questions.map(({ sectionOrder: _, ...rest }) => rest),
     })),
   };
 };

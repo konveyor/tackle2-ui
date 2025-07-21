@@ -16,10 +16,10 @@ export const useUpdateIdentityMutation = (
   onError?: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: updateIdentity,
     onSuccess: (_, identity) => {
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
       onSuccess?.(identity);
     },
     onError,
@@ -27,7 +27,7 @@ export const useUpdateIdentityMutation = (
   return {
     mutate,
     mutateAsync,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -37,17 +37,17 @@ export const useCreateIdentityMutation = (
   onError: (err: AxiosError, identityToCreate: New<Identity>) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: createIdentity,
     onSuccess: (data, identityToCreate) => {
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
       onSuccess(data, identityToCreate);
     },
     onError,
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -73,20 +73,20 @@ export const useDeleteIdentityMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: deleteIdentity,
     onSuccess: (_, identity) => {
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
       onSuccess(identity);
     },
     onError: (err: AxiosError, identity) => {
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
       onError(err, identity);
     },
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
