@@ -47,7 +47,6 @@ import {
   AnalysisDependency,
   AnalysisAppDependency,
   Manifest,
-  AssetGenerator,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -820,32 +819,3 @@ export const deletePlatform = (id: number) =>
 // ---------------------------------------
 // Asset Generators
 //
-export const getGenerators = () =>
-  axios.get<AssetGenerator[]>(ASSET_GENERATORS).then(({ data }) => data);
-
-export const getGeneratorById = (id: number | string) =>
-  axios
-    .get<AssetGenerator>(`${ASSET_GENERATORS}/${id}`)
-    .then(({ data }) => data);
-
-// success with code 201 and created entity as response data
-export const createGenerator = (generator: New<AssetGenerator>) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated with description support
-  return axios
-    .post<void>(ASSET_GENERATORS, generatorWithoutDescription)
-    .then((res) => res.data);
-};
-
-// success with code 204 and therefore no response content
-export const updateGenerator = (generator: AssetGenerator) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { description, ...generatorWithoutDescription } = generator; //TODO: Remove this when the backend is updated with description support
-  return axios.put<void>(
-    `${ASSET_GENERATORS}/${generator.id}`,
-    generatorWithoutDescription
-  );
-};
-// success with code 204 and therefore no response content
-export const deleteGenerator = (id: number) =>
-  axios.delete<void>(`${ASSET_GENERATORS}/${id}`);

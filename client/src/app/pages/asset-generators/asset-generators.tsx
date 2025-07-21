@@ -85,7 +85,7 @@ const AssetGenerators: React.FC = () => {
 
   const {
     generators: baseGenerators,
-    isFetching,
+    isLoading,
     error: fetchError,
   } = useFetchGenerators();
 
@@ -183,7 +183,7 @@ const AssetGenerators: React.FC = () => {
     idProperty: "id",
     dataNameProperty: "name",
     items: generators || [],
-    isLoading: isFetching,
+    isLoading: isLoading,
     hasActionsColumn: true,
     columnNames,
     isFilterEnabled: true,
@@ -275,7 +275,7 @@ const AssetGenerators: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(generators || fetchError)}
+          when={isLoading && !(generators || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -317,7 +317,7 @@ const AssetGenerators: React.FC = () => {
                 </Tr>
               </Thead>
               <ConditionalTableBody
-                isLoading={isFetching}
+                isLoading={isLoading}
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={NO_DATA_EMPTY_STATE}

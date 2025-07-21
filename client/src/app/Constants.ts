@@ -17,7 +17,7 @@ export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
 
 export const DEFAULT_SELECT_MAX_HEIGHT = 200;
-
+export const DEFAULT_REFETCH_INTERVAL = 1000 * 60 * 1; // 1 minutes
 /**
  * The name of the client generated id field inserted in a object marked with mixin type
  * `WithUiId`.
