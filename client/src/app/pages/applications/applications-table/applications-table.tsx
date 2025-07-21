@@ -1423,6 +1423,7 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.review").toLowerCase(),
           })}
           alertMessage={t("message.overrideArchetypeReviewDescription", {
+            name: applicationToReview?.name,
             what:
               archetypeRefsToOverrideReview
                 ?.map((archetypeRef) => archetypeRef.name)
@@ -1451,6 +1452,7 @@ export const ApplicationsTable: React.FC = () => {
             what: t("terms.assessment").toLowerCase(),
           })}
           alertMessage={t("message.overrideAssessmentDescription", {
+            name: applicationToAssess?.name,
             what:
               archetypeRefsToOverride
                 ?.map((archetypeRef) => archetypeRef.name)
