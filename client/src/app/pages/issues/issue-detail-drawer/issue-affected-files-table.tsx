@@ -14,7 +14,7 @@ import {
   useTableControlProps,
   getHubRequestParams,
 } from "@app/hooks/table-controls";
-import { useFetchFileReports } from "@app/queries/issues";
+import { useFetchReportInsightFiles } from "@app/queries/analysis";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import {
   ConditionalTableBody,
@@ -68,7 +68,7 @@ export const IssueAffectedFilesTable: React.FC<
     result: { data: currentPageFileReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchFileReports(
+  } = useFetchReportInsightFiles(
     issue.id,
     getHubRequestParams({
       ...tableControlState,
