@@ -9,7 +9,7 @@ import {
   getGenerators,
   updateGenerator,
 } from "@app/api/rest/generators";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { DEFAULT_REFETCHING_INTERVAL } from "@app/Constants";
 
 export const GENERATORS_QUERY_KEY = "generators";
 export const GENERATOR_QUERY_KEY = "generator";
@@ -18,7 +18,7 @@ export const useFetchGenerators = (
   refetchInterval:
     | number
     | false
-    | (() => number | false) = DEFAULT_REFETCH_INTERVAL
+    | (() => number | false) = DEFAULT_REFETCHING_INTERVAL
 ) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [GENERATORS_QUERY_KEY],
