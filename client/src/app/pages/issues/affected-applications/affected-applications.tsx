@@ -26,7 +26,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useFetchAppReports } from "@app/queries/issues";
+import { useFetchReportIssueApps } from "@app/queries/analysis";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { FilterToolbar } from "@app/components/FilterToolbar";
 import {
@@ -76,7 +76,7 @@ export const AffectedApplications: React.FC = () => {
     result: { data: currentPageAppReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchAppReports(
+  } = useFetchReportIssueApps(
     getHubRequestParams({
       ...tableControlState,
       implicitFilters: [
@@ -239,7 +239,6 @@ export const AffectedApplications: React.FC = () => {
       </PageSection>
       <IssueDetailDrawer
         issueId={activeItem?.insight.id || null}
-        applicationName={activeItem?.name || null}
         onCloseClick={clearActiveItem}
       />
     </>
