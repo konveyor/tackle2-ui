@@ -42,12 +42,10 @@ export const getInsightIncidents = (
   id: number,
   params: HubRequestParams = {}
 ) =>
-  id
-    ? getHubPaginatedResult<AnalysisIncident>(
-        template(INSIGHT_INCIDENTS, { id: id }),
-        params
-      )
-    : Promise.reject();
+  getHubPaginatedResult<AnalysisIncident>(
+    template(INSIGHT_INCIDENTS, { id: id }),
+    params
+  );
 
 export const getInsightFiles = (id: number, params: HubRequestParams = {}) =>
   getHubPaginatedResult<AnalysisFileReport>(
