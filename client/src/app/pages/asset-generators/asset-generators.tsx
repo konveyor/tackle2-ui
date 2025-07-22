@@ -33,7 +33,7 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteGeneratorMutation } from "@app/queries/generators";
-import { AssetGenerator, TaskState } from "@app/api/models";
+import { Generator, TaskState } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
@@ -72,16 +72,16 @@ const AssetGenerators: React.FC = () => {
   const [openCreateGenerator, setOpenCreateGenerator] =
     useState<boolean>(false);
 
-  const [generators, setGenerators] = useState<AssetGenerator[] | undefined>(
+  const [generators, setGenerators] = useState<Generator[] | undefined>(
     undefined
   );
 
-  const [generatorToEdit, setGeneratorToEdit] = useState<AssetGenerator | null>(
+  const [generatorToEdit, setGeneratorToEdit] = useState<Generator | null>(
     null
   );
 
   const [generatorToDelete, setGeneratorToDelete] =
-    React.useState<AssetGenerator | null>(null);
+    React.useState<Generator | null>(null);
 
   const {
     generators: baseGenerators,
@@ -111,7 +111,7 @@ const AssetGenerators: React.FC = () => {
   );
 
   const onDeleteSuccess = useCallback(
-    (generatorDeleted: AssetGenerator) => {
+    (generatorDeleted: Generator) => {
       pushNotification({
         title: t("toastr.success.deletedWhat", {
           what: generatorDeleted.name,
@@ -148,7 +148,7 @@ const AssetGenerators: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (generator: AssetGenerator) => {
+        getItemValue: (generator: Generator) => {
           return generator?.name ?? "";
         },
       },
@@ -160,7 +160,7 @@ const AssetGenerators: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.repository").toLowerCase(),
           }) + "...",
-        getItemValue: (generator: AssetGenerator) => {
+        getItemValue: (generator: Generator) => {
           return generator?.repository?.url ?? "";
         },
       },
@@ -169,7 +169,7 @@ const AssetGenerators: React.FC = () => {
   );
 
   const getSortValues = useCallback(
-    (generator: AssetGenerator) => ({
+    (generator: Generator) => ({
       name: generator.name ?? "",
       repository: generator.repository?.url ?? "",
     }),
@@ -220,7 +220,7 @@ const AssetGenerators: React.FC = () => {
     setOpenCreateGenerator(false);
   }, []);
 
-  const handleEditGenerator = useCallback((generator: AssetGenerator) => {
+  const handleEditGenerator = useCallback((generator: Generator) => {
     setGeneratorToEdit(generator);
   }, []);
 
@@ -228,7 +228,7 @@ const AssetGenerators: React.FC = () => {
     setGeneratorToEdit(null);
   }, []);
 
-  const handleDeleteGenerator = useCallback((generator: AssetGenerator) => {
+  const handleDeleteGenerator = useCallback((generator: Generator) => {
     setGeneratorToDelete(generator);
   }, []);
 
