@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AxiosError } from "axios";
-import { AssetGenerator } from "@app/api/models";
+import { Generator } from "@app/api/models";
 import {
   createGenerator,
   deleteGenerator,
@@ -86,13 +86,13 @@ export const useUpdateGeneratorMutation = (
 };
 
 export const useDeleteGeneratorMutation = (
-  onSuccess: (generator: AssetGenerator) => void,
+  onSuccess: (generator: Generator) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (generator: AssetGenerator) => deleteGenerator(generator.id),
+    mutationFn: (generator: Generator) => deleteGenerator(generator.id),
     onSuccess: (_, generator) => {
       onSuccess(generator);
       queryClient.invalidateQueries([GENERATORS_QUERY_KEY]);

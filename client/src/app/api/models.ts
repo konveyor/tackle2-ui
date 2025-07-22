@@ -895,7 +895,7 @@ export interface SourcePlatform {
   coordinates?: JsonDocument;
   discoverApplicationsState?: TaskState;
 }
-export interface AssetGenerator {
+export interface Generator {
   id: number;
   kind: string;
   name: string;

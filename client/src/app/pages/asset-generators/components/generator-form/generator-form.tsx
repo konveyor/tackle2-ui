@@ -12,7 +12,7 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { New, AssetGenerator, Repository } from "@app/api/models";
+import type { New, Generator, Repository } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -48,7 +48,7 @@ export interface GeneratorFormValues {
 }
 
 export interface GeneratorFormProps {
-  generator?: AssetGenerator | null;
+  generator?: Generator | null;
   onClose: () => void;
 }
 
@@ -217,7 +217,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
 
   const onValidSubmit = useCallback(
     (values: GeneratorFormValues) => {
-      const payload: New<AssetGenerator> = {
+      const payload: New<Generator> = {
         name: values.name,
         kind: values.kind,
         description: values.description,
