@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
-import { useFetchIssue } from "@app/queries/issues";
+import { useFetchInsight } from "@app/queries/analysis";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
 import { getIssueTitle } from "../helpers";
@@ -21,7 +21,6 @@ import { getIssueTitle } from "../helpers";
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   issueId: number | null;
-  applicationName: string | null;
 }
 
 enum TabKey {
@@ -30,13 +29,12 @@ enum TabKey {
 
 export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
   issueId,
-  applicationName,
   onCloseClick,
 }) => {
   const {
     result: { data: issue },
     isFetching,
-  } = useFetchIssue(issueId || undefined);
+  } = useFetchInsight(issueId || undefined);
 
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.AffectedFiles

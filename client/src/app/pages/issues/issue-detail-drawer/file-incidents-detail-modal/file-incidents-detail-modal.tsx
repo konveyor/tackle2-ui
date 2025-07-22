@@ -18,7 +18,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateError } from "@app/components/StateError";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
-import { useFetchIncidents } from "@app/queries/issues";
+import { useFetchIncidents } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
 import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";

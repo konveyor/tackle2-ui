@@ -34,7 +34,10 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 
-import { useFetchIssueReports, useFetchRuleReports } from "@app/queries/issues";
+import {
+  useFetchReportApplicationIssues,
+  useFetchReportAllIssues,
+} from "@app/queries/analysis";
 import { useFetchApplications } from "@app/queries/applications";
 
 import {
@@ -194,11 +197,11 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     },
   });
 
-  const issueReportsQuery = useFetchIssueReports(
+  const issueReportsQuery = useFetchReportApplicationIssues(
     selectedAppId || undefined,
     hubRequestParams
   );
-  const ruleReportsQuery = useFetchRuleReports(
+  const ruleReportsQuery = useFetchReportAllIssues(
     mode === "allIssues",
     hubRequestParams
   );
@@ -571,7 +574,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
       />
       <IssueDetailDrawer
         issueId={activeIssueReportInDetailDrawer?.id || null}
-        applicationName={selectedApp?.name || null}
         onCloseClick={() => setActiveIssueReportInDetailDrawer(null)}
       />
     </div>
