@@ -212,8 +212,8 @@ export const deleteReview = (id: number): Promise<Review> => {
 // ---------------------------------------
 // Assessments
 //
-export const getAssessments = (): Promise<Assessment[]> =>
-  axios.get(ASSESSMENTS).then((response) => response.data);
+export const getAssessments = () =>
+  axios.get<Assessment[]>(ASSESSMENTS).then((response) => response.data);
 
 export const getAssessmentsByItemId = (
   isArchetype: boolean,
@@ -680,18 +680,17 @@ export const deleteBusinessService = (id: number | string) =>
 // ---------------------------------------
 // Job functions
 //
-export const getJobFunctions = (): Promise<JobFunction[]> =>
-  axios.get(JOB_FUNCTIONS).then((response) => response.data);
+export const getJobFunctions = () =>
+  axios.get<JobFunction[]>(JOB_FUNCTIONS).then((response) => response.data);
 
-export const createJobFunction = (
-  obj: New<JobFunction>
-): Promise<JobFunction> => axios.post(JOB_FUNCTIONS, obj);
+export const createJobFunction = (obj: New<JobFunction>) =>
+  axios.post<JobFunction>(JOB_FUNCTIONS, obj).then((response) => response.data);
 
-export const updateJobFunction = (obj: JobFunction): Promise<JobFunction> =>
-  axios.put(`${JOB_FUNCTIONS}/${obj.id}`, obj);
+export const updateJobFunction = (obj: JobFunction) =>
+  axios.put<void>(`${JOB_FUNCTIONS}/${obj.id}`, obj);
 
-export const deleteJobFunction = (id: number): Promise<JobFunction> =>
-  axios.delete(`${JOB_FUNCTIONS}/${id}`);
+export const deleteJobFunction = (id: number) =>
+  axios.delete<void>(`${JOB_FUNCTIONS}/${id}`);
 
 // ---------------------------------------
 // Tags

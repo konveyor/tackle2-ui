@@ -8,14 +8,18 @@ import {
   updateTarget,
 } from "@app/api/rest";
 import { AxiosError, AxiosResponse } from "axios";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const TargetsQueryKey = "targets";
 
-export const useFetchTargets = () => {
+export const useFetchTargets = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery<Target[]>({
     queryKey: [TargetsQueryKey],
     queryFn: async () => await getTargets(),
     onError: (err) => console.log(err),
+    refetchInterval,
   });
 
   return {
@@ -32,11 +36,11 @@ export const useUpdateTargetMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: updateTarget,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -44,7 +48,7 @@ export const useUpdateTargetMutation = (
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -55,20 +59,20 @@ export const useDeleteTargetMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: deleteTarget,
     onSuccess: (res, id) => {
       onSuccess(res, id);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -78,11 +82,11 @@ export const useCreateTargetMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: createTarget,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -90,7 +94,7 @@ export const useCreateTargetMutation = (
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -100,11 +104,11 @@ export const useCreateFileMutation = (
   onError?: (err: AxiosError, file: File) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createFile,
     onSuccess: (data, { file }) => {
       onSuccess?.(data, file);
-      queryClient.invalidateQueries([]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError, { file }) => {
       onError?.(err, file);
@@ -113,7 +117,7 @@ export const useCreateFileMutation = (
   return {
     mutate,
     mutateAsync,
-    isLoading,
+    isPending,
     error,
   };
 };

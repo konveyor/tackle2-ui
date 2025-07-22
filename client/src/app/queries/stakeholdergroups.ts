@@ -6,14 +6,18 @@ import {
   updateStakeholderGroup,
 } from "@app/api/rest";
 import { AxiosError } from "axios";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const StakeholderGroupsQueryKey = "stakeholderGroups";
 
-export const useFetchStakeholderGroups = () => {
+export const useFetchStakeholderGroups = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [StakeholderGroupsQueryKey],
     queryFn: getStakeholderGroups,
     onError: (error: AxiosError) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     stakeholderGroups: data || [],
@@ -34,7 +38,7 @@ export const useCreateStakeholderGroupMutation = (
     mutationFn: createStakeholderGroup,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [StakeholderGroupsQueryKey] });
     },
     onError,
   });
@@ -49,7 +53,7 @@ export const useUpdateStakeholderGroupMutation = (
     mutationFn: updateStakeholderGroup,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [StakeholderGroupsQueryKey] });
     },
     onError: onError,
   });
@@ -65,11 +69,11 @@ export const useDeleteStakeholderGroupMutation = (
     mutationFn: deleteStakeholderGroup,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [StakeholderGroupsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([StakeholderGroupsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [StakeholderGroupsQueryKey] });
     },
   });
 };
