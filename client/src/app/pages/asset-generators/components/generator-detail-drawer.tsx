@@ -14,14 +14,14 @@ import {
   TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AssetGenerator } from "@app/api/models";
+import { Generator } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import GeneratorCollectionTable from "./generator-collection-table";
 import { parametersToArray } from "../utils";
 
 export interface IGeneratorDetailDrawerProps {
   onCloseClick: () => void;
-  generator: AssetGenerator | null;
+  generator: Generator | null;
 }
 
 enum TabKey {
