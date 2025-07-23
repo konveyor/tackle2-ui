@@ -140,7 +140,7 @@ export const useSharedAffectedApplicationFilterCategories = <
   ];
 };
 
-const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
+const FROM_INSIGHTS_PARAMS_KEY = "~fromInsightsParams"; // ~ prefix sorts it at the end of the URL for readability
 
 // URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Insights page
 export const getAffectedAppsUrl = ({
@@ -158,16 +158,16 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  const baseUrl = Paths.issuesAllAffectedApplications
+  const baseUrl = Paths.insightsAllAffectedApplications
     .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
     .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
   const prefix = (key: string) =>
-    `${TablePersistenceKeyPrefix.issuesAffectedApps}:${key}`;
+    `${TablePersistenceKeyPrefix.insightsAffectedApps}:${key}`;
 
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
-      [FROM_ISSUES_PARAMS_KEY]: fromInsightsParams,
+      [FROM_INSIGHTS_PARAMS_KEY]: fromInsightsParams,
       insightTitle: getInsightTitle(ruleReport),
     },
   })}`;
@@ -183,13 +183,15 @@ export const getBackToAllInsightsUrl = ({
 }) => {
   // Pull the fromInsightsParams param out of the current location's URLSearchParams
   const fromInsightsParams =
-    new URLSearchParams(fromLocation.search).get(FROM_ISSUES_PARAMS_KEY) || "";
+    new URLSearchParams(fromLocation.search).get(FROM_INSIGHTS_PARAMS_KEY) ||
+    "";
   // Pull the params themselves out of fromInsightsParams
   const prefixedParamsToRestore = Object.fromEntries(
     new URLSearchParams(fromInsightsParams)
   );
   // Pull the filters param out of that
-  const prefix = (key: string) => `${TablePersistenceKeyPrefix.issues}:${key}`;
+  const prefix = (key: string) =>
+    `${TablePersistenceKeyPrefix.insights}:${key}`;
   const filterValuesToRestore = deserializeFilterUrlParams({
     filters: prefixedParamsToRestore[prefix("filters")],
   });
@@ -199,7 +201,7 @@ export const getBackToAllInsightsUrl = ({
     filterValuesToRestore[key] = fromFilterValues[key] || null;
   });
   // Put it all back together
-  return `${Paths.issuesAllTab}?${trimAndStringifyUrlParams({
+  return `${Paths.insightsAllTab}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       ...prefixedParamsToRestore,
       [prefix("filters")]: serializeFilterUrlParams(filterValuesToRestore)
@@ -229,10 +231,10 @@ export const getInsightsSingleAppSelectedLocation = (
   const existingFiltersParam =
     fromLocation &&
     new URLSearchParams(fromLocation.search).get(
-      `${TablePersistenceKeyPrefix.issues}:filters`
+      `${TablePersistenceKeyPrefix.insights}:filters`
     );
   return {
-    pathname: Paths.issuesSingleAppSelected.replace(
+    pathname: Paths.insightsSingleAppSelected.replace(
       ":applicationId",
       String(applicationId)
     ),

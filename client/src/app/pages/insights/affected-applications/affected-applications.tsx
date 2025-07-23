@@ -54,7 +54,7 @@ export const AffectedApplications: React.FC = () => {
   const tableControlState = useTableControlState({
     tableName: "affected-applications-table",
     persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedApps,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.insightsAffectedApps,
     columnNames: {
       name: "Name",
       description: "Description",

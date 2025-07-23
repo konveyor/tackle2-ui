@@ -28,7 +28,7 @@ export const FileAllIncidentsTable: React.FC<
   const tableControlState = useTableControlState({
     tableName: "file-all-incidents-table",
     persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesRemainingIncidents,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.insightsRemainingIncidents,
     columnNames: {
       line: "Line #",
       message: "Message",

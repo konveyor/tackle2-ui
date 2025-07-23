@@ -25,23 +25,23 @@ export enum InsightFilterGroups {
 }
 
 export type InsightsTabPath =
-  | typeof Paths.issuesAllTab
-  | typeof Paths.issuesSingleAppTab;
+  | typeof Paths.insightsAllTab
+  | typeof Paths.insightsSingleAppTab;
 
 export const InsightsPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const history = useHistory();
-  const singleAppTabMatch = useRouteMatch(Paths.issuesSingleAppTab);
-  const singleAppSelectedMatch = useRouteMatch(Paths.issuesSingleAppSelected);
+  const singleAppTabMatch = useRouteMatch(Paths.insightsSingleAppTab);
+  const singleAppSelectedMatch = useRouteMatch(Paths.insightsSingleAppSelected);
 
   const activeTabPath =
     singleAppTabMatch || singleAppSelectedMatch
-      ? Paths.issuesSingleAppTab
-      : Paths.issuesAllTab;
+      ? Paths.insightsSingleAppTab
+      : Paths.insightsAllTab;
 
   React.useEffect(() => {
-    if (!activeTabPath) history.push(Paths.issuesAllTab);
+    if (!activeTabPath) history.push(Paths.insightsAllTab);
   }, [activeTabPath, history]);
 
   const [navConfirmPath, setNavConfirmPath] =
@@ -61,7 +61,7 @@ export const InsightsPage: React.FC = () => {
           activeKey={activeTabPath}
           onSelect={(_event, tabPath) => {
             const pageHasFilters = new URLSearchParams(location.search).has(
-              `${TablePersistenceKeyPrefix.issues}:filters`
+              `${TablePersistenceKeyPrefix.insights}:filters`
             );
             if (pageHasFilters) {
               setNavConfirmPath(tabPath as InsightsTabPath);
@@ -71,32 +71,32 @@ export const InsightsPage: React.FC = () => {
           }}
         >
           <Tab
-            eventKey={Paths.issuesAllTab}
+            eventKey={Paths.insightsAllTab}
             title={<TabTitleText>All insights</TabTitleText>}
           />
           <Tab
-            eventKey={Paths.issuesSingleAppTab}
+            eventKey={Paths.insightsSingleAppTab}
             title={<TabTitleText>Single application</TabTitleText>}
           />
         </Tabs>
       </PageSection>
       <PageSection>
-        {activeTabPath === Paths.issuesAllTab ? (
+        {activeTabPath === Paths.insightsAllTab ? (
           <InsightsTable mode="allInsights" />
-        ) : activeTabPath === Paths.issuesSingleAppTab ? (
+        ) : activeTabPath === Paths.insightsSingleAppTab ? (
           <InsightsTable mode="singleApp" />
         ) : null}
       </PageSection>
       <ConfirmDialog
         isOpen={!!navConfirmPath}
         title={`Navigating to ${
-          navConfirmPath === Paths.issuesSingleAppTab
+          navConfirmPath === Paths.insightsSingleAppTab
             ? "single application"
             : "all insights"
         }`}
         titleIconVariant="info"
         message={`When navigating to the ${
-          navConfirmPath === Paths.issuesSingleAppTab
+          navConfirmPath === Paths.insightsSingleAppTab
             ? "single application"
             : "all insights"
         } tab, all filtering settings will be reset.`}
