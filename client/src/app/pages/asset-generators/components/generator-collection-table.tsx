@@ -106,7 +106,7 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} aria-label="Dependency applications table">
+      <Table {...tableProps} aria-label="Asset generator collections table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
