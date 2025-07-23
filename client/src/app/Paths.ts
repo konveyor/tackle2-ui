@@ -33,12 +33,20 @@ export const DevPaths = {
   reports: "/reports",
   migrationWaves: "/migration-waves",
   waves: "/waves",
+
   issues: "/issues",
   issuesAllTab: "/issues/all",
   issuesAllAffectedApplications:
     "/issues/all/:ruleset/:rule/affected-applications",
   issuesSingleAppTab: "/issues/single-app",
   issuesSingleAppSelected: "/issues/single-app/:applicationId",
+
+  insights: "/insights",
+  insightsAllTab: "/insights/all",
+  insightsAllAffectedApplications:
+    "/insights/all/:ruleset/:rule/affected-applications",
+  insightsSingleAppTab: "/insights/single-app",
+  insightsSingleAppSelected: "/insights/single-app/:applicationId",
 
   dependencies: "/dependencies",
   tasks: "/tasks",
