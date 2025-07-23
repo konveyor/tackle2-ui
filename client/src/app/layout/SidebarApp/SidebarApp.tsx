@@ -132,6 +132,11 @@ export const MigrationSidebar = () => {
           </NavLink>
         </NavItem>
         <NavItem>
+          <NavLink to={DevPaths.insights} activeClassName="pf-m-current">
+            {t("sidebar.insights")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
           <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
             {t("sidebar.dependencies")}
           </NavLink>

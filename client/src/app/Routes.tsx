@@ -35,8 +35,12 @@ const General = lazy(() => import("./pages/general"));
 const MigrationWaves = lazy(() => import("./pages/migration-waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
 const Issues = lazy(() => import("./pages/issues"));
-const AffectedApplications = lazy(
+const IssuesAffectedApplications = lazy(
   () => import("./pages/issues/affected-applications")
+);
+const Insights = lazy(() => import("./pages/insights"));
+const InsightsAffectedApplications = lazy(
+  () => import("./pages/insights/affected-applications")
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
@@ -163,7 +167,7 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   },
   {
     path: Paths.issuesAllAffectedApplications,
-    comp: AffectedApplications,
+    comp: IssuesAffectedApplications,
     exact: false,
   },
   {
@@ -184,6 +188,31 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.issues,
     comp: Issues,
+    exact: false,
+  },
+  {
+    path: Paths.insightsAllAffectedApplications,
+    comp: InsightsAffectedApplications,
+    exact: false,
+  },
+  {
+    path: Paths.insightsAllTab,
+    comp: Insights,
+    exact: false,
+  },
+  {
+    path: Paths.insightsSingleAppTab,
+    comp: Insights,
+    exact: false,
+  },
+  {
+    path: Paths.insightsSingleAppSelected,
+    comp: Insights,
+    exact: false,
+  },
+  {
+    path: Paths.insights,
+    comp: Insights,
     exact: false,
   },
   {
