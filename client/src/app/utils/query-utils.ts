@@ -10,21 +10,24 @@ import { WithUiId } from "@app/api/models";
  *
  * @returns A shallow copy of `T` with an added `UI_UNIQUE_ID` field.
  */
-export const useWithUiId = <T>(
+export const useWithUiId = <F, T extends F = F>(
   /** Source data to modify. */
-  data: T[] | undefined,
+  data: F[] | undefined,
   /** Generate the unique id for a specific `T`. */
-  generator: (item: T) => string
+  generator: (item: F) => string
 ): WithUiId<T>[] => {
   const result = useMemo(() => {
     if (!data || data.length === 0) {
       return [];
     }
 
-    const dataWithUiId: WithUiId<T>[] = data.map((item) => ({
-      ...item,
-      [UI_UNIQUE_ID]: generator(item),
-    }));
+    const dataWithUiId = data.map<WithUiId<T>>(
+      (item) =>
+        ({
+          ...item,
+          [UI_UNIQUE_ID]: generator(item),
+        }) as WithUiId<T>
+    );
 
     return dataWithUiId;
   }, [data, generator]);

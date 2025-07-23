@@ -1,8 +1,8 @@
 import { Location, LocationDescriptor } from "history";
 import {
-  AnalysisIssue,
-  AnalysisIssueReport,
-  AnalysisRuleReport,
+  AnalysisInsight,
+  UiAnalysisReportInsight,
+  UiAnalysisReportApplicationInsight,
   Archetype,
 } from "@app/api/models";
 import {
@@ -41,7 +41,7 @@ export const useSharedAffectedApplicationFilterCategories = <
 >(): FilterCategory<TItem, string>[] => {
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
-  const { tagCategories, tags, tagItems } = useFetchTagsWithTagItems();
+  const { tagItems } = useFetchTagsWithTagItems();
   const { archetypes } = useFetchArchetypes();
   const { data: applications } = useFetchApplications();
 
@@ -148,7 +148,7 @@ export const getAffectedAppsUrl = ({
   fromFilterValues,
   fromLocation,
 }: {
-  ruleReport: AnalysisRuleReport;
+  ruleReport: UiAnalysisReportInsight;
   fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
 }) => {
@@ -243,7 +243,7 @@ export const getIssuesSingleAppSelectedLocation = (
 };
 
 export const parseReportLabels = (
-  ruleReport: AnalysisRuleReport | AnalysisIssueReport
+  ruleReport: UiAnalysisReportInsight | UiAnalysisReportApplicationInsight
 ) => {
   const sources: string[] = [];
   const targets: string[] = [];
@@ -261,6 +261,9 @@ export const parseReportLabels = (
 };
 
 export const getIssueTitle = (
-  issueReport: AnalysisRuleReport | AnalysisIssue | AnalysisIssueReport
+  issueReport:
+    | UiAnalysisReportInsight
+    | AnalysisInsight
+    | UiAnalysisReportApplicationInsight
 ) =>
   issueReport?.description || issueReport?.name?.split("\n")[0] || "*Unnamed*";

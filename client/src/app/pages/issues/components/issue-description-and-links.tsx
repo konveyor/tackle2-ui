@@ -3,13 +3,13 @@ import ReactMarkdown from "react-markdown";
 import { TextContent, List, ListItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AnalysisIssueLink } from "@app/api/models";
+import { AnalysisInsightLink } from "@app/api/models";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 import ExternalLink from "@app/components/ExternalLink";
 
 export interface IIssueDescriptionAndLinksProps {
   description: string;
-  links?: AnalysisIssueLink[];
+  links?: AnalysisInsightLink[];
   className?: string;
 }
 

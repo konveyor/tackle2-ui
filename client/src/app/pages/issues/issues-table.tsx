@@ -65,8 +65,8 @@ import {
 } from "./helpers";
 import { IssueFilterGroups } from "./issues";
 import {
-  AnalysisIssueReport,
-  AnalysisRuleReport,
+  UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
   Application,
 } from "@app/api/models";
 import { Paths } from "@app/Paths";
@@ -211,8 +211,8 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     fetchError: reportsFetchError,
   } = mode === "singleApp" ? issueReportsQuery : ruleReportsQuery;
   const currentPageReports = data as (
-    | AnalysisRuleReport
-    | AnalysisIssueReport
+    | UiAnalysisReportInsight
+    | UiAnalysisReportApplicationInsight
   )[];
 
   const {
@@ -220,8 +220,6 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
   } = useFetchApplications();
-  const selectedApp =
-    applications.find((app) => app.id === selectedAppId) || null;
 
   const fetchError = reportsFetchError || applicationsFetchError;
   const isLoading =
@@ -239,7 +237,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   // Only for singleApp mode
   const [activeIssueReportInDetailDrawer, setActiveIssueReportInDetailDrawer] =
-    React.useState<AnalysisIssueReport | null>(null);
+    React.useState<UiAnalysisReportApplicationInsight | null>(null);
 
   const {
     numRenderedColumns,
@@ -419,15 +417,18 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             isInline
                             onClick={() => {
                               setActiveIssueReportInDetailDrawer(
-                                report as AnalysisIssueReport
+                                report as UiAnalysisReportApplicationInsight
                               );
                             }}
                           >
-                            {(report as AnalysisIssueReport).files}
+                            {
+                              (report as UiAnalysisReportApplicationInsight)
+                                .files
+                            }
                           </Button>
                         ) : (
                           <AffectedAppsLink
-                            ruleReport={report as AnalysisRuleReport}
+                            ruleReport={report as UiAnalysisReportInsight}
                             fromFilterValues={filterValues}
                             fromLocation={location}
                             showNumberOnly
@@ -465,16 +466,20 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                                   isInline
                                   onClick={() => {
                                     setActiveIssueReportInDetailDrawer(
-                                      report as AnalysisIssueReport
+                                      report as UiAnalysisReportApplicationInsight
                                     );
                                   }}
                                 >
-                                  {(report as AnalysisIssueReport).files} - View
-                                  affected files
+                                  {
+                                    (
+                                      report as UiAnalysisReportApplicationInsight
+                                    ).files
+                                  }{" "}
+                                  - View affected files
                                 </Button>
                               ) : (
                                 <AffectedAppsLink
-                                  ruleReport={report as AnalysisRuleReport}
+                                  ruleReport={report as UiAnalysisReportInsight}
                                   fromFilterValues={filterValues}
                                   fromLocation={location}
                                 />

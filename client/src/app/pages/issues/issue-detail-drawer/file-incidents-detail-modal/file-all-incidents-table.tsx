@@ -2,8 +2,8 @@ import "./file-all-incidents-table.css";
 import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { AnalysisFileReport } from "@app/api/models";
-import { useFetchIncidents } from "@app/queries/analysis";
+import { AnalysisReportFile } from "@app/api/models";
+import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   TableHeaderContentWithControls,
@@ -19,7 +19,7 @@ import ReactMarkdown from "react-markdown";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
 export interface IFileRemainingIncidentsTableProps {
-  fileReport: AnalysisFileReport;
+  fileReport: AnalysisReportFile;
 }
 
 export const FileAllIncidentsTable: React.FC<
@@ -44,7 +44,7 @@ export const FileAllIncidentsTable: React.FC<
     result: { data: currentPageIncidents, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchIncidents(
+  } = useFetchIncidentsForInsight(
     fileReport.insightId,
     getHubRequestParams({
       ...tableControlState,
