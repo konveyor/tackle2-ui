@@ -86,7 +86,7 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
 
   const singleAppSelectedMatch = useRouteMatch<{
     applicationId: string;
-  }>(Paths.issuesSingleAppSelected);
+  }>(Paths.insightsSingleAppSelected);
   const selectedAppId = singleAppSelectedMatch
     ? Number(singleAppSelectedMatch.params.applicationId)
     : null;
@@ -102,7 +102,7 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
   const tableControlState = useTableControlState({
     tableName: "insights-table",
     persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.issues,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.insights,
     columnNames: {
       description: "Insight",
       category: "Category",

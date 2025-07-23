@@ -38,7 +38,7 @@ export const InsightAffectedFilesTable: React.FC<
   const tableControlState = useTableControlState({
     tableName: "affected-files-table",
     persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.issuesAffectedFiles,
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.insightsAffectedFiles,
     columnNames: {
       file: "File",
       incidents: "Incidents",
