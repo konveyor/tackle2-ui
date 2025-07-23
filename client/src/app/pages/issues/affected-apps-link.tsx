@@ -2,11 +2,11 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { Location } from "history";
 import { Button } from "@patternfly/react-core";
-import { AnalysisRuleReport } from "@app/api/models";
+import { UiAnalysisReportInsight } from "@app/api/models";
 import { IssuesFilterValuesToCarry, getAffectedAppsUrl } from "./helpers";
 
 export interface IAffectedAppsLinkProps {
-  ruleReport: AnalysisRuleReport;
+  ruleReport: UiAnalysisReportInsight;
   fromFilterValues: IssuesFilterValuesToCarry;
   fromLocation: Location;
   showNumberOnly?: boolean;

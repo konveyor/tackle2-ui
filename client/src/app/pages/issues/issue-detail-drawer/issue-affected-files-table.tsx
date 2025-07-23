@@ -8,7 +8,7 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
+import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
 import {
   useTableControlState,
   useTableControlProps,
@@ -27,7 +27,7 @@ import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import PathDisplay from "./path-display";
 
 export interface IIssueAffectedFilesTableProps {
-  issue: AnalysisIssue;
+  issue: AnalysisInsight;
 }
 
 export const IssueAffectedFilesTable: React.FC<
@@ -104,7 +104,7 @@ export const IssueAffectedFilesTable: React.FC<
   } = tableControls;
 
   const [selectedFileForDetailModal, setSelectedFileForDetailModal] =
-    React.useState<AnalysisFileReport | null>(null);
+    React.useState<AnalysisReportFile | null>(null);
 
   return (
     <>
