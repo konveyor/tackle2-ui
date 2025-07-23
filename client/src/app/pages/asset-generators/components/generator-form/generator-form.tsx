@@ -233,10 +233,6 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         parameters: arrayToParameters(values.parameters),
         values: arrayToParameters(values.values),
       };
-      const identity = getIdentity(values.credentials);
-      if (identity) {
-        payload.identity = identity;
-      }
 
       if (generator) {
         updateGenerator({
