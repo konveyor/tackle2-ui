@@ -12,29 +12,29 @@ import {
   Tab,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IssueAffectedFilesTable } from "./issue-affected-files-table";
+import { InsightAffectedFilesTable } from "./insight-affected-files-table";
 import { useFetchInsight } from "@app/queries/analysis";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
-import { getIssueTitle } from "../helpers";
+import { getInsightTitle } from "../helpers";
 
-export interface IIssueDetailDrawerProps
+export interface IInsightDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
-  issueId: number | null;
+  insightId: number | null;
 }
 
 enum TabKey {
   AffectedFiles = 0,
 }
 
-export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
-  issueId,
+export const InsightDetailDrawer: React.FC<IInsightDetailDrawerProps> = ({
+  insightId,
   onCloseClick,
 }) => {
   const {
-    result: { data: issue },
+    result: { data: insight },
     isFetching,
-  } = useFetchInsight(issueId || undefined);
+  } = useFetchInsight(insightId || undefined);
 
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.AffectedFiles
@@ -42,25 +42,25 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
 
   return (
     <PageDrawerContent
-      isExpanded={issueId !== null}
+      isExpanded={insightId !== null}
       onCloseClick={onCloseClick}
-      focusKey={issueId || ""}
+      focusKey={insightId || ""}
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
       header={
         <TextContent>
           <Text component="small" className={spacing.mb_0}>
-            Issue
+            Insight
           </Text>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
-            {issue ? getIssueTitle(issue) : ""}
+            {insight ? getInsightTitle(insight) : ""}
           </Title>
         </TextContent>
       }
     >
       {isFetching ? (
         <AppPlaceholder />
-      ) : !issue ? (
+      ) : !insight ? (
         <StateNoData />
       ) : (
         <div>
@@ -73,7 +73,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
               eventKey={TabKey.AffectedFiles}
               title={<TabTitleText>Affected files</TabTitleText>}
             >
-              <IssueAffectedFilesTable issue={issue} />
+              <InsightAffectedFilesTable insight={insight} />
             </Tab>
           </Tabs>
         </div>

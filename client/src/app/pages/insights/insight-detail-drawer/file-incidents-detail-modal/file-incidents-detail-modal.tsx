@@ -21,18 +21,18 @@ import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
 import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
-import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";
-import { getIssueTitle } from "../../helpers";
+import { InsightDescriptionAndLinks } from "../../components/insight-description-and-links";
+import { getInsightTitle } from "../../helpers";
 
 export interface IFileIncidentsDetailModalProps {
-  issue: AnalysisInsight;
+  insight: AnalysisInsight;
   fileReport: AnalysisReportFile;
   onClose: () => void;
 }
 
 export const FileIncidentsDetailModal: React.FC<
   IFileIncidentsDetailModalProps
-> = ({ issue, fileReport, onClose }) => {
+> = ({ insight, fileReport, onClose }) => {
   const { t } = useTranslation();
 
   // Only fetch the first 5 incidents here, the rest are fetched in a separate query in FileAllIncidentsTable
@@ -59,7 +59,7 @@ export const FileIncidentsDetailModal: React.FC<
     isFetching ||
     (firstFiveIncidents.length > 0 && activeTabIncidentId === undefined);
 
-  const issueTitle = getIssueTitle(issue);
+  const insightTitle = getInsightTitle(insight);
 
   return (
     <Modal
@@ -102,21 +102,21 @@ export const FileIncidentsDetailModal: React.FC<
                   <Grid hasGutter className={spacing.mtLg}>
                     <GridItem span={6}>
                       <IncidentCodeSnipViewer
-                        issueTitle={issueTitle}
+                        insightTitle={insightTitle}
                         incident={incident}
                       />
                     </GridItem>
                     <GridItem span={6} className={spacing.plSm}>
                       <TextContent>
                         <Text component="h2">
-                          <Truncate content={issueTitle} />
+                          <Truncate content={insightTitle} />
                         </Text>
                         <Text component="small">Line {incident.line}</Text>
                       </TextContent>
-                      <IssueDescriptionAndLinks
+                      <InsightDescriptionAndLinks
                         className={spacing.mtLg}
                         description={incident.message}
-                        links={issue.links}
+                        links={insight.links}
                       />
                     </GridItem>
                   </Grid>

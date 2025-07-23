@@ -7,14 +7,14 @@ import { AnalysisInsightLink } from "@app/api/models";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 import ExternalLink from "@app/components/ExternalLink";
 
-export interface IIssueDescriptionAndLinksProps {
+export interface IInsightDescriptionAndLinksProps {
   description: string;
   links?: AnalysisInsightLink[];
   className?: string;
 }
 
-export const IssueDescriptionAndLinks: React.FC<
-  IIssueDescriptionAndLinksProps
+export const InsightDescriptionAndLinks: React.FC<
+  IInsightDescriptionAndLinksProps
 > = ({ description, links, className = "" }) => (
   <div className={className}>
     <TextContent className={spacing.mbMd}>

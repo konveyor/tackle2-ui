@@ -26,14 +26,14 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useFetchReportIssueApps } from "@app/queries/analysis";
+import { useFetchReportInsightApps } from "@app/queries/analysis";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { FilterToolbar } from "@app/components/FilterToolbar";
 import {
-  getBackToAllIssuesUrl,
+  getBackToAllInsightsUrl,
   useSharedAffectedApplicationFilterCategories,
 } from "../helpers";
-import { IssueDetailDrawer } from "../issue-detail-drawer";
+import { InsightDetailDrawer } from "../insight-detail-drawer";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
@@ -47,8 +47,8 @@ export const AffectedApplications: React.FC = () => {
   const routeParams = useParams<IAffectedApplicationsRouteParams>();
   const ruleset = decodeURIComponent(routeParams.ruleset);
   const rule = decodeURIComponent(routeParams.rule);
-  const issueTitle =
-    new URLSearchParams(useLocation().search).get("issueTitle") ||
+  const insightTitle =
+    new URLSearchParams(useLocation().search).get("insightTitle") ||
     "Active rule";
 
   const tableControlState = useTableControlState({
@@ -76,7 +76,7 @@ export const AffectedApplications: React.FC = () => {
     result: { data: currentPageAppReports, total: totalItemCount },
     isFetching,
     fetchError,
-  } = useFetchReportIssueApps(
+  } = useFetchReportInsightApps(
     getHubRequestParams({
       ...tableControlState,
       implicitFilters: [
@@ -133,16 +133,16 @@ export const AffectedApplications: React.FC = () => {
         <Breadcrumb>
           <BreadcrumbItem>
             <Link
-              to={getBackToAllIssuesUrl({
+              to={getBackToAllInsightsUrl({
                 fromFilterValues: filterValues,
                 fromLocation: useLocation(),
               })}
             >
-              {t("terms.issues")}
+              {t("terms.insights")}
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem to="#" isActive>
-            {issueTitle}
+            {insightTitle}
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
@@ -237,8 +237,8 @@ export const AffectedApplications: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
-      <IssueDetailDrawer
-        issueId={activeItem?.insight.id || null}
+      <InsightDetailDrawer
+        insightId={activeItem?.insight.id || null}
         onCloseClick={clearActiveItem}
       />
     </>

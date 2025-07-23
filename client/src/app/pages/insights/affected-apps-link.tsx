@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import { Location } from "history";
 import { Button } from "@patternfly/react-core";
 import { UiAnalysisReportInsight } from "@app/api/models";
-import { IssuesFilterValuesToCarry, getAffectedAppsUrl } from "./helpers";
+import { InsightsFilterValuesToCarry, getAffectedAppsUrl } from "./helpers";
 
 export interface IAffectedAppsLinkProps {
   ruleReport: UiAnalysisReportInsight;
-  fromFilterValues: IssuesFilterValuesToCarry;
+  fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
   showNumberOnly?: boolean;
 }

@@ -17,7 +17,7 @@ import {
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
 import { Paths } from "@app/Paths";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { IssueFilterGroups } from "./issues";
+import { InsightFilterGroups } from "./insights-page";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useTranslation } from "react-i18next";
@@ -25,16 +25,16 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchApplications } from "@app/queries/applications";
 import { universalComparator } from "@app/utils/utils";
 
-// Certain filters are shared between the Issues page and the Affected Applications Page.
+// Certain filters are shared between the Insights page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
-// It is also important to restore any unrelated params when returning to the Issues page.
+// It is also important to restore any unrelated params when returning to the Insights page.
 
 const filterKeysToCarry = [
   "application.name",
   "businessService.name",
   "tag.id",
 ] as const;
-export type IssuesFilterValuesToCarry = Partial<Record<string, FilterValue>>;
+export type InsightsFilterValuesToCarry = Partial<Record<string, FilterValue>>;
 
 export const useSharedAffectedApplicationFilterCategories = <
   TItem,
@@ -49,7 +49,7 @@ export const useSharedAffectedApplicationFilterCategories = <
     {
       categoryKey: "application.name",
       title: t("terms.applicationName"),
-      filterGroup: IssueFilterGroups.ApplicationInventory,
+      filterGroup: InsightFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
@@ -68,7 +68,7 @@ export const useSharedAffectedApplicationFilterCategories = <
     {
       categoryKey: "application.id",
       title: t("terms.archetypes"),
-      filterGroup: IssueFilterGroups.ApplicationInventory,
+      filterGroup: InsightFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
@@ -102,7 +102,7 @@ export const useSharedAffectedApplicationFilterCategories = <
     {
       categoryKey: "businessService.name",
       title: t("terms.businessService"),
-      filterGroup: IssueFilterGroups.ApplicationInventory,
+      filterGroup: InsightFilterGroups.ApplicationInventory,
       placeholderText:
         t("actions.filterBy", {
           what: t("terms.businessService").toLowerCase(),
@@ -115,7 +115,7 @@ export const useSharedAffectedApplicationFilterCategories = <
     {
       categoryKey: "tag.id",
       title: t("terms.tags"),
-      filterGroup: IssueFilterGroups.ApplicationInventory,
+      filterGroup: InsightFilterGroups.ApplicationInventory,
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
@@ -142,19 +142,19 @@ export const useSharedAffectedApplicationFilterCategories = <
 
 const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
 
-// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
+// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Insights page
 export const getAffectedAppsUrl = ({
   ruleReport,
   fromFilterValues,
   fromLocation,
 }: {
   ruleReport: UiAnalysisReportInsight;
-  fromFilterValues: IssuesFilterValuesToCarry;
+  fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
 }) => {
-  // The raw location.search string (already encoded) from the issues page is used as the fromIssuesParams param
-  const fromIssuesParams = fromLocation.search;
-  const toFilterValues: IssuesFilterValuesToCarry = {};
+  // The raw location.search string (already encoded) from the insights page is used as the fromInsightsParams param
+  const fromInsightsParams = fromLocation.search;
+  const toFilterValues: InsightsFilterValuesToCarry = {};
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
@@ -167,26 +167,26 @@ export const getAffectedAppsUrl = ({
   return `${baseUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
-      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      issueTitle: getIssueTitle(ruleReport),
+      [FROM_ISSUES_PARAMS_KEY]: fromInsightsParams,
+      insightTitle: getInsightTitle(ruleReport),
     },
   })}`;
 };
 
-// URL for Issues page that restores original URL params and overrides them with any changes to the carried filters.
-export const getBackToAllIssuesUrl = ({
+// URL for Insights page that restores original URL params and overrides them with any changes to the carried filters.
+export const getBackToAllInsightsUrl = ({
   fromFilterValues,
   fromLocation,
 }: {
-  fromFilterValues: IssuesFilterValuesToCarry;
+  fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
 }) => {
-  // Pull the fromIssuesParams param out of the current location's URLSearchParams
-  const fromIssuesParams =
+  // Pull the fromInsightsParams param out of the current location's URLSearchParams
+  const fromInsightsParams =
     new URLSearchParams(fromLocation.search).get(FROM_ISSUES_PARAMS_KEY) || "";
-  // Pull the params themselves out of fromIssuesParams
+  // Pull the params themselves out of fromInsightsParams
   const prefixedParamsToRestore = Object.fromEntries(
-    new URLSearchParams(fromIssuesParams)
+    new URLSearchParams(fromInsightsParams)
   );
   // Pull the filters param out of that
   const prefix = (key: string) => `${TablePersistenceKeyPrefix.issues}:${key}`;
@@ -221,8 +221,8 @@ export const getDependenciesUrlFilteredByAppName = (appName: string) => {
   return `${baseUrl}?${urlParams}`;
 };
 
-// When selecting an application, we want to preserve any issue filters that might be present.
-export const getIssuesSingleAppSelectedLocation = (
+// When selecting an application, we want to preserve any insight filters that might be present.
+export const getInsightsSingleAppSelectedLocation = (
   applicationId: number,
   fromLocation?: Location
 ): LocationDescriptor => {
@@ -260,10 +260,12 @@ export const parseReportLabels = (
   return { sources, targets, otherLabels };
 };
 
-export const getIssueTitle = (
-  issueReport:
+export const getInsightTitle = (
+  insightReport:
     | UiAnalysisReportInsight
     | AnalysisInsight
     | UiAnalysisReportApplicationInsight
 ) =>
-  issueReport?.description || issueReport?.name?.split("\n")[0] || "*Unnamed*";
+  insightReport?.description ||
+  insightReport?.name?.split("\n")[0] ||
+  "*Unnamed*";

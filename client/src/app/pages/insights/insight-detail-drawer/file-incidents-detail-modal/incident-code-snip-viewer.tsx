@@ -17,12 +17,12 @@ import { useTranslation } from "react-i18next";
 const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/; // Pattern: leading whitespace (line number) (2 spaces)? (code)
 
 export interface IIncidentCodeSnipViewerProps {
-  issueTitle: string;
+  insightTitle: string;
   incident: AnalysisIncident;
 }
 
 export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
-  issueTitle,
+  insightTitle,
   incident,
 }) => {
   const { t } = useTranslation();
@@ -88,7 +88,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
             // Red squiggly under the affected line
             monaco.editor.setModelMarkers(model, "my-markers", [
               {
-                message: issueTitle,
+                message: insightTitle,
                 severity: monaco.MarkerSeverity.Error,
                 startLineNumber: relativeLineNum,
                 startColumn:
