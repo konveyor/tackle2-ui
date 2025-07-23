@@ -101,6 +101,7 @@ export const TICKETS = hub`/tickets`;
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
 export const TRACKERS = hub`/trackers`;
+export const ASSET_GENERATORS = hub`/generators`;
 
 export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
   json: {
@@ -813,3 +814,7 @@ export const updatePlatform = (platform: SourcePlatform) =>
 // success with code 204 and therefore no response content
 export const deletePlatform = (id: number) =>
   axios.delete<void>(`${PLATFORMS}/${id}`);
+
+// ---------------------------------------
+// Asset Generators
+//
