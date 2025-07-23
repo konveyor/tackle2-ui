@@ -35,8 +35,8 @@ import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 
 import {
-  useFetchReportApplicationIssues,
-  useFetchReportAllIssues,
+  useFetchReportApplicationInsights,
+  useFetchReportAllInsights,
 } from "@app/queries/analysis";
 import { useFetchApplications } from "@app/queries/applications";
 
@@ -59,11 +59,11 @@ import {
 
 import {
   parseReportLabels,
-  getIssuesSingleAppSelectedLocation,
+  getInsightsSingleAppSelectedLocation,
   useSharedAffectedApplicationFilterCategories,
-  getIssueTitle,
+  getInsightTitle,
 } from "./helpers";
-import { IssueFilterGroups } from "./issues";
+import { InsightFilterGroups } from "./insights-page";
 import {
   UiAnalysisReportApplicationInsight,
   UiAnalysisReportInsight,
@@ -72,14 +72,14 @@ import {
 import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { IssueDetailDrawer } from "./issue-detail-drawer";
-import { IssueDescriptionAndLinks } from "./components/issue-description-and-links";
+import { InsightDetailDrawer } from "./insight-detail-drawer";
+import { InsightDescriptionAndLinks } from "./components/insight-description-and-links";
 
-export interface IIssuesTableProps {
-  mode: "allIssues" | "singleApp";
+export interface IInsightsTableProps {
+  mode: "allInsights" | "singleApp";
 }
 
-export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
+export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const history = useHistory();
@@ -92,19 +92,19 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     : null;
   const setSelectedAppId = (applicationId: number) => {
     history.replace(
-      getIssuesSingleAppSelectedLocation(applicationId, location)
+      getInsightsSingleAppSelectedLocation(applicationId, location)
     );
   };
 
-  const allIssuesSpecificFilterCategories =
+  const allInsightsSpecificFilterCategories =
     useSharedAffectedApplicationFilterCategories();
 
   const tableControlState = useTableControlState({
-    tableName: "issues-table",
+    tableName: "insights-table",
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.issues,
     columnNames: {
-      description: "Issue",
+      description: "Insight",
       category: "Category",
       source: "Source",
       target: "Target(s)",
@@ -119,12 +119,12 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     sortableColumns: ["description", "category", "effort", "affected"],
     initialSort: { columnKey: "description", direction: "asc" },
     filterCategories: [
-      ...(mode === "allIssues" ? allIssuesSpecificFilterCategories : []),
+      ...(mode === "allInsights" ? allInsightsSpecificFilterCategories : []),
       {
         categoryKey: "category",
         title: t("terms.category"),
         filterGroup:
-          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
+          mode === "allInsights" ? InsightFilterGroups.Insights : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -136,7 +136,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         categoryKey: "source",
         title: t("terms.source"),
         filterGroup:
-          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
+          mode === "allInsights" ? InsightFilterGroups.Insights : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -160,7 +160,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         categoryKey: "target",
         title: t("terms.target"),
         filterGroup:
-          mode === "allIssues" ? IssueFilterGroups.Issues : undefined,
+          mode === "allInsights" ? InsightFilterGroups.Insights : undefined,
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
@@ -170,12 +170,12 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         getServerFilterValue: (value) =>
           value?.length === 1 ? [`konveyor.io/target=*${value}*`] : undefined,
       },
-      // TODO: Determine if we want to be able to filter by nested analysisIssue effort rather than the full sum which is displayed in this table.
+      // TODO: Determine if we want to be able to filter by nested analysisInsight effort rather than the full sum which is displayed in this table.
       // TODO: Determine if we want to filter by effort at all without having a numeric range filter control
       // {
       //   key: "effort",
       //   title: t("terms.effort"),
-      //   filterGroup: IssueFilterGroups.Issues,
+      //   filterGroup: InsightFilterGroups.Insights,
       //   type: FilterType.numsearch,
       //   placeholderText:
       //     t("actions.filterBy", {
@@ -197,19 +197,19 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
     },
   });
 
-  const issueReportsQuery = useFetchReportApplicationIssues(
+  const insightReportsQuery = useFetchReportApplicationInsights(
     selectedAppId || undefined,
     hubRequestParams
   );
-  const ruleReportsQuery = useFetchReportAllIssues(
-    mode === "allIssues",
+  const ruleReportsQuery = useFetchReportAllInsights(
+    mode === "allInsights",
     hubRequestParams
   );
   const {
     result: { data, total: totalReportCount },
     isFetching: isFetchingReports,
     fetchError: reportsFetchError,
-  } = mode === "singleApp" ? issueReportsQuery : ruleReportsQuery;
+  } = mode === "singleApp" ? insightReportsQuery : ruleReportsQuery;
   const currentPageReports = data as (
     | UiAnalysisReportInsight
     | UiAnalysisReportApplicationInsight
@@ -223,7 +223,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
 
   const fetchError = reportsFetchError || applicationsFetchError;
   const isLoading =
-    mode === "allIssues"
+    mode === "allInsights"
       ? isFetchingReports
       : isFetchingReports || isFetchingApplications;
 
@@ -236,8 +236,10 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
   });
 
   // Only for singleApp mode
-  const [activeIssueReportInDetailDrawer, setActiveIssueReportInDetailDrawer] =
-    React.useState<UiAnalysisReportApplicationInsight | null>(null);
+  const [
+    activeInsightReportInDetailDrawer,
+    setActiveInsightReportInDetailDrawer,
+  ] = React.useState<UiAnalysisReportApplicationInsight | null>(null);
 
   const {
     numRenderedColumns,
@@ -317,7 +319,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} aria-label="Issues table">
+      <Table {...tableProps} aria-label="Insights table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -328,7 +330,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
               <Th
                 {...getThProps({ columnKey: "effort" })}
                 info={{
-                  tooltip: `${t("message.issuesEffortTooltip")}`,
+                  tooltip: `${t("message.insightsEffortTooltip")}`,
                 }}
               />
               <Th {...getThProps({ columnKey: "affected" })} />
@@ -374,7 +376,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                       {...getTdProps({ columnKey: "description" })}
                       modifier="truncate"
                     >
-                      {getIssueTitle(report)}
+                      {getInsightTitle(report)}
                     </Td>
                     <Td width={20} {...getTdProps({ columnKey: "category" })}>
                       {report.category}
@@ -416,7 +418,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             variant="link"
                             isInline
                             onClick={() => {
-                              setActiveIssueReportInDetailDrawer(
+                              setActiveInsightReportInDetailDrawer(
                                 report as UiAnalysisReportApplicationInsight
                               );
                             }}
@@ -465,7 +467,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                                   variant="link"
                                   isInline
                                   onClick={() => {
-                                    setActiveIssueReportInDetailDrawer(
+                                    setActiveInsightReportInDetailDrawer(
                                       report as UiAnalysisReportApplicationInsight
                                     );
                                   }}
@@ -556,7 +558,7 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
                             </div>
                           </FlexItem>
                           <FlexItem flex={{ default: "flex_1" }}>
-                            <IssueDescriptionAndLinks
+                            <InsightDescriptionAndLinks
                               className={spacing.mrLg}
                               description={report.description}
                               links={report.links}
@@ -573,13 +575,13 @@ export const IssuesTable: React.FC<IIssuesTableProps> = ({ mode }) => {
         </ConditionalTableBody>
       </Table>
       <SimplePagination
-        idPrefix="issues-table"
+        idPrefix="insights-table"
         isTop={false}
         paginationProps={paginationProps}
       />
-      <IssueDetailDrawer
-        issueId={activeIssueReportInDetailDrawer?.id || null}
-        onCloseClick={() => setActiveIssueReportInDetailDrawer(null)}
+      <InsightDetailDrawer
+        insightId={activeInsightReportInDetailDrawer?.id || null}
+        onCloseClick={() => setActiveInsightReportInDetailDrawer(null)}
       />
     </div>
   );

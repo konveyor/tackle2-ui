@@ -15,20 +15,20 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
-import { IssuesTable } from "./issues-table";
+import { InsightsTable } from "./insights-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
-export enum IssueFilterGroups {
+export enum InsightFilterGroups {
   ApplicationInventory = "Application inventory",
-  Issues = "Issues",
+  Insights = "Insights",
 }
 
-export type IssuesTabPath =
+export type InsightsTabPath =
   | typeof Paths.issuesAllTab
   | typeof Paths.issuesSingleAppTab;
 
-export const Issues: React.FC = () => {
+export const InsightsPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const history = useHistory();
@@ -42,18 +42,18 @@ export const Issues: React.FC = () => {
 
   React.useEffect(() => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
-  }, [activeTabPath]);
+  }, [activeTabPath, history]);
 
   const [navConfirmPath, setNavConfirmPath] =
-    React.useState<IssuesTabPath | null>(null);
+    React.useState<InsightsTabPath | null>(null);
 
   return (
     <>
       <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
         <TextContent>
-          <Title headingLevel="h1">{t("terms.issues")}</Title>
+          <Title headingLevel="h1">{t("terms.insights")}</Title>
           <Text component="small">
-            This report provides a concise summary of all issues identified.
+            This report provides a concise summary of all insights identified.
           </Text>
         </TextContent>
         <Tabs
@@ -64,15 +64,15 @@ export const Issues: React.FC = () => {
               `${TablePersistenceKeyPrefix.issues}:filters`
             );
             if (pageHasFilters) {
-              setNavConfirmPath(tabPath as IssuesTabPath);
+              setNavConfirmPath(tabPath as InsightsTabPath);
             } else {
-              history.push(tabPath as IssuesTabPath);
+              history.push(tabPath as InsightsTabPath);
             }
           }}
         >
           <Tab
             eventKey={Paths.issuesAllTab}
-            title={<TabTitleText>All issues</TabTitleText>}
+            title={<TabTitleText>All insights</TabTitleText>}
           />
           <Tab
             eventKey={Paths.issuesSingleAppTab}
@@ -82,9 +82,9 @@ export const Issues: React.FC = () => {
       </PageSection>
       <PageSection>
         {activeTabPath === Paths.issuesAllTab ? (
-          <IssuesTable mode="allIssues" />
+          <InsightsTable mode="allInsights" />
         ) : activeTabPath === Paths.issuesSingleAppTab ? (
-          <IssuesTable mode="singleApp" />
+          <InsightsTable mode="singleApp" />
         ) : null}
       </PageSection>
       <ConfirmDialog
@@ -92,13 +92,13 @@ export const Issues: React.FC = () => {
         title={`Navigating to ${
           navConfirmPath === Paths.issuesSingleAppTab
             ? "single application"
-            : "all issues"
+            : "all insights"
         }`}
         titleIconVariant="info"
         message={`When navigating to the ${
           navConfirmPath === Paths.issuesSingleAppTab
             ? "single application"
-            : "all issues"
+            : "all insights"
         } tab, all filtering settings will be reset.`}
         confirmBtnLabel="Continue"
         cancelBtnLabel="Cancel"
@@ -113,3 +113,5 @@ export const Issues: React.FC = () => {
     </>
   );
 };
+
+export default InsightsPage;

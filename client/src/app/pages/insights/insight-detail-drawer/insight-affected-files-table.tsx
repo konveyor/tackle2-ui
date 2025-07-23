@@ -26,13 +26,13 @@ import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import PathDisplay from "./path-display";
 
-export interface IIssueAffectedFilesTableProps {
-  issue: AnalysisInsight;
+export interface IInsightAffectedFilesTableProps {
+  insight: AnalysisInsight;
 }
 
-export const IssueAffectedFilesTable: React.FC<
-  IIssueAffectedFilesTableProps
-> = ({ issue }) => {
+export const InsightAffectedFilesTable: React.FC<
+  IInsightAffectedFilesTableProps
+> = ({ insight }) => {
   const { t } = useTranslation();
 
   const tableControlState = useTableControlState({
@@ -69,7 +69,7 @@ export const IssueAffectedFilesTable: React.FC<
     isFetching,
     fetchError,
   } = useFetchReportInsightFiles(
-    issue.id,
+    insight.id,
     getHubRequestParams({
       ...tableControlState,
       hubSortFieldKeys: {
@@ -192,7 +192,7 @@ export const IssueAffectedFilesTable: React.FC<
       />
       {selectedFileForDetailModal ? (
         <FileIncidentsDetailModal
-          issue={issue}
+          insight={insight}
           fileReport={selectedFileForDetailModal}
           onClose={() => setSelectedFileForDetailModal(null)}
         />
