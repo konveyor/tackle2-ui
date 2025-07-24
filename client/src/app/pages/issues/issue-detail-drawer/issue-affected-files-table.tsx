@@ -8,14 +8,14 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
+import { AnalysisReportFile, AnalysisInsight, WithUiId } from "@app/api/models";
 import {
   useTableControlState,
   useTableControlProps,
   getHubRequestParams,
 } from "@app/hooks/table-controls";
 import { useFetchReportInsightFiles } from "@app/queries/analysis";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -82,7 +82,7 @@ export const IssueAffectedFilesTable: React.FC<
 
   const tableControls = useTableControlProps({
     ...tableControlState,
-    idProperty: "file",
+    idProperty: UI_UNIQUE_ID,
     currentPageItems: currentPageFileReports,
     totalItemCount,
     isLoading: isFetching,
@@ -104,7 +104,7 @@ export const IssueAffectedFilesTable: React.FC<
   } = tableControls;
 
   const [selectedFileForDetailModal, setSelectedFileForDetailModal] =
-    React.useState<AnalysisReportFile | null>(null);
+    React.useState<WithUiId<AnalysisReportFile> | null>(null);
 
   return (
     <>
@@ -149,7 +149,10 @@ export const IssueAffectedFilesTable: React.FC<
         >
           <Tbody>
             {currentPageFileReports?.map((fileReport, rowIndex) => (
-              <Tr key={fileReport.file} {...getTrProps({ item: fileReport })}>
+              <Tr
+                key={fileReport[UI_UNIQUE_ID]}
+                {...getTrProps({ item: fileReport })}
+              >
                 <TableRowContentWithControls
                   {...tableControls}
                   item={fileReport}

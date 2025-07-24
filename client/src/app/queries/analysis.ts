@@ -265,7 +265,7 @@ export const useFetchReportInsightFiles = (
   insightId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
-): AnalysisQueryResults<AnalysisReportFile> => {
+): AnalysisQueryResults<WithUiId<AnalysisReportFile>> => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: insightId !== undefined,
     queryKey: [InsightFilesQueryKey, insightId, params],
@@ -276,8 +276,18 @@ export const useFetchReportInsightFiles = (
     onError: (error) => console.log("error, ", error),
     refetchInterval,
   });
+
+  const withUiId = useWithUiId(
+    data?.data,
+    (fileReport) => `${fileReport.insightId}/${fileReport.file}`
+  );
+
   return {
-    result: data || { data: [], total: 0, params },
+    result: {
+      data: withUiId,
+      total: data?.total ?? 0,
+      params: data?.params ?? params,
+    },
     isFetching: isLoading,
     fetchError: error as Error | undefined,
     refetch,
