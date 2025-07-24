@@ -87,6 +87,9 @@ export const InsightsPage: React.FC = () => {
           <AllInsightsTable
             tableName="all-insights-table"
             tableAriaLabel="Insights table"
+            columns={{
+              effort: false,
+            }}
           />
         )}
         {/* TODO: Use the new components */}
