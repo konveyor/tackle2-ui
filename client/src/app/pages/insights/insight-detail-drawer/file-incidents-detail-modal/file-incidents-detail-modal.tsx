@@ -21,7 +21,7 @@ import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
 import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
-import { InsightDescriptionAndLinks } from "../../components/insight-description-and-links";
+import { InsightDescriptionAndLinks } from "@app/components/insights/components";
 import { getInsightTitle } from "../../helpers";
 
 export interface IFileIncidentsDetailModalProps {
