@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Toolbar,
   ToolbarContent,
@@ -36,17 +37,66 @@ import { AffectedAppsLink, InsightExpandedRowContent } from "../components";
 
 import { InsightTitleColumn } from "./column-insight-title";
 
+interface TableColumns {
+  description: boolean | string;
+  category: boolean | string;
+  source: boolean | string;
+  target: boolean | string;
+  effort: boolean | string;
+  affected: boolean | string;
+}
 export interface IAllInsightsTableProps {
   onSelectInsight?: (value?: UiAnalysisReportInsight) => void;
   tableAriaLabel?: string;
   tableName?: string;
+  columns?: Partial<TableColumns>;
 }
+
+const useDynamicColumns = (columns?: Partial<TableColumns>) => {
+  const defaultNames = {
+    description: "Insight",
+    category: "Category",
+    source: "Source",
+    target: "Target(s)",
+    effort: "Effort",
+    affected: "Affected applications",
+  };
+
+  const fullSet: TableColumns = Object.assign(
+    {
+      description: true,
+      category: true,
+      source: true,
+      target: true,
+      effort: false,
+      affected: true,
+    },
+    columns
+  );
+
+  const activeSet: Record<string, string> = {};
+  Object.entries(fullSet).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      activeSet[key] = value;
+    } else if (value === true) {
+      activeSet[key] = defaultNames[key as keyof typeof defaultNames];
+    }
+  });
+  return activeSet;
+};
 
 export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   tableAriaLabel = "Insights table",
   tableName = "all-insights-table",
+  columns,
 }) => {
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const columnNames = useDynamicColumns(columns);
+  const sortableColumns = ["description", "category", "affected"].filter(
+    (key) => columnNames[key]
+  );
 
   const filterCategories = useInsightsTableFilters([
     InsightFilterGroups.ApplicationInventory,
@@ -57,19 +107,13 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     tableName,
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.insights,
-    columnNames: {
-      description: "Insight",
-      category: "Category",
-      source: "Source",
-      target: "Target(s)",
-      affected: "Affected applications",
-    },
+    columnNames,
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isExpansionEnabled: true,
-    sortableColumns: ["description", "category", "affected"],
-    initialSort: { columnKey: "description", direction: "asc" },
+    sortableColumns,
+    initialSort: { columnKey: sortableColumns[0], direction: "asc" },
     filterCategories,
     initialItemsPerPage: 10,
     expandableVariant: "single",
@@ -141,11 +185,29 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
-              <Th {...getThProps({ columnKey: "description" })} />
-              <Th {...getThProps({ columnKey: "category" })} />
-              <Th {...getThProps({ columnKey: "source" })} />
-              <Th {...getThProps({ columnKey: "target" })} />
-              <Th {...getThProps({ columnKey: "affected" })} />
+              {columnNames.description && (
+                <Th {...getThProps({ columnKey: "description" })} />
+              )}
+              {columnNames.category && (
+                <Th {...getThProps({ columnKey: "category" })} />
+              )}
+              {columnNames.source && (
+                <Th {...getThProps({ columnKey: "source" })} />
+              )}
+              {columnNames.target && (
+                <Th {...getThProps({ columnKey: "target" })} />
+              )}
+              {columnNames.effort && (
+                <Th
+                  {...getThProps({ columnKey: "effort" })}
+                  info={{
+                    tooltip: `${t("message.issuesEffortTooltip")}`,
+                  }}
+                />
+              )}
+              {columnNames.affected && (
+                <Th {...getThProps({ columnKey: "affected" })} />
+              )}
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -167,53 +229,68 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                     item={insight}
                     rowIndex={rowIndex}
                   >
-                    <Td
-                      width={30}
-                      {...getTdProps({ columnKey: "description" })}
-                      modifier="truncate"
-                    >
-                      <InsightTitleColumn insight={insight} />
-                    </Td>
-                    <Td width={20} {...getTdProps({ columnKey: "category" })}>
-                      {insight.category}
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="nowrap"
-                      noPadding
-                      {...getTdProps({ columnKey: "source" })}
-                    >
-                      <SingleLabelWithOverflow
-                        labels={sources}
-                        popoverAriaLabel="More sources"
-                      />
-                    </Td>
-                    <Td
-                      width={10}
-                      modifier="nowrap"
-                      noPadding
-                      {...getTdProps({ columnKey: "target" })}
-                    >
-                      <SingleLabelWithOverflow
-                        labels={targets}
-                        popoverAriaLabel="More sources"
-                      />
-                    </Td>
-                    <Td
-                      width={20}
-                      {...getTdProps({
-                        columnKey: "affected",
-                      })}
-                    >
-                      <Tooltip content="View Report">
-                        <AffectedAppsLink
-                          ruleReport={insight as UiAnalysisReportInsight}
-                          fromFilterValues={filterValues}
-                          fromLocation={location}
-                          showNumberOnly
+                    {columnNames.description && (
+                      <Td
+                        width={30}
+                        {...getTdProps({ columnKey: "description" })}
+                        modifier="truncate"
+                      >
+                        <InsightTitleColumn insight={insight} />
+                      </Td>
+                    )}
+                    {columnNames.category && (
+                      <Td width={20} {...getTdProps({ columnKey: "category" })}>
+                        {insight.category}
+                      </Td>
+                    )}
+                    {columnNames.source && (
+                      <Td
+                        width={10}
+                        modifier="nowrap"
+                        noPadding
+                        {...getTdProps({ columnKey: "source" })}
+                      >
+                        <SingleLabelWithOverflow
+                          labels={sources}
+                          popoverAriaLabel="More sources"
                         />
-                      </Tooltip>
-                    </Td>
+                      </Td>
+                    )}
+                    {columnNames.target && (
+                      <Td
+                        width={10}
+                        modifier="nowrap"
+                        noPadding
+                        {...getTdProps({ columnKey: "target" })}
+                      >
+                        <SingleLabelWithOverflow
+                          labels={targets}
+                          popoverAriaLabel="More sources"
+                        />
+                      </Td>
+                    )}
+                    {columnNames.effort && (
+                      <Td width={20} {...getTdProps({ columnKey: "effort" })}>
+                        {insight.effort}
+                      </Td>
+                    )}
+                    {columnNames.affected && (
+                      <Td
+                        width={20}
+                        {...getTdProps({
+                          columnKey: "affected",
+                        })}
+                      >
+                        <Tooltip content="View Report">
+                          <AffectedAppsLink
+                            ruleReport={insight as UiAnalysisReportInsight}
+                            fromFilterValues={filterValues}
+                            fromLocation={location}
+                            showNumberOnly
+                          />
+                        </Tooltip>
+                      </Td>
+                    )}
                   </TableRowContentWithControls>
                 </Tr>
                 {isCellExpanded(insight) ? (
