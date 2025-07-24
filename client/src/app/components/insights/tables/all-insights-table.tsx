@@ -32,7 +32,7 @@ import { SimplePagination } from "../../SimplePagination";
 import {
   useInsightsTableFilters,
   InsightFilterGroups,
-} from "../use-insight-filters";
+} from "./use-insight-filters";
 import { parseReportLabels } from "../helpers";
 import { AffectedAppsLink, InsightExpandedRowContent } from "../components";
 import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";

@@ -6,7 +6,7 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { universalComparator } from "@app/utils/utils";
-import { FilterCategory, FilterType } from "../FilterToolbar";
+import { FilterCategory, FilterType } from "../../FilterToolbar";
 
 export const enum InsightFilterGroups {
   ApplicationInventory = "Application inventory",
