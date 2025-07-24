@@ -7,15 +7,21 @@ export interface TableColumns {
   affected: boolean | string;
 }
 
-export const useDynamicColumns = (columns?: Partial<TableColumns>) => {
-  const defaultNames = {
-    description: "Insight",
-    category: "Category",
-    source: "Source",
-    target: "Target(s)",
-    effort: "Effort",
-    affected: "Affected applications",
-  };
+export const useDynamicColumns = (
+  columns?: Partial<TableColumns>,
+  columnNames?: Partial<Record<keyof TableColumns, string>>
+) => {
+  const defaultNames = Object.assign(
+    {
+      description: "Insight",
+      category: "Category",
+      source: "Source",
+      target: "Target(s)",
+      effort: "Effort",
+      affected: "Affected applications",
+    },
+    columnNames
+  );
 
   const fullSet: TableColumns = Object.assign(
     {

@@ -15,11 +15,16 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
-import { IssuesTable } from "./issues-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
-import { useFetchReportAllIssues } from "@app/queries/analysis";
+import {
+  useFetchReportAllIssues,
+  useFetchReportApplicationIssues,
+} from "@app/queries/analysis";
+import { SingleApplicationInsightsTable } from "@app/components/insights/tables/single-application-insights-table";
+import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { UiAnalysisReportApplicationInsight } from "@app/api/models";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -48,6 +53,9 @@ export const Issues: React.FC = () => {
 
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
+
+  const [issueInDetailDrawer, setIssueInDetailDrawer] =
+    React.useState<UiAnalysisReportApplicationInsight | null>(null);
 
   return (
     <>
@@ -94,7 +102,24 @@ export const Issues: React.FC = () => {
             useFetchData={useFetchReportAllIssues}
           />
         ) : activeTabPath === Paths.issuesSingleAppTab ? (
-          <IssuesTable mode="singleApp" />
+          <>
+            <SingleApplicationInsightsTable
+              tableName="single-application-issues-table"
+              tableAriaLabel="Single application issues table"
+              pathPattern={Paths.issuesSingleAppSelected}
+              keyPrefix={TablePersistenceKeyPrefix.issues}
+              columns={{
+                description: "Issue",
+                effort: true,
+              }}
+              useFetchData={useFetchReportApplicationIssues}
+              onInsightClick={setIssueInDetailDrawer}
+            />
+            <IssueDetailDrawer
+              issueId={issueInDetailDrawer?.id || null}
+              onCloseClick={() => setIssueInDetailDrawer(null)}
+            />
+          </>
         ) : null}
       </PageSection>
       <ConfirmDialog

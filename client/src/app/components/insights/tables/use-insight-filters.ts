@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import { Archetype, UiAnalysisReportInsight } from "@app/api/models";
+import { Archetype } from "@app/api/models";
 import { useFetchApplications } from "@app/queries/applications";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
@@ -13,9 +13,9 @@ export const enum InsightFilterGroups {
   Insights = "Insights",
 }
 
-export const useInsightsTableFilters = (
+export const useInsightsTableFilters = <T>(
   groups: InsightFilterGroups[]
-): FilterCategory<UiAnalysisReportInsight, string>[] => {
+): FilterCategory<T, string>[] => {
   const { t } = useTranslation();
 
   const applicationFilters = useApplicationInventoryFilters(
@@ -42,9 +42,9 @@ const asSelectOptions = <E extends { id: number; name: string }>(items: E[]) =>
     .sort((a, b) => universalComparator(a.name, b.name))
     .map(({ name }) => ({ key: name, value: name }));
 
-const useApplicationInventoryFilters = (
+const useApplicationInventoryFilters = <T>(
   filterGroupLabel: string
-): FilterCategory<UiAnalysisReportInsight, string>[] => {
+): FilterCategory<T, string>[] => {
   const { t } = useTranslation();
 
   const { data: applications } = useFetchApplications();
@@ -140,9 +140,9 @@ const useApplicationInventoryFilters = (
   ];
 };
 
-const useInsightsFilters = (
+const useInsightsFilters = <T>(
   filterGroupLabel: string
-): FilterCategory<UiAnalysisReportInsight, string>[] => {
+): FilterCategory<T, string>[] => {
   const { t } = useTranslation();
 
   return [
