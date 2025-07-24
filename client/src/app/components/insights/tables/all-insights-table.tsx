@@ -35,17 +35,9 @@ import {
 } from "../use-insight-filters";
 import { parseReportLabels } from "../helpers";
 import { AffectedAppsLink, InsightExpandedRowContent } from "../components";
-
+import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";
 import { InsightTitleColumn } from "./column-insight-title";
 
-interface TableColumns {
-  description: boolean | string;
-  category: boolean | string;
-  source: boolean | string;
-  target: boolean | string;
-  effort: boolean | string;
-  affected: boolean | string;
-}
 export interface IAllInsightsTableProps {
   tableAriaLabel?: string;
   tableName?: string;
@@ -55,39 +47,6 @@ export interface IAllInsightsTableProps {
     params: HubRequestParams
   ) => AnalysisQueryResults<UiAnalysisReportInsight>;
 }
-
-const useDynamicColumns = (columns?: Partial<TableColumns>) => {
-  const defaultNames = {
-    description: "Insight",
-    category: "Category",
-    source: "Source",
-    target: "Target(s)",
-    effort: "Effort",
-    affected: "Affected applications",
-  };
-
-  const fullSet: TableColumns = Object.assign(
-    {
-      description: true,
-      category: true,
-      source: true,
-      target: true,
-      effort: false,
-      affected: true,
-    },
-    columns
-  );
-
-  const activeSet: Record<string, string> = {};
-  Object.entries(fullSet).forEach(([key, value]) => {
-    if (typeof value === "string") {
-      activeSet[key] = value;
-    } else if (value === true) {
-      activeSet[key] = defaultNames[key as keyof typeof defaultNames];
-    }
-  });
-  return activeSet;
-};
 
 export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   tableAriaLabel = "Insights table",
