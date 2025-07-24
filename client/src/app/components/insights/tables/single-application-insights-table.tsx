@@ -1,36 +1,48 @@
 import * as React from "react";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
+  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-
 import {
   ConditionalTableBody,
   TableRowContentWithControls,
   TableHeaderContentWithControls,
 } from "@app/components/TableControls";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+
 import {
   getHubRequestParams,
   useTableControlProps,
   useTableControlState,
 } from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
-import { UiAnalysisReportInsight } from "@app/api/models";
+import {
+  Application,
+  UiAnalysisReportApplicationInsight,
+} from "@app/api/models";
 import { HubRequestParams } from "@app/api/models";
 import { AnalysisQueryResults } from "@app/queries/analysis";
+import { useFetchApplications } from "@app/queries/applications";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
 import { FilterToolbar } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 
 import { parseReportLabels } from "../helpers";
-import { AffectedAppsLink, InsightExpandedRowContent } from "../components";
+import { InsightExpandedRowContent } from "../components";
 import {
   useInsightsTableFilters,
   InsightFilterGroups,
@@ -38,33 +50,79 @@ import {
 import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";
 import { InsightTitleColumn } from "./column-insight-title";
 
-export interface IAllInsightsTableProps {
-  tableAriaLabel?: string;
-  tableName?: string;
+const useSelectedApplicationId = (
+  pathPattern: string,
+  keyPrefix: TablePersistenceKeyPrefix
+) => {
+  const location = useLocation();
+  const history = useHistory();
+
+  const routeMatch = useRouteMatch<{
+    applicationId: string;
+  }>(pathPattern);
+
+  const selectedAppId = routeMatch
+    ? Number(routeMatch.params.applicationId)
+    : undefined;
+
+  const setSelectedAppId = (applicationId: number) => {
+    const existingFiltersParam =
+      location &&
+      new URLSearchParams(location.search).get(`${keyPrefix}:filters`);
+
+    history.replace({
+      pathname: pathPattern.replace(":applicationId", String(applicationId)),
+      search: existingFiltersParam
+        ? new URLSearchParams({ filters: existingFiltersParam }).toString()
+        : undefined,
+    });
+  };
+
+  return { selectedAppId, setSelectedAppId };
+};
+
+export interface ISingleApplicationInsightsTableProps {
+  tableAriaLabel: string;
+  tableName: string;
+  pathPattern: string;
+  keyPrefix: TablePersistenceKeyPrefix;
   columns?: Partial<TableColumns>;
   useFetchData: (
-    enabled: boolean,
-    params: HubRequestParams
-  ) => AnalysisQueryResults<UiAnalysisReportInsight>;
+    applicationId?: number,
+    params?: HubRequestParams,
+    refetchInterval?: number | false
+  ) => AnalysisQueryResults<UiAnalysisReportApplicationInsight>;
+  onInsightClick: (insight: UiAnalysisReportApplicationInsight) => void;
 }
 
-export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
-  tableAriaLabel = "Insights table",
-  tableName = "all-insights-table",
+export const SingleApplicationInsightsTable: React.FC<
+  ISingleApplicationInsightsTableProps
+> = ({
+  tableAriaLabel,
+  tableName,
+  pathPattern,
+  keyPrefix,
   columns,
   useFetchData,
+  onInsightClick,
 }) => {
   const { t } = useTranslation();
-  const location = useLocation();
 
-  const columnNames = useDynamicColumns(columns);
+  const { selectedAppId, setSelectedAppId } = useSelectedApplicationId(
+    pathPattern,
+    keyPrefix
+  );
+
+  const columnNames = useDynamicColumns(columns, {
+    affected: "Affected applications",
+  });
   const sortableColumns = ["description", "category", "affected"].filter(
     (key) => columnNames[key]
   );
-  const filterCategories = useInsightsTableFilters<UiAnalysisReportInsight>([
-    InsightFilterGroups.ApplicationInventory,
-    InsightFilterGroups.Insights,
-  ]);
+  const filterCategories =
+    useInsightsTableFilters<UiAnalysisReportApplicationInsight>([
+      InsightFilterGroups.Insights,
+    ]);
   const tableControlState = useTableControlState({
     tableName,
     persistTo: "urlParams",
@@ -85,7 +143,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     hubSortFieldKeys: {
       description: "description",
       category: "category",
-      affected: "applications",
+      affected: "files",
     },
   });
 
@@ -93,7 +151,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     result: { data: currentPageItems, total: totalItemCount },
     isFetching: isLoading,
     fetchError,
-  } = useFetchData(true, hubRequestParams);
+  } = useFetchData(selectedAppId, hubRequestParams);
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState
@@ -104,7 +162,6 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   });
   const {
     numRenderedColumns,
-    filterState: { filterValues },
     propHelpers: {
       toolbarProps,
       filterToolbarProps,
@@ -119,10 +176,17 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
+  const { data: applications } = useFetchApplications();
+  const applicationOptions: OptionWithValue<Application>[] = applications.map(
+    (app) => ({
+      value: app,
+      toString: () => app.name,
+    })
+  );
+
   if (isLoading && !(currentPageItems || fetchError)) {
     return <AppPlaceholder />;
   }
-
   return (
     <div
       style={{
@@ -131,7 +195,36 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     >
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
-          <FilterToolbar {...filterToolbarProps} />
+          <ToolbarItem>Application:</ToolbarItem>
+          <ConditionalTooltip
+            isTooltipEnabled={applicationOptions.length === 0}
+            content="No applications available. Add an application on the application inventory page."
+          >
+            <SimpleSelect
+              toggleAriaLabel="application-select"
+              toggleId="application-select"
+              width={220}
+              aria-label="Select application"
+              placeholderText="Select application..."
+              hasInlineFilter
+              value={applicationOptions.find(
+                (option) => option.value.id === selectedAppId
+              )}
+              options={applicationOptions}
+              onChange={(option) => {
+                setSelectedAppId(
+                  (option as OptionWithValue<Application>).value.id
+                );
+              }}
+              className={spacing.mrMd}
+              isDisabled={applicationOptions.length === 0}
+            />
+          </ConditionalTooltip>
+
+          <FilterToolbar
+            {...filterToolbarProps}
+            isDisabled={selectedAppId === null}
+          />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
               idPrefix="s-table"
@@ -173,7 +266,20 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
         </Thead>
         <ConditionalTableBody
           isError={!!fetchError}
-          isNoData={totalItemCount === 0}
+          isNoData={totalItemCount === 0 || selectedAppId === null}
+          noDataEmptyState={
+            selectedAppId === null ? (
+              <EmptyState variant="sm">
+                <EmptyStateIcon icon={CubesIcon} />
+                <Title headingLevel="h2" size="lg">
+                  Select application from filter menu
+                </Title>
+                <EmptyStateBody>
+                  Use the filter menu above to select your application.
+                </EmptyStateBody>
+              </EmptyState>
+            ) : null
+          }
           numRenderedColumns={numRenderedColumns}
         >
           {currentPageItems?.map((insight, rowIndex) => {
@@ -242,12 +348,15 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                         })}
                       >
                         <Tooltip content="View Report">
-                          <AffectedAppsLink
-                            ruleReport={insight as UiAnalysisReportInsight}
-                            fromFilterValues={filterValues}
-                            fromLocation={location}
-                            showNumberOnly
-                          />
+                          <Button
+                            variant="link"
+                            isInline
+                            onClick={() => {
+                              onInsightClick(insight);
+                            }}
+                          >
+                            {insight.files}
+                          </Button>
                         </Tooltip>
                       </Td>
                     )}
@@ -262,15 +371,18 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                     >
                       <InsightExpandedRowContent
                         insight={insight}
-                        totalAffectedLabel="Total affected applications"
+                        totalAffectedLabel="Total affected files"
                         totalAffected={
                           <Tooltip content="View Report">
-                            <AffectedAppsLink
-                              ruleReport={insight as UiAnalysisReportInsight}
-                              fromFilterValues={filterValues}
-                              fromLocation={location}
-                              showNumberOnly
-                            />
+                            <Button
+                              variant="link"
+                              isInline
+                              onClick={() => {
+                                onInsightClick(insight);
+                              }}
+                            >
+                              {insight.files} - View affected files
+                            </Button>
                           </Tooltip>
                         }
                       />

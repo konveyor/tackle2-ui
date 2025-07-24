@@ -15,11 +15,16 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
-import { InsightsTable } from "./insights-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
-import { useFetchReportAllInsights } from "@app/queries/analysis";
+import {
+  useFetchReportAllInsights,
+  useFetchReportApplicationInsights,
+} from "@app/queries/analysis";
+import { SingleApplicationInsightsTable } from "@app/components/insights/tables/single-application-insights-table";
+import { InsightDetailDrawer } from "./insight-detail-drawer";
+import { UiAnalysisReportApplicationInsight } from "@app/api/models";
 
 export enum InsightFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -48,6 +53,9 @@ export const InsightsPage: React.FC = () => {
 
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<InsightsTabPath | null>(null);
+
+  const [insightInDetailDrawer, setInsightInDetailDrawer] =
+    React.useState<UiAnalysisReportApplicationInsight | null>(null);
 
   return (
     <>
@@ -94,9 +102,24 @@ export const InsightsPage: React.FC = () => {
             useFetchData={useFetchReportAllInsights}
           />
         )}
-        {/* TODO: Use the new components */}
         {activeTabPath === Paths.insightsSingleAppTab && (
-          <InsightsTable mode="singleApp" />
+          <>
+            <SingleApplicationInsightsTable
+              tableName="single-application-insights-table"
+              tableAriaLabel="Single application insights table"
+              pathPattern={Paths.insightsSingleAppSelected}
+              keyPrefix={TablePersistenceKeyPrefix.insights}
+              columns={{
+                effort: false,
+              }}
+              useFetchData={useFetchReportApplicationInsights}
+              onInsightClick={setInsightInDetailDrawer}
+            />
+            <InsightDetailDrawer
+              insightId={insightInDetailDrawer?.id || null}
+              onCloseClick={() => setInsightInDetailDrawer(null)}
+            />
+          </>
         )}
       </PageSection>
 

@@ -10,7 +10,10 @@ import { ExpandableRowContent } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 
-import { UiAnalysisReportInsight } from "@app/api/models";
+import {
+  UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
+} from "@app/api/models";
 import { parseReportLabels } from "../helpers";
 import { InsightDescriptionAndLinks } from "../components";
 
@@ -28,7 +31,7 @@ export const ExpandedFieldHeading: React.FC<{
 };
 
 export const InsightExpandedRowContent: React.FC<{
-  insight: UiAnalysisReportInsight;
+  insight: UiAnalysisReportInsight | UiAnalysisReportApplicationInsight;
   totalAffectedLabel: string;
   totalAffected: React.ReactNode;
 }> = ({ insight, totalAffectedLabel, totalAffected }) => {
