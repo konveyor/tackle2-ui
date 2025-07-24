@@ -19,6 +19,7 @@ import { InsightsTable } from "./insights-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
+import { useFetchReportAllInsights } from "@app/queries/analysis";
 
 export enum InsightFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -90,6 +91,7 @@ export const InsightsPage: React.FC = () => {
             columns={{
               effort: false,
             }}
+            useFetchData={useFetchReportAllInsights}
           />
         )}
         {/* TODO: Use the new components */}

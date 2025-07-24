@@ -18,6 +18,8 @@ import { Paths } from "@app/Paths";
 import { IssuesTable } from "./issues-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
+import { useFetchReportAllIssues } from "@app/queries/analysis";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -42,7 +44,7 @@ export const Issues: React.FC = () => {
 
   React.useEffect(() => {
     if (!activeTabPath) history.push(Paths.issuesAllTab);
-  }, [activeTabPath]);
+  }, [activeTabPath, history]);
 
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
@@ -82,7 +84,15 @@ export const Issues: React.FC = () => {
       </PageSection>
       <PageSection>
         {activeTabPath === Paths.issuesAllTab ? (
-          <IssuesTable mode="allIssues" />
+          <AllInsightsTable
+            tableName="all-issues-table"
+            tableAriaLabel="Issues table"
+            columns={{
+              description: "Issue",
+              effort: true,
+            }}
+            useFetchData={useFetchReportAllIssues}
+          />
         ) : activeTabPath === Paths.issuesSingleAppTab ? (
           <IssuesTable mode="singleApp" />
         ) : null}
