@@ -73,7 +73,7 @@ import { Paths } from "@app/Paths";
 import { AffectedAppsLink } from "./affected-apps-link";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { InsightDetailDrawer } from "./insight-detail-drawer";
-import { InsightDescriptionAndLinks } from "./components/insight-description-and-links";
+import { InsightDescriptionAndLinks } from "@app/components/insights/components/insight-description-and-links";
 
 export interface IInsightsTableProps {
   mode: "allInsights" | "singleApp";
@@ -108,7 +108,6 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
       category: "Category",
       source: "Source",
       target: "Target(s)",
-      effort: "Effort",
       affected:
         mode === "singleApp" ? "Affected files" : "Affected applications",
     },
@@ -116,7 +115,7 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isExpansionEnabled: true,
-    sortableColumns: ["description", "category", "effort", "affected"],
+    sortableColumns: ["description", "category", "affected"],
     initialSort: { columnKey: "description", direction: "asc" },
     filterCategories: [
       ...(mode === "allInsights" ? allInsightsSpecificFilterCategories : []),
@@ -170,18 +169,6 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
         getServerFilterValue: (value) =>
           value?.length === 1 ? [`konveyor.io/target=*${value}*`] : undefined,
       },
-      // TODO: Determine if we want to be able to filter by nested analysisInsight effort rather than the full sum which is displayed in this table.
-      // TODO: Determine if we want to filter by effort at all without having a numeric range filter control
-      // {
-      //   key: "effort",
-      //   title: t("terms.effort"),
-      //   filterGroup: InsightFilterGroups.Insights,
-      //   type: FilterType.numsearch,
-      //   placeholderText:
-      //     t("actions.filterBy", {
-      //       what: t("terms.effort").toLowerCase(),
-      //     }) + "...",
-      // },
     ],
     initialItemsPerPage: 10,
     expandableVariant: "single",
@@ -192,7 +179,6 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
     hubSortFieldKeys: {
       description: "description",
       category: "category",
-      effort: "effort",
       affected: mode === "singleApp" ? "files" : "applications",
     },
   });
@@ -327,12 +313,6 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
               <Th {...getThProps({ columnKey: "category" })} />
               <Th {...getThProps({ columnKey: "source" })} />
               <Th {...getThProps({ columnKey: "target" })} />
-              <Th
-                {...getThProps({ columnKey: "effort" })}
-                info={{
-                  tooltip: `${t("message.insightsEffortTooltip")}`,
-                }}
-              />
               <Th {...getThProps({ columnKey: "affected" })} />
             </TableHeaderContentWithControls>
           </Tr>
@@ -402,9 +382,6 @@ export const InsightsTable: React.FC<IInsightsTableProps> = ({ mode }) => {
                         labels={targets}
                         popoverAriaLabel="More sources"
                       />
-                    </Td>
-                    <Td width={10} {...getTdProps({ columnKey: "effort" })}>
-                      {report.effort}
                     </Td>
                     <Td
                       width={20}

@@ -18,6 +18,7 @@ import { Paths } from "@app/Paths";
 import { InsightsTable } from "./insights-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
 
 export enum InsightFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -80,13 +81,20 @@ export const InsightsPage: React.FC = () => {
           />
         </Tabs>
       </PageSection>
+
       <PageSection>
-        {activeTabPath === Paths.insightsAllTab ? (
-          <InsightsTable mode="allInsights" />
-        ) : activeTabPath === Paths.insightsSingleAppTab ? (
+        {activeTabPath === Paths.insightsAllTab && (
+          <AllInsightsTable
+            tableName="all-insights-table"
+            tableAriaLabel="Insights table"
+          />
+        )}
+        {/* TODO: Use the new components */}
+        {activeTabPath === Paths.insightsSingleAppTab && (
           <InsightsTable mode="singleApp" />
-        ) : null}
+        )}
       </PageSection>
+
       <ConfirmDialog
         isOpen={!!navConfirmPath}
         title={`Navigating to ${
