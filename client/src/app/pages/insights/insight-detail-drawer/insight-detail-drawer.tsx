@@ -17,6 +17,7 @@ import { useFetchInsight } from "@app/queries/analysis";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
 import { getInsightTitle } from "../helpers";
+import { useTranslation } from "react-i18next";
 
 export interface IInsightDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -31,6 +32,7 @@ export const InsightDetailDrawer: React.FC<IInsightDetailDrawerProps> = ({
   insightId,
   onCloseClick,
 }) => {
+  const { t } = useTranslation();
   const {
     result: { data: insight },
     isFetching,
@@ -50,7 +52,7 @@ export const InsightDetailDrawer: React.FC<IInsightDetailDrawerProps> = ({
       header={
         <TextContent>
           <Text component="small" className={spacing.mb_0}>
-            Insight
+            {t("insight")}
           </Text>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {insight ? getInsightTitle(insight) : ""}
