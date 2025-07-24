@@ -22,7 +22,8 @@ import {
 } from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { UiAnalysisReportInsight } from "@app/api/models";
-import { useFetchReportAllInsights } from "@app/queries/analysis";
+import { HubRequestParams } from "@app/api/models";
+import { AnalysisQueryResults } from "@app/queries/analysis";
 import { AppPlaceholder } from "../../AppPlaceholder";
 import { SingleLabelWithOverflow } from "../../SingleLabelWithOverflow";
 import { FilterToolbar } from "../../FilterToolbar";
@@ -46,10 +47,13 @@ interface TableColumns {
   affected: boolean | string;
 }
 export interface IAllInsightsTableProps {
-  onSelectInsight?: (value?: UiAnalysisReportInsight) => void;
   tableAriaLabel?: string;
   tableName?: string;
   columns?: Partial<TableColumns>;
+  useFetchData: (
+    enabled: boolean,
+    params: HubRequestParams
+  ) => AnalysisQueryResults<UiAnalysisReportInsight>;
 }
 
 const useDynamicColumns = (columns?: Partial<TableColumns>) => {
@@ -89,6 +93,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   tableAriaLabel = "Insights table",
   tableName = "all-insights-table",
   columns,
+  useFetchData,
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -132,7 +137,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
     result: { data: currentPageItems, total: totalItemCount },
     isFetching: isLoading,
     fetchError,
-  } = useFetchReportAllInsights(true, hubRequestParams);
+  } = useFetchData(true, hubRequestParams);
 
   const tableControls = useTableControlProps({
     ...tableControlState, // Includes filterState, sortState and paginationState

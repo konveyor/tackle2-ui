@@ -63,7 +63,7 @@ import {
   useSharedAffectedApplicationFilterCategories,
   getIssueTitle,
 } from "./helpers";
-import { IssueFilterGroups } from "./issues";
+import { IssueFilterGroups } from "./issues-page";
 import {
   UiAnalysisReportApplicationInsight,
   UiAnalysisReportInsight,
