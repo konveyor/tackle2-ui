@@ -47,10 +47,6 @@ export const InsightsPage: React.FC = () => {
       ? Paths.insightsSingleAppTab
       : Paths.insightsAllTab;
 
-  React.useEffect(() => {
-    if (!activeTabPath) history.push(Paths.insightsAllTab);
-  }, [activeTabPath, history]);
-
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<InsightsTabPath | null>(null);
 

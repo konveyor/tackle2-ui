@@ -80,7 +80,7 @@ export const FileIncidentsDetailModal: React.FC<
       ) : firstFiveIncidents.length === 0 ? (
         <NoDataEmptyState
           title={t("composed.noDataStateTitle", {
-            what: "Incidents", // TODO i18n
+            what: t("terms.incidents"),
           })}
         />
       ) : (

@@ -47,10 +47,6 @@ export const Issues: React.FC = () => {
       ? Paths.issuesSingleAppTab
       : Paths.issuesAllTab;
 
-  React.useEffect(() => {
-    if (!activeTabPath) history.push(Paths.issuesAllTab);
-  }, [activeTabPath, history]);
-
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
 

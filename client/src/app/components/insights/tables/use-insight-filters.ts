@@ -70,7 +70,7 @@ const useApplicationInventoryFilters = <T>(
     {
       categoryKey: "application.id",
       title: t("terms.archetypes"),
-      filterGroup: InsightFilterGroups.ApplicationInventory,
+      filterGroup: filterGroupLabel,
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {
@@ -103,7 +103,7 @@ const useApplicationInventoryFilters = <T>(
     {
       categoryKey: "businessService.name",
       title: t("terms.businessService"),
-      filterGroup: InsightFilterGroups.ApplicationInventory,
+      filterGroup: filterGroupLabel,
       placeholderText:
         t("actions.filterBy", {
           what: t("terms.businessService").toLowerCase(),
@@ -115,7 +115,7 @@ const useApplicationInventoryFilters = <T>(
     {
       categoryKey: "tag.id",
       title: t("terms.tags"),
-      filterGroup: InsightFilterGroups.ApplicationInventory,
+      filterGroup: filterGroupLabel,
       type: FilterType.multiselect,
       placeholderText:
         t("actions.filterBy", {

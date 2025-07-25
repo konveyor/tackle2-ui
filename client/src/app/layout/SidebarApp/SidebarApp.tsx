@@ -127,12 +127,12 @@ export const MigrationSidebar = () => {
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={DevPaths.issues} activeClassName="pf-m-current">
+          <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
             {t("sidebar.issues")}
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={DevPaths.insights} activeClassName="pf-m-current">
+          <NavLink to={DevPaths.insightsAllTab} activeClassName="pf-m-current">
             {t("sidebar.insights")}
           </NavLink>
         </NavItem>

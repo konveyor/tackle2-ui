@@ -228,7 +228,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                       >
                         <SingleLabelWithOverflow
                           labels={targets}
-                          popoverAriaLabel="More sources"
+                          popoverAriaLabel="More targets"
                         />
                       </Td>
                     )}
