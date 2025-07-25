@@ -37,10 +37,12 @@ import {
 } from "./use-insight-filters";
 import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";
 import { InsightTitleColumn } from "./column-insight-title";
+import { Paths } from "@app/Paths";
 
 export interface IAllInsightsTableProps {
   tableAriaLabel?: string;
   tableName?: string;
+  affectedAppsPath?: string;
   columns?: Partial<TableColumns>;
   useFetchData: (
     enabled: boolean,
@@ -51,6 +53,7 @@ export interface IAllInsightsTableProps {
 export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   tableAriaLabel = "Insights table",
   tableName = "all-insights-table",
+  affectedAppsPath = Paths.insightsAllAffectedApplications,
   columns,
   useFetchData,
 }) => {
@@ -134,7 +137,7 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
-              idPrefix="s-table"
+              idPrefix={tableName}
               isTop
               paginationProps={paginationProps}
             />
@@ -243,9 +246,10 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                       >
                         <Tooltip content="View Report">
                           <AffectedAppsLink
-                            ruleReport={insight as UiAnalysisReportInsight}
+                            ruleReport={insight}
                             fromFilterValues={filterValues}
                             fromLocation={location}
+                            toPath={affectedAppsPath}
                             showNumberOnly
                           />
                         </Tooltip>
@@ -266,10 +270,11 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
                         totalAffected={
                           <Tooltip content="View Report">
                             <AffectedAppsLink
-                              ruleReport={insight as UiAnalysisReportInsight}
+                              ruleReport={insight}
                               fromFilterValues={filterValues}
                               fromLocation={location}
-                              showNumberOnly
+                              showNumberOnly={false}
+                              toPath={affectedAppsPath}
                             />
                           </Tooltip>
                         }
@@ -282,8 +287,8 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
           })}
         </ConditionalTableBody>
       </Table>
-      <SimplePagination // TODO: Wrap in Toolbar?
-        idPrefix="insights-table"
+      <SimplePagination
+        idPrefix={tableName}
         isTop={false}
         paginationProps={paginationProps}
       />

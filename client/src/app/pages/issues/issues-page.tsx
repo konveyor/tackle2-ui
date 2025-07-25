@@ -95,6 +95,7 @@ export const Issues: React.FC = () => {
           <AllInsightsTable
             tableName="all-issues-table"
             tableAriaLabel="Issues table"
+            affectedAppsPath={Paths.issuesAllAffectedApplications}
             columns={{
               description: "Issue",
               effort: true,
@@ -122,6 +123,7 @@ export const Issues: React.FC = () => {
           </>
         ) : null}
       </PageSection>
+
       <ConfirmDialog
         isOpen={!!navConfirmPath}
         title={`Navigating to ${
