@@ -24,7 +24,7 @@ import {
 import { SimplePagination } from "@app/components/SimplePagination";
 import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import PathDisplay from "./path-display";
+import { BreakingPathDisplay } from "@app/components/BreakingPathDisplay";
 
 export interface IIssueAffectedFilesTableProps {
   issue: AnalysisInsight;
@@ -164,7 +164,9 @@ export const IssueAffectedFilesTable: React.FC<
                       isInline
                       onClick={() => setSelectedFileForDetailModal(fileReport)}
                     >
-                      <PathDisplay path={fileReport?.file || "<unknown>"} />
+                      <BreakingPathDisplay
+                        path={fileReport?.file || "<unknown>"}
+                      />
                     </Button>
                   </Td>
                   <Td

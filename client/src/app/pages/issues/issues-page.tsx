@@ -150,3 +150,5 @@ export const Issues: React.FC = () => {
     </>
   );
 };
+
+export default Issues;

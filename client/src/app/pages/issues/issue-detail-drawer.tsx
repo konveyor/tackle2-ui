@@ -16,7 +16,7 @@ import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 import { useFetchInsight } from "@app/queries/analysis";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
-import { getIssueTitle } from "../helpers";
+import { getIssueTitle } from "./helpers";
 
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
