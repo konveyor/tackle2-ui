@@ -1,8 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import {
+  AnalysisReportFile,
+  AnalysisIncident,
+  AnalysisInsight,
+  AnalysisReportApplicationInsight,
+  AnalysisReportInsight,
   HubPaginatedResult,
   HubRequestParams,
+  UiAnalysisReportInsight,
   WithUiId,
+  UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
 import {
   getInsight,
@@ -29,12 +36,27 @@ export const InsightQueryKey = "analysis-insight";
 export const IncidentsQueryKey = "analysis-insight-incidents";
 export const InsightFilesQueryKey = "analysis-insight-files";
 
+export interface AnalysisQueryResults<E> {
+  result: HubPaginatedResult<E>;
+  isFetching: boolean;
+  fetchError: Error | undefined;
+  refetch: () => void;
+}
+
+export interface AnalysisQueryResult<E> {
+  result: { data?: E };
+  isFetching: boolean;
+  fetchError: Error | undefined;
+  refetch: () => void;
+}
+
+/** List of filtered/sorted _issues_ with summary count of affected applications */
 export const useFetchReportAllIssues = (
   enabled: boolean,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
 ) =>
-  useFetchReportAll_(
+  useFetchReportAll_<UiAnalysisReportInsight, AnalysisReportInsight>(
     AllIssuesQueryKey,
     getReportAllIssues,
     (r) => `${r.ruleset}/${r.rule}`,
@@ -43,12 +65,13 @@ export const useFetchReportAllIssues = (
     refetchInterval
   );
 
+/** List of filtered/sorted _insights_ with summary count of affected applications */
 export const useFetchReportAllInsights = (
   enabled: boolean,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
 ) =>
-  useFetchReportAll_(
+  useFetchReportAll_<UiAnalysisReportInsight, AnalysisReportInsight>(
     AllInsightsQueryKey,
     getReportAllInsights,
     (r) => `${r.ruleset}/${r.rule}`,
@@ -57,38 +80,42 @@ export const useFetchReportAllInsights = (
     refetchInterval
   );
 
-const useFetchReportAll_ = <T>(
+const useFetchReportAll_ = <UI extends WithUiId<API>, API>(
   queryKey: string,
-  queryFn: (params: HubRequestParams) => Promise<HubPaginatedResult<T>>,
-  mapUiId: (data: T) => string,
+  queryFn: (params: HubRequestParams) => Promise<HubPaginatedResult<API>>,
+  mapUiId: (data: API) => string,
   enabled: boolean,
   params: HubRequestParams,
   refetchInterval: number | false
-) => {
-  const { data: report, ...rest } = useQuery({
+): AnalysisQueryResults<UI> => {
+  const { data, isLoading, error, refetch } = useQuery({
     enabled,
     queryKey: [queryKey, params],
     queryFn: () => queryFn(params),
     refetchInterval,
   });
-  const withUiId = useWithUiId(report?.data, mapUiId);
   return {
-    ...rest,
-    fetchError: rest.error,
     result: {
-      data: withUiId,
-      total: report?.total ?? 0,
-      params: report?.params ?? params,
-    } as HubPaginatedResult<WithUiId<T>>,
+      data: useWithUiId(data?.data, mapUiId),
+      total: data?.total ?? 0,
+      params: data?.params ?? params,
+    },
+    isFetching: isLoading,
+    fetchError: error as Error | undefined,
+    refetch,
   };
 };
 
+/** List of filtered/sorted _issues_ for a single application with summary count of affected files */
 export const useFetchReportApplicationIssues = (
   applicationId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
 ) =>
-  useFetchReportApplication_(
+  useFetchReportApplication_<
+    UiAnalysisReportApplicationInsight,
+    AnalysisReportApplicationInsight
+  >(
     AppIssuesQueryKey,
     getReportApplicationIssues,
     (r) => `${r.ruleset}/${r.rule}`,
@@ -97,12 +124,16 @@ export const useFetchReportApplicationIssues = (
     refetchInterval
   );
 
+/** List of filtered/sorted _insights_ for a single application with summary count of affected files */
 export const useFetchReportApplicationInsights = (
   applicationId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
 ) =>
-  useFetchReportApplication_(
+  useFetchReportApplication_<
+    UiAnalysisReportApplicationInsight,
+    AnalysisReportApplicationInsight
+  >(
     AppInsightsQueryKey,
     getReportApplicationInsights,
     (r) => `${r.ruleset}/${r.rule}`,
@@ -111,18 +142,18 @@ export const useFetchReportApplicationInsights = (
     refetchInterval
   );
 
-const useFetchReportApplication_ = <T>(
+const useFetchReportApplication_ = <UI extends WithUiId<API>, API>(
   queryKey: string,
   queryFn: (
     id: number,
     params: HubRequestParams
-  ) => Promise<HubPaginatedResult<T>>,
-  mapUiId: (data: T) => string,
+  ) => Promise<HubPaginatedResult<API>>,
+  mapUiId: (data: API) => string,
   applicationId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
-) => {
-  const { data: issueReport, ...rest } = useQuery({
+): AnalysisQueryResults<UI> => {
+  const { data, isLoading, error, refetch } = useQuery({
     enabled: applicationId !== undefined,
     queryKey: [queryKey, applicationId, params],
     queryFn: () =>
@@ -131,18 +162,19 @@ const useFetchReportApplication_ = <T>(
         : queryFn(applicationId, params),
     refetchInterval,
   });
-  const withUiId = useWithUiId(issueReport?.data, mapUiId);
   return {
-    ...rest,
-    fetchError: rest.error,
     result: {
-      data: withUiId,
-      total: issueReport?.total ?? 0,
-      params: issueReport?.params ?? params,
-    } as HubPaginatedResult<WithUiId<T>>,
+      data: useWithUiId(data?.data, mapUiId),
+      total: data?.total ?? 0,
+      params: data?.params ?? params,
+    },
+    isFetching: isLoading,
+    fetchError: error as Error | undefined,
+    refetch,
   };
 };
 
+/** List of filtered/sorted _application_ / _issue_ pairs with summary effort, incident count, and file count */
 export const useFetchReportIssueApps = (
   params: HubRequestParams = {},
   refetchInterval: number | false = false
@@ -154,6 +186,7 @@ export const useFetchReportIssueApps = (
     refetchInterval
   );
 
+/** List of filtered/sorted _application_ / _insight_ pairs with summary effort, incident count, and file count */
 export const useFetchReportInsightApps = (
   params: HubRequestParams = {},
   refetchInterval: number | false = false
@@ -165,21 +198,22 @@ export const useFetchReportInsightApps = (
     refetchInterval
   );
 
-const useFetchReport_Apps = <T>(
+const useFetchReport_Apps = <API>(
   queryKey: string,
-  queryFn: (params: HubRequestParams) => Promise<HubPaginatedResult<T>>,
+  queryFn: (params: HubRequestParams) => Promise<HubPaginatedResult<API>>,
   params: HubRequestParams,
   refetchInterval: number | false
-) => {
-  const { data, ...rest } = useQuery({
+): AnalysisQueryResults<API> => {
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: [queryKey, params],
     queryFn: () => queryFn(params),
     refetchInterval,
   });
   return {
-    ...rest,
-    fetchError: rest.error,
     result: data || { data: [], total: 0, params },
+    isFetching: isLoading,
+    fetchError: error as Error | undefined,
+    refetch,
   };
 };
 
@@ -187,7 +221,7 @@ const useFetchReport_Apps = <T>(
 export const useFetchInsight = (
   id?: number,
   refetchInterval: number | false = false
-) => {
+): AnalysisQueryResult<AnalysisInsight> => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: id !== undefined,
     queryKey: [InsightQueryKey, id],
@@ -199,16 +233,16 @@ export const useFetchInsight = (
   return {
     result: { data },
     isFetching: isLoading,
-    fetchError: error,
+    fetchError: error as Error | undefined,
     refetch,
   };
 };
 
-export const useFetchIncidents = (
+export const useFetchIncidentsForInsight = (
   insightId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
-) => {
+): AnalysisQueryResults<AnalysisIncident> => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: insightId !== undefined,
     queryKey: [IncidentsQueryKey, insightId, params],
@@ -222,7 +256,7 @@ export const useFetchIncidents = (
   return {
     result: data || { data: [], total: 0, params },
     isFetching: isLoading,
-    fetchError: error,
+    fetchError: error as Error | undefined,
     refetch,
   };
 };
@@ -231,7 +265,7 @@ export const useFetchReportInsightFiles = (
   insightId?: number,
   params: HubRequestParams = {},
   refetchInterval: number | false = false
-) => {
+): AnalysisQueryResults<WithUiId<AnalysisReportFile>> => {
   const { data, isLoading, error, refetch } = useQuery({
     enabled: insightId !== undefined,
     queryKey: [InsightFilesQueryKey, insightId, params],
@@ -242,10 +276,20 @@ export const useFetchReportInsightFiles = (
     onError: (error) => console.log("error, ", error),
     refetchInterval,
   });
+
+  const withUiId = useWithUiId(
+    data?.data,
+    (fileReport) => `${fileReport.insightId}/${fileReport.file}`
+  );
+
   return {
-    result: data || { data: [], total: 0, params },
+    result: {
+      data: withUiId,
+      total: data?.total ?? 0,
+      params: data?.params ?? params,
+    },
     isFetching: isLoading,
-    fetchError: error,
+    fetchError: error as Error | undefined,
     refetch,
   };
 };

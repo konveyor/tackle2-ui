@@ -2,21 +2,23 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { Location } from "history";
 import { Button } from "@patternfly/react-core";
-import { AnalysisRuleReport } from "@app/api/models";
-import { IssuesFilterValuesToCarry, getAffectedAppsUrl } from "./helpers";
+import { UiAnalysisReportInsight } from "@app/api/models";
+import { InsightsFilterValuesToCarry, getAffectedAppsUrl } from "../helpers";
 
 export interface IAffectedAppsLinkProps {
-  ruleReport: AnalysisRuleReport;
-  fromFilterValues: IssuesFilterValuesToCarry;
+  ruleReport: UiAnalysisReportInsight;
+  fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
   showNumberOnly?: boolean;
+  toPath?: string;
 }
 
 export const AffectedAppsLink: React.FC<IAffectedAppsLinkProps> = ({
   ruleReport,
   fromFilterValues,
   fromLocation,
-  showNumberOnly,
+  showNumberOnly = true,
+  toPath,
 }) => (
   <Button variant="link" isInline>
     <Link
@@ -24,10 +26,12 @@ export const AffectedAppsLink: React.FC<IAffectedAppsLinkProps> = ({
         ruleReport,
         fromFilterValues,
         fromLocation,
+        toPath,
       })}
     >
-      {ruleReport.applications}
-      {showNumberOnly ? null : " - View affected applications"}
+      {showNumberOnly
+        ? ruleReport.applications
+        : `${ruleReport.applications} - View affected applications`}
     </Link>
   </Button>
 );
