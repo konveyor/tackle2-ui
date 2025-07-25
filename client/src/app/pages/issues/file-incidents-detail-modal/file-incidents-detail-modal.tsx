@@ -21,8 +21,8 @@ import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
 import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
-import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";
-import { getIssueTitle } from "../../helpers";
+import { InsightDescriptionAndLinks } from "@app/components/insights/components";
+import { getIssueTitle } from "../helpers";
 
 export interface IFileIncidentsDetailModalProps {
   issue: AnalysisInsight;
@@ -113,7 +113,7 @@ export const FileIncidentsDetailModal: React.FC<
                         </Text>
                         <Text component="small">Line {incident.line}</Text>
                       </TextContent>
-                      <IssueDescriptionAndLinks
+                      <InsightDescriptionAndLinks
                         className={spacing.mtLg}
                         description={incident.message}
                         links={issue.links}

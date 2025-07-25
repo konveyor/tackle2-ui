@@ -32,8 +32,8 @@ import { FilterToolbar } from "@app/components/FilterToolbar";
 import {
   getBackToAllIssuesUrl,
   useSharedAffectedApplicationFilterCategories,
-} from "../helpers";
-import { IssueDetailDrawer } from "../issue-detail-drawer";
+} from "./helpers";
+import { IssueDetailDrawer } from "./issue-detail-drawer";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
@@ -41,7 +41,7 @@ interface IAffectedApplicationsRouteParams {
   rule: string;
 }
 
-export const AffectedApplications: React.FC = () => {
+export const AffectedApplicationsPage: React.FC = () => {
   const { t } = useTranslation();
 
   const routeParams = useParams<IAffectedApplicationsRouteParams>();
@@ -244,3 +244,5 @@ export const AffectedApplications: React.FC = () => {
     </>
   );
 };
+
+export default AffectedApplicationsPage;

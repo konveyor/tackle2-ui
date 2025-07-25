@@ -34,9 +34,9 @@ const MigrationTargets = lazy(() => import("./pages/migration-targets"));
 const General = lazy(() => import("./pages/general"));
 const MigrationWaves = lazy(() => import("./pages/migration-waves"));
 const Jira = lazy(() => import("./pages/external/jira"));
-const Issues = lazy(() => import("./pages/issues"));
+const Issues = lazy(() => import("./pages/issues/issues-page"));
 const IssuesAffectedApplications = lazy(
-  () => import("./pages/issues/affected-applications")
+  () => import("./pages/issues/affected-applications-page")
 );
 const Insights = lazy(() => import("./pages/insights/insights-page"));
 const InsightsAffectedApplications = lazy(

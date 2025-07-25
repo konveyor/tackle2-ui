@@ -142,37 +142,6 @@ export const useSharedAffectedApplicationFilterCategories = <
 
 const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
 
-// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
-export const getAffectedAppsUrl = ({
-  ruleReport,
-  fromFilterValues,
-  fromLocation,
-}: {
-  ruleReport: UiAnalysisReportInsight;
-  fromFilterValues: IssuesFilterValuesToCarry;
-  fromLocation: Location;
-}) => {
-  // The raw location.search string (already encoded) from the issues page is used as the fromIssuesParams param
-  const fromIssuesParams = fromLocation.search;
-  const toFilterValues: IssuesFilterValuesToCarry = {};
-  filterKeysToCarry.forEach((key) => {
-    if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
-  });
-  const baseUrl = Paths.issuesAllAffectedApplications
-    .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
-    .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
-  const prefix = (key: string) =>
-    `${TablePersistenceKeyPrefix.issuesAffectedApps}:${key}`;
-
-  return `${baseUrl}?${trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
-      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      issueTitle: getIssueTitle(ruleReport),
-    },
-  })}`;
-};
-
 // URL for Issues page that restores original URL params and overrides them with any changes to the carried filters.
 export const getBackToAllIssuesUrl = ({
   fromFilterValues,
@@ -240,24 +209,6 @@ export const getIssuesSingleAppSelectedLocation = (
       ? new URLSearchParams({ filters: existingFiltersParam }).toString()
       : undefined,
   };
-};
-
-export const parseReportLabels = (
-  ruleReport: UiAnalysisReportInsight | UiAnalysisReportApplicationInsight
-) => {
-  const sources: string[] = [];
-  const targets: string[] = [];
-  const otherLabels: string[] = [];
-  ruleReport.labels.forEach((label) => {
-    if (label.startsWith("konveyor.io/source=")) {
-      sources.push(label.split("konveyor.io/source=")[1]);
-    } else if (label.startsWith("konveyor.io/target=")) {
-      targets.push(label.split("konveyor.io/target=")[1]);
-    } else {
-      otherLabels.push(label);
-    }
-  });
-  return { sources, targets, otherLabels };
 };
 
 export const getIssueTitle = (
