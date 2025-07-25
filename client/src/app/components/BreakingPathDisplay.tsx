@@ -1,10 +1,18 @@
 import React from "react";
 
-interface PathDisplayProps {
+export interface BreakingPathDisplayProps {
   path: string;
 }
 
-const PathDisplay: React.FC<PathDisplayProps> = ({ path }) => {
+/**
+ * Display a path with `<wbr>` tags to allow line breaks at each directory level.
+ *
+ * @param path - The path to display.
+ * @returns The path with `<wbr>` tags to allow line breaks at each directory level.
+ */
+export const BreakingPathDisplay: React.FC<BreakingPathDisplayProps> = ({
+  path,
+}) => {
   const normalizedPath = path.replace(/\\/g, "/");
   const formattedPath = normalizedPath
     .split("/")
@@ -20,4 +28,4 @@ const PathDisplay: React.FC<PathDisplayProps> = ({ path }) => {
   return <>{formattedPath}</>;
 };
 
-export default PathDisplay;
+export default BreakingPathDisplay;

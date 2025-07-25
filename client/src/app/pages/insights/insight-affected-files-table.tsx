@@ -22,9 +22,9 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import PathDisplay from "./path-display";
+import { BreakingPathDisplay } from "@app/components/BreakingPathDisplay";
+import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
 
 export interface IInsightAffectedFilesTableProps {
   insight: AnalysisInsight;
@@ -164,7 +164,9 @@ export const InsightAffectedFilesTable: React.FC<
                       isInline
                       onClick={() => setSelectedFileForDetailModal(fileReport)}
                     >
-                      <PathDisplay path={fileReport?.file || "<unknown>"} />
+                      <BreakingPathDisplay
+                        path={fileReport?.file || "<unknown>"}
+                      />
                     </Button>
                   </Td>
                   <Td

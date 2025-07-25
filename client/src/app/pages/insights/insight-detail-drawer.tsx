@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
@@ -12,12 +13,11 @@ import {
   Tab,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { InsightAffectedFilesTable } from "./insight-affected-files-table";
 import { useFetchInsight } from "@app/queries/analysis";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
-import { getInsightTitle } from "../helpers";
-import { useTranslation } from "react-i18next";
+import { InsightAffectedFilesTable } from "./insight-affected-files-table";
+import { getInsightTitle } from "./helpers";
 
 export interface IInsightDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

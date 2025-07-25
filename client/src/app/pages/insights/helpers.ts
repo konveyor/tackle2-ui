@@ -1,4 +1,4 @@
-import { Location, LocationDescriptor } from "history";
+import { Location } from "history";
 import {
   AnalysisInsight,
   UiAnalysisReportInsight,
@@ -142,37 +142,6 @@ export const useSharedAffectedApplicationFilterCategories = <
 
 const FROM_INSIGHTS_PARAMS_KEY = "~fromInsightsParams"; // ~ prefix sorts it at the end of the URL for readability
 
-// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Insights page
-export const getAffectedAppsUrl = ({
-  ruleReport,
-  fromFilterValues,
-  fromLocation,
-}: {
-  ruleReport: UiAnalysisReportInsight;
-  fromFilterValues: InsightsFilterValuesToCarry;
-  fromLocation: Location;
-}) => {
-  // The raw location.search string (already encoded) from the insights page is used as the fromInsightsParams param
-  const fromInsightsParams = fromLocation.search;
-  const toFilterValues: InsightsFilterValuesToCarry = {};
-  filterKeysToCarry.forEach((key) => {
-    if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
-  });
-  const baseUrl = Paths.insightsAllAffectedApplications
-    .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
-    .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
-  const prefix = (key: string) =>
-    `${TablePersistenceKeyPrefix.insightsAffectedApps}:${key}`;
-
-  return `${baseUrl}?${trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
-      [FROM_INSIGHTS_PARAMS_KEY]: fromInsightsParams,
-      insightTitle: getInsightTitle(ruleReport),
-    },
-  })}`;
-};
-
 // URL for Insights page that restores original URL params and overrides them with any changes to the carried filters.
 export const getBackToAllInsightsUrl = ({
   fromFilterValues,
@@ -208,58 +177,6 @@ export const getBackToAllInsightsUrl = ({
         .filters,
     },
   })}`;
-};
-
-export const getDependenciesUrlFilteredByAppName = (appName: string) => {
-  const baseUrl = Paths.dependencies;
-  const filterParams = serializeFilterUrlParams({
-    "application.name": [appName],
-  });
-  const urlParams = trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      filters: filterParams.filters,
-    },
-  });
-  return `${baseUrl}?${urlParams}`;
-};
-
-// When selecting an application, we want to preserve any insight filters that might be present.
-export const getInsightsSingleAppSelectedLocation = (
-  applicationId: number,
-  fromLocation?: Location
-): LocationDescriptor => {
-  const existingFiltersParam =
-    fromLocation &&
-    new URLSearchParams(fromLocation.search).get(
-      `${TablePersistenceKeyPrefix.insights}:filters`
-    );
-  return {
-    pathname: Paths.insightsSingleAppSelected.replace(
-      ":applicationId",
-      String(applicationId)
-    ),
-    search: existingFiltersParam
-      ? new URLSearchParams({ filters: existingFiltersParam }).toString()
-      : undefined,
-  };
-};
-
-export const parseReportLabels = (
-  ruleReport: UiAnalysisReportInsight | UiAnalysisReportApplicationInsight
-) => {
-  const sources: string[] = [];
-  const targets: string[] = [];
-  const otherLabels: string[] = [];
-  ruleReport.labels.forEach((label) => {
-    if (label.startsWith("konveyor.io/source=")) {
-      sources.push(label.split("konveyor.io/source=")[1]);
-    } else if (label.startsWith("konveyor.io/target=")) {
-      targets.push(label.split("konveyor.io/target=")[1]);
-    } else {
-      otherLabels.push(label);
-    }
-  });
-  return { sources, targets, otherLabels };
 };
 
 export const getInsightTitle = (
