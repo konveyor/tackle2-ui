@@ -5,10 +5,7 @@ import {
   UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
 import { FilterValue } from "@app/components/FilterToolbar";
-import {
-  deserializeFilterUrlParams,
-  serializeFilterUrlParams,
-} from "@app/hooks/table-controls";
+import { serializeFilterUrlParams } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
 import { Paths } from "@app/Paths";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
@@ -26,15 +23,20 @@ export type InsightsFilterValuesToCarry = Partial<Record<string, FilterValue>>;
 
 const FROM_INSIGHTS_PARAMS_KEY = "~fromInsightsParams"; // ~ prefix sorts it at the end of the URL for readability
 
-// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Insights page
+/**
+ * URL for Affected Apps page that includes carried filters and a snapshot of
+ * original URL params from the Insights page
+ */
 export const getAffectedAppsUrl = ({
   ruleReport,
   fromFilterValues,
   fromLocation,
+  toPath = Paths.insightsAllAffectedApplications,
 }: {
   ruleReport: UiAnalysisReportInsight;
   fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
+  toPath?: string;
 }) => {
   // The raw location.search string (already encoded) from the insights page is used as the fromInsightsParams param
   const fromInsightsParams = fromLocation.search;
@@ -42,13 +44,13 @@ export const getAffectedAppsUrl = ({
   filterKeysToCarry.forEach((key) => {
     if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
   });
-  const baseUrl = Paths.insightsAllAffectedApplications
+  const processedUrl = toPath
     .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
     .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
   const prefix = (key: string) =>
     `${TablePersistenceKeyPrefix.insightsAffectedApps}:${key}`;
 
-  return `${baseUrl}?${trimAndStringifyUrlParams({
+  return `${processedUrl}?${trimAndStringifyUrlParams({
     newPrefixedSerializedParams: {
       [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
       [FROM_INSIGHTS_PARAMS_KEY]: fromInsightsParams,
@@ -57,55 +59,15 @@ export const getAffectedAppsUrl = ({
   })}`;
 };
 
-// URL for Insights page that restores original URL params and overrides them with any changes to the carried filters.
-export const getBackToAllInsightsUrl = ({
-  fromFilterValues,
-  fromLocation,
-}: {
-  fromFilterValues: InsightsFilterValuesToCarry;
-  fromLocation: Location;
-}) => {
-  // Pull the fromInsightsParams param out of the current location's URLSearchParams
-  const fromInsightsParams =
-    new URLSearchParams(fromLocation.search).get(FROM_INSIGHTS_PARAMS_KEY) ||
-    "";
-  // Pull the params themselves out of fromInsightsParams
-  const prefixedParamsToRestore = Object.fromEntries(
-    new URLSearchParams(fromInsightsParams)
-  );
-  // Pull the filters param out of that
-  const prefix = (key: string) =>
-    `${TablePersistenceKeyPrefix.insights}:${key}`;
-  const filterValuesToRestore = deserializeFilterUrlParams({
-    filters: prefixedParamsToRestore[prefix("filters")],
-  });
-  // For each of the filters we care about, override the original value with the one from the affected apps page.
-  // This will carry over changes including the filter having been cleared.
-  filterKeysToCarry.forEach((key) => {
-    filterValuesToRestore[key] = fromFilterValues[key] || null;
-  });
-  // Put it all back together
-  return `${Paths.insightsAllTab}?${trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      ...prefixedParamsToRestore,
-      [prefix("filters")]: serializeFilterUrlParams(filterValuesToRestore)
-        .filters,
-    },
-  })}`;
-};
-
-export const getDependenciesUrlFilteredByAppName = (appName: string) => {
-  const baseUrl = Paths.dependencies;
-  const filterParams = serializeFilterUrlParams({
-    "application.name": [appName],
-  });
-  const urlParams = trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      filters: filterParams.filters,
-    },
-  });
-  return `${baseUrl}?${urlParams}`;
-};
+export const getInsightTitle = (
+  insightReport:
+    | UiAnalysisReportInsight
+    | AnalysisInsight
+    | UiAnalysisReportApplicationInsight
+) =>
+  insightReport?.description ||
+  insightReport?.name?.split("\n")[0] ||
+  "*Unnamed*";
 
 export const parseReportLabels = (
   ruleReport: UiAnalysisReportInsight | UiAnalysisReportApplicationInsight
@@ -124,13 +86,3 @@ export const parseReportLabels = (
   });
   return { sources, targets, otherLabels };
 };
-
-export const getInsightTitle = (
-  insightReport:
-    | UiAnalysisReportInsight
-    | AnalysisInsight
-    | UiAnalysisReportApplicationInsight
-) =>
-  insightReport?.description ||
-  insightReport?.name?.split("\n")[0] ||
-  "*Unnamed*";

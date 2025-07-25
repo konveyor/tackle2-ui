@@ -96,6 +96,7 @@ export const InsightsPage: React.FC = () => {
           <AllInsightsTable
             tableName="all-insights-table"
             tableAriaLabel="Insights table"
+            affectedAppsPath={Paths.insightsAllAffectedApplications}
             columns={{
               effort: false,
             }}

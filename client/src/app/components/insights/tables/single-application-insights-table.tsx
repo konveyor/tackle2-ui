@@ -114,7 +114,7 @@ export const SingleApplicationInsightsTable: React.FC<
   );
 
   const columnNames = useDynamicColumns(columns, {
-    affected: "Affected applications",
+    affected: "Affected files",
   });
   const sortableColumns = ["description", "category", "affected"].filter(
     (key) => columnNames[key]
@@ -195,31 +195,33 @@ export const SingleApplicationInsightsTable: React.FC<
     >
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
-          <ToolbarItem>Application:</ToolbarItem>
-          <ConditionalTooltip
-            isTooltipEnabled={applicationOptions.length === 0}
-            content="No applications available. Add an application on the application inventory page."
-          >
-            <SimpleSelect
-              toggleAriaLabel="application-select"
-              toggleId="application-select"
-              width={220}
-              aria-label="Select application"
-              placeholderText="Select application..."
-              hasInlineFilter
-              value={applicationOptions.find(
-                (option) => option.value.id === selectedAppId
-              )}
-              options={applicationOptions}
-              onChange={(option) => {
-                setSelectedAppId(
-                  (option as OptionWithValue<Application>).value.id
-                );
-              }}
-              className={spacing.mrMd}
-              isDisabled={applicationOptions.length === 0}
-            />
-          </ConditionalTooltip>
+          <ToolbarItem variant="label">Application</ToolbarItem>
+          <ToolbarItem>
+            <ConditionalTooltip
+              isTooltipEnabled={applicationOptions.length === 0}
+              content="No applications available. Add an application on the application inventory page."
+            >
+              <SimpleSelect
+                toggleAriaLabel="application-select"
+                toggleId="application-select"
+                width={220}
+                aria-label="Select application"
+                placeholderText="Select application..."
+                hasInlineFilter
+                value={applicationOptions.find(
+                  (option) => option.value.id === selectedAppId
+                )}
+                options={applicationOptions}
+                onChange={(option) => {
+                  setSelectedAppId(
+                    (option as OptionWithValue<Application>).value.id
+                  );
+                }}
+                className={spacing.mrMd}
+                isDisabled={applicationOptions.length === 0}
+              />
+            </ConditionalTooltip>
+          </ToolbarItem>
 
           <FilterToolbar
             {...filterToolbarProps}
@@ -227,7 +229,7 @@ export const SingleApplicationInsightsTable: React.FC<
           />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
-              idPrefix="s-table"
+              idPrefix={tableName}
               isTop
               paginationProps={paginationProps}
             />
@@ -268,17 +270,15 @@ export const SingleApplicationInsightsTable: React.FC<
           isError={!!fetchError}
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
-            selectedAppId === null ? (
-              <EmptyState variant="sm">
-                <EmptyStateIcon icon={CubesIcon} />
-                <Title headingLevel="h2" size="lg">
-                  Select application from filter menu
-                </Title>
-                <EmptyStateBody>
-                  Use the filter menu above to select your application.
-                </EmptyStateBody>
-              </EmptyState>
-            ) : null
+            <EmptyState variant="sm">
+              <EmptyStateIcon icon={CubesIcon} />
+              <Title headingLevel="h2" size="lg">
+                Select application from filter menu
+              </Title>
+              <EmptyStateBody>
+                Use the filter menu above to select your application.
+              </EmptyStateBody>
+            </EmptyState>
           }
           numRenderedColumns={numRenderedColumns}
         >
@@ -394,8 +394,8 @@ export const SingleApplicationInsightsTable: React.FC<
           })}
         </ConditionalTableBody>
       </Table>
-      <SimplePagination // TODO: Wrap in Toolbar?
-        idPrefix="insights-table"
+      <SimplePagination
+        idPrefix={tableName}
         isTop={false}
         paginationProps={paginationProps}
       />

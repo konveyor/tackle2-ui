@@ -10,13 +10,15 @@ export interface IAffectedAppsLinkProps {
   fromFilterValues: InsightsFilterValuesToCarry;
   fromLocation: Location;
   showNumberOnly?: boolean;
+  toPath?: string;
 }
 
 export const AffectedAppsLink: React.FC<IAffectedAppsLinkProps> = ({
   ruleReport,
   fromFilterValues,
   fromLocation,
-  showNumberOnly,
+  showNumberOnly = true,
+  toPath,
 }) => (
   <Button variant="link" isInline>
     <Link
@@ -24,10 +26,12 @@ export const AffectedAppsLink: React.FC<IAffectedAppsLinkProps> = ({
         ruleReport,
         fromFilterValues,
         fromLocation,
+        toPath,
       })}
     >
-      {ruleReport.applications}
-      {showNumberOnly ? null : " - View affected applications"}
+      {showNumberOnly
+        ? ruleReport.applications
+        : `${ruleReport.applications} - View affected applications`}
     </Link>
   </Button>
 );
