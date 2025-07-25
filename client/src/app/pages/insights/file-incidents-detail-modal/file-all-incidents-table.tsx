@@ -18,13 +18,13 @@ import {
 import ReactMarkdown from "react-markdown";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
-export interface IFileRemainingIncidentsTableProps {
+export interface IFileAllIncidentsTableProps {
   fileReport: AnalysisReportFile;
 }
 
-export const FileAllIncidentsTable: React.FC<
-  IFileRemainingIncidentsTableProps
-> = ({ fileReport }) => {
+export const FileAllIncidentsTable: React.FC<IFileAllIncidentsTableProps> = ({
+  fileReport,
+}) => {
   const tableControlState = useTableControlState({
     tableName: "file-all-incidents-table",
     persistTo: "urlParams",

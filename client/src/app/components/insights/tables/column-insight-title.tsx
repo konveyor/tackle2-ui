@@ -7,5 +7,5 @@ export const InsightTitleColumn: React.FC<{
   const title =
     insight?.description || insight?.name?.split("\n")[0] || "*Unnamed*";
 
-  return title;
+  return <>{title}</>;
 };

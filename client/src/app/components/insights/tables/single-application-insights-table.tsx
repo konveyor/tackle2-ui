@@ -72,9 +72,11 @@ const useSelectedApplicationId = (
 
     history.replace({
       pathname: pathPattern.replace(":applicationId", String(applicationId)),
-      search: existingFiltersParam
-        ? new URLSearchParams({ filters: existingFiltersParam }).toString()
-        : undefined,
+      ...(existingFiltersParam && {
+        search: new URLSearchParams({
+          filters: existingFiltersParam,
+        }).toString(),
+      }),
     });
   };
 
@@ -331,7 +333,7 @@ export const SingleApplicationInsightsTable: React.FC<
                       >
                         <SingleLabelWithOverflow
                           labels={targets}
-                          popoverAriaLabel="More sources"
+                          popoverAriaLabel="More targets"
                         />
                       </Td>
                     )}
