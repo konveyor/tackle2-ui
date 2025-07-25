@@ -26,11 +26,6 @@ import { SingleApplicationInsightsTable } from "@app/components/insights/tables/
 import { InsightDetailDrawer } from "./insight-detail-drawer";
 import { UiAnalysisReportApplicationInsight } from "@app/api/models";
 
-export enum InsightFilterGroups {
-  ApplicationInventory = "Application inventory",
-  Insights = "Insights",
-}
-
 export type InsightsTabPath =
   | typeof Paths.insightsAllTab
   | typeof Paths.insightsSingleAppTab;

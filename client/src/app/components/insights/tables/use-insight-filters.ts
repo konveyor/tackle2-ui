@@ -172,10 +172,13 @@ const useInsightsFilters = <T>(
 
       serverFilterField: "labels",
       getServerFilterValue: (value) => {
-        if (value?.[0] === "None" || value?.[0] === "none") {
+        if (!value || value.length !== 1) return undefined;
+
+        const firstValue = value[0];
+        if (firstValue === "None" || firstValue === "none") {
           return [`konveyor.io/source`];
-        } else if ((value?.length ?? 0) > 0) {
-          return [`konveyor.io/source=*${value}*`];
+        } else if (firstValue.length > 0) {
+          return [`konveyor.io/source=*${firstValue}*`];
         } else {
           return undefined;
         }
@@ -194,7 +197,7 @@ const useInsightsFilters = <T>(
 
       serverFilterField: "labels",
       getServerFilterValue: (value) =>
-        value?.length === 1 ? [`konveyor.io/target=*${value}*`] : undefined,
+        value?.length === 1 ? [`konveyor.io/target=*${value[0]}*`] : undefined,
     },
   ];
 };

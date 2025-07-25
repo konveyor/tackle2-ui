@@ -17,7 +17,6 @@ import {
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
 import { Paths } from "@app/Paths";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { InsightFilterGroups } from "./insights-page";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useTranslation } from "react-i18next";
@@ -28,6 +27,11 @@ import { universalComparator } from "@app/utils/utils";
 // Certain filters are shared between the Insights page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
 // It is also important to restore any unrelated params when returning to the Insights page.
+
+enum InsightFilterGroups {
+  ApplicationInventory = "Application inventory",
+  Insights = "Insights",
+}
 
 const filterKeysToCarry = [
   "application.name",
