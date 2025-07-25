@@ -22,7 +22,7 @@ import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
 import { InsightDescriptionAndLinks } from "@app/components/insights/components";
-import { getInsightTitle } from "../../helpers";
+import { getInsightTitle } from "../helpers";
 
 export interface IFileIncidentsDetailModalProps {
   insight: AnalysisInsight;

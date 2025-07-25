@@ -40,7 +40,7 @@ const IssuesAffectedApplications = lazy(
 );
 const Insights = lazy(() => import("./pages/insights/insights-page"));
 const InsightsAffectedApplications = lazy(
-  () => import("./pages/insights/affected-applications")
+  () => import("./pages/insights/affected-applications-page")
 );
 const Dependencies = lazy(() => import("./pages/dependencies"));
 
