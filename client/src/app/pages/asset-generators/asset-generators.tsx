@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -18,14 +18,13 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
-  Popover,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useNotifications } from "@app/components/NotificationsContext";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -33,13 +32,12 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteGeneratorMutation } from "@app/queries/generators";
-import { Generator, TaskState } from "@app/api/models";
+import { Generator } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { AxiosError } from "axios";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskStateIcon } from "@app/components/Icons";
 import GeneratorDetailDrawer from "./components/generator-detail-drawer";
 import GeneratorForm from "./components/generator-form";
 import { useFetchGenerators } from "@app/queries/generators";
@@ -56,49 +54,23 @@ const NO_DATA_EMPTY_STATE = (
   </EmptyState>
 );
 
-// Static column configuration
-const COLUMN_NAMES = {
-  name: "terms.name",
-  repository: "terms.repository",
-  parameters: "terms.parameters",
-  values: "terms.values",
-};
-
 const AssetGenerators: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useNotifications();
 
   const [openCreateGenerator, setOpenCreateGenerator] =
     useState<boolean>(false);
-
-  const [generators, setGenerators] = useState<Generator[] | undefined>(
-    undefined
-  );
 
   const [generatorToEdit, setGeneratorToEdit] = useState<Generator | null>(
     null
   );
 
-  const [generatorToDelete, setGeneratorToDelete] =
-    React.useState<Generator | null>(null);
+  const [generatorToDelete, setGeneratorToDelete] = useState<Generator | null>(
+    null
+  );
 
-  const {
-    generators: baseGenerators,
-    isLoading,
-    error: fetchError,
-  } = useFetchGenerators();
-
-  useEffect(() => {
-    if (baseGenerators) {
-      setGenerators(
-        baseGenerators.map((generator) => ({
-          ...generator,
-          discoverApplicationsState: "No task" as TaskState,
-        }))
-      );
-    }
-  }, [baseGenerators]);
+  const { generators, isLoading, fetchError } = useFetchGenerators();
 
   const onError = useCallback(
     (error: AxiosError) => {
@@ -128,18 +100,34 @@ const AssetGenerators: React.FC = () => {
     onError
   );
 
-  const columnNames = useMemo(
-    () => ({
-      name: t(COLUMN_NAMES.name),
-      repository: t(COLUMN_NAMES.repository),
-      parameters: t(COLUMN_NAMES.parameters),
-      values: t(COLUMN_NAMES.values),
+  const getSortValues = useCallback(
+    (generator: Generator) => ({
+      name: generator.name ?? "",
+      repository: generator.repository?.url ?? "",
     }),
-    [t]
+    []
   );
 
-  const filterCategories = useMemo(
-    () => [
+  const tableControls = useLocalTableControls({
+    tableName: "generators-table",
+    persistTo: "urlParams",
+    persistenceKeyPrefix: TablePersistenceKeyPrefix.generators,
+    idProperty: "id",
+    dataNameProperty: "name",
+    items: generators || [],
+    isLoading: isLoading,
+    hasActionsColumn: true,
+    columnNames: {
+      name: t("terms.name"),
+      repository: t("terms.repository"),
+      parameters: t("terms.parameters"),
+      values: t("terms.values"),
+    },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    isActiveItemEnabled: true,
+    filterCategories: [
       {
         categoryKey: "name",
         title: t("terms.name"),
@@ -165,32 +153,6 @@ const AssetGenerators: React.FC = () => {
         },
       },
     ],
-    [t]
-  );
-
-  const getSortValues = useCallback(
-    (generator: Generator) => ({
-      name: generator.name ?? "",
-      repository: generator.repository?.url ?? "",
-    }),
-    []
-  );
-
-  const tableControls = useLocalTableControls({
-    tableName: "generators-table",
-    persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.generators,
-    idProperty: "id",
-    dataNameProperty: "name",
-    items: generators || [],
-    isLoading: isLoading,
-    hasActionsColumn: true,
-    columnNames,
-    isFilterEnabled: true,
-    isSortEnabled: true,
-    isPaginationEnabled: true,
-    isActiveItemEnabled: true,
-    filterCategories,
     sortableColumns: ["name", "repository"],
     getSortValues,
     initialSort: { columnKey: "name", direction: "asc" },
@@ -212,51 +174,36 @@ const AssetGenerators: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const handleCreateGenerator = useCallback(() => {
+  const handleCreateGenerator = () => {
     setOpenCreateGenerator(true);
-  }, []);
+  };
 
-  const handleCloseCreateGenerator = useCallback(() => {
+  const handleCloseCreateGenerator = () => {
     setOpenCreateGenerator(false);
-  }, []);
+  };
 
-  const handleEditGenerator = useCallback((generator: Generator) => {
+  const handleEditGenerator = (generator: Generator) => {
     setGeneratorToEdit(generator);
-  }, []);
+  };
 
-  const handleCloseEditGenerator = useCallback(() => {
+  const handleCloseEditGenerator = () => {
     setGeneratorToEdit(null);
-  }, []);
+  };
 
-  const handleDeleteGenerator = useCallback((generator: Generator) => {
+  const handleDeleteGenerator = (generator: Generator) => {
     setGeneratorToDelete(generator);
-  }, []);
+  };
 
-  const handleCancelDelete = useCallback(() => {
+  const handleCancelDelete = () => {
     setGeneratorToDelete(null);
-  }, []);
+  };
 
-  const handleConfirmDelete = useCallback(() => {
+  const handleConfirmDelete = () => {
     if (generatorToDelete) {
       deleteGenerator(generatorToDelete);
       setGeneratorToDelete(null);
     }
-  }, [generatorToDelete, deleteGenerator]);
-
-  const CreateButton = useCallback(
-    () => (
-      <Button
-        type="button"
-        id="create-new-generator"
-        aria-label="Create new generator"
-        variant={ButtonVariant.primary}
-        onClick={handleCreateGenerator}
-      >
-        {t("dialog.title.newGenerator")}
-      </Button>
-    ),
-    [t, handleCreateGenerator]
-  );
+  };
 
   const clearFilters = useCallback(() => {
     const currentPath = history.location.pathname;
@@ -288,7 +235,15 @@ const AssetGenerators: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    <CreateButton />
+                    <Button
+                      type="button"
+                      id="create-new-generator"
+                      aria-label="Create new generator"
+                      variant={ButtonVariant.primary}
+                      onClick={handleCreateGenerator}
+                    >
+                      {t("dialog.title.newGenerator")}
+                    </Button>
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
@@ -331,30 +286,23 @@ const AssetGenerators: React.FC = () => {
                         item={generator}
                         rowIndex={rowIndex}
                       >
-                        <Td {...getTdProps({ columnKey: "name" })}>
-                          <Popover
-                            headerContent={generator.name}
-                            bodyContent={`discover applications for ${generator.name} status: ${generator.discoverApplicationsState}`}
-                            headerIcon={
-                              <TaskStateIcon
-                                state={generator.discoverApplicationsState}
-                              />
-                            }
-                            position="top"
-                            id={`generator-name-popover-${generator.id}`}
-                            triggerAction="hover"
-                          >
-                            <Text>{generator.name}</Text>
-                          </Popover>
+                        <Td
+                          {...getTdProps({ columnKey: "name" })}
+                          modifier="truncate"
+                        >
+                          {generator.name}
                         </Td>
-                        <Td {...getTdProps({ columnKey: "repository" })}>
+                        <Td
+                          {...getTdProps({ columnKey: "repository" })}
+                          modifier="truncate"
+                        >
                           {generator?.repository?.url}
                         </Td>
                         <Td {...getTdProps({ columnKey: "parameters" })}>
                           {Object.keys(generator?.parameters || {}).length}
                         </Td>
                         <Td {...getTdProps({ columnKey: "values" })}>
-                          {Object.keys(generator?.values || {}).length || 0}
+                          {Object.keys(generator?.values || {}).length}
                         </Td>
 
                         <Td isActionCell id="pencil-action">
@@ -404,7 +352,10 @@ const AssetGenerators: React.FC = () => {
         isOpen={openCreateGenerator}
         onClose={handleCloseCreateGenerator}
       >
-        <GeneratorForm onClose={handleCloseCreateGenerator} />
+        <GeneratorForm
+          key={openCreateGenerator ? 1 : 0}
+          onClose={handleCloseCreateGenerator}
+        />
       </Modal>
 
       {/* Edit modal */}
