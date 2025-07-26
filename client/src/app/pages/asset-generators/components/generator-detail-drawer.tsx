@@ -1,4 +1,3 @@
-import "./generator-detail-drawer.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,7 +13,8 @@ import {
   TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Generator } from "@app/api/models";
+
+import { Generator, Repository } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import GeneratorCollectionTable from "./generator-collection-table";
 import { parametersToArray } from "../utils";
@@ -66,78 +66,19 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
             eventKey={TabKey.Details}
             title={<TabTitleText>{t("terms.details")}</TabTitleText>}
           >
-            <DescriptionList className="generator-detail-drawer-list">
-              <DescriptionListGroup>
-                <DescriptionListTerm>{t("terms.name")}</DescriptionListTerm>
-                <DescriptionListDescription>
-                  {generator?.name}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-              <DescriptionListGroup>
-                <DescriptionListTerm>
-                  {t("terms.providerType")}
-                </DescriptionListTerm>
-                <DescriptionListDescription>
-                  {generator?.kind}
-                </DescriptionListDescription>
-              </DescriptionListGroup>
-              {generator?.repository?.url && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    {t("terms.repositoryUrl")}
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {generator?.repository?.url || ""}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
-              {generator?.repository?.branch && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    {t("terms.repositoryBranch")}
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {generator?.repository?.branch || ""}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
-              {generator?.repository?.kind && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    {t("terms.repositoryKind")}
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {generator?.repository?.kind || ""}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
-              {generator?.repository?.path && (
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    {t("terms.repositoryPath")}
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {generator?.repository?.path || ""}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-              )}
-            </DescriptionList>
-          </Tab>
-          <Tab
-            eventKey={TabKey.Parameters}
-            title={<TabTitleText>{t("terms.parameters")}</TabTitleText>}
-          >
-            <GeneratorCollectionTable
-              collection={parametersToArray(generator?.parameters || {}) || []}
-            />
+            <DetailsTab generator={generator} />
           </Tab>
           <Tab
             eventKey={TabKey.Values}
             title={<TabTitleText>{t("terms.values")}</TabTitleText>}
           >
-            <GeneratorCollectionTable
-              collection={parametersToArray(generator?.values || {}) || []}
-            />
+            <ValuesTab generator={generator} />
+          </Tab>
+          <Tab
+            eventKey={TabKey.Parameters}
+            title={<TabTitleText>{t("terms.parameters")}</TabTitleText>}
+          >
+            <ParametersTab generator={generator} />
           </Tab>
         </Tabs>
       </div>
@@ -146,3 +87,102 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
 };
 
 export default GeneratorDetailDrawer;
+
+const DetailsTab: React.FC<{ generator: Generator | null }> = ({
+  generator,
+}) => {
+  const { t } = useTranslation();
+
+  if (!generator) {
+    return null;
+  }
+
+  return (
+    <DescriptionList>
+      <Text component="small">{generator.description}</Text>
+
+      <DescriptionListGroup>
+        <DescriptionListTerm>{t("terms.providerType")}</DescriptionListTerm>
+        <DescriptionListDescription>
+          {generator.kind}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+
+      <DescriptionListGroup>
+        <DescriptionListTerm>
+          {t("terms.generatorTemplateRepository")}
+        </DescriptionListTerm>
+        <DescriptionListDescription>
+          {generator?.repository ? (
+            <RepositoryDetails repository={generator.repository} />
+          ) : (
+            t("terms.notAvailable")
+          )}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+    </DescriptionList>
+  );
+};
+
+const RepositoryDetails: React.FC<{ repository: Repository }> = ({
+  repository,
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <DescriptionList isHorizontal isCompact>
+      {repository.kind && (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.repositoryType")}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {repository.kind || ""}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
+      {repository.url && (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.url")}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {repository.url || ""}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
+      {repository.branch && (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.branch")}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {repository.branch || ""}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
+      {repository.path && (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.path")}</DescriptionListTerm>
+          <DescriptionListDescription>
+            {repository.path || ""}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
+    </DescriptionList>
+  );
+};
+
+const ValuesTab: React.FC<{ generator: Generator | null }> = ({
+  generator,
+}) => {
+  return (
+    <GeneratorCollectionTable
+      collection={parametersToArray(generator?.values || {}) || []}
+    />
+  );
+};
+
+const ParametersTab: React.FC<{ generator: Generator | null }> = ({
+  generator,
+}) => {
+  return (
+    <GeneratorCollectionTable
+      collection={parametersToArray(generator?.parameters || {}) || []}
+    />
+  );
+};
