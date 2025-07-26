@@ -37,6 +37,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
 import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
@@ -52,8 +53,9 @@ export const JobFunctions: React.FC = () => {
   const jobFunctionToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
-  const { jobFunctions, isFetching, fetchError, refetch } =
-    useFetchJobFunctions();
+  const { jobFunctions, isFetching, fetchError } = useFetchJobFunctions(
+    DEFAULT_REFETCH_INTERVAL
+  );
 
   const tableControls = useLocalTableControls({
     tableName: "job-functions-table",
@@ -130,7 +132,6 @@ export const JobFunctions: React.FC = () => {
 
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
-    refetch();
   };
 
   return (
@@ -175,6 +176,7 @@ export const JobFunctions: React.FC = () => {
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} width={90} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>

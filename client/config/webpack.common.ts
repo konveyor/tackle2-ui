@@ -136,13 +136,6 @@ const config: Configuration = {
         },
       },
       {
-        test: nodeModules("xmllint/xmllint.js"),
-        loader: "exports-loader",
-        options: {
-          exports: "xmllint",
-        },
-      },
-      {
         test: /\.yaml$/,
         use: "raw-loader",
       },
@@ -178,9 +171,6 @@ const config: Configuration = {
   ],
 
   resolve: {
-    alias: {
-      "react-dom": "@hot-loader/react-dom",
-    },
     extensions: [".js", ".ts", ".tsx", ".jsx"],
     plugins: [
       new TsconfigPathsPlugin({
@@ -190,11 +180,6 @@ const config: Configuration = {
     symlinks: false,
     cacheWithContext: false,
     fallback: { crypto: false, fs: false, path: false },
-  },
-
-  externals: {
-    // required by xmllint (but not really used in the browser)
-    ws: "{}",
   },
 };
 

@@ -14,7 +14,7 @@ import {
   getTaskByIdAndFormat,
   getTaskQueue,
   getTasksDashboard,
-  getTextFile,
+  getTextFileById,
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
@@ -25,6 +25,7 @@ import {
   TaskQueue,
   TaskDashboard,
 } from "@app/api/models";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const TaskStates = {
   Canceled: ["Canceled"],
@@ -75,7 +76,7 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
         .map(calculateSyntheticTaskDashboardState)
         .sort((a, b) => -1 * universalComparator(a.createTime, b.createTime)),
     onError: (err) => console.log(err),
-    refetchInterval: !refetchDisabled ? 5000 : false,
+    refetchInterval: !refetchDisabled ? DEFAULT_REFETCH_INTERVAL : false,
   });
 
   const hasActiveTasks =
@@ -92,7 +93,7 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
 
 export const useInfiniteServerTasks = (
   initialParams: HubRequestParams,
-  refetchInterval?: number
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   return useInfiniteQuery({
     // usually the params are part of the key
@@ -127,13 +128,13 @@ export const useInfiniteServerTasks = (
     },
     onError: (error: Error) => console.log("error, ", error),
     keepPreviousData: true,
-    refetchInterval: refetchInterval ?? false,
+    refetchInterval,
   });
 };
 
 export const useServerTasks = (
   params: HubRequestParams,
-  refetchInterval?: number
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TasksQueryKey, params],
@@ -146,7 +147,7 @@ export const useServerTasks = (
     },
     onError: (error: Error) => console.log("error, ", error),
     keepPreviousData: true,
-    refetchInterval: refetchInterval ?? false,
+    refetchInterval,
   });
 
   return {
@@ -184,7 +185,7 @@ export const useCancelTaskMutation = (
   return useMutation({
     mutationFn: cancelTask,
     onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       onSuccess && onSuccess(response.status);
     },
     onError: (err: Error) => {
@@ -201,7 +202,7 @@ export const useCancelTasksMutation = (
   return useMutation({
     mutationFn: cancelTasks,
     onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       onSuccess && onSuccess(response.status);
     },
     onError: (err: Error) => {
@@ -218,7 +219,7 @@ export const useUpdateTaskMutation = (
   return useMutation({
     mutationFn: updateTask,
     onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       onSuccess && onSuccess(response.status);
     },
     onError: (err: Error) => {
@@ -262,7 +263,7 @@ export const useFetchTaskAttachmentById = ({
 }) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskAttachmentByIDQueryKey, attachmentId],
-    queryFn: () => (attachmentId ? getTextFile(attachmentId) : undefined),
+    queryFn: () => (attachmentId ? getTextFileById(attachmentId) : undefined),
     enabled,
   });
 
@@ -274,13 +275,17 @@ export const useFetchTaskAttachmentById = ({
   };
 };
 
-export const useFetchTaskByID = (taskId?: number) => {
+export const useFetchTaskByID = (
+  taskId?: number,
+  refetchInterval: number | false = false
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskByIDQueryKey, taskId],
     queryFn: () => (taskId ? getTaskById(taskId) : null),
     select: (task: Task | null) =>
       !task ? null : calculateSyntheticTaskState(task),
     enabled: !!taskId,
+    refetchInterval,
   });
 
   return {
@@ -292,11 +297,14 @@ export const useFetchTaskByID = (taskId?: number) => {
 };
 
 /** Fetch the TaskQueue counts. Defaults to `0` for all counts. */
-export const useFetchTaskQueue = (addon?: string) => {
+export const useFetchTaskQueue = (
+  addon?: string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, error, refetch, isFetching } = useQuery({
     queryKey: [TasksQueueKey, addon],
     queryFn: () => getTaskQueue(addon),
-    refetchInterval: 5000,
+    refetchInterval,
     initialData: {
       total: 0,
       ready: 0,

@@ -122,9 +122,7 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   showFiltersSideBySide = false,
   isDisabled = false,
   breakpoint = "2xl",
-}: React.PropsWithChildren<
-  IFilterToolbarProps<TItem, TFilterCategoryKey>
->): JSX.Element | null => {
+}: IFilterToolbarProps<TItem, TFilterCategoryKey>): JSX.Element | null => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
     React.useState(false);
   const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =

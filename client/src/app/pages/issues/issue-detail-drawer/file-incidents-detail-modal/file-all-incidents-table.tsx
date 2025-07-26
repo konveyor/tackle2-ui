@@ -3,7 +3,7 @@ import * as React from "react";
 import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AnalysisFileReport } from "@app/api/models";
-import { useFetchIncidents } from "@app/queries/issues";
+import { useFetchIncidents } from "@app/queries/analysis";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   TableHeaderContentWithControls,

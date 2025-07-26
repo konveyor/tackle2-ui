@@ -183,12 +183,15 @@ export interface ApplicationImport {
   isValid: boolean;
 }
 
-export type IdentityKind =
-  | "source"
-  | "maven"
-  | "proxy"
-  | "basic-auth"
-  | "bearer";
+export const IdentityKinds = [
+  "source",
+  "maven",
+  "proxy",
+  "basic-auth",
+  "bearer",
+] as const;
+
+export type IdentityKind = (typeof IdentityKinds)[number];
 
 export interface Identity {
   id: number;
@@ -197,6 +200,7 @@ export interface Identity {
   createTime?: string;
 
   kind: IdentityKind;
+  default?: boolean;
   name: string;
   description?: string;
   user?: string;
@@ -206,6 +210,7 @@ export interface Identity {
 }
 
 export interface Proxy {
+  id?: number;
   host: string;
   kind: "http" | "https";
   port: number;
@@ -213,7 +218,6 @@ export interface Proxy {
   identity?: Ref;
   createTime?: string;
   createUser?: string;
-  id: any;
   enabled: boolean;
 }
 
@@ -422,7 +426,7 @@ export interface TaskData {
 
 export interface TaskgroupTask {
   name: string;
-  data: any;
+  data: unknown;
   application: Ref;
 }
 
@@ -517,20 +521,24 @@ export interface ParsedRule {
   fileID?: number;
 }
 
-export type FileLoadError = {
-  name?: string;
-  message?: string;
-  stack?: string;
-  cause?: {};
-};
+export const UploadFileStatus = [
+  "exists",
+  "starting",
+  "reading",
+  "read",
+  "validated",
+  "uploaded",
+  "failed",
+] as const;
 
-export interface IReadFile {
+export interface UploadFile {
+  fileId?: number;
   fileName: string;
-  fullFile?: File;
-  loadError?: FileLoadError;
-  loadPercentage?: number;
-  loadResult?: "danger" | "success";
-  data?: string;
+  fullFile: File;
+  uploadProgress: number;
+  status: (typeof UploadFileStatus)[number];
+  contents?: string;
+  loadError?: string;
   responseID?: number;
 }
 
@@ -705,12 +713,12 @@ export interface WaveWithStatus extends MigrationWave {
   fullApplications: Application[];
   allStakeholders: StakeholderWithRole[];
 }
-export type UnstructuredFact = any;
+export type UnstructuredFact = never;
 
 export type Fact = {
   name: string;
-  //TODO: Address this when moving to structured facts api
-  data: any;
+  // TODO: Address this when moving to structured facts api
+  data: unknown;
 };
 
 export type HubFile = {
@@ -720,7 +728,7 @@ export type HubFile = {
 };
 
 export interface LooseQuestionnaire {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface Questionnaire {
@@ -759,8 +767,8 @@ export interface Question {
   text: string;
   order: number;
   explanation?: string;
-  includeFor?: CategorizedTag[];
-  excludeFor?: CategorizedTag[];
+  includeFor?: QuestionnaireTag[];
+  excludeFor?: QuestionnaireTag[];
 }
 
 export interface Answer {
@@ -769,8 +777,8 @@ export interface Answer {
   risk: string;
   rationale?: string;
   mitigation?: string;
-  applyTags?: CategorizedTag[];
-  autoAnswerFor?: CategorizedTag[];
+  applyTags?: QuestionnaireTag[];
+  autoAnswerFor?: QuestionnaireTag[];
   autoAnswered?: boolean;
   selected?: boolean;
 }
@@ -804,9 +812,9 @@ export interface Assessment
   stakeholderGroups?: Ref[];
   required?: boolean;
 }
-export interface CategorizedTag {
-  category: TagCategory;
-  tag: Tag;
+export interface QuestionnaireTag {
+  category: string;
+  tag: string;
 }
 
 //TODO: update to use new api
@@ -902,4 +910,41 @@ export interface Manifest {
   content: JsonDocument;
   secret: ManifestSecret;
   application?: Ref;
+}
+
+// Could use https://www.npmjs.com/package/@types/json-schema in future if needed
+export interface JsonSchemaObject {
+  type: "string" | "integer" | "number" | "boolean" | "object" | "array";
+  title?: string;
+  description?: string;
+
+  /** For type string, RegEx pattern */
+  pattern?: string;
+
+  /** For type string, min length */
+  minLength?: number;
+
+  /** For type string, max length */
+  maxLength?: number;
+
+  /** For type string, enum values */
+  enum?: string[];
+
+  /** For type number, minimum value */
+  minimum?: number;
+
+  /** For type number, maximum value */
+  maximum?: number;
+
+  /** For type array */
+  items?: JsonSchemaObject;
+
+  /** For type object, defined properties */
+  properties?: { [key: string]: JsonSchemaObject };
+
+  /** For type object, what property names are required */
+  required?: string[];
+
+  /** For type object, whether additional properties are allowed */
+  additionalProperties?: boolean;
 }

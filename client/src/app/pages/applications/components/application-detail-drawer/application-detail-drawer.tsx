@@ -21,21 +21,12 @@ import {
   DescriptionListTerm,
   Divider,
   Tooltip,
-  Label,
-  LabelGroup,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
-import {
-  Identity,
-  MimeType,
-  Ref,
-  Archetype,
-  TaskDashboard,
-  Manifest,
-} from "@app/api/models";
+import { Identity, MimeType, Manifest, Archetype } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
 import { useFetchIdentities } from "@app/queries/identities";
@@ -56,14 +47,11 @@ import { RiskLabel } from "@app/components/RiskLabel";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 
 import { ApplicationTags } from "../application-tags";
-import { AssessedArchetypes } from "./components/assessed-archetypes";
 import DownloadButton from "./components/download-button";
 import { ApplicationDetailFields } from "./application-detail-fields";
 import { ApplicationFacts } from "./application-facts";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchAssessments } from "@app/queries/assessments";
 import { DecoratedApplication } from "../../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
 import { useFetchIssueReports } from "@app/queries/issues";
@@ -94,7 +82,6 @@ import { useFetchApplicationManifest } from "@app/queries/applications";
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
   application: DecoratedApplication | null;
-  task: TaskDashboard | null;
   onEditClick: () => void;
 }
 
@@ -110,7 +97,7 @@ export enum TabKey {
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
-> = ({ application, task, onCloseClick, onEditClick }) => {
+> = ({ application, onCloseClick, onEditClick }) => {
   const { t } = useTranslation();
 
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -161,7 +148,7 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Tags}
               title={<TabTitleText>Tags</TabTitleText>}
             >
-              <TabTagsContent application={application} task={task} />
+              <TabTagsContent application={application} />
             </Tab>
           )}
 
@@ -170,7 +157,7 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Reports}
               title={<TabTitleText>{t("terms.reports")}</TabTitleText>}
             >
-              <TabReportsContent application={application} task={task} />
+              <TabReportsContent application={application} />
             </Tab>
           )}
 
@@ -187,7 +174,7 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Tasks}
               title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
             >
-              <TabTasksContent application={application} task={task} />
+              <TabTasksContent application={application} />
             </Tab>
           )}
           {!application || !manifest ? null : (
@@ -203,12 +190,25 @@ export const ApplicationDetailDrawer: React.FC<
     </PageDrawerContent>
   );
 };
-const ArchetypeLabels: React.FC<{ archetypeRefs?: Ref[] }> = ({
-  archetypeRefs,
-}) => <LabelsFromItems items={archetypeRefs} />;
 
-const ArchetypeItem: React.FC<{ archetype: Archetype }> = ({ archetype }) => {
-  return <Label color="grey">{archetype.name}</Label>;
+const ApplicationArchetypesLabels: React.FC<{
+  application: DecoratedApplication;
+  filter?: (archetype: Archetype) => boolean;
+  color?: Parameters<typeof LabelsFromItems>[0]["color"];
+}> = ({
+  application: {
+    direct: { archetypes },
+  },
+  filter = () => true,
+  color = "grey",
+}) => {
+  const { t } = useTranslation();
+  const filteredArchetypes = !archetypes ? [] : archetypes.filter(filter);
+  return (filteredArchetypes?.length ?? 0) > 0 ? (
+    <LabelsFromItems items={filteredArchetypes} color={color} />
+  ) : (
+    <EmptyTextMessage message={t("terms.none")} />
+  );
 };
 
 const TabDetailsContent: React.FC<{
@@ -216,7 +216,6 @@ const TabDetailsContent: React.FC<{
   onCloseClick: () => void;
   onEditClick: () => void;
 }> = ({ application, onCloseClick, onEditClick }) => {
-  const { t } = useTranslation();
 
   const { assessments } = useFetchAssessments();
 
@@ -302,21 +301,7 @@ const TabDetailsContent: React.FC<{
             {t("terms.associatedArchetypes")}
           </DescriptionListTerm>
           <DescriptionListDescription>
-            {application?.archetypes?.length ? (
-              <>
-                <DescriptionListDescription>
-                  {(application.archetypes.length ?? 0) > 0 ? (
-                    <ArchetypeLabels
-                      archetypeRefs={application.archetypes as Ref[]}
-                    />
-                  ) : (
-                    <EmptyTextMessage message={t("terms.none")} />
-                  )}
-                </DescriptionListDescription>
-              </>
-            ) : (
-              <EmptyTextMessage message={t("terms.none")} />
-            )}
+            <ApplicationArchetypesLabels application={application} />
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -324,16 +309,15 @@ const TabDetailsContent: React.FC<{
           <DescriptionListTerm>
             {t("terms.archetypesAssessed")}
           </DescriptionListTerm>
-          {(assessments?.length ?? 0) > 0 ? (
-            <DescriptionListDescription>
-              <AssessedArchetypes
-                application={application}
-                assessments={assessments}
-              />
-            </DescriptionListDescription>
-          ) : (
-            <EmptyTextMessage message={t("terms.none")} />
-          )}
+          <DescriptionListDescription>
+            <ApplicationArchetypesLabels
+              application={application}
+              filter={
+                // Filter matches the archetype table's assessment column
+                (archetype) => !!archetype.assessed
+              }
+            />
+          </DescriptionListDescription>
         </DescriptionListGroup>
 
         <DescriptionListGroup>
@@ -341,18 +325,13 @@ const TabDetailsContent: React.FC<{
             {t("terms.archetypesReviewed")}
           </DescriptionListTerm>
           <DescriptionListDescription>
-            <LabelGroup>
-              {reviewedArchetypes?.length ? (
-                reviewedArchetypes.map((reviewedArchetype) => (
-                  <ArchetypeItem
-                    key={reviewedArchetype?.id}
-                    archetype={reviewedArchetype}
-                  />
-                ))
-              ) : (
-                <EmptyTextMessage message={t("terms.none")} />
-              )}
-            </LabelGroup>
+            <ApplicationArchetypesLabels
+              application={application}
+              filter={
+                // Filter matches the archetype table's review column
+                (archetype) => !!archetype.review
+              }
+            />
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>
@@ -377,9 +356,9 @@ const TabDetailsContent: React.FC<{
 
 const TabTagsContent: React.FC<{
   application: DecoratedApplication;
-  task: TaskDashboard | null;
-}> = ({ application, task }) => {
+}> = ({ application }) => {
   const { t } = useTranslation();
+  const task = application.tasks.currentAnalyzer;
   const isTaskRunning = task?.state === "Running";
 
   return (
@@ -405,8 +384,7 @@ const TabTagsContent: React.FC<{
 
 const TabReportsContent: React.FC<{
   application: DecoratedApplication;
-  task: TaskDashboard | null;
-}> = ({ application, task }) => {
+}> = ({ application }) => {
   const { t } = useTranslation();
   const { facts, isFetching } = useFetchFacts(application?.id);
 
@@ -417,6 +395,11 @@ const TabReportsContent: React.FC<{
     matchingSourceCredsRef = getKindIdByRef(identities, application, "source");
     matchingMavenCredsRef = getKindIdByRef(identities, application, "maven");
   }
+
+  const task = application.tasks.currentAnalyzer;
+  const taskState = task?.state ?? "";
+  const taskSucceeded = TaskStates.Success.includes(taskState);
+  const taskFailed = TaskStates.Failed.includes(taskState);
 
   const notAvailable = <EmptyTextMessage message={t("terms.notAvailable")} />;
 
@@ -432,10 +415,6 @@ const TabReportsContent: React.FC<{
         taskId: task?.id,
       })
     );
-
-  const taskState = application.tasks.currentAnalyzer?.state ?? "";
-  const taskSucceeded = TaskStates.Success.includes(taskState);
-  const taskFailed = TaskStates.Failed.includes(taskState);
 
   return (
     <>
@@ -592,8 +571,7 @@ const TabReportsContent: React.FC<{
 
 const TabTasksContent: React.FC<{
   application: DecoratedApplication;
-  task: TaskDashboard | null;
-}> = ({ application, task }) => {
+}> = ({ application }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const urlParams = new URLSearchParams(window.location.search);
@@ -729,6 +707,7 @@ const TabTasksContent: React.FC<{
                 modifier="nowrap"
               />
               <Th {...getThProps({ columnKey: "status" })} modifier="nowrap" />
+              <Th screenReaderText="row actions" />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -793,6 +772,10 @@ const TabManifestContent: React.FC<{
   manifest: Manifest;
 }> = ({ manifest }) => {
   return (
-    <SchemaDefinedField className={spacing.mtLg} jsonDocument={manifest} />
+    <SchemaDefinedField
+      className={spacing.mtLg}
+      baseJsonDocument={manifest}
+      isReadOnly
+    />
   );
 };

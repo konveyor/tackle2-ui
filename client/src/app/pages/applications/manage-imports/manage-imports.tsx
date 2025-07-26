@@ -227,6 +227,7 @@ export const ManageImports: React.FC = () => {
                     <Th {...getThProps({ columnKey: "importStatus" })} />
                     <Th {...getThProps({ columnKey: "validCount" })} />
                     <Th {...getThProps({ columnKey: "invalidCount" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -252,7 +253,7 @@ export const ManageImports: React.FC = () => {
                 }
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((importSummary, rowIndex) => {
+                {currentPageItems?.map((importSummary, _rowIndex) => {
                   return (
                     <Tbody
                       key={importSummary.id}

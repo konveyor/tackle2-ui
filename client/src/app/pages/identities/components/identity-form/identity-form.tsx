@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
+import React, { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import * as yup from "yup";
+import { AxiosError } from "axios";
 import {
   ActionGroup,
+  Alert,
   Button,
   ButtonVariant,
   FileUpload,
   Form,
+  Switch,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { Identity, IdentityKind, New } from "@app/api/models";
+import { Identity, IdentityKind, IdentityKinds, New } from "@app/api/models";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 import { toOptionLike } from "@app/utils/model-utils";
 import {
@@ -27,6 +29,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { KIND_OPTIONS } from "../../utils";
 
 import "./identity-form.css";
 
@@ -36,6 +39,8 @@ interface IdentityFormValues {
   name: string;
   description: string;
   kind: IdentityKind;
+  default: boolean;
+
   settings: string;
   settingsFilename: string;
   userCredentials?: UserCredentials;
@@ -47,38 +52,17 @@ interface IdentityFormValues {
 
 export interface IdentityFormProps {
   identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
   onClose: () => void;
 }
 
 export const IdentityForm: React.FC<IdentityFormProps> = ({
-  identity: initialIdentity,
+  identity,
+  defaultIdentities,
   onClose,
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [identity, setIdentity] = useState(initialIdentity);
-  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
-  const [isKeyHidden, setIsKeyHidden] = useState(true);
-  const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsPasswordHidden(!isPasswordHidden);
-  };
-
-  const toggleHideKey = (e: React.FormEvent<HTMLElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsKeyHidden(!isKeyHidden);
-  };
-
-  useEffect(() => {
-    setIdentity(initialIdentity);
-    return () => {
-      setIdentity(undefined);
-    };
-  }, []);
 
   const getUserCredentialsInitialValue = (
     identity?: Identity
@@ -92,80 +76,117 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     }
   };
 
-  const onCreateUpdateIdentitySuccess = (response: AxiosResponse<Identity>) => {
+  const notifyError = (errorMessage: string) => {
     pushNotification({
-      title: t("toastr.success.saveWhat", {
-        what: response.data.name,
-        type: t("terms.credential"),
-      }),
-      variant: "success",
-    });
-  };
-
-  const onCreateUpdateIdentityError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: errorMessage,
       variant: "danger",
     });
   };
 
   const { mutate: createIdentity } = useCreateIdentityMutation(
-    onCreateUpdateIdentitySuccess,
-    onCreateUpdateIdentityError
+    (identity) => {
+      pushNotification({
+        title: t("toastr.success.createWhat", {
+          what: identity.name,
+          type: t("terms.credential"),
+        }),
+        variant: "success",
+      });
+      onClose();
+    },
+    (error) => notifyError(getAxiosErrorMessage(error))
   );
 
   const { mutate: updateIdentity } = useUpdateIdentityMutation(
-    onCreateUpdateIdentitySuccess,
-    onCreateUpdateIdentityError
-  );
+    (identity) => {
+      pushNotification({
+        title: t("toastr.success.saveWhat", {
+          what: identity.name,
+          type: t("terms.credential"),
+        }),
+        variant: "success",
+      });
+      onClose();
+    },
 
-  const onSubmit = (formValues: IdentityFormValues) => {
+    (error) => notifyError(getAxiosErrorMessage(error))
+  );
+  const { mutateAsync: updateIdentityAsync } = useUpdateIdentityMutation();
+
+  const onSubmit = async ({ kind, ...formValues }: IdentityFormValues) => {
     const payload: New<Identity> = {
+      kind: kind,
+      default: formValues.default,
       name: formValues.name.trim(),
       description: formValues.description.trim(),
-      kind: formValues.kind,
+
+      // always empty the data fields in case the kind changed
       key: "",
       settings: "",
       user: "",
       password: "",
-      //proxy cred
-      ...(formValues.kind === "proxy" && {
-        password: formValues.password.trim(),
-        user: formValues.user.trim(),
-      }),
-      // mvn cred
-      ...(formValues.kind === "maven" && {
-        settings: formValues.settings.trim(),
-      }),
-      //source credentials with key
-      ...(formValues.kind === "source" &&
-        formValues.userCredentials === "source" && {
-          key: formValues.key,
-          password: formValues.password.trim(),
-        }),
-      //source credentials with unamepass
-      ...(formValues.kind === "source" &&
-        formValues.userCredentials === "userpass" && {
-          password: formValues.password.trim(),
-          user: formValues.user.trim(),
-        }),
-      // jira-cloud or jira-onprem (Jira Server/Datacenter)
-      ...(formValues.kind === "basic-auth" && {
-        user: formValues.user.trim(),
-        password: formValues.password.trim(),
-      }),
-      // Jira-onprem
-      ...(formValues.kind === "bearer" && {
-        key: formValues.key.trim(),
-      }),
     };
 
-    if (identity) {
-      updateIdentity({ id: identity.id, ...payload });
-    } else {
-      createIdentity(payload);
+    if (kind === "proxy") {
+      Object.assign(payload, {
+        user: formValues.user.trim(),
+        password: formValues.password.trim(),
+      });
     }
-    onClose();
+
+    if (kind === "maven") {
+      Object.assign(payload, {
+        settings: formValues.settings.trim(),
+      });
+    }
+
+    if (kind === "source" && formValues.userCredentials === "source") {
+      Object.assign(payload, {
+        key: formValues.key,
+        password: formValues.password.trim(),
+      });
+    }
+
+    if (kind === "source" && formValues.userCredentials === "userpass") {
+      Object.assign(payload, {
+        user: formValues.user.trim(),
+        password: formValues.password.trim(),
+      });
+    }
+
+    if (kind === "basic-auth") {
+      Object.assign(payload, {
+        user: formValues.user.trim(),
+        password: formValues.password.trim(),
+      });
+    }
+
+    if (kind === "bearer") {
+      Object.assign(payload, {
+        key: formValues.key.trim(),
+      });
+    }
+
+    try {
+      // Unset the existing default if necessary
+      const existingDefault = defaultIdentities?.[kind];
+      if (
+        payload.default &&
+        existingDefault &&
+        (!identity || existingDefault.id !== identity.id)
+      ) {
+        await updateIdentityAsync({ ...existingDefault, default: false });
+      }
+
+      // Update/Create!
+      if (identity) {
+        updateIdentity({ id: identity.id, ...payload });
+      } else {
+        createIdentity(payload);
+      }
+    } catch (e) {
+      notifyError(getAxiosErrorMessage(e as AxiosError));
+    }
   };
 
   const { identities } = useFetchIdentities();
@@ -187,10 +208,20 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         ),
       description: yup
         .string()
-        .defined()
         .trim()
+        .defined()
         .max(250, t("validation.maxLength", { length: 250 })),
-      kind: yup.mixed<IdentityKind>().required(),
+      kind: yup
+        .mixed<IdentityKind>()
+        .oneOf([...IdentityKinds])
+        .required(),
+      default: yup.bool().defined(),
+
+      userCredentials: yup.mixed<UserCredentials>().when("kind", {
+        is: "source",
+        then: (schema) => schema.required(),
+      }),
+
       settings: yup
         .string()
         .defined()
@@ -202,77 +233,56 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             .validMavenSettingsXml((value) => value === identity?.settings),
         }),
       settingsFilename: yup.string().defined(),
-      userCredentials: yup.mixed<UserCredentials>().when("kind", {
-        is: "source",
-        then: yup.mixed<UserCredentials>().required(),
-      }),
       user: yup
         .string()
         .defined()
-        .when("kind", {
-          is: (value: string) => value === "proxy" || value === "jira",
-          then: yup
-            .string()
-            .required("This value is required")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(120, t("validation.maxLength", { length: 120 })),
-          otherwise: (schema) => schema.trim(),
-        })
-        .when("kind", {
-          is: (value: string) => value === "proxy",
-          then: yup
-            .string()
-            .required("This value is required")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(120, t("validation.maxLength", { length: 120 })),
-          otherwise: (schema) => schema.trim(),
+        .trim()
+        .when(["kind", "userCredentials"], {
+          is: (kind: string, userCredentials: string) =>
+            (kind === "source" && userCredentials === "userpass") ||
+            kind === "proxy",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
         })
         .when("kind", {
           is: (value: string) => value === "jira",
-          then: yup
-            .string()
-            .email("Username must be a valid email")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(120, t("validation.maxLength", { length: 120 }))
-            .required("This value is required"),
-          otherwise: (schema) => schema.trim(),
-        })
-        .when(["kind", "userCredentials"], {
-          is: (kind: string, userCredentials: string) =>
-            kind === "source" && userCredentials === "userpass",
           then: (schema) =>
             schema
-              .required("This field is required.")
+              .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
-              .max(120, t("validation.maxLength", { length: 120 })),
+              .max(120, t("validation.maxLength", { length: 120 }))
+              .email("Username must be a valid email"),
+          otherwise: (schema) => schema.trim(),
         }),
       password: yup
         .string()
         .defined()
+        .trim()
         .when("kind", {
           is: (value: string) => value === "proxy",
-          then: yup
-            .string()
-            .required("This value is required")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(220, t("validation.maxLength", { length: 220 })),
-          otherwise: (schema) => schema.trim(),
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(220, t("validation.maxLength", { length: 220 })),
         })
         .when("kind", {
           is: (value: string) => value === "basic-auth",
-          then: yup
-            .string()
-            .required("This value is required")
-            .min(3, t("validation.minLength", { length: 3 }))
-            .max(281, t("validation.maxLength", { length: 281 })),
-          otherwise: (schema) => schema.trim(),
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(281, t("validation.maxLength", { length: 281 })),
         })
         .when(["kind", "userCredentials"], {
           is: (kind: string, userCredentials: string) =>
             kind === "source" && userCredentials === "userpass",
           then: (schema) =>
             schema
-              .required("This field is required.")
+              .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
               .max(120, t("validation.maxLength", { length: 120 })),
         }),
@@ -282,336 +292,309 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .when(["kind", "userCredentials"], {
           is: (kind: string, userCredentials: string) =>
             kind === "source" && userCredentials === "source",
-          then: (schema) => schema.required("This field is required."),
+          // If we want to verify key contents before saving, add the yup test here
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         })
         .when("kind", {
           is: (kind: string) => kind === "bearer",
-          then: (schema) => schema.required("This field is required."),
+          then: (schema) => schema.required(t("validation.required")),
           otherwise: (schema) => schema.trim(),
         }),
       keyFilename: yup.string().defined(),
     });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
-    control,
-    resetField,
-  } = useForm<IdentityFormValues>({
+  const methods = useForm<IdentityFormValues>({
     defaultValues: {
+      name: identity?.name || "",
       description: identity?.description || "",
-      key: identity?.key || "",
-      keyFilename: "",
       kind: identity?.kind,
+      default: identity?.default ?? false,
       userCredentials: identity?.kind
         ? getUserCredentialsInitialValue({ ...identity })
         : undefined,
-      name: identity?.name || "",
-      password: identity?.password || "",
       settings: identity?.settings || "",
       settingsFilename: "",
       user: identity?.user || "",
+      password: identity?.password || "",
+      key: identity?.key || "",
+      keyFilename: "",
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+    getValues,
+    control,
+    resetField,
+  } = methods;
 
   const values = getValues();
 
+  return (
+    <FormProvider {...methods}>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <HookFormPFTextInput
+          control={control}
+          name="name"
+          label="Name"
+          fieldId="name"
+          isRequired
+        />
+        <HookFormPFTextInput
+          control={control}
+          name="description"
+          label="Description"
+          fieldId="description"
+        />
+
+        <HookFormPFGroupController
+          control={control}
+          name="kind"
+          label="Type"
+          fieldId="type-select"
+          isRequired
+          renderInput={({ field: { value, name, onChange } }) => (
+            <SimpleSelect
+              id="type-select"
+              toggleId="type-select-toggle"
+              toggleAriaLabel="Type select dropdown toggle"
+              aria-label={name}
+              value={value ? toOptionLike(value, KIND_OPTIONS) : undefined}
+              options={KIND_OPTIONS}
+              onChange={(selection) => {
+                const selectionValue =
+                  selection as OptionWithValue<IdentityKind>;
+                onChange(selectionValue.value);
+                // So we don't retain the values from the wrong type of credential
+                resetField("user");
+                resetField("password");
+              }}
+            />
+          )}
+        />
+
+        {values?.kind === "source" && (
+          <KindSourceForm
+            identity={identity}
+            defaultIdentities={defaultIdentities}
+          />
+        )}
+
+        {values?.kind === "maven" && (
+          <KindMavenSettingsFileForm
+            identity={identity}
+            defaultIdentities={defaultIdentities}
+          />
+        )}
+
+        {values?.kind === "proxy" && (
+          <KindSimpleUsernamePasswordForm
+            identity={identity}
+            usernameLabel="Username"
+            passwordLabel="Password"
+            passwordRequired={false}
+          />
+        )}
+
+        {values?.kind === "basic-auth" && (
+          <KindSimpleUsernamePasswordForm
+            identity={identity}
+            usernameLabel="Jira username or email"
+            passwordLabel="Token"
+          />
+        )}
+
+        {values?.kind === "bearer" && (
+          <KindBearerTokenForm identity={identity} />
+        )}
+
+        <ActionGroup>
+          <Button
+            type="submit"
+            aria-label="submit"
+            id="submit"
+            variant={ButtonVariant.primary}
+            isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          >
+            {!identity ? "Create" : "Save"}
+          </Button>
+          <Button
+            type="button"
+            id="cancel"
+            aria-label="cancel"
+            variant={ButtonVariant.link}
+            isDisabled={isSubmitting || isValidating}
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+        </ActionGroup>
+      </Form>
+    </FormProvider>
+  );
+};
+
+const USER_CREDENTIALS_OPTIONS: OptionWithValue<UserCredentials>[] = [
+  {
+    value: "userpass",
+    toString: () => `Username/Password`,
+  },
+  {
+    value: "source",
+    toString: () => `Source Private Key/Passphrase`,
+  },
+];
+
+const KindSourceForm: React.FC<{
+  identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
+}> = ({ identity, defaultIdentities }) => {
+  const { t } = useTranslation();
+  const { control, getValues, setValue, resetField } = useFormContext();
+  const values = getValues();
+
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
-  const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
 
-  const userCredentialsOptions: OptionWithValue<UserCredentials>[] = [
-    {
-      value: "userpass",
-      toString: () => `Username/Password`,
-    },
-    {
-      value: "source",
-      toString: () => `Source Private Key/Passphrase`,
-    },
-  ];
-
-  const kindOptions: OptionWithValue<IdentityKind>[] = [
-    {
-      value: "source",
-      toString: () => `Source Control`,
-    },
-    {
-      value: "maven",
-      toString: () => `Maven Settings File`,
-    },
-    {
-      value: "proxy",
-      toString: () => `Proxy`,
-    },
-    {
-      value: "basic-auth",
-      toString: () => `Basic Auth (Jira)`,
-    },
-    {
-      value: "bearer",
-      toString: () => `Bearer Token (Jira)`,
-    },
-  ];
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPasswordHidden(!isPasswordHidden);
+  };
 
   const isPasswordEncrypted = identity?.password === values.password;
   const isKeyEncrypted = identity?.key === values.key;
+  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isReplacingDefault =
+    values.default &&
+    kindDefault &&
+    (!identity || kindDefault.id !== identity.id);
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <HookFormPFTextInput
-        control={control}
-        name="name"
-        label="Name"
-        fieldId="name"
-        isRequired
-      />
-      <HookFormPFTextInput
-        control={control}
-        name="description"
-        label="Description"
-        fieldId="description"
-      />
-
+    <>
       <HookFormPFGroupController
         control={control}
-        name="kind"
-        label="Type"
-        fieldId="type-select"
+        name="userCredentials"
+        label="User credentials"
         isRequired
+        fieldId="user-credentials-select"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            id="type-select"
-            toggleId="type-select-toggle"
-            toggleAriaLabel="Type select dropdown toggle"
+            id="user-credentials-select"
+            toggleId="user-credentials-select-toggle"
+            toggleAriaLabel="User credentials select dropdown toggle"
             aria-label={name}
-            value={value ? toOptionLike(value, kindOptions) : undefined}
-            options={kindOptions}
+            value={
+              value ? toOptionLike(value, USER_CREDENTIALS_OPTIONS) : undefined
+            }
+            options={USER_CREDENTIALS_OPTIONS}
             onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<IdentityKind>;
+              const selectionValue =
+                selection as OptionWithValue<UserCredentials>;
               onChange(selectionValue.value);
               // So we don't retain the values from the wrong type of credential
+              resetField("default");
               resetField("user");
+              resetField("key");
               resetField("password");
             }}
           />
         )}
       />
-
-      {values?.kind === "source" && (
-        <>
-          <HookFormPFGroupController
-            control={control}
-            name="userCredentials"
-            label="User credentials"
-            isRequired
-            fieldId="user-credentials-select"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                id="user-credentials-select"
-                toggleId="user-credentials-select-toggle"
-                toggleAriaLabel="User credentials select dropdown toggle"
-                aria-label={name}
-                value={
-                  value
-                    ? toOptionLike(value, userCredentialsOptions)
-                    : undefined
-                }
-                options={userCredentialsOptions}
-                onChange={(selection) => {
-                  const selectionValue =
-                    selection as OptionWithValue<UserCredentials>;
-                  onChange(selectionValue.value);
-                  // So we don't retain the values from the wrong type of credential
-                  resetField("user");
-                  resetField("password");
-                }}
-              />
-            )}
-          />
-          {values?.userCredentials === "userpass" && (
-            <>
-              <HookFormPFTextInput
-                control={control}
-                name="user"
-                label="Username"
-                fieldId="user"
-                isRequired
-              />
-              <HookFormPFTextInput
-                control={control}
-                name="password"
-                label="Password"
-                fieldId="password"
-                isRequired
-                formGroupProps={{
-                  labelIcon: !isPasswordEncrypted ? (
-                    <KeyDisplayToggle
-                      keyName="password"
-                      isKeyHidden={isPasswordHidden}
-                      onClick={toggleHidePassword}
-                    />
-                  ) : undefined,
-                }}
-                type={isPasswordHidden ? "password" : "text"}
-                onFocus={() => resetField("password")}
-              />
-            </>
-          )}
-          {values?.userCredentials === "source" && (
-            <>
-              <HookFormPFGroupController
-                control={control}
-                name="key"
-                fieldId="key"
-                label="Upload your [SCM Private Key] file or paste its contents below."
-                errorsSuppressed={isLoading}
-                isRequired
-                // TODO: PKI crypto validation
-                // formGroupProps={isFileRejected ? { validated: "error" } : {}}
-                renderInput={({ field: { onChange, value, name } }) => (
-                  <FileUpload
-                    data-testid="source-key-upload"
-                    id="key"
-                    name={name}
-                    type="text"
-                    value={
-                      value
-                        ? value !== identity?.key
-                          ? value
-                          : "[Encrypted]"
-                        : ""
-                    }
-                    filename={values.keyFilename}
-                    onFileInputChange={(_, file) => {
-                      setValue("keyFilename", file.name);
-                      setIsKeyFileRejected(false);
-                    }}
-                    onDataChange={(_, value: string) => {
-                      onChange(value);
-                    }}
-                    onTextChange={(_, value: string) => {
-                      onChange(value);
-                    }}
-                    dropzoneProps={{
-                      // accept: ".csv",
-                      //TODO: key file extention types
-                      onDropRejected: () => setIsKeyFileRejected(true),
-                    }}
-                    validated={isKeyFileRejected ? "error" : "default"}
-                    filenamePlaceholder="Drag and drop a file or upload one"
-                    onClearClick={() => {
-                      onChange("");
-                      setValue("keyFilename", "");
-                      setIsKeyFileRejected(false);
-                    }}
-                    allowEditingUploadedText
-                    browseButtonText="Upload"
-                  />
-                )}
-              />
-              <HookFormPFTextInput
-                control={control}
-                name="password"
-                fieldId="password"
-                label="Private Key Passphrase"
-                type={isPasswordHidden ? "password" : "text"}
-                formGroupProps={{
-                  labelIcon: !isPasswordEncrypted ? (
-                    <KeyDisplayToggle
-                      keyName="password"
-                      isKeyHidden={isPasswordHidden}
-                      onClick={toggleHidePassword}
-                    />
-                  ) : undefined,
-                }}
-                onFocus={() => resetField("password")}
-              />
-            </>
-          )}
-        </>
-      )}
-
-      {values?.kind === "maven" && (
-        <HookFormPFGroupController
-          control={control}
-          name="settings"
-          fieldId="settings"
-          label="Upload your Settings file or paste its contents below."
-          isRequired={values.kind === "maven"}
-          errorsSuppressed={isLoading}
-          renderInput={({ field: { onChange, value, name } }) => (
-            <FileUpload
-              data-testid="maven-settings-upload"
-              id="settings"
+      <HookFormPFGroupController
+        control={control}
+        name="default"
+        fieldId="default"
+        label="Default credential?"
+        renderInput={({ field: { onChange, value, name, ref } }) => (
+          <>
+            <Switch
+              id="default"
               name={name}
-              type="text"
-              value={
-                value
-                  ? value !== identity?.settings
-                    ? value
-                    : "[Encrypted]"
-                  : ""
-              }
-              filename={values.settingsFilename}
-              onFileInputChange={(_, file) => {
-                setValue("settingsFilename", file.name);
-                setIsSettingsFileRejected(false);
-              }}
-              onDataChange={(_, value: string) => {
-                onChange(value);
-              }}
-              onTextChange={(_, value: string) => {
-                onChange(value);
-              }}
-              dropzoneProps={{
-                accept: { "text/xml": [".xml"] },
-                onDropRejected: () => setIsSettingsFileRejected(true),
-              }}
-              validated={isSettingsFileRejected ? "error" : "default"}
-              filenamePlaceholder="Drag and drop a file or upload one"
-              onClearClick={() => {
-                onChange("");
-                setValue("settingsFilename", "");
-                setIsSettingsFileRejected(false);
-              }}
-              onReadStarted={() => setIsLoading(true)}
-              onReadFinished={() => setIsLoading(false)}
-              isLoading={isLoading}
-              allowEditingUploadedText
-              browseButtonText="Upload"
+              label={t("credentials.default.sourceSwitchLabel")}
+              isChecked={value}
+              onChange={(_, checked) => onChange(checked)}
+              ref={ref}
             />
-          )}
+            {isReplacingDefault && (
+              <Alert
+                isInline
+                className="alert-replacing-default"
+                variant="warning"
+                title={t("credentials.default.changeTitle")}
+              >
+                <Trans
+                  i18nKey="credentials.default.sourceChangeWarning"
+                  values={{
+                    name: kindDefault.name,
+                  }}
+                />
+              </Alert>
+            )}
+          </>
+        )}
+      />
+
+      {values?.userCredentials === "userpass" && (
+        <KindSimpleUsernamePasswordForm
+          identity={identity}
+          usernameLabel="Username"
+          passwordLabel="Password"
         />
       )}
 
-      {(values?.kind === "proxy" || values?.kind === "basic-auth") && (
+      {values?.userCredentials === "source" && (
         <>
-          <HookFormPFTextInput
+          <HookFormPFGroupController
             control={control}
-            name="user"
-            label={
-              values.kind === "basic-auth"
-                ? "Jira username or email"
-                : "Username"
-            }
-            fieldId="user"
+            name="key"
+            fieldId="key"
+            label="Upload your [SCM Private Key] file or paste its contents below."
             isRequired
+            renderInput={({ field: { onChange, value, name } }) => (
+              <FileUpload
+                data-testid="source-key-upload"
+                id="key"
+                name={name}
+                type="text"
+                value={isKeyEncrypted ? "[Encrypted]" : (value ?? "")}
+                filename={values.keyFilename}
+                filenamePlaceholder="Drag and drop a file or upload one"
+                dropzoneProps={{
+                  onDropRejected: () => setIsKeyFileRejected(true),
+                }}
+                validated={isKeyFileRejected ? "error" : "default"}
+                onFileInputChange={(_, file) => {
+                  setValue("keyFilename", file.name);
+                  setIsKeyFileRejected(false);
+                }}
+                onDataChange={(_, value: string) => {
+                  onChange(value);
+                }}
+                onTextChange={(_, value: string) => {
+                  onChange(value);
+                }}
+                onClearClick={() => {
+                  onChange("");
+                  setValue("keyFilename", "");
+                  setIsKeyFileRejected(false);
+                }}
+                allowEditingUploadedText
+                browseButtonText="Upload"
+              />
+            )}
           />
           <HookFormPFTextInput
             control={control}
             name="password"
-            label={values.kind === "basic-auth" ? "Token" : "Password"}
             fieldId="password"
-            isRequired={values.kind === "basic-auth"}
+            label="Private Key Passphrase"
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
               labelIcon: !isPasswordEncrypted ? (
-                // TODO: add info icon for auth text explanation
                 <KeyDisplayToggle
                   keyName="password"
                   isKeyHidden={isPasswordHidden}
@@ -623,54 +606,198 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           />
         </>
       )}
+    </>
+  );
+};
 
-      {values?.kind === "bearer" && (
-        <>
-          <HookFormPFTextInput
-            control={control}
-            name="key"
-            label={"Token"}
-            fieldId="key"
-            isRequired={true}
-            type={isKeyHidden ? "password" : "text"}
-            formGroupProps={{
-              labelIcon: !isKeyEncrypted ? (
-                // TODO: add info icon for auth text explanation
-                <KeyDisplayToggle
-                  keyName="key"
-                  isKeyHidden={isKeyHidden}
-                  onClick={toggleHideKey}
+const KindMavenSettingsFileForm: React.FC<{
+  identity?: Identity;
+  defaultIdentities?: Record<IdentityKind, Identity | undefined>;
+}> = ({ identity, defaultIdentities }) => {
+  const { t } = useTranslation();
+  const { control, getValues, setValue } = useFormContext();
+  const values = getValues();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSettingsFileRejected, setIsSettingsFileRejected] = useState(false);
+
+  const isSettingsEncrypted = identity?.settings === values.settings;
+  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isReplacingDefault =
+    values.default &&
+    kindDefault &&
+    (!identity || kindDefault.id !== identity.id);
+
+  return (
+    <>
+      <HookFormPFGroupController
+        control={control}
+        name="default"
+        fieldId="default"
+        label="Default credential?"
+        renderInput={({ field: { onChange, value, name, ref } }) => (
+          <>
+            <Switch
+              id="default"
+              name={name}
+              label={t("credentials.default.sourceSwitchLabel")}
+              isChecked={value}
+              onChange={(_, checked) => onChange(checked)}
+              ref={ref}
+            />
+            {isReplacingDefault && (
+              <Alert
+                isInline
+                className="alert-replacing-default"
+                variant="warning"
+                title={t("credentials.default.changeTitle")}
+              >
+                <Trans
+                  i18nKey="credentials.default.mavenChangeWarning"
+                  values={{
+                    name: kindDefault.name,
+                  }}
                 />
-              ) : undefined,
+              </Alert>
+            )}
+          </>
+        )}
+      />
+      <HookFormPFGroupController
+        control={control}
+        name="settings"
+        fieldId="settings"
+        label="Upload your Settings file or paste its contents below."
+        isRequired={values.kind === "maven"}
+        errorsSuppressed={isLoading}
+        renderInput={({ field: { onChange, value, name } }) => (
+          <FileUpload
+            data-testid="maven-settings-upload"
+            id="settings"
+            name={name}
+            type="text"
+            value={isSettingsEncrypted ? "[Encrypted]" : (value ?? "")}
+            filename={values.settingsFilename}
+            filenamePlaceholder="Drag and drop a file or upload one"
+            dropzoneProps={{
+              accept: { "text/xml": [".xml"] },
+              onDropRejected: () => setIsSettingsFileRejected(true),
             }}
-            onFocus={() => resetField("key")}
+            validated={isSettingsFileRejected ? "error" : "default"}
+            onFileInputChange={(_, file) => {
+              setValue("settingsFilename", file.name);
+              setIsSettingsFileRejected(false);
+            }}
+            onDataChange={(_, value: string) => {
+              onChange(value);
+            }}
+            onTextChange={(_, value: string) => {
+              onChange(value);
+            }}
+            onClearClick={() => {
+              onChange("");
+              setValue("settingsFilename", "");
+              setIsSettingsFileRejected(false);
+            }}
+            onReadStarted={() => setIsLoading(true)}
+            onReadFinished={() => setIsLoading(false)}
+            isLoading={isLoading}
+            allowEditingUploadedText
+            browseButtonText="Upload"
           />
-        </>
-      )}
+        )}
+      />
+    </>
+  );
+};
 
-      <ActionGroup>
-        <Button
-          type="submit"
-          aria-label="submit"
-          id="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={
-            !isValid || isSubmitting || isValidating || isLoading || !isDirty
-          }
-        >
-          {!identity ? "Create" : "Save"}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          Cancel
-        </Button>
-      </ActionGroup>
-    </Form>
+const KindSimpleUsernamePasswordForm: React.FC<{
+  identity?: Identity;
+  usernameLabel: string;
+  passwordLabel: string;
+  passwordRequired?: boolean;
+}> = ({
+  identity,
+  usernameLabel = "Username",
+  passwordLabel = "Password",
+  passwordRequired = true,
+}) => {
+  const { control, getValues, resetField } = useFormContext();
+  const values = getValues();
+
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
+  const toggleHidePassword = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPasswordHidden(!isPasswordHidden);
+  };
+
+  const isPasswordEncrypted = identity?.password === values.password;
+
+  return (
+    <>
+      <HookFormPFTextInput
+        control={control}
+        name="user"
+        label={usernameLabel}
+        fieldId="user"
+        isRequired
+      />
+      <HookFormPFTextInput
+        control={control}
+        name="password"
+        label={passwordLabel}
+        fieldId="password"
+        isRequired={passwordRequired}
+        type={isPasswordHidden ? "password" : "text"}
+        formGroupProps={{
+          labelIcon: !isPasswordEncrypted ? (
+            <KeyDisplayToggle
+              keyName="password"
+              isKeyHidden={isPasswordHidden}
+              onClick={toggleHidePassword}
+            />
+          ) : undefined,
+        }}
+        onFocus={() => resetField("password")}
+      />
+    </>
+  );
+};
+
+const KindBearerTokenForm: React.FC<{ identity?: Identity }> = ({
+  identity,
+}) => {
+  const { control, getValues, resetField } = useFormContext();
+  const values = getValues();
+
+  const [isKeyHidden, setIsKeyHidden] = useState(true);
+  const toggleHideKey = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsKeyHidden(!isKeyHidden);
+  };
+
+  const isKeyEncrypted = identity?.key === values.key;
+
+  return (
+    <HookFormPFTextInput
+      control={control}
+      name="key"
+      label={"Token"}
+      fieldId="key"
+      isRequired={true}
+      type={isKeyHidden ? "password" : "text"}
+      formGroupProps={{
+        labelIcon: !isKeyEncrypted ? (
+          <KeyDisplayToggle
+            keyName="key"
+            isKeyHidden={isKeyHidden}
+            onClick={toggleHideKey}
+          />
+        ) : undefined,
+      }}
+      onFocus={() => resetField("key")}
+    />
   );
 };

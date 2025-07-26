@@ -37,8 +37,10 @@ export const TableRowContentWithControls = <
   item,
   rowIndex,
   children,
-}: React.PropsWithChildren<
-  ITableRowContentWithControlsProps<TItem, TColumnKey, TSortableColumnKey>
+}: ITableRowContentWithControlsProps<
+  TItem,
+  TColumnKey,
+  TSortableColumnKey
 >) => (
   <>
     {isExpansionEnabled && expandableVariant === "single" ? (

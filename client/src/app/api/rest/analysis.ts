@@ -1,6 +1,6 @@
 import axios from "axios";
-import { template } from "radash";
-import { getHubPaginatedResult } from "../rest";
+
+import { hub, template, getHubPaginatedResult } from "../rest";
 import {
   HubRequestParams,
   BaseAnalysisRuleReport,
@@ -11,53 +11,76 @@ import {
   BaseAnalysisIssueReport,
 } from "../models";
 
-const ANALYSIS_ISSUE = "/hub/analyses/insights/{{id}}";
-const ANALYSIS_ISSUE_INCIDENTS = "/hub/analyses/insights/{{id}}/incidents";
-const ANALYSIS_RULES = "/hub/analyses/report/rules?filter=effort>0";
-const ANALYSIS_APP_ISSUES =
-  "/hub/analyses/report/applications/{{id}}/insights?filter=effort>0";
-const ANALYSIS_ISSUES_APPS =
-  "/hub/analyses/report/insights/applications?filter=effort>0";
-const ANALYSIS_ISSUE_FILES = "/hub/analyses/report/insights/{{id}}/files";
+/*
+  - Analysis uses a collection of rulesets containing rules, and activating labels to produce a
+    report containing dependencies, insights, and incidents.
+  - Dependencies are handled on their own page.
+  - The insights view will only show insights with an effort =0.
+  - Issues are insights with effort >0.
+  - Insights have one or more incidents.
+  - Incidents are a specific occurrence of the insight/issue/rule in a source file.
+ */
 
-export const getRuleReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<BaseAnalysisRuleReport>(ANALYSIS_RULES, params);
+const INSIGHT = hub`/analyses/insights/{{id}}`;
+const INSIGHT_INCIDENTS = hub`/analyses/insights/{{id}}/incidents`;
+const REPORT_INSIGHT_FILES = hub`/analyses/report/insights/{{id}}/files`;
 
-export const getAppReports = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppReport>(ANALYSIS_ISSUES_APPS, params);
+const REPORT_ISSUES = hub`/analyses/report/rules?filter=effort>0`; // RuleReports
+const REPORT_APP_ISSUES = hub`/analyses/report/applications/{{id}}/insights?filter=effort>0`; // AppInsightReports
+const REPORT_ISSUES_APPS = hub`/analyses/report/insights/applications?filter=effort>0`; // InsightAppReports
 
-export const getIssueReports = (
-  applicationId?: number,
+const REPORT_INSIGHTS = hub`/analyses/report/rules?filter=effort=0`; // RuleReports
+const REPORT_APP_INSIGHTS = hub`/analyses/report/applications/{{id}}/insights?filter=effort=0`; // AppInsightReports
+const REPORT_INSIGHTS_APPS = hub`/analyses/report/insights/applications?filter=effort=0`; // InsightAppReports
+
+export const getInsight = (id: number) =>
+  axios
+    .get<AnalysisIssue>(template(INSIGHT, { id }))
+    .then((response) => response.data);
+
+export const getInsightIncidents = (
+  id: number,
   params: HubRequestParams = {}
 ) =>
-  getHubPaginatedResult<BaseAnalysisIssueReport>(
-    template(ANALYSIS_APP_ISSUES, { id: applicationId }),
+  getHubPaginatedResult<AnalysisIncident>(
+    template(INSIGHT_INCIDENTS, { id: id }),
     params
   );
 
-export const getIssue = (issueId: number) =>
-  axios
-    .get<AnalysisIssue>(template(ANALYSIS_ISSUE, { id: issueId }))
-    .then((response) => response.data);
+export const getInsightFiles = (id: number, params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisFileReport>(
+    template(REPORT_INSIGHT_FILES, { id }),
+    params
+  );
 
-export const getFileReports = (
-  issueId?: number,
+// Issue specific functions
+export const getReportAllIssues = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<BaseAnalysisRuleReport>(REPORT_ISSUES, params);
+
+export const getReportApplicationIssues = (
+  applicationId: number,
   params: HubRequestParams = {}
 ) =>
-  issueId
-    ? getHubPaginatedResult<AnalysisFileReport>(
-        template(ANALYSIS_ISSUE_FILES, { id: issueId }),
-        params
-      )
-    : Promise.reject();
+  getHubPaginatedResult<BaseAnalysisIssueReport>(
+    template(REPORT_APP_ISSUES, { id: applicationId }),
+    params
+  );
 
-export const getIncidents = (
-  issueId?: number,
+export const getReportIssueApps = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisAppReport>(REPORT_ISSUES_APPS, params);
+
+// Insight specific functions
+export const getReportAllInsights = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<BaseAnalysisRuleReport>(REPORT_INSIGHTS, params);
+
+export const getReportApplicationInsights = (
+  applicationId: number,
   params: HubRequestParams = {}
 ) =>
-  issueId
-    ? getHubPaginatedResult<AnalysisIncident>(
-        template(ANALYSIS_ISSUE_INCIDENTS, { id: issueId }),
-        params
-      )
-    : Promise.reject();
+  getHubPaginatedResult<AnalysisAppReport>(
+    template(REPORT_APP_INSIGHTS, { id: applicationId }),
+    params
+  );
+
+export const getReportInsightApps = (params: HubRequestParams = {}) =>
+  getHubPaginatedResult<AnalysisAppReport>(REPORT_INSIGHTS_APPS, params);

@@ -3,6 +3,7 @@ import axios, {
   AxiosResponse,
   RawAxiosRequestHeaders,
 } from "axios";
+import { template } from "radash";
 
 import {
   Application,
@@ -14,12 +15,10 @@ import {
   Assessment,
   BusinessService,
   Cache,
-  HubFile,
   HubPaginatedResult,
   HubRequestParams,
   Identity,
   InitialAssessment,
-  IReadFile,
   JobFunction,
   MigrationWave,
   MimeType,
@@ -50,63 +49,79 @@ import {
   Manifest,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
-import { template } from "radash";
 
 // endpoint paths
-export const HUB = "/hub";
+export { template };
+export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
+  let path = "";
+  tsa.forEach((str) => {
+    path += str;
+    if (vals.length > 0) {
+      path += String(vals.shift());
+    }
+  });
 
-export const ANALYSIS_DEPS = HUB + "/analyses/report/dependencies";
-export const ANALYSIS_DEPS_APPS =
-  HUB + "/analyses/report/dependencies/applications";
-export const APP_IMPORTS = HUB + "/imports";
-export const APP_IMPORTS_SUMMARY = HUB + "/importsummaries";
-export const APP_IMPORTS_SUMMARY_CSV = HUB + "/importsummaries/download";
-export const APP_IMPORTS_SUMMARY_UPLOAD = HUB + "/importsummaries/upload";
-export const APPLICATIONS = HUB + "/applications";
-export const ARCHETYPES = HUB + "/archetypes";
-export const ASSESSMENTS = HUB + "/assessments";
-export const BUSINESS_SERVICES = HUB + "/businessservices";
-export const CACHE = HUB + "/cache/m2";
-export const DEPENDENCIES = HUB + "/dependencies";
-export const FACTS = HUB + "/facts";
-export const FILES = HUB + "/files";
-export const IDENTITIES = HUB + "/identities";
-export const JOB_FUNCTIONS = HUB + "/jobfunctions";
-export const MIGRATION_WAVES = HUB + "/migrationwaves";
-export const PLATFORMS = HUB + "/platforms";
-export const PROXIES = HUB + "/proxies";
-export const QUESTIONNAIRES = HUB + "/questionnaires";
-export const REPORT = HUB + "/reports";
-export const REVIEWS = HUB + "/reviews";
-export const SETTINGS = HUB + "/settings";
-export const STAKEHOLDER_GROUPS = HUB + "/stakeholdergroups";
-export const STAKEHOLDERS = HUB + "/stakeholders";
-export const TAG_CATEGORIES = HUB + "/tagcategories";
-export const TAGS = HUB + "/tags";
-export const TARGETS = HUB + "/targets";
-export const TASKGROUPS = HUB + "/taskgroups";
-export const TASKS = HUB + "/tasks";
-export const TICKETS = HUB + "/tickets";
+  return `/hub${path}`;
+}
+
+export const ANALYSIS_DEPS = hub`/analyses/report/dependencies`;
+export const ANALYSIS_DEPS_APPS = hub`/analyses/report/dependencies/applications`;
+export const APP_IMPORTS = hub`/imports`;
+export const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
+export const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
+export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
+export const APPLICATION_MANIFEST = hub`/applications/{{id}}/manifest`;
+export const APPLICATIONS = hub`/applications`;
+export const ARCHETYPES = hub`/archetypes`;
+export const ASSESSMENTS = hub`/assessments`;
+export const BUSINESS_SERVICES = hub`/businessservices`;
+export const CACHE = hub`/cache/m2`;
+export const DEPENDENCIES = hub`/dependencies`;
+export const FACTS = hub`/facts`;
+export const FILES = hub`/files`;
+export const IDENTITIES = hub`/identities`;
+export const IDENTITY = hub`/identities/{{id}}`;
+export const JOB_FUNCTIONS = hub`/jobfunctions`;
+export const MANIFESTS = hub`/manifests`;
+export const MIGRATION_WAVES = hub`/migrationwaves`;
+export const PLATFORMS = hub`/platforms`;
+export const PROXIES = hub`/proxies`;
+export const QUESTIONNAIRES = hub`/questionnaires`;
+export const REPORT = hub`/reports`;
+export const REVIEWS = hub`/reviews`;
+export const SETTINGS = hub`/settings`;
+export const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
+export const STAKEHOLDERS = hub`/stakeholders`;
+export const TAG_CATEGORIES = hub`/tagcategories`;
+export const TAGS = hub`/tags`;
+export const TARGETS = hub`/targets`;
+export const TASKGROUPS = hub`/taskgroups`;
+export const TASKS = hub`/tasks`;
+export const TICKETS = hub`/tickets`;
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
-export const TRACKERS = HUB + "/trackers";
+export const TRACKERS = hub`/trackers`;
 
-export const MANIFESTS = HUB + "/manifests";
-
-export const APPLICATION_MANIFEST = HUB + "/applications/{{id}}/manifest";
-
-const jsonHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/json",
-};
-const formHeaders: RawAxiosRequestHeaders = {
-  Accept: "multipart/form-data",
-};
-const fileHeaders: RawAxiosRequestHeaders = { Accept: "application/json" };
-const yamlHeaders: RawAxiosRequestHeaders = {
-  Accept: "application/x-yaml",
+export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
+  json: {
+    Accept: "application/json",
+  },
+  form: {
+    Accept: "multipart/form-data",
+  },
+  file: {
+    Accept: "application/json",
+  },
+  yaml: {
+    Accept: "application/x-yaml",
+  },
+  plain: {
+    Accept: "test/plain",
+  },
 };
 
 export * from "./rest/analysis";
+export * from "./rest/files";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -147,7 +162,7 @@ export const getApplicationDependencies = (params?: DependencyParams) => {
   return axios
     .get<ApplicationDependency[]>(`${DEPENDENCIES}`, {
       params,
-      headers: jsonHeaders,
+      headers: HEADERS.json,
     })
     .then((response) => response.data);
 };
@@ -196,8 +211,8 @@ export const deleteReview = (id: number): Promise<Review> => {
 // ---------------------------------------
 // Assessments
 //
-export const getAssessments = (): Promise<Assessment[]> =>
-  axios.get(ASSESSMENTS).then((response) => response.data);
+export const getAssessments = () =>
+  axios.get<Assessment[]>(ASSESSMENTS).then((response) => response.data);
 
 export const getAssessmentsByItemId = (
   isArchetype: boolean,
@@ -248,19 +263,23 @@ export const deleteAssessment = (id: number) => {
 // Identities
 //
 export const getIdentities = () => {
-  return axios.get<Identity[]>(`${IDENTITIES}`, { headers: jsonHeaders });
+  return axios
+    .get<Identity[]>(IDENTITIES, { headers: HEADERS.json })
+    .then((response) => response.data);
 };
 
-export const createIdentity = (obj: New<Identity>) => {
-  return axios.post<Identity>(`${IDENTITIES}`, obj);
+export const createIdentity = (identity: New<Identity>) => {
+  return axios
+    .post<Identity>(IDENTITIES, identity)
+    .then((response) => response.data);
 };
 
-export const updateIdentity = (obj: Identity) => {
-  return axios.put<void>(`${IDENTITIES}/${obj.id}`, obj);
+export const updateIdentity = (identity: Identity) => {
+  return axios.put<void>(template(IDENTITY, { id: identity.id }), identity);
 };
 
 export const deleteIdentity = (identity: Identity) => {
-  return axios.delete<void>(`${IDENTITIES}/${identity.id}`);
+  return axios.delete<void>(template(IDENTITY, { id: identity.id }));
 };
 
 // ---------------------------------------
@@ -363,7 +382,7 @@ export const getApplicationSummaryCSV = (id: string) => {
 export function getTaskById(id: number): Promise<Task> {
   return axios
     .get(`${TASKS}/${id}`, {
-      headers: { ...jsonHeaders },
+      headers: { ...HEADERS.json },
       responseType: "json",
     })
     .then((response) => {
@@ -377,7 +396,7 @@ export function getTaskByIdAndFormat(
   merged: boolean = false
 ): Promise<string> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
 
   let url = `${TASKS}/${id}`;
@@ -402,7 +421,7 @@ export function getTasksByIds(
   format: "json" | "yaml" = "json"
 ): Promise<Task[]> {
   const isYaml = format === "yaml";
-  const headers = isYaml ? { ...yamlHeaders } : { ...jsonHeaders };
+  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
   const responseType = isYaml ? "text" : "json";
   const filterParam = `id:(${ids.join("|")})`;
 
@@ -457,19 +476,20 @@ export const submitTaskgroup = (obj: Taskgroup) =>
 export const deleteTaskgroup = (id: number): AxiosPromise =>
   axios.delete(`${TASKGROUPS}/${id}`);
 
+// returns a 204 and no content with a successful upload
 export const uploadFileTaskgroup = ({
   id,
   path,
-  formData,
   file,
 }: {
   id: number;
   path: string;
-  formData: any;
-  file: any;
+  file: File;
 }) => {
-  return axios.post<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: formHeaders,
+  const formData = new FormData();
+  formData.append("file", file);
+  return axios.post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
+    headers: HEADERS.form,
   });
 };
 
@@ -523,26 +543,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-export const createFile = ({
-  formData,
-  file,
-}: {
-  formData: FormData;
-  file: IReadFile;
-}) =>
-  axios
-    .post<HubFile>(`${FILES}/${file.fileName}`, formData, {
-      headers: fileHeaders,
-    })
-    .then((response) => {
-      return response.data;
-    });
-
-export const getTextFile = (id: number): Promise<string> =>
-  axios
-    .get(`${FILES}/${id}`, { headers: { Accept: "text/plain" } })
-    .then((response) => response.data);
 
 // ---------------------------------------
 // Settings
@@ -679,18 +679,17 @@ export const deleteBusinessService = (id: number | string) =>
 // ---------------------------------------
 // Job functions
 //
-export const getJobFunctions = (): Promise<JobFunction[]> =>
-  axios.get(JOB_FUNCTIONS).then((response) => response.data);
+export const getJobFunctions = () =>
+  axios.get<JobFunction[]>(JOB_FUNCTIONS).then((response) => response.data);
 
-export const createJobFunction = (
-  obj: New<JobFunction>
-): Promise<JobFunction> => axios.post(JOB_FUNCTIONS, obj);
+export const createJobFunction = (obj: New<JobFunction>) =>
+  axios.post<JobFunction>(JOB_FUNCTIONS, obj).then((response) => response.data);
 
-export const updateJobFunction = (obj: JobFunction): Promise<JobFunction> =>
-  axios.put(`${JOB_FUNCTIONS}/${obj.id}`, obj);
+export const updateJobFunction = (obj: JobFunction) =>
+  axios.put<void>(`${JOB_FUNCTIONS}/${obj.id}`, obj);
 
-export const deleteJobFunction = (id: number): Promise<JobFunction> =>
-  axios.delete(`${JOB_FUNCTIONS}/${id}`);
+export const deleteJobFunction = (id: number) =>
+  axios.delete<void>(`${JOB_FUNCTIONS}/${id}`);
 
 // ---------------------------------------
 // Tags
@@ -731,12 +730,12 @@ export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
 // ---------------------------------------
 // Facts
 //
-export const getFacts = (
-  id: number | string | undefined
-): Promise<UnstructuredFact> =>
-  //TODO: Address this when moving to structured facts api
+export const getFacts = (id: number | string | undefined) =>
+  // TODO: Address this when moving to structured facts api
   id
-    ? axios.get(`${APPLICATIONS}/${id}/facts`).then((response) => response.data)
+    ? axios
+        .get<UnstructuredFact>(`${APPLICATIONS}/${id}/facts`)
+        .then((response) => response.data)
     : Promise.reject();
 
 // ---------------------------------------

@@ -8,14 +8,18 @@ import {
   BaseHookFormPFGroupControllerProps,
 } from "./HookFormPFGroupController";
 
+interface WithIntegerType extends Omit<TextInputProps, "type"> {
+  type?: TextInputProps["type"] | "integer";
+}
+
 export type HookFormPFTextInputProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
-> = TextInputProps & BaseHookFormPFGroupControllerProps<TFieldValues, TName>;
+  TName extends Path<TFieldValues>,
+> = WithIntegerType & BaseHookFormPFGroupControllerProps<TFieldValues, TName>;
 
 export const HookFormPFTextInput = <
   TFieldValues extends FieldValues = FieldValues,
-  TName extends Path<TFieldValues> = Path<TFieldValues>
+  TName extends Path<TFieldValues> = Path<TFieldValues>,
 >(
   props: HookFormPFTextInputProps<TFieldValues, TName>
 ) => {
@@ -25,7 +29,9 @@ export const HookFormPFTextInput = <
     HookFormPFTextInputProps<TFieldValues, TName>
   >(props);
   const { fieldId, helperText, isRequired, errorsSuppressed } = extractedProps;
-  const { type } = remainingProps;
+  const { type } = props;
+  const inputType = type === "integer" ? "number" : type;
+
   return (
     <HookFormPFGroupController<TFieldValues, TName>
       {...extractedProps}
@@ -42,7 +48,14 @@ export const HookFormPFTextInput = <
           onChange={(_, value) => {
             if (type === "number") {
               onChange(
-                ((value && parseInt(value, 10)) || "") as PathValue<
+                ((value && Number(value)) ?? "") as PathValue<
+                  TFieldValues,
+                  TName
+                >
+              );
+            } else if (type === "integer") {
+              onChange(
+                ((value && parseInt(value, 10)) ?? "") as PathValue<
                   TFieldValues,
                   TName
                 >
@@ -59,6 +72,7 @@ export const HookFormPFTextInput = <
               : getValidatedFromErrors(error, isDirty, isTouched)
           }
           {...remainingProps}
+          type={inputType}
         />
       )}
     />
