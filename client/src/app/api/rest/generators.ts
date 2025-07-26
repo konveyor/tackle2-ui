@@ -1,6 +1,9 @@
 import axios from "axios";
+
 import { Generator, New } from "../models";
-import { ASSET_GENERATORS } from "../rest";
+import { hub } from "../rest";
+
+const ASSET_GENERATORS = hub`/generators`;
 
 export const getGenerators = () =>
   axios.get<Generator[]>(ASSET_GENERATORS).then(({ data }) => data);
@@ -26,6 +29,7 @@ export const updateGenerator = (generator: Generator) => {
     generatorWithoutDescription
   );
 };
+
 // success with code 204 and therefore no response content
 export const deleteGenerator = (id: number) =>
   axios.delete<void>(`${ASSET_GENERATORS}/${id}`);

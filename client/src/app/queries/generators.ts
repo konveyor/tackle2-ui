@@ -9,16 +9,13 @@ import {
   getGenerators,
   updateGenerator,
 } from "@app/api/rest/generators";
-import { DEFAULT_REFETCHING_INTERVAL } from "@app/Constants";
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const GENERATORS_QUERY_KEY = "generators";
 export const GENERATOR_QUERY_KEY = "generator";
 
 export const useFetchGenerators = (
-  refetchInterval:
-    | number
-    | false
-    | (() => number | false) = DEFAULT_REFETCHING_INTERVAL
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [GENERATORS_QUERY_KEY],
@@ -31,7 +28,7 @@ export const useFetchGenerators = (
     generators: data,
     isLoading,
     isSuccess,
-    error,
+    fetchError: error,
     refetch,
   };
 };
@@ -78,8 +75,8 @@ export const useUpdateGeneratorMutation = (
     mutationFn: updateGenerator,
     onSuccess: (_, { id }) => {
       onSuccess(id);
-      queryClient.invalidateQueries([GENERATORS_QUERY_KEY]);
-      queryClient.invalidateQueries([GENERATOR_QUERY_KEY, id]);
+      queryClient.invalidateQueries({ queryKey: [GENERATORS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [GENERATOR_QUERY_KEY, id] });
     },
     onError: onError,
   });
@@ -95,8 +92,10 @@ export const useDeleteGeneratorMutation = (
     mutationFn: (generator: Generator) => deleteGenerator(generator.id),
     onSuccess: (_, generator) => {
       onSuccess(generator);
-      queryClient.invalidateQueries([GENERATORS_QUERY_KEY]);
-      queryClient.invalidateQueries([GENERATOR_QUERY_KEY, generator.id]);
+      queryClient.invalidateQueries({ queryKey: [GENERATORS_QUERY_KEY] });
+      queryClient.invalidateQueries({
+        queryKey: [GENERATOR_QUERY_KEY, generator.id],
+      });
     },
     onError: onError,
   });
