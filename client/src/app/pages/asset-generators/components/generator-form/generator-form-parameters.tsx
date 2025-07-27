@@ -1,14 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Button,
-  FormFieldGroupExpandable,
-  FormFieldGroupHeader,
-  Label,
-} from "@patternfly/react-core";
+import { Button, FormFieldGroupHeader, Label } from "@patternfly/react-core";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import { ControlledFormFieldGroupExpandable } from "@app/components/ControlledFormFieldGroupExpandable";
 import { KeyValueFields } from "./generator-fields-mapper";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 interface GeneratorFormParametersProps {}
 
@@ -16,22 +12,30 @@ const GeneratorFormParametersComponent: React.FC<
   GeneratorFormParametersProps
 > = () => {
   const { t } = useTranslation();
-  const addButtonRef = useRef<{ addField: () => void }>(null);
-
-  const handleAddClick = () => {
-    append({ key: "", value: "" });
-    // addButtonRef.current?.addField();
-  };
-
   const { control } = useFormContext();
-  const { fields, append } = useFieldArray({
+  const parameters = useWatch({
     control,
     name: "parameters",
   });
+  const addButtonRef = useRef<{ addField: () => void }>(null);
+  const [isExpanded, setIsExpanded] = useState(parameters.length > 0);
+
+  const handleAddClick = () => {
+    if (!addButtonRef.current) {
+      setIsExpanded(true);
+      // wait for the next tick to ensure the component is mounted
+      Promise.resolve().then(() => {
+        addButtonRef.current?.addField();
+      });
+    } else {
+      addButtonRef.current?.addField();
+    }
+  };
 
   return (
-    <FormFieldGroupExpandable
-      isExpanded={fields.length > 0}
+    <ControlledFormFieldGroupExpandable
+      isExpanded={isExpanded}
+      onToggle={() => setIsExpanded(!isExpanded)}
       toggleAriaLabel="Toggle parameters section"
       header={
         <FormFieldGroupHeader
@@ -39,7 +43,7 @@ const GeneratorFormParametersComponent: React.FC<
             text: (
               <>
                 {t("terms.parameters")}{" "}
-                <Label color="blue">{fields.length}</Label>
+                <Label color="blue">{parameters.length}</Label>
               </>
             ),
             id: "parameters-header",
@@ -63,7 +67,7 @@ const GeneratorFormParametersComponent: React.FC<
         removeLabel="Remove this parameter definition"
         name="parameters"
       />
-    </FormFieldGroupExpandable>
+    </ControlledFormFieldGroupExpandable>
   );
 };
 
