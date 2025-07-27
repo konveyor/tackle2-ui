@@ -7,19 +7,20 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
 import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 import { MinusCircleIcon } from "@patternfly/react-icons/dist/js/icons/minus-circle-icon";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 
-export const KeyValueFields = ({
-  addLabel,
-  removeLabel,
-  name,
-}: {
-  addLabel: string;
+interface KeyValueFieldsProps {
+  noValuesMessage: string;
   removeLabel: string;
   name: string;
-}) => {
+}
+
+export const KeyValueFields = React.forwardRef<
+  { addField: () => void },
+  KeyValueFieldsProps
+>(({ noValuesMessage, removeLabel, name }, ref) => {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -34,9 +35,18 @@ export const KeyValueFields = ({
     append({ key: "", value: "" });
   };
 
+  React.useImperativeHandle(ref, () => ({
+    addField: handleAddField,
+  }));
+
   return (
     <Grid className="generator-field-mapping">
       <Grid hasGutter>
+        {fields.length === 0 && (
+          <GridItem span={12}>
+            <EmptyTextMessage message={noValuesMessage} />
+          </GridItem>
+        )}
         {fields.map((field, index) => (
           <React.Fragment key={`${name}-${field.id}`}>
             <GridItem span={5}>
@@ -65,22 +75,12 @@ export const KeyValueFields = ({
             </GridItem>
           </React.Fragment>
         ))}
-        <GridItem span={12}>
-          <Button
-            icon={<PlusCircleIcon />}
-            isInline
-            id="add-generator-parameter"
-            onClick={handleAddField}
-            data-testid="add-generator-parameter"
-            variant="link"
-          >
-            {addLabel}
-          </Button>
-        </GridItem>
       </Grid>
     </Grid>
   );
-};
+});
+
+KeyValueFields.displayName = "KeyValueFields";
 
 const RemoveButton = ({
   removeLabel,
