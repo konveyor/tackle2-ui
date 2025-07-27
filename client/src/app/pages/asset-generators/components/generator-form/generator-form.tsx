@@ -77,7 +77,6 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
   const { t } = useTranslation();
 
   const {
-    identities,
     providersList,
     existingGenerators,
     createGenerator,
@@ -132,7 +131,18 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             .trim()
             .max(100, t("validation.maxLength", { length: 100 })),
         }),
-        // TODO: Add validation for values and parameters
+        values: yup.array().of(
+          yup.object().shape({
+            key: yup.string().trim().required("A key is required"),
+            value: yup.string().trim().required("A value is required"),
+          })
+        ),
+        parameters: yup.array().of(
+          yup.object().shape({
+            key: yup.string().trim().required("A key is required"),
+            value: yup.string().trim().required("A value is required"),
+          })
+        ),
       }),
     [t, existingGenerators, generator]
   );
@@ -155,14 +165,8 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             description: generator?.description,
             repository: generator.repository || EMPTY_REPOSITORY,
             credentials: generator?.identity?.name,
-            values:
-              Object.keys(generator?.values || {}).length > 0
-                ? parametersToArray(generator.values)
-                : [{ key: "", value: "" }],
-            parameters:
-              Object.keys(generator?.parameters || {}).length > 0
-                ? parametersToArray(generator.parameters)
-                : [{ key: "", value: "" }],
+            values: parametersToArray(generator.values),
+            parameters: parametersToArray(generator.parameters),
           },
     [generator]
   );
@@ -258,10 +262,10 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         <GeneratorRepositorySection />
 
         {/* Values section */}
-        <GeneratorValuesSection collection={generator?.values || {}} />
+        <GeneratorValuesSection />
 
         {/* Parameters section */}
-        <GeneratorParametersSection collection={generator?.parameters || {}} />
+        <GeneratorParametersSection />
 
         <ActionGroup>
           <Button

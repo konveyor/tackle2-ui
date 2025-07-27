@@ -38,7 +38,7 @@ export const GeneratorFormRepository: React.FC = () => {
   );
 
   return (
-    <ExpandableSection
+    <ExpandableSection // TODO: Convert to FormFieldGroupExpandable
       toggleText={t("terms.generatorTemplateRepository")}
       className="toggle"
       onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}

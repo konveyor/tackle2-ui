@@ -1,27 +1,27 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ExpandableSection } from "@patternfly/react-core";
-import { KeyValueFields } from "../fields-mapper/generator-fields-mapper";
+import { KeyValueFields } from "./generator-fields-mapper";
 
-interface GeneratorFormValuesProps {
-  collection: Record<string, any>;
-}
+interface GeneratorFormValuesProps {}
 
-const GeneratorFormValuesComponent: React.FC<GeneratorFormValuesProps> = ({
-  collection,
-}) => {
+const GeneratorFormValuesComponent: React.FC<GeneratorFormValuesProps> = () => {
   const { t } = useTranslation();
   const [isValuesExpanded, setValuesExpanded] = React.useState(false);
 
   return (
-    <ExpandableSection
+    <ExpandableSection // TODO: Convert to FormFieldGroupExpandable
       toggleText={t("terms.values")}
       className="toggle"
       onToggle={() => setValuesExpanded(!isValuesExpanded)}
       isExpanded={isValuesExpanded}
     >
       <div className="pf-v5-c-form">
-        <KeyValueFields collection={collection} name="values" />
+        <KeyValueFields
+          addLabel="Add new key/value pair"
+          removeLabel="Remove this key/value pair"
+          name="values"
+        />
       </div>
     </ExpandableSection>
   );
