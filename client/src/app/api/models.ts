@@ -112,9 +112,9 @@ export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
 
 export interface Repository {
   kind?: string;
+  url?: string;
   branch?: string;
   path?: string;
-  url?: string;
 }
 
 export interface Application {
@@ -895,6 +895,19 @@ export interface SourcePlatform {
   coordinates?: JsonDocument;
   discoverApplicationsState?: TaskState;
 }
+
+export interface Generator {
+  id: number;
+  kind: string;
+  name: string;
+  description?: string;
+  repository?: Repository;
+  parameters?: JsonDocument;
+  values?: JsonDocument;
+  identity?: Ref;
+  profiles?: Ref[];
+}
+
 export interface ManifestDeployment {
   name: string;
   other?: number;
