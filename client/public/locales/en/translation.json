@@ -179,6 +179,10 @@
     "medium": "Medium",
     "small": "Small"
   },
+  "issues": {
+    "noIssues": "Congratulations! No issues were found",
+    "issuesFound": "{{minor}} minor, {{critical}} critical"
+  },
   "message": {
     "archetypeApplicationCount_one": "{{count}} application",
     "archetypeApplicationCount_other": "{{count}} applications",
