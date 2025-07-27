@@ -53,7 +53,7 @@ export const useCreateIdentityMutation = (
 };
 
 export const useFetchIdentities = (refetchInterval: number | false = false) => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
     queryFn: getIdentities,
     onError: (error) => console.log("error, ", error),
@@ -62,6 +62,7 @@ export const useFetchIdentities = (refetchInterval: number | false = false) => {
   return {
     identities: data || [],
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
     refetch,
   };
