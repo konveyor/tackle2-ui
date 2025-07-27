@@ -112,9 +112,9 @@ export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
 
 export interface Repository {
   kind?: string;
+  url?: string;
   branch?: string;
   path?: string;
-  url?: string;
 }
 
 export interface Application {

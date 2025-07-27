@@ -163,6 +163,7 @@ const RepositoryDetails: React.FC<{ repository: Repository }> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
       )}
+      {/* TODO: Add credentials, show the Identity name, the default, or "Not available" */}
     </DescriptionList>
   );
 };
