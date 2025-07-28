@@ -183,7 +183,7 @@ const ParametersTab: React.FC<{ generator: Generator | null }> = ({
 }) => {
   return (
     <GeneratorCollectionTable
-      collection={parametersToArray(generator?.parameters || {}) || []}
+      collection={parametersToArray(generator?.params || {}) || []}
     />
   );
 };

@@ -45,7 +45,7 @@ export interface GeneratorFormValues {
   repository: Repository;
   credentials?: string;
   values?: Array<{ key: string; value: string }>;
-  parameters?: Array<{ key: string; value: string }>;
+  params?: Array<{ key: string; value: string }>;
 }
 
 export interface GeneratorFormProps {
@@ -137,7 +137,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             value: yup.string().trim().required("A value is required"),
           })
         ),
-        parameters: yup.array().of(
+        params: yup.array().of(
           yup.object().shape({
             key: yup.string().trim().required("A key is required"),
             value: yup.string().trim().required("A value is required"),
@@ -157,7 +157,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             repository: EMPTY_REPOSITORY,
             credentials: "",
             values: [],
-            parameters: [],
+            params: [],
           }
         : {
             kind: generator.kind,
@@ -166,7 +166,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
             repository: generator.repository || EMPTY_REPOSITORY,
             credentials: generator?.identity?.name,
             values: parametersToArray(generator.values),
-            parameters: parametersToArray(generator.parameters),
+            params: parametersToArray(generator.params),
           },
     [generator]
   );
@@ -198,7 +198,7 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         : undefined,
       identity: identityToRef(values.credentials),
       values: arrayToParameters(values.values),
-      parameters: arrayToParameters(values.parameters),
+      params: arrayToParameters(values.params),
     };
 
     if (generator) {

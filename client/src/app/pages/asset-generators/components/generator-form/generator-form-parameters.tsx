@@ -13,12 +13,12 @@ const GeneratorFormParametersComponent: React.FC<
 > = () => {
   const { t } = useTranslation();
   const { control } = useFormContext();
-  const parameters = useWatch({
+  const params = useWatch({
     control,
-    name: "parameters",
+    name: "params",
   });
   const addButtonRef = useRef<{ addField: () => void }>(null);
-  const [isExpanded, setIsExpanded] = useState(parameters.length > 0);
+  const [isExpanded, setIsExpanded] = useState(params.length > 0);
 
   const handleAddClick = () => {
     if (!addButtonRef.current) {
@@ -43,7 +43,7 @@ const GeneratorFormParametersComponent: React.FC<
             text: (
               <>
                 {t("terms.parameters")}{" "}
-                <Label color="blue">{parameters.length}</Label>
+                <Label color="blue">{params.length}</Label>
               </>
             ),
             id: "parameters-header",
@@ -65,7 +65,7 @@ const GeneratorFormParametersComponent: React.FC<
         ref={addButtonRef}
         noValuesMessage="No parameters to display"
         removeLabel="Remove this parameter definition"
-        name="parameters"
+        name="params"
       />
     </ControlledFormFieldGroupExpandable>
   );
