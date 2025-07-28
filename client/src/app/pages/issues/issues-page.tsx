@@ -15,9 +15,16 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
-import { IssuesTable } from "./issues-table";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
+import {
+  useFetchReportAllIssues,
+  useFetchReportApplicationIssues,
+} from "@app/queries/analysis";
+import { SingleApplicationInsightsTable } from "@app/components/insights/tables/single-application-insights-table";
+import { IssueDetailDrawer } from "./issue-detail-drawer";
+import { UiAnalysisReportApplicationInsight } from "@app/api/models";
 
 export enum IssueFilterGroups {
   ApplicationInventory = "Application inventory",
@@ -40,12 +47,11 @@ export const Issues: React.FC = () => {
       ? Paths.issuesSingleAppTab
       : Paths.issuesAllTab;
 
-  React.useEffect(() => {
-    if (!activeTabPath) history.push(Paths.issuesAllTab);
-  }, [activeTabPath]);
-
   const [navConfirmPath, setNavConfirmPath] =
     React.useState<IssuesTabPath | null>(null);
+
+  const [issueInDetailDrawer, setIssueInDetailDrawer] =
+    React.useState<UiAnalysisReportApplicationInsight | null>(null);
 
   return (
     <>
@@ -82,11 +88,38 @@ export const Issues: React.FC = () => {
       </PageSection>
       <PageSection>
         {activeTabPath === Paths.issuesAllTab ? (
-          <IssuesTable mode="allIssues" />
+          <AllInsightsTable
+            tableName="all-issues-table"
+            tableAriaLabel="Issues table"
+            affectedAppsPath={Paths.issuesAllAffectedApplications}
+            columns={{
+              description: "Issue",
+              effort: true,
+            }}
+            useFetchData={useFetchReportAllIssues}
+          />
         ) : activeTabPath === Paths.issuesSingleAppTab ? (
-          <IssuesTable mode="singleApp" />
+          <>
+            <SingleApplicationInsightsTable
+              tableName="single-application-issues-table"
+              tableAriaLabel="Single application issues table"
+              pathPattern={Paths.issuesSingleAppSelected}
+              keyPrefix={TablePersistenceKeyPrefix.issues}
+              columns={{
+                description: "Issue",
+                effort: true,
+              }}
+              useFetchData={useFetchReportApplicationIssues}
+              onInsightClick={setIssueInDetailDrawer}
+            />
+            <IssueDetailDrawer
+              issueId={issueInDetailDrawer?.id || null}
+              onCloseClick={() => setIssueInDetailDrawer(null)}
+            />
+          </>
         ) : null}
       </PageSection>
+
       <ConfirmDialog
         isOpen={!!navConfirmPath}
         title={`Navigating to ${
@@ -113,3 +146,5 @@ export const Issues: React.FC = () => {
     </>
   );
 };
+
+export default Issues;

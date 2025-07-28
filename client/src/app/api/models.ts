@@ -8,6 +8,14 @@ export enum MimeType {
 /** Mark an object as "New" therefore does not have an `id` field. */
 export type New<T extends { id: number }> = Omit<T, "id">;
 
+/**
+ * Mark an object as having a unique client generated id field.  Use this type if
+ * an objects from hub does not have a single field with a unique key AND the object
+ * is to be used in a table.  Our table handlers assume a single field with a unique
+ * value across all objects in a set to properly handle row selections.
+ */
+export type WithUiId<T> = T & { _ui_unique_id: string };
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -603,82 +611,105 @@ export interface AnalysisAppDependency {
   };
 }
 
-export interface AnalysisIssueLink {
+export interface AnalysisInsight {
+  id: number;
+  analysis: number;
+  ruleset: string;
+  rule: string;
+  name: string;
+  description?: string;
+  category?: string;
+  effort?: number;
+
+  incidents?: AnalysisIncident[];
+  links?: AnalysisInsightLink[];
+  facts?: AnalysisFacts;
+  labels: string[];
+}
+
+export interface AnalysisIncident {
+  id: number;
+  insight: number;
+  file: string;
+  line: number;
+  message: string;
+  codeSnip: string;
+  facts: AnalysisFacts;
+}
+
+export interface AnalysisInsightLink {
   url: string;
   title: string;
 }
 
-interface AnalysisIssuesCommonFields {
-  name: string;
-  description: string;
+export interface AnalysisFacts extends Record<string, unknown> {}
+
+/** HUB RuleReport - Insight / Ruleset+Rule summary */
+export interface AnalysisReportInsight {
   ruleset: string;
   rule: string;
+  name: string;
+  description: string;
   category: string;
   effort: number;
   labels: string[];
-  links?: AnalysisIssueLink[];
+  links: AnalysisInsightLink[];
+
+  /** count of applications that have this insight */
+  applications: number;
 }
 
-// Hub type: Issue
-export interface AnalysisIssue extends AnalysisIssuesCommonFields {
-  id: number;
-}
+export type UiAnalysisReportInsight = WithUiId<AnalysisReportInsight>;
 
-// Hub type: AppReport - Insights collated by application (but filtered by ruleset/rule)
-// When filtered by ruleset/rule, this object matches exactly one insight and includes that insight's details
-export interface AnalysisAppReport extends AnalysisIssue {
-  id: number; // Application id
+/** HUB InsightReport - Insight / Ruleset+Rule summary, for one application */
+export interface AnalysisReportApplicationInsight {
+  /** insight id */ id: number;
+  ruleset: string;
+  rule: string;
   name: string;
   description: string;
+  category: string;
   effort: number;
-  businessService: string;
+  labels: string[];
+  links: AnalysisInsightLink[];
+
+  /** count of files that have this insight */
+  files: number;
+}
+
+export type UiAnalysisReportApplicationInsight =
+  WithUiId<AnalysisReportApplicationInsight>;
+
+/**
+ * HUB InsightAppReport - Insight for application
+ * When filtered by ruleset/rule, this object matches exactly one insight and includes that insight's details
+ */
+export interface AnalysisReportInsightApplication {
+  /** application id */ id: number;
+  /** application name */ name: string;
+  /** application description */ description: string;
+  /** application business service */ businessService: string;
+
+  effort: number;
   incidents: number;
   files: number;
+
   insight: {
     id: number;
     name: string;
+    description: string;
     ruleset: string;
     rule: string;
   };
 }
 
-// Hub type: RuleReport - Issues collated by ruleset/rule
-export interface BaseAnalysisRuleReport extends AnalysisIssuesCommonFields {
-  applications: number;
-}
-
-// Hub type: IssueReport - Issues collated by ruleset/rule, filtered by one application
-export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
-  id: number; // Issue id
-  files: number;
-}
-
-/**
- * Mark an object as having a unique client generated id field.  Use this type if
- * an objects from hub does not have a single field with a unique key AND the object
- * is to be used in a table.  Our table handlers assume a single field with a unique
- * value across all objects in a set to properly handle row selections.
- */
-export type WithUiId<T> = T & { _ui_unique_id: string };
-
-export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
-export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
-
-// Hub type: FileReport - Incidents collated by file
-export interface AnalysisFileReport {
+/** HUB FileReport - Insight occurrence in a file summary */
+export interface AnalysisReportFile {
   insightId: number;
   file: string;
-  incidents: number;
-  effort: number;
-}
 
-export interface AnalysisIncident {
-  id: number;
-  file: string;
-  line: number;
-  message: string;
-  codeSnip: string;
-  facts: Record<string, string>; // TODO what's actually in here?
+  /** count of incidents in the file */ incidents: number;
+  /** total effort of all incidents in the file */ effort: number;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";
