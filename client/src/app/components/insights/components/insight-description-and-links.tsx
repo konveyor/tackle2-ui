@@ -3,18 +3,18 @@ import ReactMarkdown from "react-markdown";
 import { TextContent, List, ListItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AnalysisIssueLink } from "@app/api/models";
+import { AnalysisInsightLink } from "@app/api/models";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 import ExternalLink from "@app/components/ExternalLink";
 
-export interface IIssueDescriptionAndLinksProps {
+export interface IInsightDescriptionAndLinksProps {
   description: string;
-  links?: AnalysisIssueLink[];
+  links?: AnalysisInsightLink[];
   className?: string;
 }
 
-export const IssueDescriptionAndLinks: React.FC<
-  IIssueDescriptionAndLinksProps
+export const InsightDescriptionAndLinks: React.FC<
+  IInsightDescriptionAndLinksProps
 > = ({ description, links, className = "" }) => (
   <div className={className}>
     <TextContent className={spacing.mbMd}>

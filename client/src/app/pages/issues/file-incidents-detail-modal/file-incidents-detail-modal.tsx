@@ -17,16 +17,16 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateError } from "@app/components/StateError";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { AnalysisFileReport, AnalysisIssue } from "@app/api/models";
-import { useFetchIncidents } from "@app/queries/analysis";
+import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
+import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
-import { IssueDescriptionAndLinks } from "../../components/issue-description-and-links";
-import { getIssueTitle } from "../../helpers";
+import { InsightDescriptionAndLinks } from "@app/components/insights/components";
+import { getIssueTitle } from "../helpers";
 
 export interface IFileIncidentsDetailModalProps {
-  issue: AnalysisIssue;
-  fileReport: AnalysisFileReport;
+  issue: AnalysisInsight;
+  fileReport: AnalysisReportFile;
   onClose: () => void;
 }
 
@@ -40,7 +40,7 @@ export const FileIncidentsDetailModal: React.FC<
     result: { data: firstFiveIncidents, total: totalNumIncidents },
     isFetching,
     fetchError,
-  } = useFetchIncidents(fileReport.insightId, {
+  } = useFetchIncidentsForInsight(fileReport.insightId, {
     filters: [{ field: "file", operator: "=", value: fileReport.file }],
     page: { pageNumber: 1, itemsPerPage: 5 },
   });
@@ -113,7 +113,7 @@ export const FileIncidentsDetailModal: React.FC<
                         </Text>
                         <Text component="small">Line {incident.line}</Text>
                       </TextContent>
-                      <IssueDescriptionAndLinks
+                      <InsightDescriptionAndLinks
                         className={spacing.mtLg}
                         description={incident.message}
                         links={issue.links}
