@@ -933,7 +933,7 @@ export interface Generator {
   name: string;
   description?: string;
   repository?: Repository;
-  parameters?: JsonDocument;
+  params?: JsonDocument;
   values?: JsonDocument;
   identity?: Ref;
   profiles?: Ref[];
