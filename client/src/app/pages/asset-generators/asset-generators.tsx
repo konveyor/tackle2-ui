@@ -299,7 +299,7 @@ const AssetGenerators: React.FC = () => {
                           {generator?.repository?.url}
                         </Td>
                         <Td {...getTdProps({ columnKey: "parameters" })}>
-                          {Object.keys(generator?.parameters || {}).length}
+                          {Object.keys(generator?.params || {}).length}
                         </Td>
                         <Td {...getTdProps({ columnKey: "values" })}>
                           {Object.keys(generator?.values || {}).length}
