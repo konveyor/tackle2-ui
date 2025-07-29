@@ -98,14 +98,14 @@ import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import {
   ApplicationAnalysisStatus,
   mapAnalysisStateToLabel,
-} from "../components/application-analysis-status";
-import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
+} from "./components/application-analysis-status";
+import { ApplicationAssessmentStatus } from "./components/application-assessment-status";
 import { ApplicationBusinessService } from "../components/application-business-service";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
-import { ApplicationFormModal } from "../components/application-form";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
+import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
+import { ApplicationFormModal } from "../application-form";
+import { ApplicationIdentityForm } from "../application-identity-form/application-identity-form";
+import { ApplicationReviewStatus } from "./components/application-review-status";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IconWithLabel } from "@app/components/Icons";

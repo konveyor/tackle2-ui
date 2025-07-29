@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-core";
 import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { ApplicationBusinessService } from "../application-business-service";
+import { ApplicationBusinessService } from "../components/application-business-service";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";

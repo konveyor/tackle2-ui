@@ -46,13 +46,13 @@ import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels
 import { RiskLabel } from "@app/components/RiskLabel";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 
-import { ApplicationTags } from "../application-tags";
+import { ApplicationTags } from "./application-tags";
 import DownloadButton from "./components/download-button";
 import { ApplicationDetailFields } from "./application-detail-fields";
 import { ApplicationFacts } from "./application-facts";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
-import { DecoratedApplication } from "../../useDecoratedApplications";
+import { DecoratedApplication } from "../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -76,7 +76,7 @@ import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { useFetchApplicationManifest } from "@app/queries/applications";
-import { usePlatformCoordinatesProvider } from "../../usePlatformCoordinatesProvider";
+import { usePlatformCoordinatesProvider } from "../usePlatformCoordinatesProvider";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

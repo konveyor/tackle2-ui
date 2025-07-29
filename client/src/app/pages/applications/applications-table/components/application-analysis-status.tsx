@@ -6,6 +6,7 @@ import {
   IconedStatus,
   IconedStatusPreset,
 } from "@app/components/Icons";
+
 export interface ApplicationAnalysisStatusProps {
   state: TaskState;
 }
