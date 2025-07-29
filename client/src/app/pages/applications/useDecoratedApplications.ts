@@ -55,6 +55,9 @@ export interface DecoratedApplication extends Application {
 
   assessmentStatus: ApplicationAssessmentStatus;
 
+  isReadyForRetrieveConfigurations: boolean;
+  isReadyForGenerateAssets: boolean;
+
   /** Contain directly referenced versions of `Ref[]` Application props */
   direct: {
     identities?: Identity[];
@@ -158,6 +161,12 @@ const decorateApplications = (
         archetypes,
         assessments
       ),
+
+      isReadyForRetrieveConfigurations:
+        app.platform && app.coordinates?.content ? true : false,
+
+      isReadyForGenerateAssets:
+        app.platform && app.coordinates?.content ? true : false,
 
       direct: {
         identities: app.identities

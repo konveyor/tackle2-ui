@@ -125,27 +125,36 @@ export interface Repository {
   path?: string;
 }
 
+/** A JSON document with its schema */
+export interface Document {
+  content: JsonDocument;
+  schema: JsonSchemaObject;
+}
+
 export interface Application {
   id: number;
   name: string;
   description?: string;
+  bucket?: Ref;
+  repository?: Repository;
+  assets?: Repository;
+  binary?: string;
+  coordinates?: Document;
+  review?: Ref;
   comments?: string;
-  businessService?: Ref;
+  identities?: Ref[];
   tags?: TagRef[];
+  businessService?: Ref;
   owner?: Ref;
   contributors?: Ref[];
-  review?: Ref;
-  identities?: Ref[];
-  repository?: Repository;
-  binary?: string;
   migrationWave: Ref | null;
+  platform?: Ref;
+  archetypes?: Ref[];
   assessments?: Ref[];
   assessed?: boolean;
-  archetypes?: Ref[];
   risk?: Risk;
   confidence?: number;
   effort?: number;
-  platform?: Ref;
 }
 
 export interface Review {

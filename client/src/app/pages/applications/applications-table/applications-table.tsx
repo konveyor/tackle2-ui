@@ -892,13 +892,13 @@ export const ApplicationsTable: React.FC = () => {
   };
 
   const handleRetrieveConfigurations = (application: DecoratedApplication) => {
-    // TODO: Implement this
-    console.log("retrieve configurations");
+    // TODO: Implement this with #2288
+    console.log("retrieve configurations coming with #2288");
   };
 
   const handleGenerateAssets = (application: DecoratedApplication) => {
-    // TODO: Implement this
-    console.log("generate assets");
+    // TODO: Implement this with #2294
+    console.log("generate assets coming with #2294");
   };
 
   const handleChangeSourcePlatform = (applications: DecoratedApplication[]) => {
@@ -1223,21 +1223,22 @@ export const ApplicationsTable: React.FC = () => {
                               onClick: () => cancelAnalysis(application),
                             },
 
-                          // TODO: Only include this separator if one of the next 2 actions are included
-                          applicationWriteAccess && { isSeparator: true },
-
-                          // TODO: Retrieve configurations only if the application has a source platform and coordinates are set?
-                          applicationWriteAccess && {
-                            title: t("actions.retrieveConfigurations"),
-                            onClick: () =>
-                              handleRetrieveConfigurations(application),
-                          },
-
-                          // TODO: Generate assets only if the application has an attached Manifest
-                          applicationWriteAccess && {
-                            title: t("actions.generateAssets"),
-                            onClick: () => handleGenerateAssets(application),
-                          },
+                          applicationWriteAccess &&
+                            (application.isReadyForGenerateAssets ||
+                              application.isReadyForRetrieveConfigurations) && {
+                              isSeparator: true,
+                            },
+                          applicationWriteAccess &&
+                            application.isReadyForRetrieveConfigurations && {
+                              title: t("actions.retrieveConfigurations"),
+                              onClick: () =>
+                                handleRetrieveConfigurations(application),
+                            },
+                          applicationWriteAccess &&
+                            application.isReadyForGenerateAssets && {
+                              title: t("actions.generateAssets"),
+                              onClick: () => handleGenerateAssets(application),
+                            },
 
                           applicationWriteAccess && { isSeparator: true },
                           applicationWriteAccess && {
