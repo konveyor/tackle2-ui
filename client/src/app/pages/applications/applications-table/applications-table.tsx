@@ -115,6 +115,10 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import {
+  RetrieveConfigWizard,
+  TaskGroupProvider as ConfigTaskGroupProvider,
+} from "../retrieve-config-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -154,6 +158,8 @@ export const ApplicationsTable: React.FC = () => {
     useState<DecoratedApplication | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
+  const [isRetrieveConfigModalOpen, setRetrieveConfigModalOpen] =
+    useState(false);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
@@ -745,6 +751,20 @@ export const ApplicationsTable: React.FC = () => {
         {t("actions.manageCredentials")}
       </DropdownItem>
     ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="retrieve-configurations-bulk"
+        isDisabled={
+          selectedRows.length < 1 ||
+          !selectedRows.some((app) => app.platform?.id)
+        }
+        onClick={() => {
+          setRetrieveConfigModalOpen(true);
+        }}
+      >
+        {t("actions.retrieveConfigurations")}
+      </DropdownItem>
+    ),
   ].filter(Boolean);
 
   /**
@@ -1172,6 +1192,13 @@ export const ApplicationsTable: React.FC = () => {
                                 title: t("actions.cancelAnalysis"),
                                 onClick: () => cancelAnalysis(application),
                               },
+                            applicationWriteAccess &&
+                              application.platform?.id && {
+                                title: t("actions.retrieveConfigurations"),
+                                onClick: () => {
+                                  setRetrieveConfigModalOpen(true);
+                                },
+                              },
                             applicationWriteAccess && { isSeparator: true },
                             applicationWriteAccess && {
                               title: t("actions.delete"),
@@ -1210,6 +1237,15 @@ export const ApplicationsTable: React.FC = () => {
             }}
           />
         </TaskGroupProvider>
+        <ConfigTaskGroupProvider>
+          <RetrieveConfigWizard
+            applications={selectedRows}
+            isOpen={isRetrieveConfigModalOpen}
+            onClose={() => {
+              setRetrieveConfigModalOpen(false);
+            }}
+          />
+        </ConfigTaskGroupProvider>
         <Modal
           isOpen={isCreateUpdateCredentialsModalOpen}
           variant="medium"

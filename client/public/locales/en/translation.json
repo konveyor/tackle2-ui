@@ -51,8 +51,11 @@
     "override": "Override",
     "reset": "Reset",
     "review": "Review",
+    "retrieve": "Retrieve",
+    "retrieveConfigurations": "Retrieve configurations",
     "save": "Save",
     "saveAndReview": "Save and review",
+    "selectAll": "Select all",
     "saveAsDraft": "Save as draft",
     "selectAll_one": "Select all ({{count}} item)",
     "selectAll_other": "Select all ({{count}} items)",
@@ -116,6 +119,7 @@
   },
   "dialog": {
     "message": {
+      "retrieveConfigurations": "Retrieve runtime configurations from source platforms for the selected applications.",
       "applicationsBulkDelete": "The selected application(s) will be deleted.",
       "TasksBulkCancel": "The selected task(s) will be canceled.",
       "delete": "This action cannot be undone.",
@@ -160,6 +164,7 @@
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
+      "retrieveConfigurations": "Retrieve configurations",
       "update": "Update {{what}}",
       "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
@@ -436,6 +441,7 @@
     "name": "Name",
     "new": "New",
     "none": "None",
+    "noDescription": "No description available",
     "northboundDependencies": "Northbound dependencies",
     "notAvailable": "Not available",
     "notConnected": "Not connected",
@@ -651,6 +657,19 @@
     },
     "tooltip": {
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
+    },
+    "retrieveConfigurations": {
+      "selectApplications": {
+        "title": "Select applications",
+        "description": "Choose the applications for which you want to retrieve configurations from their source platforms."
+      },
+      "review": {
+        "title": "Review",
+        "description": "Review your selections before starting the configuration retrieval process.",
+        "selectedApplications": "Selected applications",
+        "warning": "Configuration retrieval will connect to the source platforms using the application coordinates."
+      },
+      "selectedCount": "{{count}} of {{total}} applications selected"
     }
   },
   "credentials": {
