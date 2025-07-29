@@ -28,7 +28,7 @@ import {
 } from "@app/components/FilterToolbar";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useHistory } from "react-router-dom";
-import { ItemTagLabel } from "../../../components/labels/item-tag-label/item-tag-label";
+import { ItemTagLabel } from "@app/components/labels/item-tag-label/item-tag-label";
 import { capitalizeFirstLetter, universalComparator } from "@app/utils/utils";
 
 interface TagWithSource extends Tag {

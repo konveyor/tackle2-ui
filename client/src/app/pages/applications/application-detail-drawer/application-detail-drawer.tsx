@@ -5,13 +5,10 @@ import { useTranslation } from "react-i18next";
 import {
   TextContent,
   Text,
-  TextVariants,
   Title,
   Tabs,
   Tab,
   TabTitleText,
-  Spinner,
-  Bullseye,
   Button,
   DescriptionList,
   DescriptionListDescription,
@@ -38,7 +35,6 @@ import {
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 
-import { ApplicationTags } from "./application-tags";
 import DownloadButton from "./components/download-button";
 import { ApplicationFacts } from "./application-facts";
 import { formatPath } from "@app/utils/utils";
@@ -69,6 +65,7 @@ import { SchemaDefinedField } from "@app/components/schema-defined-fields/Schema
 import { useFetchApplicationManifest } from "@app/queries/applications";
 import { usePlatformCoordinatesProvider } from "../usePlatformCoordinatesProvider";
 import { TabDetailsContent } from "./tab-details-content";
+import { TabTagsContent } from "./tab-tags-content";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -188,34 +185,6 @@ export const ApplicationDetailDrawer: React.FC<
         </Tabs>
       </div>
     </PageDrawerContent>
-  );
-};
-
-const TabTagsContent: React.FC<{
-  application: DecoratedApplication;
-}> = ({ application }) => {
-  const { t } = useTranslation();
-  const task = application.tasks.currentAnalyzer;
-  const isTaskRunning = task?.state === "Running";
-
-  return (
-    <>
-      {isTaskRunning ? (
-        <Bullseye className={spacing.mtLg}>
-          <TextContent>
-            <Text component={TextVariants.h3}>
-              {t("message.taskInProgressForTags")}
-              <Spinner
-                isInline
-                aria-label="spinner when a new analysis is running"
-              />
-            </Text>
-          </TextContent>
-        </Bullseye>
-      ) : null}
-
-      <ApplicationTags application={application} />
-    </>
   );
 };
 
