@@ -12,8 +12,6 @@ import {
   TabTitleText,
   Spinner,
   Bullseye,
-  List,
-  ListItem,
   Button,
   DescriptionList,
   DescriptionListDescription,
@@ -26,7 +24,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
-import { Identity, MimeType, Manifest, Archetype } from "@app/api/models";
+import { Identity, MimeType, Manifest } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { useFetchFacts } from "@app/queries/facts";
 import { useFetchIdentities } from "@app/queries/identities";
@@ -34,21 +32,14 @@ import { useSetting } from "@app/queries/settings";
 import { getKindIdByRef } from "@app/utils/model-utils";
 
 import {
-  getDependenciesUrlFilteredByAppName,
-  getIssuesSingleAppSelectedLocation,
-} from "@app/pages/issues/helpers";
-import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
-import { RiskLabel } from "@app/components/RiskLabel";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 
 import { ApplicationTags } from "./application-tags";
 import DownloadButton from "./components/download-button";
-import { ApplicationDetailFields } from "./application-detail-fields";
 import { ApplicationFacts } from "./application-facts";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
@@ -77,6 +68,7 @@ import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { useFetchApplicationManifest } from "@app/queries/applications";
 import { usePlatformCoordinatesProvider } from "../usePlatformCoordinatesProvider";
+import { TabDetailsContent } from "./tab-details-content";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -196,137 +188,6 @@ export const ApplicationDetailDrawer: React.FC<
         </Tabs>
       </div>
     </PageDrawerContent>
-  );
-};
-
-const ApplicationArchetypesLabels: React.FC<{
-  application: DecoratedApplication;
-  filter?: (archetype: Archetype) => boolean;
-  color?: Parameters<typeof LabelsFromItems>[0]["color"];
-}> = ({
-  application: {
-    direct: { archetypes },
-  },
-  filter = () => true,
-  color = "grey",
-}) => {
-  const { t } = useTranslation();
-  const filteredArchetypes = !archetypes ? [] : archetypes.filter(filter);
-  return (filteredArchetypes?.length ?? 0) > 0 ? (
-    <LabelsFromItems items={filteredArchetypes} color={color} />
-  ) : (
-    <EmptyTextMessage message={t("terms.none")} />
-  );
-};
-
-const TabDetailsContent: React.FC<{
-  application: DecoratedApplication;
-  onCloseClick: () => void;
-  onEditClick: () => void;
-}> = ({ application, onCloseClick, onEditClick }) => {
-  const { t } = useTranslation();
-  return (
-    <>
-      <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
-        <Text component="small">{application?.description}</Text>
-
-        <List isPlain>
-          {application ? (
-            <>
-              <ListItem>
-                <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
-                  Issues
-                </Link>
-              </ListItem>
-              <ListItem>
-                <Link
-                  to={getDependenciesUrlFilteredByAppName(application?.name)}
-                >
-                  Dependencies
-                </Link>
-              </ListItem>
-            </>
-          ) : null}
-        </List>
-
-        <Title headingLevel="h3" size="md">
-          {t("terms.effort")}
-        </Title>
-        <Text component="small">
-          <Text component="small">
-            {application?.effort !== 0 && application?.effort !== undefined
-              ? application?.effort
-              : t("terms.unassigned")}
-          </Text>
-        </Text>
-      </TextContent>
-
-      <Title headingLevel="h3" size="md">
-        {t("terms.archetypes")}
-      </Title>
-      <DescriptionList
-        isHorizontal
-        isCompact
-        columnModifier={{ default: "1Col" }}
-        horizontalTermWidthModifier={{
-          default: "15ch",
-        }}
-      >
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.associatedArchetypes")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels application={application} />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.archetypesAssessed")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels
-              application={application}
-              filter={
-                // Filter matches the archetype table's assessment column
-                (archetype) => !!archetype.assessed
-              }
-            />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.archetypesReviewed")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels
-              application={application}
-              filter={
-                // Filter matches the archetype table's review column
-                (archetype) => !!archetype.review
-              }
-            />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      </DescriptionList>
-
-      <TextContent className={spacing.mtLg}>
-        <Title headingLevel="h3" size="md">
-          {t("terms.riskFromApplication")}
-        </Title>
-        <Text component="small" cy-data="comments">
-          <RiskLabel risk={application?.risk} />
-        </Text>
-      </TextContent>
-
-      <ApplicationDetailFields
-        application={application}
-        onEditClick={onEditClick}
-        onCloseClick={onCloseClick}
-      />
-    </>
   );
 };
 
