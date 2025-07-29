@@ -11,18 +11,17 @@ import {
   Spinner,
   Tooltip,
 } from "@patternfly/react-core";
-import { Application } from "@app/api/models";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { ApplicationBusinessService } from "../components/application-business-service";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { EditIcon } from "@patternfly/react-icons";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { UnlinkIcon } from "@patternfly/react-icons";
 import { useFetchPlatformById } from "@app/queries/platforms";
+import { DecoratedApplication } from "../useDecoratedApplications";
 
 export const ApplicationDetailFields: React.FC<{
-  application: Application | null;
+  application: DecoratedApplication | null;
   onEditClick: () => void;
   onCloseClick: () => void;
 }> = ({ application, onEditClick, onCloseClick }) => {
@@ -34,6 +33,7 @@ export const ApplicationDetailFields: React.FC<{
   const matchingTicket = tickets?.find(
     (ticket) => ticket.application?.id === application?.id
   );
+
   return (
     <>
       <TextContent className={spacing.mtLg}>
@@ -146,11 +146,9 @@ export const ApplicationDetailFields: React.FC<{
         {t("terms.businessService")}
       </Title>
       <Text component="small">
-        {application?.businessService ? (
-          <ApplicationBusinessService id={application.businessService.id} />
-        ) : (
-          t("terms.unassigned")
-        )}
+        {application?.direct.businessService
+          ? application.direct.businessService.name
+          : t("terms.unassigned")}
       </Text>
       <Title headingLevel="h3" size="md">
         {t("terms.migrationWave")}

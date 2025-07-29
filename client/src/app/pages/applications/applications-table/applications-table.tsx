@@ -96,16 +96,15 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import {
-  ApplicationAnalysisStatus,
+  ColumnAnalysisStatus,
   mapAnalysisStateToLabel,
-} from "./components/application-analysis-status";
-import { ApplicationAssessmentStatus } from "./components/application-assessment-status";
-import { ApplicationBusinessService } from "../components/application-business-service";
+} from "./components/column-analysis-status";
+import { ColumnAssessmentStatus } from "./components/column-assessment-status";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
 import { ApplicationIdentityForm } from "../application-identity-form/application-identity-form";
-import { ApplicationReviewStatus } from "./components/application-review-status";
+import { ColumnReviewStatus } from "./components/column-review-status";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IconWithLabel } from "@app/components/Icons";
@@ -1083,10 +1082,10 @@ export const ApplicationsTable: React.FC = () => {
                         {...getTdProps({ columnKey: "businessService" })}
                         modifier="truncate"
                       >
-                        {application.businessService && (
-                          <ApplicationBusinessService
-                            id={application.businessService.id}
-                          />
+                        {application.direct.businessService ? (
+                          application.direct.businessService.name
+                        ) : (
+                          <></>
                         )}
                       </Td>
                     )}
@@ -1096,7 +1095,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
-                        <ApplicationAssessmentStatus
+                        <ColumnAssessmentStatus
                           application={application}
                           key={`${application?.id}-assessment-status`}
                         />
@@ -1108,7 +1107,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <ApplicationReviewStatus
+                        <ColumnReviewStatus
                           application={application}
                           key={`${application?.id}-review-status`}
                         />
@@ -1120,7 +1119,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "analysis" })}
                       >
-                        <ApplicationAnalysisStatus
+                        <ColumnAnalysisStatus
                           state={
                             application.tasks.currentAnalyzer?.state ||
                             "No task"
