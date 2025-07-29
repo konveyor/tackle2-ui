@@ -96,6 +96,7 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { AssetGenerationWizard } from "../asset-generation-wizard/asset-generation-wizard";
 import {
   ApplicationAnalysisStatus,
   mapAnalysisStateToLabel,
@@ -115,6 +116,7 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { TaskGroupProvider as AssetGenerationTaskGroupProvider } from "../asset-generation-wizard/components/TaskGroupContext";
 import {
   RetrieveConfigWizard,
   TaskGroupProvider as ConfigTaskGroupProvider,
@@ -159,6 +161,8 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
   const [isRetrieveConfigModalOpen, setRetrieveConfigModalOpen] =
+    useState(false);
+  const [isAssetGenerationModalOpen, setAssetGenerationModalOpen] =
     useState(false);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
@@ -765,6 +769,20 @@ export const ApplicationsTable: React.FC = () => {
         {t("actions.retrieveConfigurations")}
       </DropdownItem>
     ),
+    applicationWriteAccess && (
+      <DropdownItem
+        key="generate-assets-bulk"
+        isDisabled={
+          selectedRows.length < 1 //||
+          // !selectedRows.some((app) => app.archetypes && app.archetypes.length > 0)
+        }
+        onClick={() => {
+          setAssetGenerationModalOpen(true);
+        }}
+      >
+        {t("actions.generateAssets")}
+      </DropdownItem>
+    ),
   ].filter(Boolean);
 
   /**
@@ -1199,6 +1217,14 @@ export const ApplicationsTable: React.FC = () => {
                                   setRetrieveConfigModalOpen(true);
                                 },
                               },
+                            applicationWriteAccess &&
+                              application.archetypes &&
+                              application.archetypes.length > 0 && {
+                                title: t("actions.generateAssets"),
+                                onClick: () => {
+                                  setAssetGenerationModalOpen(true);
+                                },
+                              },
                             applicationWriteAccess && { isSeparator: true },
                             applicationWriteAccess && {
                               title: t("actions.delete"),
@@ -1246,6 +1272,15 @@ export const ApplicationsTable: React.FC = () => {
             }}
           />
         </ConfigTaskGroupProvider>
+        <AssetGenerationTaskGroupProvider>
+          <AssetGenerationWizard
+            applications={selectedRows}
+            isOpen={isAssetGenerationModalOpen}
+            onClose={() => {
+              setAssetGenerationModalOpen(false);
+            }}
+          />
+        </AssetGenerationTaskGroupProvider>
         <Modal
           isOpen={isCreateUpdateCredentialsModalOpen}
           variant="medium"
