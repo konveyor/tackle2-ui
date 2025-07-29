@@ -740,26 +740,27 @@ export const ApplicationsTable: React.FC = () => {
       key="change-source-platform-applications"
       component="button"
       isDisabled={selectedRows.length < 2}
-      onClick={() => console.log("change source platform")}
+      onClick={() => handleChangeSourcePlatform(selectedRows)}
     >
       {t("actions.changeSourcePlatform")}
     </DropdownItem>,
-    <DropdownItem
-      key="retrieve-configurations-for-applications"
-      component="button"
-      isDisabled={selectedRows.length < 1}
-      onClick={() => console.log("retrieve configurations")}
-    >
-      {t("actions.retrieveConfigurations")}
-    </DropdownItem>,
-    <DropdownItem
-      key="generate-assets-for-applications"
-      component="button"
-      isDisabled={selectedRows.length < 1}
-      onClick={() => console.log("generate assets")}
-    >
-      {t("actions.generateAssets")}
-    </DropdownItem>,
+    // TODO: Add these back when we can handle the retrieve and generate operations in bulk
+    // <DropdownItem
+    //   key="retrieve-configurations-for-applications"
+    //   component="button"
+    //   isDisabled={selectedRows.length < 1}
+    //   onClick={() => console.log("retrieve configurations")}
+    // >
+    //   {t("actions.retrieveConfigurations")}
+    // </DropdownItem>,
+    // <DropdownItem
+    //   key="generate-assets-for-applications"
+    //   component="button"
+    //   isDisabled={selectedRows.length < 1}
+    //   onClick={() => console.log("generate assets")}
+    // >
+    //   {t("actions.generateAssets")}
+    // </DropdownItem>,
     <DropdownSeparator key="breakpoint" />,
     applicationWriteAccess && (
       <DropdownItem
@@ -888,6 +889,21 @@ export const ApplicationsTable: React.FC = () => {
         })
       );
     }
+  };
+
+  const handleRetrieveConfigurations = (application: DecoratedApplication) => {
+    // TODO: Implement this
+    console.log("retrieve configurations");
+  };
+
+  const handleGenerateAssets = (application: DecoratedApplication) => {
+    // TODO: Implement this
+    console.log("generate assets");
+  };
+
+  const handleChangeSourcePlatform = (applications: DecoratedApplication[]) => {
+    // TODO: Implement this
+    console.log("change source platform");
   };
 
   return (
@@ -1214,17 +1230,13 @@ export const ApplicationsTable: React.FC = () => {
                           applicationWriteAccess && {
                             title: t("actions.retrieveConfigurations"),
                             onClick: () =>
-                              // TODO: Implement this
-                              console.log("retrieve configurations"),
+                              handleRetrieveConfigurations(application),
                           },
 
                           // TODO: Generate assets only if the application has an attached Manifest
                           applicationWriteAccess && {
                             title: t("actions.generateAssets"),
-                            onClick: () => {
-                              // TODO: Implement this
-                              console.log("generate assets");
-                            },
+                            onClick: () => handleGenerateAssets(application),
                           },
 
                           applicationWriteAccess && { isSeparator: true },
