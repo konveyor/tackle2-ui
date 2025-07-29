@@ -1,0 +1,302 @@
+import * as React from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import {
+  Modal,
+  ModalVariant,
+  Wizard,
+  WizardStep,
+  WizardStepType,
+  WizardHeader,
+} from "@patternfly/react-core";
+import { useTranslation } from "react-i18next";
+
+import {
+  Application,
+  New,
+  TaskData,
+  Taskgroup,
+  TaskgroupTask,
+} from "@app/api/models";
+import { Review } from "./review";
+import { SetApplications } from "./set-applications";
+import {
+  useCreateTaskgroupMutation,
+  useDeleteTaskgroupMutation,
+  useSubmitTaskgroupMutation,
+} from "@app/queries/taskgroups";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import {
+  RetrieveConfigWizardFormValues,
+  useRetrieveConfigWizardFormValidationSchema,
+} from "./schema";
+import { useTaskGroup } from "./components/TaskGroupContext";
+
+interface IRetrieveConfigWizard {
+  applications: Application[];
+  onClose: () => void;
+  isOpen: boolean;
+}
+
+enum StepId {
+  SetApplications = 1,
+  Review = 2,
+}
+
+const StepMap: Map<StepId, string> = new Map([
+  [StepId.SetApplications, "Set Applications"],
+  [StepId.Review, "Review"],
+]);
+
+const initTask = (application: Application): TaskgroupTask => ({
+  name: `${application.name}.${application.id}.config-discovery`,
+  data: {
+    kind: "config-discovery",
+    platform: application.platform || null,
+    repository: application.repository || null,
+  },
+  application: { id: application.id as number, name: application.name },
+});
+
+const defaultConfigTaskData: TaskData = {
+  tagger: {
+    enabled: false,
+  },
+  verbosity: 0,
+  mode: {
+    binary: false,
+    withDeps: false,
+    artifact: "",
+  },
+  targets: [],
+  sources: [],
+  scope: {
+    withKnownLibs: false,
+    packages: {
+      included: [],
+      excluded: [],
+    },
+  },
+  rules: {
+    path: "",
+    labels: {
+      included: [],
+      excluded: [],
+    },
+  },
+};
+
+export const defaultConfigTaskgroup: New<Taskgroup> = {
+  name: `taskgroup.config-discovery`,
+  kind: "config-discovery",
+  data: {
+    ...defaultConfigTaskData,
+  },
+  tasks: [],
+};
+
+export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
+  applications,
+  onClose,
+  isOpen,
+}: IRetrieveConfigWizard) => {
+  const { t } = useTranslation();
+
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  const { taskGroup, updateTaskGroup } = useTaskGroup();
+
+  const [stepIdReached, setStepIdReached] = React.useState(1);
+
+  // Filter applications that have source platforms
+  const validApplications = React.useMemo(
+    () => applications.filter((app) => app.id && app?.name),
+    [applications]
+  );
+
+  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
+    updateTaskGroup(data);
+  };
+
+  const onCreateTaskgroupError = (_error: Error | unknown) => {
+    pushNotification({
+      title: "Configuration discovery taskgroup creation failed",
+      variant: "danger",
+    });
+    onClose();
+  };
+
+  const { mutate: createTaskgroup } = useCreateTaskgroupMutation(
+    onCreateTaskgroupSuccess,
+    onCreateTaskgroupError
+  );
+
+  const onSubmitTaskgroupSuccess = (_data: Taskgroup) =>
+    pushNotification({
+      title: "Applications",
+      message: "Submitted for configuration retrieval",
+      variant: "info",
+    });
+
+  const onSubmitTaskgroupError = (_error: Error | unknown) =>
+    pushNotification({
+      title: "Configuration discovery taskgroup submit failed",
+      variant: "danger",
+    });
+
+  const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
+    onSubmitTaskgroupSuccess,
+    onSubmitTaskgroupError
+  );
+
+  const onDeleteTaskgroupSuccess = () => {
+    updateTaskGroup(null);
+  };
+
+  const onDeleteTaskgroupError = (_error: Error | unknown) => {
+    pushNotification({
+      title: "Configuration discovery taskgroup: delete failed",
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(
+    onDeleteTaskgroupSuccess,
+    onDeleteTaskgroupError
+  );
+
+  const { allFieldsSchema } = useRetrieveConfigWizardFormValidationSchema({
+    applications: validApplications,
+  });
+
+  const methods = useForm<RetrieveConfigWizardFormValues>({
+    defaultValues: {
+      selectedApplications: [],
+    },
+    resolver: yupResolver(allFieldsSchema),
+    mode: "all",
+    reValidateMode: "onSubmit",
+  });
+
+  const { reset } = methods;
+
+  const firstInvalidStep: number | null = null;
+
+  const setupTaskgroup = (
+    currentTaskgroup: Taskgroup,
+    fieldValues: RetrieveConfigWizardFormValues
+  ): Taskgroup => {
+    return {
+      ...currentTaskgroup,
+      tasks: fieldValues.selectedApplications.map((app: Application) =>
+        initTask(app)
+      ),
+      data: {
+        ...defaultConfigTaskData,
+        // Add any specific configuration discovery data here
+      },
+    };
+  };
+
+  const handleCancel = () => {
+    if (taskGroup && taskGroup.id) {
+      deleteTaskgroup(taskGroup.id);
+    }
+    updateTaskGroup(null);
+    reset();
+    onClose();
+  };
+
+  const onSubmit = (fieldValues: RetrieveConfigWizardFormValues) => {
+    if (taskGroup) {
+      const taskgroup = setupTaskgroup(taskGroup, fieldValues);
+      submitTaskgroup(taskgroup);
+    }
+    updateTaskGroup(null);
+    reset();
+    onClose();
+  };
+
+  const onMove = (current: WizardStepType) => {
+    const id = current.id;
+    if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
+    if (id === StepId.SetApplications) {
+      if (!taskGroup) {
+        createTaskgroup(defaultConfigTaskgroup);
+      }
+    }
+  };
+
+  const isStepEnabled = (stepId: StepId) => {
+    return (
+      stepIdReached + 1 >= stepId &&
+      (firstInvalidStep === null || firstInvalidStep >= stepId)
+    );
+  };
+
+  if (validApplications.length === 0) {
+    return (
+      <Modal
+        variant={ModalVariant.medium}
+        title={t("dialog.title.retrieveConfigurations")}
+        isOpen={isOpen}
+        onClose={handleCancel}
+      >
+        <div style={{ padding: "20px" }}>
+          <p>{t("message.noApplicationsWithSourcePlatforms")}</p>
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <Modal
+      variant={ModalVariant.large}
+      aria-label={t("dialog.title.retrieveConfigurations")}
+      isOpen={isOpen}
+      showClose={false}
+      hasNoBodyWrapper
+      onEscapePress={handleCancel}
+    >
+      <FormProvider {...methods}>
+        <Wizard
+          onSave={methods.handleSubmit(onSubmit)}
+          onClose={handleCancel}
+          onStepChange={(_event, currentStep: WizardStepType) =>
+            onMove(currentStep)
+          }
+          header={
+            <WizardHeader
+              onClose={handleCancel}
+              title={t("dialog.title.retrieveConfigurations")}
+              description={t("dialog.message.retrieveConfigurations")}
+            />
+          }
+        >
+          <WizardStep
+            id={StepId.SetApplications}
+            name={StepMap.get(StepId.SetApplications)}
+            footer={{
+              isNextDisabled: !isStepEnabled(StepId.Review),
+            }}
+          >
+            <SetApplications
+              applications={validApplications}
+              isFetching={false}
+            />
+          </WizardStep>
+          <WizardStep
+            id={StepId.Review}
+            name={StepMap.get(StepId.Review)}
+            footer={{
+              nextButtonText: t("actions.retrieve"),
+            }}
+          >
+            <Review />
+          </WizardStep>
+        </Wizard>
+      </FormProvider>
+    </Modal>
+  );
+};

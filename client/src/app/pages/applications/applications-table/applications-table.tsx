@@ -33,6 +33,7 @@ import {
   Td,
   ActionsColumn,
   Tbody,
+  IAction,
 } from "@patternfly/react-table";
 
 // @app components and utilities
@@ -113,6 +114,10 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import {
+  RetrieveConfigWizard,
+  TaskGroupProvider as ConfigTaskGroupProvider,
+} from "../retrieve-config-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -120,6 +125,16 @@ import {
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { DropdownSeparator } from "@patternfly/react-core/deprecated";
+
+const filterAndAddSeparator = <T,>(
+  separator: T,
+  groups: (T | undefined | false | null)[][]
+): T[] => {
+  return groups
+    .map((items) => items.filter(Boolean))
+    .filter((items) => items.length > 0)
+    .flatMap((items, index) => (index === 0 ? items : [separator, ...items]));
+};
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -153,6 +168,8 @@ export const ApplicationsTable: React.FC = () => {
     useState<DecoratedApplication | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
+  const [isRetrieveConfigModalOpen, setRetrieveConfigModalOpen] =
+    useState(false);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
@@ -671,113 +688,123 @@ export const ApplicationsTable: React.FC = () => {
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
-  const toolbarKebabItems = [
-    importWriteAccess && (
-      <DropdownItem
-        key="import-applications"
-        component="button"
-        onClick={() => setIsApplicationImportModalOpen(true)}
-      >
-        {t("actions.import")}
-      </DropdownItem>
-    ),
-    importWriteAccess && (
-      <DropdownItem
-        key="manage-import-applications"
-        onClick={() => {
-          history.push(Paths.applicationsImports);
-        }}
-      >
-        {t("actions.manageImports")}
-      </DropdownItem>
-    ),
+  const toolbarKebabItems = filterAndAddSeparator<React.ReactNode>(
     <DropdownSeparator key="breakpoint" />,
-    applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
-      <DropdownItem
-        key="applications-bulk-cancel"
-        isDisabled={
-          !selectedRows.some((application: DecoratedApplication) =>
-            isTaskCancellable(application)
-          )
-        }
-        onClick={() => {
-          handleCancelBulkAnalysis();
-        }}
-      >
-        {t("actions.cancelAnalysis")}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && (
-      <DropdownItem
-        key="analysis-bulk-download"
-        isDisabled={
-          !selectedRows.some(
-            (application: DecoratedApplication) =>
-              application.tasks.currentAnalyzer?.id !== undefined
-          )
-        }
-        onClick={() => {
-          setIsDownloadModalOpen(true);
-        }}
-      >
-        {t("actions.download", { what: "analysis details" })}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && credentialsReadAccess && (
-      <DropdownItem
-        key="manage-applications-credentials"
-        isDisabled={selectedRows.length < 1}
-        onClick={() => {
-          setSaveApplicationsCredentialsModalState(selectedRows);
-        }}
-      >
-        {t("actions.manageCredentials")}
-      </DropdownItem>
-    ),
-    <DropdownSeparator key="breakpoint" />,
-    <DropdownItem
-      key="change-source-platform-applications"
-      component="button"
-      isDisabled={selectedRows.length < 2}
-      onClick={() => handleChangeSourcePlatform(selectedRows)}
-    >
-      {t("actions.changeSourcePlatform")}
-    </DropdownItem>,
-    // TODO: Add these back when we can handle the retrieve and generate operations in bulk
-    // <DropdownItem
-    //   key="retrieve-configurations-for-applications"
-    //   component="button"
-    //   isDisabled={selectedRows.length < 1}
-    //   onClick={() => console.log("retrieve configurations")}
-    // >
-    //   {t("actions.retrieveConfigurations")}
-    // </DropdownItem>,
-    // <DropdownItem
-    //   key="generate-assets-for-applications"
-    //   component="button"
-    //   isDisabled={selectedRows.length < 1}
-    //   onClick={() => console.log("generate assets")}
-    // >
-    //   {t("actions.generateAssets")}
-    // </DropdownItem>,
-    <DropdownSeparator key="breakpoint" />,
-    applicationWriteAccess && (
-      <DropdownItem
-        key="applications-bulk-delete"
-        isDisabled={selectedRows.length < 1}
-        className={
-          selectedRows.length < 1
-            ? "pf-v5-u-color-200"
-            : "pf-v5-u-danger-color-100"
-        }
-        onClick={() => {
-          setApplicationsToDelete(selectedRows);
-        }}
-      >
-        {t("actions.delete")}
-      </DropdownItem>
-    ),
-  ].filter(Boolean);
+    [
+      [
+        importWriteAccess && (
+          <DropdownItem
+            key="import-applications"
+            component="button"
+            onClick={() => setIsApplicationImportModalOpen(true)}
+          >
+            {t("actions.import")}
+          </DropdownItem>
+        ),
+        importWriteAccess && (
+          <DropdownItem
+            key="manage-import-applications"
+            onClick={() => {
+              history.push(Paths.applicationsImports);
+            }}
+          >
+            {t("actions.manageImports")}
+          </DropdownItem>
+        ),
+      ],
+      [
+        applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
+          <DropdownItem
+            key="applications-bulk-cancel"
+            isDisabled={
+              !selectedRows.some((application: DecoratedApplication) =>
+                isTaskCancellable(application)
+              )
+            }
+            onClick={() => {
+              handleCancelBulkAnalysis();
+            }}
+          >
+            {t("actions.cancelAnalysis")}
+          </DropdownItem>
+        ),
+        applicationWriteAccess && (
+          <DropdownItem
+            key="analysis-bulk-download"
+            isDisabled={
+              !selectedRows.some(
+                (application: DecoratedApplication) =>
+                  application.tasks.currentAnalyzer?.id !== undefined
+              )
+            }
+            onClick={() => {
+              setIsDownloadModalOpen(true);
+            }}
+          >
+            {t("actions.download", { what: "analysis details" })}
+          </DropdownItem>
+        ),
+        applicationWriteAccess && credentialsReadAccess && (
+          <DropdownItem
+            key="manage-applications-credentials"
+            isDisabled={selectedRows.length < 1}
+            onClick={() => {
+              setSaveApplicationsCredentialsModalState(selectedRows);
+            }}
+          >
+            {t("actions.manageCredentials")}
+          </DropdownItem>
+        ),
+      ],
+      [
+        <DropdownSeparator key="breakpoint" />,
+        <DropdownItem
+          key="change-source-platform-applications"
+          isDisabled={true}
+          onClick={() => handleChangeSourcePlatform(selectedRows)}
+        >
+          {t("actions.changeSourcePlatform")}
+        </DropdownItem>,
+        applicationWriteAccess && (
+          <DropdownItem
+            key="retrieve-configurations-bulk"
+            isDisabled={
+              selectedRows.length < 1 ||
+              !selectedRows.some((app) => app.platform?.id)
+            }
+            onClick={() => {
+              setRetrieveConfigModalOpen(true);
+            }}
+          >
+            {t("actions.retrieveConfigurations")}
+          </DropdownItem>
+        ),
+        // TODO: Add this back when we can handle the generate operation in bulk
+        // <DropdownItem
+        //   key="generate-assets-for-applications"
+        //   component="button"
+        //   isDisabled={selectedRows.length < 1}
+        //   onClick={() => console.log("generate assets")}
+        // >
+        //   {t("actions.generateAssets")}
+        // </DropdownItem>,
+      ],
+      [
+        applicationWriteAccess && (
+          <DropdownItem
+            key="applications-bulk-delete"
+            isDisabled={selectedRows.length < 1}
+            isDanger
+            onClick={() => {
+              setApplicationsToDelete(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        ),
+      ],
+    ]
+  );
 
   /**
    * Analysis on the selected applications should be allowed if:
@@ -1163,90 +1190,97 @@ export const ApplicationsTable: React.FC = () => {
                     </Td>
                     <Td isActionCell id="row-actions">
                       <ActionsColumn
-                        items={[
-                          assessmentWriteAccess && {
-                            title: t("actions.assess"),
-                            onClick: () => assessSelectedApp(application),
-                          },
-                          assessmentWriteAccess &&
-                            (application.assessments?.length ?? 0) > 0 && {
-                              title: t("actions.discardAssessment"),
-                              onClick: () =>
-                                setAssessmentToDiscard(application),
-                            },
-                          reviewsWriteAccess && {
-                            title: t("actions.review"),
-                            onClick: () => reviewSelectedApp(application),
-                          },
-                          reviewsWriteAccess &&
-                            application?.review && {
-                              title: t("actions.discardReview"),
-                              onClick: () => setReviewToDiscard(application),
-                            },
-                          dependenciesWriteAccess && {
-                            title: t("actions.manageDependencies"),
-                            onClick: () =>
-                              setApplicationDependenciesToManage(application),
-                          },
-                          credentialsReadAccess &&
-                            applicationWriteAccess && {
-                              title: t("actions.manageCredentials"),
-                              onClick: () =>
-                                setSaveApplicationsCredentialsModalState([
-                                  application,
-                                ]),
-                            },
-                          analysesReadAccess &&
-                            !!application.tasks.currentAnalyzer && {
-                              title: t("actions.analysisDetails"),
-                              onClick: () => {
-                                const taskId =
-                                  application.tasks.currentAnalyzer?.id;
-                                if (taskId && application.id) {
-                                  history.push(
-                                    formatPath(
-                                      Paths.applicationsAnalysisDetails,
-                                      {
-                                        applicationId: application.id,
-                                        taskId,
-                                      }
-                                    )
-                                  );
-                                }
+                        items={filterAndAddSeparator<IAction>(
+                          { isSeparator: true },
+                          [
+                            [
+                              assessmentWriteAccess && {
+                                title: t("actions.assess"),
+                                onClick: () => assessSelectedApp(application),
                               },
-                            },
-                          tasksReadAccess &&
-                            tasksWriteAccess &&
-                            isTaskCancellable(application) && {
-                              title: t("actions.cancelAnalysis"),
-                              onClick: () => cancelAnalysis(application),
-                            },
-
-                          applicationWriteAccess &&
-                            (application.isReadyForGenerateAssets ||
-                              application.isReadyForRetrieveConfigurations) && {
-                              isSeparator: true,
-                            },
-                          applicationWriteAccess &&
-                            application.isReadyForRetrieveConfigurations && {
-                              title: t("actions.retrieveConfigurations"),
-                              onClick: () =>
-                                handleRetrieveConfigurations(application),
-                            },
-                          applicationWriteAccess &&
-                            application.isReadyForGenerateAssets && {
-                              title: t("actions.generateAssets"),
-                              onClick: () => handleGenerateAssets(application),
-                            },
-
-                          applicationWriteAccess && { isSeparator: true },
-                          applicationWriteAccess && {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              setApplicationsToDelete([application]),
-                            isDanger: true,
-                          },
-                        ].filter(Boolean)}
+                              assessmentWriteAccess &&
+                                (application.assessments?.length ?? 0) > 0 && {
+                                  title: t("actions.discardAssessment"),
+                                  onClick: () =>
+                                    setAssessmentToDiscard(application),
+                                },
+                              reviewsWriteAccess && {
+                                title: t("actions.review"),
+                                onClick: () => reviewSelectedApp(application),
+                              },
+                              reviewsWriteAccess &&
+                                application?.review && {
+                                  title: t("actions.discardReview"),
+                                  onClick: () =>
+                                    setReviewToDiscard(application),
+                                },
+                              dependenciesWriteAccess && {
+                                title: t("actions.manageDependencies"),
+                                onClick: () =>
+                                  setApplicationDependenciesToManage(
+                                    application
+                                  ),
+                              },
+                              credentialsReadAccess &&
+                                applicationWriteAccess && {
+                                  title: t("actions.manageCredentials"),
+                                  onClick: () =>
+                                    setSaveApplicationsCredentialsModalState([
+                                      application,
+                                    ]),
+                                },
+                            ],
+                            [
+                              analysesReadAccess &&
+                                !!application.tasks.currentAnalyzer && {
+                                  title: t("actions.analysisDetails"),
+                                  onClick: () => {
+                                    const taskId =
+                                      application.tasks.currentAnalyzer?.id;
+                                    if (taskId && application.id) {
+                                      history.push(
+                                        formatPath(
+                                          Paths.applicationsAnalysisDetails,
+                                          {
+                                            applicationId: application.id,
+                                            taskId,
+                                          }
+                                        )
+                                      );
+                                    }
+                                  },
+                                },
+                              tasksReadAccess &&
+                                tasksWriteAccess &&
+                                isTaskCancellable(application) && {
+                                  title: t("actions.cancelAnalysis"),
+                                  onClick: () => cancelAnalysis(application),
+                                },
+                            ],
+                            [
+                              applicationWriteAccess &&
+                                application.isReadyForRetrieveConfigurations && {
+                                  title: t("actions.retrieveConfigurations"),
+                                  onClick: () =>
+                                    handleRetrieveConfigurations(application),
+                                },
+                              applicationWriteAccess &&
+                                application.isReadyForGenerateAssets && {
+                                  title: t("actions.generateAssets"),
+                                  onClick: () =>
+                                    handleGenerateAssets(application),
+                                },
+                            ],
+                            [
+                              applicationWriteAccess && {
+                                title: t("actions.delete"),
+                                onClick: () =>
+                                  setApplicationsToDelete([application]),
+                                isDanger: true,
+                              },
+                            ],
+                          ]
+                        )}
                       />
                     </Td>
                   </TableRowContentWithControls>
@@ -1276,6 +1310,15 @@ export const ApplicationsTable: React.FC = () => {
             }}
           />
         </TaskGroupProvider>
+        <ConfigTaskGroupProvider>
+          <RetrieveConfigWizard
+            applications={selectedRows}
+            isOpen={isRetrieveConfigModalOpen}
+            onClose={() => {
+              setRetrieveConfigModalOpen(false);
+            }}
+          />
+        </ConfigTaskGroupProvider>
         <Modal
           isOpen={isCreateUpdateCredentialsModalOpen}
           variant="medium"
