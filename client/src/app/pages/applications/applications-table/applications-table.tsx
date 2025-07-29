@@ -890,19 +890,19 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
-  const handleRetrieveConfigurations = (application: DecoratedApplication) => {
+  const handleRetrieveConfigurations = (_app: DecoratedApplication) => {
     // TODO: Implement this with #2288
     console.log("retrieve configurations coming with #2288");
   };
 
-  const handleGenerateAssets = (application: DecoratedApplication) => {
+  const handleGenerateAssets = (_app: DecoratedApplication) => {
     // TODO: Implement this with #2294
     console.log("generate assets coming with #2294");
   };
 
-  const handleChangeSourcePlatform = (applications: DecoratedApplication[]) => {
-    // TODO: Implement this
-    console.log("change source platform");
+  const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
+    // TODO: Implement this with #2509
+    console.log("change source platform coming with #2509");
   };
 
   return (
