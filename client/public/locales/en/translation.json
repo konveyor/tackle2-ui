@@ -209,6 +209,8 @@
     "copyAssessmentQuestion": "Copy assessment?",
     "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
     "couldNotFetchTitle": "Not available",
+    "configDiscoveryTaskgroupCreationFailed": "Configuration discovery taskgroup creation failed",
+    "configDiscoveryTaskgroupSubmitFailed": "Configuration discovery taskgroup submit failed",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
     "duplicateWave": "The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",

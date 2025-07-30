@@ -18,7 +18,6 @@ import {
   TaskgroupTask,
 } from "@app/api/models";
 import { Review } from "./review";
-import { SetApplications } from "./set-applications";
 import {
   useCreateTaskgroupMutation,
   useDeleteTaskgroupMutation,
@@ -40,14 +39,8 @@ interface IRetrieveConfigWizard {
 }
 
 enum StepId {
-  SetApplications = 1,
-  Review = 2,
+  Review = 1,
 }
-
-const StepMap: Map<StepId, string> = new Map([
-  [StepId.SetApplications, "Set Applications"],
-  [StepId.Review, "Review"],
-]);
 
 const initTask = (application: Application): TaskgroupTask => ({
   name: `${application.name}.${application.id}.config-discovery`,
@@ -107,8 +100,6 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
 
   const { taskGroup, updateTaskGroup } = useTaskGroup();
 
-  const [stepIdReached, setStepIdReached] = React.useState(1);
-
   // Filter applications that have source platforms
   const validApplications = React.useMemo(
     () => applications.filter((app) => app.id && app?.name),
@@ -141,7 +132,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
 
   const onSubmitTaskgroupError = (_error: Error | unknown) =>
     pushNotification({
-      title: "Configuration discovery taskgroup submit failed",
+      title: t("message.configDiscoveryTaskgroupCreationFailed"),
       variant: "danger",
     });
 
@@ -156,7 +147,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
 
   const onDeleteTaskgroupError = (_error: Error | unknown) => {
     pushNotification({
-      title: "Configuration discovery taskgroup: delete failed",
+      title: t("message.configDiscoveryTaskgroupSubmitFailed"),
       variant: "danger",
     });
   };
@@ -172,7 +163,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
 
   const methods = useForm<RetrieveConfigWizardFormValues>({
     defaultValues: {
-      selectedApplications: [],
+      selectedApplications: [...applications],
     },
     resolver: yupResolver(allFieldsSchema),
     mode: "all",
@@ -181,7 +172,12 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
 
   const { reset } = methods;
 
-  const firstInvalidStep: number | null = null;
+  // Update form when applications change
+  React.useEffect(() => {
+    reset({
+      selectedApplications: applications,
+    });
+  }, [applications, reset]);
 
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
@@ -219,20 +215,11 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   };
 
   const onMove = (current: WizardStepType) => {
-    const id = current.id;
-    if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
-    if (id === StepId.SetApplications) {
+    if (current.id === StepId.Review) {
       if (!taskGroup) {
         createTaskgroup(defaultConfigTaskgroup);
       }
     }
-  };
-
-  const isStepEnabled = (stepId: StepId) => {
-    return (
-      stepIdReached + 1 >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId)
-    );
   };
 
   if (validApplications.length === 0) {
@@ -275,20 +262,8 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
           }
         >
           <WizardStep
-            id={StepId.SetApplications}
-            name={StepMap.get(StepId.SetApplications)}
-            footer={{
-              isNextDisabled: !isStepEnabled(StepId.Review),
-            }}
-          >
-            <SetApplications
-              applications={validApplications}
-              isFetching={false}
-            />
-          </WizardStep>
-          <WizardStep
             id={StepId.Review}
-            name={StepMap.get(StepId.Review)}
+            name="Review"
             footer={{
               nextButtonText: t("actions.retrieve"),
             }}
