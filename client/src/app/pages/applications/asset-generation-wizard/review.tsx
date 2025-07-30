@@ -26,25 +26,6 @@ export const Review: React.FC = () => {
       </Title>
       <Text>{t("wizard.terms.reviewDescription")}</Text>
 
-      <div
-        style={{
-          backgroundColor: "#f0f8ff",
-          padding: "1rem",
-          borderRadius: "4px",
-          border: "1px solid #cce7ff",
-          marginBottom: "1rem",
-        }}
-      >
-        <Text component="p" style={{ fontWeight: "bold", color: "#0066cc" }}>
-          ⚠️ Development Mode
-        </Text>
-        <Text component="p" style={{ fontSize: "0.9rem", color: "#555" }}>
-          This wizard is currently in development mode. The asset generation
-          task will be logged but not executed until backend support is
-          implemented.
-        </Text>
-      </div>
-
       <DescriptionList>
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>

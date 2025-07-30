@@ -791,8 +791,10 @@ export const ApplicationsTable: React.FC = () => {
       <DropdownItem
         key="generate-assets-bulk"
         isDisabled={
-          selectedRows.length < 1 //||
-          // !selectedRows.some((app) => app.archetypes && app.archetypes.length > 0)
+          selectedRows.length < 1 ||
+          !selectedRows.some(
+            (app) => app.archetypes && app.archetypes.length > 0
+          )
         }
         onClick={() => {
           setAssetGenerationModalOpen(true);

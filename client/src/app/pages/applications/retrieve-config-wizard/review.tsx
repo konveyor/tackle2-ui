@@ -50,12 +50,12 @@ export const Review: React.FC = () => {
                     <div>
                       <strong>{application.name}</strong>
                       {application.description && (
-                        <div style={{ fontSize: "0.9em", color: "#6a6e73" }}>
+                        <div className="pf-u-font-size-sm pf-u-color-400">
                           {application.description}
                         </div>
                       )}
                       {application.platform && (
-                        <div style={{ fontSize: "0.8em", color: "#0066cc" }}>
+                        <div className="pf-u-font-size-xs pf-u-color-link">
                           Source Platform: {application.platform.name}
                         </div>
                       )}
