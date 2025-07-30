@@ -11,22 +11,21 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Manifest } from "@app/api/models";
-
 import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
-import { ReviewFields } from "@app/components/detail-drawer/review-fields";
+import {
+  DrawerTabsContainer,
+  ReviewFields,
+} from "@app/components/detail-drawer";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
-import { useFetchApplicationManifest } from "@app/queries/applications";
-import { usePlatformCoordinatesProvider } from "../usePlatformCoordinatesProvider";
 import { TabDetailsContent } from "./tab-details-content";
 import { TabTagsContent } from "./tab-tags-content";
 import { TabReportsContent } from "./tab-reports-contents";
 import { TabTasksContent } from "./tab-tasks-content";
+import { TabPlatformContent } from "./tab-platform-content";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {
@@ -41,20 +40,16 @@ export enum TabKey {
   Facts,
   Reviews,
   Tasks,
-  Manifest,
-  PlatformCoordinates,
+  Platform,
 }
 
 export const ApplicationDetailDrawer: React.FC<
   IApplicationDetailDrawerProps
 > = ({ application, onCloseClick, onEditClick }) => {
   const { t } = useTranslation();
-
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
   );
-
-  const manifest = useFetchApplicationManifest(application?.id).manifest;
 
   return (
     <PageDrawerContent
@@ -73,12 +68,11 @@ export const ApplicationDetailDrawer: React.FC<
         </TextContent>
       }
     >
-      <div>
-        {/* this div is required so the tabs are visible */}
+      <DrawerTabsContainer>
         <Tabs
           activeKey={activeTabKey}
           onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-          className={spacing.mtLg}
+          // isOverflowHorizontal={{ showTabCount: true }}
         >
           {!application ? null : (
             <Tab
@@ -96,7 +90,7 @@ export const ApplicationDetailDrawer: React.FC<
           {!application ? null : (
             <Tab
               eventKey={TabKey.Tags}
-              title={<TabTitleText>Tags</TabTitleText>}
+              title={<TabTitleText>{t("terms.tags")}</TabTitleText>}
             >
               <TabTagsContent application={application} />
             </Tab>
@@ -119,6 +113,7 @@ export const ApplicationDetailDrawer: React.FC<
               <ReviewFields application={application} />
             </Tab>
           )}
+
           {!application ? null : (
             <Tab
               eventKey={TabKey.Tasks}
@@ -127,50 +122,17 @@ export const ApplicationDetailDrawer: React.FC<
               <TabTasksContent application={application} />
             </Tab>
           )}
-          {!application || !manifest ? null : (
+
+          {!application ? null : (
             <Tab
-              eventKey={TabKey.Manifest}
-              title={<TabTitleText>{t("terms.manifest")}</TabTitleText>}
+              eventKey={TabKey.Platform}
+              title={<TabTitleText>{t("terms.platform")}</TabTitleText>}
             >
-              <TabManifestContent manifest={manifest} />
-            </Tab>
-          )}
-          {!application || !application.platform ? null : (
-            <Tab
-              eventKey={TabKey.PlatformCoordinates}
-              title={<TabTitleText>Platform Coordinates</TabTitleText>}
-            >
-              <TabPlatformCoordinatesContent application={application} />
+              <TabPlatformContent application={application} />
             </Tab>
           )}
         </Tabs>
-      </div>
+      </DrawerTabsContainer>
     </PageDrawerContent>
-  );
-};
-
-const TabPlatformCoordinatesContent: React.FC<{
-  application: DecoratedApplication;
-}> = ({ application }) => {
-  // TODO: get the platform coordinates from the application
-  const { schema, document } = usePlatformCoordinatesProvider();
-  return (
-    <SchemaDefinedField
-      className={spacing.mtLg}
-      baseJsonDocument={document}
-      jsonSchema={schema}
-    />
-  );
-};
-
-const TabManifestContent: React.FC<{
-  manifest: Manifest;
-}> = ({ manifest }) => {
-  return (
-    <SchemaDefinedField
-      className={spacing.mtLg}
-      baseJsonDocument={manifest}
-      isReadOnly
-    />
   );
 };
