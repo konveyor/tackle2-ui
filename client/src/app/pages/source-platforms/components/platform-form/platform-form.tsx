@@ -59,7 +59,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const providersList = usePlatformProviderList();
+  const { providers: providersList } = usePlatformProviderList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({

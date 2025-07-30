@@ -15,15 +15,10 @@ import {
   TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { JsonSchemaObject, SourcePlatform } from "@app/api/models";
+import { SourcePlatform } from "@app/api/models";
 
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import PlatformAppsTable from "./platform-applications-table";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
-
-// just until we get those from the hub
-import myJson from "@app/components/schema-defined-fields/myJson.json";
-import mySchema from "@app/components/schema-defined-fields/mySchema.json";
 
 export interface IPlatformDetailDrawerProps {
   onCloseClick: () => void;
@@ -95,6 +90,8 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
               </DescriptionListGroup>
             </DescriptionList>
           </Tab>
+          {/* TODO: Add this back if Platforms need schema defined coordinates */}
+          {/*
           <Tab
             eventKey={TabKey.Coordinates}
             title={<TabTitleText>{t("terms.coordinates")}</TabTitleText>}
@@ -104,6 +101,7 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
               jsonSchema={mySchema as JsonSchemaObject}
             />
           </Tab>
+          */}
           <Tab
             eventKey={TabKey.Applications}
             title={<TabTitleText>{t("terms.applications")}</TabTitleText>}
