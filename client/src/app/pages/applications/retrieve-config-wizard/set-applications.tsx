@@ -54,9 +54,6 @@ export const SetApplications: React.FC<ISetApplications> = ({
   const allSelected =
     applications.length > 0 &&
     selectedApplications.length === applications.length;
-  const someSelected =
-    selectedApplications.length > 0 &&
-    selectedApplications.length < applications.length;
 
   return (
     <div>
@@ -76,7 +73,7 @@ export const SetApplications: React.FC<ISetApplications> = ({
               <Checkbox
                 id="select-all-applications"
                 isChecked={allSelected}
-                onChange={(_event, checked) => handleSelectAll(checked)}
+                onChange={(event, checked) => handleSelectAll(checked)}
                 label={t("actions.selectAll")}
               />
             </Th>

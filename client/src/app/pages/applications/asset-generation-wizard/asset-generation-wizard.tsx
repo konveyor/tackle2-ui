@@ -54,6 +54,7 @@ const StepMap: Map<StepId, string> = new Map([
   [StepId.SetGenerator, "Set Generator"],
   [StepId.Review, "Review"],
 ]);
+const TASKGROUP_ID_THRESHOLD = 1000000000000; // Unix timestamp in milliseconds
 
 const initTask = (application: Application): TaskgroupTask => ({
   name: `${application.name}.${application.id}.asset-generation`,
@@ -166,10 +167,7 @@ export const AssetGenerationWizard: React.FC<IAssetGenerationWizard> = ({
     onDeleteTaskgroupError
   );
 
-  const { schemas, allFieldsSchema } =
-    useAssetGenerationWizardFormValidationSchema({
-      applications,
-    });
+  const { allFieldsSchema } = useAssetGenerationWizardFormValidationSchema();
 
   // Debug logging for main wizard
   console.log("AssetGenerationWizard - applications prop:", applications);
@@ -211,7 +209,7 @@ export const AssetGenerationWizard: React.FC<IAssetGenerationWizard> = ({
   };
 
   const handleCancel = () => {
-    if (taskGroup && taskGroup.id && taskGroup.id < 1000000000000) {
+    if (taskGroup && taskGroup.id && taskGroup.id < TASKGROUP_ID_THRESHOLD) {
       // Only delete real taskgroups (not mock ones with timestamp IDs)
       deleteTaskgroup(taskGroup.id);
     }
@@ -341,7 +339,9 @@ export const AssetGenerationWizard: React.FC<IAssetGenerationWizard> = ({
       variant={ModalVariant.large}
       aria-label="Asset generation wizard"
       onClose={handleCancel}
+      showClose={false}
       hasNoBodyWrapper
+      onEscapePress={handleCancel}
     >
       <FormProvider {...methods}>
         <Wizard

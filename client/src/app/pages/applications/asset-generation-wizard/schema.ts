@@ -9,13 +9,7 @@ export interface AssetGenerationWizardFormValues {
   selectedGenerator: Generator | null;
 }
 
-interface AssetGenerationWizardSchemaProps {
-  applications: Application[];
-}
-
-export const useAssetGenerationWizardFormValidationSchema = ({
-  applications,
-}: AssetGenerationWizardSchemaProps) => {
+export const useAssetGenerationWizardFormValidationSchema = () => {
   const { t } = useTranslation();
 
   const schemas = useMemo(() => {
