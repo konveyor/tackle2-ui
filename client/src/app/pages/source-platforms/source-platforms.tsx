@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -47,11 +48,10 @@ import {
 
 import LinkToPlatformApplications from "./components/link-to-platform-applications";
 import PlatformDetailDrawer from "./components/platform-detail-drawer";
-import PlatformForm from "./components/platform-form";
+import { PlatformForm } from "./components/platform-form";
 import { SourcePlatform, TaskState } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { TaskStateIcon } from "@app/components/Icons";
@@ -122,7 +122,7 @@ const SourcePlatforms: React.FC = () => {
 
     columnNames: {
       name: t("terms.name"),
-      providerType: t("terms.providerType"),
+      platformKind: t("terms.platformKind"),
       applications: t("terms.applications"),
     },
 
@@ -145,12 +145,12 @@ const SourcePlatforms: React.FC = () => {
         },
       },
       {
-        categoryKey: "providerType",
-        title: t("terms.providerType"),
+        categoryKey: "platformKind",
+        title: t("terms.platformKind"),
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.providerType").toLowerCase(),
+            what: t("terms.platformKind").toLowerCase(),
           }) + "...",
         getItemValue: (platform) => {
           return platform?.kind ?? "";
@@ -158,10 +158,10 @@ const SourcePlatforms: React.FC = () => {
       },
     ],
 
-    sortableColumns: ["name", "providerType", "applications"],
+    sortableColumns: ["name", "platformKind", "applications"],
     getSortValues: (platform) => ({
       name: platform.name ?? "",
-      providerType: platform.kind ?? "",
+      platformKind: platform.kind ?? "",
       applications: platform.applications?.length ?? 0,
     }),
     initialSort: { columnKey: "name", direction: "asc" },
@@ -203,32 +203,12 @@ const SourcePlatforms: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const changeTaskStatus = (platformId: number, newStatus: TaskState) => {
-    setPlatforms(
-      platforms?.map((platform) =>
-        platform.id === platformId
-          ? { ...platform, discoverApplicationsState: newStatus }
-          : platform
-      )
-    );
-  };
-
-  const discoverApplications = (platformId: number) => {
-    const platform = platforms?.find((p) => p.id === platformId);
+  const discoverApplications = (platform: SourcePlatform) => {
     if (platform) {
-      changeTaskStatus(platformId, "Pending");
-      // Simulate a task status change, in a real application this would be an API call
-      setTimeout(() => {
-        changeTaskStatus(platformId, "Succeeded");
-        pushNotification({
-          title: t("toastr.success.discoverApplications", {
-            platformName: platform.name,
-          }),
-          variant: "success",
-        });
-      }, 2000); // Simulate a delay for the task completion
+      console.log("discoverApplications", platform);
     }
   };
+
   return (
     <>
       <PageSection variant={PageSectionVariants.light}>
@@ -273,7 +253,7 @@ const SourcePlatforms: React.FC = () => {
                 <Tr>
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
-                    <Th {...getThProps({ columnKey: "providerType" })} />
+                    <Th {...getThProps({ columnKey: "platformKind" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
                     <Th screenReaderText="primary action" />
                     <Th screenReaderText="secondary actions" />
@@ -322,7 +302,7 @@ const SourcePlatforms: React.FC = () => {
                             <Text>{platform.name}</Text>
                           </Popover>
                         </Td>
-                        <Td {...getTdProps({ columnKey: "providerType" })}>
+                        <Td {...getTdProps({ columnKey: "platformKind" })}>
                           {platform.kind}
                         </Td>
                         <Td {...getTdProps({ columnKey: "applications" })}>
@@ -346,8 +326,7 @@ const SourcePlatforms: React.FC = () => {
                               ...[
                                 {
                                   title: t("actions.discoverApplications"),
-                                  onClick: () =>
-                                    discoverApplications(platform.id),
+                                  onClick: () => discoverApplications(platform),
                                 },
                               ],
                               { isSeparator: true },

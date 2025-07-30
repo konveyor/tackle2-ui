@@ -52,6 +52,7 @@ export const useCreateIdentityMutation = (
   };
 };
 
+// TODO: Add a filter to the query to only return identities of given kind
 export const useFetchIdentities = (refetchInterval: number | false = false) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
