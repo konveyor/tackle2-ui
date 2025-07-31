@@ -65,14 +65,16 @@ describe("Component: application-form", () => {
       data.businessService,
     ]);
 
-    // open the source code section
-    await waitFor(() => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: "terms.sourceCode",
-        })
-      );
+    // open the source code section if it's closed
+    const sourceCodeToggle = screen.getByRole("button", {
+      name: "terms.sourceCode",
     });
+    expect(sourceCodeToggle).toBeInTheDocument();
+    if (sourceCodeToggle.getAttribute("aria-expanded") === "false") {
+      await waitFor(() => {
+        fireEvent.click(sourceCodeToggle);
+      });
+    }
     expect(createButton).toBeEnabled();
 
     // select a repository type of 'git'
