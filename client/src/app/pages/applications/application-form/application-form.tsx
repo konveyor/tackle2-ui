@@ -19,33 +19,34 @@ import {
   HookFormAutocomplete,
 } from "@app/components/HookFormPFFields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
-import { useApplicationForm, FormValues } from "./useApplicationForm";
+import { useApplicationForm } from "./useApplicationForm";
+import { useApplicationFormData } from "./useApplicationFormData";
 
-export const ApplicationForm: React.FC<
-  ReturnType<typeof useApplicationForm>
-> = ({
-  setBasicExpanded,
-  isBasicExpanded,
-  trigger,
-  control,
-  tagItems,
-  stakeholdersOptions,
-  setSourceCodeExpanded,
-  isSourceCodeExpanded,
-  kindOptions,
-  setBinaryExpanded,
-  isBinaryExpanded,
-  stakeholders,
-  businessServiceOptions,
-  sourcePlatformOptions,
-  setSourcePlatformExpanded,
-  isSourcePlatformExpanded,
-  setAssetRepositoryExpanded,
-  isAssetRepositoryExpanded,
+export const ApplicationForm: React.FC<{
+  form: ReturnType<typeof useApplicationForm>["form"];
+  data: ReturnType<typeof useApplicationFormData>;
+}> = ({
+  form: { control, trigger },
+  data: {
+    tagItems,
+    stakeholdersOptions,
+    repositoryKindOptions,
+    stakeholders,
+    businessServiceOptions,
+    sourcePlatformOptions,
+  },
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
   const watchAssetKind = useWatch({ control, name: "assetKind" });
+
+  const [isBasicExpanded, setBasicExpanded] = React.useState(true);
+  const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
+  const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
+  const [isSourcePlatformExpanded, setSourcePlatformExpanded] =
+    React.useState(true);
+  const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
+    React.useState(false);
 
   return (
     <Form>
@@ -100,7 +101,7 @@ export const ApplicationForm: React.FC<
             )}
           />
 
-          <HookFormAutocomplete<FormValues>
+          <HookFormAutocomplete
             items={tagItems}
             control={control}
             name="tags"
@@ -223,8 +224,10 @@ export const ApplicationForm: React.FC<
                 toggleId="repo-type-toggle"
                 toggleAriaLabel="Type select dropdown toggle"
                 aria-label={name}
-                value={value ? toOptionLike(value, kindOptions) : undefined}
-                options={kindOptions}
+                value={
+                  value ? toOptionLike(value, repositoryKindOptions) : undefined
+                }
+                options={repositoryKindOptions}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
@@ -239,7 +242,9 @@ export const ApplicationForm: React.FC<
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
             aria-label="source repository url"
-            isRequired={kindOptions.some(({ value }) => value === watchKind)}
+            isRequired={repositoryKindOptions.some(
+              ({ value }) => value === watchKind
+            )}
           />
           <HookFormPFTextInput
             control={control}
@@ -360,8 +365,10 @@ export const ApplicationForm: React.FC<
                 toggleId="asset-repo-type-toggle"
                 toggleAriaLabel="Type select dropdown toggle"
                 aria-label={name}
-                value={value ? toOptionLike(value, kindOptions) : undefined}
-                options={kindOptions}
+                value={
+                  value ? toOptionLike(value, repositoryKindOptions) : undefined
+                }
+                options={repositoryKindOptions}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
                   onChange(selectionValue.value);
@@ -376,7 +383,7 @@ export const ApplicationForm: React.FC<
             label={t("terms.assetRepository")}
             fieldId="assetRepository"
             aria-label="asset repository url"
-            isRequired={kindOptions.some(
+            isRequired={repositoryKindOptions.some(
               ({ value }) => value === watchAssetKind
             )}
           />

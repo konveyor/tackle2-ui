@@ -15,6 +15,14 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useFetchPlatforms } from "@app/queries/platforms";
+import { OptionWithValue } from "@app/components/SimpleSelect";
+
+const entityToOptionWithValue = <T extends { name: string }>(
+  entity: T
+): OptionWithValue<string> => ({
+  value: entity.name,
+  toString: () => entity.name,
+});
 
 export const useApplicationFormData = ({
   onActionSuccess = () => {},
@@ -32,6 +40,18 @@ export const useApplicationFormData = ({
   const { stakeholders } = useFetchStakeholders();
   const { data: existingApplications } = useFetchApplications();
   const { platforms: sourcePlatforms } = useFetchPlatforms();
+
+  // Const data
+  const repositoryKindOptions: OptionWithValue<string>[] = [
+    {
+      value: "git",
+      toString: () => `Git`,
+    },
+    {
+      value: "subversion",
+      toString: () => `Subversion`,
+    },
+  ];
 
   // Helpers
   const idsToTagRefs = (ids: number[] | undefined | null) =>
@@ -94,8 +114,10 @@ export const useApplicationFormData = ({
   // Send back source data and action that are needed by the ApplicationForm
   return {
     businessServices,
+    businessServiceOptions: businessServices.map(entityToOptionWithValue),
     businessServiceToRef,
     stakeholders,
+    stakeholdersOptions: stakeholders.map(entityToOptionWithValue),
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
@@ -105,6 +127,8 @@ export const useApplicationFormData = ({
     createApplication,
     updateApplication,
     sourcePlatforms,
+    sourcePlatformOptions: sourcePlatforms.map(entityToOptionWithValue),
     sourcePlatformToRef,
+    repositoryKindOptions,
   };
 };

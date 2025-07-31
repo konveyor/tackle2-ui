@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import { useForm } from "react-hook-form";
@@ -35,51 +35,48 @@ export interface FormValues {
 
 export interface ApplicationFormProps {
   application: Application | null;
-  onClose: () => void;
+  data: ReturnType<typeof useApplicationFormData>;
 }
+
+const getBinaryInitialValue = (
+  application: Application | null,
+  fieldName: string
+) => {
+  const binaryString = application?.binary?.startsWith("mvn://")
+    ? application.binary.substring(6)
+    : application?.binary;
+
+  const fieldList = binaryString?.split(":") || [];
+
+  switch (fieldName) {
+    case "group":
+      return fieldList[0] || "";
+    case "artifact":
+      return fieldList[1] || "";
+    case "version":
+      return fieldList[2] || "";
+    case "packaging":
+      return fieldList[3] || "";
+    default:
+      return "";
+  }
+};
 
 export const useApplicationForm = ({
   application,
-  onClose,
-}: ApplicationFormProps) => {
-  const { t } = useTranslation();
-  const {
+  data: {
     existingApplications,
-    businessServices,
     businessServiceToRef,
-    stakeholders,
     stakeholderToRef,
     stakeholdersToRefs,
     tagItems,
     idsToTagRefs,
     createApplication,
     updateApplication,
-    sourcePlatforms,
     sourcePlatformToRef,
-  } = useApplicationFormData({
-    onActionSuccess: onClose,
-  });
-
-  const businessServiceOptions = businessServices.map((businessService) => {
-    return {
-      value: businessService.name,
-      toString: () => businessService.name,
-    };
-  });
-
-  const sourcePlatformOptions = sourcePlatforms.map((sourcePlatform) => {
-    return {
-      value: sourcePlatform.name,
-      toString: () => sourcePlatform.name,
-    };
-  });
-
-  const stakeholdersOptions = stakeholders.map((stakeholder) => {
-    return {
-      value: stakeholder.name,
-      toString: () => stakeholder.name,
-    };
-  });
+  },
+}: ApplicationFormProps) => {
+  const { t } = useTranslation();
 
   const manualTagRefs: TagRef[] = useMemo(() => {
     return application?.tags?.filter((t) => !t?.source) ?? [];
@@ -88,30 +85,6 @@ export const useApplicationForm = ({
   const nonManualTagRefs = useMemo(() => {
     return application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
   }, [application?.tags]);
-
-  const getBinaryInitialValue = (
-    application: Application | null,
-    fieldName: string
-  ) => {
-    const binaryString = application?.binary?.startsWith("mvn://")
-      ? application.binary.substring(6)
-      : application?.binary;
-
-    const fieldList = binaryString?.split(":") || [];
-
-    switch (fieldName) {
-      case "group":
-        return fieldList[0] || "";
-      case "artifact":
-        return fieldList[1] || "";
-      case "version":
-        return fieldList[2] || "";
-      case "packaging":
-        return fieldList[3] || "";
-      default:
-        return "";
-    }
-  };
 
   const validationSchema = object().shape(
     {
@@ -220,12 +193,7 @@ export const useApplicationForm = ({
     ]
   );
 
-  const {
-    handleSubmit,
-    trigger,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    control,
-  } = useForm<FormValues>({
+  const form = useForm<FormValues>({
     defaultValues: {
       name: application?.name || "",
       description: application?.description || "",
@@ -249,6 +217,7 @@ export const useApplicationForm = ({
       artifact: getBinaryInitialValue(application, "artifact"),
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
+
       sourcePlatform: application?.platform?.name || "",
       assetKind: application?.assets?.kind || "",
       assetRepository: application?.assets?.url || "",
@@ -259,6 +228,10 @@ export const useApplicationForm = ({
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+  const {
+    handleSubmit,
+    formState: { isSubmitting, isValidating, isValid, isDirty },
+  } = form;
 
   const onValidSubmit = (formValues: FormValues) => {
     const binaryValues = [
@@ -319,48 +292,10 @@ export const useApplicationForm = ({
     }
   };
 
-  const [isBasicExpanded, setBasicExpanded] = React.useState(true);
-  const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
-  const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
-  const [isSourcePlatformExpanded, setSourcePlatformExpanded] =
-    React.useState(true);
-  const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
-    React.useState(false);
-
-  const kindOptions = [
-    {
-      value: "git",
-      toString: () => `Git`,
-    },
-    {
-      value: "subversion",
-      toString: () => `Subversion`,
-    },
-  ];
-
   return {
-    handleSubmit,
-    onValidSubmit,
-    setBasicExpanded,
-    isBasicExpanded,
-    trigger,
-    control,
-    tagItems,
-    stakeholdersOptions,
-    setSourceCodeExpanded,
-    isSourceCodeExpanded,
-    kindOptions,
-    setBinaryExpanded,
-    isBinaryExpanded,
+    form,
     isSubmitDisabled: !isValid || isSubmitting || isValidating || !isDirty,
     isCancelDisabled: isSubmitting || isValidating,
-    stakeholders,
-    businessServiceOptions,
-    sourcePlatformOptions,
-    setSourcePlatformExpanded,
-    isSourcePlatformExpanded,
-    setAssetRepositoryExpanded,
-    isAssetRepositoryExpanded,
     onSubmit: handleSubmit(onValidSubmit),
   };
 };
