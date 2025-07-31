@@ -419,6 +419,7 @@ export const ApplicationForm: React.FC<
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
+  const watchAssetKind = useWatch({ control, name: "assetKind" });
 
   return (
     <Form>
@@ -749,7 +750,9 @@ export const ApplicationForm: React.FC<
             label={t("terms.assetRepository")}
             fieldId="assetRepository"
             aria-label="asset repository url"
-            isRequired={kindOptions.some(({ value }) => value === watchKind)}
+            isRequired={kindOptions.some(
+              ({ value }) => value === watchAssetKind
+            )}
           />
           <HookFormPFTextInput
             control={control}

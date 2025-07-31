@@ -37,6 +37,7 @@ import {
 } from "@app/components/detail-drawer";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import ExternalLink from "@app/components/ExternalLink";
 
 const ApplicationArchetypesLabels: React.FC<{
   application: DecoratedApplication;
@@ -71,12 +72,12 @@ export const TabDetailsContent: React.FC<{
         <List isPlain>
           <ListItem>
             <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
-              Issues
+              {t("terms.issues")}
             </Link>
           </ListItem>
           <ListItem>
             <Link to={getDependenciesUrlFilteredByAppName(application?.name)}>
-              Dependencies
+              {t("terms.dependencies")}
             </Link>
           </ListItem>
         </List>
@@ -215,9 +216,9 @@ export const TabDetailsContent: React.FC<{
             component={TextVariants.small}
             className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
           >
-            <a href={application?.repository?.url} target="_">
+            <ExternalLink href={application?.repository?.url ?? ""} isInline>
               {application?.repository?.url}
-            </a>
+            </ExternalLink>
           </Text>
           <br />
           <Text
@@ -304,9 +305,9 @@ const MigrationWaveDetails: React.FC<{
       {matchingTicket ? (
         <>
           Ticket:{" "}
-          <a href={matchingTicket.link} target="_">
+          <ExternalLink href={matchingTicket.link ?? ""} isInline>
             {matchingTicket?.link}
-          </a>
+          </ExternalLink>
         </>
       ) : (
         <i>{`Ticket: ${t("terms.unassigned")}`}</i>
