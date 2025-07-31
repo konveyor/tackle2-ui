@@ -4,10 +4,10 @@ import { useForm, FormProvider, useFormContext } from "react-hook-form";
 
 import {
   Checkbox,
-  Form,
   FormFieldGroup,
   FormFieldGroupHeader,
 } from "@patternfly/react-core";
+import styles from "@patternfly/react-styles/css/components/Form/form";
 
 import {
   HookFormPFGroupController,
@@ -17,6 +17,7 @@ import { JsonSchemaObject } from "@app/api/models";
 import { jsonSchemaToYupResolver } from "./utils";
 
 export interface SchemaAsFieldsProps {
+  id: string;
   jsonDocument: object;
   jsonSchema: JsonSchemaObject;
   onDocumentSaved?: (newJsonDocument: object) => void;
@@ -217,10 +218,11 @@ const SchemaField: React.FC<SchemaFieldProps> = ({
 };
 
 export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
+  id,
   jsonDocument,
   jsonSchema,
-  onDocumentSaved,
   onDocumentChanged,
+  // Note: onDocumentSaved doesn't make sense for this component
   isReadOnly = false,
 }) => {
   const { t } = useTranslation();
@@ -231,7 +233,7 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
     mode: "all",
   });
 
-  const { handleSubmit, reset, subscribe } = methods;
+  const { reset, subscribe } = methods;
 
   // Update form values when jsonDocument prop changes
   React.useEffect(() => {
@@ -243,22 +245,17 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
     const subscription = subscribe({
       formState: {
         values: true,
-        isValid: true,
       },
-      callback: ({ isValid, values }) => {
-        if (isValid) onDocumentChanged?.(values);
+      callback: ({ values }) => {
+        onDocumentChanged?.(values);
       },
     });
     return () => subscription();
   }, [subscribe, onDocumentChanged]);
 
-  const onValidSubmit = (values: object) => {
-    onDocumentSaved?.(values);
-  };
-
   return (
     <FormProvider {...methods}>
-      <Form onSubmit={handleSubmit(onValidSubmit)} id="schema-as-fields-form">
+      <div id={`${id}-form`} className={styles.form}>
         {Object.entries(jsonSchema?.properties || {}).map(
           ([key, fieldSchema]) => (
             <SchemaField
@@ -271,7 +268,7 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
             />
           )
         )}
-      </Form>
+      </div>
     </FormProvider>
   );
 };

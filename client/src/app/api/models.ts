@@ -128,7 +128,7 @@ export interface Repository {
 /** A JSON document with its schema */
 export interface Document {
   content: JsonDocument;
-  schema: JsonSchemaObject;
+  /** name of the schema */ schema: string;
 }
 
 export interface Application {
@@ -967,6 +967,7 @@ export interface Manifest {
 
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
+  $schema?: string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;

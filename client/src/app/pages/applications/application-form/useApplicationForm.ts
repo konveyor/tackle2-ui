@@ -1,16 +1,24 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { Application, New, TagRef } from "@app/api/models";
+import {
+  Application,
+  JsonDocument,
+  New,
+  TagRef,
+  TargetedSchema,
+} from "@app/api/models";
 import { duplicateNameCheck } from "@app/utils/utils";
-import { useApplicationFormData } from "./useApplicationFormData";
 import { type TagItemType } from "@app/queries/tags";
+import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { useFetchPlatformCoordinatesSchema } from "@app/queries/schemas";
+import { useApplicationFormData } from "./useApplicationFormData";
 
 export interface FormValues {
-  id: number;
+  id?: number;
   name: string;
   description: string;
   comments: string;
@@ -26,11 +34,13 @@ export interface FormValues {
   artifact: string;
   version: string;
   packaging: string;
-  sourcePlatform: string;
   assetKind: string;
   assetRepository: string;
   assetBranch: string;
   assetRootPath: string;
+  sourcePlatform?: string;
+  coordinatesSchema?: TargetedSchema;
+  coordinatesDocument?: JsonDocument;
 }
 
 export interface ApplicationFormProps {
@@ -74,6 +84,7 @@ export const useApplicationForm = ({
     createApplication,
     updateApplication,
     sourcePlatformToRef,
+    sourcePlatformFromName,
   },
 }: ApplicationFormProps) => {
   const { t } = useTranslation();
@@ -181,7 +192,17 @@ export const useApplicationForm = ({
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
 
-      // TODO: Add source platform coordinates
+      // source platform and coordinates
+      sourcePlatform: string().nullable(),
+      coordinatesSchema: object().nullable(),
+      coordinatesDocument: object().when(
+        "coordinatesSchema",
+        (coordinatesSchema: TargetedSchema | undefined) => {
+          return coordinatesSchema
+            ? jsonSchemaToYupSchema(coordinatesSchema.definition, t)
+            : object().nullable();
+        }
+      ),
     },
     [
       ["version", "group"],
@@ -195,9 +216,9 @@ export const useApplicationForm = ({
 
   const form = useForm<FormValues>({
     defaultValues: {
+      id: application?.id,
       name: application?.name || "",
       description: application?.description || "",
-      id: application?.id || 0,
       comments: application?.comments || "",
       businessServiceName: application?.businessService?.name || "",
 
@@ -218,12 +239,14 @@ export const useApplicationForm = ({
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
 
-      sourcePlatform: application?.platform?.name || "",
       assetKind: application?.assets?.kind || "",
       assetRepository: application?.assets?.url || "",
       assetBranch: application?.assets?.branch || "",
       assetRootPath: application?.assets?.path || "",
-      // TODO: Add source platform coordinates
+
+      sourcePlatform: application?.platform?.name || "",
+      coordinatesSchema: undefined, // will be set by useEffect below
+      coordinatesDocument: application?.coordinates?.content,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -231,7 +254,30 @@ export const useApplicationForm = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
+    watch,
+    reset,
   } = form;
+
+  const selectedPlatform = watch("sourcePlatform");
+  const { coordinatesSchema } = useFetchPlatformCoordinatesSchema(
+    sourcePlatformFromName(selectedPlatform)?.kind
+  );
+  useEffect(() => {
+    if (coordinatesSchema) {
+      // use reset() to change >1 field at once
+      reset({
+        ...form.getValues(),
+        coordinatesSchema: coordinatesSchema,
+        coordinatesDocument: {},
+      });
+    } else {
+      reset({
+        ...form.getValues(),
+        coordinatesSchema: undefined,
+        coordinatesDocument: undefined,
+      });
+    }
+  }, [coordinatesSchema, reset, form]);
 
   const onValidSubmit = (formValues: FormValues) => {
     const binaryValues = [
@@ -277,12 +323,18 @@ export const useApplicationForm = ({
         },
       }),
 
-      // TODO: Add source platform coordinates
+      platform: sourcePlatformToRef(formValues.sourcePlatform),
+      ...(formValues.coordinatesDocument &&
+        formValues.coordinatesSchema && {
+          coordinates: {
+            content: formValues.coordinatesDocument,
+            schema: formValues.coordinatesSchema.name,
+          },
+        }),
 
       // Values not editable on the form but still need to be passed through
       identities: application?.identities ?? undefined,
       migrationWave: application?.migrationWave ?? null,
-      platform: sourcePlatformToRef(formValues.sourcePlatform),
     };
 
     if (application) {

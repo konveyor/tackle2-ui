@@ -24,6 +24,17 @@ const entityToOptionWithValue = <T extends { name: string }>(
   toString: () => entity.name,
 });
 
+const repositoryKindOptions: OptionWithValue<string>[] = [
+  {
+    value: "git",
+    toString: () => `Git`,
+  },
+  {
+    value: "subversion",
+    toString: () => `Subversion`,
+  },
+];
+
 export const useApplicationFormData = ({
   onActionSuccess = () => {},
   onActionFail = () => {},
@@ -41,18 +52,6 @@ export const useApplicationFormData = ({
   const { data: existingApplications } = useFetchApplications();
   const { platforms: sourcePlatforms } = useFetchPlatforms();
 
-  // Const data
-  const repositoryKindOptions: OptionWithValue<string>[] = [
-    {
-      value: "git",
-      toString: () => `Git`,
-    },
-    {
-      value: "subversion",
-      toString: () => `Subversion`,
-    },
-  ];
-
   // Helpers
   const idsToTagRefs = (ids: number[] | undefined | null) =>
     matchItemsToRefs(tags, (i) => i.id, ids);
@@ -62,6 +61,9 @@ export const useApplicationFormData = ({
 
   const sourcePlatformToRef = (name: string | undefined | null) =>
     matchItemsToRef(sourcePlatforms, (i) => i.name, name);
+
+  const sourcePlatformFromName = (name?: string) =>
+    name ? sourcePlatforms.find((p) => p.name === name) : undefined;
 
   const stakeholderToRef = (name: string | undefined | null) =>
     matchItemsToRef(stakeholders, (i) => i.name, name);
@@ -128,6 +130,7 @@ export const useApplicationFormData = ({
     updateApplication,
     sourcePlatforms,
     sourcePlatformOptions: sourcePlatforms.map(entityToOptionWithValue),
+    sourcePlatformFromName,
     sourcePlatformToRef,
     repositoryKindOptions,
   };

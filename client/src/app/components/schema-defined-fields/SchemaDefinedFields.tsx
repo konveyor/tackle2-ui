@@ -1,47 +1,49 @@
 import * as React from "react";
-import { SchemaAsCodeEditor } from "./SchemaAsCodeEditor";
 import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
-import { SchemaAsFields } from "./SchemaAsFields";
 import { JsonSchemaObject } from "@app/api/models";
+
+import { SchemaAsCodeEditor } from "./SchemaAsCodeEditor";
+import { SchemaAsFields } from "./SchemaAsFields";
 import { isComplexSchema } from "./utils";
 
 export { Language } from "@patternfly/react-code-editor";
 export interface ISchemaDefinedFieldProps {
+  id?: string;
   className?: string;
-  baseJsonDocument: object;
+  jsonDocument: object;
   jsonSchema?: JsonSchemaObject;
   onDocumentSaved?: (newJsonDocument: object) => void;
+  onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
 }
 
 export const SchemaDefinedField = ({
+  id = "schema-defined-field",
   className,
-  baseJsonDocument,
+  jsonDocument,
   jsonSchema,
   onDocumentSaved,
+  onDocumentChanged,
   isReadOnly = false,
 }: ISchemaDefinedFieldProps) => {
   const [isJsonView, setIsJsonView] = React.useState<boolean>(!jsonSchema);
-  const [jsonDocument, setJsonDocument] =
-    React.useState<object>(baseJsonDocument);
 
   const onSavedHandler = !onDocumentSaved
     ? undefined
     : (newJsonDocument: object) => {
-        setJsonDocument(newJsonDocument);
         onDocumentSaved?.(newJsonDocument);
       };
 
   const onChangeHandler = (newJsonDocument: object) => {
-    setJsonDocument(newJsonDocument);
+    onDocumentChanged?.(newJsonDocument);
   };
 
   return (
-    <Panel className={className}>
+    <Panel className={className} id={id}>
       {jsonSchema ? (
         <PanelHeader>
           <Switch
-            id="json-toggle"
+            id={`${id}-json-toggle`}
             label="JSON"
             isChecked={isJsonView}
             onChange={() => setIsJsonView(!isJsonView)}
@@ -53,6 +55,7 @@ export const SchemaDefinedField = ({
       <PanelMain maxHeight="100%">
         {isJsonView || !jsonSchema ? (
           <SchemaAsCodeEditor
+            id={`${id}-as-code-editor`}
             isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
@@ -61,6 +64,7 @@ export const SchemaDefinedField = ({
           />
         ) : (
           <SchemaAsFields
+            id={`${id}-as-fields`}
             isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}

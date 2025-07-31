@@ -84,7 +84,7 @@ export const useFetchApplicationById = (
 
 export const useFetchApplicationManifest = (
   applicationId?: number | string,
-  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+  refetchInterval: number | false = false
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ApplicationManifestQueryKey, applicationId],
@@ -92,8 +92,8 @@ export const useFetchApplicationManifest = (
       applicationId === undefined
         ? Promise.resolve(undefined)
         : getApplicationManifest(applicationId),
-    onError: (error: AxiosError) => console.log("error, ", error),
     enabled: applicationId !== undefined,
+    retry: false,
     refetchInterval,
   });
 

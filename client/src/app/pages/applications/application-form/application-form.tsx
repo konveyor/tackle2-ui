@@ -1,3 +1,4 @@
+import "./application-form.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,7 +12,6 @@ import { useWatch } from "react-hook-form";
 import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { toOptionLike } from "@app/utils/model-utils";
-import "./application-form.css";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
@@ -19,6 +19,7 @@ import {
   HookFormAutocomplete,
 } from "@app/components/HookFormPFFields";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
 
@@ -26,7 +27,7 @@ export const ApplicationForm: React.FC<{
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
 }> = ({
-  form: { control, trigger },
+  form: { control, trigger, getValues },
   data: {
     tagItems,
     stakeholdersOptions,
@@ -39,14 +40,24 @@ export const ApplicationForm: React.FC<{
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
   const watchAssetKind = useWatch({ control, name: "assetKind" });
+  const values = getValues();
 
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
-  const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
-  const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
-  const [isSourcePlatformExpanded, setSourcePlatformExpanded] =
-    React.useState(true);
+
+  const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(
+    values.id === undefined || (!!values.kind && !!values.sourceRepository)
+  );
+
+  const [isBinaryExpanded, setBinaryExpanded] = React.useState(
+    !!values.group && !!values.artifact && !!values.version
+  );
+
+  const [isSourcePlatformExpanded, setSourcePlatformExpanded] = React.useState(
+    values.id === undefined || !!values.sourcePlatform
+  );
+
   const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
-    React.useState(false);
+    React.useState(!!values.assetKind && !!values.assetRepository);
 
   return (
     <Form>
@@ -344,7 +355,31 @@ export const ApplicationForm: React.FC<{
               />
             )}
           />
-          {/* TODO: Add source platform coordinates */}
+          <HookFormPFGroupController
+            control={control}
+            name="coordinatesDocument"
+            label={t("terms.sourcePlatformCoordinates")}
+            fieldId="coordinatesDocument"
+            renderInput={({ field: { value, name, onChange } }) =>
+              !values.sourcePlatform ? (
+                <i>Select a source platform to setup the coordinates.</i>
+              ) : !values.coordinatesSchema ? (
+                <i>
+                  No coordinates are available for the selected source platform.
+                </i>
+              ) : (
+                <SchemaDefinedField
+                  key={values.sourcePlatform}
+                  id={name}
+                  jsonDocument={value ?? {}}
+                  jsonSchema={values.coordinatesSchema.definition}
+                  onDocumentChanged={(newJsonDocument) => {
+                    onChange(newJsonDocument);
+                  }}
+                />
+              )
+            }
+          />
         </div>
       </ExpandableSection>
 

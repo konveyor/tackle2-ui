@@ -10,6 +10,8 @@ import {
   DrawerTabContentSection,
   RepositoryDetails,
 } from "@app/components/detail-drawer";
+import { useFetchPlatformById } from "@app/queries/platforms";
+import { useFetchPlatformCoordinatesSchema } from "@app/queries/schemas";
 
 /**
  * Show the platform awareness and asset generation details for the application.
@@ -18,7 +20,11 @@ export const TabPlatformContent: React.FC<{
   application: DecoratedApplication;
 }> = ({ application }) => {
   const { t } = useTranslation();
-  const { manifest } = useFetchApplicationManifest(application?.id);
+  const { manifest } = useFetchApplicationManifest(application?.id, false);
+  const { platform } = useFetchPlatformById(application.platform?.id);
+  const { coordinatesSchema } = useFetchPlatformCoordinatesSchema(
+    platform?.kind
+  );
 
   return (
     <DrawerTabContent>
@@ -28,10 +34,11 @@ export const TabPlatformContent: React.FC<{
       </DrawerTabContentSection>
 
       <DrawerTabContentSection label={t("terms.sourcePlatformCoordinates")}>
-        {application.coordinates ? (
+        {application.coordinates && coordinatesSchema ? (
           <SchemaDefinedField
-            baseJsonDocument={application.coordinates?.content}
-            jsonSchema={application.coordinates?.schema}
+            isReadOnly
+            jsonDocument={application.coordinates?.content}
+            jsonSchema={coordinatesSchema?.definition}
           />
         ) : (
           <EmptyTextMessage />
@@ -49,7 +56,7 @@ export const TabPlatformContent: React.FC<{
 
       <DrawerTabContentSection label={t("terms.applicationDiscoveryManifest")}>
         {manifest ? (
-          <SchemaDefinedField baseJsonDocument={manifest} />
+          <SchemaDefinedField isReadOnly jsonDocument={manifest} />
         ) : (
           <EmptyTextMessage />
         )}

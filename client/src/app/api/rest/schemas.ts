@@ -4,7 +4,7 @@ import { Schema, TargetedSchema } from "../models";
 import { hub, template } from "../rest";
 
 const SCHEMAS = hub`/schemas`;
-const TARGETED_SCHEMA = hub`/schemas/jsd/{{domain}}/{{variant}}/{{subject}}`;
+const TARGETED_SCHEMA = hub`/schema/jsd/{{domain}}/{{variant}}/{{subject}}`;
 
 export const getSchemas = () =>
   axios.get<Schema[]>(SCHEMAS).then(({ data }) => data);
