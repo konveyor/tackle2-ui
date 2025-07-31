@@ -18,17 +18,18 @@ export const description = "#description";
 export const criteriaTagsSelector = "#criteria";
 export const archetypeTagsSelector = "#tags";
 export const stakeholders = "input[aria-label='stakeholder-select-toggle']";
-export const stakeholderGroups = "input[aria-label='stakeholder-groups-select-toggle']";
+export const stakeholderGroups =
+  "input[aria-label='stakeholder-groups-select-toggle']";
 export const comments = "#comments";
 export const notYetReviewed = "Not yet reviewed";
 export const criteriaTags = "Criteria Tags";
 export const archetypeTags = "Archetype Tags";
 export const reviewItems = [
-    "proposed-action",
-    "effort-estimate",
-    "business-criticality",
-    "work-priority",
-    "comments",
+  "proposed-action",
+  "effort-estimate",
+  "business-criticality",
+  "work-priority",
+  "comments",
 ];
 
 export const archetypeDropdown = "button[id^='pf-select-toggle']";

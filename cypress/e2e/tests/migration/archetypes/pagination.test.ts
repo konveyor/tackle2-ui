@@ -16,48 +16,48 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleArchetypes,
-    deleteAllArchetypes,
-    deleteAllRows,
-    goToLastPage,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  createMultipleArchetypes,
+  deleteAllArchetypes,
+  deleteAllRows,
+  goToLastPage,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../utils/utils";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 let archetypeList: Archetype[] = [];
 
 describe(["@tier3"], "Archetypes pagination validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        archetypeList = createMultipleArchetypes(11);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    archetypeList = createMultipleArchetypes(11);
+  });
 
-    it("Navigation button validations", function () {
-        Archetype.open();
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+  it("Navigation button validations", function () {
+    Archetype.open();
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        Archetype.open();
-        itemsPerPageValidation();
-    });
+  it("Items per page validations", function () {
+    Archetype.open();
+    itemsPerPageValidation();
+  });
 
-    it("Last page item(s) deletion, impact on page reload validation", function () {
-        Archetype.open();
-        selectItemsPerPage(10);
-        goToLastPage();
-        deleteAllRows();
-        // Verify that page is re-directed to previous page
-        cy.get("td[data-label=Name]").then(($rows) => {
-            cy.wrap($rows.length).should("eq", 10);
-        });
+  it("Last page item(s) deletion, impact on page reload validation", function () {
+    Archetype.open();
+    selectItemsPerPage(10);
+    goToLastPage();
+    deleteAllRows();
+    // Verify that page is re-directed to previous page
+    cy.get("td[data-label=Name]").then(($rows) => {
+      cy.wrap($rows.length).should("eq", 10);
     });
+  });
 
-    after("Perform test data clean up", function () {
-        deleteAllArchetypes();
-    });
+  after("Perform test data clean up", function () {
+    deleteAllArchetypes();
+  });
 });

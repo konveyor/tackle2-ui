@@ -16,13 +16,13 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    applySearchFilter,
-    clickByText,
-    createMultipleArchetypes,
-    deleteByList,
-    exists,
-    login,
-    notExists,
+  applySearchFilter,
+  clickByText,
+  createMultipleArchetypes,
+  deleteByList,
+  exists,
+  login,
+  notExists,
 } from "../../../../utils/utils";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 import { button, clearAllFilters, name } from "../../../types/constants";
@@ -30,33 +30,33 @@ import { button, clearAllFilters, name } from "../../../types/constants";
 let archetypeList: Archetype[];
 
 describe(["@tier3"], "Archetype filter validation", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        archetypeList = createMultipleArchetypes(2);
-    });
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    archetypeList = createMultipleArchetypes(2);
+  });
 
-    it("Name filter validation", function () {
-        // Automates Polarion MTA-412
+  it("Name filter validation", function () {
+    // Automates Polarion MTA-412
 
-        Archetype.open();
+    Archetype.open();
 
-        let searchInput = archetypeList[0].name;
+    let searchInput = archetypeList[0].name;
 
-        applySearchFilter(name, searchInput);
-        exists(archetypeList[0].name);
-        notExists(archetypeList[1].name);
-        clickByText(button, clearAllFilters);
+    applySearchFilter(name, searchInput);
+    exists(archetypeList[0].name);
+    notExists(archetypeList[1].name);
+    clickByText(button, clearAllFilters);
 
-        searchInput = archetypeList[1].name;
+    searchInput = archetypeList[1].name;
 
-        applySearchFilter(name, searchInput);
-        exists(archetypeList[1].name);
-        notExists(archetypeList[0].name);
-        clickByText(button, clearAllFilters);
-    });
+    applySearchFilter(name, searchInput);
+    exists(archetypeList[1].name);
+    notExists(archetypeList[0].name);
+    clickByText(button, clearAllFilters);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(archetypeList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(archetypeList);
+  });
 });

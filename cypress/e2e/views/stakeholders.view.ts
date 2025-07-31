@@ -16,7 +16,8 @@ limitations under the License.
 export const stakeholderEmailInput = "input[name=email]";
 export const stakeholderNameInput = "input[name=name]";
 export const jobfunctionInput = "#job-function-toggle-select-typeahead";
-export const groupInput = "#stakeholder-groups-toggle-select-multi-typeahead-typeahead";
+export const groupInput =
+  "#stakeholder-groups-toggle-select-multi-typeahead-typeahead";
 export const groupsCount = "td[data-label='Group count']";
 export const stakeholderHelper = "div.pf-v5-c-helper-text";
 export const removeJobFunction = ".pf-v5-c-select__toggle-clear";

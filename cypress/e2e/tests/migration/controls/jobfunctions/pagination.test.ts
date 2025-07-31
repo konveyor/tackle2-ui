@@ -16,40 +16,40 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleJobFunctions,
-    deleteByList,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  createMultipleJobFunctions,
+  deleteByList,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 let jobFunctionsList: Array<Jobfunctions> = [];
 
 describe(["@tier3"], "Job functions pagination validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        jobFunctionsList = createMultipleJobFunctions(11);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    jobFunctionsList = createMultipleJobFunctions(11);
+  });
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
-    });
+  beforeEach("Interceptors", function () {
+    cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
+  });
 
-    it("Navigation button validations", function () {
-        Jobfunctions.openList();
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+  it("Navigation button validations", function () {
+    Jobfunctions.openList();
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        Jobfunctions.openList();
-        selectItemsPerPage(10);
-        itemsPerPageValidation();
-    });
+  it("Items per page validations", function () {
+    Jobfunctions.openList();
+    selectItemsPerPage(10);
+    itemsPerPageValidation();
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(jobFunctionsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(jobFunctionsList);
+  });
 });

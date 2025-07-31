@@ -15,12 +15,15 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomCredentialsData, getRandomUserData } from "../../../utils/data_utils";
 import {
-    createMultipleStakeholders,
-    deleteByList,
-    getRandomApplicationData,
-    login,
+  getRandomCredentialsData,
+  getRandomUserData,
+} from "../../../utils/data_utils";
+import {
+  createMultipleStakeholders,
+  deleteByList,
+  getRandomApplicationData,
+  login,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
@@ -33,66 +36,70 @@ import { CredentialType, legacyPathfinder } from "../../types/constants";
 
 let stakeholders: Array<Stakeholders> = [];
 
-describe(["@tier3", "@rhsso", "@rhbk"], "Bug MTA-5631: Architect RBAC operations", function () {
+describe(
+  ["@tier3", "@rhsso", "@rhbk"],
+  "Bug MTA-5631: Architect RBAC operations",
+  function () {
     // https://issues.redhat.com/browse/MTA-5631
     let userArchitect = new UserArchitect(getRandomUserData());
     const application = new Application(getRandomApplicationData());
 
     let appCredentials = new CredentialsSourceControlUsername(
-        getRandomCredentialsData(CredentialType.sourceControl)
+      getRandomCredentialsData(CredentialType.sourceControl)
     );
 
     before("Creating RBAC users, adding roles for them", function () {
-        cy.clearLocalStorage();
-        User.loginKeycloakAdmin();
-        userArchitect.create();
+      cy.clearLocalStorage();
+      User.loginKeycloakAdmin();
+      userArchitect.create();
 
-        login();
-        cy.visit("/");
-        AssessmentQuestionnaire.enable(legacyPathfinder);
-        stakeholders = createMultipleStakeholders(1);
+      login();
+      cy.visit("/");
+      AssessmentQuestionnaire.enable(legacyPathfinder);
+      stakeholders = createMultipleStakeholders(1);
 
-        appCredentials.create();
-        application.create();
-        application.perform_review("low");
-        application.perform_assessment("low", stakeholders);
-        userArchitect.login();
+      appCredentials.create();
+      application.create();
+      application.perform_review("low");
+      application.perform_assessment("low", stakeholders);
+      userArchitect.login();
     });
 
     beforeEach("Persist session", function () {
-        cy.fixture("rbac").then(function (rbacRules) {
-            this.rbacRules = rbacRules["architect"];
-        });
-        userArchitect.login();
+      cy.fixture("rbac").then(function (rbacRules) {
+        this.rbacRules = rbacRules["architect"];
+      });
+      userArchitect.login();
     });
 
     it("Architect, validate create application button", function () {
-        Application.validateCreateAppButton(this.rbacRules);
+      Application.validateCreateAppButton(this.rbacRules);
     });
 
     it("Architect, validate top action menu", function () {
-        Analysis.validateTopActionMenu(this.rbacRules);
+      Analysis.validateTopActionMenu(this.rbacRules);
     });
 
     it("Architect, validate analyze button", function () {
-        Analysis.validateAnalyzeButton(this.rbacRules);
+      Analysis.validateAnalyzeButton(this.rbacRules);
     });
 
     it("Bug MTA-5631: Architect, validate application context menu", function () {
-        application.validateAppContextMenu(this.rbacRules);
+      application.validateAppContextMenu(this.rbacRules);
     });
 
     it("Architect, validate ability to upload binary", function () {
-        application.validateUploadBinary(this.rbacRules);
+      application.validateUploadBinary(this.rbacRules);
     });
 
     after("Clean up", function () {
-        login();
-        cy.visit("/");
-        appCredentials.delete();
-        deleteByList(stakeholders);
-        application.delete();
-        User.loginKeycloakAdmin();
-        userArchitect.delete();
+      login();
+      cy.visit("/");
+      appCredentials.delete();
+      deleteByList(stakeholders);
+      application.delete();
+      User.loginKeycloakAdmin();
+      userArchitect.delete();
     });
-});
+  }
+);

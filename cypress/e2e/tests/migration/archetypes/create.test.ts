@@ -18,14 +18,14 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import { getRandomWord } from "../../../../utils/data_utils";
 import {
-    checkSuccessAlert,
-    createMultipleStakeholderGroups,
-    createMultipleStakeholders,
-    createMultipleTags,
-    deleteByList,
-    exists,
-    login,
-    notExists,
+  checkSuccessAlert,
+  createMultipleStakeholderGroups,
+  createMultipleStakeholders,
+  createMultipleTags,
+  deleteByList,
+  exists,
+  login,
+  notExists,
 } from "../../../../utils/utils";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 import { Stakeholdergroups } from "../../../models/migration/controls/stakeholdergroups";
@@ -39,55 +39,65 @@ let stakeholderGroups: Stakeholdergroups[];
 let tags: Tag[];
 
 describe(["@tier2"], "Archetype CRUD operations", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        stakeholders = createMultipleStakeholders(2);
-        stakeholderGroups = createMultipleStakeholderGroups(2);
-        tags = createMultipleTags(2);
-    });
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    stakeholders = createMultipleStakeholders(2);
+    stakeholderGroups = createMultipleStakeholderGroups(2);
+    tags = createMultipleTags(2);
+  });
 
-    it("Duplicate archetype", function () {
-        // Automates Polarion MTA-399
+  it("Duplicate archetype", function () {
+    // Automates Polarion MTA-399
 
-        const archetype = new Archetype(
-            data.getRandomWord(8),
-            [tags[0].name],
-            [tags[1].name],
-            null,
-            stakeholders,
-            stakeholderGroups
-        );
+    const archetype = new Archetype(
+      data.getRandomWord(8),
+      [tags[0].name],
+      [tags[1].name],
+      null,
+      stakeholders,
+      stakeholderGroups
+    );
 
-        archetype.create();
-        checkSuccessAlert(
-            successAlertMessage,
-            `Success alert:Archetype ${archetype.name} was successfully created.`,
-            true
-        );
-        exists(archetype.name);
+    archetype.create();
+    checkSuccessAlert(
+      successAlertMessage,
+      `Success alert:Archetype ${archetype.name} was successfully created.`,
+      true
+    );
+    exists(archetype.name);
 
-        const archetypeDuplicate = archetype.duplicate(getRandomWord(6));
-        checkSuccessAlert(
-            successAlertMessage,
-            `Success alert:Archetype ${archetypeDuplicate.name} was successfully created.`,
-            true
-        );
-        exists(archetypeDuplicate.name);
+    const archetypeDuplicate = archetype.duplicate(getRandomWord(6));
+    checkSuccessAlert(
+      successAlertMessage,
+      `Success alert:Archetype ${archetypeDuplicate.name} was successfully created.`,
+      true
+    );
+    exists(archetypeDuplicate.name);
 
-        archetypeDuplicate.assertsTagsMatch(archetypeTags, archetype.archetypeTags, true, false);
-        archetypeDuplicate.assertsTagsMatch(criteriaTags, archetype.criteriaTags, false, true);
+    archetypeDuplicate.assertsTagsMatch(
+      archetypeTags,
+      archetype.archetypeTags,
+      true,
+      false
+    );
+    archetypeDuplicate.assertsTagsMatch(
+      criteriaTags,
+      archetype.criteriaTags,
+      false,
+      true
+    );
 
-        archetype.delete();
-        archetypeDuplicate.delete();
+    archetype.delete();
+    archetypeDuplicate.delete();
 
-        notExists(archetype.name);
-        notExists(archetypeDuplicate.name);
-    });
+    notExists(archetype.name);
+    notExists(archetypeDuplicate.name);
+  });
 
-    after("Clear test data", function () {
-        deleteByList(stakeholders);
-        deleteByList(stakeholderGroups);
-        deleteByList(tags);
-    });
+  after("Clear test data", function () {
+    deleteByList(stakeholders);
+    deleteByList(stakeholderGroups);
+    deleteByList(tags);
+  });
 });

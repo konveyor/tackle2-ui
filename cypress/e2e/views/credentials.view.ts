@@ -18,7 +18,8 @@ export const descriptionInput = "input[name='description']";
 export const usernameInput = "#user";
 export const passwordInput = "#password";
 export const keyInput = "#key";
-export const privatePassphraseInput = "input[aria-label='Private Key Passphrase']";
+export const privatePassphraseInput =
+  "input[aria-label='Private Key Passphrase']";
 export const createBtn = "#create-credential-button";
 export const selectType = "#type-select-toggle";
 export const filteredBy = "#filtered-by";
@@ -29,8 +30,8 @@ export const filterSelectType = "#select-filter-value-select";
 export const searchButton = "#search-button";
 export const modalBoxBody = "#confirm-dialog";
 export enum credLabels {
-    name = 'td[data-label="Name"]',
-    description = 'td[data-label="Description"]',
-    type = 'td[data-label="Type"]',
-    createdBy = 'td[data-label="Created by"]',
+  name = 'td[data-label="Name"]',
+  description = 'td[data-label="Description"]',
+  type = 'td[data-label="Type"]',
+  createdBy = 'td[data-label="Created by"]',
 }

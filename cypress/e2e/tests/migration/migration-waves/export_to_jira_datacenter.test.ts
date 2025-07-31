@@ -16,13 +16,22 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../../utils/data_utils";
-import { createMultipleApplications, deleteByList, login } from "../../../../utils/utils";
+import {
+  createMultipleApplications,
+  deleteByList,
+  login,
+} from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
-import { CredentialType, JiraIssueTypes, JiraType, SEC } from "../../../types/constants";
+import {
+  CredentialType,
+  JiraIssueTypes,
+  JiraType,
+  SEC,
+} from "../../../types/constants";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -44,87 +53,96 @@ let projectName = "";
  * The only difference is that this test doesn't remove/archive the issues created since the token doesn't have enough permissions
  */
 describe(["@tier2"], "Export Migration Wave to Jira Datacenter", function () {
-    before("Create test data", function () {
-        if (
-            !Cypress.env("jira_stage_datacenter_project_id") ||
-            !Cypress.env("jira_stage_bearer_token") ||
-            !Cypress.env("jira_stage_datacenter_url")
-        ) {
-            expect(
-                true,
-                `
+  before("Create test data", function () {
+    if (
+      !Cypress.env("jira_stage_datacenter_project_id") ||
+      !Cypress.env("jira_stage_bearer_token") ||
+      !Cypress.env("jira_stage_datacenter_url")
+    ) {
+      expect(
+        true,
+        `
                     Some configurations required for this test are missing, please ensure that you've properly configured the following parameters in the cypress.config.ts file:\n
                     jira_stage_datacenter_project_id\njira_stage_bearer_token\njira_stage_datacenter_url
                 `
-            ).to.eq(false);
-        }
-        login();
-        cy.visit("/");
-        jiraCredentials = new JiraCredentials(
-            data.getJiraCredentialData(CredentialType.jiraToken, true)
-        );
-        jiraCredentials.create();
+      ).to.eq(false);
+    }
+    login();
+    cy.visit("/");
+    jiraCredentials = new JiraCredentials(
+      data.getJiraCredentialData(CredentialType.jiraToken, true)
+    );
+    jiraCredentials.create();
 
-        jiraInstance = new Jira(
-            data.getJiraConnectionData(jiraCredentials, JiraType.server, false, true)
-        );
-        jiraInstance.create();
+    jiraInstance = new Jira(
+      data.getJiraConnectionData(jiraCredentials, JiraType.server, false, true)
+    );
+    jiraInstance.create();
+  });
+
+  Object.values(JiraIssueTypes).forEach((issueType) => {
+    it(`Create wave to export as ${issueType}`, function () {
+      const apps = createMultipleApplications(2);
+      applications.push(...apps);
+
+      wave = new MigrationWave(
+        data.getRandomWord(8),
+        now,
+        end,
+        null,
+        null,
+        apps
+      );
+      wave.create();
     });
 
-    Object.values(JiraIssueTypes).forEach((issueType) => {
-        it(`Create wave to export as ${issueType}`, function () {
-            const apps = createMultipleApplications(2);
-            applications.push(...apps);
+    it(`Export wave as ${issueType} to Jira`, function () {
+      jiraInstance
+        .getProjectById(Cypress.env("jira_stage_datacenter_project_id"))
+        .then((project) => {
+          expect(!!project).to.eq(true);
 
-            wave = new MigrationWave(data.getRandomWord(8), now, end, null, null, apps);
-            wave.create();
-        });
+          projectName = project.name;
 
-        it(`Export wave as ${issueType} to Jira`, function () {
-            jiraInstance
-                .getProjectById(Cypress.env("jira_stage_datacenter_project_id"))
-                .then((project) => {
-                    expect(!!project).to.eq(true);
+          return jiraInstance.getIssueType(issueType);
+        })
+        .then((issue) => {
+          expect(!!issue).to.eq(true);
 
-                    projectName = project.name;
-
-                    return jiraInstance.getIssueType(issueType);
-                })
-                .then((issue) => {
-                    expect(!!issue).to.eq(true);
-
-                    MigrationWave.open(true);
-                    wave.exportToIssueManager(
-                        JiraType.server,
-                        jiraInstance.name,
-                        projectName,
-                        issue.name
-                    );
-                });
-        });
-
-        it(`Assert exports for ${issueType}`, function () {
-            cy.wait(40 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
-            jiraInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
-                const waveIssues = issues.filter((issue) => {
-                    return (
-                        (issue.fields.summary.includes(wave.applications[0].name.trim()) ||
-                            issue.fields.summary.includes(wave.applications[1].name.trim())) &&
-                        issue.fields.issuetype.name.toUpperCase() ===
-                            (issueType as string).toUpperCase()
-                    );
-                });
-
-                expect(waveIssues).to.have.length(2);
-                wave.delete();
-            });
+          MigrationWave.open(true);
+          wave.exportToIssueManager(
+            JiraType.server,
+            jiraInstance.name,
+            projectName,
+            issue.name
+          );
         });
     });
 
-    after("Clear test data", function () {
-        MigrationWave.open(true);
-        deleteByList(applications);
-        jiraInstance.delete();
-        jiraCredentials.delete();
+    it(`Assert exports for ${issueType}`, function () {
+      cy.wait(40 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
+      jiraInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
+        const waveIssues = issues.filter((issue) => {
+          return (
+            (issue.fields.summary.includes(wave.applications[0].name.trim()) ||
+              issue.fields.summary.includes(
+                wave.applications[1].name.trim()
+              )) &&
+            issue.fields.issuetype.name.toUpperCase() ===
+              (issueType as string).toUpperCase()
+          );
+        });
+
+        expect(waveIssues).to.have.length(2);
+        wave.delete();
+      });
     });
+  });
+
+  after("Clear test data", function () {
+    MigrationWave.open(true);
+    deleteByList(applications);
+    jiraInstance.delete();
+    jiraCredentials.delete();
+  });
 });

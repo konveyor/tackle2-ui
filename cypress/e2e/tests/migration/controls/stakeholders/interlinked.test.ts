@@ -17,11 +17,11 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-    click,
-    clickByText,
-    exists,
-    notExists,
-    selectItemsPerPage,
+  click,
+  clickByText,
+  exists,
+  notExists,
+  selectItemsPerPage,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
@@ -34,148 +34,158 @@ import { stakeHoldersTable } from "../../../../views/stakeholders.view";
 var stakeholdergroupsList: Array<Stakeholdergroups> = [];
 var stakeholdergroupNames: Array<string> = [];
 
-describe(["@tier3"], "Stakeholder linked to stakeholder groups and job function", () => {
+describe(
+  ["@tier3"],
+  "Stakeholder linked to stakeholder groups and job function",
+  () => {
     beforeEach("Interceptors", function () {
-        // Interceptors for stakeholder groups
-        cy.intercept("POST", "/hub/stakeholdergroups*").as("postStakeholdergroups");
-        cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
+      // Interceptors for stakeholder groups
+      cy.intercept("POST", "/hub/stakeholdergroups*").as(
+        "postStakeholdergroups"
+      );
+      cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
 
-        // Interceptors for stakeholders
-        cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
-        cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
+      // Interceptors for stakeholders
+      cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
+      cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
 
-        // Interceptors for job functions
-        cy.intercept("POST", "/hub/jobfunctions*").as("postJobfunction");
-        cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
+      // Interceptors for job functions
+      cy.intercept("POST", "/hub/jobfunctions*").as("postJobfunction");
+      cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
     });
 
     it("Stakeholder group attach, update and delete dependency on stakeholder", function () {
-        for (let i = 0; i < 2; i++) {
-            const stakeholdergroup = new Stakeholdergroups(
-                data.getCompanyName(),
-                data.getDescription()
-            );
-            stakeholdergroup.create();
-            stakeholdergroupsList.push(stakeholdergroup);
-            stakeholdergroupNames.push(stakeholdergroup.name);
-        }
-
-        const stakeholder = new Stakeholders(
-            data.getEmail(),
-            data.getFullName(),
-            "",
-            stakeholdergroupNames
+      for (let i = 0; i < 2; i++) {
+        const stakeholdergroup = new Stakeholdergroups(
+          data.getCompanyName(),
+          data.getDescription()
         );
-        stakeholder.create();
-        cy.wait("@postStakeholder");
-        exists(stakeholder.email, stakeHoldersTable);
+        stakeholdergroup.create();
+        stakeholdergroupsList.push(stakeholdergroup);
+        stakeholdergroupNames.push(stakeholdergroup.name);
+      }
 
-        // Check if both the stakeholder groups got attached to stakeholder
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .within(() => {
-                click(expandRow);
-            })
-            .get("div > dd")
-            .should("contain", stakeholdergroupNames[0])
-            .and("contain", stakeholdergroupNames[1]);
+      const stakeholder = new Stakeholders(
+        data.getEmail(),
+        data.getFullName(),
+        "",
+        stakeholdergroupNames
+      );
+      stakeholder.create();
+      cy.wait("@postStakeholder");
+      exists(stakeholder.email, stakeHoldersTable);
 
-        // Update name of second stakeholder group
-        var updatedStakeholderGroupName = data.getCompanyName();
-        stakeholdergroupsList[1].edit({ name: updatedStakeholderGroupName });
-        cy.wait("@getStakeholdergroups");
+      // Check if both the stakeholder groups got attached to stakeholder
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .within(() => {
+          click(expandRow);
+        })
+        .get("div > dd")
+        .should("contain", stakeholdergroupNames[0])
+        .and("contain", stakeholdergroupNames[1]);
 
-        clickByText(navTab, stakeholders);
-        // Verify if the second stakeholder group's name attached to the stakeholder got updated
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .within(() => {
-                click(expandRow);
-            })
-            .get("div > dd")
-            .should("contain", updatedStakeholderGroupName);
+      // Update name of second stakeholder group
+      var updatedStakeholderGroupName = data.getCompanyName();
+      stakeholdergroupsList[1].edit({ name: updatedStakeholderGroupName });
+      cy.wait("@getStakeholdergroups");
 
-        stakeholdergroupsList[1].delete();
-        cy.wait("@getStakeholdergroups");
-        notExists(stakeholdergroupsList[1].name);
+      clickByText(navTab, stakeholders);
+      // Verify if the second stakeholder group's name attached to the stakeholder got updated
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .within(() => {
+          click(expandRow);
+        })
+        .get("div > dd")
+        .should("contain", updatedStakeholderGroupName);
 
-        clickByText(navTab, stakeholders);
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .within(() => {
-                click(expandRow);
-            })
-            .get("div > dd")
-            .should("not.contain", updatedStakeholderGroupName);
+      stakeholdergroupsList[1].delete();
+      cy.wait("@getStakeholdergroups");
+      notExists(stakeholdergroupsList[1].name);
 
-        stakeholder.delete();
-        cy.wait("@getStakeholders");
-        notExists(stakeholder.email, stakeHoldersTable);
+      clickByText(navTab, stakeholders);
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .within(() => {
+          click(expandRow);
+        })
+        .get("div > dd")
+        .should("not.contain", updatedStakeholderGroupName);
 
-        stakeholdergroupsList[0].delete();
-        cy.wait("@getStakeholdergroups");
-        notExists(stakeholdergroupsList[0].name);
+      stakeholder.delete();
+      cy.wait("@getStakeholders");
+      notExists(stakeholder.email, stakeHoldersTable);
+
+      stakeholdergroupsList[0].delete();
+      cy.wait("@getStakeholdergroups");
+      notExists(stakeholdergroupsList[0].name);
     });
 
     it("Job function attach, update and delete dependency on stakeholder", function () {
-        const jobfunction = new Jobfunctions(data.getJobTitle());
-        jobfunction.create();
-        cy.wait("@postJobfunction");
-        exists(jobfunction.name);
+      const jobfunction = new Jobfunctions(data.getJobTitle());
+      jobfunction.create();
+      cy.wait("@postJobfunction");
+      exists(jobfunction.name);
 
-        // Create new stakeholder and attach the above job function
-        const stakeholder = new Stakeholders(data.getEmail(), data.getFullName(), jobfunction.name);
-        stakeholder.create();
-        cy.wait("@postStakeholder");
-        exists(stakeholder.email, stakeHoldersTable);
+      // Create new stakeholder and attach the above job function
+      const stakeholder = new Stakeholders(
+        data.getEmail(),
+        data.getFullName(),
+        jobfunction.name
+      );
+      stakeholder.create();
+      cy.wait("@postStakeholder");
+      exists(stakeholder.email, stakeHoldersTable);
 
-        // Check if the job function got attached to stakeholder
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .find("td[data-label='Job function']")
-            .should("contain", jobfunction.name);
+      // Check if the job function got attached to stakeholder
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .find("td[data-label='Job function']")
+        .should("contain", jobfunction.name);
 
-        // Update name of job function
-        var updatedJobfunctionName = data.getJobTitle();
-        jobfunction.edit(updatedJobfunctionName);
-        cy.wait("@getJobfunctions");
-        cy.wait(2000);
+      // Update name of job function
+      var updatedJobfunctionName = data.getJobTitle();
+      jobfunction.edit(updatedJobfunctionName);
+      cy.wait("@getJobfunctions");
+      cy.wait(2000);
 
-        clickByText(navTab, stakeholders);
-        // Verify if the job function's name attached to the stakeholder got updated
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .find("td[data-label='Job function']")
-            .should("contain", updatedJobfunctionName);
+      clickByText(navTab, stakeholders);
+      // Verify if the job function's name attached to the stakeholder got updated
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .find("td[data-label='Job function']")
+        .should("contain", updatedJobfunctionName);
 
-        stakeholder.removeJobfunction();
-        cy.wait("@getJobfunctions");
+      stakeholder.removeJobfunction();
+      cy.wait("@getJobfunctions");
 
-        jobfunction.delete();
-        cy.wait("@getJobfunctions");
-        notExists(jobfunction.name);
+      jobfunction.delete();
+      cy.wait("@getJobfunctions");
+      notExists(jobfunction.name);
 
-        clickByText(navTab, stakeholders);
-        // Verify if the job function's name got detached from stakeholder
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholder.email)
-            .parent(trTag)
-            .find("td[data-label='Job function']")
-            .should("not.contain", updatedJobfunctionName);
+      clickByText(navTab, stakeholders);
+      // Verify if the job function's name got detached from stakeholder
+      selectItemsPerPage(100);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .parent(trTag)
+        .find("td[data-label='Job function']")
+        .should("not.contain", updatedJobfunctionName);
 
-        stakeholder.delete();
-        cy.wait("@getStakeholders");
-        notExists(stakeholder.email, stakeHoldersTable);
+      stakeholder.delete();
+      cy.wait("@getStakeholders");
+      notExists(stakeholder.email, stakeHoldersTable);
     });
-});
+  }
+);

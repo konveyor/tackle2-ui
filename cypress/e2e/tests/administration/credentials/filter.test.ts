@@ -18,65 +18,65 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 
 import {
-    clearAllFilters,
-    createMultipleCredentials,
-    deleteByList,
-    exists,
-    login,
-    notExists,
+  clearAllFilters,
+  createMultipleCredentials,
+  deleteByList,
+  exists,
+  login,
+  notExists,
 } from "../../../../utils/utils";
 import { Credentials } from "../../../models/administration/credentials/credentials";
 
 describe(["@tier3"], "Credentials filter validations", function () {
-    let adminUserName = Cypress.env("user");
-    let credentialsListByDefaultAdmin: Array<Credentials> = [];
-    let invalidSearchInput = String(data.getRandomNumber());
+  let adminUserName = Cypress.env("user");
+  let credentialsListByDefaultAdmin: Array<Credentials> = [];
+  let invalidSearchInput = String(data.getRandomNumber());
 
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        credentialsListByDefaultAdmin = createMultipleCredentials(8);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    credentialsListByDefaultAdmin = createMultipleCredentials(8);
+  });
 
-    it("Name filter validations", () => {
-        Credentials.openList(100);
+  it("Name filter validations", () => {
+    Credentials.openList(100);
 
-        // Searching by first letters of name:
-        let firstName = credentialsListByDefaultAdmin[0].name;
-        let secondName = credentialsListByDefaultAdmin[1].name;
-        let validSearchInput = firstName.substring(0, 3);
-        Credentials.ApplyFilterByName(validSearchInput);
-        exists(firstName);
+    // Searching by first letters of name:
+    let firstName = credentialsListByDefaultAdmin[0].name;
+    let secondName = credentialsListByDefaultAdmin[1].name;
+    let validSearchInput = firstName.substring(0, 3);
+    Credentials.ApplyFilterByName(validSearchInput);
+    exists(firstName);
 
-        if (secondName.indexOf(validSearchInput) >= 0) {
-            exists(secondName);
-        }
-        clearAllFilters();
+    if (secondName.indexOf(validSearchInput) >= 0) {
+      exists(secondName);
+    }
+    clearAllFilters();
 
-        // Searching by full name:
-        Credentials.ApplyFilterByName(secondName);
-        exists(secondName);
-        notExists(firstName);
-        clearAllFilters();
+    // Searching by full name:
+    Credentials.ApplyFilterByName(secondName);
+    exists(secondName);
+    notExists(firstName);
+    clearAllFilters();
 
-        // Searching for invalid name:
-        Credentials.ApplyFilterByName(invalidSearchInput);
+    // Searching for invalid name:
+    Credentials.ApplyFilterByName(invalidSearchInput);
 
-        // Assert that no search results are found
-        cy.get("h2").contains("No credential available");
+    // Assert that no search results are found
+    cy.get("h2").contains("No credential available");
 
-        clearAllFilters();
-    });
+    clearAllFilters();
+  });
 
-    it("Type filter validations", () => {
-        Credentials.filterByType();
-    });
+  it("Type filter validations", () => {
+    Credentials.filterByType();
+  });
 
-    it("Creator filter validations", () => {
-        Credentials.filterByCreator(adminUserName);
-    });
+  it("Creator filter validations", () => {
+    Credentials.filterByCreator(adminUserName);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(credentialsListByDefaultAdmin);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(credentialsListByDefaultAdmin);
+  });
 });

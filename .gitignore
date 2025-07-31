@@ -121,3 +121,7 @@ cypress/reports/
 
 # Documentation folder
 docs/
+
+#config files
+cypress.config.ts
+cypress/fixtures/xml/settings.xml

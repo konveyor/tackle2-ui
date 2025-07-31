@@ -15,21 +15,28 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getJiraConnectionData, getRandomCredentialsData } from "../../../../utils/data_utils";
 import {
-    cancelForm,
-    click,
-    doesExistText,
-    inputText,
-    login,
-    validateTooLongInput,
-    validateTooShortInput,
+  getJiraConnectionData,
+  getRandomCredentialsData,
+} from "../../../../utils/data_utils";
+import {
+  cancelForm,
+  click,
+  doesExistText,
+  inputText,
+  login,
+  validateTooLongInput,
+  validateTooShortInput,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import { CredentialType, JiraType } from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
-import { createJiraButton, instanceName, instanceUrl } from "../../../views/jira.view";
+import {
+  createJiraButton,
+  instanceName,
+  instanceUrl,
+} from "../../../views/jira.view";
 
 let jiraBasicCredential: JiraCredentials;
 let jiraServerConnectionData: JiraConnectionData;
@@ -37,50 +44,57 @@ let jiraServerConnection: Jira;
 const useTestingAccount = true;
 const isInsecure = true;
 
-describe(["@tier3"], "Field validations for Jira Server connection instance", () => {
+describe(
+  ["@tier3"],
+  "Field validations for Jira Server connection instance",
+  () => {
     before("Login", function () {
-        login();
-        cy.visit("/");
-        jiraBasicCredential = new JiraCredentials(
-            getRandomCredentialsData(CredentialType.jiraBasic)
-        );
-        jiraBasicCredential.create();
-        jiraServerConnectionData = getJiraConnectionData(
-            jiraBasicCredential,
-            JiraType.server,
-            !isInsecure,
-            !useTestingAccount
-        );
+      login();
+      cy.visit("/");
+      jiraBasicCredential = new JiraCredentials(
+        getRandomCredentialsData(CredentialType.jiraBasic)
+      );
+      jiraBasicCredential.create();
+      jiraServerConnectionData = getJiraConnectionData(
+        jiraBasicCredential,
+        JiraType.server,
+        !isInsecure,
+        !useTestingAccount
+      );
 
-        jiraServerConnection = new Jira(jiraServerConnectionData);
-        jiraServerConnection.create();
+      jiraServerConnection = new Jira(jiraServerConnectionData);
+      jiraServerConnection.create();
     });
 
     it("Testing fields validation", () => {
-        Jira.openList();
-        click(createJiraButton);
-        validateTooShortInput(instanceName);
-        validateTooLongInput(instanceName);
-        // Validating URL format and too long link
-        inputText(instanceUrl, "https://");
-        doesExistText(
-            "Enter a valid URL. Note that a cloud instance or most public instances will require the use of HTTPS.",
-            true
-        );
-        validateTooLongInput(instanceUrl, 251, null);
-        cancelForm();
+      Jira.openList();
+      click(createJiraButton);
+      validateTooShortInput(instanceName);
+      validateTooLongInput(instanceName);
+      // Validating URL format and too long link
+      inputText(instanceUrl, "https://");
+      doesExistText(
+        "Enter a valid URL. Note that a cloud instance or most public instances will require the use of HTTPS.",
+        true
+      );
+      validateTooLongInput(instanceUrl, 251, null);
+      cancelForm();
     });
 
     it("Testing duplicate error message", () => {
-        Jira.openList();
-        click(createJiraButton);
-        inputText(instanceName, jiraServerConnection.name);
-        doesExistText("An identity with this name already exists. Use a different name.", true);
-        cancelForm();
+      Jira.openList();
+      click(createJiraButton);
+      inputText(instanceName, jiraServerConnection.name);
+      doesExistText(
+        "An identity with this name already exists. Use a different name.",
+        true
+      );
+      cancelForm();
     });
 
     after("Delete Jira connection and Jira credentials", () => {
-        jiraServerConnection.delete();
-        jiraBasicCredential.delete();
+      jiraServerConnection.delete();
+      jiraBasicCredential.delete();
     });
-});
+  }
+);

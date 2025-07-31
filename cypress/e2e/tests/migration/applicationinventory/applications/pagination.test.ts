@@ -16,38 +16,42 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleApplications,
-    deleteByList,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  createMultipleApplications,
+  deleteByList,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 
 let applicationsList: Array<Application> = [];
 
-describe(["@tier3"], "Application inventory pagination validations", function () {
+describe(
+  ["@tier3"],
+  "Application inventory pagination validations",
+  function () {
     before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        applicationsList = createMultipleApplications(11);
+      login();
+      cy.visit("/");
+      applicationsList = createMultipleApplications(11);
     });
 
     it("Navigation button validations", function () {
-        // Navigate to Application inventory tab
-        Application.open();
-        selectItemsPerPage(10);
-        validatePagination();
+      // Navigate to Application inventory tab
+      Application.open();
+      selectItemsPerPage(10);
+      validatePagination();
     });
 
     it("Items per page validations", function () {
-        Application.open(true);
-        itemsPerPageValidation();
+      Application.open(true);
+      itemsPerPageValidation();
     });
 
     after("Perform test data clean up", function () {
-        Application.open(true);
-        deleteByList(applicationsList);
+      Application.open(true);
+      deleteByList(applicationsList);
     });
-});
+  }
+);

@@ -16,48 +16,53 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    cleanupDownloads,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  cleanupDownloads,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { GeneralConfig } from "../../../../models/administration/general/generalConfig";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
-import { AnalysisStatuses, ReportTypeSelectors } from "../../../../types/constants";
+import {
+  AnalysisStatuses,
+  ReportTypeSelectors,
+} from "../../../../types/constants";
 
 describe(["@tier2"], "Enable and Download HTML and YAML Reports", function () {
-    let sourceApplication: Analysis;
+  let sourceApplication: Analysis;
 
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        GeneralConfig.enableDownloadReport();
-    });
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    GeneralConfig.enableDownloadReport();
+  });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+    });
+  });
 
-    it("Download YAML Report - Source App", function () {
-        sourceApplication = new Analysis(
-            getRandomApplicationData("SourceApp", {
-                sourceData: this.appData["bookserver-app"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        sourceApplication.create();
-        sourceApplication.analyze();
-        sourceApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
-        sourceApplication.downloadReport(ReportTypeSelectors.YAML);
-    });
+  it("Download YAML Report - Source App", function () {
+    sourceApplication = new Analysis(
+      getRandomApplicationData("SourceApp", {
+        sourceData: this.appData["bookserver-app"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    sourceApplication.create();
+    sourceApplication.analyze();
+    sourceApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
+    sourceApplication.downloadReport(ReportTypeSelectors.YAML);
+  });
 
-    after("Cleaning up", function () {
-        sourceApplication.delete();
-        cleanupDownloads();
-    });
+  after("Cleaning up", function () {
+    sourceApplication.delete();
+    cleanupDownloads();
+  });
 });

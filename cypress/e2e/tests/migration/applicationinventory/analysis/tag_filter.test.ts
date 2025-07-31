@@ -17,10 +17,10 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
@@ -28,10 +28,10 @@ import { Application } from "../../../../models/migration/applicationinventory/a
 import { TagCategory } from "../../../../models/migration/controls/tagcategory";
 import { Tag } from "../../../../models/migration/controls/tags";
 import {
-    AnalysisStatuses,
-    CredentialType,
-    SEC,
-    UserCredentials,
+  AnalysisStatuses,
+  CredentialType,
+  SEC,
+  UserCredentials,
 } from "../../../../types/constants";
 import { appDetailsView } from "../../../../views/applicationinventory.view";
 
@@ -41,123 +41,127 @@ let tag: Tag;
 const applications: Application[] = [];
 
 describe(["@tier3"], "Filter tags on application details page", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        source_credential = new CredentialsSourceControlUsername(
-            data.getRandomCredentialsData(
-                CredentialType.sourceControl,
-                UserCredentials.usernamePassword,
-                true
-            )
-        );
-        source_credential.create();
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    source_credential = new CredentialsSourceControlUsername(
+      data.getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword,
+        true
+      )
+    );
+    source_credential.create();
 
-        tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
-        tagCategory.create();
+    tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+    tagCategory.create();
 
-        tag = new Tag(data.getRandomWord(6), tagCategory.name);
-        tag.create();
+    tag = new Tag(data.getRandomWord(6), tagCategory.name);
+    tag.create();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
-
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-            this.techTags = analysisData["analysis_for_enableTagging"]["techTags"];
-        });
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-        Application.open(true);
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+      this.techTags = analysisData["analysis_for_enableTagging"]["techTags"];
     });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    Application.open(true);
+  });
 
-    it("Filter by automated tags generated after analysis", function () {
-        // Automates Polarion MTA-310
-        const application = new Analysis(
-            getRandomApplicationData(
-                "tackleTestApp_Source_autoTagging",
-                {
-                    sourceData: this.appData["tackle-testapp-git"],
-                },
-                [tag.name]
-            ),
-            getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-        );
-        analyzeAndVerifyEnableTaggingApplication(application);
+  it("Filter by automated tags generated after analysis", function () {
+    // Automates Polarion MTA-310
+    const application = new Analysis(
+      getRandomApplicationData(
+        "tackleTestApp_Source_autoTagging",
+        {
+          sourceData: this.appData["tackle-testapp-git"],
+        },
+        [tag.name]
+      ),
+      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
+    );
+    analyzeAndVerifyEnableTaggingApplication(application);
 
-        application.filterTags("Analysis");
-        application.tagAndCategoryExists(this.techTags);
-        cy.get(appDetailsView.applicationTag).should("not.contain", tag.name);
-        application.closeApplicationDetails();
+    application.filterTags("Analysis");
+    application.tagAndCategoryExists(this.techTags);
+    cy.get(appDetailsView.applicationTag).should("not.contain", tag.name);
+    application.closeApplicationDetails();
 
-        // Automate bug MTA-2089 : Rules from technology usage should only appear as tags and not issues
-        application.verifyEffort(this.analysisData["analysis_for_enableTagging"]["effort"]);
-        application.validateIssues(this.analysisData["analysis_for_enableTagging"]["issues"]);
+    // Automate bug MTA-2089 : Rules from technology usage should only appear as tags and not issues
+    application.verifyEffort(
+      this.analysisData["analysis_for_enableTagging"]["effort"]
+    );
+    application.validateIssues(
+      this.analysisData["analysis_for_enableTagging"]["issues"]
+    );
+  });
+
+  it("Filter by manual tags", function () {
+    // Automates Polarion MTA-310
+    const application = new Analysis(
+      getRandomApplicationData(
+        "tackleTestApp_Source_autoTagging",
+        {
+          sourceData: this.appData["tackle-testapp-git"],
+        },
+        [tag.name]
+      ),
+      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
+    );
+    analyzeAndVerifyEnableTaggingApplication(application);
+
+    application.filterTags("Manual");
+    this.techTags.forEach(function (tag) {
+      cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
+        "not.contain",
+        tag[1]
+      );
     });
+    cy.get(appDetailsView.applicationTag).should("contain", tag.name);
+  });
 
-    it("Filter by manual tags", function () {
-        // Automates Polarion MTA-310
-        const application = new Analysis(
-            getRandomApplicationData(
-                "tackleTestApp_Source_autoTagging",
-                {
-                    sourceData: this.appData["tackle-testapp-git"],
-                },
-                [tag.name]
-            ),
-            getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-        );
-        analyzeAndVerifyEnableTaggingApplication(application);
+  it("Filter tags by tag category", function () {
+    // Automates Polarion MTA-311
+    const application = new Analysis(
+      getRandomApplicationData(
+        "tackleTestApp_Source_autoTagging",
+        {
+          sourceData: this.appData["tackle-testapp-git"],
+        },
+        [tag.name]
+      ),
+      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
+    );
+    analyzeAndVerifyEnableTaggingApplication(application);
 
-        application.filterTags("Manual");
-        this.techTags.forEach(function (tag) {
-            cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
-                "not.contain",
-                tag[1]
-            );
-        });
-        cy.get(appDetailsView.applicationTag).should("contain", tag.name);
+    application.filterTags(tagCategory.name);
+    this.techTags.forEach(function (tag) {
+      cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
+        "not.contain",
+        tag[1]
+      );
     });
+    cy.get(appDetailsView.applicationTag).should("contain", tag.name);
+  });
 
-    it("Filter tags by tag category", function () {
-        // Automates Polarion MTA-311
-        const application = new Analysis(
-            getRandomApplicationData(
-                "tackleTestApp_Source_autoTagging",
-                {
-                    sourceData: this.appData["tackle-testapp-git"],
-                },
-                [tag.name]
-            ),
-            getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-        );
-        analyzeAndVerifyEnableTaggingApplication(application);
+  after("Perform test data clean up", function () {
+    Application.open(true);
+    deleteByList(applications);
+    tag.delete();
+    tagCategory.delete();
+    source_credential.delete();
+  });
 
-        application.filterTags(tagCategory.name);
-        this.techTags.forEach(function (tag) {
-            cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
-                "not.contain",
-                tag[1]
-            );
-        });
-        cy.get(appDetailsView.applicationTag).should("contain", tag.name);
-    });
-
-    after("Perform test data clean up", function () {
-        Application.open(true);
-        deleteByList(applications);
-        tag.delete();
-        tagCategory.delete();
-        source_credential.delete();
-    });
-
-    const analyzeAndVerifyEnableTaggingApplication = (application: Analysis) => {
-        applications.push(application);
-        application.create();
-        cy.wait("@getApplication");
-        application.manageCredentials(source_credential.name, null);
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    };
+  const analyzeAndVerifyEnableTaggingApplication = (application: Analysis) => {
+    applications.push(application);
+    application.create();
+    cy.wait("@getApplication");
+    application.manageCredentials(source_credential.name, null);
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  };
 });

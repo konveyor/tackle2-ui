@@ -16,90 +16,90 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    checkSuccessAlert,
-    clickByText,
-    exists,
-    inputText,
-    notExists,
+  checkSuccessAlert,
+  clickByText,
+  exists,
+  inputText,
+  notExists,
 } from "../../../../../utils/utils";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import {
-    button,
-    createNewButton,
-    duplicateEmail,
-    invalidEmailMsg,
-    max120CharsMsg,
-    minCharsMsg,
+  button,
+  createNewButton,
+  duplicateEmail,
+  invalidEmailMsg,
+  max120CharsMsg,
+  minCharsMsg,
 } from "../../../../types/constants";
 import {
-    stakeholderEmailInput,
-    stakeholderHelper,
-    stakeholderNameInput,
-    stakeHoldersTable,
+  stakeholderEmailInput,
+  stakeholderHelper,
+  stakeholderNameInput,
+  stakeHoldersTable,
 } from "../../../../views/stakeholders.view";
 
 import * as data from "../../../../../utils/data_utils";
 import * as commonView from "../../../../views/common.view";
 
 describe(["@tier2"], "Stakeholder validations", () => {
-    const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
+  const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
-        cy.intercept("DELETE", "/hub/stakeholder*/*").as("deleteStakeholder");
-    });
+  beforeEach("Interceptors", function () {
+    cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
+    cy.intercept("DELETE", "/hub/stakeholder*/*").as("deleteStakeholder");
+  });
 
-    it("Stakeholder field validations", function () {
-        Stakeholders.openList();
-        clickByText(button, createNewButton);
+  it("Stakeholder field validations", function () {
+    Stakeholders.openList();
+    clickByText(button, createNewButton);
 
-        // Email constraints
-        inputText(stakeholderEmailInput, data.getRandomWord(2));
-        cy.get(stakeholderHelper).should("contain", minCharsMsg);
-        inputText(stakeholderEmailInput, data.getRandomWords(45));
-        cy.get(stakeholderHelper).should("contain", max120CharsMsg);
-        inputText(stakeholderEmailInput, data.getRandomWord(10));
-        cy.get(stakeholderHelper).should("contain", invalidEmailMsg);
+    // Email constraints
+    inputText(stakeholderEmailInput, data.getRandomWord(2));
+    cy.get(stakeholderHelper).should("contain", minCharsMsg);
+    inputText(stakeholderEmailInput, data.getRandomWords(45));
+    cy.get(stakeholderHelper).should("contain", max120CharsMsg);
+    inputText(stakeholderEmailInput, data.getRandomWord(10));
+    cy.get(stakeholderHelper).should("contain", invalidEmailMsg);
 
-        // Name constraints
-        inputText(stakeholderNameInput, data.getRandomWord(2));
-        cy.get(stakeholderHelper).should("contain", minCharsMsg);
-        inputText(stakeholderNameInput, data.getRandomWords(90));
-        cy.get(stakeholderHelper).should("contain", max120CharsMsg);
+    // Name constraints
+    inputText(stakeholderNameInput, data.getRandomWord(2));
+    cy.get(stakeholderHelper).should("contain", minCharsMsg);
+    inputText(stakeholderNameInput, data.getRandomWords(90));
+    cy.get(stakeholderHelper).should("contain", max120CharsMsg);
 
-        inputText(stakeholderEmailInput, data.getEmail());
-        inputText(stakeholderNameInput, data.getFullName());
-        cy.get(commonView.submitButton).should("not.be.disabled");
-        cy.get(commonView.cancelButton).trigger("click");
-    });
+    inputText(stakeholderEmailInput, data.getEmail());
+    inputText(stakeholderNameInput, data.getFullName());
+    cy.get(commonView.submitButton).should("not.be.disabled");
+    cy.get(commonView.cancelButton).trigger("click");
+  });
 
-    it("Stakholder button validations", function () {
-        Stakeholders.openList();
-        clickByText(button, createNewButton);
-        cy.get(commonView.submitButton).should("be.disabled");
-        cy.get(commonView.cancelButton).should("not.be.disabled");
-        cy.get(commonView.cancelButton).click();
-        clickByText(button, createNewButton);
-        cy.get(commonView.closeButton).click();
-        cy.contains(button, createNewButton).should("exist");
-    });
+  it("Stakholder button validations", function () {
+    Stakeholders.openList();
+    clickByText(button, createNewButton);
+    cy.get(commonView.submitButton).should("be.disabled");
+    cy.get(commonView.cancelButton).should("not.be.disabled");
+    cy.get(commonView.cancelButton).click();
+    clickByText(button, createNewButton);
+    cy.get(commonView.closeButton).click();
+    cy.contains(button, createNewButton).should("exist");
+  });
 
-    it("Stakeholder success alert and unique constraint validation", function () {
-        stakeholder.create();
-        checkSuccessAlert(
-            commonView.successAlertMessage,
-            "Success alert:Stakeholder was successfully created."
-        );
-        cy.wait("@postStakeholder");
-        exists(stakeholder.email, stakeHoldersTable);
-        clickByText(button, createNewButton);
+  it("Stakeholder success alert and unique constraint validation", function () {
+    stakeholder.create();
+    checkSuccessAlert(
+      commonView.successAlertMessage,
+      "Success alert:Stakeholder was successfully created."
+    );
+    cy.wait("@postStakeholder");
+    exists(stakeholder.email, stakeHoldersTable);
+    clickByText(button, createNewButton);
 
-        inputText(stakeholderEmailInput, stakeholder.email);
-        inputText(stakeholderNameInput, data.getFullName());
-        cy.get(stakeholderHelper).should("contain.text", duplicateEmail);
-        cy.get(commonView.closeButton).click();
-        stakeholder.delete();
-        cy.wait("@deleteStakeholder");
-        notExists(stakeholder.email, stakeHoldersTable);
-    });
+    inputText(stakeholderEmailInput, stakeholder.email);
+    inputText(stakeholderNameInput, data.getFullName());
+    cy.get(stakeholderHelper).should("contain.text", duplicateEmail);
+    cy.get(commonView.closeButton).click();
+    stakeholder.delete();
+    cy.wait("@deleteStakeholder");
+    notExists(stakeholder.email, stakeHoldersTable);
+  });
 });

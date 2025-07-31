@@ -16,11 +16,11 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteAllMigrationWaves,
-    deleteApplicationTableRows,
-    deleteByList,
-    getRandomApplicationData,
-    login,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
+  deleteByList,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -30,68 +30,71 @@ import { AnalysisStatuses } from "../../../../types/constants";
 const applications: Analysis[] = [];
 
 describe(["@tier2"], "Gradle Analysis", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    Application.open(true);
+  });
 
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-        Application.open(true);
-    });
+  // Automates TC 532
+  it("Analysis for Gradle JMH application", function () {
+    const application = new Analysis(
+      getRandomApplicationData("JMH Gradle", {
+        sourceData: this.appData["jmh-gradle-example"],
+      }),
+      {
+        source: "Source code + dependencies",
+        effort: 36,
+        target: [],
+      }
+    );
+    application.customRule = ["jmh-gradle-annotation-state-test-rule.yaml"];
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application.verifyEffort(application.effort);
+  });
 
-    // Automates TC 532
-    it("Analysis for Gradle JMH application", function () {
-        const application = new Analysis(
-            getRandomApplicationData("JMH Gradle", {
-                sourceData: this.appData["jmh-gradle-example"],
-            }),
-            {
-                source: "Source code + dependencies",
-                effort: 36,
-                target: [],
-            }
-        );
-        application.customRule = ["jmh-gradle-annotation-state-test-rule.yaml"];
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        application.verifyEffort(application.effort);
-    });
+  // Automates TC 546
+  it("Bug MTA-3780: Analysis for Gradle JMH application with Open Source libraries", function () {
+    const application = new Analysis(
+      getRandomApplicationData("JMH Gradle OS libs", {
+        sourceData: this.appData["jmh-gradle-example"],
+      }),
+      {
+        source: "Source code + dependencies",
+        target: [],
+        openSourceLibraries: true,
+      }
+    );
+    application.customRule = ["jmh-gradle-serializable-test-rule.yaml"];
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    Issues.openSingleApplication(application.name);
+    // Checks that an incident was raised in an open source library with the provided custom rule
+    Issues.openAffectedFile(
+      "AbstractRealDistribution.java",
+      "Serializable reference test"
+    );
+  });
 
-    // Automates TC 546
-    it("Bug MTA-3780: Analysis for Gradle JMH application with Open Source libraries", function () {
-        const application = new Analysis(
-            getRandomApplicationData("JMH Gradle OS libs", {
-                sourceData: this.appData["jmh-gradle-example"],
-            }),
-            {
-                source: "Source code + dependencies",
-                target: [],
-                openSourceLibraries: true,
-            }
-        );
-        application.customRule = ["jmh-gradle-serializable-test-rule.yaml"];
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        Issues.openSingleApplication(application.name);
-        // Checks that an incident was raised in an open source library with the provided custom rule
-        Issues.openAffectedFile("AbstractRealDistribution.java", "Serializable reference test");
-    });
-
-    after("Clear data", function () {
-        Application.open(true);
-        deleteByList(applications);
-    });
+  after("Clear data", function () {
+    Application.open(true);
+    deleteByList(applications);
+  });
 });

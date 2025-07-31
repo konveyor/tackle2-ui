@@ -16,12 +16,12 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleApplications,
-    createMultipleStakeholders,
-    deleteAllMigrationWaves,
-    deleteApplicationTableRows,
-    deleteByList,
-    login,
+  createMultipleApplications,
+  createMultipleStakeholders,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
+  deleteByList,
+  login,
 } from "../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { Application } from "../../../models/migration/applicationinventory/application";
@@ -40,39 +40,39 @@ const unknownRiskApps = 2;
 let riskType = ["low", "medium", "high", "low", "high", "high"];
 
 describe(["@tier3"], "Reports tests", () => {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        AssessmentQuestionnaire.deleteAllQuestionnaires();
-        AssessmentQuestionnaire.enable(legacyPathfinder);
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
-        stakeholdersList = createMultipleStakeholders(1);
-        applicationsList = createMultipleApplications(8);
-        for (let i = 0; i < 6; i++) {
-            // Perform assessment of application
-            applicationsList[i].perform_assessment(riskType[i], stakeholdersList);
-            applicationsList[i].verifyStatus("assessment", "Completed");
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
+    AssessmentQuestionnaire.enable(legacyPathfinder);
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    stakeholdersList = createMultipleStakeholders(1);
+    applicationsList = createMultipleApplications(8);
+    for (let i = 0; i < 6; i++) {
+      // Perform assessment of application
+      applicationsList[i].perform_assessment(riskType[i], stakeholdersList);
+      applicationsList[i].verifyStatus("assessment", "Completed");
 
-            // Perform application review
-            applicationsList[i].perform_review(riskType[i]);
-            applicationsList[i].verifyStatus("review", "Completed");
-        }
-    });
+      // Perform application review
+      applicationsList[i].perform_review(riskType[i]);
+      applicationsList[i].verifyStatus("review", "Completed");
+    }
+  });
 
-    it("Number of Application risk validation", function () {
-        Reports.open();
-        Reports.verifyRisk(
-            highRiskApps,
-            mediumRiskApps,
-            lowRiskApps,
-            unknownRiskApps,
-            totalApplications
-        );
-    });
+  it("Number of Application risk validation", function () {
+    Reports.open();
+    Reports.verifyRisk(
+      highRiskApps,
+      mediumRiskApps,
+      lowRiskApps,
+      unknownRiskApps,
+      totalApplications
+    );
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(stakeholdersList);
-        deleteByList(applicationsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(stakeholdersList);
+    deleteByList(applicationsList);
+  });
 });

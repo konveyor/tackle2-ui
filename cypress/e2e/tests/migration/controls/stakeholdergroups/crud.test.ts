@@ -16,67 +16,71 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../../../utils/data_utils";
-import { exists, expandRowDetails, notExists } from "../../../../../utils/utils";
+import {
+  exists,
+  expandRowDetails,
+  notExists,
+} from "../../../../../utils/utils";
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { stakeHoldersTable } from "../../../../views/stakeholders.view";
 
 describe(["@tier2"], "Stakeholder group CRUD operations", () => {
-    const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
+  const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("POST", "/hub/stakeholdergroups*").as("postStakeholdergroups");
-        cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
+  beforeEach("Interceptors", function () {
+    cy.intercept("POST", "/hub/stakeholdergroups*").as("postStakeholdergroups");
+    cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
+  });
+
+  it("Stakeholder group CRUD", function () {
+    const stakeholdergroup = new Stakeholdergroups(
+      data.getCompanyName(),
+      data.getDescription()
+    );
+    stakeholdergroup.create();
+    cy.wait("@postStakeholdergroups");
+    exists(stakeholdergroup.name);
+    var updateStakeholdergroupName = data.getCompanyName();
+    stakeholdergroup.edit({ name: updateStakeholdergroupName });
+    cy.wait("@getStakeholdergroups");
+    exists(updateStakeholdergroupName);
+
+    stakeholdergroup.delete();
+    cy.wait("@getStakeholdergroups");
+    notExists(stakeholdergroup.name);
+  });
+
+  it("Stakeholder group CRUD with stakeholder member attached", function () {
+    stakeholder.create();
+    exists(stakeholder.email, stakeHoldersTable);
+    var memberStakeholderName = stakeholder.name;
+    const stakeholdergroup = new Stakeholdergroups(
+      data.getCompanyName(),
+      data.getDescription(),
+      [memberStakeholderName]
+    );
+
+    stakeholdergroup.create();
+    cy.wait("@postStakeholdergroups");
+    exists(stakeholdergroup.name);
+    expandRowDetails(stakeholdergroup.name);
+    exists(memberStakeholderName);
+
+    stakeholdergroup.edit({
+      name: data.getCompanyName(),
+      description: data.getDescription(),
+      members: [memberStakeholderName],
     });
+    cy.wait("@getStakeholdergroups");
+    expandRowDetails(stakeholdergroup.name);
+    notExists(memberStakeholderName);
 
-    it("Stakeholder group CRUD", function () {
-        const stakeholdergroup = new Stakeholdergroups(
-            data.getCompanyName(),
-            data.getDescription()
-        );
-        stakeholdergroup.create();
-        cy.wait("@postStakeholdergroups");
-        exists(stakeholdergroup.name);
-        var updateStakeholdergroupName = data.getCompanyName();
-        stakeholdergroup.edit({ name: updateStakeholdergroupName });
-        cy.wait("@getStakeholdergroups");
-        exists(updateStakeholdergroupName);
+    stakeholdergroup.delete();
+    cy.wait("@getStakeholdergroups");
 
-        stakeholdergroup.delete();
-        cy.wait("@getStakeholdergroups");
-        notExists(stakeholdergroup.name);
-    });
-
-    it("Stakeholder group CRUD with stakeholder member attached", function () {
-        stakeholder.create();
-        exists(stakeholder.email, stakeHoldersTable);
-        var memberStakeholderName = stakeholder.name;
-        const stakeholdergroup = new Stakeholdergroups(
-            data.getCompanyName(),
-            data.getDescription(),
-            [memberStakeholderName]
-        );
-
-        stakeholdergroup.create();
-        cy.wait("@postStakeholdergroups");
-        exists(stakeholdergroup.name);
-        expandRowDetails(stakeholdergroup.name);
-        exists(memberStakeholderName);
-
-        stakeholdergroup.edit({
-            name: data.getCompanyName(),
-            description: data.getDescription(),
-            members: [memberStakeholderName],
-        });
-        cy.wait("@getStakeholdergroups");
-        expandRowDetails(stakeholdergroup.name);
-        notExists(memberStakeholderName);
-
-        stakeholdergroup.delete();
-        cy.wait("@getStakeholdergroups");
-
-        notExists(stakeholdergroup.name);
-        stakeholder.delete();
-        notExists(stakeholder.email, stakeHoldersTable);
-    });
+    notExists(stakeholdergroup.name);
+    stakeholder.delete();
+    notExists(stakeholder.email, stakeHoldersTable);
+  });
 });

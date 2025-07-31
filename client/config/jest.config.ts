@@ -39,6 +39,8 @@ const config: JestConfigWithTsJest = {
   // The pattern or patterns Jest uses to find test files
   testMatch: ["<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}"],
 
+  testPathIgnorePatterns: ["/node_modules/", "/cypress/", "/e2e/"],
+
   // Process js/jsx/mjs/mjsx/ts/tsx/mts/mtsx with `ts-jest`
   transform: {
     "^.+\\.xsd$": "<rootDir>/__mocks__/raw-loader.js",

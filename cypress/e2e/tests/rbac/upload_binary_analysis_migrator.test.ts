@@ -17,10 +17,10 @@ limitations under the License.
 
 import { getRandomUserData } from "../../../utils/data_utils";
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../utils/utils";
 import { User } from "../../models/keycloak/users/user";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
@@ -28,65 +28,69 @@ import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { AnalysisStatuses, SEC } from "../../types/constants";
 
 describe(["@tier3"], "Migrator Upload Binary Analysis", () => {
-    const userMigrator = new UserMigrator(getRandomUserData());
-    const applications: Analysis[] = [];
+  const userMigrator = new UserMigrator(getRandomUserData());
+  const applications: Analysis[] = [];
 
-    before("Login", function () {
-        Cypress.session.clearAllSavedSessions();
-        User.loginKeycloakAdmin();
-        userMigrator.create();
+  before("Login", function () {
+    Cypress.session.clearAllSavedSessions();
+    User.loginKeycloakAdmin();
+    userMigrator.create();
+  });
+
+  beforeEach("Persist session", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
-
-    beforeEach("Persist session", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-
-        // Perform login as admin user to be able to create all required instances
-        login();
-        cy.visit("/");
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
 
-    it("Upload Binary Analysis", function () {
-        const application = new Analysis(
-            getRandomApplicationData("uploadBinary"),
-            getRandomAnalysisData(this.analysisData["uploadbinary_analysis_on_acmeair"])
-        );
-        application.create();
-        applications.push(application);
+    // Perform login as admin user to be able to create all required instances
+    login();
+    cy.visit("/");
+  });
 
-        cy.wait("@getApplication");
-        cy.wait(2 * SEC);
-        userMigrator.login();
+  it("Upload Binary Analysis", function () {
+    const application = new Analysis(
+      getRandomApplicationData("uploadBinary"),
+      getRandomAnalysisData(
+        this.analysisData["uploadbinary_analysis_on_acmeair"]
+      )
+    );
+    application.create();
+    applications.push(application);
 
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
+    cy.wait("@getApplication");
+    cy.wait(2 * SEC);
+    userMigrator.login();
 
-    it("Custom rules with custom targets", function () {
-        // Automated https://issues.redhat.com/browse/TACKLE-561
-        const application = new Analysis(
-            getRandomApplicationData("customRule_customTarget"),
-            getRandomAnalysisData(this.analysisData["uploadbinary_analysis_with_customrule"])
-        );
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        userMigrator.login();
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
 
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
+  it("Custom rules with custom targets", function () {
+    // Automated https://issues.redhat.com/browse/TACKLE-561
+    const application = new Analysis(
+      getRandomApplicationData("customRule_customTarget"),
+      getRandomAnalysisData(
+        this.analysisData["uploadbinary_analysis_with_customrule"]
+      )
+    );
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    userMigrator.login();
 
-    after("Perform test data clean up", function () {
-        login();
-        cy.visit("/");
-        deleteByList(applications);
-        User.loginKeycloakAdmin();
-        userMigrator.delete();
-    });
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
+
+  after("Perform test data clean up", function () {
+    login();
+    cy.visit("/");
+    deleteByList(applications);
+    User.loginKeycloakAdmin();
+    userMigrator.delete();
+  });
 });

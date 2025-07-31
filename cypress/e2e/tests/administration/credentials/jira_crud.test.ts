@@ -23,53 +23,53 @@ import { CredentialsData } from "../../../types/types";
 
 // Commented Token tests as now they can't be run because of missing environment.
 describe(["@tier2"], "Validation of jira credentials", () => {
-    const toBeCanceled = true;
-    let validJiraBasicCredentials: CredentialsData;
-    let randomJiraBasicCredentials: CredentialsData;
-    let jiraBasicCredentials: JiraCredentials;
-    const useTestingAccount = true;
+  const toBeCanceled = true;
+  let validJiraBasicCredentials: CredentialsData;
+  let randomJiraBasicCredentials: CredentialsData;
+  let jiraBasicCredentials: JiraCredentials;
+  const useTestingAccount = true;
 
-    before("Login", function () {
-        login();
-        cy.visit("/");
+  before("Login", function () {
+    login();
+    cy.visit("/");
 
-        randomJiraBasicCredentials = getJiraCredentialData(
-            CredentialType.jiraBasic,
-            !useTestingAccount
-        );
+    randomJiraBasicCredentials = getJiraCredentialData(
+      CredentialType.jiraBasic,
+      !useTestingAccount
+    );
 
-        validJiraBasicCredentials = getJiraCredentialData(
-            CredentialType.jiraBasic,
-            useTestingAccount
-        );
+    validJiraBasicCredentials = getJiraCredentialData(
+      CredentialType.jiraBasic,
+      useTestingAccount
+    );
 
-        jiraBasicCredentials = new JiraCredentials(randomJiraBasicCredentials);
-    });
+    jiraBasicCredentials = new JiraCredentials(randomJiraBasicCredentials);
+  });
 
-    it("Creating Jira credentials and cancelling without saving", () => {
-        jiraBasicCredentials.create(toBeCanceled);
-    });
+  it("Creating Jira credentials and cancelling without saving", () => {
+    jiraBasicCredentials.create(toBeCanceled);
+  });
 
-    it("Creating Jira credentials", () => {
-        jiraBasicCredentials.create();
-        jiraBasicCredentials.validateValues();
-    });
+  it("Creating Jira credentials", () => {
+    jiraBasicCredentials.create();
+    jiraBasicCredentials.validateValues();
+  });
 
-    it("Editing Jira credentials and cancelling without saving", () => {
-        jiraBasicCredentials.edit(validJiraBasicCredentials, toBeCanceled);
-        jiraBasicCredentials.validateValues();
-    });
+  it("Editing Jira credentials and cancelling without saving", () => {
+    jiraBasicCredentials.edit(validJiraBasicCredentials, toBeCanceled);
+    jiraBasicCredentials.validateValues();
+  });
 
-    it("Editing Jira credentials", () => {
-        jiraBasicCredentials.edit(validJiraBasicCredentials);
-        jiraBasicCredentials.validateValues();
-    });
+  it("Editing Jira credentials", () => {
+    jiraBasicCredentials.edit(validJiraBasicCredentials);
+    jiraBasicCredentials.validateValues();
+  });
 
-    it("Delete Jira credentials and cancel deletion", () => {
-        jiraBasicCredentials.delete(toBeCanceled);
-    });
+  it("Delete Jira credentials and cancel deletion", () => {
+    jiraBasicCredentials.delete(toBeCanceled);
+  });
 
-    after("Delete Jira credentials", () => {
-        jiraBasicCredentials.delete();
-    });
+  after("Delete Jira credentials", () => {
+    jiraBasicCredentials.delete();
+  });
 });

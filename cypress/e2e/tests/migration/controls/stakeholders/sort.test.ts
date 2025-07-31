@@ -16,17 +16,22 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    clickOnSortButton,
-    createMultipleJobFunctions,
-    createMultipleStakeholderGroups,
-    createMultipleStakeholders,
-    deleteByList,
-    getTableColumnData,
-    login,
-    verifySortAsc,
-    verifySortDesc,
+  clickOnSortButton,
+  createMultipleJobFunctions,
+  createMultipleStakeholderGroups,
+  createMultipleStakeholders,
+  deleteByList,
+  getTableColumnData,
+  login,
+  verifySortAsc,
+  verifySortDesc,
 } from "../../../../../utils/utils";
-import { displayName, email, jobFunction, SortType } from "../../../../types/constants";
+import {
+  displayName,
+  email,
+  jobFunction,
+  SortType,
+} from "../../../../types/constants";
 
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
@@ -38,62 +43,66 @@ let jobFunctionsList: Array<Jobfunctions> = [];
 let stakeholderGroupList: Array<Stakeholdergroups> = [];
 
 describe(["@tier3"], "Stakeholder sort validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        jobFunctionsList = createMultipleJobFunctions(2);
-        stakeholderGroupList = createMultipleStakeholderGroups(2);
-        stakeholdersList = createMultipleStakeholders(2, jobFunctionsList, stakeholderGroupList);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    jobFunctionsList = createMultipleJobFunctions(2);
+    stakeholderGroupList = createMultipleStakeholderGroups(2);
+    stakeholdersList = createMultipleStakeholders(
+      2,
+      jobFunctionsList,
+      stakeholderGroupList
+    );
+  });
 
-    it("Email sort validations", function () {
-        Stakeholders.openList();
-        const unsortedList = getTableColumnData(email);
+  it("Email sort validations", function () {
+    Stakeholders.openList();
+    const unsortedList = getTableColumnData(email);
 
-        // Sort the stakeholders by email in ascending order
-        clickOnSortButton(email, SortType.ascending, stakeHoldersTable);
-        const afterAscSortList = getTableColumnData(email);
-        verifySortAsc(afterAscSortList, unsortedList);
+    // Sort the stakeholders by email in ascending order
+    clickOnSortButton(email, SortType.ascending, stakeHoldersTable);
+    const afterAscSortList = getTableColumnData(email);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        // Sort the stakeholders by email in descending order
-        clickOnSortButton(email, SortType.descending, stakeHoldersTable);
-        const afterDescSortList = getTableColumnData(email);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    // Sort the stakeholders by email in descending order
+    clickOnSortButton(email, SortType.descending, stakeHoldersTable);
+    const afterDescSortList = getTableColumnData(email);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    it("Display name sort validations", function () {
-        Stakeholders.openList();
-        const unsortedList = getTableColumnData(displayName);
+  it("Display name sort validations", function () {
+    Stakeholders.openList();
+    const unsortedList = getTableColumnData(displayName);
 
-        // Sort the stakeholders by display name in ascending order
-        clickOnSortButton(displayName, SortType.ascending, stakeHoldersTable);
-        const afterAscSortList = getTableColumnData(displayName);
-        verifySortAsc(afterAscSortList, unsortedList);
+    // Sort the stakeholders by display name in ascending order
+    clickOnSortButton(displayName, SortType.ascending, stakeHoldersTable);
+    const afterAscSortList = getTableColumnData(displayName);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        // Sort the stakeholders by display name in descending order
-        clickOnSortButton(displayName, SortType.descending, stakeHoldersTable);
-        const afterDescSortList = getTableColumnData(displayName);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    // Sort the stakeholders by display name in descending order
+    clickOnSortButton(displayName, SortType.descending, stakeHoldersTable);
+    const afterDescSortList = getTableColumnData(displayName);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    it("Job function sort validations", function () {
-        Stakeholders.openList();
-        const unsortedList = getTableColumnData(jobFunction);
+  it("Job function sort validations", function () {
+    Stakeholders.openList();
+    const unsortedList = getTableColumnData(jobFunction);
 
-        // Sort the stakeholders by Job function in ascending order
-        clickOnSortButton(jobFunction, SortType.ascending, stakeHoldersTable);
-        const afterAscSortList = getTableColumnData(jobFunction);
-        verifySortAsc(afterAscSortList, unsortedList);
+    // Sort the stakeholders by Job function in ascending order
+    clickOnSortButton(jobFunction, SortType.ascending, stakeHoldersTable);
+    const afterAscSortList = getTableColumnData(jobFunction);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        // Sort the stakeholders by Job function in descending order
-        clickOnSortButton(jobFunction, SortType.descending, stakeHoldersTable);
-        const afterDescSortList = getTableColumnData(jobFunction);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    // Sort the stakeholders by Job function in descending order
+    clickOnSortButton(jobFunction, SortType.descending, stakeHoldersTable);
+    const afterDescSortList = getTableColumnData(jobFunction);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(stakeholdersList);
-        deleteByList(stakeholderGroupList);
-        deleteByList(jobFunctionsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(stakeholdersList);
+    deleteByList(stakeholderGroupList);
+    deleteByList(jobFunctionsList);
+  });
 });

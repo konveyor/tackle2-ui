@@ -16,15 +16,15 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleStakeholders,
-    deleteAllMigrationWaves,
-    deleteAppImportsTableRows,
-    deleteApplicationTableRows,
-    deleteByList,
-    exists,
-    importApplication,
-    login,
-    notExists,
+  createMultipleStakeholders,
+  deleteAllMigrationWaves,
+  deleteAppImportsTableRows,
+  deleteApplicationTableRows,
+  deleteByList,
+  exists,
+  importApplication,
+  login,
+  notExists,
 } from "../../../../../utils/utils";
 
 import { AssessmentQuestionnaire } from "../../../../models/administration/assessment_questionnaire/assessment_questionnaire";
@@ -37,52 +37,52 @@ let stakeholders: Stakeholders[];
 let appdata = { name: "Customers" };
 
 describe(["@tier3"], "Operations after application import", () => {
-    before("Login and create test data", function () {
-        login();
-        cy.visit("/");
-        // This test will fail if there are preexisting questionnaire.
-        AssessmentQuestionnaire.deleteAllQuestionnaires();
-        AssessmentQuestionnaire.enable(legacyPathfinder);
-        stakeholders = createMultipleStakeholders(1);
+  before("Login and create test data", function () {
+    login();
+    cy.visit("/");
+    // This test will fail if there are preexisting questionnaire.
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
+    AssessmentQuestionnaire.enable(legacyPathfinder);
+    stakeholders = createMultipleStakeholders(1);
 
-        // Import applications through valid .CSV file
-        const fileName = "template_application_import.csv";
-        importApplication(filePath + fileName);
+    // Import applications through valid .CSV file
+    const fileName = "template_application_import.csv";
+    importApplication(filePath + fileName);
 
-        // Verify imported apps are visible in table
-        exists("Customers");
-        exists("Inventory");
-        exists("Gateway");
-    });
+    // Verify imported apps are visible in table
+    exists("Customers");
+    exists("Inventory");
+    exists("Gateway");
+  });
 
-    it(
-        ["@dc"],
-        "Perform application assessment after a successful application import",
-        function () {
-            const application = new Application(appdata);
+  it(
+    ["@dc"],
+    "Perform application assessment after a successful application import",
+    function () {
+      const application = new Application(appdata);
 
-            // Perform assessment of application
-            application.perform_assessment("low", stakeholders);
-            cy.wait(2000);
-            application.verifyStatus("assessment", "Completed");
-        }
-    );
+      // Perform assessment of application
+      application.perform_assessment("low", stakeholders);
+      cy.wait(2000);
+      application.verifyStatus("assessment", "Completed");
+    }
+  );
 
-    it("Perform application review after a successful application import", function () {
-        // Automates Polarion TC MTA-295
-        const application = new Application(appdata);
+  it("Perform application review after a successful application import", function () {
+    // Automates Polarion TC MTA-295
+    const application = new Application(appdata);
 
-        application.perform_review("low");
-        application.verifyStatus("review", "Completed");
+    application.perform_review("low");
+    application.verifyStatus("review", "Completed");
 
-        application.delete();
-        notExists(application.name);
-    });
+    application.delete();
+    notExists(application.name);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
-        deleteAppImportsTableRows();
-        deleteByList(stakeholders);
-    });
+  after("Perform test data clean up", function () {
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    deleteAppImportsTableRows();
+    deleteByList(stakeholders);
+  });
 });

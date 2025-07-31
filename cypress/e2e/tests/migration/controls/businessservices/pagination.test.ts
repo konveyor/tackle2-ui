@@ -16,44 +16,44 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    autoPageChangeValidations,
-    createMultipleBusinessServices,
-    deleteAllBusinessServices,
-    deleteApplicationTableRows,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  autoPageChangeValidations,
+  createMultipleBusinessServices,
+  deleteAllBusinessServices,
+  deleteApplicationTableRows,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../../utils/utils";
 import { BusinessServices } from "../../../../models/migration/controls/businessservices";
 
 describe(["@tier3"], "Business services pagination validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        createMultipleBusinessServices(11);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    createMultipleBusinessServices(11);
+  });
 
-    it("Navigation button validations", function () {
-        BusinessServices.openList();
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+  it("Navigation button validations", function () {
+    BusinessServices.openList();
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        BusinessServices.openList();
-        selectItemsPerPage(10);
-        itemsPerPageValidation();
-    });
+  it("Items per page validations", function () {
+    BusinessServices.openList();
+    selectItemsPerPage(10);
+    itemsPerPageValidation();
+  });
 
-    it("Last page item(s) deletion, impact on page reload validation", function () {
-        BusinessServices.openList();
-        selectItemsPerPage(10);
-        autoPageChangeValidations(undefined, undefined, true);
-    });
+  it("Last page item(s) deletion, impact on page reload validation", function () {
+    BusinessServices.openList();
+    selectItemsPerPage(10);
+    autoPageChangeValidations(undefined, undefined, true);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteApplicationTableRows();
-        deleteAllBusinessServices();
-    });
+  after("Perform test data clean up", function () {
+    deleteApplicationTableRows();
+    deleteAllBusinessServices();
+  });
 });

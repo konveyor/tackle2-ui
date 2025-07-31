@@ -40,80 +40,84 @@ const metricName = "konveyor_issues_exported_total";
 let counter: number;
 
 // Automates Polarion TC 337
-describe(["@tier2"], "Custom Metrics - Count the total number of issues exported", function () {
+describe(
+  ["@tier2"],
+  "Custom Metrics - Count the total number of issues exported",
+  function () {
     before("Create test data", function () {
-        login();
-        cy.visit("/");
-        applications = createMultipleApplications(2);
+      login();
+      cy.visit("/");
+      applications = createMultipleApplications(2);
 
-        migrationWave = new MigrationWave(
-            data.getRandomWord(8),
-            now,
-            end,
-            null,
-            null,
-            applications
-        );
-        migrationWave.create();
+      migrationWave = new MigrationWave(
+        data.getRandomWord(8),
+        now,
+        end,
+        null,
+        null,
+        applications
+      );
+      migrationWave.create();
 
-        jiraCredentials = new JiraCredentials(
-            data.getRandomCredentialsData(CredentialType.jiraBasic, null, true)
-        );
-        jiraCredentials.create();
+      jiraCredentials = new JiraCredentials(
+        data.getRandomCredentialsData(CredentialType.jiraBasic, null, true)
+      );
+      jiraCredentials.create();
 
-        jiraInstance = new Jira({
-            name: data.getRandomWord(5),
-            url: Cypress.env("jira_atlassian_cloud_url"),
-            credential: jiraCredentials,
-            type: JiraType.cloud,
-        });
-        jiraInstance.create();
+      jiraInstance = new Jira({
+        name: data.getRandomWord(5),
+        url: Cypress.env("jira_atlassian_cloud_url"),
+        credential: jiraCredentials,
+        type: JiraType.cloud,
+      });
+      jiraInstance.create();
 
-        metrics.getValue(metricName).then((counterValue) => {
-            counter = counterValue;
-        });
+      metrics.getValue(metricName).then((counterValue) => {
+        counter = counterValue;
+      });
     });
 
     it("Export issues to Jira and validate the metrics counter", function () {
-        let projectName = "";
+      let projectName = "";
 
-        jiraInstance
-            .getProject()
-            .then((project) => {
-                projectName = project.name;
+      jiraInstance
+        .getProject()
+        .then((project) => {
+          projectName = project.name;
 
-                return jiraInstance.getIssueType("Task");
-            })
-            .then((task) => {
-                migrationWave.exportToIssueManager(
-                    JiraType.cloud,
-                    jiraInstance.name,
-                    projectName,
-                    task.untranslatedName
-                );
-            })
-            .then((_) => {
-                cy.wait(35 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
-                return jiraInstance.getIssues(projectName);
-            })
-            .then((issues: JiraIssue[]) => {
-                counter += 2;
+          return jiraInstance.getIssueType("Task");
+        })
+        .then((task) => {
+          migrationWave.exportToIssueManager(
+            JiraType.cloud,
+            jiraInstance.name,
+            projectName,
+            task.untranslatedName
+          );
+        })
+        .then((_) => {
+          cy.wait(35 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
+          return jiraInstance.getIssues(projectName);
+        })
+        .then((issues: JiraIssue[]) => {
+          counter += 2;
 
-                // Validate the issues exported count change
-                metrics.validateMetric(metricName, counter);
+          // Validate the issues exported count change
+          metrics.validateMetric(metricName, counter);
 
-                migrationWave.delete();
-                // Validate the issues exported doesn't change count
-                metrics.validateMetric(metricName, counter);
+          migrationWave.delete();
+          // Validate the issues exported doesn't change count
+          metrics.validateMetric(metricName, counter);
 
-                // Delete the jira issues attached to instance
-                jiraInstance.deleteIssues(issues.map((issue) => issue.id));
-            });
+          // Delete the jira issues attached to instance
+          jiraInstance.deleteIssues(issues.map((issue) => issue.id));
+        });
     });
 
     after("Clear test data", function () {
-        applications.forEach((app) => app.delete());
-        jiraInstance.delete();
-        jiraCredentials.delete();
+      applications.forEach((app) => app.delete());
+      jiraInstance.delete();
+      jiraCredentials.delete();
     });
-});
+  }
+);

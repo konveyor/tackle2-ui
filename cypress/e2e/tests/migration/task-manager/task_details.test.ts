@@ -16,12 +16,12 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    cleanupDownloads,
-    deleteApplicationTableRows,
-    downloadTaskDetails,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  cleanupDownloads,
+  deleteApplicationTableRows,
+  downloadTaskDetails,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../utils/utils";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../models/migration/task-manager/task-manager";
@@ -29,53 +29,72 @@ import { TaskKind } from "../../../types/constants";
 import { downloadFormatDetails } from "../../../views/common.view";
 
 describe(["@tier3"], "Task details validation", function () {
-    let application: Analysis;
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        deleteApplicationTableRows();
-    });
+  let application: Analysis;
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    deleteApplicationTableRows();
+  });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+    });
+  });
 
-    it("Open language-discovery details by clicking on the status link", function () {
-        application = new Analysis(
-            getRandomApplicationData("", {
-                sourceData: this.appData["bookserver-app"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        application.create();
-        TaskManager.openTaskDetailsByStatus(application.name, TaskKind.languageDiscovery);
-    });
+  it("Open language-discovery details by clicking on the status link", function () {
+    application = new Analysis(
+      getRandomApplicationData("", {
+        sourceData: this.appData["bookserver-app"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    application.create();
+    TaskManager.openTaskDetailsByStatus(
+      application.name,
+      TaskKind.languageDiscovery
+    );
+  });
 
-    it("Open tech-discovery details by clicking on the status link", function () {
-        TaskManager.openTaskDetailsByStatus(application.name, TaskKind.techDiscovery);
-    });
+  it("Open tech-discovery details by clicking on the status link", function () {
+    TaskManager.openTaskDetailsByStatus(
+      application.name,
+      TaskKind.techDiscovery
+    );
+  });
 
-    it("Open task details from right kebab menu", function () {
-        TaskManager.openTaskDetailsByKebabMenu(application.name, TaskKind.languageDiscovery);
-    });
+  it("Open task details from right kebab menu", function () {
+    TaskManager.openTaskDetailsByKebabMenu(
+      application.name,
+      TaskKind.languageDiscovery
+    );
+  });
 
-    it("Download task details in yaml format", function () {
-        TaskManager.openTaskDetailsByKebabMenu(application.name, TaskKind.techDiscovery, false);
-        downloadTaskDetails();
-    });
+  it("Download task details in yaml format", function () {
+    TaskManager.openTaskDetailsByKebabMenu(
+      application.name,
+      TaskKind.techDiscovery,
+      false
+    );
+    downloadTaskDetails();
+  });
 
-    it("Download task details in json format", function () {
-        TaskManager.openTaskDetailsByKebabMenu(application.name, TaskKind.techDiscovery, false);
-        downloadTaskDetails(downloadFormatDetails.json);
-    });
+  it("Download task details in json format", function () {
+    TaskManager.openTaskDetailsByKebabMenu(
+      application.name,
+      TaskKind.techDiscovery,
+      false
+    );
+    downloadTaskDetails(downloadFormatDetails.json);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteApplicationTableRows();
-        cleanupDownloads();
-    });
+  after("Perform test data clean up", function () {
+    deleteApplicationTableRows();
+    cleanupDownloads();
+  });
 });

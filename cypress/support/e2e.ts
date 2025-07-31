@@ -35,22 +35,26 @@ import { login } from "../utils/utils";
 // TODO: Improve by implementing a configuration parameter
 const app = window.top;
 
-if (app && !app.document.head.querySelector("[data-hide-command-log-request]")) {
-    const style = app.document.createElement("style");
-    style.innerHTML = ".command-name-request, .command-name-xhr { display: none }";
-    style.setAttribute("data-hide-command-log-request", "");
+if (
+  app &&
+  !app.document.head.querySelector("[data-hide-command-log-request]")
+) {
+  const style = app.document.createElement("style");
+  style.innerHTML =
+    ".command-name-request, .command-name-xhr { display: none }";
+  style.setAttribute("data-hide-command-log-request", "");
 
-    app.document.head.appendChild(style);
+  app.document.head.appendChild(style);
 }
 
 beforeEach(() => {
-    // Disable for static report test as it need to open local files
-    if (Cypress.spec.name === "static_report.test.ts") {
-        return;
-    }
+  // Disable for static report test as it need to open local files
+  if (Cypress.spec.name === "static_report.test.ts") {
+    return;
+  }
 
-    login();
+  login();
 
-    // Every test starts by visiting / which should redirect to baseURL/applications
-    cy.visit("/");
+  // Every test starts by visiting / which should redirect to baseURL/applications
+  cy.visit("/");
 });

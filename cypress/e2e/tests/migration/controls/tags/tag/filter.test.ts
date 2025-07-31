@@ -16,52 +16,52 @@ limitations under the License.
 
 import * as data from "../../../../../../utils/data_utils";
 import {
-    applySelectFilter,
-    clearAllFilters,
-    closeRowDetails,
-    exists,
-    existsWithinRow,
-    expandRowDetails,
-    login,
+  applySelectFilter,
+  clearAllFilters,
+  closeRowDetails,
+  exists,
+  existsWithinRow,
+  expandRowDetails,
+  login,
 } from "../../../../../../utils/utils";
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
 import { Tag } from "../../../../../models/migration/controls/tags";
 import { name, tdTag } from "../../../../../types/constants";
 
 describe(["@tier3"], "Tags filter validations", function () {
-    const tagCategory = new TagCategory(data.getRandomWord(5), data.getColor());
-    const tag = new Tag(data.getRandomWord(5), tagCategory.name);
+  const tagCategory = new TagCategory(data.getRandomWord(5), data.getColor());
+  const tag = new Tag(data.getRandomWord(5), tagCategory.name);
 
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        tagCategory.create();
-        tag.create();
-    });
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    tagCategory.create();
+    tag.create();
+  });
 
-    it("Name filter validations", function () {
-        let validSearchInputTag = tag.name.substring(0, 3);
-        let validSearchInputTagCategory = tagCategory.name.substring(0, 3);
-        let filterType = name;
+  it("Name filter validations", function () {
+    let validSearchInputTag = tag.name.substring(0, 3);
+    let validSearchInputTagCategory = tagCategory.name.substring(0, 3);
+    let filterType = name;
 
-        Tag.openList();
-        applySelectFilter("tags", filterType, validSearchInputTag);
-        expandRowDetails(tag.tagCategory);
-        existsWithinRow(tag.tagCategory, tdTag, tag.name);
-        closeRowDetails(tag.tagCategory);
+    Tag.openList();
+    applySelectFilter("tags", filterType, validSearchInputTag);
+    expandRowDetails(tag.tagCategory);
+    existsWithinRow(tag.tagCategory, tdTag, tag.name);
+    closeRowDetails(tag.tagCategory);
 
-        applySelectFilter("tags", filterType, validSearchInputTagCategory);
-        exists(validSearchInputTagCategory);
+    applySelectFilter("tags", filterType, validSearchInputTagCategory);
+    exists(validSearchInputTagCategory);
 
-        clearAllFilters();
+    clearAllFilters();
 
-        // Enter a non-existing tag name substring and apply it as search filter
-        let invalidSearchInput = String(data.getRandomNumber(111111, 222222));
-        applySelectFilter("tags", filterType, invalidSearchInput, false);
-    });
+    // Enter a non-existing tag name substring and apply it as search filter
+    let invalidSearchInput = String(data.getRandomNumber(111111, 222222));
+    applySelectFilter("tags", filterType, invalidSearchInput, false);
+  });
 
-    after("Cleanup", function () {
-        tag.delete();
-        tagCategory.delete();
-    });
+  after("Cleanup", function () {
+    tag.delete();
+    tagCategory.delete();
+  });
 });

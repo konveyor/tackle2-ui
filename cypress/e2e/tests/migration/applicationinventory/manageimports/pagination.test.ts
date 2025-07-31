@@ -16,17 +16,17 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteAllImports,
-    deleteAllMigrationWaves,
-    deleteAppImportsTableRows,
-    deleteApplicationTableRows,
-    goToLastPage,
-    importApplication,
-    itemsPerPageValidation,
-    login,
-    openManageImportsPage,
-    selectItemsPerPage,
-    validatePagination,
+  deleteAllImports,
+  deleteAllMigrationWaves,
+  deleteAppImportsTableRows,
+  deleteApplicationTableRows,
+  goToLastPage,
+  importApplication,
+  itemsPerPageValidation,
+  login,
+  openManageImportsPage,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../../utils/utils";
 
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -36,65 +36,65 @@ const filePath = "app_import/csv/";
 const filesToImport = "valid_application_rows.csv";
 
 describe(["@tier3"], "Manage imports pagination validations", function () {
-    before("Login and Create Test Data", function () {
-        // Import multiple csv files
-        function importMultipleFiles(num): void {
-            for (let i = 0; i < num; i++) {
-                importApplication(filePath + filesToImport);
-                cy.wait(2000);
-            }
-        }
+  before("Login and Create Test Data", function () {
+    // Import multiple csv files
+    function importMultipleFiles(num): void {
+      for (let i = 0; i < num; i++) {
+        importApplication(filePath + filesToImport);
+        cy.wait(2000);
+      }
+    }
 
-        login();
-        cy.visit("/");
-        openManageImportsPage();
-        importMultipleFiles(11);
-    });
+    login();
+    cy.visit("/");
+    openManageImportsPage();
+    importMultipleFiles(11);
+  });
 
-    beforeEach("Interceptors", function () {
-        // Interceptors for Applications
-        cy.intercept("GET", "/hub/application*").as("getApplications");
-        cy.intercept("GET", "/hub/importsummaries*").as("getImports");
-        cy.intercept("DELETE", "/hub/importsummaries*/*").as("deleteImport");
-    });
+  beforeEach("Interceptors", function () {
+    // Interceptors for Applications
+    cy.intercept("GET", "/hub/application*").as("getApplications");
+    cy.intercept("GET", "/hub/importsummaries*").as("getImports");
+    cy.intercept("DELETE", "/hub/importsummaries*/*").as("deleteImport");
+  });
 
-    it("Navigation button validations", function () {
-        Application.open();
-        cy.get("@getApplications");
-        openManageImportsPage();
+  it("Navigation button validations", function () {
+    Application.open();
+    cy.get("@getApplications");
+    openManageImportsPage();
 
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        openManageImportsPage();
-        selectItemsPerPage(10);
-        itemsPerPageValidation(commonView.appTable, "Filename");
-    });
+  it("Items per page validations", function () {
+    openManageImportsPage();
+    selectItemsPerPage(10);
+    itemsPerPageValidation(commonView.appTable, "Filename");
+  });
 
-    it("Last page item(s) deletion, impact on page reload validation", function () {
-        openManageImportsPage();
-        selectItemsPerPage(10);
-        cy.wait("@getImports");
+  it("Last page item(s) deletion, impact on page reload validation", function () {
+    openManageImportsPage();
+    selectItemsPerPage(10);
+    cy.wait("@getImports");
 
-        // Navigate to last page
-        goToLastPage();
-        cy.wait("@getImports");
+    // Navigate to last page
+    goToLastPage();
+    cy.wait("@getImports");
 
-        deleteAllImports();
+    deleteAllImports();
 
-        // Verify that page is re-directed to previous page
-        cy.get(commonView.appTable)
-            .find("td[data-label='Filename']")
-            .then(($rows) => {
-                cy.wrap($rows.length).should("eq", 10);
-            });
-    });
+    // Verify that page is re-directed to previous page
+    cy.get(commonView.appTable)
+      .find("td[data-label='Filename']")
+      .then(($rows) => {
+        cy.wrap($rows.length).should("eq", 10);
+      });
+  });
 
-    after("Perform test data clean up", function () {
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
-        deleteAppImportsTableRows();
-    });
+  after("Perform test data clean up", function () {
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    deleteAppImportsTableRows();
+  });
 });

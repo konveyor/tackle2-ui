@@ -13,9 +13,9 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -24,42 +24,49 @@ import { AnalysisLogView } from "../../../../views/analysis.view";
 
 let applicationsList: Array<Analysis> = [];
 describe(["@tier1"], "Nodejs Analysis", () => {
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
-
-        // Interceptors
-        cy.intercept("POST", "/hub/application*").as("postApplication");
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-        cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    it("Source analysis on nodejs app", function () {
-        const application = new Analysis(
-            getRandomApplicationData("nodejsApp_Source", {
-                sourceData: this.appData["nodejs-app"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_nodejsApp"])
-        );
-        Application.open();
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus("Completed");
-        cy.wait(2 * SEC);
-        application.verifyEffort(this.analysisData["source_analysis_on_nodejsApp"]["effort"]);
-        cy.wait(2 * SEC);
-        application.validateIssues(this.analysisData["source_analysis_on_nodejsApp"]["issues"]);
-        Application.open();
-        application.verifyLogContains(AnalysisLogView.mergedLogView, "lspServerName: nodejs");
-    });
+    // Interceptors
+    cy.intercept("POST", "/hub/application*").as("postApplication");
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
+  });
 
-    after("Perform test data clean up", () => {
-        deleteByList(applicationsList);
-    });
+  it("Source analysis on nodejs app", function () {
+    const application = new Analysis(
+      getRandomApplicationData("nodejsApp_Source", {
+        sourceData: this.appData["nodejs-app"],
+      }),
+      getRandomAnalysisData(this.analysisData["source_analysis_on_nodejsApp"])
+    );
+    Application.open();
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus("Completed");
+    cy.wait(2 * SEC);
+    application.verifyEffort(
+      this.analysisData["source_analysis_on_nodejsApp"]["effort"]
+    );
+    cy.wait(2 * SEC);
+    application.validateIssues(
+      this.analysisData["source_analysis_on_nodejsApp"]["issues"]
+    );
+    Application.open();
+    application.verifyLogContains(
+      AnalysisLogView.mergedLogView,
+      "lspServerName: nodejs"
+    );
+  });
+
+  after("Perform test data clean up", () => {
+    deleteByList(applicationsList);
+  });
 });

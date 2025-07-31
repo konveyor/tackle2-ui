@@ -16,38 +16,38 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    createMultipleMigrationWaves,
-    deleteByList,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  createMultipleMigrationWaves,
+  deleteByList,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../utils/utils";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 
 let migrationWavesList: MigrationWave[] = [];
 
 describe(["@tier3"], "Migration Waves pagination validations", function () {
-    //Automates Polarion TC 357
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        migrationWavesList = createMultipleMigrationWaves(11);
-    });
+  //Automates Polarion TC 357
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    migrationWavesList = createMultipleMigrationWaves(11);
+  });
 
-    it("Navigation button validations", function () {
-        MigrationWave.open();
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+  it("Navigation button validations", function () {
+    MigrationWave.open();
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        MigrationWave.open();
-        selectItemsPerPage(10);
-        itemsPerPageValidation();
-    });
+  it("Items per page validations", function () {
+    MigrationWave.open();
+    selectItemsPerPage(10);
+    itemsPerPageValidation();
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(migrationWavesList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(migrationWavesList);
+  });
 });

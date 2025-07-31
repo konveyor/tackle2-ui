@@ -17,17 +17,21 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
-    writeMavenSettingsFile,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
+  writeMavenSettingsFile,
 } from "../../../../../utils/utils";
 import { CredentialsMaven } from "../../../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { MavenConfiguration } from "../../../../models/administration/repositories/maven";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
-import { AnalysisStatuses, CredentialType, UserCredentials } from "../../../../types/constants";
+import {
+  AnalysisStatuses,
+  CredentialType,
+  UserCredentials,
+} from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
 let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
@@ -35,75 +39,84 @@ const mavenConfiguration = new MavenConfiguration();
 let application: Analysis;
 
 describe(["@tier1"], "Binary Analysis", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
+  before("Login", function () {
+    login();
+    cy.visit("/");
 
-        // Clears artifact repository
-        mavenConfiguration.clearRepository();
+    // Clears artifact repository
+    mavenConfiguration.clearRepository();
 
-        //Create source and maven credentials required for analysis
-        source_credential = new CredentialsSourceControlUsername(
-            data.getRandomCredentialsData(
-                CredentialType.sourceControl,
-                UserCredentials.usernamePassword,
-                true
-            )
-        );
-        source_credential.create();
+    //Create source and maven credentials required for analysis
+    source_credential = new CredentialsSourceControlUsername(
+      data.getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword,
+        true
+      )
+    );
+    source_credential.create();
 
-        // Binary analysis needs to pull from the private repo, so it needs to set the url.
-        maven_credential = new CredentialsMaven(
-            data.getRandomCredentialsData(CredentialType.maven, "None", true)
-        );
-        maven_credential.create();
+    // Binary analysis needs to pull from the private repo, so it needs to set the url.
+    maven_credential = new CredentialsMaven(
+      data.getRandomCredentialsData(CredentialType.maven, "None", true)
+    );
+    maven_credential.create();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+  });
 
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-    });
+  it("Binary Analysis", function () {
+    // For binary analysis application must have group,artifcat and version.
+    cy.visit("/");
+    application = new Analysis(
+      getRandomApplicationData("tackletestApp_binary", {
+        binaryData: this.appData["tackle-testapp-binary"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["binary_analysis_on_tackletestapp"]
+      )
+    );
+    application.create();
+    cy.wait("@getApplication");
+    // Both source and maven credentials required for binary.
+    application.manageCredentials(
+      source_credential.name,
+      maven_credential.name
+    );
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    Application.open(true);
+    application.verifyEffort(
+      this.analysisData["binary_analysis_on_tackletestapp"]["effort"]
+    );
+    application.validateIssues(
+      this.analysisData["binary_analysis_on_tackletestapp"]["issues"]
+    );
+    this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        application.validateAffected(currentIssue);
+      }
+    );
+  });
 
-    it("Binary Analysis", function () {
-        // For binary analysis application must have group,artifcat and version.
-        cy.visit("/");
-        application = new Analysis(
-            getRandomApplicationData("tackletestApp_binary", {
-                binaryData: this.appData["tackle-testapp-binary"],
-            }),
-            getRandomAnalysisData(this.analysisData["binary_analysis_on_tackletestapp"])
-        );
-        application.create();
-        cy.wait("@getApplication");
-        // Both source and maven credentials required for binary.
-        application.manageCredentials(source_credential.name, maven_credential.name);
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        Application.open(true);
-        application.verifyEffort(this.analysisData["binary_analysis_on_tackletestapp"]["effort"]);
-        application.validateIssues(this.analysisData["binary_analysis_on_tackletestapp"]["issues"]);
-        this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
-            (currentIssue: AppIssue) => {
-                application.validateAffected(currentIssue);
-            }
-        );
-    });
+  afterEach("Persist session", function () {
+    Application.open(true);
+    application.delete();
+  });
 
-    afterEach("Persist session", function () {
-        Application.open(true);
-        application.delete();
-    });
+  after("Perform test data clean up", function () {
+    source_credential.delete();
+    maven_credential.delete();
 
-    after("Perform test data clean up", function () {
-        source_credential.delete();
-        maven_credential.delete();
-
-        writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
-    });
+    writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
+  });
 });

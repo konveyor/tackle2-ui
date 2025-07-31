@@ -17,6 +17,6 @@ export const businessServiceNameInput = "input[name=name]";
 export const businessServiceDescriptionInput = "textarea[name=description]";
 export const businessServiceOwnerSelect = "#action-select-toggle";
 export enum buzinessServiceLabels {
-    name = 'td[data-label="Name"]',
-    description = 'td[data-label="Description"]',
+  name = 'td[data-label="Name"]',
+  description = 'td[data-label="Description"]',
 }

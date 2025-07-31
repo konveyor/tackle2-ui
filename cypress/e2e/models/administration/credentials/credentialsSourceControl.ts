@@ -1,16 +1,16 @@
 import { Credentials } from "./credentials";
 
 export class CredentialsSourceControl extends Credentials {
-    type = "Source Control";
+  type = "Source Control";
 
-    constructor() {
-        super();
-    }
+  constructor() {
+    super();
+  }
 
-    create() {
-        super.create();
-        this.fillName();
-        this.fillDescription();
-        this.selectType(this.type);
-    }
+  create() {
+    super.create();
+    this.fillName();
+    this.fillDescription();
+    this.selectType(this.type);
+  }
 }

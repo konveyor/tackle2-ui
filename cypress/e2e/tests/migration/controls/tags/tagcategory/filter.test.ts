@@ -15,32 +15,36 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { applySearchFilter, clickByText, exists } from "../../../../../../utils/utils";
+import {
+  applySearchFilter,
+  clickByText,
+  exists,
+} from "../../../../../../utils/utils";
 import { button, clearAllFilters, color } from "../../../../../types/constants";
 
 import * as data from "../../../../../../utils/data_utils";
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
 
 describe(["@tier3"], "Tag tagCategory filter validations", function () {
-    beforeEach("Login", function () {
-        cy.intercept("GET", "/hub/tag-category*").as("getTagCategories");
-    });
+  beforeEach("Login", function () {
+    cy.intercept("GET", "/hub/tag-category*").as("getTagCategories");
+  });
 
-    it("Tag category color filter validations", function () {
-        TagCategory.openList();
+  it("Tag category color filter validations", function () {
+    TagCategory.openList();
 
-        // Enter an existing tag category color substring and apply it as search filter
-        var validSearchInput = data.getColor();
-        applySearchFilter(color, validSearchInput);
-        exists(validSearchInput);
+    // Enter an existing tag category color substring and apply it as search filter
+    var validSearchInput = data.getColor();
+    applySearchFilter(color, validSearchInput);
+    exists(validSearchInput);
 
-        clickByText(button, clearAllFilters);
-        cy.get("@getTagCategories");
+    clickByText(button, clearAllFilters);
+    cy.get("@getTagCategories");
 
-        // Enter a non-existing tag type color substring and apply it as search filter
-        var invalidSearchInput = String(data.getRandomWord(3));
-        applySearchFilter(color, invalidSearchInput);
-        cy.get("h2").contains("No tags available");
-        clickByText(button, clearAllFilters);
-    });
+    // Enter a non-existing tag type color substring and apply it as search filter
+    var invalidSearchInput = String(data.getRandomWord(3));
+    applySearchFilter(color, invalidSearchInput);
+    cy.get("h2").contains("No tags available");
+    clickByText(button, clearAllFilters);
+  });
 });

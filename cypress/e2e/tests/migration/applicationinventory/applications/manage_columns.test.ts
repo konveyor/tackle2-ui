@@ -16,66 +16,72 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    clickByText,
-    login,
-    openManageColumns,
-    restoreColumnsToDefault,
-    selectColumns,
-    validateCheckBoxIsDisabled,
-    validateTextPresence,
+  clickByText,
+  login,
+  openManageColumns,
+  restoreColumnsToDefault,
+  selectColumns,
+  validateCheckBoxIsDisabled,
+  validateTextPresence,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 import { button, cancel, save, trTag } from "../../../../types/constants";
 
 const applicationInventoryTableColumns = [
-    "Name",
-    "Business Service",
-    "Assessment",
-    "Review",
-    "Analysis",
-    "Tags",
-    "Effort",
+  "Name",
+  "Business Service",
+  "Assessment",
+  "Review",
+  "Analysis",
+  "Tags",
+  "Effort",
 ];
 const columnsToShuffleAndTest = [...applicationInventoryTableColumns.slice(1)];
 
-describe(["@tier3"], "Application inventory managing columns validations", function () {
+describe(
+  ["@tier3"],
+  "Application inventory managing columns validations",
+  function () {
     //automates polarion MTA537
     before("Login and validate data", function () {
-        login();
-        cy.visit("/");
-        Application.open();
-        applicationInventoryTableColumns.forEach((column) =>
-            validateTextPresence(trTag, column, true)
-        );
+      login();
+      cy.visit("/");
+      Application.open();
+      applicationInventoryTableColumns.forEach((column) =>
+        validateTextPresence(trTag, column, true)
+      );
     });
 
     it("Validates managing columns", function () {
-        Application.open();
-        validateManagingColumns();
-        openManageColumns();
-        validateCheckBoxIsDisabled("Name", true);
-        clickByText(button, save, true);
+      Application.open();
+      validateManagingColumns();
+      openManageColumns();
+      validateCheckBoxIsDisabled("Name", true);
+      clickByText(button, save, true);
     });
 
     it("Validates restoring columns to default", function () {
-        Application.open();
-        restoreColumnsToDefault();
-        applicationInventoryTableColumns.forEach((column) =>
-            validateTextPresence(trTag, column, true)
-        );
+      Application.open();
+      restoreColumnsToDefault();
+      applicationInventoryTableColumns.forEach((column) =>
+        validateTextPresence(trTag, column, true)
+      );
     });
 
     const validateManagingColumns = () => {
-        // randomly choose two columns and select them
-        const shuffledColumns = Cypress._.shuffle(columnsToShuffleAndTest);
-        const selectedColumns = shuffledColumns.slice(0, 2);
-        selectColumns(selectedColumns);
-        selectedColumns.forEach((column) => validateTextPresence(trTag, column, false));
-        //validate cancel button
-        restoreColumnsToDefault();
-        selectColumns(selectedColumns, cancel);
-        applicationInventoryTableColumns.forEach((column) =>
-            validateTextPresence(trTag, column, true)
-        );
+      // randomly choose two columns and select them
+      const shuffledColumns = Cypress._.shuffle(columnsToShuffleAndTest);
+      const selectedColumns = shuffledColumns.slice(0, 2);
+      selectColumns(selectedColumns);
+      selectedColumns.forEach((column) =>
+        validateTextPresence(trTag, column, false)
+      );
+      //validate cancel button
+      restoreColumnsToDefault();
+      selectColumns(selectedColumns, cancel);
+      applicationInventoryTableColumns.forEach((column) =>
+        validateTextPresence(trTag, column, true)
+      );
     };
-});
+  }
+);

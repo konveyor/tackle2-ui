@@ -1,5 +1,4 @@
 ## End-to-end Cypress tests for Konveyor UI
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkonveyor%2Ftackle-ui-tests.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkonveyor%2Ftackle-ui-tests?ref=badge_shield)
 
 
 ## Getting Started
@@ -12,12 +11,13 @@
 
 1. Clone automation repository and setup
    ```sh
-   git clone https://github.com/konveyor/tackle-ui-tests.git
-   cd tackle-ui-tests
+   git clone https://github.com/konveyor/tackle2-ui.git
+   cd tackle2-ui
    npm clean-install
    ```
+2. Create an cypress.config.ts file by copying the content of [cypress.config.ts.example] and replace the properties values with yours.
 
-1. Open Cypress and run test cases
+3. Open Cypress and run test cases
    ```sh
    npx cypress open
    ```
@@ -62,11 +62,6 @@ To manually check the code formatting: `npm run check`
    - Click on run workflow dropdown
    - select PR branch
    - Click on button Run workflow
-
-## Test runs
-1. Click here to see **Old** test runs - [run1](https://dashboard.cypress.io/projects/cbdv4m/runs), [run2](https://dashboard.cypress.io/projects/dvmnpr/runs), [run3](https://dashboard.cypress.io/projects/1g7617/runs)
-
-2. Click [here](https://reportportal-migration-qe.apps.ocp4.prod.psi.redhat.com) to see **Current** test runs
 
 ## Tag based test execution
 This repository uses the package [cypress-tags](https://www.npmjs.com/package/cypress-tags) to slice up test runs.
@@ -154,7 +149,11 @@ Tests include:
 Considering the above factors, we are including tests that are most necessary to test functionality of MTA while merging a PR. More tests will be added here once they're stabilized.
 
 Tests include:
-  - “Source Analysis on bookserver app and its issues validation” (Current Time taken - 20-30 mins)
+  - “Business service CRUD” 
+  - "Jobfunction CRUD"
+  - "Stakeholder , Stakeholder Group , Tag and Archetype CRUD operations"
+  - "Application assessment, review, analyze and validate efforts and issues"
+
 
 ### `@tier0` tag:
 Basic sanity tests.  Runs on stage and production and nightly runs on [Konveyor CI](https://github.com/konveyor/ci).
@@ -191,15 +190,5 @@ To add the license's header to all eligible files, execute:
 yarn license-check-and-add add
 ```
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fkonveyor%2Ftackle-ui-tests.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fkonveyor%2Ftackle-ui-tests?ref=badge_large)
-
 ## Code of Conduct
 Refer to Konveyor's Code of Conduct [here](https://github.com/konveyor/community/blob/main/CODE_OF_CONDUCT.md).
-
-## Git branch mapping
-|Branch|Mapping|
-|-|-|
-|mta_7.2.0|MTA 7.2.0|
-|release-0.6|MTA 7.2.1|
-|release-0.7|MTA 7.3.0|
-|main|Upstream development branch|

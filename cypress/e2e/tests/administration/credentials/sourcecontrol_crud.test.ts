@@ -22,78 +22,92 @@ import { CredentialsSourceControlUsername } from "../../../models/administration
 import { CredentialType, UserCredentials } from "../../../types/constants";
 
 describe(["@tier2"], "Validation of Source Control Credentials", () => {
-    let scCredsUsername: CredentialsSourceControlUsername;
-    let scCredsKey: CredentialsSourceControlKey;
-    const toBeCanceled = true;
+  let scCredsUsername: CredentialsSourceControlUsername;
+  let scCredsKey: CredentialsSourceControlKey;
+  const toBeCanceled = true;
 
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        scCredsUsername = new CredentialsSourceControlUsername(
-            getRandomCredentialsData(CredentialType.sourceControl, UserCredentials.usernamePassword)
-        );
-        scCredsKey = new CredentialsSourceControlKey(
-            getRandomCredentialsData(CredentialType.sourceControl, UserCredentials.sourcePrivateKey)
-        );
-    });
-
-    it("Creating source control credentials with username/password and cancelling without saving", () => {
-        scCredsUsername.create(toBeCanceled);
-    });
-
-    it(
-        ["@tier0", "@dc", "@interop"],
-        "Creating source control credentials with username/password",
-        () => {
-            scCredsUsername.create();
-        }
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    scCredsUsername = new CredentialsSourceControlUsername(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword
+      )
     );
+    scCredsKey = new CredentialsSourceControlKey(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.sourcePrivateKey
+      )
+    );
+  });
 
-    it("Editing source control credentials with username/password and cancelling without saving", () => {
-        scCredsUsername.edit(getRandomCredentialsData(CredentialType.sourceControl), toBeCanceled);
-    });
+  it("Creating source control credentials with username/password and cancelling without saving", () => {
+    scCredsUsername.create(toBeCanceled);
+  });
 
-    it("Editing source control credentials with username/password", () => {
-        scCredsUsername.edit(getRandomCredentialsData(CredentialType.sourceControl));
-    });
+  it(
+    ["@tier0", "@dc", "@interop"],
+    "Creating source control credentials with username/password",
+    () => {
+      scCredsUsername.create();
+    }
+  );
 
-    it("Creating source control credentials with source private key and cancelling without saving", () => {
-        scCredsKey.create(toBeCanceled);
-    });
+  it("Editing source control credentials with username/password and cancelling without saving", () => {
+    scCredsUsername.edit(
+      getRandomCredentialsData(CredentialType.sourceControl),
+      toBeCanceled
+    );
+  });
 
-    it("Creating source control credentials with source private key", () => {
-        scCredsKey.create();
-    });
+  it("Editing source control credentials with username/password", () => {
+    scCredsUsername.edit(
+      getRandomCredentialsData(CredentialType.sourceControl)
+    );
+  });
 
-    it("Editing source control credentials with source private key and cancelling without saving", () => {
-        scCredsKey.edit(
-            getRandomCredentialsData(
-                CredentialType.sourceControl,
-                UserCredentials.sourcePrivateKey
-            ),
-            toBeCanceled
-        );
-    });
+  it("Creating source control credentials with source private key and cancelling without saving", () => {
+    scCredsKey.create(toBeCanceled);
+  });
 
-    it("Editing source control credentials with source private key", () => {
-        scCredsKey.edit(
-            getRandomCredentialsData(CredentialType.sourceControl, UserCredentials.sourcePrivateKey)
-        );
-    });
+  it("Creating source control credentials with source private key", () => {
+    scCredsKey.create();
+  });
 
-    it("Deleting source control credentials with username/password with cancellation", () => {
-        scCredsUsername.delete(toBeCanceled);
-    });
+  it("Editing source control credentials with source private key and cancelling without saving", () => {
+    scCredsKey.edit(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.sourcePrivateKey
+      ),
+      toBeCanceled
+    );
+  });
 
-    it("Deleting source control credentials with source private key with cancellation", () => {
-        scCredsKey.delete(toBeCanceled);
-    });
+  it("Editing source control credentials with source private key", () => {
+    scCredsKey.edit(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.sourcePrivateKey
+      )
+    );
+  });
 
-    it("Deleting source control credentials with username/password", () => {
-        scCredsUsername.delete();
-    });
+  it("Deleting source control credentials with username/password with cancellation", () => {
+    scCredsUsername.delete(toBeCanceled);
+  });
 
-    it("Deleting source control credentials with source private key", () => {
-        scCredsKey.delete();
-    });
+  it("Deleting source control credentials with source private key with cancellation", () => {
+    scCredsKey.delete(toBeCanceled);
+  });
+
+  it("Deleting source control credentials with username/password", () => {
+    scCredsUsername.delete();
+  });
+
+  it("Deleting source control credentials with source private key", () => {
+    scCredsKey.delete();
+  });
 });

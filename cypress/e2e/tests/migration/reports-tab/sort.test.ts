@@ -17,87 +17,92 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
-    clickOnSortButton,
-    createMultipleStakeholders,
-    deleteAllMigrationWaves,
-    deleteApplicationTableRows,
-    login,
-    validateSortBy,
-    verifySortAsc,
-    verifySortDesc,
+  clickOnSortButton,
+  createMultipleStakeholders,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
+  login,
+  validateSortBy,
+  verifySortAsc,
+  verifySortDesc,
 } from "../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { Stakeholders } from "../../../models/migration/controls/stakeholders";
 import { Reports } from "../../../models/migration/reports-tab/reports-tab";
 import {
-    cloudReadinessFilePath,
-    cloudReadinessQuestionnaire,
-    legacyPathfinder,
-    SEC,
-    SortType,
+  cloudReadinessFilePath,
+  cloudReadinessQuestionnaire,
+  legacyPathfinder,
+  SEC,
+  SortType,
 } from "../../../types/constants";
 import {
-    IdentifiedRiskTableHeaders,
-    questionnaireNameColumnDataLabel,
+  IdentifiedRiskTableHeaders,
+  questionnaireNameColumnDataLabel,
 } from "../../../views/reportsTab.view";
 
 let stakeholder: Stakeholders;
 let application: Application;
 
 const sortableColumns = [
-    IdentifiedRiskTableHeaders.questionnaireName,
-    IdentifiedRiskTableHeaders.section,
-    IdentifiedRiskTableHeaders.answer,
+  IdentifiedRiskTableHeaders.questionnaireName,
+  IdentifiedRiskTableHeaders.section,
+  IdentifiedRiskTableHeaders.answer,
 ];
 
 // Automates Polarion TCs 452
 describe(["@tier3"], "Reports tab sort tests", () => {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
-        AssessmentQuestionnaire.deleteAllQuestionnaires();
-        AssessmentQuestionnaire.disable(legacyPathfinder);
-        AssessmentQuestionnaire.import(cloudReadinessFilePath);
-        AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
-        stakeholder = createMultipleStakeholders(1)[0];
-        const appdata = {
-            name: data.getAppName(),
-            tags: ["Language / Java", "Runtime / Quarkus"],
-        };
-        application = new Application(appdata);
-        application.create();
-        application.perform_assessment("medium", [stakeholder], null, cloudReadinessQuestionnaire);
-        application.verifyStatus("assessment", "Completed");
-        Reports.open(100);
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
+    AssessmentQuestionnaire.disable(legacyPathfinder);
+    AssessmentQuestionnaire.import(cloudReadinessFilePath);
+    AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
+    stakeholder = createMultipleStakeholders(1)[0];
+    const appdata = {
+      name: data.getAppName(),
+      tags: ["Language / Java", "Runtime / Quarkus"],
+    };
+    application = new Application(appdata);
+    application.create();
+    application.perform_assessment(
+      "medium",
+      [stakeholder],
+      null,
+      cloudReadinessQuestionnaire
+    );
+    application.verifyStatus("assessment", "Completed");
+    Reports.open(100);
+  });
+
+  sortableColumns.forEach((column: string) => {
+    it(`${column} sort validations`, function () {
+      let columnDataLabel = column;
+      if (column === (IdentifiedRiskTableHeaders.questionnaireName as string)) {
+        columnDataLabel = questionnaireNameColumnDataLabel;
+      }
+
+      validateSortBy(column, columnDataLabel);
     });
+  });
 
-    sortableColumns.forEach((column: string) => {
-        it(`${column} sort validations`, function () {
-            let columnDataLabel = column;
-            if (column === (IdentifiedRiskTableHeaders.questionnaireName as string)) {
-                columnDataLabel = questionnaireNameColumnDataLabel;
-            }
+  it("Risk sort validation", function () {
+    const unsorted = getRiskIconColumnSortableData();
+    clickOnSortButton(IdentifiedRiskTableHeaders.risk, SortType.ascending);
+    verifySortAsc(getRiskIconColumnSortableData(), unsorted);
 
-            validateSortBy(column, columnDataLabel);
-        });
-    });
+    clickOnSortButton(IdentifiedRiskTableHeaders.risk, SortType.descending);
+    verifySortDesc(getRiskIconColumnSortableData(), unsorted);
+  });
 
-    it("Risk sort validation", function () {
-        const unsorted = getRiskIconColumnSortableData();
-        clickOnSortButton(IdentifiedRiskTableHeaders.risk, SortType.ascending);
-        verifySortAsc(getRiskIconColumnSortableData(), unsorted);
-
-        clickOnSortButton(IdentifiedRiskTableHeaders.risk, SortType.descending);
-        verifySortDesc(getRiskIconColumnSortableData(), unsorted);
-    });
-
-    after("Perform test data clean up", function () {
-        stakeholder.delete();
-        application.delete();
-    });
+  after("Perform test data clean up", function () {
+    stakeholder.delete();
+    application.delete();
+  });
 });
 
 /**
@@ -106,23 +111,25 @@ describe(["@tier3"], "Reports tab sort tests", () => {
  * This approach retrieves the icon class and maps it to a letter, so it can be sortable alphabetically
  */
 const getRiskIconColumnSortableData = (): string[] => {
-    const itemList = [];
+  const itemList = [];
 
-    cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-        .not(".pf-v5-c-table__expandable-row")
-        .find(`td[data-label="${IdentifiedRiskTableHeaders.risk}"] span.pf-v5-c-icon__content`)
-        .each(($ele) => {
-            let letter = "a";
-            switch ($ele.attr("class").split(" ").pop()) {
-                case "pf-m-warning":
-                    letter = "b";
-                    break;
-                case "pf-m-danger":
-                    letter = "c";
-                    break;
-            }
-            itemList.push(letter);
-        });
+  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v5-c-table__expandable-row")
+    .find(
+      `td[data-label="${IdentifiedRiskTableHeaders.risk}"] span.pf-v5-c-icon__content`
+    )
+    .each(($ele) => {
+      let letter = "a";
+      switch ($ele.attr("class").split(" ").pop()) {
+        case "pf-m-warning":
+          letter = "b";
+          break;
+        case "pf-m-danger":
+          letter = "c";
+          break;
+      }
+      itemList.push(letter);
+    });
 
-    return itemList;
+  return itemList;
 };

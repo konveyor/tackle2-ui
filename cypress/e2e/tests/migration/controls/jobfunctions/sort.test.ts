@@ -16,13 +16,13 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    clickOnSortButton,
-    createMultipleJobFunctions,
-    deleteByList,
-    getTableColumnData,
-    login,
-    verifySortAsc,
-    verifySortDesc,
+  clickOnSortButton,
+  createMultipleJobFunctions,
+  deleteByList,
+  getTableColumnData,
+  login,
+  verifySortAsc,
+  verifySortDesc,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 import { name, SortType } from "../../../../types/constants";
@@ -30,29 +30,29 @@ import { name, SortType } from "../../../../types/constants";
 let jobFunctionsList: Array<Jobfunctions> = [];
 
 describe(["@tier3"], "Job function sorting", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        jobFunctionsList = createMultipleJobFunctions(2);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    jobFunctionsList = createMultipleJobFunctions(2);
+  });
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
-    });
+  beforeEach("Interceptors", function () {
+    cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
+  });
 
-    it("Name sort validations", function () {
-        Jobfunctions.openList();
-        const unsortedList = getTableColumnData(name);
-        clickOnSortButton(name, SortType.ascending);
-        const afterAscSortList = getTableColumnData(name);
-        verifySortAsc(afterAscSortList, unsortedList);
+  it("Name sort validations", function () {
+    Jobfunctions.openList();
+    const unsortedList = getTableColumnData(name);
+    clickOnSortButton(name, SortType.ascending);
+    const afterAscSortList = getTableColumnData(name);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        clickOnSortButton(name, SortType.descending);
-        const afterDescSortList = getTableColumnData(name);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    clickOnSortButton(name, SortType.descending);
+    const afterDescSortList = getTableColumnData(name);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(jobFunctionsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(jobFunctionsList);
+  });
 });

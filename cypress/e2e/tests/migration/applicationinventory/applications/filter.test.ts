@@ -16,36 +16,36 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    applySearchFilter,
-    clickByText,
-    createMultipleApplicationsWithBSandTags,
-    createMultipleBusinessServices,
-    createMultipleStakeholders,
-    createMultipleTags,
-    deleteByList,
-    exists,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
-    notExists,
-    selectFilter,
+  applySearchFilter,
+  clickByText,
+  createMultipleApplicationsWithBSandTags,
+  createMultipleBusinessServices,
+  createMultipleStakeholders,
+  createMultipleTags,
+  deleteByList,
+  exists,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
+  notExists,
+  selectFilter,
 } from "../../../../../utils/utils";
 import {
-    analysis,
-    AnalysisStatuses,
-    archetypes,
-    artifact,
-    button,
-    clearAllFilters,
-    CredentialType,
-    credentialType,
-    git,
-    name,
-    repositoryType,
-    risk,
-    subversion,
-    tags,
-    UserCredentials,
+  analysis,
+  AnalysisStatuses,
+  archetypes,
+  artifact,
+  button,
+  clearAllFilters,
+  CredentialType,
+  credentialType,
+  git,
+  name,
+  repositoryType,
+  risk,
+  subversion,
+  tags,
+  UserCredentials,
 } from "../../../../types/constants";
 
 import * as data from "../../../../../utils/data_utils";
@@ -59,7 +59,10 @@ import { BusinessServices } from "../../../../models/migration/controls/business
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { Tag } from "../../../../models/migration/controls/tags";
 import * as commonView from "../../../../views/common.view";
-import { filterDropDownContainer, standardFilter } from "../../../../views/common.view";
+import {
+  filterDropDownContainer,
+  standardFilter,
+} from "../../../../views/common.view";
 import { searchMenuToggle } from "../../../../views/issue.view";
 
 let source_credential;
@@ -71,339 +74,347 @@ let stakeholders: Array<Stakeholders> = [];
 const fileName = "Legacy Pathfinder";
 
 describe(["@tier3"], "Application inventory filter validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
 
-        let businessServicesList = createMultipleBusinessServices(2);
-        stakeholders = createMultipleStakeholders(1);
+    let businessServicesList = createMultipleBusinessServices(2);
+    stakeholders = createMultipleStakeholders(1);
 
-        AssessmentQuestionnaire.deleteAllQuestionnaires();
-        AssessmentQuestionnaire.enable(fileName);
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
+    AssessmentQuestionnaire.enable(fileName);
 
-        let tagList = createMultipleTags(2);
-        applicationsList = createMultipleApplicationsWithBSandTags(
-            2,
-            businessServicesList,
-            tagList,
-            null
-        );
+    let tagList = createMultipleTags(2);
+    applicationsList = createMultipleApplicationsWithBSandTags(
+      2,
+      businessServicesList,
+      tagList,
+      null
+    );
 
-        // Create source Credentials
-        source_credential = new CredentialsSourceControlUsername(
-            data.getRandomCredentialsData(
-                CredentialType.sourceControl,
-                UserCredentials.usernamePassword,
-                true
-            )
-        );
-        source_credential.create();
+    // Create source Credentials
+    source_credential = new CredentialsSourceControlUsername(
+      data.getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword,
+        true
+      )
+    );
+    source_credential.create();
 
-        // Create Maven credentials
-        maven_credential = new CredentialsMaven(
-            data.getRandomCredentialsData(CredentialType.maven, "None", true)
-        );
-        maven_credential.create();
+    // Create Maven credentials
+    maven_credential = new CredentialsMaven(
+      data.getRandomCredentialsData(CredentialType.maven, "None", true)
+    );
+    maven_credential.create();
+  });
+
+  beforeEach("Load Fixtures & Interceptors", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
     });
 
-    beforeEach("Load Fixtures & Interceptors", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
-
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-        Application.open(true);
-
-        clearAllFiltersIfExists();
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    it("Name filter validations", function () {
-        Application.open();
-        filterApplicationsBySubstring();
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    Application.open(true);
 
-        // Enter an exact existing name and assert
-        applySearchFilter(name, applicationsList[1].name);
-        exists(applicationsList[1].name);
-        notExists(applicationsList[0].name);
-        clickByText(button, clearAllFilters);
-    });
+    clearAllFiltersIfExists();
+  });
 
-    it("Business service filter validations", function () {
-        const validSearchInput = applicationsList[0].business;
-        applySearchFilter("Business service", validSearchInput);
+  it("Name filter validations", function () {
+    Application.open();
+    filterApplicationsBySubstring();
 
-        exists(applicationsList[0].business);
-        clickByText(button, clearAllFilters);
-    });
+    // Enter an exact existing name and assert
+    applySearchFilter(name, applicationsList[1].name);
+    exists(applicationsList[1].name);
+    notExists(applicationsList[0].name);
+    clickByText(button, clearAllFilters);
+  });
 
-    it("Tag filter validations", function () {
-        Application.open();
+  it("Business service filter validations", function () {
+    const validSearchInput = applicationsList[0].business;
+    applySearchFilter("Business service", validSearchInput);
 
-        const validSearchInput = applicationsList[0].tags[0];
-        applySearchFilter(tags, validSearchInput);
+    exists(applicationsList[0].business);
+    clickByText(button, clearAllFilters);
+  });
 
-        exists(applicationsList[0].name);
-        notExists(applicationsList[1].name);
-        clickByText(button, clearAllFilters);
+  it("Tag filter validations", function () {
+    Application.open();
 
-        applySearchFilter(tags, applicationsList[1].tags[0]);
-        exists(applicationsList[1].name);
-        notExists(applicationsList[0].name);
-        clickByText(button, clearAllFilters);
-    });
+    const validSearchInput = applicationsList[0].tags[0];
+    applySearchFilter(tags, validSearchInput);
 
-    it("Credential type filter validations", function () {
-        const application = new Analysis(
-            getRandomApplicationData("tackleTestApp_Source_Binary", {
-                sourceData: this.appData["tackle-testapp"],
-                binaryData: this.appData["tackle-testapp-binary"],
-            }),
-            getRandomAnalysisData(this.analysisData["source+dep_analysis_on_tackletestapp"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
+    exists(applicationsList[0].name);
+    notExists(applicationsList[1].name);
+    clickByText(button, clearAllFilters);
 
-        application.manageCredentials(null, maven_credential.name);
-        exists(application.name);
+    applySearchFilter(tags, applicationsList[1].tags[0]);
+    exists(applicationsList[1].name);
+    notExists(applicationsList[0].name);
+    clickByText(button, clearAllFilters);
+  });
 
-        applySearchFilter(credentialType, "Maven");
-        exists(application.name);
-        clickByText(button, clearAllFilters);
+  it("Credential type filter validations", function () {
+    const application = new Analysis(
+      getRandomApplicationData("tackleTestApp_Source_Binary", {
+        sourceData: this.appData["tackle-testapp"],
+        binaryData: this.appData["tackle-testapp-binary"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source+dep_analysis_on_tackletestapp"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
 
-        application.manageCredentials(source_credential.name, null);
-        exists(application.name);
+    application.manageCredentials(null, maven_credential.name);
+    exists(application.name);
 
-        applySearchFilter(credentialType, "Source");
-        exists(application.name);
-        clickByText(button, clearAllFilters);
-    });
+    applySearchFilter(credentialType, "Maven");
+    exists(application.name);
+    clickByText(button, clearAllFilters);
 
-    it("Repository type filter validations", function () {
-        // For application must have source code URL
-        const application = new Application(
-            getRandomApplicationData("tackleTestApp_Source", {
-                sourceData: this.appData["tackle-testapp-git"],
-            })
-        );
-        const application1 = new Application(
-            getRandomApplicationData("tackleTestApp_svnRepo", {
-                sourceData: this.appData["tackle-testapp-svn"],
-            })
-        );
+    application.manageCredentials(source_credential.name, null);
+    exists(application.name);
 
-        //Create two applications one with Git and another with svn as repository type
-        application.create();
-        application1.create();
-        cy.get("@getApplication");
+    applySearchFilter(credentialType, "Source");
+    exists(application.name);
+    clickByText(button, clearAllFilters);
+  });
 
-        // Apply repository type filter check with Git
-        // Check Application exists and application1 doesn't exist
-        applySearchFilter(repositoryType, git);
-        exists(application.name);
-        notExists(application1.name);
-        clickByText(button, clearAllFilters);
+  it("Repository type filter validations", function () {
+    // For application must have source code URL
+    const application = new Application(
+      getRandomApplicationData("tackleTestApp_Source", {
+        sourceData: this.appData["tackle-testapp-git"],
+      })
+    );
+    const application1 = new Application(
+      getRandomApplicationData("tackleTestApp_svnRepo", {
+        sourceData: this.appData["tackle-testapp-svn"],
+      })
+    );
 
-        // Apply repository type filter check with Subversion
-        // Check Application1 exists and application doesn't exist
-        applySearchFilter(repositoryType, subversion);
-        exists(application1.name);
-        notExists(application.name);
-        clickByText(button, clearAllFilters);
-    });
+    //Create two applications one with Git and another with svn as repository type
+    application.create();
+    application1.create();
+    cy.get("@getApplication");
 
-    it("Artifact type filter validations", function () {
-        // For application must have Binary group,artifact and version
-        const application = new Application(
-            getRandomApplicationData("tackleTestApp_Binary", {
-                binaryData: this.appData["tackle-testapp-binary"],
-            })
-        );
-        application.create();
-        cy.get("@getApplication");
+    // Apply repository type filter check with Git
+    // Check Application exists and application1 doesn't exist
+    applySearchFilter(repositoryType, git);
+    exists(application.name);
+    notExists(application1.name);
+    clickByText(button, clearAllFilters);
 
-        // Check application exists on the page
-        exists(application.name);
+    // Apply repository type filter check with Subversion
+    // Check Application1 exists and application doesn't exist
+    applySearchFilter(repositoryType, subversion);
+    exists(application1.name);
+    notExists(application.name);
+    clickByText(button, clearAllFilters);
+  });
 
-        // Apply artifact filter check with associated artifact field
-        // Check application exists and applicationList[0] doesn't exist
-        applySearchFilter(artifact, "Associated artifact");
-        exists(application.name);
-        notExists(applicationsList[0].name);
-        clickByText(button, clearAllFilters);
+  it("Artifact type filter validations", function () {
+    // For application must have Binary group,artifact and version
+    const application = new Application(
+      getRandomApplicationData("tackleTestApp_Binary", {
+        binaryData: this.appData["tackle-testapp-binary"],
+      })
+    );
+    application.create();
+    cy.get("@getApplication");
 
-        // Apply artifact filter check with 'No associated artifact' field
-        // Check applicationList[0] exists and application doesn't exist
-        applySearchFilter(artifact, "No associated artifact");
-        exists(applicationsList[0].name);
-        notExists(application.name);
-        clickByText(button, clearAllFilters);
-    });
+    // Check application exists on the page
+    exists(application.name);
 
-    it("Risk filter validations", function () {
-        const application = applicationsList[0];
-        const application1 = applicationsList[1];
+    // Apply artifact filter check with associated artifact field
+    // Check application exists and applicationList[0] doesn't exist
+    applySearchFilter(artifact, "Associated artifact");
+    exists(application.name);
+    notExists(applicationsList[0].name);
+    clickByText(button, clearAllFilters);
 
-        // Check application exists on the page
-        exists(application.name);
-        exists(application1.name);
+    // Apply artifact filter check with 'No associated artifact' field
+    // Check applicationList[0] exists and application doesn't exist
+    applySearchFilter(artifact, "No associated artifact");
+    exists(applicationsList[0].name);
+    notExists(application.name);
+    clickByText(button, clearAllFilters);
+  });
 
-        application.perform_assessment("low", stakeholders);
-        application.verifyStatus("assessment", "Completed");
+  it("Risk filter validations", function () {
+    const application = applicationsList[0];
+    const application1 = applicationsList[1];
 
-        // Apply search filter Risk - Low
-        applySearchFilter(risk, "Low");
-        exists(application.name);
-        notExists(application1.name);
-        clickByText(button, clearAllFilters);
+    // Check application exists on the page
+    exists(application.name);
+    exists(application1.name);
 
-        // apply search filter Risk - Unassessed
-        applySearchFilter(risk, "Unassessed");
-        exists(application1.name);
-        notExists(application.name);
-        clickByText(button, clearAllFilters);
-    });
+    application.perform_assessment("low", stakeholders);
+    application.verifyStatus("assessment", "Completed");
 
-    it("Archetype filter validations", function () {
-        const tags = createMultipleTags(2);
+    // Apply search filter Risk - Low
+    applySearchFilter(risk, "Low");
+    exists(application.name);
+    notExists(application1.name);
+    clickByText(button, clearAllFilters);
 
-        //validate archetype1 is shown in applications archetype filter and application1 is present
-        const archetype1 = new Archetype(
-            data.getRandomWord(8),
-            [tags[0].name],
-            [tags[1].name],
-            null
-        );
-        archetype1.create();
-        const appdata = {
-            name: data.getAppName(),
-            description: data.getDescription(),
-            tags: [tags[0].name],
-            comment: data.getDescription(),
-        };
-        const application1 = new Application(appdata);
-        applicationsList.push(application1);
-        application1.create();
-        cy.get("@getApplication");
-        const validSearchInput = archetype1.name;
-        applySearchFilter("Archetypes", validSearchInput);
-        exists(application1.name);
-        clickByText(button, clearAllFilters);
+    // apply search filter Risk - Unassessed
+    applySearchFilter(risk, "Unassessed");
+    exists(application1.name);
+    notExists(application.name);
+    clickByText(button, clearAllFilters);
+  });
 
-        //validate archetype2 is not present in applications archetype filter
-        const archetype2 = new Archetype(
-            data.getRandomWord(8),
-            [tags[1].name],
-            [tags[0].name],
-            null
-        );
-        archetype2.create();
-        Application.open();
-        selectFilter(archetypes);
-        cy.get(filterDropDownContainer).find(searchMenuToggle).click();
-        notExists(archetype2.name);
+  it("Archetype filter validations", function () {
+    const tags = createMultipleTags(2);
 
-        deleteByList([archetype1, archetype2]);
-        deleteByList(tags);
-    });
+    //validate archetype1 is shown in applications archetype filter and application1 is present
+    const archetype1 = new Archetype(
+      data.getRandomWord(8),
+      [tags[0].name],
+      [tags[1].name],
+      null
+    );
+    archetype1.create();
+    const appdata = {
+      name: data.getAppName(),
+      description: data.getDescription(),
+      tags: [tags[0].name],
+      comment: data.getDescription(),
+    };
+    const application1 = new Application(appdata);
+    applicationsList.push(application1);
+    application1.create();
+    cy.get("@getApplication");
+    const validSearchInput = archetype1.name;
+    applySearchFilter("Archetypes", validSearchInput);
+    exists(application1.name);
+    clickByText(button, clearAllFilters);
 
-    it("Analysis status filter validation", function () {
-        const application1 = new Analysis(
-            getRandomApplicationData("tackle_test_app_1", {
-                sourceData: this.appData["tackle-testapp-public"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        application1.create();
-        applicationsList.push(application1);
+    //validate archetype2 is not present in applications archetype filter
+    const archetype2 = new Archetype(
+      data.getRandomWord(8),
+      [tags[1].name],
+      [tags[0].name],
+      null
+    );
+    archetype2.create();
+    Application.open();
+    selectFilter(archetypes);
+    cy.get(filterDropDownContainer).find(searchMenuToggle).click();
+    notExists(archetype2.name);
 
-        const application2 = new Analysis(
-            getRandomApplicationData("python-app-custom-rules", {
-                sourceData: this.appData["python-demo-app"],
-            }),
-            getRandomAnalysisData(this.analysisData["python_demo_application"])
-        );
+    deleteByList([archetype1, archetype2]);
+    deleteByList(tags);
+  });
 
-        application2.create();
-        applicationsList.push(application2);
+  it("Analysis status filter validation", function () {
+    const application1 = new Analysis(
+      getRandomApplicationData("tackle_test_app_1", {
+        sourceData: this.appData["tackle-testapp-public"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    application1.create();
+    applicationsList.push(application1);
 
-        const application3 = new Analysis(
-            getRandomApplicationData("tackle_test_app_2", {
-                sourceData: this.appData["tackle-testapp"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        application3.create();
-        applicationsList.push(application3);
+    const application2 = new Analysis(
+      getRandomApplicationData("python-app-custom-rules", {
+        sourceData: this.appData["python-demo-app"],
+      }),
+      getRandomAnalysisData(this.analysisData["python_demo_application"])
+    );
 
-        application1.analyze();
-        application1.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application2.create();
+    applicationsList.push(application2);
 
-        application3.analyze();
-        application3.verifyAnalysisStatus(AnalysisStatuses.failed);
+    const application3 = new Analysis(
+      getRandomApplicationData("tackle_test_app_2", {
+        sourceData: this.appData["tackle-testapp"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    application3.create();
+    applicationsList.push(application3);
 
-        applySearchFilter(analysis, AnalysisStatuses.notStarted);
-        exists(application2.name);
-        notExists(application3.name);
-        notExists(application1.name);
+    application1.analyze();
+    application1.verifyAnalysisStatus(AnalysisStatuses.completed);
 
-        clickByText(button, clearAllFilters);
+    application3.analyze();
+    application3.verifyAnalysisStatus(AnalysisStatuses.failed);
 
-        applySearchFilter(analysis, AnalysisStatuses.completed);
-        exists(application1.name);
-        notExists(application3.name);
-        notExists(application2.name);
+    applySearchFilter(analysis, AnalysisStatuses.notStarted);
+    exists(application2.name);
+    notExists(application3.name);
+    notExists(application1.name);
 
-        clickByText(button, clearAllFilters);
+    clickByText(button, clearAllFilters);
 
-        applySearchFilter(analysis, AnalysisStatuses.failed);
-        exists(application3.name);
-        notExists(application2.name);
-        notExists(application1.name);
-    });
+    applySearchFilter(analysis, AnalysisStatuses.completed);
+    exists(application1.name);
+    notExists(application3.name);
+    notExists(application2.name);
 
-    after("Perform test data clean up", function () {
-        deleteByList(tagList);
-        deleteByList(businessServicesList);
-        deleteByList(applicationsList);
-        deleteByList(stakeholders);
-    });
+    clickByText(button, clearAllFilters);
+
+    applySearchFilter(analysis, AnalysisStatuses.failed);
+    exists(application3.name);
+    notExists(application2.name);
+    notExists(application1.name);
+  });
+
+  after("Perform test data clean up", function () {
+    deleteByList(tagList);
+    deleteByList(businessServicesList);
+    deleteByList(applicationsList);
+    deleteByList(stakeholders);
+  });
 });
 const clearAllFiltersIfExists = (): void => {
-    cy.get("body").then(($body) => {
-        if ($body.find('button:contains("Clear all filters")').length > 0) {
-            cy.contains(button, "Clear all filters").click({ force: true });
-        }
-    });
+  cy.get("body").then(($body) => {
+    if ($body.find('button:contains("Clear all filters")').length > 0) {
+      cy.contains(button, "Clear all filters").click({ force: true });
+    }
+  });
 };
 
 const filterApplicationsBySubstring = (): void => {
-    const [firstAppSubstring, secondAppSubstring] = applicationsList.map((app) =>
-        app.name.substring(0, 12)
-    );
-    selectFilter(name);
-    if (firstAppSubstring === secondAppSubstring) {
-        cy.get(commonView.inputText)
-            .click()
-            .focused()
-            .clear()
-            .type(firstAppSubstring)
-            .then(() => {
-                [applicationsList[0].name, applicationsList[1].name].forEach((substring) => {
-                    cy.get(standardFilter).contains(substring).click();
-                });
-                exists(applicationsList[0].name);
-                exists(applicationsList[1].name);
-            });
-    } else {
-        applySearchFilter(name, firstAppSubstring);
+  const [firstAppSubstring, secondAppSubstring] = applicationsList.map((app) =>
+    app.name.substring(0, 12)
+  );
+  selectFilter(name);
+  if (firstAppSubstring === secondAppSubstring) {
+    cy.get(commonView.inputText)
+      .click()
+      .focused()
+      .clear()
+      .type(firstAppSubstring)
+      .then(() => {
+        [applicationsList[0].name, applicationsList[1].name].forEach(
+          (substring) => {
+            cy.get(standardFilter).contains(substring).click();
+          }
+        );
         exists(applicationsList[0].name);
-        notExists(applicationsList[1].name);
-    }
+        exists(applicationsList[1].name);
+      });
+  } else {
+    applySearchFilter(name, firstAppSubstring);
+    exists(applicationsList[0].name);
+    notExists(applicationsList[1].name);
+  }
 
-    clickByText(button, clearAllFilters);
+  clickByText(button, clearAllFilters);
 };

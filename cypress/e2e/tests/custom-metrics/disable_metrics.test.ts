@@ -21,16 +21,16 @@ const metrics = new Metrics();
 let metricsEnabled: boolean;
 
 describe(["@tier3"], "Custom Metrics - Disable metrics", function () {
-    it("Disable metrics in Tackle CR - Validate service is unavailable", function () {
-        metricsEnabled = false;
-        patchTackleCR("metrics", metricsEnabled);
-        metrics.validateMetricsDisabled();
-    });
+  it("Disable metrics in Tackle CR - Validate service is unavailable", function () {
+    metricsEnabled = false;
+    patchTackleCR("metrics", metricsEnabled);
+    metrics.validateMetricsDisabled();
+  });
 
-    it("Re-enable metrics - Validate custom metric value is zero", function () {
-        metricsEnabled = true;
-        let metricName = "konveyor_assessments_initiated_total";
-        patchTackleCR("metrics", metricsEnabled);
-        metrics.validateMetric(metricName, 0);
-    });
+  it("Re-enable metrics - Validate custom metric value is zero", function () {
+    metricsEnabled = true;
+    let metricName = "konveyor_assessments_initiated_total";
+    patchTackleCR("metrics", metricsEnabled);
+    metrics.validateMetric(metricName, 0);
+  });
 });

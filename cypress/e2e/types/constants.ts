@@ -89,8 +89,10 @@ export const assessmentQuestionnaires = "Assessment questionnaires";
 export const legacyPathfinder = "Legacy Pathfinder";
 export const cloudNative = "Cloud Native";
 export const sampleQuestionnaireTemplate = "Questionnaire Template ( Sample )";
-export const cloudReadinessQuestionnaire = "Uploadable Cloud Readiness Questionnaire Template";
-export const cloudReadinessFilePath = "questionnaire_import/CloudReadiness_7.0.1.yaml";
+export const cloudReadinessQuestionnaire =
+  "Uploadable Cloud Readiness Questionnaire Template";
+export const cloudReadinessFilePath =
+  "questionnaire_import/CloudReadiness_7.0.1.yaml";
 export const createAppButton = "#create-application";
 export const text = "text";
 export const riskDonutChart = "risk-donut-chart";
@@ -98,29 +100,33 @@ export const assessAppButton = "Assess";
 export const reviewAppButton = "Review";
 export const analyzeAppButton = "#analyze-application";
 export const duplicateMigrationWaveError =
-    "Danger alert:The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.";
+  "Danger alert:The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.";
 export const MustbeAValidRepositoryURL = "Must be a valid repository URL.";
 
 // Error helper messages general to all views
-export const duplicateErrMsg = "ERROR: duplicate key value violates unique constraint";
+export const duplicateErrMsg =
+  "ERROR: duplicate key value violates unique constraint";
 export const duplicateEmail =
-    "A stakeholder with this email address already exists. Use a different email address.";
+  "A stakeholder with this email address already exists. Use a different email address.";
 export const duplicateApplication =
-    "An application with this name already exists. Use a different name.";
+  "An application with this name already exists. Use a different name.";
 export const duplicateTagTypeName =
-    "A tag type with this name already exists. Use a different name.";
-export const duplicateTagName = "A tag with this name already exists. Use a different name.";
+  "A tag type with this name already exists. Use a different name.";
+export const duplicateTagName =
+  "A tag with this name already exists. Use a different name.";
 export const duplicateJobFunctionName =
-    "A job function with this name already exists. Use a different name.";
+  "A job function with this name already exists. Use a different name.";
 export const duplicateStakeholderGroupName =
-    "An stakeholder group with this name already exists. Use a different name.";
+  "An stakeholder group with this name already exists. Use a different name.";
 export const duplicateBusinessService =
-    "A business service with this name already exists. Use a different name.";
+  "A business service with this name already exists. Use a different name.";
 
 export const fieldReqMsg = "This field is required.";
 export const max40CharMsg = "This field must contain fewer than 40 characters.";
-export const max120CharsMsg = "This field must contain fewer than 120 characters.";
-export const max250CharsMsg = "This field must contain fewer than 250 characters.";
+export const max120CharsMsg =
+  "This field must contain fewer than 120 characters.";
+export const max250CharsMsg =
+  "This field must contain fewer than 250 characters.";
 export const minCharsMsg = "This field must contain at least 3 characters.";
 
 export const SEC = 1000; // milliseconds
@@ -130,112 +136,112 @@ export const migration = "Migration";
 export const general = "General";
 export const instanceName = "Instance name";
 export const cantDeleteJiraAlert =
-    "Danger alert:This instance contains issues associated with applications and cannot be deleted";
+  "Danger alert:This instance contains issues associated with applications and cannot be deleted";
 export const singleApplication = "Single application";
 export enum CredentialType {
-    proxy = "Proxy",
-    sourceControl = "Source Control",
-    maven = "Maven",
-    jiraBasic = "Basic Auth (Jira)",
-    jiraToken = "Bearer Token (Jira)",
+  proxy = "Proxy",
+  sourceControl = "Source Control",
+  maven = "Maven",
+  jiraBasic = "Basic Auth (Jira)",
+  jiraToken = "Bearer Token (Jira)",
 }
 
 export enum JiraType {
-    cloud = "Jira Cloud",
-    server = "Jira Server/Datacenter",
+  cloud = "Jira Cloud",
+  server = "Jira Server/Datacenter",
 }
 
 export enum JiraIssueTypes {
-    task = "Task",
-    bug = "Bug",
-    story = "Story",
+  task = "Task",
+  bug = "Bug",
+  story = "Story",
 }
 
 export enum UserCredentials {
-    usernamePassword = "Username/Password",
-    sourcePrivateKey = "Source PrivateKey",
+  usernamePassword = "Username/Password",
+  sourcePrivateKey = "Source PrivateKey",
 }
 
 export enum UserRoles {
-    admin = "tackle-admin",
-    architect = "tackle-architect",
-    migrator = "tackle-migrator",
+  admin = "tackle-admin",
+  architect = "tackle-architect",
+  migrator = "tackle-migrator",
 }
 
 export enum AnalysisStatuses {
-    notStarted = "Not started",
-    scheduled = "Scheduled",
-    inProgress = "In-progress",
-    completed = "Completed",
-    failed = "Failed",
-    canceled = "Canceled",
+  notStarted = "Not started",
+  scheduled = "Scheduled",
+  inProgress = "In-progress",
+  completed = "Completed",
+  failed = "Failed",
+  canceled = "Canceled",
 }
 
 export enum ReportTypeSelectors {
-    HTML = "#download-tar-button",
-    YAML = "#download-yaml-button",
+  HTML = "#download-tar-button",
+  YAML = "#download-yaml-button",
 }
 
 export enum RepositoryType {
-    git = "Git",
-    subversion = "Subversion",
+  git = "Git",
+  subversion = "Subversion",
 }
 
 export enum CustomRuleType {
-    Repository = "Repository",
-    Manual = "Manual",
+  Repository = "Repository",
+  Manual = "Manual",
 }
 
 export enum SortType {
-    ascending = "ascending",
-    descending = "descending",
+  ascending = "ascending",
+  descending = "descending",
 }
 
 export enum issueFilter {
-    applicationName = "Application name",
-    archetype = "Archetype",
-    bs = "Business service",
-    tags = "Tags",
-    category = "Category",
-    source = "Source",
-    target = "Target",
+  applicationName = "Application name",
+  archetype = "Archetype",
+  bs = "Business service",
+  tags = "Tags",
+  category = "Category",
+  source = "Source",
+  target = "Target",
 }
 
 export enum dependencyFilter {
-    appName = "Application name",
-    archetype = "Archetype",
-    bs = "Business service",
-    tags = "Tags",
-    deppName = "Name",
-    language = "Language",
+  appName = "Application name",
+  archetype = "Archetype",
+  bs = "Business service",
+  tags = "Tags",
+  deppName = "Name",
+  language = "Language",
 }
 
 export enum Languages {
-    Go = "Golang",
-    Java = "Java",
+  Go = "Golang",
+  Java = "Java",
 }
 
 export const itemsPerPage = 100;
 
 export enum TaskStatus {
-    succeeded = "Succeeded",
-    pending = "Pending",
-    running = "Running",
-    ready = "Ready",
-    postponed = "Postponed",
-    quotaBlocked = "Quota Blocked",
+  succeeded = "Succeeded",
+  pending = "Pending",
+  running = "Running",
+  ready = "Ready",
+  postponed = "Postponed",
+  quotaBlocked = "Quota Blocked",
 }
 
 export enum TaskKind {
-    analyzer = "analyzer",
-    techDiscovery = "tech-discovery",
-    languageDiscovery = "language-discovery",
+  analyzer = "analyzer",
+  techDiscovery = "tech-discovery",
+  languageDiscovery = "language-discovery",
 }
 
 export enum TaskFilter {
-    applicationName = "Application",
-    id = "ID",
-    status = "Status",
-    kind = "Kind",
-    createdBy = "Created By",
+  applicationName = "Application",
+  id = "ID",
+  status = "Status",
+  kind = "Kind",
+  createdBy = "Created By",
 }

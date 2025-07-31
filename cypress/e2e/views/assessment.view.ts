@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 export const stakeholdersAndGroupsSelect =
-    "input[aria-label='stakeholders-and-groups-select-toggle']";
+  "input[aria-label='stakeholders-and-groups-select-toggle']";
 export const questionBlock = "div[cy-data='question']";
 export const assessmentBlock = "li.pf-v5-c-wizard__nav-item";
 export const radioInput = "input[type='radio']";

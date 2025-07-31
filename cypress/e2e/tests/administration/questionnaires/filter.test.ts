@@ -15,50 +15,56 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { applySearchFilter, clickByText, exists, login, notExists } from "../../../../utils/utils";
+import {
+  applySearchFilter,
+  clickByText,
+  exists,
+  login,
+  notExists,
+} from "../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import {
-    button,
-    clearAllFilters,
-    cloudNative,
-    legacyPathfinder,
-    name,
+  button,
+  clearAllFilters,
+  cloudNative,
+  legacyPathfinder,
+  name,
 } from "../../../types/constants";
 
 const yamlFileName = "questionnaire_import/cloud-native.yaml";
 let assessmentQuestionnaireList: Array<string> = [];
 
 describe(["@tier3"], "Assessment Questionnaire filter validation", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        AssessmentQuestionnaire.import(yamlFileName);
-        AssessmentQuestionnaire.enable(cloudNative, false);
-        assessmentQuestionnaireList.push(cloudNative);
-        assessmentQuestionnaireList.push(legacyPathfinder);
-    });
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    AssessmentQuestionnaire.import(yamlFileName);
+    AssessmentQuestionnaire.enable(cloudNative, false);
+    assessmentQuestionnaireList.push(cloudNative);
+    assessmentQuestionnaireList.push(legacyPathfinder);
+  });
 
-    it("Name filter validation", function () {
-        // Automates Polarion MTA-434
+  it("Name filter validation", function () {
+    // Automates Polarion MTA-434
 
-        AssessmentQuestionnaire.open();
+    AssessmentQuestionnaire.open();
 
-        let searchInput = assessmentQuestionnaireList[0];
+    let searchInput = assessmentQuestionnaireList[0];
 
-        applySearchFilter(name, searchInput);
-        exists(assessmentQuestionnaireList[0]);
-        notExists(assessmentQuestionnaireList[1]);
-        clickByText(button, clearAllFilters);
+    applySearchFilter(name, searchInput);
+    exists(assessmentQuestionnaireList[0]);
+    notExists(assessmentQuestionnaireList[1]);
+    clickByText(button, clearAllFilters);
 
-        searchInput = assessmentQuestionnaireList[1];
+    searchInput = assessmentQuestionnaireList[1];
 
-        applySearchFilter(name, searchInput);
-        exists(assessmentQuestionnaireList[1]);
-        notExists(assessmentQuestionnaireList[0]);
-        clickByText(button, clearAllFilters);
-    });
+    applySearchFilter(name, searchInput);
+    exists(assessmentQuestionnaireList[1]);
+    notExists(assessmentQuestionnaireList[0]);
+    clickByText(button, clearAllFilters);
+  });
 
-    after("Perform test data clean up", function () {
-        AssessmentQuestionnaire.delete(cloudNative);
-    });
+  after("Perform test data clean up", function () {
+    AssessmentQuestionnaire.delete(cloudNative);
+  });
 });

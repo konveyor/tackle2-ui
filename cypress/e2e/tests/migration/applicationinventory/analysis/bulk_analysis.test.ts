@@ -16,10 +16,10 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Metrics } from "../../../../models/migration/custom-metrics/custom-metrics";
@@ -32,41 +32,43 @@ const metricName = "konveyor_tasks_initiated_total";
 let counter: number;
 
 describe(["@tier4"], "Bulk analysis and custom metrics afterwards", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        cy.fixture("application").then((appData) => {
-            cy.fixture("analysis").then((analysisData) => {
-                for (let i = 0; i < NUMBER_OF_APPS; i++) {
-                    analyses.push(
-                        new Analysis(
-                            getRandomApplicationData("bookserverApp", {
-                                sourceData: appData["bookserver-app"],
-                            }),
-                            getRandomAnalysisData(analysisData["analysis_for_openSourceLibraries"])
-                        )
-                    );
-                }
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    cy.fixture("application").then((appData) => {
+      cy.fixture("analysis").then((analysisData) => {
+        for (let i = 0; i < NUMBER_OF_APPS; i++) {
+          analyses.push(
+            new Analysis(
+              getRandomApplicationData("bookserverApp", {
+                sourceData: appData["bookserver-app"],
+              }),
+              getRandomAnalysisData(
+                analysisData["analysis_for_openSourceLibraries"]
+              )
+            )
+          );
+        }
 
-                analyses.forEach((analysis) => analysis.create());
-            });
-        });
-
-        // Get the current counter value
-        metrics.getValue(metricName).then((counterValue) => {
-            counter = counterValue;
-        });
+        analyses.forEach((analysis) => analysis.create());
+      });
     });
 
-    it("Bulk analysis and collect metrics afterwards", function () {
-        Analysis.analyzeAll(analyses[0]);
-        Analysis.verifyAllAnalysisStatuses(AnalysisStatuses.completed);
-        counter = counter + NUMBER_OF_APPS;
-        metrics.validateMetric(metricName, counter);
+    // Get the current counter value
+    metrics.getValue(metricName).then((counterValue) => {
+      counter = counterValue;
     });
+  });
 
-    after("Perform test data clean up", function () {
-        Analysis.open(true);
-        deleteByList(analyses);
-    });
+  it("Bulk analysis and collect metrics afterwards", function () {
+    Analysis.analyzeAll(analyses[0]);
+    Analysis.verifyAllAnalysisStatuses(AnalysisStatuses.completed);
+    counter = counter + NUMBER_OF_APPS;
+    metrics.validateMetric(metricName, counter);
+  });
+
+  after("Perform test data clean up", function () {
+    Analysis.open(true);
+    deleteByList(analyses);
+  });
 });

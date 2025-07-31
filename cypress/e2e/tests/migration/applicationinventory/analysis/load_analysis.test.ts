@@ -18,12 +18,12 @@ limitations under the License.
 import * as data from "../../../../../utils/data_utils";
 import { getRulesData } from "../../../../../utils/data_utils";
 import {
-    deleteAllMigrationWaves,
-    deleteApplicationTableRows,
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { CustomMigrationTarget } from "../../../../models/administration/custom-migration-targets/custom-migration-target";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
@@ -32,100 +32,106 @@ import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
 const applications: Analysis[] = [];
 describe(["@tier2"], "Source Analysis of big applications", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        deleteAllMigrationWaves();
-        deleteApplicationTableRows();
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+    });
+    cy.fixture("custom-rules").then((customMigrationTargets) => {
+      this.targetData = customMigrationTargets;
     });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
-        cy.fixture("custom-rules").then((customMigrationTargets) => {
-            this.targetData = customMigrationTargets;
-        });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    Application.open(true);
+  });
 
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-        Application.open(true);
-    });
+  it("Source analysis on PetClinic app", function () {
+    const target = new CustomMigrationTarget(
+      data.getRandomWord(8),
+      data.getDescription(),
+      this.targetData["hazelcast_target"].image,
+      getRulesData(this.targetData["hazelcast_target"])
+    );
+    target.create();
 
-    it("Source analysis on PetClinic app", function () {
-        const target = new CustomMigrationTarget(
-            data.getRandomWord(8),
-            data.getDescription(),
-            this.targetData["hazelcast_target"].image,
-            getRulesData(this.targetData["hazelcast_target"])
-        );
-        target.create();
+    const application = new Analysis(
+      getRandomApplicationData("PetClinic Source", {
+        sourceData: this.appData["pet-clinic"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_pet_clinic_app"]
+      )
+    );
 
-        const application = new Analysis(
-            getRandomApplicationData("PetClinic Source", {
-                sourceData: this.appData["pet-clinic"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_pet_clinic_app"])
-        );
+    application.target = [target.name];
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    target.delete();
+  });
 
-        application.target = [target.name];
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        target.delete();
-    });
+  it("Source Analysis on Nexus app", function () {
+    const application = new Analysis(
+      getRandomApplicationData("Nexus Source", {
+        sourceData: this.appData["nexus"],
+      }),
+      getRandomAnalysisData(this.analysisData["source_analysis_on_nexus_app"])
+    );
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
+  });
 
-    it("Source Analysis on Nexus app", function () {
-        const application = new Analysis(
-            getRandomApplicationData("Nexus Source", {
-                sourceData: this.appData["nexus"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_nexus_app"])
-        );
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
-    });
+  it("Source Analysis on OpenMRS app", function () {
+    const application = new Analysis(
+      getRandomApplicationData("OpenMRS Source", {
+        sourceData: this.appData["openmrs"],
+      }),
+      getRandomAnalysisData(this.analysisData["source_analysis_on_openmrs_app"])
+    );
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+  });
 
-    it("Source Analysis on OpenMRS app", function () {
-        const application = new Analysis(
-            getRandomApplicationData("OpenMRS Source", {
-                sourceData: this.appData["openmrs"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_openmrs_app"])
-        );
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
-    });
+  it("Source + dependency Analysis on Nexus app", function () {
+    const application = new Analysis(
+      getRandomApplicationData("Nexus Source+dep", {
+        sourceData: this.appData["nexus"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_plus_dependency_analysis_on_nexus_app"]
+      )
+    );
+    application.create();
+    applications.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
+    application.verifyEffort(
+      this.analysisData["source_plus_dependency_analysis_on_nexus_app"][
+        "effort"
+      ]
+    );
+  });
 
-    it("Source + dependency Analysis on Nexus app", function () {
-        const application = new Analysis(
-            getRandomApplicationData("Nexus Source+dep", {
-                sourceData: this.appData["nexus"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_plus_dependency_analysis_on_nexus_app"])
-        );
-        application.create();
-        applications.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
-        application.verifyEffort(
-            this.analysisData["source_plus_dependency_analysis_on_nexus_app"]["effort"]
-        );
-    });
-
-    after("Test data clean up", function () {
-        Analysis.open(true);
-        deleteByList(applications);
-    });
+  after("Test data clean up", function () {
+    Analysis.open(true);
+    deleteByList(applications);
+  });
 });

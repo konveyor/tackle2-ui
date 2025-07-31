@@ -23,8 +23,8 @@ export const nameInput = "input[name=name]";
 export const tagMenuButton = 'button[aria-label="Kebab toggle"]';
 export const tagCategory = "td[data-label='Tag category']";
 export enum tagLabels {
-    name = 'td[data-label="Tag name"]',
-    type = 'td[data-label="Tag type"]',
-    count = 'td[data-label="Tag count"]',
+  name = 'td[data-label="Tag name"]',
+  type = 'td[data-label="Tag type"]',
+  count = 'td[data-label="Tag count"]',
 }
 export const colorMenuToggle = "button[id='type-select-toggle']";

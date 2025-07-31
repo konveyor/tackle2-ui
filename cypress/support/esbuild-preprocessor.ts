@@ -3,16 +3,16 @@ import { NodeModulesPolyfillPlugin } from "@esbuild-plugins/node-modules-polyfil
 const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
 
 export default (on: Cypress.PluginEvents) => {
-    on(
-        "file:preprocessor",
-        createBundler({
-            plugins: [
-                NodeModulesPolyfillPlugin(),
-                NodeGlobalsPolyfillPlugin({
-                    process: true,
-                    buffer: true,
-                }),
-            ],
-        })
-    );
+  on(
+    "file:preprocessor",
+    createBundler({
+      plugins: [
+        NodeModulesPolyfillPlugin(),
+        NodeGlobalsPolyfillPlugin({
+          process: true,
+          buffer: true,
+        }),
+      ],
+    })
+  );
 };

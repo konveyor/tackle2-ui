@@ -5,8 +5,8 @@ FROM docker.io/cypress/included:13.13.3
 ENV CYPRESS_CACHE_FOLDER=/tmp/.cache/Cypress
 ENV npm_config_cache=/tmp/.cache/npm
 
-RUN mkdir /tmp/tackle-ui-tests
-WORKDIR /tmp/tackle-ui-tests
+RUN mkdir /tmp/tackle2-ui
+WORKDIR /tmp/tackle2-ui
 COPY . .
 RUN npm install .
 RUN cypress install

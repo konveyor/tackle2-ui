@@ -16,58 +16,64 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteApplicationTableRows,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
-    taskDetailsSanity,
+  deleteApplicationTableRows,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
+  taskDetailsSanity,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 import { AnalysisStatuses, TaskKind } from "../../../../types/constants";
 
-describe(["@tier3"], "Validate task links from application popover", function () {
+describe(
+  ["@tier3"],
+  "Validate task links from application popover",
+  function () {
     let bookServerApp: Analysis;
 
     before("Login", function () {
-        login();
-        cy.visit("/");
-        deleteApplicationTableRows();
-        cy.fixture("application").then((appData) => {
-            cy.fixture("analysis").then((analysisData) => {
-                bookServerApp = new Analysis(
-                    getRandomApplicationData("bookserver", {
-                        sourceData: appData["bookserver-app"],
-                    }),
-                    getRandomAnalysisData(analysisData["source_analysis_on_bookserverapp"])
-                );
-                bookServerApp.create();
-                bookServerApp.analyze();
-                bookServerApp.verifyAnalysisStatus(AnalysisStatuses.completed);
-            });
+      login();
+      cy.visit("/");
+      deleteApplicationTableRows();
+      cy.fixture("application").then((appData) => {
+        cy.fixture("analysis").then((analysisData) => {
+          bookServerApp = new Analysis(
+            getRandomApplicationData("bookserver", {
+              sourceData: appData["bookserver-app"],
+            }),
+            getRandomAnalysisData(
+              analysisData["source_analysis_on_bookserverapp"]
+            )
+          );
+          bookServerApp.create();
+          bookServerApp.analyze();
+          bookServerApp.verifyAnalysisStatus(AnalysisStatuses.completed);
         });
+      });
     });
 
     it("Click the tech-discovery link in application popover - task details page should open", function () {
-        const taskKind = TaskKind.techDiscovery;
-        bookServerApp.openTaskDetailsFromPopover(taskKind);
-        taskDetailsSanity(bookServerApp.name, taskKind);
+      const taskKind = TaskKind.techDiscovery;
+      bookServerApp.openTaskDetailsFromPopover(taskKind);
+      taskDetailsSanity(bookServerApp.name, taskKind);
     });
 
     it("Click the language-discovery link in application popover - task details page should open", function () {
-        const taskKind = TaskKind.languageDiscovery;
-        bookServerApp.openTaskDetailsFromPopover(taskKind);
-        taskDetailsSanity(bookServerApp.name, taskKind);
+      const taskKind = TaskKind.languageDiscovery;
+      bookServerApp.openTaskDetailsFromPopover(taskKind);
+      taskDetailsSanity(bookServerApp.name, taskKind);
     });
 
     it("Click the analyzer link in application popover - task details page should open", function () {
-        const taskKind = TaskKind.analyzer;
-        bookServerApp.openTaskDetailsFromPopover(taskKind);
-        taskDetailsSanity(bookServerApp.name, taskKind);
+      const taskKind = TaskKind.analyzer;
+      bookServerApp.openTaskDetailsFromPopover(taskKind);
+      taskDetailsSanity(bookServerApp.name, taskKind);
     });
 
     after("Perform test data clean up", function () {
-        Application.open(true);
-        deleteApplicationTableRows();
+      Application.open(true);
+      deleteApplicationTableRows();
     });
-});
+  }
+);

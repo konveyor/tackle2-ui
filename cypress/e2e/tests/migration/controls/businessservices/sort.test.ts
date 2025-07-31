@@ -16,14 +16,14 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    clickOnSortButton,
-    createMultipleBusinessServices,
-    createMultipleStakeholders,
-    deleteByList,
-    getTableColumnData,
-    login,
-    verifySortAsc,
-    verifySortDesc,
+  clickOnSortButton,
+  createMultipleBusinessServices,
+  createMultipleStakeholders,
+  deleteByList,
+  getTableColumnData,
+  login,
+  verifySortAsc,
+  verifySortDesc,
 } from "../../../../../utils/utils";
 import { name, owner, SortType } from "../../../../types/constants";
 
@@ -34,55 +34,55 @@ var stakeholdersList: Array<Stakeholders> = [];
 var businessServicesList: Array<BusinessServices> = [];
 
 describe(["@tier3"], "Business services sort validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        stakeholdersList = createMultipleStakeholders(2);
-        businessServicesList = createMultipleBusinessServices(2, stakeholdersList);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    stakeholdersList = createMultipleStakeholders(2);
+    businessServicesList = createMultipleBusinessServices(2, stakeholdersList);
+  });
 
-    beforeEach("Persist session", function () {
-        // Interceptors
-        cy.intercept("POST", "/hub/business-service*").as("postBusinessService");
-        cy.intercept("GET", "/hub/business-service*").as("getBusinessService");
-    });
+  beforeEach("Persist session", function () {
+    // Interceptors
+    cy.intercept("POST", "/hub/business-service*").as("postBusinessService");
+    cy.intercept("GET", "/hub/business-service*").as("getBusinessService");
+  });
 
-    it("Name sort validations", function () {
-        BusinessServices.openList();
-        cy.get("@getBusinessService");
+  it("Name sort validations", function () {
+    BusinessServices.openList();
+    cy.get("@getBusinessService");
 
-        // get unsorted list when page loads
-        const unsortedList = getTableColumnData(name);
+    // get unsorted list when page loads
+    const unsortedList = getTableColumnData(name);
 
-        // Sort the business services by name in ascending order
-        clickOnSortButton(name, SortType.ascending);
-        const afterAscSortList = getTableColumnData(name);
-        verifySortAsc(afterAscSortList, unsortedList);
+    // Sort the business services by name in ascending order
+    clickOnSortButton(name, SortType.ascending);
+    const afterAscSortList = getTableColumnData(name);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        // Sort the business services by name in descending order
-        clickOnSortButton(name, SortType.descending);
-        const afterDescSortList = getTableColumnData(name);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    // Sort the business services by name in descending order
+    clickOnSortButton(name, SortType.descending);
+    const afterDescSortList = getTableColumnData(name);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    it("Owner sort validations", function () {
-        BusinessServices.openList();
-        cy.get("@getBusinessService");
-        const unsortedList = getTableColumnData(owner);
+  it("Owner sort validations", function () {
+    BusinessServices.openList();
+    cy.get("@getBusinessService");
+    const unsortedList = getTableColumnData(owner);
 
-        // Sort the business services by owner in ascending order
-        clickOnSortButton(owner, SortType.ascending);
-        const afterAscSortList = getTableColumnData(owner);
-        verifySortAsc(afterAscSortList, unsortedList);
+    // Sort the business services by owner in ascending order
+    clickOnSortButton(owner, SortType.ascending);
+    const afterAscSortList = getTableColumnData(owner);
+    verifySortAsc(afterAscSortList, unsortedList);
 
-        // Sort the business services by owner in descending order
-        clickOnSortButton(owner, SortType.descending);
-        const afterDescSortList = getTableColumnData(owner);
-        verifySortDesc(afterDescSortList, unsortedList);
-    });
+    // Sort the business services by owner in descending order
+    clickOnSortButton(owner, SortType.descending);
+    const afterDescSortList = getTableColumnData(owner);
+    verifySortDesc(afterDescSortList, unsortedList);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(businessServicesList);
-        deleteByList(stakeholdersList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(businessServicesList);
+    deleteByList(stakeholdersList);
+  });
 });

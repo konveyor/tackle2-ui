@@ -48,10 +48,11 @@ export const pageNumInput = "input[aria-label='Current page']";
 export const optionMenu = "div.perspective";
 export const modal = "[id^=pf-modal-part-]";
 export const navLink = ".pf-v5-c-nav__link";
-export const closeSuccessNotification = "button[aria-label^='Close Success alert:']";
+export const closeSuccessNotification =
+  "button[aria-label^='Close Success alert:']";
 export const divHeader = "[id^=pf-random-id-]";
 export const itemsSelectInsideDialog =
-    "div[role='dialog'] button[class='pf-v5-c-menu-toggle__button']";
+  "div[role='dialog'] button[class='pf-v5-c-menu-toggle__button']";
 export const helperBusiness = 'span[class*="helper-text__item"]';
 export const stakeHolderGroupHelper = "div.pf-v5-c-helper-text";
 export const actionMenuItem = "span.pf-v5-c-menu__item-text";
@@ -63,7 +64,8 @@ export const tableHead = "thead[class='pf-v5-c-table__thead']";
 export const plainButton = "button.pf-v5-c-button.pf-m-plain";
 export const dropdownClearSelection = "pf-v5-c-select__toggle-clear";
 export const footer = "footer";
-export const manageImportsActionsButton = "button[aria-label='Table toolbar actions kebab toggle']";
+export const manageImportsActionsButton =
+  "button[aria-label='Table toolbar actions kebab toggle']";
 export const nextButton = "button[cy-data='next']";
 export const saveAndReviewButton = "button[cy-data='save-and-review']";
 export const span = "span";
@@ -78,10 +80,11 @@ export const technologies = "Technologies";
  * ul[role=listbox] > li is for the Application Inventory page.
  * span.pf-c-check__label is for the Copy assessment page.
  */
-export const standardFilter = "ul[role=listbox] > li, span.pf-v5-c-check__label";
+export const standardFilter =
+  "ul[role=listbox] > li, span.pf-v5-c-check__label";
 export const specialFilter = "#select-multi-typeahead-checkbox-listbox";
 export const filterDropDownContainer =
-    "div.pf-v5-c-toolbar__group.pf-m-toggle-group.pf-m-filter-group.pf-m-show";
+  "div.pf-v5-c-toolbar__group.pf-m-toggle-group.pf-m-filter-group.pf-m-show";
 export const filterDropDown = '[id^="filter-control-"]';
 export const actionSelectToggle = "span.pf-v5-c-menu-toggle__controls";
 export const radioButtonLabel = "div.pf-v5-c-radio";
@@ -92,12 +95,12 @@ export const modalConfirm = "#modal-confirm";
 
 // Application/Archetype side drawer
 export enum sideDrawer {
-    risk = "h3.pf-v5-c-title.pf-m-md",
-    labelContent = "span.pf-v5-c-label__content",
-    closeDrawer = "button[aria-label='Close drawer panel']",
-    pageDrawerContent = "#page-drawer-content",
-    listText = "span.pf-v5-c-description-list__text",
-    labelText = "span.pf-v5-c-label__text",
+  risk = "h3.pf-v5-c-title.pf-m-md",
+  labelContent = "span.pf-v5-c-label__content",
+  closeDrawer = "button[aria-label='Close drawer panel']",
+  pageDrawerContent = "#page-drawer-content",
+  listText = "span.pf-v5-c-description-list__text",
+  labelText = "span.pf-v5-c-label__text",
 }
 export const closeAbout = "button[aria-label='Close Dialog']";
 export const pencilIcon = "#action";
@@ -106,16 +109,17 @@ export const pencilAction = "#pencil-action";
 // Task details page
 export const taskDetailsEditor = "div[class='pf-v5-c-code-editor__code']";
 export const downloadFormatDetails = {
-    yaml: {
-        key: "yaml",
-        button: "button[id='code-language-select-yaml']",
-    },
-    json: {
-        key: "json",
-        button: "button[id='code-language-select-json']",
-    },
+  yaml: {
+    key: "yaml",
+    button: "button[id='code-language-select-yaml']",
+  },
+  json: {
+    key: "json",
+    button: "button[id='code-language-select-json']",
+  },
 };
 export const downloadTaskButton = "button[aria-label='Download code']";
 
 // Task Manager drawer
-export const taskDrawerItemTitle = "h2.pf-v5-c-notification-drawer__list-item-header-title";
+export const taskDrawerItemTitle =
+  "h2.pf-v5-c-notification-drawer__list-item-header-title";

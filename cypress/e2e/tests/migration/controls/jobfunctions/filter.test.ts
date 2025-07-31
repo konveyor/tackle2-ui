@@ -16,12 +16,12 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    applySearchFilter,
-    clickByText,
-    createMultipleJobFunctions,
-    deleteByList,
-    exists,
-    login,
+  applySearchFilter,
+  clickByText,
+  createMultipleJobFunctions,
+  deleteByList,
+  exists,
+  login,
 } from "../../../../../utils/utils";
 import { button, clearAllFilters, name } from "../../../../types/constants";
 
@@ -32,32 +32,32 @@ let jobFunctionsList: Array<Jobfunctions> = [];
 let invalidSearchInput = String(data.getRandomNumber());
 
 describe(["@tier2"], "Job function filter validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        jobFunctionsList = createMultipleJobFunctions(2);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    jobFunctionsList = createMultipleJobFunctions(2);
+  });
 
-    it("Name filter validations", function () {
-        Jobfunctions.openList();
+  it("Name filter validations", function () {
+    Jobfunctions.openList();
 
-        // Enter an existing display name substring and assert
-        let validSearchInput = jobFunctionsList[0].name.substring(0, 3);
-        applySearchFilter(name, validSearchInput);
-        exists(jobFunctionsList[0].name);
-        clickByText(button, clearAllFilters);
+    // Enter an existing display name substring and assert
+    let validSearchInput = jobFunctionsList[0].name.substring(0, 3);
+    applySearchFilter(name, validSearchInput);
+    exists(jobFunctionsList[0].name);
+    clickByText(button, clearAllFilters);
 
-        applySearchFilter(name, jobFunctionsList[1].name);
-        exists(jobFunctionsList[1].name);
-        clickByText(button, clearAllFilters);
+    applySearchFilter(name, jobFunctionsList[1].name);
+    exists(jobFunctionsList[1].name);
+    clickByText(button, clearAllFilters);
 
-        // Enter a non-existing display name substring and apply it as search filter
-        applySearchFilter(name, invalidSearchInput);
-        cy.get("h2").contains("No job function available");
-        clickByText(button, clearAllFilters);
-    });
+    // Enter a non-existing display name substring and apply it as search filter
+    applySearchFilter(name, invalidSearchInput);
+    cy.get("h2").contains("No job function available");
+    clickByText(button, clearAllFilters);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(jobFunctionsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(jobFunctionsList);
+  });
 });

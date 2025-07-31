@@ -17,10 +17,10 @@ limitations under the License.
 
 import { getDescription, getRandomWord } from "../../../../utils/data_utils";
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
 import { SubversionConfiguration } from "../../../models/administration/repositories/subversion";
@@ -29,105 +29,114 @@ import { AnalysisStatuses, CredentialType } from "../../../types/constants";
 import { analysisDetailsEditor } from "../../../views/analysis.view";
 
 describe(["@tier2"], "Test secure and insecure svn repository analysis", () => {
-    const subversionConfiguration = new SubversionConfiguration();
-    let sourceCredential: CredentialsSourceControlUsername;
-    const applicationsList: Analysis[] = [];
+  const subversionConfiguration = new SubversionConfiguration();
+  let sourceCredential: CredentialsSourceControlUsername;
+  const applicationsList: Analysis[] = [];
 
-    before("Login", function () {
-        login();
-        cy.visit("/");
-        sourceCredential = new CredentialsSourceControlUsername({
-            type: CredentialType.sourceControl,
-            name: getRandomWord(6),
-            description: getDescription(),
-            username: Cypress.env("svn_user"),
-            password: Cypress.env("svn_password"),
-        });
-        sourceCredential.create();
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    sourceCredential = new CredentialsSourceControlUsername({
+      type: CredentialType.sourceControl,
+      name: getRandomWord(6),
+      description: getDescription(),
+      username: Cypress.env("svn_user"),
+      password: Cypress.env("svn_password"),
+    });
+    sourceCredential.create();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+  });
 
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-    });
+  it("Analysis on insecure SVN Repository(http) when allowed", function () {
+    subversionConfiguration.enableInsecureSubversionRepositories();
 
-    it("Analysis on insecure SVN Repository(http) when allowed", function () {
-        subversionConfiguration.enableInsecureSubversionRepositories();
+    const application = new Analysis(
+      getRandomApplicationData("Insecure svn enabled bookserver app", {
+        sourceData: this.appData["bookserver-svn-insecure"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.manageCredentials(sourceCredential.name, null);
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
 
-        const application = new Analysis(
-            getRandomApplicationData("Insecure svn enabled bookserver app", {
-                sourceData: this.appData["bookserver-svn-insecure"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
+  it("Analysis on SVN Repository(http) when filenames have special characters", function () {
+    const application = new Analysis(
+      getRandomApplicationData(
+        "Insecure svn when filenames have special characters",
+        {
+          sourceData: this.appData["bookserver-svn-branch"],
+        }
+      ),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.manageCredentials(sourceCredential.name, null);
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
+
+  it("Analysis on insecure SVN Repository(http) when not allowed", function () {
+    const application = new Analysis(
+      getRandomApplicationData("Insecure svn disabled bookserver app", {
+        sourceData: this.appData["bookserver-svn-insecure"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    subversionConfiguration.disableInsecureSubversionRepositories();
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.manageCredentials(sourceCredential.name, null);
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.failed);
+    application.openAnalysisDetails();
+
+    cy.get(analysisDetailsEditor)
+      .eq(0)
+      .click()
+      .type("{ctrl}f")
+      .focused()
+      .clear()
+      .wait(1000)
+      // find the word 'snv.insecure.enabled'
+      .type("snv.insecure.enabled", { delay: 0, force: true })
+      .wait(3000);
+
+    cy.get(analysisDetailsEditor)
+      .eq(0)
+      .then(($editor) => {
+        expect($editor.text()).to.contain(
+          "http URL used with snv.insecure.enabled = FALSE",
+          "Analysis details don't contains the expected error message"
         );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.manageCredentials(sourceCredential.name, null);
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
+      });
+  });
 
-    it("Analysis on SVN Repository(http) when filenames have special characters", function () {
-        const application = new Analysis(
-            getRandomApplicationData("Insecure svn when filenames have special characters", {
-                sourceData: this.appData["bookserver-svn-branch"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.manageCredentials(sourceCredential.name, null);
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
-
-    it("Analysis on insecure SVN Repository(http) when not allowed", function () {
-        const application = new Analysis(
-            getRandomApplicationData("Insecure svn disabled bookserver app", {
-                sourceData: this.appData["bookserver-svn-insecure"],
-            }),
-            getRandomAnalysisData(this.analysisData["source_analysis_on_bookserverapp"])
-        );
-        subversionConfiguration.disableInsecureSubversionRepositories();
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.manageCredentials(sourceCredential.name, null);
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.failed);
-        application.openAnalysisDetails();
-
-        cy.get(analysisDetailsEditor)
-            .eq(0)
-            .click()
-            .type("{ctrl}f")
-            .focused()
-            .clear()
-            .wait(1000)
-            // find the word 'snv.insecure.enabled'
-            .type("snv.insecure.enabled", { delay: 0, force: true })
-            .wait(3000);
-
-        cy.get(analysisDetailsEditor)
-            .eq(0)
-            .then(($editor) => {
-                expect($editor.text()).to.contain(
-                    "http URL used with snv.insecure.enabled = FALSE",
-                    "Analysis details don't contains the expected error message"
-                );
-            });
-    });
-
-    after("Perform test data clean up", () => {
-        deleteByList(applicationsList);
-        sourceCredential.delete();
-    });
+  after("Perform test data clean up", () => {
+    deleteByList(applicationsList);
+    sourceCredential.delete();
+  });
 });

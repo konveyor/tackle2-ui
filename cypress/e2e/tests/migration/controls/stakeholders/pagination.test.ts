@@ -16,50 +16,50 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    autoPageChangeValidations,
-    createMultipleStakeholders,
-    deleteAllRows,
-    itemsPerPageValidation,
-    login,
-    selectItemsPerPage,
-    validatePagination,
+  autoPageChangeValidations,
+  createMultipleStakeholders,
+  deleteAllRows,
+  itemsPerPageValidation,
+  login,
+  selectItemsPerPage,
+  validatePagination,
 } from "../../../../../utils/utils";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { appTable } from "../../../../views/common.view";
 
 describe(["@tier3"], "Stakeholder pagination validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        createMultipleStakeholders(11);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    createMultipleStakeholders(11);
+  });
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
-    });
+  beforeEach("Interceptors", function () {
+    cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
+  });
 
-    it("Navigation button validations", function () {
-        Stakeholders.openList();
-        cy.get("@getStakeholders");
-        selectItemsPerPage(10);
-        validatePagination();
-    });
+  it("Navigation button validations", function () {
+    Stakeholders.openList();
+    cy.get("@getStakeholders");
+    selectItemsPerPage(10);
+    validatePagination();
+  });
 
-    it("Items per page validations", function () {
-        Stakeholders.openList();
-        cy.get("@getStakeholders");
-        selectItemsPerPage(10);
-        itemsPerPageValidation(appTable, "Email");
-    });
+  it("Items per page validations", function () {
+    Stakeholders.openList();
+    cy.get("@getStakeholders");
+    selectItemsPerPage(10);
+    itemsPerPageValidation(appTable, "Email");
+  });
 
-    it("Last page item(s) deletion, impact on page reload validation", function () {
-        Stakeholders.openList();
-        cy.get("@getStakeholders");
-        selectItemsPerPage(10);
-        autoPageChangeValidations(appTable, "Email", true);
-    });
+  it("Last page item(s) deletion, impact on page reload validation", function () {
+    Stakeholders.openList();
+    cy.get("@getStakeholders");
+    selectItemsPerPage(10);
+    autoPageChangeValidations(appTable, "Email", true);
+  });
 
-    after("Perform test data clean up", function () {
-        deleteAllRows();
-    });
+  after("Perform test data clean up", function () {
+    deleteAllRows();
+  });
 });

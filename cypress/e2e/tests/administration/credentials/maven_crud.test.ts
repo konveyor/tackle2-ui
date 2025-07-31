@@ -20,15 +20,15 @@ import { CredentialsMaven } from "../../../models/administration/credentials/cre
 import { CredentialType } from "../../../types/constants";
 
 describe(["@tier3"], "Validation of Maven Credentials", () => {
-    const mavenCredentialsUsername = new CredentialsMaven(
-        getRandomCredentialsData(CredentialType.maven)
-    );
+  const mavenCredentialsUsername = new CredentialsMaven(
+    getRandomCredentialsData(CredentialType.maven)
+  );
 
-    it("Creating Maven credentials", () => {
-        mavenCredentialsUsername.create();
-    });
+  it("Creating Maven credentials", () => {
+    mavenCredentialsUsername.create();
+  });
 
-    after("Cleaning up", () => {
-        mavenCredentialsUsername.delete();
-    });
+  after("Cleaning up", () => {
+    mavenCredentialsUsername.delete();
+  });
 });

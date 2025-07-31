@@ -23,42 +23,42 @@ import * as data from "../../../../../../utils/data_utils";
 import { color, tagCount } from "../../../../../types/constants";
 
 describe(["@tier2"], "Tag tagCategory CRUD operations", () => {
-    it("Tag Category CRUD", function () {
-        const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
-        tagCategory.create();
-        exists(tagCategory.name);
+  it("Tag Category CRUD", function () {
+    const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+    tagCategory.create();
+    exists(tagCategory.name);
 
-        let updatedTagType = data.getRandomWord(8);
-        let updatedColor = data.getColor();
-        tagCategory.edit({ name: updatedTagType, color: updatedColor });
-        exists(updatedTagType);
+    let updatedTagType = data.getRandomWord(8);
+    let updatedColor = data.getColor();
+    tagCategory.edit({ name: updatedTagType, color: updatedColor });
+    exists(updatedTagType);
 
-        tagCategory.assertColumnValue(color, updatedColor);
-        tagCategory.delete();
-        notExists(tagCategory.name);
-    });
+    tagCategory.assertColumnValue(color, updatedColor);
+    tagCategory.delete();
+    notExists(tagCategory.name);
+  });
 
-    it("Tag category CRUD with member (tags)", function () {
-        const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
-        tagCategory.create();
-        exists(tagCategory.name);
+  it("Tag category CRUD with member (tags)", function () {
+    const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+    tagCategory.create();
+    exists(tagCategory.name);
 
-        let tagList: Array<Tag> = [];
-        for (let i = 0; i < 2; i++) {
-            const tag = new Tag(data.getRandomWord(6), tagCategory.name);
-            tag.create();
-            tagList.push(tag);
-            cy.wait(2000);
-        }
+    let tagList: Array<Tag> = [];
+    for (let i = 0; i < 2; i++) {
+      const tag = new Tag(data.getRandomWord(6), tagCategory.name);
+      tag.create();
+      tagList.push(tag);
+      cy.wait(2000);
+    }
 
-        let tagAmount = tagList.length;
-        for (let currentTag of tagList) {
-            currentTag.delete();
-            tagAmount -= 1;
-            tagCategory.assertColumnValue(tagCount, tagAmount.toString());
-        }
+    let tagAmount = tagList.length;
+    for (let currentTag of tagList) {
+      currentTag.delete();
+      tagAmount -= 1;
+      tagCategory.assertColumnValue(tagCount, tagAmount.toString());
+    }
 
-        tagCategory.delete();
-        notExists(tagCategory.name);
-    });
+    tagCategory.delete();
+    notExists(tagCategory.name);
+  });
 });

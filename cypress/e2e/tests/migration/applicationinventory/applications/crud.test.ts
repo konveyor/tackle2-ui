@@ -16,34 +16,38 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../../../utils/data_utils";
-import { exists, getRandomApplicationData, notExists } from "../../../../../utils/utils";
+import {
+  exists,
+  getRandomApplicationData,
+  notExists,
+} from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 
 describe(["@tier2"], "Application crud operations", () => {
-    beforeEach("Login", function () {
-        cy.intercept("POST", "/hub/application*").as("postApplication");
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-    });
+  beforeEach("Login", function () {
+    cy.intercept("POST", "/hub/application*").as("postApplication");
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+  });
 
-    it("Application crud", function () {
-        const application = new Application(getRandomApplicationData());
+  it("Application crud", function () {
+    const application = new Application(getRandomApplicationData());
 
-        // Create new application
-        application.create();
-        exists(application.name);
-        cy.wait("@postApplication");
+    // Create new application
+    application.create();
+    exists(application.name);
+    cy.wait("@postApplication");
 
-        // Edit application name
-        var updatedApplicationName = data.getAppName();
-        application.edit({ name: updatedApplicationName });
-        exists(updatedApplicationName);
-        cy.wait("@getApplication");
+    // Edit application name
+    var updatedApplicationName = data.getAppName();
+    application.edit({ name: updatedApplicationName });
+    exists(updatedApplicationName);
+    cy.wait("@getApplication");
 
-        // Delete application
-        application.delete();
-        cy.wait("@getApplication");
+    // Delete application
+    application.delete();
+    cy.wait("@getApplication");
 
-        // Assert that newly created application is deleted
-        notExists(application.name);
-    });
+    // Assert that newly created application is deleted
+    notExists(application.name);
+  });
 });

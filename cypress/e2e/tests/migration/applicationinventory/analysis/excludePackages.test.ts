@@ -16,63 +16,71 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../../../utils/data_utils";
-import { getRandomAnalysisData, getRandomApplicationData, login } from "../../../../../utils/utils";
+import {
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
+} from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
-import { AnalysisStatuses, CredentialType, UserCredentials } from "../../../../types/constants";
+import {
+  AnalysisStatuses,
+  CredentialType,
+  UserCredentials,
+} from "../../../../types/constants";
 
 let source_credential: CredentialsSourceControlUsername;
 let application: Analysis;
 
 describe(["@tier2"], "Exclude package Analysis", () => {
-    before("Login", function () {
-        login();
-        cy.visit("/");
+  before("Login", function () {
+    login();
+    cy.visit("/");
 
-        source_credential = new CredentialsSourceControlUsername(
-            data.getRandomCredentialsData(
-                CredentialType.sourceControl,
-                UserCredentials.usernamePassword,
-                true
-            )
-        );
-        source_credential.create();
+    source_credential = new CredentialsSourceControlUsername(
+      data.getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword,
+        true
+      )
+    );
+    source_credential.create();
+  });
+
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+  });
 
-        cy.intercept("GET", "/hub/application*").as("getApplication");
-    });
+  it("Exclude a package in analysis", function () {
+    const analysisData = this.analysisData["analysis_for_exclude_packages"];
+    application = new Analysis(
+      getRandomApplicationData("testapp-excludePackages", {
+        sourceData: this.appData["tackle-testapp-git"],
+      }),
+      getRandomAnalysisData(analysisData)
+    );
 
-    it("Exclude a package in analysis", function () {
-        const analysisData = this.analysisData["analysis_for_exclude_packages"];
-        application = new Analysis(
-            getRandomApplicationData("testapp-excludePackages", {
-                sourceData: this.appData["tackle-testapp-git"],
-            }),
-            getRandomAnalysisData(analysisData)
-        );
+    application.create();
+    application.manageCredentials(source_credential.name);
+    cy.wait("@getApplication");
 
-        application.create();
-        application.manageCredentials(source_credential.name);
-        cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application.validateExcludedIssues(
+      this.analysisData["analysis_for_exclude_packages"]["issues"]
+    );
+  });
 
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        application.validateExcludedIssues(
-            this.analysisData["analysis_for_exclude_packages"]["issues"]
-        );
-    });
-
-    after("Perform test data clean up", function () {
-        Analysis.open(true);
-        application.delete();
-        source_credential.delete();
-    });
+  after("Perform test data clean up", function () {
+    Analysis.open(true);
+    application.delete();
+    source_credential.delete();
+  });
 });

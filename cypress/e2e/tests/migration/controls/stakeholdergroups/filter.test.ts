@@ -16,24 +16,24 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    applySearchFilter,
-    click,
-    clickByText,
-    createMultipleStakeholderGroups,
-    createMultipleStakeholders,
-    deleteByList,
-    exists,
-    login,
-    selectItemsPerPage,
+  applySearchFilter,
+  click,
+  clickByText,
+  createMultipleStakeholderGroups,
+  createMultipleStakeholders,
+  deleteByList,
+  exists,
+  login,
+  selectItemsPerPage,
 } from "../../../../../utils/utils";
 import {
-    button,
-    clearAllFilters,
-    description,
-    name,
-    stakeholders,
-    tdTag,
-    trTag,
+  button,
+  clearAllFilters,
+  description,
+  name,
+  stakeholders,
+  tdTag,
+  trTag,
 } from "../../../../types/constants";
 
 import * as commonView from "../../../../../e2e/views/common.view";
@@ -46,88 +46,97 @@ let stakeholderGroupsList: Array<Stakeholdergroups> = [];
 const invalidSearchInput = `${data.getRandomNumber()}`;
 
 describe(["@tier3"], "Stakeholder groups filter validations", function () {
-    before("Login and Create Test Data", function () {
-        login();
-        cy.visit("/");
-        stakeholdersList = createMultipleStakeholders(2);
-        stakeholderGroupsList = createMultipleStakeholderGroups(2, stakeholdersList);
-    });
+  before("Login and Create Test Data", function () {
+    login();
+    cy.visit("/");
+    stakeholdersList = createMultipleStakeholders(2);
+    stakeholderGroupsList = createMultipleStakeholderGroups(
+      2,
+      stakeholdersList
+    );
+  });
 
-    beforeEach("Interceptors", function () {
-        cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholderGroups");
-    });
+  beforeEach("Interceptors", function () {
+    cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholderGroups");
+  });
 
-    it("Name filter validations", function () {
-        Stakeholdergroups.openList();
-        cy.get("@getStakeholderGroups");
+  it("Name filter validations", function () {
+    Stakeholdergroups.openList();
+    cy.get("@getStakeholderGroups");
 
-        const validSearchInput = stakeholderGroupsList[0].name.substring(0, 5);
-        applySearchFilter(name, validSearchInput);
-        exists(stakeholderGroupsList[0].name);
-        if (stakeholderGroupsList[1].name.indexOf(validSearchInput) >= 0) {
-            exists(stakeholdersList[1].name);
-        }
+    const validSearchInput = stakeholderGroupsList[0].name.substring(0, 5);
+    applySearchFilter(name, validSearchInput);
+    exists(stakeholderGroupsList[0].name);
+    if (stakeholderGroupsList[1].name.indexOf(validSearchInput) >= 0) {
+      exists(stakeholdersList[1].name);
+    }
 
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-        applySearchFilter(name, invalidSearchInput);
-        cy.get("h2").contains("No stakeholder group available");
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-    });
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+    applySearchFilter(name, invalidSearchInput);
+    cy.get("h2").contains("No stakeholder group available");
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+  });
 
-    it("Description filter validations", function () {
-        Stakeholdergroups.openList();
-        cy.get("@getStakeholderGroups");
+  it("Description filter validations", function () {
+    Stakeholdergroups.openList();
+    cy.get("@getStakeholderGroups");
 
-        const validSearchInput = stakeholderGroupsList[0].description.substring(0, 3);
-        applySearchFilter(description, validSearchInput);
+    const validSearchInput = stakeholderGroupsList[0].description.substring(
+      0,
+      3
+    );
+    applySearchFilter(description, validSearchInput);
 
-        // Assert that stakeholder groups row(s) containing the search text is/are displayed
-        exists(stakeholderGroupsList[0].description);
-        if (stakeholderGroupsList[1].description.indexOf(validSearchInput) >= 0) {
-            exists(stakeholderGroupsList[1].description);
-        }
+    // Assert that stakeholder groups row(s) containing the search text is/are displayed
+    exists(stakeholderGroupsList[0].description);
+    if (stakeholderGroupsList[1].description.indexOf(validSearchInput) >= 0) {
+      exists(stakeholderGroupsList[1].description);
+    }
 
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-        applySearchFilter(description, invalidSearchInput);
-        cy.get("h2").contains("No stakeholder group available");
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-    });
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+    applySearchFilter(description, invalidSearchInput);
+    cy.get("h2").contains("No stakeholder group available");
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+  });
 
-    it("Member filter validations", function () {
-        Stakeholdergroups.openList();
-        cy.get("@getStakeholderGroups");
+  it("Member filter validations", function () {
+    Stakeholdergroups.openList();
+    cy.get("@getStakeholderGroups");
 
-        const validSearchInput = stakeholderGroupsList[0].members[0].substring(0, 3);
-        applySearchFilter(stakeholders, validSearchInput);
+    const validSearchInput = stakeholderGroupsList[0].members[0].substring(
+      0,
+      3
+    );
+    applySearchFilter(stakeholders, validSearchInput);
 
-        selectItemsPerPage(100);
-        cy.get(tdTag)
-            .contains(stakeholderGroupsList[0].name)
-            .parent(trTag)
-            .within(() => {
-                click(commonView.expandRow);
-            })
-            .get("div > dd")
-            .should("contain", stakeholderGroupsList[0].members[0]);
+    selectItemsPerPage(100);
+    cy.get(tdTag)
+      .contains(stakeholderGroupsList[0].name)
+      .parent(trTag)
+      .within(() => {
+        click(commonView.expandRow);
+      })
+      .get("div > dd")
+      .should("contain", stakeholderGroupsList[0].members[0]);
 
-        if (stakeholderGroupsList[1].members[0].indexOf(validSearchInput) >= 0) {
-            exists(stakeholderGroupsList[1].members[0]);
-        }
+    if (stakeholderGroupsList[1].members[0].indexOf(validSearchInput) >= 0) {
+      exists(stakeholderGroupsList[1].members[0]);
+    }
 
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-        applySearchFilter(stakeholders, invalidSearchInput);
-        cy.get("h2").contains("No stakeholder group available");
-        clickByText(button, clearAllFilters);
-        cy.get("@getStakeholderGroups");
-    });
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+    applySearchFilter(stakeholders, invalidSearchInput);
+    cy.get("h2").contains("No stakeholder group available");
+    clickByText(button, clearAllFilters);
+    cy.get("@getStakeholderGroups");
+  });
 
-    after("Perform test data clean up", function () {
-        deleteByList(stakeholdersList);
-        deleteByList(stakeholderGroupsList);
-    });
+  after("Perform test data clean up", function () {
+    deleteByList(stakeholdersList);
+    deleteByList(stakeholderGroupsList);
+  });
 });

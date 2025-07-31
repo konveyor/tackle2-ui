@@ -16,130 +16,152 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-    deleteByList,
-    getRandomAnalysisData,
-    getRandomApplicationData,
-    login,
+  deleteByList,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+  login,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { AnalysisStatuses } from "../../../../types/constants";
 
 const applicationsList: Analysis[] = [];
 describe(["@tier2"], "Upload Binary Analysis", () => {
-    beforeEach("Load data", function () {
-        cy.fixture("application").then(function (appData) {
-            this.appData = appData;
-        });
-        cy.fixture("analysis").then(function (analysisData) {
-            this.analysisData = analysisData;
-        });
-
-        cy.intercept("GET", "/hub/application*").as("getApplication");
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
     });
 
-    it(["@interop", "@tier1"], "Analysis for acmeair app upload binary", function () {
-        const application = new Analysis(
-            getRandomApplicationData("acmeair_app"),
-            getRandomAnalysisData(this.analysisData["uploadbinary_analysis_on_acmeair"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        application.verifyEffort(this.analysisData["uploadbinary_analysis_on_acmeair"]["effort"]);
-    });
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+  });
 
-    it(["@tier1"], "Custom rules with custom targets", function () {
-        // Automated https://issues.redhat.com/browse/TACKLE-561
-        const application = new Analysis(
-            getRandomApplicationData("customRule_customTarget"),
-            getRandomAnalysisData(this.analysisData["uploadbinary_analysis_with_customrule"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        application.verifyEffort(
-            this.analysisData["uploadbinary_analysis_with_customrule"]["effort"]
-        );
-    });
+  it(
+    ["@interop", "@tier1"],
+    "Analysis for acmeair app upload binary",
+    function () {
+      const application = new Analysis(
+        getRandomApplicationData("acmeair_app"),
+        getRandomAnalysisData(
+          this.analysisData["uploadbinary_analysis_on_acmeair"]
+        )
+      );
+      application.create();
+      applicationsList.push(application);
+      cy.wait("@getApplication");
+      application.analyze();
+      application.verifyAnalysisStatus(AnalysisStatuses.completed);
+      application.verifyEffort(
+        this.analysisData["uploadbinary_analysis_on_acmeair"]["effort"]
+      );
+    }
+  );
 
-    it("Analysis for spring-petclinic application", function () {
-        const application = new Analysis(
-            getRandomApplicationData("spring"),
-            getRandomAnalysisData(this.analysisData["analysis_for_spring_petclinic_app"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
+  it(["@tier1"], "Custom rules with custom targets", function () {
+    // Automated https://issues.redhat.com/browse/TACKLE-561
+    const application = new Analysis(
+      getRandomApplicationData("customRule_customTarget"),
+      getRandomAnalysisData(
+        this.analysisData["uploadbinary_analysis_with_customrule"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application.verifyEffort(
+      this.analysisData["uploadbinary_analysis_with_customrule"]["effort"]
+    );
+  });
 
-    it("Analysis for jee-example-app upload binary", function () {
-        const application = new Analysis(
-            getRandomApplicationData("uploadBinary"),
-            getRandomAnalysisData(
-                this.analysisData["analysis_and_incident_validation_jeeExample_app"]
-            )
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus("Completed");
-        application.verifyEffort(
-            this.analysisData["analysis_and_incident_validation_jeeExample_app"]["effort"]
-        );
-    });
+  it("Analysis for spring-petclinic application", function () {
+    const application = new Analysis(
+      getRandomApplicationData("spring"),
+      getRandomAnalysisData(
+        this.analysisData["analysis_for_spring_petclinic_app"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
 
-    it("Analysis for camunda-bpm-spring-boot-starter", function () {
-        const application = new Analysis(
-            getRandomApplicationData("uploadBinary"),
-            getRandomAnalysisData(this.analysisData["analysis_and_incident_validation_camunda_app"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus("Completed");
-        application.verifyEffort(
-            this.analysisData["analysis_and_incident_validation_camunda_app"]["effort"]
-        );
-    });
+  it("Analysis for jee-example-app upload binary", function () {
+    const application = new Analysis(
+      getRandomApplicationData("uploadBinary"),
+      getRandomAnalysisData(
+        this.analysisData["analysis_and_incident_validation_jeeExample_app"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus("Completed");
+    application.verifyEffort(
+      this.analysisData["analysis_and_incident_validation_jeeExample_app"][
+        "effort"
+      ]
+    );
+  });
 
-    it("Analysis for kafka-clients-sb app", function () {
-        const application = new Analysis(
-            getRandomApplicationData("uploadBinary"),
-            getRandomAnalysisData(this.analysisData["analysis_and_incident_validation_kafka-app"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-        application.verifyEffort(
-            this.analysisData["analysis_and_incident_validation_kafka-app"]["effort"]
-        );
-    });
+  it("Analysis for camunda-bpm-spring-boot-starter", function () {
+    const application = new Analysis(
+      getRandomApplicationData("uploadBinary"),
+      getRandomAnalysisData(
+        this.analysisData["analysis_and_incident_validation_camunda_app"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus("Completed");
+    application.verifyEffort(
+      this.analysisData["analysis_and_incident_validation_camunda_app"][
+        "effort"
+      ]
+    );
+  });
 
-    it("upload_binary_with_exculde_packages_scope", function () {
-        const application = new Analysis(
-            getRandomApplicationData("uploadBinary"),
-            getRandomAnalysisData(this.analysisData["upload_binary_with_exculde_packages"])
-        );
-        application.create();
-        applicationsList.push(application);
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    });
+  it("Analysis for kafka-clients-sb app", function () {
+    const application = new Analysis(
+      getRandomApplicationData("uploadBinary"),
+      getRandomAnalysisData(
+        this.analysisData["analysis_and_incident_validation_kafka-app"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application.verifyEffort(
+      this.analysisData["analysis_and_incident_validation_kafka-app"]["effort"]
+    );
+  });
 
-    after("Perform test data clean up", function () {
-        login();
-        cy.visit("/");
-        deleteByList(applicationsList);
-    });
+  it("upload_binary_with_exculde_packages_scope", function () {
+    const application = new Analysis(
+      getRandomApplicationData("uploadBinary"),
+      getRandomAnalysisData(
+        this.analysisData["upload_binary_with_exculde_packages"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
+
+  after("Perform test data clean up", function () {
+    login();
+    cy.visit("/");
+    deleteByList(applicationsList);
+  });
 });
