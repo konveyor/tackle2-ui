@@ -183,7 +183,7 @@ export const useApplicationForm = ({
       assetKind: string().oneOf(["", "git", "subversion"]),
       assetRepository: string().when("assetKind", {
         is: (kind: string) => kind !== "",
-        then: (schema) => schema.repositoryUrl("kind").required(),
+        then: (schema) => schema.repositoryUrl("assetKind").required(),
       }),
       assetBranch: string()
         .trim()

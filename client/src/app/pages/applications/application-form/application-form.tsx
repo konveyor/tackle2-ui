@@ -148,7 +148,6 @@ export const ApplicationForm: React.FC<{
                 onClear={() => onChange("")}
                 onChange={(selection) => {
                   const selectionValue = selection as OptionWithValue<string>;
-                  console.log({ selection });
                   onChange(selectionValue.value);
                 }}
                 onBlur={onChange}
