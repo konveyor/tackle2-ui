@@ -1,8 +1,10 @@
 import * as React from "react";
-import { Button, ButtonVariant, Modal } from "@patternfly/react-core";
-import { ApplicationForm, useApplicationFormHook } from "./application-form";
-import { Application } from "@app/api/models";
 import { useTranslation } from "react-i18next";
+import { Button, ButtonVariant, Modal } from "@patternfly/react-core";
+
+import { Application } from "@app/api/models";
+import { ApplicationForm } from "./application-form";
+import { useApplicationForm } from "./useApplicationForm";
 
 export interface ApplicationFormModalProps {
   application: Application | null;
@@ -14,7 +16,7 @@ export const ApplicationFormModal: React.FC<ApplicationFormModalProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const formProps = useApplicationFormHook({ application, onClose });
+  const formProps = useApplicationForm({ application, onClose });
   return (
     <Modal
       title={
