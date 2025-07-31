@@ -24,7 +24,8 @@ describe("Component: application-form", () => {
       }),
       rest.get("/hub/stakeholders", (_, res, ctx) => res(ctx.json([]))),
       rest.get("/hub/applications", (_, res, ctx) => res(ctx.json([]))),
-      rest.get("/hub/tagCategories", (_, res, ctx) => res(ctx.json([])))
+      rest.get("/hub/tagCategories", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/platforms", (_, res, ctx) => res(ctx.json([])))
     );
   });
 
@@ -86,16 +87,18 @@ describe("Component: application-form", () => {
     expect(createButton).not.toBeEnabled();
 
     // type in a valid git repo URL, and the create button should be enabled again
+    const sourceRepositoryInput = await screen.findByLabelText(
+      "source repository url"
+    );
     await waitFor(() => {
-      fireEvent.change(
-        screen.getByRole("textbox", {
-          name: "source repository url",
-        }),
-        {
-          target: { value: data.repoUrl },
-        }
-      );
+      fireEvent.change(sourceRepositoryInput, {
+        target: { value: data.repoUrl },
+      });
     });
-    expect(createButton).toBeEnabled();
+
+    // Wait for form validation to complete before checking if button is enabled
+    await waitFor(() => {
+      expect(createButton).toBeEnabled();
+    });
   }, 10000);
 });
