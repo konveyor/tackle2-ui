@@ -24,6 +24,7 @@ export const TabPlatformContent: React.FC<{
     <DrawerTabContent>
       <DrawerTabContentSection label={t("terms.sourcePlatform")}>
         {application.platform?.name || <EmptyTextMessage />}
+        {/* TODO: Do we need to add the platform details here? */}
       </DrawerTabContentSection>
 
       <DrawerTabContentSection label={t("terms.sourcePlatformCoordinates")}>
@@ -39,6 +40,7 @@ export const TabPlatformContent: React.FC<{
 
       <DrawerTabContentSection label={t("terms.assetRepository")}>
         {application.assets ? (
+          // TODO: Align this with the source code details render in tab-details-content.tsx
           <RepositoryDetails repository={application.assets} />
         ) : (
           <EmptyTextMessage />

@@ -19,19 +19,16 @@
   min-height: 0; /* keep the content from growing beyond the .drawer-tabs-container */
 }
 
-.drawer-tabs-container .drawer-tab-content {
+.drawer-tab-content {
   height: 100%;
   overflow-y: auto;
 }
 
-.drawer-tabs-container .drawer-tab-content__section {
+.drawer-tab-content__section-label {
   padding-block-start: var(--pf-v5-global--spacer--md);
-}
-
-.drawer-tabs-container .drawer-tab-content__section h4 {
   margin-block-end: var(--pf-v5-global--spacer--xs);
 }
 
-.drawer-tabs-container .drawer-tab-content__section-content {
-  padding-left: var(--pf-v5-global--spacer--sm);
+.drawer-tab-content__section-content {
+  padding-left: var(--pf-v5-global--spacer--xs);
 }

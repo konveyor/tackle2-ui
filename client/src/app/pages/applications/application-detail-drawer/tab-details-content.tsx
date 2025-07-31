@@ -12,8 +12,15 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   DescriptionListDescription,
+  GridItem,
+  Grid,
+  Button,
+  TextVariants,
+  Spinner,
+  Tooltip,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { EditIcon, UnlinkIcon } from "@patternfly/react-icons";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
@@ -24,7 +31,12 @@ import {
 } from "@app/pages/issues/helpers";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Archetype } from "@app/api/models";
-import { ApplicationDetailFields } from "./application-detail-fields";
+import {
+  DrawerTabContent,
+  DrawerTabContentSection,
+} from "@app/components/detail-drawer";
+import { useFetchTickets } from "@app/queries/tickets";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 
 const ApplicationArchetypesLabels: React.FC<{
   application: DecoratedApplication;
@@ -53,103 +65,269 @@ export const TabDetailsContent: React.FC<{
 }> = ({ application, onCloseClick, onEditClick }) => {
   const { t } = useTranslation();
   return (
-    <>
-      <TextContent className={`${spacing.mtMd} ${spacing.mbMd}`}>
-        <Text component="small">{application?.description}</Text>
+    <DrawerTabContent>
+      <TextContent className={spacing.mtMd}>
+        <Text component="small">{application.description}</Text>
         <List isPlain>
-          {application ? (
-            <>
-              <ListItem>
-                <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
-                  Issues
-                </Link>
-              </ListItem>
-              <ListItem>
-                <Link
-                  to={getDependenciesUrlFilteredByAppName(application?.name)}
-                >
-                  Dependencies
-                </Link>
-              </ListItem>
-            </>
-          ) : null}
+          <ListItem>
+            <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
+              Issues
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link to={getDependenciesUrlFilteredByAppName(application?.name)}>
+              Dependencies
+            </Link>
+          </ListItem>
         </List>
       </TextContent>
 
-      <Title headingLevel="h3" size="md">
-        {t("terms.effort")}
-      </Title>
-      <Text component="small">
+      <DrawerTabContentSection label={t("terms.effort")}>
         <Text component="small">
-          {application?.effort !== 0 && application?.effort !== undefined
-            ? application?.effort
-            : t("terms.unassigned")}
+          {application?.effort !== 0 && application?.effort !== undefined ? (
+            application?.effort
+          ) : (
+            <EmptyTextMessage message={t("terms.unassigned")} />
+          )}
         </Text>
-      </Text>
+      </DrawerTabContentSection>
 
-      <Title headingLevel="h3" size="md">
-        {t("terms.archetypes")}
-      </Title>
-      <DescriptionList
-        isHorizontal
-        isCompact
-        columnModifier={{ default: "1Col" }}
-        horizontalTermWidthModifier={{
-          default: "15ch",
-        }}
-      >
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.associatedArchetypes")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels application={application} />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+      <DrawerTabContentSection label={t("terms.archetypes")}>
+        <DescriptionList
+          isHorizontal
+          isCompact
+          columnModifier={{ default: "1Col" }}
+          horizontalTermWidthModifier={{
+            default: "15ch",
+          }}
+        >
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              {t("terms.associatedArchetypes")}
+            </DescriptionListTerm>
+            <DescriptionListDescription>
+              <ApplicationArchetypesLabels application={application} />
+            </DescriptionListDescription>
+          </DescriptionListGroup>
 
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.archetypesAssessed")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels
-              application={application}
-              filter={
-                // Filter matches the archetype table's assessment column
-                (archetype) => !!archetype.assessed
-              }
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              {t("terms.archetypesAssessed")}
+            </DescriptionListTerm>
+            <DescriptionListDescription>
+              <ApplicationArchetypesLabels
+                application={application}
+                filter={
+                  // Filter matches the archetype table's assessment column
+                  (archetype) => !!archetype.assessed
+                }
+              />
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              {t("terms.archetypesReviewed")}
+            </DescriptionListTerm>
+            <DescriptionListDescription>
+              <ApplicationArchetypesLabels
+                application={application}
+                filter={
+                  // Filter matches the archetype table's review column
+                  (archetype) => !!archetype.review
+                }
+              />
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        </DescriptionList>
+      </DrawerTabContentSection>
+
+      <DrawerTabContentSection label={t("terms.riskFromApplication")}>
+        <Text component="small" cy-data="risk">
+          <RiskLabel risk={application?.risk} />
+        </Text>
+      </DrawerTabContentSection>
+
+      <TextContent className={spacing.mtLg}>
+        <Grid>
+          <GridItem span={6}>
+            <Title headingLevel="h3" size="md">
+              {t("terms.applicationInformation")}
+            </Title>
+          </GridItem>
+          <GridItem span={1}>
+            <Button
+              style={{ paddingTop: "0px", paddingBottom: "0px" }}
+              variant="link"
+              aria-label="Edit"
+              onClick={() => {
+                onEditClick();
+                onCloseClick();
+              }}
+              icon={<EditIcon />}
             />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+          </GridItem>
+        </Grid>
+      </TextContent>
 
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("terms.archetypesReviewed")}
-          </DescriptionListTerm>
-          <DescriptionListDescription>
-            <ApplicationArchetypesLabels
-              application={application}
-              filter={
-                // Filter matches the archetype table's review column
-                (archetype) => !!archetype.review
-              }
+      <DrawerTabContentSection>
+        <DrawerTabContentSection label={t("terms.owner")}>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.owner?.name ?? <EmptyTextMessage />}
+          </Text>
+        </DrawerTabContentSection>
+
+        <DrawerTabContentSection label={t("terms.contributors")}>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.contributors?.length ? (
+              application.contributors
+                .map((contributor) => contributor.name)
+                .join(", ")
+            ) : (
+              <EmptyTextMessage />
+            )}
+          </Text>
+        </DrawerTabContentSection>
+
+        {/* TODO: Extract and add source code details render to common components and reuse where repositories are rendered */}
+        <DrawerTabContentSection label={t("terms.sourceCode")}>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {t("terms.repositoryType")}
+            {": "}
+          </Text>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.repository?.kind}
+          </Text>
+          <br />
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            <a href={application?.repository?.url} target="_">
+              {application?.repository?.url}
+            </a>
+          </Text>
+          <br />
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {t("terms.branch")}
+            {": "}
+          </Text>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.repository?.branch}
+          </Text>
+          <br />
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {t("terms.rootPath")}
+            {": "}
+          </Text>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.repository?.path}
+          </Text>
+        </DrawerTabContentSection>
+
+        <DrawerTabContentSection label={t("terms.binary")}>
+          <Text
+            component={TextVariants.small}
+            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          >
+            {application?.binary || <EmptyTextMessage />}
+          </Text>
+        </DrawerTabContentSection>
+
+        <DrawerTabContentSection label={t("terms.businessService")}>
+          <Text component="small">
+            {application.direct.businessService?.name || (
+              <EmptyTextMessage message={t("terms.unassigned")} />
+            )}
+          </Text>
+        </DrawerTabContentSection>
+
+        <DrawerTabContentSection label={t("terms.migrationWave")}>
+          <MigrationWaveDetails application={application} />
+        </DrawerTabContentSection>
+
+        <DrawerTabContentSection label={t("terms.commentsFromApplication")}>
+          <Text component="small" cy-data="comments">
+            {application?.comments || <EmptyTextMessage />}
+          </Text>
+        </DrawerTabContentSection>
+      </DrawerTabContentSection>
+    </DrawerTabContent>
+  );
+};
+
+const MigrationWaveDetails: React.FC<{
+  application: DecoratedApplication;
+}> = ({ application }) => {
+  const { t } = useTranslation();
+  const { mutate: deleteTicket, isPending } = useDeleteTicketMutation();
+  const { tickets } = useFetchTickets();
+  const matchingTicket = tickets?.find(
+    (ticket) => ticket.application?.id === application?.id
+  );
+
+  return (
+    <Text
+      component={TextVariants.small}
+      className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+    >
+      {application?.migrationWave ? (
+        `Wave name: ${application?.migrationWave.name}`
+      ) : (
+        <i>{`Wave name: ${t("terms.unassigned")}`}</i>
+      )}
+      <br />
+      {matchingTicket ? (
+        <>
+          Ticket:{" "}
+          <a href={matchingTicket.link} target="_">
+            {matchingTicket?.link}
+          </a>
+        </>
+      ) : (
+        <i>{`Ticket: ${t("terms.unassigned")}`}</i>
+      )}
+      {matchingTicket?.id ? (
+        isPending ? (
+          <Spinner role="status" size="sm" />
+        ) : (
+          <Tooltip
+            content={t("message.unlinkTicket")}
+            position="top"
+            entryDelay={1000}
+          >
+            <Button
+              variant="link"
+              icon={<UnlinkIcon />}
+              onClick={() => deleteTicket(matchingTicket.id)}
             />
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      </DescriptionList>
-
-      <Title headingLevel="h3" size="md">
-        {t("terms.riskFromApplication")}
-      </Title>
-      <Text component="small" cy-data="comments">
-        <RiskLabel risk={application?.risk} />
-      </Text>
-
-      <ApplicationDetailFields
-        application={application}
-        onEditClick={onEditClick}
-        onCloseClick={onCloseClick}
-      />
-    </>
+          </Tooltip>
+        )
+      ) : null}
+    </Text>
   );
 };
