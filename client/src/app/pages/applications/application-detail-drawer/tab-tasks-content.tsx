@@ -60,7 +60,6 @@ export const TabTasksContent: React.FC<{
           what: "ID...",
         }),
         getServerFilterValue: (value) => {
-          console.log("this id:", value);
           return value ? value : [];
         },
       },
