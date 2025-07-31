@@ -60,6 +60,10 @@ export interface FormValues {
   version: string;
   packaging: string;
   sourcePlatform: string;
+  assetKind: string;
+  assetRepository: string;
+  assetBranch: string;
+  assetRootPath: string;
 }
 
 export interface ApplicationFormProps {
@@ -225,6 +229,19 @@ export const useApplicationFormHook = ({
           then: (schema) => schema.required("This field is required."),
           otherwise: (schema) => schema.trim(),
         }),
+
+      // asset repository fields
+      assetKind: string().oneOf(["", "git", "subversion"]),
+      assetRepository: string().when("assetKind", {
+        is: (kind: string) => kind !== "",
+        then: (schema) => schema.repositoryUrl("kind").required(),
+      }),
+      assetBranch: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
+      assetRootPath: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
     },
     [
       ["version", "group"],
@@ -266,6 +283,10 @@ export const useApplicationFormHook = ({
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
       sourcePlatform: platform?.name || "",
+      assetKind: application?.assets?.kind || "",
+      assetRepository: application?.assets?.url || "",
+      assetBranch: application?.assets?.branch || "",
+      assetRootPath: application?.assets?.path || "",
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -306,6 +327,15 @@ export const useApplicationFormHook = ({
       binary:
         binaryValues.length > 0 ? `mvn://${binaryValues.join(":")}` : undefined,
 
+      ...(formValues.assetKind && {
+        assets: {
+          kind: formValues.assetKind.trim(),
+          url: formValues.assetRepository.trim(),
+          branch: formValues.assetBranch.trim(),
+          path: formValues.assetRootPath.trim(),
+        },
+      }),
+
       // Values not editable on the form but still need to be passed through
       identities: application?.identities ?? undefined,
       migrationWave: application?.migrationWave ?? null,
@@ -322,6 +352,8 @@ export const useApplicationFormHook = ({
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
+  const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
+    React.useState(false);
 
   const kindOptions = [
     {
@@ -353,6 +385,8 @@ export const useApplicationFormHook = ({
     stakeholders,
     businessServiceOptions,
     sourcePlatformOptions,
+    setAssetRepositoryExpanded,
+    isAssetRepositoryExpanded,
     onSubmit: handleSubmit(onValidSubmit),
   };
 };
@@ -374,6 +408,8 @@ export const ApplicationForm: React.FC<
   stakeholders,
   businessServiceOptions,
   sourcePlatformOptions,
+  setAssetRepositoryExpanded,
+  isAssetRepositoryExpanded,
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
@@ -659,6 +695,58 @@ export const ApplicationForm: React.FC<
                 </span>
               </Popover>
             }
+          />
+        </div>
+      </ExpandableSection>
+
+      <ExpandableSection
+        toggleText={t("terms.assetRepository")}
+        className="toggle"
+        onToggle={() => setAssetRepositoryExpanded(!isAssetRepositoryExpanded)}
+        isExpanded={isAssetRepositoryExpanded}
+      >
+        <div className="pf-v5-c-form">
+          <HookFormPFGroupController
+            control={control}
+            name="assetKind"
+            label="Asset repository type"
+            fieldId="asset-repository-type-select"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                toggleId="asset-repo-type-toggle"
+                toggleAriaLabel="Type select dropdown toggle"
+                aria-label={name}
+                value={value ? toOptionLike(value, kindOptions) : undefined}
+                options={kindOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                  trigger("assetRepository");
+                }}
+              />
+            )}
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="assetRepository"
+            label={t("terms.assetRepository")}
+            fieldId="assetRepository"
+            aria-label="asset repository url"
+            isRequired={kindOptions.some(({ value }) => value === watchKind)}
+          />
+          <HookFormPFTextInput
+            control={control}
+            type="text"
+            aria-label="Repository branch"
+            name="assetBranch"
+            label={t("terms.sourceBranch")}
+            fieldId="assetBranch"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="assetRootPath"
+            label={t("terms.sourceRootPath")}
+            fieldId="assetRootPath"
           />
         </div>
       </ExpandableSection>

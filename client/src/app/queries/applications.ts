@@ -112,8 +112,8 @@ export const useUpdateApplicationMutation = (
   return useMutation({
     mutationFn: updateApplication,
     onSuccess: (_res, payload) => {
-      onSuccess(payload);
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      onSuccess(payload);
     },
     onError: onError,
   });
@@ -127,8 +127,8 @@ export const useUpdateAllApplicationsMutation = (
   return useMutation({
     mutationFn: updateAllApplications,
     onSuccess: (res) => {
-      onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      onSuccess(res);
     },
     onError: onError,
   });
@@ -142,8 +142,8 @@ export const useCreateApplicationMutation = (
   return useMutation({
     mutationFn: createApplication,
     onSuccess: (application: Application, payload: New<Application>) => {
-      onSuccess(application, payload);
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      onSuccess(application, payload);
     },
     onError: onError,
   });
@@ -157,8 +157,8 @@ export const useDeleteApplicationMutation = (
   return useMutation({
     mutationFn: ({ id }: { id: number }) => deleteApplication(id),
     onSuccess: (_res) => {
-      onSuccess(1);
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      onSuccess(1);
     },
     onError: onError,
   });
