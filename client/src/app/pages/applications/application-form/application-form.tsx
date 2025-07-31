@@ -352,6 +352,8 @@ export const useApplicationFormHook = ({
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(false);
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(false);
+  const [isSourcePlatformExpanded, setSourcePlatformExpanded] =
+    React.useState(true);
   const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
     React.useState(false);
 
@@ -385,6 +387,8 @@ export const useApplicationFormHook = ({
     stakeholders,
     businessServiceOptions,
     sourcePlatformOptions,
+    setSourcePlatformExpanded,
+    isSourcePlatformExpanded,
     setAssetRepositoryExpanded,
     isAssetRepositoryExpanded,
     onSubmit: handleSubmit(onValidSubmit),
@@ -408,6 +412,8 @@ export const ApplicationForm: React.FC<
   stakeholders,
   businessServiceOptions,
   sourcePlatformOptions,
+  setSourcePlatformExpanded,
+  isSourcePlatformExpanded,
   setAssetRepositoryExpanded,
   isAssetRepositoryExpanded,
 }) => {
@@ -570,34 +576,6 @@ export const ApplicationForm: React.FC<
             fieldId="comments"
             resizeOrientation="vertical"
           />
-          <HookFormPFGroupController
-            control={control}
-            name="sourcePlatform"
-            label={t("terms.sourcePlatform")}
-            fieldId="sourcePlatform"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                placeholderText={t("composed.selectOne", {
-                  what: t("terms.sourcePlatform").toLowerCase(),
-                })}
-                variant="typeahead"
-                toggleId="source-platform-toggle"
-                id="source-platform-select"
-                toggleAriaLabel="Source platform select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, sourcePlatformOptions) : undefined
-                }
-                options={sourcePlatformOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onClear={() => onChange("")}
-              />
-            )}
-          />
         </div>
       </ExpandableSection>
 
@@ -696,6 +674,45 @@ export const ApplicationForm: React.FC<
               </Popover>
             }
           />
+        </div>
+      </ExpandableSection>
+
+      <ExpandableSection
+        toggleText={t("terms.sourcePlatform")}
+        className="toggle"
+        onToggle={() => setSourcePlatformExpanded(!isSourcePlatformExpanded)}
+        isExpanded={isSourcePlatformExpanded}
+      >
+        <div className="pf-v5-c-form">
+          <HookFormPFGroupController
+            control={control}
+            name="sourcePlatform"
+            label={t("terms.sourcePlatform")}
+            fieldId="sourcePlatform"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SimpleSelect
+                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.sourcePlatform").toLowerCase(),
+                })}
+                variant="typeahead"
+                toggleId="source-platform-toggle"
+                id="source-platform-select"
+                toggleAriaLabel="Source platform select dropdown toggle"
+                aria-label={name}
+                value={
+                  value ? toOptionLike(value, sourcePlatformOptions) : undefined
+                }
+                options={sourcePlatformOptions}
+                onChange={(selection) => {
+                  const selectionValue = selection as OptionWithValue<string>;
+                  onChange(selectionValue.value);
+                }}
+                onClear={() => onChange("")}
+              />
+            )}
+          />
+          {/* TODO: Add source platform coordinates */}
         </div>
       </ExpandableSection>
 
