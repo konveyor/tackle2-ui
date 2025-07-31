@@ -198,56 +198,72 @@ export const TabDetailsContent: React.FC<{
 
         {/* TODO: Extract and add source code details render to common components and reuse where repositories are rendered */}
         <DrawerTabContentSection label={t("terms.sourceCode")}>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {t("terms.repositoryType")}
-            {": "}
-          </Text>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {application?.repository?.kind}
-          </Text>
-          <br />
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            <ExternalLink href={application?.repository?.url ?? ""} isInline>
-              {application?.repository?.url}
-            </ExternalLink>
-          </Text>
-          <br />
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {t("terms.branch")}
-            {": "}
-          </Text>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {application?.repository?.branch}
-          </Text>
-          <br />
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {t("terms.rootPath")}
-            {": "}
-          </Text>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-          >
-            {application?.repository?.path}
-          </Text>
+          {application.repository &&
+          application.repository.kind &&
+          application.repository.url ? (
+            <>
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {t("terms.repositoryType")}
+                {": "}
+              </Text>
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {application?.repository?.kind}
+              </Text>
+              <br />
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                <ExternalLink
+                  href={application?.repository?.url ?? ""}
+                  isInline
+                >
+                  {application?.repository?.url}
+                </ExternalLink>
+              </Text>
+              <br />
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {t("terms.branch")}
+                {": "}
+              </Text>
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {application?.repository?.branch}
+              </Text>
+              <br />
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {t("terms.rootPath")}
+                {": "}
+              </Text>
+              <Text
+                component={TextVariants.small}
+                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              >
+                {application?.repository?.path}
+              </Text>
+            </>
+          ) : (
+            <Text
+              component={TextVariants.small}
+              className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            >
+              <EmptyTextMessage />
+            </Text>
+          )}
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.binary")}>
