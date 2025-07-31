@@ -1001,3 +1001,19 @@ export interface JsonSchemaObject {
   /** For type object, whether additional properties are allowed */
   additionalProperties?: boolean;
 }
+
+export interface Schema {
+  name: string;
+  domain: string;
+  variant: string;
+  subject: string;
+  versions: Array<{
+    id: number;
+    definition: JsonSchemaObject;
+  }>;
+}
+
+export interface TargetedSchema {
+  name: string;
+  definition: JsonSchemaObject;
+}
