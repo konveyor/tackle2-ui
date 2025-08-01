@@ -3,13 +3,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { TFunction } from "i18next";
 import * as yup from "yup";
 
+const fallbackT = (k: string, v?: object) => `${k}: ${JSON.stringify(v)}`;
+
 export const jsonSchemaToYupSchema = (
   jsonSchema: JsonSchemaObject,
   translate?:
     | TFunction<"translation", undefined>
     | ((k: string, v?: object) => string)
 ): yup.AnySchema => {
-  const fallbackT = (k: string, v?: object) => `${k}: ${JSON.stringify(v)}`;
   const t = translate || fallbackT;
 
   if (jsonSchema.type === "array") {

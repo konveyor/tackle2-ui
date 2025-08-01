@@ -122,6 +122,8 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 
 export * from "./rest/analysis";
 export * from "./rest/files";
+export * from "./rest/schemas";
+export * from "./rest/generators";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with

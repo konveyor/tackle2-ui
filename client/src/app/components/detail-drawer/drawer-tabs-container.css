@@ -1,0 +1,34 @@
+.drawer-tabs-container {
+  flex-grow: 1;
+  position: relative;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-tabs-container .pf-v5-c-tabs {
+  --pf-v5-c-tabs__scroll-button--Width: 2.5rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.drawer-tabs-container > :not(.pf-v5-c-tabs) {
+  flex-grow: 1;
+  position: relative;
+  min-height: 0; /* keep the content from growing beyond the .drawer-tabs-container */
+}
+
+.drawer-tab-content {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.drawer-tab-content__section-label {
+  padding-block-start: var(--pf-v5-global--spacer--md);
+  margin-block-end: var(--pf-v5-global--spacer--xs);
+}
+
+.drawer-tab-content__section-content {
+  padding-left: var(--pf-v5-global--spacer--xs);
+}
