@@ -128,12 +128,12 @@ import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 
 const filterAndAddSeparator = <T,>(
   separator: T,
-  groups: (T | undefined | false | null)[][]
-): T[] => {
+  groups: Array<Array<T | Falsy>>
+): Array<T> => {
   return groups
-    .map((items) => items.filter(Boolean))
-    .filter((items) => items.length > 0)
-    .flatMap((items, index) => (index === 0 ? items : [separator, ...items]));
+    .map<Array<T>>((group) => group.filter(Boolean))
+    .filter((group) => group.length > 0)
+    .flatMap((group, index) => (index === 0 ? group : [separator, ...group]));
 };
 
 export const ApplicationsTable: React.FC = () => {
@@ -688,7 +688,7 @@ export const ApplicationsTable: React.FC = () => {
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
-  const toolbarKebabItems = filterAndAddSeparator<React.ReactNode>(
+  const toolbarKebabItems = filterAndAddSeparator(
     <DropdownSeparator key="breakpoint" />,
     [
       [
@@ -757,7 +757,6 @@ export const ApplicationsTable: React.FC = () => {
         ),
       ],
       [
-        <DropdownSeparator key="breakpoint" />,
         <DropdownItem
           key="change-source-platform-applications"
           isDisabled={true}
@@ -772,9 +771,7 @@ export const ApplicationsTable: React.FC = () => {
               selectedRows.length < 1 ||
               !selectedRows.some((app) => app.platform?.id)
             }
-            onClick={() => {
-              setRetrieveConfigModalOpen(true);
-            }}
+            onClick={() => handleRetrieveConfigurationsBulk(selectedRows)}
           >
             {t("actions.retrieveConfigurations")}
           </DropdownItem>
@@ -784,7 +781,7 @@ export const ApplicationsTable: React.FC = () => {
         //   key="generate-assets-for-applications"
         //   component="button"
         //   isDisabled={selectedRows.length < 1}
-        //   onClick={() => console.log("generate assets")}
+        //   onClick={() => handleGenerateAssetsBulk(selectedRows)}
         // >
         //   {t("actions.generateAssets")}
         // </DropdownItem>,
@@ -917,9 +914,19 @@ export const ApplicationsTable: React.FC = () => {
     }
   };
 
-  const handleRetrieveConfigurations = (_app: DecoratedApplication) => {
+  const handleRetrieveConfigurations = (app: DecoratedApplication) => {
     // TODO: Implement this with #2288
     console.log("retrieve configurations coming with #2288");
+  };
+
+  const handleRetrieveConfigurationsBulk = (apps: DecoratedApplication[]) => {
+    // TODO: Implement this with #2288
+    console.log("retrieve configurations coming with #2288");
+  };
+
+  const handleGenerateAssetsBulk = (_apps: DecoratedApplication[]) => {
+    // TODO: Implement this with #2294
+    console.log("generate assets coming with #2294");
   };
 
   const handleGenerateAssets = (_app: DecoratedApplication) => {
