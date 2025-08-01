@@ -3,12 +3,13 @@
 #       and via github action workflow when `:latest` is updated.
 #
 # Image info: https://catalog.redhat.com/software/containers/ubi9/nodejs-20/64770ac7a835530172eee6a9
+# Red Hat Container Catalog: https://catalog.redhat.com/en/search?searchType=containers
 # Relevant PRs:
 #   - https://github.com/konveyor/tackle2-ui/pull/1746
 #   - https://github.com/konveyor/tackle2-ui/pull/1781
 
 # Builder image
-FROM registry.access.redhat.com/ubi9/nodejs-20:9.6 as builder
+FROM registry.access.redhat.com/ubi9/nodejs-20:9.6-1753856090 as builder
 
 USER 1001
 COPY --chown=1001 . .
@@ -21,7 +22,7 @@ RUN \
   npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:9.6
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:9.6-1753809880
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp

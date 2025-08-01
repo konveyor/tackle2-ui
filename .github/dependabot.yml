@@ -3,50 +3,159 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
     commit-message:
       prefix: ":seedling: "
 
+  # Root workspace dependencies (shared tooling and build)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: thursday
+      interval: "monthly"
+      day: monday
     commit-message:
       prefix: ":ghost: "
-
     allow:
       - dependency-type: direct
-
     ignore:
       - dependency-name: "@patternfly/*"
       - update-types:
           - version-update:semver-major
 
     groups:
-      patternfly:
-        patterns:
-          - "@patternfly/*"
-
-      "server dependencies":
-        patterns:
-          - cookie
-          - ejs
-          - express
-          - http-proxy-middleware
-          - http-terminator
-
-      rollup:
+      "build-tools":
         patterns:
           - "@rollup/*"
-          - "rollup"
-          - "rollup-*"
+          - "rollup*"
+          - "webpack*"
+          - "copy*"
+          - "rimraf"
+          - "concurrently"
+          - "wait-on"
 
-      linting:
+      "linting-and-formatting":
         patterns:
           - "eslint*"
           - "@typescript-eslint/*"
-          - prettier
-          - lint-staged
-          - husky
+          - "prettier"
+          - "lint-staged"
+          - "husky"
           - "*eslint-plugin-*"
+
+      "testing-tools":
+        patterns:
+          - "jest*"
+          - "@types/jest"
+          - "ts-jest"
+
+      "typescript-tooling":
+        patterns:
+          - "typescript"
+          - "ts-*"
+          - "@types/*"
+
+  # Client workspace dependencies (React frontend)
+  - package-ecosystem: "npm"
+    directory: "/client"
+    schedule:
+      interval: "monthly"
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+    allow:
+      - dependency-type: direct
+    ignore:
+      - dependency-name: "@patternfly/*"
+      - update-types:
+          - version-update:semver-major
+
+    groups:
+      "react-ecosystem":
+        patterns:
+          - "react*"
+          - "@testing-library/*"
+          - "@pmmmwh/react-refresh-webpack-plugin"
+          - "react-refresh*"
+
+      "patternfly":
+        patterns:
+          - "@patternfly/*"
+          - "monaco-editor*"
+          - "@monaco-editor/*"
+
+      "data-fetching":
+        patterns:
+          - "@tanstack/*"
+          - "axios"
+
+      "form-handling":
+        patterns:
+          - "react-hook-form"
+          - "@hookform/*"
+          - "yup"
+
+      "webpack-tooling":
+        patterns:
+          - "webpack*"
+          - "*webpack-plugin*"
+          - "*-loader"
+          - "mini-css-extract-plugin"
+
+      "utility-libraries":
+        patterns:
+          - "dayjs"
+          - "classnames"
+          - "radash"
+          - "file-saver"
+          - "tinycolor2"
+
+      "i18n-libraries":
+        patterns:
+          - "i18next*"
+          - "react-i18next"
+
+      "auth-libraries":
+        patterns:
+          - "@react-keycloak/*"
+          - "keycloak-js"
+
+      "xml-yaml-processing":
+        patterns:
+          - "fast-xml-parser"
+          - "js-yaml"
+          - "xmllint-wasm"
+
+  # Server workspace dependencies
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "monthly"
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+    allow:
+      - dependency-type: direct
+    ignore:
+      - update-types:
+          - version-update:semver-major
+
+    groups:
+      "server-dependencies":
+        patterns:
+          - "cookie"
+          - "http-terminator"
+
+  # Common workspace dependencies
+  - package-ecosystem: "npm"
+    directory: "/common"
+    schedule:
+      interval: "monthly"
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+    allow:
+      - dependency-type: direct
+    ignore:
+      - update-types:
+          - version-update:semver-major
