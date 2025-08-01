@@ -115,7 +115,7 @@ spec:
   sourceNamespace: ${NAMESPACE}
 EOF
 
-  echo "Waiting for the Tackle CRD to exist"
+  echo "Waiting for the Tackle CRD to exist (which means the operator is installing)"
   retry_command 10 10 \
     $KUBECTL get customresourcedefinitions.apiextensions.k8s.io tackles.tackle.konveyor.io
 
@@ -124,7 +124,7 @@ EOF
     exit 1
   fi
 
-  echo "Waiting for the Tackle CRD to become established"
+  echo "Waiting for the Tackle CRD to become established (which means the operator is installed)"
   $KUBECTL wait \
     --namespace ${NAMESPACE} \
     --timeout=120s \
