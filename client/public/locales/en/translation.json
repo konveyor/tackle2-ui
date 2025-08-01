@@ -449,6 +449,7 @@
     "other": "Other",
     "owner": "Owner",
     "platform": "Platform",
+    "platformKind": "Type",
     "pod": "Pod",
     "parameters": "Parameters",
     "path": "Path",
