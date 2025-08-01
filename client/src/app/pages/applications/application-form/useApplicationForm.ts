@@ -94,7 +94,7 @@ export const useApplicationForm = ({
   }, [application?.tags]);
 
   const nonManualTagRefs = useMemo(() => {
-    return application?.tags?.filter((t) => t?.source ?? "" !== "") ?? [];
+    return application?.tags?.filter((t) => (t?.source ?? "") !== "") ?? [];
   }, [application?.tags]);
 
   const validationSchema = object().shape(
@@ -226,7 +226,7 @@ export const useApplicationForm = ({
         .map(({ id }) => tagItems.find((tag) => tag.id === id))
         .filter(Boolean),
 
-      owner: application?.owner?.name || undefined,
+      owner: application?.owner?.name || null,
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
 

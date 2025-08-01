@@ -45,7 +45,7 @@ export const ApplicationForm: React.FC<{
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
 
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(
-    values.id === undefined || (!!values.kind && !!values.sourceRepository)
+    !!values.kind && !!values.sourceRepository
   );
 
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(
