@@ -1,7 +1,3 @@
 .platform-detail-drawer-list {
-  --pf-v5-c-description-list__term--FontSize: var(--pf-v5-global--FontSize--lg);
-  --pf-v5-c-description-list__description--FontSize: var(
-    --pf-v5-global--FontSize--md
-  );
-  margin-top: 1.4em;
+  margin-top: var(--pf-v5-global--spacer--md);
 }

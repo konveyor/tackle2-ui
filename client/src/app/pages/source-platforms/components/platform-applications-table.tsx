@@ -2,7 +2,6 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Ref } from "@app/api/models";
 import {
   useTableControlState,
@@ -109,11 +108,7 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
   };
   return (
     <>
-      <Toolbar
-        {...toolbarProps}
-        className={spacing.mtSm}
-        clearAllFilters={clearFilters}
-      >
+      <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
         <ToolbarContent>
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
