@@ -995,6 +995,7 @@ export function createMultipleStakeholders(
       stakeholderGroupNames
     );
     stakeholder.create();
+    exists(stakeholder.name);
     stakeholdersList.push(stakeholder);
   }
   return stakeholdersList;
@@ -1099,6 +1100,7 @@ export function createMultipleBusinessServices(
     );
     businessservice.create();
     businessservicesList.push(businessservice);
+    exists(businessservice.name);
   }
   return businessservicesList;
 }
@@ -1657,7 +1659,7 @@ export function goToLastPage(): void {
     .eq(1)
     .then(($button) => {
       if (!$button.hasClass(".pf-m-disabled")) {
-        $button.click();
+        cy.wrap($button).click();
       }
     });
 }
