@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -euo pipefail
 
 if ! command -v minikube >/dev/null 2>&1; then
   echo "minikube not found, please install it:"
@@ -9,9 +9,10 @@ fi
 
 # Configure minikube with our preferred settings for running on Fedora and start
 set_if_not_set() {
-  if ! minikube config get $1 >/dev/null 2>&1; then
-    echo "Setting $1 to $2"
-    minikube config set $1 $2
+  local key="$1" value="$2"
+  if ! minikube config get "$key" >/dev/null 2>&1; then
+    echo "Setting $key to $value"
+    minikube config set "$key" "$value"
   fi
 }
 set_if_not_set driver kvm2
