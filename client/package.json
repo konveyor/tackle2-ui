@@ -55,7 +55,7 @@
     "react-router-dom": "^5.2.0",
     "tinycolor2": "^1.6.0",
     "xmllint-wasm": "^5.0.0",
-    "yup": "^0.32.11"
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
