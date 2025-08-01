@@ -6,7 +6,8 @@ import {
   IconedStatus,
   IconedStatusPreset,
 } from "@app/components/Icons";
-export interface ApplicationAnalysisStatusProps {
+
+export interface ColumnAnalysisStatusProps {
   state: TaskState;
 }
 
@@ -32,9 +33,9 @@ const getTaskStatus = (state: TaskState): IconedStatusPreset => {
   return "NotStarted";
 };
 
-export const ApplicationAnalysisStatus: React.FC<
-  ApplicationAnalysisStatusProps
-> = ({ state }) => {
+export const ColumnAnalysisStatus: React.FC<ColumnAnalysisStatusProps> = ({
+  state,
+}) => {
   return <IconedStatus preset={getTaskStatus(state)} />;
 };
 

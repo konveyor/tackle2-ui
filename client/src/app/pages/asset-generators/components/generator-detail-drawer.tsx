@@ -14,8 +14,9 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Generator, Repository } from "@app/api/models";
+import { Generator } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
+import { RepositoryDetails } from "@app/components/detail-drawer/repository-details";
 import GeneratorCollectionTable from "./generator-collection-table";
 import { parametersToArray } from "../utils";
 
@@ -120,50 +121,6 @@ const DetailsTab: React.FC<{ generator: Generator | null }> = ({
           )}
         </DescriptionListDescription>
       </DescriptionListGroup>
-    </DescriptionList>
-  );
-};
-
-const RepositoryDetails: React.FC<{ repository: Repository }> = ({
-  repository,
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <DescriptionList isHorizontal isCompact>
-      {repository.kind && (
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.repositoryType")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {repository.kind || ""}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      )}
-      {repository.url && (
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.url")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {repository.url || ""}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      )}
-      {repository.branch && (
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.branch")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {repository.branch || ""}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      )}
-      {repository.path && (
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.path")}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {repository.path || ""}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      )}
-      {/* TODO: Add credentials, show the Identity name, the default, or "Not available" */}
     </DescriptionList>
   );
 };

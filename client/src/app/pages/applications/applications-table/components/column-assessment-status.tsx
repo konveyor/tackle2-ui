@@ -3,14 +3,15 @@ import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
 import { Spinner } from "@patternfly/react-core";
 import { DecoratedApplication } from "../../useDecoratedApplications";
 
-interface ApplicationAssessmentStatusProps {
+interface ColumnAssessmentStatusProps {
   application: DecoratedApplication;
   isLoading?: boolean;
 }
 
-export const ApplicationAssessmentStatus: React.FC<
-  ApplicationAssessmentStatusProps
-> = ({ application, isLoading = false }) => {
+export const ColumnAssessmentStatus: React.FC<ColumnAssessmentStatusProps> = ({
+  application,
+  isLoading = false,
+}) => {
   if (isLoading) {
     return <Spinner size="sm" />;
   }
