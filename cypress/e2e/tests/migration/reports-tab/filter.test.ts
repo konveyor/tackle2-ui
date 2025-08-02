@@ -61,7 +61,7 @@ describe(["@tier3"], "Reports Tab filter validations", function () {
     AssessmentQuestionnaire.disable(cloudNative);
   });
 
-  it("Filter landscape by questionnaire", function () {
+  it("Bug MTA-5846: Filter landscape by questionnaire", function () {
     Reports.open(100);
     Reports.verifyRisk(1, 1, 0, 0, "2");
     selectFromDropListByText(landscapeFilterDropdown, legacyPathfinder);
