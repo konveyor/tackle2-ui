@@ -56,7 +56,7 @@ describe(["@tier3"], "Reports tab links validation tests", () => {
     }
   });
 
-  it("Risk links validation", function () {
+  it("Bug MTA-5846: Risk links validation", function () {
     riskType.forEach((risk, i) => {
       Reports.open();
       if (risk === "unknown") {
