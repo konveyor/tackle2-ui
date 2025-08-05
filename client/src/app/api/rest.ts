@@ -11,6 +11,7 @@ import {
   ApplicationDependency,
   ApplicationImport,
   ApplicationImportSummary,
+  ApplicationTask,
   Archetype,
   Assessment,
   BusinessService,
@@ -381,9 +382,9 @@ export const getApplicationSummaryCSV = (id: string) => {
 // ---------------------------------------
 // Tasks
 //
-export function getTaskById(id: number): Promise<Task> {
+export function getTaskById(id: number) {
   return axios
-    .get(`${TASKS}/${id}`, {
+    .get<Task>(`${TASKS}/${id}`, {
       headers: { ...HEADERS.json },
       responseType: "json",
     })
@@ -463,6 +464,12 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
 
 export const updateTask = (task: Partial<Task> & { id: number }) =>
   axios.patch<Task>(`${TASKS}/${task.id}`, task);
+
+export const createTask = (task: New<ApplicationTask>) =>
+  axios.post<ApplicationTask>(TASKS, task).then((response) => response.data);
+
+export const submitTask = (task: Task) =>
+  axios.put<void>(`${TASKS}/${task.id}/submit`, { id: task.id });
 
 // ---------------------------------------
 // Task Groups

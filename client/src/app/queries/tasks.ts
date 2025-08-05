@@ -8,6 +8,7 @@ import {
 import {
   cancelTask,
   cancelTasks,
+  createTask,
   deleteTask,
   getServerTasks,
   getTaskById,
@@ -15,6 +16,7 @@ import {
   getTaskQueue,
   getTasksDashboard,
   getTextFileById,
+  submitTask,
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
@@ -24,6 +26,7 @@ import {
   Task,
   TaskQueue,
   TaskDashboard,
+  ApplicationTask,
 } from "@app/api/models";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
@@ -163,67 +166,111 @@ export const useServerTasks = (
 };
 
 export const useDeleteTaskMutation = (
-  onSuccess: () => void,
-  onError: (err: Error | null) => void
+  onSuccess?: () => void,
+  onError?: (err: Error | null) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTask,
-    onSuccess: () => {
-      onSuccess && onSuccess();
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.();
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTask,
-    onSuccess: (response) => {
+    onSuccess: ({ status }, id) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTasksMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTasks,
-    onSuccess: (response) => {
+    onSuccess: ({ status }, data) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      data.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useUpdateTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTask,
-    onSuccess: (response) => {
+    onSuccess: ({ status, data }) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, data.id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
+    },
+  });
+};
+
+export const useCreateTaskMutation = (
+  onSuccess?: (task: ApplicationTask) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createTask,
+    onSuccess: (task) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
+    },
+  });
+};
+
+export const useSubmitTaskMutation = (
+  onSuccess?: (task: Task) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: submitTask,
+    onSuccess: (_, task: Task) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
     },
   });
 };

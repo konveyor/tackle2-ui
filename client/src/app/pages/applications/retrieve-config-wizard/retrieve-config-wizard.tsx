@@ -9,19 +9,21 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import axios, { AxiosError } from "axios";
-import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationTask, New, Task } from "@app/api/models";
+import { ApplicationTask, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { hub } from "@app/api/rest";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
+import {
+  useCreateTaskMutation,
+  useSubmitTaskMutation,
+} from "@app/queries/tasks";
 
 interface IRetrieveConfigWizard {
   applications?: DecoratedApplication[];
@@ -158,20 +160,8 @@ const useFetchApplicationManifest = ({
   onError?: (error: AxiosError) => void;
 }) => {
   const { pushNotification } = React.useContext(NotificationsContext);
-
-  // TODO: Move this to a query hook and rest function pair.
-  const { mutateAsync: createTask } = useMutation({
-    mutationFn: (task: New<ApplicationTask>) =>
-      axios
-        .post<ApplicationTask>(hub`/tasks`, task)
-        .then((response) => response.data),
-  });
-
-  // TODO: Move this to a query hook and rest function pair.
-  const { mutateAsync: submitTaskgroup } = useMutation({
-    mutationFn: (task: Task) =>
-      axios.put<void>(hub`/tasks/${task.id}/submit`, { id: task.id }),
-  });
+  const { mutateAsync: createTask } = useCreateTaskMutation();
+  const { mutateAsync: submitTask } = useSubmitTaskMutation();
 
   const requestManifestFetch = async (application: DecoratedApplication) => {
     const newTask: New<ApplicationTask> = {
@@ -182,7 +172,7 @@ const useFetchApplicationManifest = ({
 
     try {
       const task = await createTask(newTask);
-      await submitTaskgroup(task);
+      await submitTask(task);
       pushNotification({
         title: "Application manifest fetch task submitted",
         variant: "info",
