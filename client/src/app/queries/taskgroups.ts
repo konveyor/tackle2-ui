@@ -12,25 +12,25 @@ import { AxiosError, AxiosResponse } from "axios";
 import { TasksQueryKey } from "./tasks";
 
 export const useCreateTaskgroupMutation = (
-  onSuccess: (data: Taskgroup) => void,
-  onError: (err: Error | unknown) => void
+  onSuccess?: (data: Taskgroup) => void,
+  onError?: (err: Error | unknown) => void
 ) => useMutation({ mutationFn: createTaskgroup, onSuccess, onError });
 
 export const useSubmitTaskgroupMutation = (
-  onSuccess: (data: Taskgroup) => void,
-  onError: (err: Error | unknown) => void
+  onSuccess?: (taskGroup: Taskgroup) => void,
+  onError?: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: submitTaskgroup,
-    onSuccess: (data) => {
-      onSuccess(data);
+    onSuccess: (_, taskGroup) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      onSuccess?.(taskGroup);
     },
     onError: (err) => {
-      onError(err);
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      onError?.(err);
     },
   });
 };

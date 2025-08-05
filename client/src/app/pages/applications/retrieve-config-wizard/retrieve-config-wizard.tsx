@@ -1,5 +1,4 @@
 import * as React from "react";
-import { FormProvider, useForm } from "react-hook-form";
 import {
   Modal,
   ModalVariant,
@@ -10,28 +9,19 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import {
-  Application,
-  New,
-  TaskData,
-  Taskgroup,
-  TaskgroupTask,
-} from "@app/api/models";
-import { Review } from "./review";
-import {
-  useCreateTaskgroupMutation,
-  useDeleteTaskgroupMutation,
-  useSubmitTaskgroupMutation,
-} from "@app/queries/taskgroups";
+import axios, { AxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { group } from "radash";
 
+import { ApplicationTask, New, Task } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  RetrieveConfigWizardFormValues,
-  useRetrieveConfigWizardFormValidationSchema,
-} from "./schema";
-import { useTaskGroup } from "./components/TaskGroupContext";
+import { hub } from "@app/api/rest";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
+import { Review } from "./review";
 
 interface IRetrieveConfigWizard {
   applications?: DecoratedApplication[];
@@ -43,52 +33,10 @@ enum StepId {
   Review = 1,
 }
 
-const initTask = (application: Application): TaskgroupTask => ({
-  name: `${application.name}.${application.id}.config-discovery`,
-  data: {
-    kind: "config-discovery",
-    platform: application.platform || null,
-    repository: application.repository || null,
-  },
-  application: { id: application.id as number, name: application.name },
-});
-
-const defaultConfigTaskData: TaskData = {
-  tagger: {
-    enabled: false,
-  },
-  verbosity: 0,
-  mode: {
-    binary: false,
-    withDeps: false,
-    artifact: "",
-  },
-  targets: [],
-  sources: [],
-  scope: {
-    withKnownLibs: false,
-    packages: {
-      included: [],
-      excluded: [],
-    },
-  },
-  rules: {
-    path: "",
-    labels: {
-      included: [],
-      excluded: [],
-    },
-  },
-};
-
-export const defaultConfigTaskgroup: New<Taskgroup> = {
-  name: `taskgroup.config-discovery`,
-  kind: "config-discovery",
-  data: {
-    ...defaultConfigTaskData,
-  },
-  tasks: [],
-};
+export interface FormValues {
+  ready: DecoratedApplication[];
+  notReady: DecoratedApplication[];
+}
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   applications = [],
@@ -96,134 +44,61 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,
 }: IRetrieveConfigWizard) => {
   const { t } = useTranslation();
+  // const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { requestManifestFetch } = useFetchApplicationManifest({
+    onSuccess: (task) => {
+      console.log("task", task);
+    },
+    onError: (error) => {
+      console.error("error", error);
+    },
+  });
 
-  const { taskGroup, updateTaskGroup } = useTaskGroup();
+  const methods = useForm<FormValues>({
+    defaultValues: {
+      ready: [],
+      notReady: [],
+    },
+    resolver: yupResolver(
+      yup.object({
+        ready: yup.array().of(yup.object()),
+        notReady: yup.array().of(yup.object()),
+      })
+    ),
+    mode: "all",
+  });
+  const { reset, handleSubmit } = methods;
 
-  // Filter applications that have source platforms
-  const validApplications = React.useMemo(
-    () => applications.filter((app) => app.id && app?.name),
+  React.useEffect(() => {
+    const { ready = [], notReady = [] } = group(applications, (app) =>
+      app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
+    );
+    reset({ ready, notReady });
+  }, [applications, reset]);
+
+  const { ready = [], notReady = [] } = React.useMemo(
+    () =>
+      group(applications, (app) =>
+        app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
+      ),
     [applications]
   );
 
-  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    updateTaskGroup(data);
-  };
-
-  const onCreateTaskgroupError = (_error: Error | unknown) => {
-    pushNotification({
-      title: "Configuration discovery taskgroup creation failed",
-      variant: "danger",
-    });
-    onClose();
-  };
-
-  const { mutate: createTaskgroup } = useCreateTaskgroupMutation(
-    onCreateTaskgroupSuccess,
-    onCreateTaskgroupError
-  );
-
-  const onSubmitTaskgroupSuccess = (_data: Taskgroup) =>
-    pushNotification({
-      title: "Applications",
-      message: "Submitted for configuration retrieval",
-      variant: "info",
-    });
-
-  const onSubmitTaskgroupError = (_error: Error | unknown) =>
-    pushNotification({
-      title: t("message.configDiscoveryTaskgroupCreationFailed"),
-      variant: "danger",
-    });
-
-  const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
-    onSubmitTaskgroupSuccess,
-    onSubmitTaskgroupError
-  );
-
-  const onDeleteTaskgroupSuccess = () => {
-    updateTaskGroup(null);
-  };
-
-  const onDeleteTaskgroupError = (_error: Error | unknown) => {
-    pushNotification({
-      title: t("message.configDiscoveryTaskgroupSubmitFailed"),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(
-    onDeleteTaskgroupSuccess,
-    onDeleteTaskgroupError
-  );
-
-  const { allFieldsSchema } = useRetrieveConfigWizardFormValidationSchema({
-    applications: validApplications,
-  });
-
-  const methods = useForm<RetrieveConfigWizardFormValues>({
-    defaultValues: {
-      selectedApplications: [...applications],
-    },
-    resolver: yupResolver(allFieldsSchema),
-    mode: "all",
-    reValidateMode: "onSubmit",
-  });
-
-  const { reset } = methods;
-
-  // Update form when applications change
-  React.useEffect(() => {
-    reset({
-      selectedApplications: applications,
-    });
-  }, [applications, reset]);
-
-  const setupTaskgroup = (
-    currentTaskgroup: Taskgroup,
-    fieldValues: RetrieveConfigWizardFormValues
-  ): Taskgroup => {
-    return {
-      ...currentTaskgroup,
-      tasks: fieldValues.selectedApplications.map((app: Application) =>
-        initTask(app)
-      ),
-      data: {
-        ...defaultConfigTaskData,
-        // Add any specific configuration discovery data here
-      },
-    };
-  };
-
   const handleCancel = () => {
-    if (taskGroup && taskGroup.id) {
-      deleteTaskgroup(taskGroup.id);
-    }
-    updateTaskGroup(null);
-    reset();
     onClose();
   };
 
-  const onSubmit = (fieldValues: RetrieveConfigWizardFormValues) => {
-    if (taskGroup) {
-      const taskgroup = setupTaskgroup(taskGroup, fieldValues);
-      submitTaskgroup(taskgroup);
-    }
-    updateTaskGroup(null);
-    reset();
-    onClose();
+  const onSubmit = ({ ready }: FormValues) => {
+    ready.forEach(async (app) => {
+      // TODO: Track the status of the task and report back to the user in a success/fail wizard step
+      await requestManifestFetch(app);
+    });
   };
 
-  const onMove = (current: WizardStepType) => {
-    if (current.id === StepId.Review) {
-      if (!taskGroup) {
-        createTaskgroup(defaultConfigTaskgroup);
-      }
-    }
-  };
+  const onMove = (_current: WizardStepType) => {};
 
-  if (validApplications.length === 0) {
+  if (ready.length === 0) {
     return (
       <Modal
         variant={ModalVariant.medium}
@@ -249,7 +124,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
     >
       <FormProvider {...methods}>
         <Wizard
-          onSave={methods.handleSubmit(onSubmit)}
+          onSave={handleSubmit(onSubmit)}
           onClose={handleCancel}
           onStepChange={(_event, currentStep: WizardStepType) =>
             onMove(currentStep)
@@ -271,8 +146,62 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
           >
             <Review />
           </WizardStep>
+          {/* TODO: Add a step review the submitted tasks. */}
         </Wizard>
       </FormProvider>
     </Modal>
   );
+};
+
+const useFetchApplicationManifest = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (task: ApplicationTask) => void;
+  onError?: (error: AxiosError) => void;
+}) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  // TODO: Move this to a query hook and rest function pair.
+  const { mutateAsync: createTask } = useMutation({
+    mutationFn: (task: New<ApplicationTask>) =>
+      axios
+        .post<ApplicationTask>(hub`/tasks`, task)
+        .then((response) => response.data),
+  });
+
+  // TODO: Move this to a query hook and rest function pair.
+  const { mutateAsync: submitTaskgroup } = useMutation({
+    mutationFn: (task: Task) =>
+      axios.put<void>(hub`/tasks/${task.id}/submit`, { id: task.id }),
+  });
+
+  const requestManifestFetch = async (application: DecoratedApplication) => {
+    const newTask: New<ApplicationTask> = {
+      name: `${application.name}.${application.id}.application-manifest`,
+      kind: "application-manifest",
+      application: { id: application.id, name: application.name },
+    };
+
+    try {
+      const task = await createTask(newTask);
+      await submitTaskgroup(task);
+      pushNotification({
+        title: "Application manifest fetch task submitted",
+        variant: "info",
+      });
+      onSuccess?.(task);
+    } catch (error) {
+      pushNotification({
+        title: "Application manifest fetch task failed",
+        message: getAxiosErrorMessage(error as AxiosError),
+        variant: "danger",
+      });
+      onError?.(error as AxiosError);
+    }
+  };
+
+  return {
+    requestManifestFetch,
+  };
 };

@@ -114,10 +114,7 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
-import {
-  RetrieveConfigWizard,
-  TaskGroupProvider as ConfigTaskGroupProvider,
-} from "../retrieve-config-wizard";
+import { RetrieveConfigWizard } from "../retrieve-config-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -1316,15 +1313,13 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </TaskGroupProvider>
-      <ConfigTaskGroupProvider>
-        <RetrieveConfigWizard
-          applications={retrieveConfigApplications ?? undefined}
-          isOpen={!!retrieveConfigApplications}
-          onClose={() => {
-            setRetrieveConfigApplications(null);
-          }}
-        />
-      </ConfigTaskGroupProvider>
+      <RetrieveConfigWizard
+        applications={retrieveConfigApplications ?? undefined}
+        isOpen={!!retrieveConfigApplications}
+        onClose={() => {
+          setRetrieveConfigApplications(null);
+        }}
+      />
 
       <Modal
         isOpen={isCreateUpdateCredentialsModalOpen}

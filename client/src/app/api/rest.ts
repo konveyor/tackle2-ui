@@ -472,7 +472,7 @@ export const createTaskgroup = (obj: New<Taskgroup>) =>
 
 export const submitTaskgroup = (obj: Taskgroup) =>
   axios
-    .put<Taskgroup>(`${TASKGROUPS}/${obj.id}/submit`, obj)
+    .put<void>(`${TASKGROUPS}/${obj.id}/submit`, obj)
     .then((response) => response.data);
 
 export const deleteTaskgroup = (id: number): AxiosPromise =>

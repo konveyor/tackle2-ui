@@ -12,16 +12,15 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useFormContext } from "react-hook-form";
 
-import { RetrieveConfigWizardFormValues } from "./schema";
+import { FormValues } from "./retrieve-config-wizard";
 
 export const Review: React.FC = () => {
   const { t } = useTranslation();
-  const { watch } = useFormContext<RetrieveConfigWizardFormValues>();
-
-  const selectedApplications = watch("selectedApplications", []);
+  const { watch } = useFormContext<FormValues>();
+  const ready = watch("ready", []);
 
   return (
     <div>
@@ -40,12 +39,12 @@ export const Review: React.FC = () => {
             <CardHeader>
               <CardTitle>
                 {t("wizard.retrieveConfigurations.review.selectedApplications")}{" "}
-                ({selectedApplications.length})
+                ({ready.length})
               </CardTitle>
             </CardHeader>
             <CardBody>
               <List>
-                {selectedApplications.map((application) => (
+                {ready.map((application) => (
                   <ListItem key={application.id}>
                     <div>
                       <strong>{application.name}</strong>
@@ -67,6 +66,8 @@ export const Review: React.FC = () => {
           </Card>
         </GridItem>
       </Grid>
+
+      {/* TODO: Add a view of the applications that are not ready for retrieve configurations. */}
 
       <TextContent style={{ marginTop: "1rem" }}>
         <Text component={TextVariants.small}>

@@ -345,6 +345,7 @@ export interface Task {
   ttl?: TTL;
   data?: TaskData;
   application: Ref;
+  platform?: Ref;
   bucket?: Ref;
   pod?: string;
   retries?: number;
@@ -354,6 +355,14 @@ export interface Task {
   errors?: TaskError[];
   activity?: string[];
   attached?: TaskAttachment[];
+}
+
+export interface ApplicationTask extends Task {
+  application: Ref;
+}
+
+export interface PlatformTask extends Task {
+  platform: Ref;
 }
 
 /** A smaller version of `Task` fetched from the report/dashboard endpoint. */
