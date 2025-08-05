@@ -9,21 +9,33 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import { AxiosError } from "axios";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationTask, New } from "@app/api/models";
+import { ApplicationTask, EmptyTaskData, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
-import {
-  useCreateTaskMutation,
-  useSubmitTaskMutation,
-} from "@app/queries/tasks";
+
+export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
+  isOpen,
+  ...props
+}) => {
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <RetrieveConfigWizardInner
+      key={isOpen ? "open" : "closed"}
+      isOpen={isOpen}
+      {...props}
+    />
+  );
+};
 
 interface IRetrieveConfigWizard {
   applications?: DecoratedApplication[];
@@ -40,27 +52,23 @@ export interface FormValues {
   notReady: DecoratedApplication[];
 }
 
-export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
+const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   applications = [],
   onClose,
   isOpen,
 }: IRetrieveConfigWizard) => {
   const { t } = useTranslation();
-  // const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = React.useContext(NotificationsContext);
+  const { submitTasks } = useFetchApplicationManifest();
 
-  const { requestManifestFetch } = useFetchApplicationManifest({
-    onSuccess: (task) => {
-      console.log("task", task);
-    },
-    onError: (error) => {
-      console.error("error", error);
-    },
-  });
+  const { ready = [], notReady = [] } = group(applications, (app) =>
+    app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
+  );
 
   const methods = useForm<FormValues>({
     defaultValues: {
-      ready: [],
-      notReady: [],
+      ready,
+      notReady,
     },
     resolver: yupResolver(
       yup.object({
@@ -70,34 +78,38 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
     ),
     mode: "all",
   });
-  const { reset, handleSubmit, watch } = methods;
-
-  React.useEffect(() => {
-    const { ready = [], notReady = [] } = group(applications, (app) =>
-      app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
-    );
-    reset({ ready, notReady });
-  }, [applications, reset]);
+  const { handleSubmit, watch } = methods;
 
   const handleCancel = () => {
     onClose();
   };
 
-  const onSubmit = ({ ready }: FormValues) => {
-    // TODO: Track the status of the task and report back to the user in a success/fail wizard step
-    Promise.all(
-      ready.map(async (app) => {
-        await requestManifestFetch(app);
-      })
-    ).catch((error) => {
-      console.error("Failed to submit tasks:", error);
-    });
+  const onSubmit = async ({ ready }: FormValues) => {
+    const { success, failure } = await submitTasks(ready);
+
+    console.log("success results", success);
+    if (success.length > 0) {
+      pushNotification({
+        title: `Application manifest fetches submitted`,
+        message: `Task IDs: ${success.map((result) => result.task.id).join(", ")}`,
+        variant: "info",
+      });
+    }
+
+    console.log("failure results", failure);
+    if (failure.length > 0) {
+      pushNotification({
+        title: `Application manifest fetches failed`,
+        message: `Applications: ${failure.map((result) => result.application.id).join(", ")}`,
+        variant: "danger",
+      });
+    }
   };
 
   const onMove = (_current: WizardStepType) => {};
 
-  const ready = watch("ready");
-  if (ready.length === 0) {
+  const readyApplications = watch("ready");
+  if (readyApplications.length === 0) {
     return (
       <Modal
         variant={ModalVariant.medium}
@@ -152,43 +164,72 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   );
 };
 
-const useFetchApplicationManifest = ({
-  onSuccess,
-  onError,
-}: {
-  onSuccess?: (task: ApplicationTask) => void;
-  onError?: (error: AxiosError) => void;
-}) => {
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const { mutateAsync: createTask } = useCreateTaskMutation();
-  const { mutateAsync: submitTask } = useSubmitTaskMutation();
+const useFetchApplicationManifest = () => {
+  const { mutateAsync: createTask } = useCreateTaskMutation<
+    EmptyTaskData,
+    ApplicationTask<EmptyTaskData>
+  >();
 
-  const requestManifestFetch = async (application: DecoratedApplication) => {
-    const newTask: New<ApplicationTask> = {
+  const createAndSubmitTask = async (
+    application: DecoratedApplication
+  ): Promise<{
+    success?: {
+      task: ApplicationTask<EmptyTaskData>;
+      application: DecoratedApplication;
+    };
+    failure?: {
+      message: string;
+      cause: Error;
+      application: DecoratedApplication;
+      newTask: New<ApplicationTask<EmptyTaskData>>;
+    };
+  }> => {
+    const newTask: New<ApplicationTask<EmptyTaskData>> = {
       name: `${application.name}.${application.id}.application-manifest`,
       kind: "application-manifest",
       application: { id: application.id, name: application.name },
+      state: "Ready",
+      data: {},
     };
 
     try {
       const task = await createTask(newTask);
-      await submitTask(task);
-      pushNotification({
-        title: "Application manifest fetch task submitted",
-        variant: "info",
-      });
-      onSuccess?.(task);
+      return { success: { task, application } };
     } catch (error) {
-      pushNotification({
-        title: "Application manifest fetch task failed",
-        message: getAxiosErrorMessage(error as AxiosError),
-        variant: "danger",
-      });
-      onError?.(error as AxiosError);
+      return {
+        failure: {
+          message: "Failed to submit the application manifest fetch task",
+          cause: error as Error,
+          application,
+          newTask,
+        },
+      };
     }
   };
 
+  const submitTasks = async (applications: DecoratedApplication[]) => {
+    const results = await Promise.allSettled(
+      applications.map(createAndSubmitTask)
+    );
+
+    const success = [];
+    const failure = [];
+
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        if (result.value.success) {
+          success.push(result.value.success);
+        }
+        if (result.value.failure) {
+          failure.push(result.value.failure);
+        }
+      }
+    }
+
+    return { success, failure };
+  };
+
   return {
-    requestManifestFetch,
+    submitTasks,
   };
 };
