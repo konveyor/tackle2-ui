@@ -68,7 +68,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
     ),
     mode: "all",
   });
-  const { reset, handleSubmit } = methods;
+  const { reset, handleSubmit, watch } = methods;
 
   React.useEffect(() => {
     const { ready = [], notReady = [] } = group(applications, (app) =>
@@ -77,27 +77,24 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
     reset({ ready, notReady });
   }, [applications, reset]);
 
-  const { ready = [], notReady = [] } = React.useMemo(
-    () =>
-      group(applications, (app) =>
-        app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
-      ),
-    [applications]
-  );
-
   const handleCancel = () => {
     onClose();
   };
 
   const onSubmit = ({ ready }: FormValues) => {
-    ready.forEach(async (app) => {
-      // TODO: Track the status of the task and report back to the user in a success/fail wizard step
-      await requestManifestFetch(app);
+    // TODO: Track the status of the task and report back to the user in a success/fail wizard step
+    Promise.all(
+      ready.map(async (app) => {
+        await requestManifestFetch(app);
+      })
+    ).catch((error) => {
+      console.error("Failed to submit tasks:", error);
     });
   };
 
   const onMove = (_current: WizardStepType) => {};
 
+  const ready = watch("ready");
   if (ready.length === 0) {
     return (
       <Modal
