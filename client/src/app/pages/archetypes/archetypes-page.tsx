@@ -206,6 +206,7 @@ const Archetypes: React.FC = () => {
       tags: t("terms.tags"),
       maintainers: t("terms.maintainers"),
       applications: t("terms.applications"),
+      profiles: t("terms.targetProfiles"),
       assessment: t("terms.assessment"),
       review: t("terms.review"),
     },
@@ -395,6 +396,7 @@ const Archetypes: React.FC = () => {
                     <Th {...getThProps({ columnKey: "tags" })} />
                     <Th {...getThProps({ columnKey: "maintainers" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th {...getThProps({ columnKey: "profiles" })} />
                     <Th
                       {...getThProps({ columnKey: "assessment" })}
                       width={10}
@@ -448,6 +450,9 @@ const Archetypes: React.FC = () => {
                         </Td>
                         <Td {...getTdProps({ columnKey: "applications" })}>
                           <LinkToArchetypeApplications archetype={archetype} />
+                        </Td>
+                        <Td {...getTdProps({ columnKey: "profiles" })}>
+                          <Text>{archetype.profiles?.length || 0}</Text>
                         </Td>
                         <Td
                           width={15}
