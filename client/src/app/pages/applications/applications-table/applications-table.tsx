@@ -740,7 +740,7 @@ export const ApplicationsTable: React.FC = () => {
         {t("actions.manageCredentials")}
       </DropdownItem>
     ),
-    <DropdownSeparator key="breakpoint" />,
+    <DropdownSeparator key="separator-1" />,
     <DropdownItem
       key="change-source-platform-applications"
       component="button"
@@ -750,23 +750,23 @@ export const ApplicationsTable: React.FC = () => {
       {t("actions.changeSourcePlatform")}
     </DropdownItem>,
     // TODO: Add these back when we can handle the retrieve and generate operations in bulk
-    // <DropdownItem
-    //   key="retrieve-configurations-for-applications"
-    //   component="button"
-    //   isDisabled={selectedRows.length < 1}
-    //   onClick={() => console.log("retrieve configurations")}
-    // >
-    //   {t("actions.retrieveConfigurations")}
-    // </DropdownItem>,
-    // <DropdownItem
-    //   key="generate-assets-for-applications"
-    //   component="button"
-    //   isDisabled={selectedRows.length < 1}
-    //   onClick={() => console.log("generate assets")}
-    // >
-    //   {t("actions.generateAssets")}
-    // </DropdownItem>,
-    <DropdownSeparator key="breakpoint" />,
+    <DropdownItem
+      key="retrieve-configurations-for-applications"
+      component="button"
+      isDisabled={selectedRows.length < 1}
+      onClick={() => setRetrieveConfigModalOpen(true)}
+    >
+      {t("actions.retrieveConfigurations")}
+    </DropdownItem>,
+    <DropdownItem
+      key="generate-assets-for-applications"
+      component="button"
+      isDisabled={selectedRows.length < 1}
+      onClick={() => setRetrieveConfigModalOpen(true)}
+    >
+      {t("actions.generateAssets")}
+    </DropdownItem>,
+    <DropdownSeparator key="separator-2" />,
     applicationWriteAccess && (
       <DropdownItem
         key="applications-bulk-delete"
