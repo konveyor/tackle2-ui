@@ -36,13 +36,9 @@ const LinkToPlatformApplications: React.FC<{
     <Text>{t("message.platformNoApplications")}</Text>
   ) : (
     <Link to={getApplicationsUrl(platform?.name)}>
-      {platform?.applications?.length === 1
-        ? t("message.platformApplicationCount_one", {
-            count: platform?.applications?.length,
-          })
-        : t("message.platformApplicationCount_other", {
-            count: platform?.applications?.length ?? 0,
-          })}
+      {t("message.platformApplicationCount", {
+        count: platform?.applications?.length ?? 0,
+      })}
     </Link>
   );
 };

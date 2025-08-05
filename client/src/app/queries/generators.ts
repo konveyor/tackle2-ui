@@ -8,7 +8,7 @@ import {
   getGeneratorById,
   getGenerators,
   updateGenerator,
-} from "@app/api/rest/generators";
+} from "@app/api/rest";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const GENERATORS_QUERY_KEY = "generators";

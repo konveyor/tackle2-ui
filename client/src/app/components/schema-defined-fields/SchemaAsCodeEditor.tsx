@@ -22,6 +22,7 @@ type ControlledEditor = {
 };
 
 export interface ISchemaAsCodeEditorProps {
+  id: string;
   jsonDocument: object;
   jsonSchema?: JsonSchemaObject;
   onDocumentSaved?: (newSchemaContent: object) => void;
@@ -30,6 +31,7 @@ export interface ISchemaAsCodeEditorProps {
 }
 
 export const SchemaAsCodeEditor = ({
+  id,
   jsonDocument,
   jsonSchema,
   onDocumentSaved,
@@ -38,10 +40,11 @@ export const SchemaAsCodeEditor = ({
 }: ISchemaAsCodeEditorProps) => {
   const editorRef = React.useRef<ControlledEditor>();
 
-  const initialCode = JSON.stringify(jsonDocument, null, 2);
-
-  const [currentCode, setCurrentCode] = React.useState(initialCode);
+  const [currentCode, setCurrentCode] = React.useState(
+    JSON.stringify(jsonDocument, null, 2)
+  );
   const [okToSave, setOkToSave] = React.useState(true);
+
   const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
   React.useEffect(() => {
     if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
@@ -84,13 +87,14 @@ export const SchemaAsCodeEditor = ({
         }
       } catch (error) {
         console.error("Invalid JSON:", error);
-        // TODO: Use useNotify() to toast the error to the user
+        // TODO: Use useNotify() to toast the save error to the user
       }
     }
   };
 
   return (
     <CodeEditor
+      id={id}
       className="schema-defined-field-viewer-code-editor"
       isCopyEnabled
       isDarkTheme

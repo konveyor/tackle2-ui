@@ -125,27 +125,36 @@ export interface Repository {
   path?: string;
 }
 
+/** A JSON document with its schema */
+export interface Document {
+  content: JsonDocument;
+  /** name of the schema */ schema: string;
+}
+
 export interface Application {
   id: number;
   name: string;
   description?: string;
+  bucket?: Ref;
+  repository?: Repository;
+  assets?: Repository;
+  binary?: string;
+  coordinates?: Document;
+  review?: Ref;
   comments?: string;
-  businessService?: Ref;
+  identities?: Ref[];
   tags?: TagRef[];
+  businessService?: Ref;
   owner?: Ref;
   contributors?: Ref[];
-  review?: Ref;
-  identities?: Ref[];
-  repository?: Repository;
-  binary?: string;
   migrationWave: Ref | null;
+  platform?: Ref;
+  archetypes?: Ref[];
   assessments?: Ref[];
   assessed?: boolean;
-  archetypes?: Ref[];
   risk?: Risk;
   confidence?: number;
   effort?: number;
-  platform?: Ref;
 }
 
 export interface Review {
@@ -958,6 +967,7 @@ export interface Manifest {
 
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
+  $schema?: string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;
@@ -991,4 +1001,20 @@ export interface JsonSchemaObject {
 
   /** For type object, whether additional properties are allowed */
   additionalProperties?: boolean;
+}
+
+export interface Schema {
+  name: string;
+  domain: string;
+  variant: string;
+  subject: string;
+  versions: Array<{
+    id: number;
+    definition: JsonSchemaObject;
+  }>;
+}
+
+export interface TargetedSchema {
+  name: string;
+  definition: JsonSchemaObject;
 }

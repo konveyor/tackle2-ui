@@ -3,6 +3,7 @@ import {
   Application,
   Archetype,
   AssessmentWithSectionOrder,
+  BusinessService,
   Identity,
   TaskDashboard,
 } from "@app/api/models";
@@ -16,6 +17,7 @@ import {
 import { useFetchIdentities } from "@app/queries/identities";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchAssessments } from "@app/queries/assessments";
+import { useFetchBusinessServices } from "@app/queries/businessservices";
 
 export interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];
@@ -55,10 +57,14 @@ export interface DecoratedApplication extends Application {
 
   assessmentStatus: ApplicationAssessmentStatus;
 
+  isReadyForRetrieveConfigurations: boolean;
+  isReadyForGenerateAssets: boolean;
+
   /** Contain directly referenced versions of `Ref[]` Application props */
   direct: {
     identities?: Identity[];
     archetypes?: Archetype[];
+    businessService?: BusinessService;
   };
 }
 
@@ -114,7 +120,8 @@ const decorateApplications = (
   tasks: TaskDashboard[],
   identities: Identity[],
   archetypes: Archetype[],
-  assessments: AssessmentWithSectionOrder[]
+  assessments: AssessmentWithSectionOrder[],
+  businessServices: BusinessService[]
 ) => {
   const { tasksById, tasksByIdByKind } = groupTasks(tasks);
 
@@ -159,6 +166,12 @@ const decorateApplications = (
         assessments
       ),
 
+      isReadyForRetrieveConfigurations:
+        app.platform && app.coordinates?.content ? true : false,
+
+      isReadyForGenerateAssets:
+        app.platform && app.coordinates?.content ? true : false,
+
       direct: {
         identities: app.identities
           ?.map(({ id: id1 }) => identities.find(({ id: id2 }) => id1 === id2))
@@ -167,6 +180,10 @@ const decorateApplications = (
         archetypes: app.archetypes
           ?.map(({ id: id1 }) => archetypes.find(({ id: id2 }) => id1 === id2))
           ?.filter(Boolean),
+
+        businessService:
+          app.businessService &&
+          businessServices.find(({ id }) => id === app.businessService?.id),
       },
     };
 
@@ -184,6 +201,7 @@ export const useDecoratedApplications = (
   const { identities } = useFetchIdentities();
   const { assessments } = useFetchAssessments();
   const { archetypes } = useFetchArchetypes();
+  const { businessServices } = useFetchBusinessServices(false);
 
   const decoratedApplications = useMemo(
     () =>
@@ -192,9 +210,10 @@ export const useDecoratedApplications = (
         tasks,
         identities,
         archetypes,
-        assessments
+        assessments,
+        businessServices
       ),
-    [applications, tasks, identities, archetypes, assessments]
+    [applications, tasks, identities, archetypes, assessments, businessServices]
   );
 
   const applicationNames = useMemo(
