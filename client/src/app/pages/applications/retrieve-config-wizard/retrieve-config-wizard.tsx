@@ -31,9 +31,10 @@ import {
   useRetrieveConfigWizardFormValidationSchema,
 } from "./schema";
 import { useTaskGroup } from "./components/TaskGroupContext";
+import { DecoratedApplication } from "../useDecoratedApplications";
 
 interface IRetrieveConfigWizard {
-  applications: Application[];
+  applications?: DecoratedApplication[];
   onClose: () => void;
   isOpen: boolean;
 }
@@ -90,7 +91,7 @@ export const defaultConfigTaskgroup: New<Taskgroup> = {
 };
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
-  applications,
+  applications = [],
   onClose,
   isOpen,
 }: IRetrieveConfigWizard) => {
