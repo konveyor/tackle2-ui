@@ -56,7 +56,7 @@ describe(["@tier2"], "Tag validations", () => {
     cy.get(commonView.cancelButton).click();
   });
 
-  it("Tag button validations", function () {
+  it("Bug MTA-5884: Tag button validations", function () {
     Tag.openList();
     clickByText(button, createTagButton);
     cy.get(commonView.submitButton).should("be.disabled");
@@ -74,7 +74,7 @@ describe(["@tier2"], "Tag validations", () => {
       data.getRandomWord(5),
       data.getRandomDefaultTagCategory()
     );
-    tag.create();
+    tag.create(false, true);
     checkSuccessAlert(
       commonView.successAlertMessage,
       "Success alert:Tag was successfully created."

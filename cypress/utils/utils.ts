@@ -1080,6 +1080,7 @@ export function createMultipleStakeholderGroups(
     );
     stakeholdergroup.create();
     stakeholdergroupsList.push(stakeholdergroup);
+    exists(stakeholdergroup.name);
   }
   return stakeholdergroupsList;
 }
