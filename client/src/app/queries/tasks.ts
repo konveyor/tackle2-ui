@@ -26,7 +26,7 @@ import {
   Task,
   TaskQueue,
   TaskDashboard,
-  ApplicationTask,
+  New,
 } from "@app/api/models";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
@@ -221,13 +221,17 @@ export const useCancelTasksMutation = (
   });
 };
 
-export const useUpdateTaskMutation = (
+export const useUpdateTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
   onSuccess?: (statusCode: number) => void,
   onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateTask,
+    mutationFn: (task: Partial<TaskType> & { id: number }) =>
+      updateTask<TaskData, TaskType>(task),
     onSuccess: ({ status, data }) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, data.id] });
@@ -239,13 +243,16 @@ export const useUpdateTaskMutation = (
   });
 };
 
-export const useCreateTaskMutation = (
-  onSuccess?: (task: ApplicationTask) => void,
+export const useCreateTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
+  onSuccess?: (task: TaskType) => void,
   onError?: (err: Error) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createTask,
+    mutationFn: (task: New<TaskType>) => createTask<TaskData, TaskType>(task),
     onSuccess: (task) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
@@ -257,14 +264,17 @@ export const useCreateTaskMutation = (
   });
 };
 
-export const useSubmitTaskMutation = (
-  onSuccess?: (task: Task) => void,
+export const useSubmitTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
+  onSuccess?: (task: TaskType) => void,
   onError?: (err: Error) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: submitTask,
-    onSuccess: (_, task: Task) => {
+    mutationFn: (task: TaskType) => submitTask<TaskData, TaskType>(task),
+    onSuccess: (_, task: TaskType) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
       queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
       onSuccess?.(task);

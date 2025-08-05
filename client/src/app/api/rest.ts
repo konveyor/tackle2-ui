@@ -11,7 +11,6 @@ import {
   ApplicationDependency,
   ApplicationImport,
   ApplicationImportSummary,
-  ApplicationTask,
   Archetype,
   Assessment,
   BusinessService,
@@ -462,14 +461,17 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
     .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
     .then(({ data }) => data);
 
-export const updateTask = (task: Partial<Task> & { id: number }) =>
-  axios.patch<Task>(`${TASKS}/${task.id}`, task);
+export const createTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: New<TaskType>
+) => axios.post<TaskType>(TASKS, task).then((response) => response.data);
 
-export const createTask = (task: New<ApplicationTask>) =>
-  axios.post<ApplicationTask>(TASKS, task).then((response) => response.data);
+export const updateTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: Partial<TaskType> & { id: number }
+) => axios.patch<TaskType>(`${TASKS}/${task.id}`, task);
 
-export const submitTask = (task: Task) =>
-  axios.put<void>(`${TASKS}/${task.id}/submit`, { id: task.id });
+export const submitTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: TaskType
+) => axios.put<void>(`${TASKS}/${task.id}/submit`, { id: task.id });
 
 // ---------------------------------------
 // Task Groups

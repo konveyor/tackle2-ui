@@ -328,7 +328,7 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task {
+export interface Task<DataType = TaskData> {
   id: number;
   createUser?: string;
   updateUser?: string;
@@ -343,7 +343,7 @@ export interface Task {
   priority?: number;
   policy?: TaskPolicy;
   ttl?: TTL;
-  data?: TaskData;
+  data?: DataType;
   application: Ref;
   platform?: Ref;
   bucket?: Ref;
@@ -357,11 +357,15 @@ export interface Task {
   attached?: TaskAttachment[];
 }
 
-export interface ApplicationTask extends Task {
+export type EmptyTaskData = Record<string, never>;
+
+export interface ApplicationTask<DataType>
+  extends Omit<Task<DataType>, "application" | "platform"> {
   application: Ref;
 }
 
-export interface PlatformTask extends Task {
+export interface PlatformTask<DataType>
+  extends Omit<Task<DataType>, "application" | "platform"> {
   platform: Ref;
 }
 
