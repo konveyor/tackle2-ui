@@ -124,13 +124,15 @@ import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 
 const filterAndAddSeparator = <T,>(
-  separator: T,
+  separator: (index: number) => T,
   groups: Array<Array<T | Falsy>>
 ): Array<T> => {
   return groups
     .map<Array<T>>((group) => group.filter(Boolean))
     .filter((group) => group.length > 0)
-    .flatMap((group, index) => (index === 0 ? group : [separator, ...group]));
+    .flatMap((group, index) =>
+      index === 0 ? group : [separator(index), ...group]
+    );
 };
 
 export const ApplicationsTable: React.FC = () => {
@@ -687,7 +689,7 @@ export const ApplicationsTable: React.FC = () => {
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
-    <DropdownSeparator key="breakpoint" />,
+    (index) => <DropdownSeparator key={`breakpoint-${index}`} />,
     [
       [
         importWriteAccess && (
@@ -1194,7 +1196,7 @@ export const ApplicationsTable: React.FC = () => {
                     <Td isActionCell id="row-actions">
                       <ActionsColumn
                         items={filterAndAddSeparator<IAction>(
-                          { isSeparator: true },
+                          (_index) => ({ isSeparator: true }),
                           [
                             [
                               assessmentWriteAccess && {
@@ -1314,6 +1316,7 @@ export const ApplicationsTable: React.FC = () => {
         />
       </TaskGroupProvider>
       <RetrieveConfigWizard
+        key={retrieveConfigApplications ? "open" : "closed"}
         applications={retrieveConfigApplications ?? undefined}
         isOpen={!!retrieveConfigApplications}
         onClose={() => {
