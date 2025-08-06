@@ -1,16 +1,18 @@
 import * as React from "react";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  List,
-  ListItem,
+  DataList,
+  DataListCell,
+  DataListItem,
+  DataListItemCells,
+  DataListItemRow,
+  Panel,
+  PanelMain,
+  PanelMainBody,
+  Stack,
+  StackItem,
   Text,
   TextContent,
   TextVariants,
-  Grid,
-  GridItem,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
@@ -23,57 +25,62 @@ export const Review: React.FC = () => {
   const ready = watch("ready", []);
 
   return (
-    <div>
+    <>
       <TextContent>
         <Text component={TextVariants.h3}>
-          {t("wizard.retrieveConfigurations.review.title")}
+          {t("retrieveConfigWizard.review.selectedApplications", {
+            count: ready.length,
+          })}
         </Text>
         <Text component={TextVariants.p}>
-          {t("wizard.retrieveConfigurations.review.description")}
+          {t("retrieveConfigWizard.review.description", {
+            count: ready.length,
+          })}
         </Text>
       </TextContent>
 
-      <Grid hasGutter>
-        <GridItem span={12}>
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {t("wizard.retrieveConfigurations.review.selectedApplications")}{" "}
-                ({ready.length})
-              </CardTitle>
-            </CardHeader>
-            <CardBody>
-              <List>
-                {ready.map((application) => (
-                  <ListItem key={application.id}>
-                    <div>
-                      <strong>{application.name}</strong>
-                      {application.description && (
-                        <div style={{ fontSize: "0.9em", color: "#6a6e73" }}>
-                          {application.description}
-                        </div>
-                      )}
-                      {application.platform && (
-                        <div style={{ fontSize: "0.8em", color: "#0066cc" }}>
-                          Source Platform: {application.platform.name}
-                        </div>
-                      )}
-                    </div>
-                  </ListItem>
-                ))}
-              </List>
-            </CardBody>
-          </Card>
-        </GridItem>
-      </Grid>
+      <Panel isScrollable>
+        <PanelMain>
+          <PanelMainBody>
+            <DataList aria-label="applications to retrieve configurations">
+              {ready.map((application) => (
+                <DataListItem
+                  key={application.id}
+                  aria-labelledby={`application-${application.id}`}
+                >
+                  <DataListItemRow>
+                    <DataListItemCells
+                      rowid={`application-${application.id}`}
+                      dataListCells={[
+                        <DataListCell key="1" wrapModifier="breakWord">
+                          <Stack>
+                            <StackItem>
+                              <strong id={`application-${application.id}`}>
+                                {application.name}
+                              </strong>
+                            </StackItem>
+                            <StackItem>
+                              <Text component={TextVariants.small}>
+                                {application.description}
+                              </Text>
+                            </StackItem>
+                          </Stack>
+                        </DataListCell>,
+                        <DataListCell key="3" wrapModifier="breakWord">
+                          {t("terms.sourcePlatform")}:{" "}
+                          {application.platform?.name}
+                        </DataListCell>,
+                      ]}
+                    />
+                  </DataListItemRow>
+                </DataListItem>
+              ))}
+            </DataList>
+          </PanelMainBody>
+        </PanelMain>
+      </Panel>
 
       {/* TODO: Add a view of the applications that are not ready for retrieve configurations. */}
-
-      <TextContent style={{ marginTop: "1rem" }}>
-        <Text component={TextVariants.small}>
-          {t("wizard.retrieveConfigurations.review.warning")}
-        </Text>
-      </TextContent>
-    </div>
+    </>
   );
 };

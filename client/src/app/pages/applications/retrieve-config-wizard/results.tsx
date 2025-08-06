@@ -45,8 +45,12 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
     return (
       <div>
         <TextContent>
-          <Text component={TextVariants.h3}>Results</Text>
-          <Text component={TextVariants.p}>No results available.</Text>
+          <Text component={TextVariants.h3}>
+            {t("retrieveConfigWizard.results.title")}
+          </Text>
+          <Text component={TextVariants.p}>
+            {t("retrieveConfigWizard.results.noResults")}
+          </Text>
         </TextContent>
       </div>
     );
@@ -55,11 +59,13 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
   const { success = [], failure = [] } = results;
 
   return (
-    <div>
+    <>
       <TextContent>
-        <Text component={TextVariants.h3}>Configuration Retrieval Results</Text>
+        <Text component={TextVariants.h3}>
+          {t("retrieveConfigWizard.results.title")}
+        </Text>
         <Text component={TextVariants.p}>
-          Summary of configuration retrieval task submissions.
+          {t("retrieveConfigWizard.results.summary")}
         </Text>
       </TextContent>
 
@@ -73,16 +79,18 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
                     color="var(--pf-global--success-color--100)"
                     style={{ marginRight: "8px" }}
                   />
-                  Successful Submissions ({success.length})
+                  {t("retrieveConfigWizard.results.successSubmissions", {
+                    count: success.length,
+                  })}
                 </CardTitle>
               </CardHeader>
               <CardBody>
                 <Table aria-label="Successful task submissions">
                   <Thead>
                     <Tr>
-                      <Th>Application</Th>
-                      <Th>Task ID</Th>
-                      <Th>Actions</Th>
+                      <Th>{t("terms.application")}</Th>
+                      <Th>{t("terms.task")}</Th>
+                      <Th>{t("actions.actions")}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -132,15 +140,17 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
                     color="var(--pf-global--danger-color--100)"
                     style={{ marginRight: "8px" }}
                   />
-                  Failed Submissions ({failure.length})
+                  {t("retrieveConfigWizard.results.failedSubmissions", {
+                    count: failure.length,
+                  })}
                 </CardTitle>
               </CardHeader>
               <CardBody>
                 <Table aria-label="Failed task submissions">
                   <Thead>
                     <Tr>
-                      <Th>Application</Th>
-                      <Th>Error</Th>
+                      <Th>{t("terms.application")}</Th>
+                      <Th>{t("terms.error")}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -191,12 +201,12 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
           <GridItem span={12}>
             <Card>
               <CardBody>
-                <Text>No tasks were submitted.</Text>
+                <Text>{t("retrieveConfigWizard.noTasksSubmitted")}</Text>
               </CardBody>
             </Card>
           </GridItem>
         )}
       </Grid>
-    </div>
+    </>
   );
 };

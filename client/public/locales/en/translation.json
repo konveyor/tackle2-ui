@@ -665,19 +665,30 @@
     },
     "tooltip": {
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
+    }
+  },
+  "retrieveConfigWizard": {
+    "selectedCount": "{{count}} of {{total}} applications selected",
+    "noApplicationsWithSourcePlatforms": "No applications with source platforms selected.",
+    "noTasksSubmitted": "No tasks were submitted.",
+    "toast": {
+      "submittedOk": "Application manifest fetches submitted",
+      "submittedFailed": "Application manifest fetches failed"
     },
-    "retrieveConfigurations": {
-      "selectApplications": {
-        "title": "Select applications",
-        "description": "Choose the applications for which you want to retrieve configurations from their source platforms."
-      },
-      "review": {
-        "title": "Review",
-        "description": "Review your selections before starting the configuration retrieval process.",
-        "selectedApplications": "Selected applications",
-        "warning": "Configuration retrieval will connect to the source platforms using the application coordinates."
-      },
-      "selectedCount": "{{count}} of {{total}} applications selected"
+    "results": {
+      "title": "Configuration Retrieval Results",
+      "summary": "Summary of configuration retrieval task submissions.",
+      "noResults": "No results available.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Success Submission",
+      "successSubmissions_other": "Success Submissions ({{count}})"
+    },
+    "review": {
+      "description_one": "This application is ready to retrieve configurations from its source platform. The application's platform coordinates will be used to connect to the platform and build the application's discovery manifest.",
+      "description_other": "These applications are ready to retrieve configurations from their source platforms. The applications' platform coordinates will be used to connect to the platform and build the applications' discovery manifests.",
+      "selectedApplications_one": "Selected application",
+      "selectedApplications_other": "Selected applications ({{count}})"
     }
   },
   "credentials": {

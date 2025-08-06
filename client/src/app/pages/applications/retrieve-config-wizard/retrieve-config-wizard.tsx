@@ -5,6 +5,7 @@ import {
   Wizard,
   WizardStep,
   WizardHeader,
+  Button,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
@@ -96,20 +97,24 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     // Store results and move to Results step
     setSubmissionResults({ success, failure });
 
-    console.log("success results", success);
     if (success.length > 0) {
       pushNotification({
-        title: `Application manifest fetches submitted`,
-        message: `Task IDs: ${success.map((result) => result.task.id).join(", ")}`,
+        title: t("retrieveConfigWizard.toast.submittedOk"),
+        message: `Task IDs: ${success
+          .map((result) => result.task.id)
+          .sort()
+          .join(", ")}`,
         variant: "info",
       });
     }
 
-    console.log("failure results", failure);
     if (failure.length > 0) {
       pushNotification({
-        title: `Application manifest fetches failed`,
-        message: `Applications: ${failure.map((result) => result.application.id).join(", ")}`,
+        title: t("retrieveConfigWizard.toast.submittedFailed"),
+        message: `Applications: ${failure
+          .map((result) => result.application.name)
+          .sort()
+          .join(", ")}`,
         variant: "danger",
       });
     }
@@ -123,9 +128,14 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         title={t("dialog.title.retrieveConfigurations")}
         isOpen={isOpen}
         onClose={handleCancel}
+        footer={
+          <Button variant="primary" onClick={handleCancel}>
+            {t("actions.close")}
+          </Button>
+        }
       >
         <div style={{ padding: "20px" }}>
-          <p>{t("message.noApplicationsWithSourcePlatforms")}</p>
+          <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
         </div>
       </Modal>
     );
