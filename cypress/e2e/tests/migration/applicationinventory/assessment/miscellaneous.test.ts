@@ -15,6 +15,7 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
+import { arch } from "os";
 import * as data from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
@@ -29,6 +30,7 @@ import {
   deleteByList,
   getRandomApplicationData,
   login,
+  validateTextPresence,
 } from "../../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -138,7 +140,7 @@ describe(
       applicationList[0].verifyStatus("review", "Not started");
     });
 
-    it("tackle2-ui Issue 2425: Assess application and override assessment for that archetype", function () {
+    it("Assess application and override assessment for that archetype", function () {
       // Polarion TC MTA-390
       const archetypesList = [];
       const tags = createMultipleTags(2);
@@ -149,7 +151,6 @@ describe(
         null
       );
       archetype1.create();
-      archetypesList.push(archetype1);
       const appdata = {
         name: data.getAppName(),
         description: data.getDescription(),
@@ -162,7 +163,9 @@ describe(
       application1.create();
       archetype1.perform_assessment("low", stakeholderList);
       application1.clickAssessButton();
-      application1.validateOverrideAssessmentMessage(archetypesList);
+      const alertTitleMessage = `The application ${application1.name} already is associated with archetypes: ${archetype1.name}`;
+
+      validateTextPresence(alertTitle, alertTitleMessage);
       click(confirmButton);
       cy.contains("button", "Take", { timeout: 70 * SEC }).should(
         "not.have.attr",
@@ -170,7 +173,6 @@ describe(
         "true"
       );
       deleteByList(tags);
-      deleteByList(archetypesList);
     });
 
     it("View archived questionnaire", function () {

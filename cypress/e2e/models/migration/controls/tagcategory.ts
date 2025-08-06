@@ -82,7 +82,7 @@ export class TagCategory {
       .should("contain", columnVal);
   }
 
-  create(cancel = false): void {
+  create(cancel = false, readSuccessAlert = false): void {
     TagCategory.openList();
     clickTags();
     clickByText(button, createTagCategoryButton);
@@ -92,6 +92,7 @@ export class TagCategory {
       fillName(this.name);
       this.selectColor(this.color);
       submitForm();
+      if (!readSuccessAlert) closeSuccessAlert();
       selectItemsPerPage(100);
       exists(this.name);
     }

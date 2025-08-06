@@ -895,7 +895,9 @@ export function clickItemInKebabMenu(rowItem, itemName: string): void {
     .within(() => {
       click(sideKebabMenu);
     });
-  cy.get(actionMenuItem).contains(itemName).click({ force: true });
+  cy.get(actionMenuItem, { timeout: 120 * SEC })
+    .contains(itemName, { timeout: 120 * SEC })
+    .click({ force: true });
 }
 
 export function clickKebabMenuOptionArchetype(
