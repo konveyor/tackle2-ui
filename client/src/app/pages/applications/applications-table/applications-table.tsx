@@ -115,6 +115,7 @@ import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { RetrieveConfigWizard } from "../retrieve-config-wizard";
+import { GenerateAssetsWizard } from "../generate-assets-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -157,6 +158,10 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
   const [retrieveConfigApplications, setRetrieveConfigApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
+
+  const [generateAssetsApplications, setGenerateAssetsApplications] = useState<
     DecoratedApplication[] | null
   >(null);
 
@@ -784,14 +789,14 @@ export const ApplicationsTable: React.FC = () => {
           </DropdownItem>
         ),
         // TODO: Add this back when we can handle the generate operation in bulk
-        // <DropdownItem
-        //   key="generate-assets-for-applications"
-        //   component="button"
-        //   isDisabled={selectedRows.length < 1}
-        //   onClick={() => handleGenerateAssetsBulk(selectedRows)}
-        // >
-        //   {t("actions.generateAssets")}
-        // </DropdownItem>,
+        <DropdownItem
+          key="generate-assets-for-applications"
+          component="button"
+          isDisabled={selectedRows.length < 1}
+          onClick={() => handleGenerateAssetsBulk(selectedRows)}
+        >
+          {t("actions.generateAssets")}
+        </DropdownItem>,
       ],
       [
         applicationWriteAccess && (
@@ -929,14 +934,12 @@ export const ApplicationsTable: React.FC = () => {
     setRetrieveConfigApplications(apps);
   };
 
-  const handleGenerateAssetsBulk = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
+  const handleGenerateAssets = (app: DecoratedApplication) => {
+    setGenerateAssetsApplications([app]);
   };
 
-  const handleGenerateAssets = (_app: DecoratedApplication) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
+  const handleGenerateAssetsBulk = (apps: DecoratedApplication[]) => {
+    setGenerateAssetsApplications(apps);
   };
 
   const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
@@ -1328,6 +1331,14 @@ export const ApplicationsTable: React.FC = () => {
         isOpen={!!retrieveConfigApplications}
         onClose={() => {
           setRetrieveConfigApplications(null);
+        }}
+      />
+      <GenerateAssetsWizard
+        key={generateAssetsApplications ? "open" : "closed"}
+        applications={generateAssetsApplications ?? undefined}
+        isOpen={!!generateAssetsApplications}
+        onClose={() => {
+          setGenerateAssetsApplications(null);
         }}
       />
 

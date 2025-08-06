@@ -44,6 +44,7 @@
     "enablePreemption": "Enable preemption",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
+    "generate": "Generate",
     "import": "Import",
     "logout": "Logout",
     "manageAccount": "User management",
@@ -746,6 +747,35 @@
       "failedSubmissions_other": "Failed Submissions ({{count}})",
       "successSubmissions_one": "Successful Submission",
       "successSubmissions_other": "Successful Submissions ({{count}})"
+    }
+  },
+  "generateAssetsWizard": {
+    "title": "Generate Assets",
+    "description": "Generate deployment assets for the selected applications using their discovery manifests and configured generators.",
+    "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
+    "noTasksSubmitted": "No asset generation tasks were submitted.",
+    "toast": {
+      "submittedOk": "Asset generation tasks submitted",
+      "submittedFailed": "Asset generation task submissions failed"
+    },
+    "results": {
+      "title": "Asset Generation Results",
+      "summary": "Summary of asset generation task submissions.",
+      "noResults": "No results available.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Success Submission",
+      "successSubmissions_other": "Success Submissions ({{count}})"
+    },
+    "review": {
+      "description_one": "This application is ready for asset generation. Assets will be generated based on the application's discovery manifest and target platform configuration.",
+      "description_other": "These applications are ready for asset generation. Assets will be generated based on the applications' discovery manifests and target platform configurations.",
+      "selectedApplications_one": "Selected application",
+      "selectedApplications_other": "Selected applications ({{count}})"
+    },
+    "steps": {
+      "review": "Review",
+      "results": "Results"
     }
   },
   "credentials": {
