@@ -34,6 +34,7 @@
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "discoverApplications": "Discover applications",
+    "discoverImport": "Discover & Import",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -135,7 +136,8 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:"
+      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:",
+      "discoverApplications": "Discover and import applications from the selected platform."
     },
     "title": {
       "applicationAnalysis": "Application analysis",
@@ -177,7 +179,8 @@
       "updateStakeholder": "Update stakeholder",
       "updateStakeholderGroup": "Update stakeholder group",
       "updateTag": "Update tag",
-      "updateTagCategory": "Update tag category"
+      "updateTagCategory": "Update tag category",
+      "discoverApplications": "Discover Applications"
     }
   },
   "efforts": {
@@ -689,6 +692,26 @@
       "description_other": "These applications are ready to retrieve configurations from their source platforms. The applications' platform coordinates will be used to connect to the platform and build the applications' discovery manifests.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
+    }
+  },
+  "platformDiscoverWizard": {
+    "noPlatformSelected": "No platform selected for discovery.",
+    "toast": {
+      "submittedOk": "Platform application discovery task submitted",
+      "submittedFailed": "Platform application discovery task failed"
+    },
+    "results": {
+      "title": "Platform Discovery Results",
+      "summary": "Summary of platform application discovery task submissions.",
+      "noResults": "No results available.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Success Submission",
+      "successSubmissions_other": "Success Submissions ({{count}})"
+    },
+    "review": {
+      "title": "Review Platform Discovery",
+      "description": "This will start application discovery on platform {{platformName}}. The platform credentials will be used to connect and discover applications."
     }
   },
   "credentials": {

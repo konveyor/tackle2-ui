@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -45,16 +45,17 @@ import {
   useDeletePlatformMutation,
   useFetchPlatforms,
 } from "@app/queries/platforms";
+import { SourcePlatform } from "@app/api/models";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { TaskStateIcon } from "@app/components/Icons";
+import { SimplePagination } from "@app/components/SimplePagination";
 
 import LinkToPlatformApplications from "./components/link-to-platform-applications";
 import PlatformDetailDrawer from "./components/platform-detail-drawer";
 import { PlatformForm } from "./components/platform-form";
-import { SourcePlatform, TaskState } from "@app/api/models";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskStateIcon } from "@app/components/Icons";
+import { DiscoverImportWizard } from "./discover-import-wizard/discover-import-wizard";
 
 const SourcePlatforms: React.FC = () => {
   const { t } = useTranslation();
@@ -63,10 +64,6 @@ const SourcePlatforms: React.FC = () => {
 
   const [openCreatePlatform, setOpenCreatePlatform] = useState<boolean>(false);
 
-  const [platforms, setPlatforms] = useState<SourcePlatform[] | undefined>(
-    undefined
-  );
-
   const [platformToEdit, setPlatformToEdit] = useState<SourcePlatform | null>(
     null
   );
@@ -74,22 +71,12 @@ const SourcePlatforms: React.FC = () => {
   const [platformToDelete, setPlatformToDelete] =
     React.useState<SourcePlatform | null>(null);
 
-  const {
-    platforms: basePlatforms,
-    isFetching,
-    error: fetchError,
-  } = useFetchPlatforms();
+  const [platformToDiscoverImport, setPlatformToDiscoverImport] =
+    React.useState<SourcePlatform | null>(null);
 
-  useEffect(() => {
-    if (basePlatforms) {
-      setPlatforms(
-        basePlatforms.map((platform) => ({
-          ...platform,
-          discoverApplicationsState: "No task" as TaskState,
-        }))
-      );
-    }
-  }, [basePlatforms]);
+  const { platforms, isFetching, error: fetchError } = useFetchPlatforms();
+
+  // TODO: Add platform task query to get the state of any task attached to the platforms
 
   const onError = (error: AxiosError) => {
     pushNotification({
@@ -205,7 +192,7 @@ const SourcePlatforms: React.FC = () => {
 
   const discoverApplications = (platform: SourcePlatform) => {
     if (platform) {
-      console.log("discoverApplications", platform);
+      setPlatformToDiscoverImport(platform);
     }
   };
 
@@ -287,6 +274,7 @@ const SourcePlatforms: React.FC = () => {
                         rowIndex={rowIndex}
                       >
                         <Td {...getTdProps({ columnKey: "name" })}>
+                          {/* TODO: Make the task popover for a platform work */}
                           <Popover
                             headerContent={platform.name}
                             bodyContent={`discover applications for ${platform.name} status: ${platform.discoverApplicationsState}`}
@@ -318,9 +306,7 @@ const SourcePlatforms: React.FC = () => {
                             />
                           </Tooltip>
                         </Td>
-
                         <Td isActionCell id="row-actions">
-                          {/* Actions column */}
                           <ActionsColumn
                             items={[
                               ...[
@@ -383,6 +369,15 @@ const SourcePlatforms: React.FC = () => {
           onClose={() => setPlatformToEdit(null)}
         />
       </Modal>
+
+      {/* Platform Discover Import Wizard */}
+      <DiscoverImportWizard
+        platform={platformToDiscoverImport ?? undefined}
+        isOpen={!!platformToDiscoverImport}
+        onClose={() => {
+          setPlatformToDiscoverImport(null);
+        }}
+      />
 
       {/* Delete confirm modal */}
       <ConfirmDialog
