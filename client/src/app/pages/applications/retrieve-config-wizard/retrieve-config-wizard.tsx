@@ -4,7 +4,6 @@ import {
   ModalVariant,
   Wizard,
   WizardStep,
-  WizardStepType,
   WizardHeader,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
@@ -19,6 +18,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
+import { Results, ResultsData } from "./results";
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,
@@ -45,6 +45,7 @@ interface IRetrieveConfigWizard {
 
 enum StepId {
   Review = 1,
+  Results = 2,
 }
 
 export interface FormValues {
@@ -60,6 +61,10 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTasks } = useFetchApplicationManifest();
+
+  // State to track submission results and current step
+  const [submissionResults, setSubmissionResults] =
+    React.useState<ResultsData | null>(null);
 
   const { ready = [], notReady = [] } = group(applications, (app) =>
     app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
@@ -81,11 +86,15 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   const { handleSubmit, watch } = methods;
 
   const handleCancel = () => {
+    setSubmissionResults(null);
     onClose();
   };
 
   const onSubmit = async ({ ready }: FormValues) => {
     const { success, failure } = await submitTasks(ready);
+
+    // Store results and move to Results step
+    setSubmissionResults({ success, failure });
 
     console.log("success results", success);
     if (success.length > 0) {
@@ -106,8 +115,6 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     }
   };
 
-  const onMove = (_current: WizardStepType) => {};
-
   const readyApplications = watch("ready");
   if (readyApplications.length === 0) {
     return (
@@ -124,22 +131,19 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     );
   }
 
+  const showResults = submissionResults !== null;
   return (
-    <Modal
-      variant={ModalVariant.large}
-      aria-label={t("dialog.title.retrieveConfigurations")}
-      isOpen={isOpen}
-      showClose={false}
-      hasNoBodyWrapper
-      onEscapePress={handleCancel}
-    >
-      <FormProvider {...methods}>
+    <FormProvider {...methods}>
+      <Modal
+        variant={ModalVariant.large}
+        aria-label={t("dialog.title.retrieveConfigurations")}
+        isOpen={isOpen}
+        showClose={false}
+        hasNoBodyWrapper
+        onEscapePress={handleCancel}
+      >
         <Wizard
-          onSave={handleSubmit(onSubmit)}
           onClose={handleCancel}
-          onStepChange={(_event, currentStep: WizardStepType) =>
-            onMove(currentStep)
-          }
           header={
             <WizardHeader
               onClose={handleCancel}
@@ -152,15 +156,23 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
             id={StepId.Review}
             name="Review"
             footer={{
-              nextButtonText: t("actions.retrieve"),
+              nextButtonText: showResults
+                ? t("actions.close")
+                : t("actions.retrieve"),
+              onNext: showResults ? handleCancel : handleSubmit(onSubmit),
+              isBackDisabled: showResults,
+              isCancelHidden: showResults,
             }}
           >
-            <Review />
+            {!showResults ? (
+              <Review />
+            ) : (
+              <Results results={submissionResults} />
+            )}
           </WizardStep>
-          {/* TODO: Add a step review the submitted tasks. */}
         </Wizard>
-      </FormProvider>
-    </Modal>
+      </Modal>
+    </FormProvider>
   );
 };
 
