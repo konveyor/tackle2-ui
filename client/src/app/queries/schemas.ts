@@ -5,15 +5,15 @@ import {
   getSchemas,
   getSchemaByName,
   getPlatformCoordinatesSchema,
-  getPlatformDiscoveryFiltersSchema,
+  getPlatformDiscoveryImportSchema,
 } from "@app/api/rest";
 
 export const SCHEMAS_QUERY_KEY = "schemas";
 export const SCHEMA_QUERY_KEY = "schema";
 export const PLATFORM_COORDINATES_SCHEMA_QUERY_KEY =
   "platformCoordinatesSchema";
-export const PLATFORM_DISCOVERY_FILTERS_SCHEMA_QUERY_KEY =
-  "platformDiscoveryFiltersSchema";
+export const PLATFORM_DISCOVERY_IMPORT_SCHEMA_QUERY_KEY =
+  "platformDiscoveryImportSchema";
 
 export const useFetchSchemas = (refetchInterval: number | false = false) => {
   const { isLoading, isSuccess, error, refetch, data } = useQuery({
@@ -66,15 +66,15 @@ export const useFetchPlatformCoordinatesSchema = (platformKind?: string) => {
   };
 };
 
-export const useFetchPlatformDiscoveryFiltersSchema = (
+export const useFetchPlatformDiscoveryImportSchema = (
   platformKind?: string
 ) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [PLATFORM_DISCOVERY_FILTERS_SCHEMA_QUERY_KEY, platformKind],
+    queryKey: [PLATFORM_DISCOVERY_IMPORT_SCHEMA_QUERY_KEY, platformKind],
     queryFn: () =>
       platformKind === undefined
         ? Promise.resolve(undefined)
-        : getPlatformDiscoveryFiltersSchema(platformKind),
+        : getPlatformDiscoveryImportSchema(platformKind),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: platformKind !== undefined,
   });

@@ -328,7 +328,7 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task<DataType = TaskData> {
+export interface Task<DataType = AnalysisTaskData> {
   id: number;
   createUser?: string;
   updateUser?: string;
@@ -419,7 +419,7 @@ export interface TaskAttachment {
   activity?: number;
 }
 
-export interface TaskData {
+export interface AnalysisTaskData {
   tagger: {
     enabled: boolean;
   };
@@ -465,7 +465,7 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: TaskData;
+  data: AnalysisTaskData;
   tasks: TaskgroupTask[];
 }
 
