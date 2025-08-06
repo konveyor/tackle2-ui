@@ -128,23 +128,19 @@ describe(["@tier1"], "Source Analysis without credentials", () => {
   });
 
   // Automates Bug https://issues.redhat.com/browse/MTA-3440
-  it(
-    ["@tier0"],
-    "Source analysis on bookserver app with EAP8 target",
-    function () {
-      const application = new Analysis(
-        getRandomApplicationData("eap8-bookserverApp", {
-          sourceData: this.appData["bookserver-app"],
-        }),
-        getRandomAnalysisData(this.analysisData["eap8_bookserverApp"])
-      );
-      application.create();
-      applicationsList.push(application);
-      cy.wait("@getApplication");
-      application.analyze();
-      application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    }
-  );
+  it("Source analysis on bookserver app with EAP8 target", function () {
+    const application = new Analysis(
+      getRandomApplicationData("eap8-bookserverApp", {
+        sourceData: this.appData["bookserver-app"],
+      }),
+      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"])
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
 
   it("Cancel the analysis and check the status", function () {
     const application = new Analysis(
