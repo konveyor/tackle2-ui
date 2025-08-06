@@ -27,6 +27,7 @@ import { RiskLabel } from "@app/components/RiskLabel";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { LabelsFromTags } from "@app/components/labels/labels-from-tags/labels-from-tags";
 import LinkToArchetypeApplications from "./link-to-archetype-applications";
+import { TargetProfilesTab } from "./target-profiles-tab";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
@@ -36,6 +37,7 @@ export interface IArchetypeDetailDrawerProps {
 
 enum TabKey {
   Details = 0,
+  TargetProfiles,
   Reviews,
 }
 
@@ -119,7 +121,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                   {t("terms.tagsCriteria")}
                 </DescriptionListTerm>
                 <DescriptionListDescription>
-                  {archetype?.criteria?.length ?? 0 > 0 ? (
+                  {(archetype?.criteria?.length ?? 0 > 0) ? (
                     <TagLabels tags={archetype?.criteria} />
                   ) : (
                     <EmptyTextMessage message={t("terms.none")} />
@@ -165,7 +167,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                       </TextContent>
                     </StackItem>
                     <StackItem>
-                      {archetype?.stakeholders?.length ?? 0 > 0 ? (
+                      {(archetype?.stakeholders?.length ?? 0 > 0) ? (
                         <StakeholderLabels archetype={archetype as Archetype} />
                       ) : (
                         <EmptyTextMessage message={t("terms.none")} />
@@ -181,7 +183,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                       </TextContent>
                     </StackItem>
                     <StackItem>
-                      {archetype?.stakeholderGroups?.length ?? 0 > 0 ? (
+                      {(archetype?.stakeholderGroups?.length ?? 0 > 0) ? (
                         <StakeholderGroupsLabels
                           archetype={archetype as Archetype}
                         />
@@ -210,6 +212,12 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
                 <RiskLabel risk={archetype?.risk} />
               </Text>
             </TextContent>
+          </Tab>
+          <Tab
+            eventKey={TabKey.TargetProfiles}
+            title={<TabTitleText>{t("terms.targetProfiles")}</TabTitleText>}
+          >
+            <TargetProfilesTab archetype={archetype} />
           </Tab>
           <Tab
             eventKey={TabKey.Reviews}

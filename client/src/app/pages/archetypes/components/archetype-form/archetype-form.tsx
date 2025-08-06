@@ -12,7 +12,13 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { Archetype, New, Ref, TagRef } from "@app/api/models";
+import type {
+  Archetype,
+  New,
+  Ref,
+  TagRef,
+  TargetProfile,
+} from "@app/api/models";
 import {
   HookFormPFTextArea,
   HookFormPFTextInput,
@@ -33,6 +39,7 @@ import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
+import { TargetProfilesSection } from "../target-profile-form/target-profiles-section";
 import { matchItemsToRefs } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -46,6 +53,7 @@ export interface ArchetypeFormValues {
   tags: TagItemType[];
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
+  profiles: TargetProfile[];
 }
 
 export interface ArchetypeFormProps {
@@ -115,15 +123,12 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        "An archetype with this name already exists. Use a different name.",
-        (value) =>
-          duplicateNameCheck(
-            existingArchetypes,
-            (!isDuplicating && archetype) || null,
-            value ?? ""
-          )
+      .test("Duplicate name", t("validation.duplicateArchetypeName"), (value) =>
+        duplicateNameCheck(
+          existingArchetypes,
+          (!isDuplicating && archetype) || null,
+          value ?? ""
+        )
       ),
 
     description: yup
@@ -157,6 +162,14 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     stakeholderGroups: yup
       .array()
       .of(yup.object({ id: yup.number(), name: yup.string() })),
+
+    profiles: yup.array().of(
+      yup.object({
+        id: yup.mixed(),
+        name: yup.string().required(),
+        generators: yup.array().min(1).required(),
+      })
+    ),
   });
 
   const getDefaultName = () => {
@@ -172,7 +185,8 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-
+    watch,
+    setValue,
     // for debugging
     // getValues,
     // getFieldState,
@@ -199,6 +213,7 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         archetype?.stakeholderGroups?.sort((a, b) =>
           universalComparator(a.name, b.name)
         ) ?? [],
+      profiles: archetype?.profiles ?? [],
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -222,6 +237,14 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       stakeholderGroups: idsToStakeholderGroupRefs(
         values.stakeholderGroups?.map((s) => s.id)
       ),
+      // Submit all target profiles as part of the archetype
+      // These profiles were managed locally and are now being submitted to the backend
+      profiles: values.profiles.map((profile) => ({
+        name: profile.name,
+        generators: profile.generators,
+        // Only include id if it's a number (persisted profile), exclude temp string IDs
+        ...(typeof profile.id === "number" && { id: profile.id }),
+      })),
     };
 
     if (archetype && !isDuplicating) {
@@ -299,6 +322,13 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
           what: t("terms.stakeholderGroup(s)").toLowerCase(),
         })}
         searchInputAriaLabel="stakeholder-groups-select-toggle"
+      />
+
+      <TargetProfilesSection
+        profiles={watch("profiles")}
+        onChange={(profiles: TargetProfile[]) =>
+          setValue("profiles", profiles, { shouldDirty: true })
+        }
       />
 
       <HookFormPFTextArea

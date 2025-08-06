@@ -890,6 +890,12 @@ export interface AssessmentConfidence {
   confidence: number;
 }
 
+export interface TargetProfile {
+  id?: number | string;
+  name: string;
+  generators: Ref[];
+}
+
 export interface Archetype {
   id: number;
   name: string;
@@ -904,6 +910,7 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
   risk?: Risk;
+  profiles?: TargetProfile[];
 }
 
 export interface QuestionWithSectionOrder extends Question {
