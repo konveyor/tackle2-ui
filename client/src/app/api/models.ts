@@ -328,7 +328,7 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task {
+export interface Task<DataType = TaskData> {
   id: number;
   createUser?: string;
   updateUser?: string;
@@ -343,8 +343,9 @@ export interface Task {
   priority?: number;
   policy?: TaskPolicy;
   ttl?: TTL;
-  data?: TaskData;
+  data?: DataType;
   application: Ref;
+  platform?: Ref;
   bucket?: Ref;
   pod?: string;
   retries?: number;
@@ -354,6 +355,18 @@ export interface Task {
   errors?: TaskError[];
   activity?: string[];
   attached?: TaskAttachment[];
+}
+
+export type EmptyTaskData = Record<string, never>;
+
+export interface ApplicationTask<DataType>
+  extends Omit<Task<DataType>, "application" | "platform"> {
+  application: Ref;
+}
+
+export interface PlatformTask<DataType>
+  extends Omit<Task<DataType>, "application" | "platform"> {
+  platform: Ref;
 }
 
 /** A smaller version of `Task` fetched from the report/dashboard endpoint. */

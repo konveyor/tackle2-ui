@@ -8,6 +8,7 @@ import {
 import {
   cancelTask,
   cancelTasks,
+  createTask,
   deleteTask,
   getServerTasks,
   getTaskById,
@@ -15,6 +16,7 @@ import {
   getTaskQueue,
   getTasksDashboard,
   getTextFileById,
+  submitTask,
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
@@ -24,6 +26,7 @@ import {
   Task,
   TaskQueue,
   TaskDashboard,
+  New,
 } from "@app/api/models";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
@@ -163,67 +166,121 @@ export const useServerTasks = (
 };
 
 export const useDeleteTaskMutation = (
-  onSuccess: () => void,
-  onError: (err: Error | null) => void
+  onSuccess?: () => void,
+  onError?: (err: Error | null) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTask,
-    onSuccess: () => {
-      onSuccess && onSuccess();
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.();
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTask,
-    onSuccess: (response) => {
+    onSuccess: ({ status }, id) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTasksMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTasks,
-    onSuccess: (response) => {
+    onSuccess: ({ status }, data) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      data.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
-export const useUpdateTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+export const useUpdateTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateTask,
-    onSuccess: (response) => {
+    mutationFn: (task: Partial<TaskType> & { id: number }) =>
+      updateTask<TaskData, TaskType>(task),
+    onSuccess: ({ status, data }) => {
       queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
-      onSuccess && onSuccess(response.status);
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, data.id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
+    },
+  });
+};
+
+export const useCreateTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
+  onSuccess?: (task: TaskType) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (task: New<TaskType>) => createTask<TaskData, TaskType>(task),
+    onSuccess: (task) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
+    },
+  });
+};
+
+export const useSubmitTaskMutation = <
+  TaskData,
+  TaskType extends Task<TaskData>,
+>(
+  onSuccess?: (task: TaskType) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (task: TaskType) => submitTask<TaskData, TaskType>(task),
+    onSuccess: (_, task: TaskType) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
     },
   });
 };

@@ -170,6 +170,8 @@ const decorateApplications = (
         app.platform && app.coordinates?.content ? true : false,
 
       isReadyForGenerateAssets:
+        // TODO: Add a check for the application to have an asset repository
+        // TODO: Add a check for the application to have a manifest
         app.platform && app.coordinates?.content ? true : false,
 
       direct: {
