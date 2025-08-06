@@ -700,6 +700,11 @@
       "submittedOk": "Platform application discovery task submitted",
       "submittedFailed": "Platform application discovery task failed"
     },
+    "filterInput": {
+      "title": "Configure Discovery Filters",
+      "description": "Configure the filters for discovering applications on platform {{platformName}} ({{platformKind}}). These filters will determine which applications are discovered and imported.",
+      "noFiltersAvailable": "No discovery filters are available for platform kind {{platformKind}}."
+    },
     "results": {
       "title": "Platform Discovery Results",
       "summary": "Summary of platform application discovery task submissions.",
@@ -711,7 +716,8 @@
     },
     "review": {
       "title": "Review Platform Discovery",
-      "description": "This will start application discovery on platform {{platformName}}. The platform credentials will be used to connect and discover applications."
+      "description": "Review the platform and discovery filters before starting application discovery on {{platformName}}.",
+      "discoveryFilters": "Discovery Filters"
     }
   },
   "credentials": {

@@ -364,6 +364,8 @@ export interface ApplicationTask<DataType>
   application: Ref;
 }
 
+export interface PlatformDiscoveryImportData extends JsonDocument {}
+
 export interface PlatformTask<DataType>
   extends Omit<Task<DataType>, "application" | "platform"> {
   platform: Ref;

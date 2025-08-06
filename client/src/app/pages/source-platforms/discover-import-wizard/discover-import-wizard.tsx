@@ -13,20 +13,20 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-import { New, PlatformTask } from "@app/api/models";
+import {
+  New,
+  PlatformDiscoveryImportData,
+  PlatformTask,
+  TargetedSchema,
+} from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateTaskMutation } from "@app/queries/tasks";
+import { useFetchPlatformDiscoveryImportSchema } from "@app/queries/schemas";
 import { SourcePlatform } from "@app/api/models";
+import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { FilterInput } from "./filter-input";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
-
-// ImportFilter type for platform discovery tasks
-export interface ImportFilter {
-  // Filter criteria for discovering applications
-  includePatterns?: string[];
-  excludePatterns?: string[];
-  // Additional filter options as needed
-}
 
 export const DiscoverImportWizard: React.FC<IDiscoverImportWizard> = ({
   isOpen,
@@ -52,13 +52,15 @@ interface IDiscoverImportWizard {
 }
 
 enum StepId {
-  Review = 1,
-  Results = 2,
+  FilterInput = 1,
+  Review = 2,
+  Results = 3,
 }
 
 export interface FormValues {
   platform: SourcePlatform;
-  filters: ImportFilter;
+  filtersSchema?: TargetedSchema;
+  filtersDocument?: PlatformDiscoveryImportData;
 }
 
 const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
@@ -73,38 +75,74 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   // State to track submission results and current step
   const [submissionResults, setSubmissionResults] =
     React.useState<ResultsData | null>(null);
+  const [activeStep, setActiveStep] = React.useState<StepId>(
+    StepId.FilterInput
+  );
+
+  // Fetch the discovery filters schema for the platform
+  const { filtersSchema } = useFetchPlatformDiscoveryImportSchema(
+    platform?.kind
+  );
+
+  const validationSchema = React.useMemo(() => {
+    return yup.object({
+      platform: yup.object().required(),
+      filtersSchema: yup.object().nullable(),
+      filtersDocument: yup
+        .object()
+        .when("filtersSchema", (filtersSchema: TargetedSchema | undefined) => {
+          return filtersSchema
+            ? jsonSchemaToYupSchema(filtersSchema.definition, t)
+            : yup.object().nullable();
+        }),
+    });
+  }, [t]);
 
   const methods = useForm<FormValues>({
     defaultValues: {
       platform: platform!,
-      filters: {
-        includePatterns: [],
-        excludePatterns: [],
-      },
+      filtersSchema: undefined, // will be set by useEffect below
+      filtersDocument: {},
     },
-    resolver: yupResolver(
-      yup.object({
-        platform: yup.object().required(),
-        filters: yup.object().shape({
-          includePatterns: yup.array().of(yup.string()),
-          excludePatterns: yup.array().of(yup.string()),
-        }),
-      })
-    ),
+    resolver: yupResolver(validationSchema),
     mode: "all",
   });
-  const { handleSubmit } = methods;
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isValid },
+  } = methods;
+
+  // Update form when schema is loaded
+  React.useEffect(() => {
+    if (filtersSchema) {
+      reset({
+        ...methods.getValues(),
+        filtersSchema: filtersSchema,
+        filtersDocument: {},
+      });
+    } else {
+      reset({
+        ...methods.getValues(),
+        filtersSchema: undefined,
+        filtersDocument: undefined,
+      });
+    }
+  }, [filtersSchema, reset, methods]);
 
   const handleCancel = () => {
     setSubmissionResults(null);
+    setActiveStep(StepId.FilterInput);
     onClose();
   };
 
-  const onSubmit = async ({ platform, filters }: FormValues) => {
-    const { success, failure } = await submitTask(platform, filters);
+  const onSubmit = async ({ platform, filtersDocument }: FormValues) => {
+    const { success, failure } = await submitTask(platform, filtersDocument);
 
     // Store results and move to Results step
     setSubmissionResults({ success, failure });
+    setActiveStep(StepId.Results);
 
     if (success.length > 0) {
       pushNotification({
@@ -149,6 +187,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   }
 
   const showResults = submissionResults !== null;
+
   return (
     <FormProvider {...methods}>
       <Modal
@@ -170,16 +209,33 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
           }
         >
           <WizardStep
+            id={StepId.FilterInput}
+            name={t("platformDiscoverWizard.filterInput.title")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              onNext: () => setActiveStep(StepId.Review),
+              isNextDisabled: !isValid || !filtersSchema,
+              isCancelHidden: showResults,
+            }}
+            isHidden={activeStep !== StepId.FilterInput || showResults}
+          >
+            <FilterInput />
+          </WizardStep>
+
+          <WizardStep
             id={StepId.Review}
-            name="Review"
+            name={t("platformDiscoverWizard.review.title")}
             footer={{
               nextButtonText: showResults
                 ? t("actions.close")
                 : t("actions.discoverApplications"),
               onNext: showResults ? handleCancel : handleSubmit(onSubmit),
+              backButtonText: t("actions.back"),
+              onBack: () => setActiveStep(StepId.FilterInput),
               isBackDisabled: showResults,
               isCancelHidden: showResults,
             }}
+            isHidden={activeStep !== StepId.Review && !showResults}
           >
             {!showResults ? (
               <Review />
@@ -194,32 +250,29 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
 };
 
 const useStartPlatformApplicationDiscover = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation<
-    ImportFilter,
-    PlatformTask<ImportFilter>
-  >();
+  const { mutateAsync: createTask } = useCreateTaskMutation();
 
   const createAndSubmitTask = async (
     platform: SourcePlatform,
-    filters: ImportFilter
+    filters?: PlatformDiscoveryImportData
   ): Promise<{
     success?: {
-      task: PlatformTask<ImportFilter>;
+      task: PlatformTask<PlatformDiscoveryImportData>;
       platform: SourcePlatform;
     };
     failure?: {
       message: string;
       cause: Error;
       platform: SourcePlatform;
-      newTask: New<PlatformTask<ImportFilter>>;
+      newTask: New<PlatformTask<PlatformDiscoveryImportData>>;
     };
   }> => {
-    const newTask: New<PlatformTask<ImportFilter>> = {
-      name: `${platform.name}.${platform.id}.platform-discover-import`,
-      kind: "platform-discover-import",
+    const newTask: New<PlatformTask<PlatformDiscoveryImportData>> = {
+      name: `${platform.name}.${platform.id}.application-import`,
+      kind: "application-import",
       platform: { id: platform.id, name: platform.name },
       state: "Ready",
-      data: filters,
+      data: filters || {},
     };
 
     try {
@@ -239,7 +292,7 @@ const useStartPlatformApplicationDiscover = () => {
 
   const submitTask = async (
     platform: SourcePlatform,
-    filters: ImportFilter
+    filters?: PlatformDiscoveryImportData
   ) => {
     const result = await createAndSubmitTask(platform, filters);
 

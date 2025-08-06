@@ -14,19 +14,21 @@ import {
   Text,
 } from "@patternfly/react-core";
 
-import { PlatformTask, SourcePlatform } from "@app/api/models";
-import { ImportFilter } from "./discover-import-wizard";
+import {
+  PlatformDiscoveryImportData,
+  PlatformTask,
+  SourcePlatform,
+} from "@app/api/models";
 
 export interface ResultsData {
   success: Array<{
-    task: PlatformTask<ImportFilter>;
+    task: PlatformTask<PlatformDiscoveryImportData>;
     platform: SourcePlatform;
   }>;
   failure: Array<{
     message: string;
     cause: Error;
     platform: SourcePlatform;
-    newTask: any;
   }>;
 }
 
