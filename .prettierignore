@@ -7,7 +7,6 @@
 .eslintcache/
 .gitignore
 LICENSE
-*.md
 license-checker-config.json
 
 cypress/downloads/
