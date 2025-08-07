@@ -94,7 +94,7 @@ describe(["@tier2"], "Test Static Report UI", { baseUrl: null }, function () {
   };
 
   beforeEach("Load data", function () {
-    cy.visit(`/cypress/downloads/analysis-report-app-${appName}/index.html`);
+    cy.visit(`cypress/downloads/analysis-report-app-${appName}/index.html`);
   });
 
   it("Validate Application Menu", function () {

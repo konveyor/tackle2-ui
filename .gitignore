@@ -125,3 +125,4 @@ docs/
 #config files
 cypress/cypress.config.ts
 cypress/fixtures/xml/settings.xml
+cypress/.env
