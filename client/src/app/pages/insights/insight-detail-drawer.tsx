@@ -52,7 +52,7 @@ export const InsightDetailDrawer: React.FC<IInsightDetailDrawerProps> = ({
       header={
         <TextContent>
           <Text component="small" className={spacing.mb_0}>
-            {t("insight")}
+            {t("Insight")}
           </Text>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {insight ? getInsightTitle(insight) : ""}
