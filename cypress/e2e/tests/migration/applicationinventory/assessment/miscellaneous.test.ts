@@ -15,7 +15,6 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { arch } from "os";
 import * as data from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
@@ -348,7 +347,7 @@ describe(
       // Automates Polarion MTA-519 Validate application tag filtration
       application.validateTagsCount("2");
       application.filterTags("Assessment"); // Verify assessment tag is applied to application
-      application.tagAndCategoryExists([assessmentTag]);
+      application.tagAndCategoryExists(assessmentTag[0]);
       application.tagAndCategoryDontExist([archetypeTag, ["Language", "C"]]);
       application.closeApplicationDetails();
 
@@ -387,7 +386,7 @@ describe(
 
       // Verify archetype tag and assessment tag are present on application details page
       application2.filterTags("Archetype");
-      application2.tagAndCategoryExists([archetypeTag]);
+      application2.tagAndCategoryExists(archetypeTag[0]);
       application2.tagAndCategoryDontExist([
         assessmentTag,
         ["Language", "Java"],
@@ -395,7 +394,7 @@ describe(
       application2.closeApplicationDetails();
 
       application2.filterTags("Assessment");
-      application2.tagAndCategoryExists([assessmentTag]);
+      application2.tagAndCategoryExists(assessmentTag[0]);
       application2.tagAndCategoryDontExist([
         archetypeTag,
         ["Language", "Java"],

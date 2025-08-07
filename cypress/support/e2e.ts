@@ -20,7 +20,7 @@ import "cypress-fail-fast";
 import "cypress-file-upload";
 import "cypress-fs";
 import "cypress-react-selector";
-import "cypress-real-events";
+import "cypress-real-events/support";
 require("cy-verify-downloads").addCustomCommand();
 
 // plugins

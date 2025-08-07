@@ -773,7 +773,7 @@ export function importApplication(
   // Performs application import via csv file upload
   application_inventory_kebab_menu("Import");
   cy.get('input[type="file"]', { timeout: 2 * SEC }).selectFile(
-    `cypress/fixtures/${fileName}`,
+    `fixtures/${fileName}`,
     {
       timeout: 120 * SEC,
       force: true,
@@ -799,7 +799,7 @@ export function importApplication(
 
 export function uploadApplications(fileName: string): void {
   cy.get('input[type="file"]', { timeout: 5 * SEC }).selectFile(
-    `cypress/fixtures/${fileName}`,
+    `fixtures/${fileName}`,
     {
       timeout: 120 * SEC,
       force: true,
@@ -811,13 +811,10 @@ export function uploadFile(
   fileName: string,
   selector = 'input[type="file"]'
 ): void {
-  cy.get(selector, { timeout: 5 * SEC }).selectFile(
-    `cypress/fixtures/${fileName}`,
-    {
-      timeout: 120 * SEC,
-      force: true,
-    }
-  );
+  cy.get(selector, { timeout: 5 * SEC }).selectFile(`fixtures/${fileName}`, {
+    timeout: 120 * SEC,
+    force: true,
+  });
   cy.wait(2000);
 }
 
@@ -1684,16 +1681,16 @@ export function writeMavenSettingsFile(
   password: string,
   url?: string
 ): void {
-  cy.readFile("cypress/fixtures/xml/settings.xml.example", { log: false }).then(
+  cy.readFile("fixtures/xml/settings.xml.example", { log: false }).then(
     (exampleData) => {
-      cy.writeFile("cypress/fixtures/xml/settings.xml", exampleData, {
+      cy.writeFile("fixtures/xml/settings.xml", exampleData, {
         log: false,
       }).then(() => {
-        cy.readFile("cypress/fixtures/xml/settings.xml").then((data) => {
+        cy.readFile("fixtures/xml/settings.xml").then((data) => {
           // Sometimes the data will be undefined due to access problems in pipelines
           // When no access, data will be strictly undefined, not an empty string
           if (data === undefined) {
-            cy.writeFile("cypress/fixtures/xml/settings.xml", "");
+            cy.writeFile("fixtures/xml/settings.xml", "");
             return;
           }
           const parser = new DOMParser();
@@ -1710,7 +1707,7 @@ export function writeMavenSettingsFile(
               .getElementsByTagName("url")[0].childNodes[0].nodeValue = url;
           }
           cy.writeFile(
-            "cypress/fixtures/xml/settings.xml",
+            "fixtures/xml/settings.xml",
             serializer.serializeToString(xmlDOM)
           );
         });
@@ -1720,13 +1717,13 @@ export function writeMavenSettingsFile(
 }
 
 export function writeGpgKey(git_key): void {
-  cy.readFile("cypress/fixtures/gpgkey").then(() => {
+  cy.readFile("fixtures/gpgkey").then(() => {
     const key = git_key;
     const beginningKey = "-----BEGIN RSA PRIVATE KEY-----";
     const endingKey = "-----END RSA PRIVATE KEY-----";
     const keystring = key.toString().split(" ").join("\n");
     const gpgkey = beginningKey + "\n" + keystring + "\n" + endingKey;
-    cy.writeFile("cypress/fixtures/gpgkey", gpgkey);
+    cy.writeFile("fixtures/gpgkey", gpgkey);
   });
 }
 
@@ -1867,8 +1864,8 @@ export function clickTab(name: string): void {
 }
 
 export function cleanupDownloads(): void {
-  // This will eliminate content of `cypress/downloads` folder
-  cy.exec("cd cypress/downloads; rm -rf ./*").then((result) => {
+  // This will eliminate content of `downloads` folder
+  cy.exec("cd downloads; rm -rf ./*").then((result) => {
     cy.log(result.stdout);
   });
 }
@@ -1990,7 +1987,7 @@ export function seedAnalysisData(applicationId: number): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd cypress/fixtures && chmod +x analysis.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./analysis.sh ${applicationId}`;
+  const command = `cd fixtures && chmod +x analysis.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./analysis.sh ${applicationId}`;
   cy.exec(command, {
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
@@ -2199,7 +2196,7 @@ export function downloadTaskDetails(format = downloadFormatDetails.yaml) {
   cy.url().should("include", "tasks");
   cy.url().then((url) => {
     const taskId = url.split("/").pop();
-    const filePath = `cypress/downloads/log-${taskId}.${format.key}`;
+    const filePath = `downloads/log-${taskId}.${format.key}`;
     cy.get(format.button).click();
     cy.get(downloadTaskButton).click();
     if (format === downloadFormatDetails.json) {

@@ -58,7 +58,7 @@ export class AssessmentQuestionnaire {
     AssessmentQuestionnaire.open();
     click(importQuestionnaire);
     cy.get('input[type="file"]', { timeout: 2 * SEC }).selectFile(
-      `cypress/fixtures/${fileName}`,
+      `fixtures/${fileName}`,
       {
         timeout: 120 * SEC,
         force: true,

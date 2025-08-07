@@ -22,7 +22,7 @@ const invalidYamlFile =
   "questionnaire_import/invalid-questionnaire-template.yaml";
 const cloudNativePath = "questionnaire_import/cloud-native.yaml";
 
-const cloudNativeDownloadPath = "cypress/downloads/";
+const cloudNativeDownloadPath = "cypress/downloads";
 
 describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
   it("Download YAML template", function () {
@@ -96,7 +96,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
     // Automates polarion MTA-437
     const targetNewName = "Cloud Native1";
     const updatedFileName = "cloud-native-updated.yaml";
-    const fixturesPath = "cypress/fixtures/" + updatedFileName;
+    const fixturesPath = "fixtures/" + updatedFileName;
 
     AssessmentQuestionnaire.import(cloudNativePath);
     AssessmentQuestionnaire.export(cloudNative);
