@@ -90,10 +90,8 @@ import {
   continueButton,
 } from "../../../views/assessment.view";
 import * as commonView from "../../../views/common.view";
-import { alertBody, alertTitle } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import { reviewColumnSelector } from "../../../views/review.view";
-import { Archetype } from "../archetypes/archetype";
 import { Stakeholdergroups } from "../controls/stakeholdergroups";
 import { Stakeholders } from "../controls/stakeholders";
 import { Issues } from "../dynamic-report/issues/issues";
