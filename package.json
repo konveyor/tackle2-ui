@@ -27,6 +27,7 @@
     "port-forward": "concurrently -c auto 'npm:port-forward:*'"
   },
   "lint-staged": {
+    "package-lock.json": "./scripts/verify_lock.mjs",
     "!(package-lock.json)*": "prettier --ignore-unknown --write",
     ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write"
   },
