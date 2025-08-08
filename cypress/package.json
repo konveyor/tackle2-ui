@@ -44,7 +44,8 @@
     "e2e:open:local": "cypress open --e2e --env baseUrl=http://localhost:9000",
     "check": "prettier --check '**/*.{ts,js,json}'",
     "format": "prettier --write '**/*.{ts,js,json}'",
-    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml"
+    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml",
+    "lint": "eslint ."
   },
   "lint-staged": {
     "!(package-lock.json)*": "prettier --ignore-unknown --write",

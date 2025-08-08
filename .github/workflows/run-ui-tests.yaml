@@ -5,7 +5,7 @@ on:
     inputs:
       test_tags:
         type: string
-        default: "@ci,@tier0"
+        default: "@ci"
 
       feature_auth_required:
         type: boolean
@@ -28,7 +28,7 @@ on:
       test_tags:
         description: Comma separated list of test tags to run
         type: string
-        default: "@ci,@tier0"
+        default: "@ci"
 
       feature_auth_required:
         description: Enable authentication?
