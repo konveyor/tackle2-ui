@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   main-tier0:
-    uses: ./.github/workflows/run-ui-tests.yaml
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: "@ci,@tier0"
       feature_auth_required: true
