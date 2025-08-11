@@ -5,7 +5,7 @@ on:
     inputs:
       test_tags:
         type: string
-        default: "@ci"
+        default: "@ci,@tier0"
 
       feature_auth_required:
         type: boolean
@@ -28,7 +28,7 @@ on:
       test_tags:
         description: Comma separated list of test tags to run
         type: string
-        default: "@ci"
+        default: "@ci,@tier0"
 
       feature_auth_required:
         description: Enable authentication?
@@ -105,8 +105,8 @@ jobs:
         env:
           CYPRESS_baseUrl: "${{ env.UI_URL }}"
         with:
-          working-directory: tackle2-ui
-          spec: "cypress/e2e/tests/login.test.ts"
+          working-directory: tackle2-ui/cypress
+          spec: "e2e/tests/login.test.ts"
 
       - name: Run UI tests (${{ inputs.test_tags }}) using default credentials from `cypress.config.ts`
         uses: cypress-io/github-action@v6
@@ -117,7 +117,7 @@ jobs:
           CYPRESS_git_password: "${{ secrets.GITHUB_TOKEN }}"
           CYPRESS_git_key: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          working-directory: tackle2-ui
+          working-directory: tackle2-ui/cypress
 
       - uses: actions/upload-artifact@v4
         if: failure()
