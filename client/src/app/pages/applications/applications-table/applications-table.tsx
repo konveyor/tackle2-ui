@@ -18,7 +18,6 @@ import {
   FormSelect,
   FormSelectOption,
   TextContent,
-  OverflowMenu,
 } from "@patternfly/react-core";
 import {
   PencilAltIcon,
@@ -34,6 +33,7 @@ import {
   Td,
   ActionsColumn,
   Tbody,
+  IAction,
 } from "@patternfly/react-table";
 
 // @app components and utilities
@@ -97,16 +97,15 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import {
-  ApplicationAnalysisStatus,
+  ColumnAnalysisStatus,
   mapAnalysisStateToLabel,
-} from "../components/application-analysis-status";
-import { ApplicationAssessmentStatus } from "../components/application-assessment-status";
-import { ApplicationBusinessService } from "../components/application-business-service";
+} from "./components/column-analysis-status";
+import { ColumnAssessmentStatus } from "./components/column-assessment-status";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { ApplicationDetailDrawer } from "../components/application-detail-drawer/application-detail-drawer";
-import { ApplicationFormModal } from "../components/application-form";
-import { ApplicationIdentityForm } from "../components/application-identity-form/application-identity-form";
-import { ApplicationReviewStatus } from "../components/application-review-status/application-review-status";
+import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
+import { ApplicationFormModal } from "../application-form";
+import { ApplicationIdentityForm } from "../application-identity-form/application-identity-form";
+import { ColumnReviewStatus } from "./components/column-review-status";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { IconWithLabel } from "@app/components/Icons";
@@ -115,12 +114,26 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { RetrieveConfigWizard } from "../retrieve-config-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { DropdownSeparator } from "@patternfly/react-core/deprecated";
+
+const filterAndAddSeparator = <T,>(
+  separator: (index: number) => T,
+  groups: Array<Array<T | Falsy>>
+): Array<T> => {
+  return groups
+    .map<Array<T>>((group) => group.filter(Boolean))
+    .filter((group) => group.length > 0)
+    .flatMap((group, index) =>
+      index === 0 ? group : [separator(index), ...group]
+    );
+};
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -154,6 +167,9 @@ export const ApplicationsTable: React.FC = () => {
     useState<DecoratedApplication | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
+  const [retrieveConfigApplications, setRetrieveConfigApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
 
   const [applicationDependenciesToManage, setApplicationDependenciesToManage] =
     useState<DecoratedApplication | null>(null);
@@ -619,7 +635,7 @@ export const ApplicationsTable: React.FC = () => {
     ],
 
     initialItemsPerPage: 10,
-    hasActionsColumn: true,
+    hasActionsColumn: false,
     isSelectionEnabled: true,
   });
 
@@ -672,80 +688,120 @@ export const ApplicationsTable: React.FC = () => {
     tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
-  const toolbarKebabItems = [
-    importWriteAccess && (
-      <DropdownItem
-        key="import-applications"
-        component="button"
-        onClick={() => setIsApplicationImportModalOpen(true)}
-      >
-        {t("actions.import")}
-      </DropdownItem>
-    ),
-    importWriteAccess && (
-      <DropdownItem
-        key="manage-import-applications"
-        onClick={() => {
-          history.push(Paths.applicationsImports);
-        }}
-      >
-        {t("actions.manageImports")}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && (
-      <DropdownItem
-        key="applications-bulk-delete"
-        isDisabled={selectedRows.length < 1}
-        onClick={() => {
-          setApplicationsToDelete(selectedRows);
-        }}
-      >
-        {t("actions.delete")}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
-      <DropdownItem
-        key="applications-bulk-cancel"
-        isDisabled={
-          !selectedRows.some((application: DecoratedApplication) =>
-            isTaskCancellable(application)
-          )
-        }
-        onClick={() => {
-          handleCancelBulkAnalysis();
-        }}
-      >
-        {t("actions.cancelAnalysis")}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && (
-      <DropdownItem
-        key="analysis-bulk-download"
-        isDisabled={
-          !selectedRows.some(
-            (application: DecoratedApplication) =>
-              application.tasks.currentAnalyzer?.id !== undefined
-          )
-        }
-        onClick={() => {
-          setIsDownloadModalOpen(true);
-        }}
-      >
-        {t("actions.download", { what: "analysis details" })}
-      </DropdownItem>
-    ),
-    applicationWriteAccess && credentialsReadAccess && (
-      <DropdownItem
-        key="manage-applications-credentials"
-        isDisabled={selectedRows.length < 1}
-        onClick={() => {
-          setSaveApplicationsCredentialsModalState(selectedRows);
-        }}
-      >
-        {t("actions.manageCredentials")}
-      </DropdownItem>
-    ),
-  ].filter(Boolean);
+  const toolbarKebabItems = filterAndAddSeparator(
+    (index) => <DropdownSeparator key={`breakpoint-${index}`} />,
+    [
+      [
+        importWriteAccess && (
+          <DropdownItem
+            key="import-applications"
+            component="button"
+            onClick={() => setIsApplicationImportModalOpen(true)}
+          >
+            {t("actions.import")}
+          </DropdownItem>
+        ),
+        importWriteAccess && (
+          <DropdownItem
+            key="manage-import-applications"
+            onClick={() => {
+              history.push(Paths.applicationsImports);
+            }}
+          >
+            {t("actions.manageImports")}
+          </DropdownItem>
+        ),
+      ],
+      [
+        applicationWriteAccess && tasksReadAccess && tasksWriteAccess && (
+          <DropdownItem
+            key="applications-bulk-cancel"
+            isDisabled={
+              !selectedRows.some((application: DecoratedApplication) =>
+                isTaskCancellable(application)
+              )
+            }
+            onClick={() => {
+              handleCancelBulkAnalysis();
+            }}
+          >
+            {t("actions.cancelAnalysis")}
+          </DropdownItem>
+        ),
+        applicationWriteAccess && (
+          <DropdownItem
+            key="analysis-bulk-download"
+            isDisabled={
+              !selectedRows.some(
+                (application: DecoratedApplication) =>
+                  application.tasks.currentAnalyzer?.id !== undefined
+              )
+            }
+            onClick={() => {
+              setIsDownloadModalOpen(true);
+            }}
+          >
+            {t("actions.download", { what: "analysis details" })}
+          </DropdownItem>
+        ),
+        applicationWriteAccess && credentialsReadAccess && (
+          <DropdownItem
+            key="manage-applications-credentials"
+            isDisabled={selectedRows.length < 1}
+            onClick={() => {
+              setSaveApplicationsCredentialsModalState(selectedRows);
+            }}
+          >
+            {t("actions.manageCredentials")}
+          </DropdownItem>
+        ),
+      ],
+      [
+        <DropdownItem
+          key="change-source-platform-applications"
+          isDisabled={true}
+          onClick={() => handleChangeSourcePlatform(selectedRows)}
+        >
+          {t("actions.changeSourcePlatform")}
+        </DropdownItem>,
+        applicationWriteAccess && (
+          <DropdownItem
+            key="retrieve-configurations-bulk"
+            isDisabled={
+              selectedRows.length < 1 ||
+              !selectedRows.some((app) => app.platform?.id)
+            }
+            onClick={() => handleRetrieveConfigurationsBulk(selectedRows)}
+          >
+            {t("actions.retrieveConfigurations")}
+          </DropdownItem>
+        ),
+        // TODO: Add this back when we can handle the generate operation in bulk
+        // <DropdownItem
+        //   key="generate-assets-for-applications"
+        //   component="button"
+        //   isDisabled={selectedRows.length < 1}
+        //   onClick={() => handleGenerateAssetsBulk(selectedRows)}
+        // >
+        //   {t("actions.generateAssets")}
+        // </DropdownItem>,
+      ],
+      [
+        applicationWriteAccess && (
+          <DropdownItem
+            key="applications-bulk-delete"
+            isDisabled={selectedRows.length < 1}
+            isDanger
+            onClick={() => {
+              setApplicationsToDelete(selectedRows);
+            }}
+          >
+            {t("actions.delete")}
+          </DropdownItem>
+        ),
+      ],
+    ]
+  );
 
   /**
    * Analysis on the selected applications should be allowed if:
@@ -856,6 +912,29 @@ export const ApplicationsTable: React.FC = () => {
         })
       );
     }
+  };
+
+  const handleRetrieveConfigurations = (app: DecoratedApplication) => {
+    setRetrieveConfigApplications([app]);
+  };
+
+  const handleRetrieveConfigurationsBulk = (apps: DecoratedApplication[]) => {
+    setRetrieveConfigApplications(apps);
+  };
+
+  const handleGenerateAssetsBulk = (_apps: DecoratedApplication[]) => {
+    // TODO: Implement this with #2294
+    console.log("generate assets coming with #2294");
+  };
+
+  const handleGenerateAssets = (_app: DecoratedApplication) => {
+    // TODO: Implement this with #2294
+    console.log("generate assets coming with #2294");
+  };
+
+  const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
+    // TODO: Implement this with #2509
+    console.log("change source platform coming with #2509");
   };
 
   return (
@@ -990,7 +1069,8 @@ export const ApplicationsTable: React.FC = () => {
                     }}
                   />
                 )}
-                <Th screenReaderText="row actions" />
+                <Th screenReaderText="primary action" />
+                <Th screenReaderText="secondary actions" />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -1034,10 +1114,10 @@ export const ApplicationsTable: React.FC = () => {
                         {...getTdProps({ columnKey: "businessService" })}
                         modifier="truncate"
                       >
-                        {application.businessService && (
-                          <ApplicationBusinessService
-                            id={application.businessService.id}
-                          />
+                        {application.direct.businessService ? (
+                          application.direct.businessService.name
+                        ) : (
+                          <></>
                         )}
                       </Td>
                     )}
@@ -1047,7 +1127,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "assessment" })}
                       >
-                        <ApplicationAssessmentStatus
+                        <ColumnAssessmentStatus
                           application={application}
                           key={`${application?.id}-assessment-status`}
                         />
@@ -1059,7 +1139,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "review" })}
                       >
-                        <ApplicationReviewStatus
+                        <ColumnReviewStatus
                           application={application}
                           key={`${application?.id}-review-status`}
                         />
@@ -1071,7 +1151,7 @@ export const ApplicationsTable: React.FC = () => {
                         modifier="truncate"
                         {...getTdProps({ columnKey: "analysis" })}
                       >
-                        <ApplicationAnalysisStatus
+                        <ColumnAnalysisStatus
                           state={
                             application.tasks.currentAnalyzer?.state ||
                             "No task"
@@ -1100,88 +1180,113 @@ export const ApplicationsTable: React.FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-                    <Td isActionCell id="action">
-                      <OverflowMenu breakpoint="sm">
-                        {applicationWriteAccess && (
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() =>
-                                setSaveApplicationModalState(application)
-                              }
-                            />
-                          </Tooltip>
-                        )}
-                        <ActionsColumn
-                          items={[
-                            assessmentWriteAccess && {
-                              title: t("actions.assess"),
-                              onClick: () => assessSelectedApp(application),
-                            },
-                            assessmentWriteAccess &&
-                              (application.assessments?.length ?? 0) > 0 && {
-                                title: t("actions.discardAssessment"),
-                                onClick: () =>
-                                  setAssessmentToDiscard(application),
+                    <Td isActionCell id="pencil-action">
+                      {applicationWriteAccess && (
+                        <Tooltip content={t("actions.edit")}>
+                          <Button
+                            variant="plain"
+                            icon={<PencilAltIcon />}
+                            onClick={() =>
+                              setSaveApplicationModalState(application)
+                            }
+                          />
+                        </Tooltip>
+                      )}
+                    </Td>
+                    <Td isActionCell id="row-actions">
+                      <ActionsColumn
+                        items={filterAndAddSeparator<IAction>(
+                          (_index) => ({ isSeparator: true }),
+                          [
+                            [
+                              assessmentWriteAccess && {
+                                title: t("actions.assess"),
+                                onClick: () => assessSelectedApp(application),
                               },
-                            reviewsWriteAccess && {
-                              title: t("actions.review"),
-                              onClick: () => reviewSelectedApp(application),
-                            },
-                            reviewsWriteAccess &&
-                              application?.review && {
-                                title: t("actions.discardReview"),
-                                onClick: () => setReviewToDiscard(application),
-                              },
-                            dependenciesWriteAccess && {
-                              title: t("actions.manageDependencies"),
-                              onClick: () =>
-                                setApplicationDependenciesToManage(application),
-                            },
-                            credentialsReadAccess &&
-                              applicationWriteAccess && {
-                                title: t("actions.manageCredentials"),
-                                onClick: () =>
-                                  setSaveApplicationsCredentialsModalState([
-                                    application,
-                                  ]),
-                              },
-                            analysesReadAccess &&
-                              !!application.tasks.currentAnalyzer && {
-                                title: t("actions.analysisDetails"),
-                                onClick: () => {
-                                  const taskId =
-                                    application.tasks.currentAnalyzer?.id;
-                                  if (taskId && application.id) {
-                                    history.push(
-                                      formatPath(
-                                        Paths.applicationsAnalysisDetails,
-                                        {
-                                          applicationId: application.id,
-                                          taskId,
-                                        }
-                                      )
-                                    );
-                                  }
+                              assessmentWriteAccess &&
+                                (application.assessments?.length ?? 0) > 0 && {
+                                  title: t("actions.discardAssessment"),
+                                  onClick: () =>
+                                    setAssessmentToDiscard(application),
                                 },
+                              reviewsWriteAccess && {
+                                title: t("actions.review"),
+                                onClick: () => reviewSelectedApp(application),
                               },
-                            tasksReadAccess &&
-                              tasksWriteAccess &&
-                              isTaskCancellable(application) && {
-                                title: t("actions.cancelAnalysis"),
-                                onClick: () => cancelAnalysis(application),
+                              reviewsWriteAccess &&
+                                application?.review && {
+                                  title: t("actions.discardReview"),
+                                  onClick: () =>
+                                    setReviewToDiscard(application),
+                                },
+                              dependenciesWriteAccess && {
+                                title: t("actions.manageDependencies"),
+                                onClick: () =>
+                                  setApplicationDependenciesToManage(
+                                    application
+                                  ),
                               },
-                            applicationWriteAccess && { isSeparator: true },
-                            applicationWriteAccess && {
-                              title: t("actions.delete"),
-                              onClick: () =>
-                                setApplicationsToDelete([application]),
-                              isDanger: true,
-                            },
-                          ].filter(Boolean)}
-                        />
-                      </OverflowMenu>
+                              credentialsReadAccess &&
+                                applicationWriteAccess && {
+                                  title: t("actions.manageCredentials"),
+                                  onClick: () =>
+                                    setSaveApplicationsCredentialsModalState([
+                                      application,
+                                    ]),
+                                },
+                            ],
+                            [
+                              analysesReadAccess &&
+                                !!application.tasks.currentAnalyzer && {
+                                  title: t("actions.analysisDetails"),
+                                  onClick: () => {
+                                    const taskId =
+                                      application.tasks.currentAnalyzer?.id;
+                                    if (taskId && application.id) {
+                                      history.push(
+                                        formatPath(
+                                          Paths.applicationsAnalysisDetails,
+                                          {
+                                            applicationId: application.id,
+                                            taskId,
+                                          }
+                                        )
+                                      );
+                                    }
+                                  },
+                                },
+                              tasksReadAccess &&
+                                tasksWriteAccess &&
+                                isTaskCancellable(application) && {
+                                  title: t("actions.cancelAnalysis"),
+                                  onClick: () => cancelAnalysis(application),
+                                },
+                            ],
+                            [
+                              applicationWriteAccess &&
+                                application.isReadyForRetrieveConfigurations && {
+                                  title: t("actions.retrieveConfigurations"),
+                                  onClick: () =>
+                                    handleRetrieveConfigurations(application),
+                                },
+                              applicationWriteAccess &&
+                                application.isReadyForGenerateAssets && {
+                                  title: t("actions.generateAssets"),
+                                  onClick: () =>
+                                    handleGenerateAssets(application),
+                                },
+                            ],
+                            [
+                              applicationWriteAccess && {
+                                title: t("actions.delete"),
+                                onClick: () =>
+                                  setApplicationsToDelete([application]),
+                                isDanger: true,
+                              },
+                            ],
+                          ]
+                        )}
+                      />
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>
@@ -1194,289 +1299,295 @@ export const ApplicationsTable: React.FC = () => {
           isTop={false}
           paginationProps={paginationProps}
         />
-
         <ApplicationDetailDrawer
           application={activeItem}
           onCloseClick={clearActiveItem}
           onEditClick={() => setSaveApplicationModalState(activeItem)}
         />
+      </div>
 
-        <TaskGroupProvider>
-          <AnalysisWizard
-            applications={selectedRows}
-            isOpen={isAnalyzeModalOpen}
-            onClose={() => {
-              setAnalyzeModalOpen(false);
-            }}
-          />
-        </TaskGroupProvider>
-        <Modal
-          isOpen={isCreateUpdateCredentialsModalOpen}
-          variant="medium"
-          title="Manage credentials"
-          onClose={() => setSaveApplicationsCredentialsModalState(null)}
-        >
-          {applicationsCredentialsToUpdate && (
-            <ApplicationIdentityForm
-              applications={applicationsCredentialsToUpdate.map((a) => a._)}
-              onClose={() => setSaveApplicationsCredentialsModalState(null)}
-            />
-          )}
-        </Modal>
-        {isCreateUpdateApplicationsModalOpen && (
-          <ApplicationFormModal
-            application={createUpdateApplications?._ ?? null}
-            onClose={() => setSaveApplicationModalState(null)}
+      <TaskGroupProvider>
+        <AnalysisWizard
+          applications={selectedRows}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      </TaskGroupProvider>
+      <RetrieveConfigWizard
+        key={retrieveConfigApplications ? "open" : "closed"}
+        applications={retrieveConfigApplications ?? undefined}
+        isOpen={!!retrieveConfigApplications}
+        onClose={() => {
+          setRetrieveConfigApplications(null);
+        }}
+      />
+
+      <Modal
+        isOpen={isCreateUpdateCredentialsModalOpen}
+        variant="medium"
+        title="Manage credentials"
+        onClose={() => setSaveApplicationsCredentialsModalState(null)}
+      >
+        {applicationsCredentialsToUpdate && (
+          <ApplicationIdentityForm
+            applications={applicationsCredentialsToUpdate.map((a) => a._)}
+            onClose={() => setSaveApplicationsCredentialsModalState(null)}
           />
         )}
-        <Modal
-          isOpen={isDependenciesModalOpen}
-          variant="medium"
-          title={t("composed.manageDependenciesFor", {
-            what: applicationDependenciesToManage?.name,
-          })}
-          onClose={() => setApplicationDependenciesToManage(null)}
-        >
-          {applicationDependenciesToManage && (
-            <ApplicationDependenciesForm
-              application={applicationDependenciesToManage._}
-              onCancel={() => setApplicationDependenciesToManage(null)}
-            />
-          )}
-        </Modal>
-        <Modal
-          isOpen={isApplicationImportModalOpen}
-          variant="medium"
-          title={t("dialog.title.importApplicationFile")}
-          onClose={() => setIsApplicationImportModalOpen((current) => !current)}
-        >
-          <ImportApplicationsForm
-            onSaved={() => {
-              setIsApplicationImportModalOpen(false);
-            }}
+      </Modal>
+      {isCreateUpdateApplicationsModalOpen && (
+        <ApplicationFormModal
+          application={createUpdateApplications?._ ?? null}
+          onClose={() => setSaveApplicationModalState(null)}
+        />
+      )}
+      <Modal
+        isOpen={isDependenciesModalOpen}
+        variant="medium"
+        title={t("composed.manageDependenciesFor", {
+          what: applicationDependenciesToManage?.name,
+        })}
+        onClose={() => setApplicationDependenciesToManage(null)}
+      >
+        {applicationDependenciesToManage && (
+          <ApplicationDependenciesForm
+            application={applicationDependenciesToManage._}
+            onCancel={() => setApplicationDependenciesToManage(null)}
           />
-        </Modal>
-        <ConfirmDialog
-          title={t(
-            applicationsToDelete.length > 1
-              ? "dialog.title.delete"
-              : "dialog.title.deleteWithName",
-            {
-              what:
-                applicationsToDelete.length > 1
-                  ? t("terms.application(s)").toLowerCase()
-                  : t("terms.application").toLowerCase(),
-              name:
-                applicationsToDelete.length === 1 &&
-                applicationsToDelete[0].name,
-            }
-          )}
-          titleIconVariant={"warning"}
-          isOpen={applicationsToDelete.length > 0}
-          message={`${
-            applicationsToDelete.length > 1
-              ? t("dialog.message.applicationsBulkDelete")
-              : ""
-          } ${t("dialog.message.delete")}`}
-          aria-label="Applications bulk delete"
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.delete")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setApplicationsToDelete([])}
-          onClose={() => setApplicationsToDelete([])}
-          onConfirm={() => {
-            const ids = applicationsToDelete
-              .filter((application) => application.id)
-              .map((application) => application.id);
-            if (ids) bulkDeleteApplication({ ids: ids });
+        )}
+      </Modal>
+      <Modal
+        isOpen={isApplicationImportModalOpen}
+        variant="medium"
+        title={t("dialog.title.importApplicationFile")}
+        onClose={() => setIsApplicationImportModalOpen((current) => !current)}
+      >
+        <ImportApplicationsForm
+          onSaved={() => {
+            setIsApplicationImportModalOpen(false);
           }}
         />
-        <ConfirmDialog
-          title={t(
-            tasksToCancel.length > 1
-              ? "dialog.title.cancel"
-              : "dialog.title.cancelWithName",
-            {
-              what:
-                tasksToCancel.length > 1
-                  ? t("terms.tasks").toLowerCase()
-                  : t("terms.task").toLowerCase(),
-              name: tasksToCancel.length === 1 && tasksToCancel[0].name,
-            }
-          )}
-          titleIconVariant={"warning"}
-          isOpen={tasksToCancel.length > 0}
-          message={`${
-            tasksToCancel.length > 1 ? t("dialog.message.TasksBulkCancel") : ""
-          } ${t("dialog.message.cancel")}`}
-          aria-label="Tasks bulk cancel"
-          confirmBtnVariant={ButtonVariant.danger}
-          confirmBtnLabel={t("actions.cancelTasks")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setTasksToCancel([])}
-          onClose={() => setTasksToCancel([])}
-          onConfirm={() => {
-            cancelAnalysis(tasksToCancel);
-            setTasksToCancel([]);
-          }}
-        />
-        <ConfirmDialog
-          title={t("dialog.title.discard", {
-            what: t("terms.assessment").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={assessmentToDiscard !== null}
-          message={
-            <span>
-              <Trans
-                i18nKey="dialog.message.discardAssessment"
-                values={{
-                  applicationName: assessmentToDiscard?.name,
-                }}
-              />
-            </span>
+      </Modal>
+      <ConfirmDialog
+        title={t(
+          applicationsToDelete.length > 1
+            ? "dialog.title.delete"
+            : "dialog.title.deleteWithName",
+          {
+            what:
+              applicationsToDelete.length > 1
+                ? t("terms.application(s)").toLowerCase()
+                : t("terms.application").toLowerCase(),
+            name:
+              applicationsToDelete.length === 1 && applicationsToDelete[0].name,
           }
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setAssessmentToDiscard(null)}
-          onClose={() => setAssessmentToDiscard(null)}
-          onConfirm={() => {
-            if (assessmentToDiscard !== null) {
-              discardAssessment(assessmentToDiscard);
-              setAssessmentToDiscard(null);
-            }
-          }}
-        />
-        <ConfirmDialog
-          title={t("dialog.title.discard", {
-            what: t("terms.review").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={reviewToDiscard !== null}
-          message={
-            <span>
-              <Trans
-                i18nKey="dialog.message.discardReview"
-                values={{
-                  applicationName: reviewToDiscard?.name,
-                }}
-              />
-            </span>
+        )}
+        titleIconVariant={"warning"}
+        isOpen={applicationsToDelete.length > 0}
+        message={`${
+          applicationsToDelete.length > 1
+            ? t("dialog.message.applicationsBulkDelete")
+            : ""
+        } ${t("dialog.message.delete")}`}
+        aria-label="Applications bulk delete"
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setApplicationsToDelete([])}
+        onClose={() => setApplicationsToDelete([])}
+        onConfirm={() => {
+          const ids = applicationsToDelete
+            .filter((application) => application.id)
+            .map((application) => application.id);
+          if (ids) bulkDeleteApplication({ ids: ids });
+        }}
+      />
+      <ConfirmDialog
+        title={t(
+          tasksToCancel.length > 1
+            ? "dialog.title.cancel"
+            : "dialog.title.cancelWithName",
+          {
+            what:
+              tasksToCancel.length > 1
+                ? t("terms.tasks").toLowerCase()
+                : t("terms.task").toLowerCase(),
+            name: tasksToCancel.length === 1 && tasksToCancel[0].name,
           }
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setReviewToDiscard(null)}
-          onClose={() => setReviewToDiscard(null)}
-          onConfirm={() => {
-            if (reviewToDiscard !== null) {
-              discardReview(reviewToDiscard);
-              setReviewToDiscard(null);
-            }
-          }}
-        />
-        <ConfirmDialog
-          title={t("composed.editQuestion", {
-            what: t("terms.assessment").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={assessmentToEdit !== null}
-          message={t("message.overrideAssessmentConfirmation")}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setAssessmentToEdit(null)}
-          onClose={() => setAssessmentToEdit(null)}
-          onConfirm={() => {
-            history.push(
-              formatPath(Paths.applicationsAssessment, {
-                assessmentId: assessmentToEdit?.id,
-              })
-            );
-            setAssessmentToEdit(null);
-          }}
-        />
-        <ConfirmDialog
-          title={t("composed.editQuestion", {
-            what: t("terms.review").toLowerCase(),
-          })}
-          titleIconVariant={"warning"}
-          isOpen={reviewToEdit !== null}
-          message={t("message.editApplicationReviewConfirmation")}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.continue")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setReviewToEdit(null)}
-          onClose={() => setReviewToEdit(null)}
-          onConfirm={() => {
+        )}
+        titleIconVariant={"warning"}
+        isOpen={tasksToCancel.length > 0}
+        message={`${
+          tasksToCancel.length > 1 ? t("dialog.message.TasksBulkCancel") : ""
+        } ${t("dialog.message.cancel")}`}
+        aria-label="Tasks bulk cancel"
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.cancelTasks")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setTasksToCancel([])}
+        onClose={() => setTasksToCancel([])}
+        onConfirm={() => {
+          cancelAnalysis(tasksToCancel);
+          setTasksToCancel([]);
+        }}
+      />
+      <ConfirmDialog
+        title={t("dialog.title.discard", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={assessmentToDiscard !== null}
+        message={
+          <span>
+            <Trans
+              i18nKey="dialog.message.discardAssessment"
+              values={{
+                applicationName: assessmentToDiscard?.name,
+              }}
+            />
+          </span>
+        }
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setAssessmentToDiscard(null)}
+        onClose={() => setAssessmentToDiscard(null)}
+        onConfirm={() => {
+          if (assessmentToDiscard !== null) {
+            discardAssessment(assessmentToDiscard);
+            setAssessmentToDiscard(null);
+          }
+        }}
+      />
+      <ConfirmDialog
+        title={t("dialog.title.discard", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={reviewToDiscard !== null}
+        message={
+          <span>
+            <Trans
+              i18nKey="dialog.message.discardReview"
+              values={{
+                applicationName: reviewToDiscard?.name,
+              }}
+            />
+          </span>
+        }
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setReviewToDiscard(null)}
+        onClose={() => setReviewToDiscard(null)}
+        onConfirm={() => {
+          if (reviewToDiscard !== null) {
+            discardReview(reviewToDiscard);
+            setReviewToDiscard(null);
+          }
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.editQuestion", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={assessmentToEdit !== null}
+        message={t("message.overrideAssessmentConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setAssessmentToEdit(null)}
+        onClose={() => setAssessmentToEdit(null)}
+        onConfirm={() => {
+          history.push(
+            formatPath(Paths.applicationsAssessment, {
+              assessmentId: assessmentToEdit?.id,
+            })
+          );
+          setAssessmentToEdit(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.editQuestion", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        titleIconVariant={"warning"}
+        isOpen={reviewToEdit !== null}
+        message={t("message.editApplicationReviewConfirmation")}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.continue")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setReviewToEdit(null)}
+        onClose={() => setReviewToEdit(null)}
+        onConfirm={() => {
+          history.push(
+            formatPath(Paths.applicationsReview, {
+              applicationId: reviewToEdit,
+            })
+          );
+          setReviewToEdit(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.new", {
+          what: t("terms.review").toLowerCase(),
+        })}
+        alertMessage={t("message.overrideArchetypeReviewDescription", {
+          name: applicationToReview?.name,
+          what:
+            archetypeRefsToOverrideReview
+              ?.map((archetypeRef) => archetypeRef.name)
+              .join(", ") || "Archetype name",
+        })}
+        message={t("message.overrideArchetypeReviewConfirmation")}
+        titleIconVariant={"warning"}
+        isOpen={archetypeRefsToOverrideReview !== null}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.override")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setArchetypeRefsToOverrideReview(null)}
+        onClose={() => setArchetypeRefsToOverrideReview(null)}
+        onConfirm={() => {
+          applicationToReview &&
             history.push(
               formatPath(Paths.applicationsReview, {
-                applicationId: reviewToEdit,
+                applicationId: applicationToReview?.id,
               })
             );
-            setReviewToEdit(null);
-          }}
-        />
-        <ConfirmDialog
-          title={t("composed.new", {
-            what: t("terms.review").toLowerCase(),
-          })}
-          alertMessage={t("message.overrideArchetypeReviewDescription", {
-            name: applicationToReview?.name,
-            what:
-              archetypeRefsToOverrideReview
-                ?.map((archetypeRef) => archetypeRef.name)
-                .join(", ") || "Archetype name",
-          })}
-          message={t("message.overrideArchetypeReviewConfirmation")}
-          titleIconVariant={"warning"}
-          isOpen={archetypeRefsToOverrideReview !== null}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.override")}
-          cancelBtnLabel={t("actions.cancel")}
-          onCancel={() => setArchetypeRefsToOverrideReview(null)}
-          onClose={() => setArchetypeRefsToOverrideReview(null)}
-          onConfirm={() => {
-            applicationToReview &&
-              history.push(
-                formatPath(Paths.applicationsReview, {
-                  applicationId: applicationToReview?.id,
-                })
-              );
-            setArchetypeRefsToOverride(null);
-          }}
-        />
-        <ConfirmDialog
-          title={t("composed.new", {
-            what: t("terms.assessment").toLowerCase(),
-          })}
-          alertMessage={t("message.overrideAssessmentDescription", {
-            name: applicationToAssess?.name,
-            what:
-              archetypeRefsToOverride
-                ?.map((archetypeRef) => archetypeRef.name)
-                .join(", ") || "Archetype name",
-          })}
-          message={t("message.overrideAssessmentConfirmation")}
-          titleIconVariant={"warning"}
-          isOpen={archetypeRefsToOverride !== null}
-          confirmBtnVariant={ButtonVariant.primary}
-          confirmBtnLabel={t("actions.override")}
-          cancelBtnLabel={t("actions.cancel")}
-          customActionLabel={t("actions.viewArchetypes")}
-          onCancel={() => setArchetypeRefsToOverride(null)}
-          onClose={() => setArchetypeRefsToOverride(null)}
-          onCustomAction={() => {
-            applicationToAssess &&
-              handleNavToViewArchetypes(applicationToAssess);
-          }}
-          onConfirm={() => {
-            setArchetypeRefsToOverride(null);
-            applicationToAssess && handleNavToAssessment(applicationToAssess);
-          }}
-        />
-      </div>
+          setArchetypeRefsToOverride(null);
+        }}
+      />
+      <ConfirmDialog
+        title={t("composed.new", {
+          what: t("terms.assessment").toLowerCase(),
+        })}
+        alertMessage={t("message.overrideAssessmentDescription", {
+          name: applicationToAssess?.name,
+          what:
+            archetypeRefsToOverride
+              ?.map((archetypeRef) => archetypeRef.name)
+              .join(", ") || "Archetype name",
+        })}
+        message={t("message.overrideAssessmentConfirmation")}
+        titleIconVariant={"warning"}
+        isOpen={archetypeRefsToOverride !== null}
+        confirmBtnVariant={ButtonVariant.primary}
+        confirmBtnLabel={t("actions.override")}
+        cancelBtnLabel={t("actions.cancel")}
+        customActionLabel={t("actions.viewArchetypes")}
+        onCancel={() => setArchetypeRefsToOverride(null)}
+        onClose={() => setArchetypeRefsToOverride(null)}
+        onCustomAction={() => {
+          applicationToAssess && handleNavToViewArchetypes(applicationToAssess);
+        }}
+        onConfirm={() => {
+          setArchetypeRefsToOverride(null);
+          applicationToAssess && handleNavToAssessment(applicationToAssess);
+        }}
+      />
       <Modal
         variant="small"
         title={t("actions.download", { what: "analysis details" })}

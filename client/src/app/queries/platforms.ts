@@ -25,7 +25,7 @@ export const useFetchPlatforms = (
   });
 
   return {
-    platforms: data,
+    platforms: data || [],
     isFetching: isLoading,
     isSuccess,
     error,

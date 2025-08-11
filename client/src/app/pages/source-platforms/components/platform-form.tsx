@@ -30,7 +30,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { SimpleSelect } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/queries/identities";
-import { usePlatformProviderList } from "../../usePlatformProviderList";
+import { usePlatformKindList } from "../usePlatformKindList";
 
 export interface PlatformFormValues {
   kind: string;
@@ -59,7 +59,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { providers: providersList } = usePlatformProviderList();
+  const { kinds: platformKindList } = usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({
@@ -67,7 +67,9 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     });
 
   const { identities } = useFetchIdentities();
-  const identitiesOptions = identities.map((identity) => identity.name);
+  const identitiesOptions = identities
+    .filter(({ kind }) => kind === "source")
+    .map((identity) => identity.name);
 
   const validationSchema = yup.object().shape({
     kind: yup
@@ -113,11 +115,6 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-
-    // for debugging
-    // getValues,
-    // getFieldState,
-    // formState,
   } = useForm<PlatformFormValues>({
     defaultValues: !platform
       ? {
@@ -157,7 +154,6 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     if (platform) {
       updatePlatform({
         id: platform.id,
-        applications: platform.applications,
         ...payload,
       });
     } else {
@@ -178,7 +174,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
       <HookFormPFGroupController
         control={control}
         name="kind"
-        label={t("terms.providerType")}
+        label={t("terms.platformKind")}
         fieldId="kind"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
@@ -186,15 +182,15 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
             <SimpleSelect
               maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               placeholderText={t("composed.selectOne", {
-                what: t("terms.providerType").toLowerCase(),
+                what: t("terms.platformKind").toLowerCase(),
               })}
               variant="typeahead"
-              toggleId="provider-type-toggle"
-              id="provider-type-select"
-              toggleAriaLabel="Provider type select dropdown toggle"
+              toggleId="platform-kind-toggle"
+              id="platform-kind-select"
+              toggleAriaLabel="Platform kind select dropdown toggle"
               aria-label={name}
               value={value}
-              options={providersList || []}
+              options={platformKindList || []}
               onChange={(selection) => {
                 onChange(selection);
               }}

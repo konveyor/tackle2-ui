@@ -6,14 +6,14 @@ import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useTranslation } from "react-i18next";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 
-export interface ApplicationReviewStatusProps {
+export interface ColumnReviewStatusProps {
   application: Application;
   isLoading?: boolean;
 }
 
-export const ApplicationReviewStatus: React.FC<
-  ApplicationReviewStatusProps
-> = ({ application }) => {
+export const ColumnReviewStatus: React.FC<ColumnReviewStatusProps> = ({
+  application,
+}) => {
   const { t } = useTranslation();
 
   const { archetypes, isFetching, error } = useFetchArchetypes();

@@ -51,8 +51,11 @@
     "override": "Override",
     "reset": "Reset",
     "review": "Review",
+    "retrieve": "Retrieve",
+    "retrieveConfigurations": "Retrieve configurations",
     "save": "Save",
     "saveAndReview": "Save and review",
+    "selectAll": "Select all",
     "saveAsDraft": "Save as draft",
     "selectAll_one": "Select all ({{count}} item)",
     "selectAll_other": "Select all ({{count}} items)",
@@ -68,7 +71,9 @@
     "unlink": "Unlink",
     "view": "View",
     "viewErrorReport": "View error report",
-    "viewArchetypes": "View archetypes"
+    "viewArchetypes": "View archetypes",
+    "changeSourcePlatform": "Change source platform",
+    "generateAssets": "Generate assets"
   },
   "colors": {
     "black": "Black",
@@ -116,6 +121,7 @@
   },
   "dialog": {
     "message": {
+      "retrieveConfigurations": "Retrieve runtime configurations from source platforms for the selected applications.",
       "applicationsBulkDelete": "The selected application(s) will be deleted.",
       "TasksBulkCancel": "The selected task(s) will be canceled.",
       "delete": "This action cannot be undone.",
@@ -160,6 +166,7 @@
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
+      "retrieveConfigurations": "Retrieve configurations",
       "update": "Update {{what}}",
       "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
@@ -204,6 +211,8 @@
     "copyAssessmentQuestion": "Copy assessment?",
     "couldNotFetchBody": "Resource doesn't exists or you don't have access to it",
     "couldNotFetchTitle": "Not available",
+    "configDiscoveryTaskgroupCreationFailed": "Configuration discovery taskgroup creation failed",
+    "configDiscoveryTaskgroupSubmitFailed": "Configuration discovery taskgroup submit failed",
     "duplicateTag": "A tag with this name already exists. Use a different name.",
     "duplicateWave": "The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
@@ -316,6 +325,7 @@
     "applicationImports": "Application imports",
     "applicationName": "Application name",
     "archetypeName": "Archetype name",
+    "applicationDiscoveryManifest": "Application discovery manifest",
     "applicationInformation": "Application information",
     "applicationFile": "Application file",
     "archetype": "Archetype",
@@ -328,6 +338,7 @@
     "assessmentQuestionnaires": "Assessment questionnaires",
     "assessmentNotes": "Assessment notes",
     "assessmentSummary": "Assessment summary",
+    "assetRepository": "Asset repository",
     "attachments": "Attachments",
     "autoTagging": "Automated Tagging",
     "binary": "Binary (Java)",
@@ -422,7 +433,6 @@
     "label": "Label",
     "loading": "Loading",
     "lowRisk": "Low risk",
-    "manifest": "Manifest",
     "manualTags": "Manual Tags",
     "maintainers": "Maintainers",
     "mavenConfig": "Maven configuration",
@@ -436,6 +446,7 @@
     "name": "Name",
     "new": "New",
     "none": "None",
+    "noDescription": "No description available",
     "northboundDependencies": "Northbound dependencies",
     "notAvailable": "Not available",
     "notConnected": "Not connected",
@@ -445,6 +456,7 @@
     "other": "Other",
     "owner": "Owner",
     "platform": "Platform",
+    "platformKind": "Type",
     "pod": "Pod",
     "parameters": "Parameters",
     "path": "Path",
@@ -482,6 +494,8 @@
     "sourceBranch": "Branch",
     "sourceCode": "Source code",
     "sourcePlatforms": "Source platforms",
+    "sourcePlatform": "Source platform",
+    "sourcePlatformCoordinates": "Source platform coordinates",
     "sourceRepo": "Source Repository",
     "sourceRootPath": "Root path",
     "southboundDependencies": "Southbound dependencies",
@@ -651,6 +665,30 @@
     },
     "tooltip": {
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
+    }
+  },
+  "retrieveConfigWizard": {
+    "selectedCount": "{{count}} of {{total}} applications selected",
+    "noApplicationsWithSourcePlatforms": "No applications with source platforms selected.",
+    "noTasksSubmitted": "No tasks were submitted.",
+    "toast": {
+      "submittedOk": "Application manifest fetches submitted",
+      "submittedFailed": "Application manifest fetches failed"
+    },
+    "results": {
+      "title": "Configuration Retrieval Results",
+      "summary": "Summary of configuration retrieval task submissions.",
+      "noResults": "No results available.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Success Submission",
+      "successSubmissions_other": "Success Submissions ({{count}})"
+    },
+    "review": {
+      "description_one": "This application is ready to retrieve configurations from its source platform. The application's platform coordinates will be used to connect to the platform and build the application's discovery manifest.",
+      "description_other": "These applications are ready to retrieve configurations from their source platforms. The applications' platform coordinates will be used to connect to the platform and build the applications' discovery manifests.",
+      "selectedApplications_one": "Selected application",
+      "selectedApplications_other": "Selected applications ({{count}})"
     }
   },
   "credentials": {

@@ -122,6 +122,8 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 
 export * from "./rest/analysis";
 export * from "./rest/files";
+export * from "./rest/schemas";
+export * from "./rest/generators";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -379,9 +381,9 @@ export const getApplicationSummaryCSV = (id: string) => {
 // ---------------------------------------
 // Tasks
 //
-export function getTaskById(id: number): Promise<Task> {
+export function getTaskById(id: number) {
   return axios
-    .get(`${TASKS}/${id}`, {
+    .get<Task>(`${TASKS}/${id}`, {
       headers: { ...HEADERS.json },
       responseType: "json",
     })
@@ -459,8 +461,17 @@ export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
     .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
     .then(({ data }) => data);
 
-export const updateTask = (task: Partial<Task> & { id: number }) =>
-  axios.patch<Task>(`${TASKS}/${task.id}`, task);
+export const createTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: New<TaskType>
+) => axios.post<TaskType>(TASKS, task).then((response) => response.data);
+
+export const updateTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: Partial<TaskType> & { id: number }
+) => axios.patch<TaskType>(`${TASKS}/${task.id}`, task);
+
+export const submitTask = <TaskData, TaskType extends Task<TaskData>>(
+  task: TaskType
+) => axios.put<void>(`${TASKS}/${task.id}/submit`, { id: task.id });
 
 // ---------------------------------------
 // Task Groups
@@ -470,7 +481,7 @@ export const createTaskgroup = (obj: New<Taskgroup>) =>
 
 export const submitTaskgroup = (obj: Taskgroup) =>
   axios
-    .put<Taskgroup>(`${TASKGROUPS}/${obj.id}/submit`, obj)
+    .put<void>(`${TASKGROUPS}/${obj.id}/submit`, obj)
     .then((response) => response.data);
 
 export const deleteTaskgroup = (id: number): AxiosPromise =>
