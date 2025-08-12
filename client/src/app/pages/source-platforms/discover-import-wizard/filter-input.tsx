@@ -1,18 +1,94 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useFormContext } from "react-hook-form";
-import { TextContent, Text } from "@patternfly/react-core";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
+import { Form, TextContent, Text } from "@patternfly/react-core";
+
+import { JsonDocument, SourcePlatform, TargetedSchema } from "@app/api/models";
+import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
-import { FormValues } from "./discover-import-wizard";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 
-export const FilterInput: React.FC = () => {
+interface FiltersFormValues {
+  schema?: TargetedSchema;
+  document?: JsonDocument;
+}
+
+export interface FilterState {
+  filterRequired: boolean;
+  schema?: TargetedSchema;
+  document?: JsonDocument;
+  isValid: boolean;
+}
+
+export const FilterInput: React.FC<{
+  platform: SourcePlatform;
+  onFiltersChanged: (filterState: FilterState) => void;
+}> = ({ platform, onFiltersChanged }) => {
   const { t } = useTranslation();
-  const { watch, setValue } = useFormContext<FormValues>();
 
-  const platform = watch("platform");
-  const filtersSchema = watch("filtersSchema");
-  const filtersDocument = watch("filtersDocument");
+  const validationSchema = yup.object().shape({
+    schema: yup.object().nullable(),
+    document: yup
+      .object()
+      .when("schema", (schema: TargetedSchema | undefined) => {
+        return schema
+          ? jsonSchemaToYupSchema(schema.definition, t)
+          : yup.object().nullable();
+      }),
+  });
+
+  const {
+    control,
+    reset,
+    getValues,
+    watch,
+    formState: { isValid },
+  } = useForm<FiltersFormValues>({
+    defaultValues: {
+      schema: undefined,
+      document: {},
+    },
+    resolver: yupResolver(validationSchema),
+    mode: "all",
+  });
+
+  // Fetch the discovery filters schema for the platform and put it in the form
+  const { filtersSchema } = useFetchPlatformDiscoveryFilterSchema(
+    platform?.kind
+  );
+  React.useEffect(() => {
+    if (filtersSchema) {
+      reset({
+        ...getValues(),
+        schema: filtersSchema,
+        document: {},
+      });
+    } else {
+      reset({
+        ...getValues(),
+        schema: undefined,
+        document: undefined,
+      });
+    }
+  }, [filtersSchema, reset, getValues]);
+
+  // Relay form state changes to parent component
+  const watchedValues = watch();
+  React.useEffect(() => {
+    // TODO: Track the filter loading state -- 404 = no filter needed, !!data = filter needed
+    const filterRequired = !!filtersSchema;
+
+    onFiltersChanged({
+      filterRequired,
+      schema: watchedValues.schema,
+      document: watchedValues.document,
+      isValid: isValid,
+    });
+  }, [onFiltersChanged, watchedValues, isValid, filtersSchema]);
 
   return (
     <div>
@@ -28,11 +104,9 @@ export const FilterInput: React.FC = () => {
         </Text>
       </TextContent>
 
-      {!platform ? (
-        <div style={{ padding: "20px" }}>
-          <Text>{t("platformDiscoverWizard.noPlatformSelected")}</Text>
-        </div>
-      ) : !filtersSchema ? (
+      {/* TODO: Show a loading state while the filter schema is loading */}
+
+      {!filtersSchema ? (
         <div style={{ padding: "20px" }}>
           <Text>
             {t("platformDiscoverWizard.filterInput.noFiltersAvailable", {
@@ -41,18 +115,27 @@ export const FilterInput: React.FC = () => {
           </Text>
         </div>
       ) : (
-        <SchemaDefinedField
-          key={platform.kind}
-          id="platform-discovery-filters"
-          jsonDocument={filtersDocument ?? {}}
-          jsonSchema={filtersSchema.definition}
-          onDocumentChanged={(newFiltersDocument) => {
-            setValue("filtersDocument", newFiltersDocument, {
-              shouldValidate: true,
-              shouldDirty: true,
-            });
-          }}
-        />
+        <Form>
+          <HookFormPFGroupController
+            control={control}
+            name="document"
+            label={t("platformDiscoverWizard.filterInput.filtersLabel", {
+              platformName: platform.name,
+            })}
+            fieldId="document"
+            renderInput={({ field: { value, name, onChange } }) => (
+              <SchemaDefinedField
+                key={platform.kind}
+                id={name}
+                jsonDocument={value ?? {}}
+                jsonSchema={filtersSchema.definition}
+                onDocumentChanged={(newJsonDocument) => {
+                  onChange(newJsonDocument);
+                }}
+              />
+            )}
+          />
+        </Form>
       )}
     </div>
   );

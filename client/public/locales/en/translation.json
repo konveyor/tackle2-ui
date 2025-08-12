@@ -136,8 +136,7 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:",
-      "discoverApplications": "Discover and import applications from the selected platform."
+      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
@@ -179,8 +178,7 @@
       "updateStakeholder": "Update stakeholder",
       "updateStakeholderGroup": "Update stakeholder group",
       "updateTag": "Update tag",
-      "updateTagCategory": "Update tag category",
-      "discoverApplications": "Discover Applications"
+      "updateTagCategory": "Update tag category"
     }
   },
   "efforts": {
@@ -695,15 +693,25 @@
     }
   },
   "platformDiscoverWizard": {
+    "title": "Discover Applications",
+    "description": "Discover and import applications from the selected platform.",
     "noPlatformSelected": "No platform selected for discovery.",
     "toast": {
       "submittedOk": "Platform application discovery task submitted",
       "submittedFailed": "Platform application discovery task failed"
     },
     "filterInput": {
+      "stepTitle": "Filters",
       "title": "Configure Discovery Filters",
       "description": "Configure the filters for discovering applications on platform {{platformName}} ({{platformKind}}). These filters will determine which applications are discovered and imported.",
+      "filtersLabel": "{{platformName}} discovery filters",
       "noFiltersAvailable": "No discovery filters are available for platform kind {{platformKind}}."
+    },
+    "review": {
+      "stepTitle": "Review",
+      "title": "Review Platform Discovery",
+      "description": "Review the platform and discovery filters before starting application discovery on {{platformName}}.",
+      "discoveryFilters": "Discovery Filters"
     },
     "results": {
       "title": "Platform Discovery Results",
@@ -711,13 +719,8 @@
       "noResults": "No results available.",
       "failedSubmissions_one": "Failed Submission",
       "failedSubmissions_other": "Failed Submissions ({{count}})",
-      "successSubmissions_one": "Success Submission",
-      "successSubmissions_other": "Success Submissions ({{count}})"
-    },
-    "review": {
-      "title": "Review Platform Discovery",
-      "description": "Review the platform and discovery filters before starting application discovery on {{platformName}}.",
-      "discoveryFilters": "Discovery Filters"
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
     }
   },
   "credentials": {

@@ -9,24 +9,13 @@ import {
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
 
-import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-
-import {
-  JsonDocument,
-  New,
-  PlatformApplicationImportTask,
-  TargetedSchema,
-} from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useCreateTaskMutation } from "@app/queries/tasks";
-import { useFetchPlatformDiscoveryImportSchema } from "@app/queries/schemas";
 import { SourcePlatform } from "@app/api/models";
-import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useWizardReducer } from "./useWizardReducer";
 import { FilterInput } from "./filter-input";
 import { Review } from "./review";
-import { Results, ResultsData } from "./results";
+import { Results } from "./results";
+import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
 
 export const DiscoverImportWizard: React.FC<IDiscoverImportWizard> = ({
   isOpen,
@@ -45,22 +34,10 @@ export const DiscoverImportWizard: React.FC<IDiscoverImportWizard> = ({
   );
 };
 
-interface IDiscoverImportWizard {
+export interface IDiscoverImportWizard {
   platform?: SourcePlatform;
   onClose: () => void;
   isOpen: boolean;
-}
-
-enum StepId {
-  FilterInput = 1,
-  Review = 2,
-  Results = 3,
-}
-
-export interface FormValues {
-  platform: SourcePlatform;
-  filtersSchema?: TargetedSchema;
-  filtersDocument?: JsonDocument;
 }
 
 const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
@@ -70,79 +47,22 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
 }: IDiscoverImportWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const { submitTask } = useStartPlatformApplicationDiscover();
-
-  // State to track submission results and current step
-  const [submissionResults, setSubmissionResults] =
-    React.useState<ResultsData | null>(null);
-  const [activeStep, setActiveStep] = React.useState<StepId>(
-    StepId.FilterInput
-  );
-
-  // Fetch the discovery filters schema for the platform
-  const { filtersSchema } = useFetchPlatformDiscoveryImportSchema(
-    platform?.kind
-  );
-
-  const validationSchema = React.useMemo(() => {
-    return yup.object({
-      platform: yup.object().required(),
-      filtersSchema: yup.object().nullable(),
-      filtersDocument: yup
-        .object()
-        .when("filtersSchema", (filtersSchema: TargetedSchema | undefined) => {
-          return filtersSchema
-            ? jsonSchemaToYupSchema(filtersSchema.definition, t)
-            : yup.object().nullable();
-        }),
-    });
-  }, [t]);
-
-  const methods = useForm<FormValues>({
-    defaultValues: {
-      platform: platform!,
-      filtersSchema: undefined, // will be set by useEffect below
-      filtersDocument: {},
-    },
-    resolver: yupResolver(validationSchema),
-    mode: "all",
-  });
-
-  const {
-    handleSubmit,
-    reset,
-    formState: { isValid },
-  } = methods;
-
-  // Update form when schema is loaded
-  React.useEffect(() => {
-    if (filtersSchema) {
-      reset({
-        ...methods.getValues(),
-        filtersSchema: filtersSchema,
-        filtersDocument: {},
-      });
-    } else {
-      reset({
-        ...methods.getValues(),
-        filtersSchema: undefined,
-        filtersDocument: undefined,
-      });
-    }
-  }, [filtersSchema, reset, methods]);
+  const { submitTask } = useStartPlatformApplicationImport();
+  const { state, setFilters, setResults, reset } = useWizardReducer();
+  const { results, filters } = state;
 
   const handleCancel = () => {
-    setSubmissionResults(null);
-    setActiveStep(StepId.FilterInput);
+    reset();
     onClose();
   };
 
-  const onSubmit = async ({ platform, filtersDocument }: FormValues) => {
-    const { success, failure } = await submitTask(platform, filtersDocument);
+  const onSubmitTask = async () => {
+    if (!platform || !filters.document) {
+      return;
+    }
 
-    // Store results and move to Results step
-    setSubmissionResults({ success, failure });
-    setActiveStep(StepId.Results);
+    const { success, failure } = await submitTask(platform, filters.document);
+    setResults({ success, failure });
 
     if (success.length > 0) {
       pushNotification({
@@ -160,6 +80,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         title: t("platformDiscoverWizard.toast.submittedFailed"),
         message: `Platform: ${failure
           .map((result) => result.platform.name)
+          .sort()
           .join(", ")}`,
         variant: "danger",
       });
@@ -186,126 +107,57 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
     );
   }
 
-  const showResults = submissionResults !== null;
-
   return (
-    <FormProvider {...methods}>
-      <Modal
-        variant={ModalVariant.large}
-        aria-label={t("dialog.title.discoverApplications")}
-        isOpen={isOpen}
-        showClose={false}
-        hasNoBodyWrapper
-        onEscapePress={handleCancel}
+    <Modal
+      variant={ModalVariant.large}
+      aria-label={t("platformDiscoverWizard.title")}
+      isOpen={isOpen}
+      showClose={false}
+      hasNoBodyWrapper
+      onEscapePress={handleCancel}
+    >
+      <Wizard
+        onClose={handleCancel}
+        header={
+          <WizardHeader
+            onClose={handleCancel}
+            title={t("platformDiscoverWizard.title")}
+            description={t("platformDiscoverWizard.description")}
+          />
+        }
       >
-        <Wizard
-          onClose={handleCancel}
-          header={
-            <WizardHeader
-              onClose={handleCancel}
-              title={t("dialog.title.discoverApplications")}
-              description={t("dialog.message.discoverApplications")}
-            />
-          }
+        <WizardStep
+          id="filter-input"
+          name={t("platformDiscoverWizard.filterInput.stepTitle")}
+          footer={{
+            nextButtonText: t("actions.next"),
+            isNextDisabled: !filters.isValid,
+          }}
         >
-          <WizardStep
-            id={StepId.FilterInput}
-            name={t("platformDiscoverWizard.filterInput.title")}
-            footer={{
-              nextButtonText: t("actions.next"),
-              onNext: () => setActiveStep(StepId.Review),
-              isNextDisabled: !isValid || !filtersSchema,
-              isCancelHidden: showResults,
-            }}
-            isHidden={activeStep !== StepId.FilterInput || showResults}
-          >
-            <FilterInput />
-          </WizardStep>
+          <FilterInput platform={platform} onFiltersChanged={setFilters} />
+        </WizardStep>
 
-          <WizardStep
-            id={StepId.Review}
-            name={t("platformDiscoverWizard.review.title")}
-            footer={{
-              nextButtonText: showResults
-                ? t("actions.close")
-                : t("actions.discoverApplications"),
-              onNext: showResults ? handleCancel : handleSubmit(onSubmit),
-              backButtonText: t("actions.back"),
-              onBack: () => setActiveStep(StepId.FilterInput),
-              isBackDisabled: showResults,
-              isCancelHidden: showResults,
-            }}
-            isHidden={activeStep !== StepId.Review && !showResults}
-          >
-            {!showResults ? (
-              <Review />
-            ) : (
-              <Results results={submissionResults} />
-            )}
-          </WizardStep>
-        </Wizard>
-      </Modal>
-    </FormProvider>
+        <WizardStep
+          id="review"
+          name={t("platformDiscoverWizard.review.stepTitle")}
+          footer={{
+            nextButtonText: results
+              ? t("actions.close")
+              : t("actions.discoverApplications"),
+            onNext: results ? handleCancel : onSubmitTask,
+            isNextDisabled: !state.isReady && !results,
+            backButtonText: t("actions.back"),
+            isBackDisabled: !!results,
+            isCancelHidden: !!results,
+          }}
+        >
+          {!results ? (
+            <Review platform={platform} filters={filters} />
+          ) : (
+            <Results results={results} />
+          )}
+        </WizardStep>
+      </Wizard>
+    </Modal>
   );
-};
-
-const useStartPlatformApplicationDiscover = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation<
-    JsonDocument,
-    PlatformApplicationImportTask
-  >();
-
-  const createAndSubmitTask = async (
-    platform: SourcePlatform,
-    filters?: JsonDocument
-  ): Promise<{
-    success?: {
-      task: PlatformApplicationImportTask;
-      platform: SourcePlatform;
-    };
-    failure?: {
-      message: string;
-      cause: Error;
-      platform: SourcePlatform;
-      newTask: New<PlatformApplicationImportTask>;
-    };
-  }> => {
-    const newTask: New<PlatformApplicationImportTask> = {
-      name: `${platform.name}.${platform.id}.application-import`,
-      kind: "application-import",
-      platform: { id: platform.id, name: platform.name },
-      state: "Ready",
-      data: filters || {},
-    };
-
-    try {
-      const task = await createTask(newTask);
-      return { success: { task, platform } };
-    } catch (error) {
-      return {
-        failure: {
-          message: "Failed to submit the platform application discovery task",
-          cause: error as Error,
-          platform,
-          newTask,
-        },
-      };
-    }
-  };
-
-  const submitTask = async (
-    platform: SourcePlatform,
-    filters?: JsonDocument
-  ) => {
-    const result = await createAndSubmitTask(platform, filters);
-
-    const success = result.success ? [result.success] : [];
-    const failure = result.failure ? [result.failure] : [];
-
-    return { success, failure };
-  };
-
-  return {
-    submitTask,
-  };
 };

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useFormContext } from "react-hook-form";
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -11,15 +10,17 @@ import {
 } from "@patternfly/react-core";
 
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
-import { FormValues } from "./discover-import-wizard";
+import { SourcePlatform } from "@app/api/models";
+import { FilterState } from "./filter-input";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 
-export const Review: React.FC = () => {
+export const Review: React.FC<{
+  platform: SourcePlatform;
+  filters: FilterState;
+}> = ({ platform, filters }) => {
   const { t } = useTranslation();
-  const { watch } = useFormContext<FormValues>();
-
-  const platform = watch("platform");
-  const filtersSchema = watch("filtersSchema");
-  const filtersDocument = watch("filtersDocument");
+  const showFilters =
+    filters.filterRequired && filters.schema && filters.document;
 
   return (
     <div>
@@ -32,7 +33,7 @@ export const Review: React.FC = () => {
         </Text>
       </TextContent>
 
-      <DescriptionList>
+      <DescriptionList isHorizontal>
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.platform")}</DescriptionListTerm>
           <DescriptionListDescription>
@@ -50,18 +51,20 @@ export const Review: React.FC = () => {
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.url")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {platform?.url || t("terms.notAvailable")}
+            {platform?.url || <EmptyTextMessage />}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.credentials")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {platform?.identity?.name || t("terms.none")}
+            {platform?.identity?.name || (
+              <EmptyTextMessage message={t("terms.none")} />
+            )}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
-        {filtersSchema && (
+        {showFilters && (
           <DescriptionListGroup>
             <DescriptionListTerm>
               {t("platformDiscoverWizard.review.discoveryFilters")}
@@ -76,8 +79,8 @@ export const Review: React.FC = () => {
               >
                 <SchemaDefinedField
                   id="platform-discovery-filters-review"
-                  jsonDocument={filtersDocument ?? {}}
-                  jsonSchema={filtersSchema.definition}
+                  jsonDocument={filters.document ?? {}}
+                  jsonSchema={filters.schema?.definition}
                   isReadOnly={true}
                 />
               </div>

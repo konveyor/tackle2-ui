@@ -48,6 +48,7 @@ export const Results: React.FC<IResultsProps> = ({ results }) => {
     }));
   };
 
+  // TODO: Review the results view.
   return (
     <div>
       <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
