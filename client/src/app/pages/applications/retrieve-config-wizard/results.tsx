@@ -19,12 +19,12 @@ import {
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
 
-import { ApplicationTask, EmptyTaskData } from "@app/api/models";
+import { ApplicationManifestTask } from "@app/api/models";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface ResultsData {
   success: {
-    task: ApplicationTask<EmptyTaskData>;
+    task: ApplicationManifestTask;
     application: DecoratedApplication;
   }[];
   failure: {

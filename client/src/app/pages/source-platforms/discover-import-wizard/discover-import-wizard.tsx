@@ -14,9 +14,9 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import {
+  JsonDocument,
   New,
-  PlatformDiscoveryImportData,
-  PlatformTask,
+  PlatformApplicationImportTask,
   TargetedSchema,
 } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -60,7 +60,7 @@ enum StepId {
 export interface FormValues {
   platform: SourcePlatform;
   filtersSchema?: TargetedSchema;
-  filtersDocument?: PlatformDiscoveryImportData;
+  filtersDocument?: JsonDocument;
 }
 
 const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
@@ -250,24 +250,27 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
 };
 
 const useStartPlatformApplicationDiscover = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation();
+  const { mutateAsync: createTask } = useCreateTaskMutation<
+    JsonDocument,
+    PlatformApplicationImportTask
+  >();
 
   const createAndSubmitTask = async (
     platform: SourcePlatform,
-    filters?: PlatformDiscoveryImportData
+    filters?: JsonDocument
   ): Promise<{
     success?: {
-      task: PlatformTask<PlatformDiscoveryImportData>;
+      task: PlatformApplicationImportTask;
       platform: SourcePlatform;
     };
     failure?: {
       message: string;
       cause: Error;
       platform: SourcePlatform;
-      newTask: New<PlatformTask<PlatformDiscoveryImportData>>;
+      newTask: New<PlatformApplicationImportTask>;
     };
   }> => {
-    const newTask: New<PlatformTask<PlatformDiscoveryImportData>> = {
+    const newTask: New<PlatformApplicationImportTask> = {
       name: `${platform.name}.${platform.id}.application-import`,
       kind: "application-import",
       platform: { id: platform.id, name: platform.name },
@@ -292,7 +295,7 @@ const useStartPlatformApplicationDiscover = () => {
 
   const submitTask = async (
     platform: SourcePlatform,
-    filters?: PlatformDiscoveryImportData
+    filters?: JsonDocument
   ) => {
     const result = await createAndSubmitTask(platform, filters);
 

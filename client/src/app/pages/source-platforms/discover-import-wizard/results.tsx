@@ -14,15 +14,11 @@ import {
   Text,
 } from "@patternfly/react-core";
 
-import {
-  PlatformDiscoveryImportData,
-  PlatformTask,
-  SourcePlatform,
-} from "@app/api/models";
+import { PlatformApplicationImportTask, SourcePlatform } from "@app/api/models";
 
 export interface ResultsData {
   success: Array<{
-    task: PlatformTask<PlatformDiscoveryImportData>;
+    task: PlatformApplicationImportTask;
     platform: SourcePlatform;
   }>;
   failure: Array<{
