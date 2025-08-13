@@ -42,7 +42,7 @@ export const SchemaDefinedField = ({
 
   const isComplex = React.useMemo(() => {
     const isComplex = jsonSchema && isComplexSchema(jsonSchema);
-    console.log("jsonSchema", jsonSchema, "isComplex?", isComplex);
+    // console.log("jsonSchema", jsonSchema, "isComplex?", isComplex);
     return isComplex;
   }, [jsonSchema]);
 

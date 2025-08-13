@@ -20,7 +20,7 @@ import {
   PendingIcon,
   ResourcesEmptyIcon,
 } from "@patternfly/react-icons";
-import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { Paths } from "@app/Paths";
@@ -105,7 +105,8 @@ const statusMap: Record<SourcePlatformTasksStatus, StatusData> = {
 };
 
 const linkToTasks = (platformName: string) => {
-  const search = `t:filters={"platform":["${platformName}"]}`;
+  const filters = JSON.stringify({ platform: [platformName] });
+  const search = `t:filters=${encodeURIComponent(filters)}`;
   return `${formatPath(Paths.tasks, {})}?${search}`;
 };
 
@@ -136,9 +137,9 @@ export const ColumnPlatformName: React.FC<{
         <Table variant="compact" borders={false}>
           <Thead>
             <Tr>
-              <Td>Id</Td>
-              <Td>Kind</Td>
-              <Td>Started</Td>
+              <Th>Id</Th>
+              <Th>Kind</Th>
+              <Th>Started</Th>
             </Tr>
           </Thead>
           <Tbody>

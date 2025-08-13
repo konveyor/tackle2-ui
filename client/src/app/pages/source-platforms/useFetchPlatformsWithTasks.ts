@@ -41,7 +41,7 @@ export interface SourcePlatformWithTasks extends SourcePlatform {
  */
 const groupPlatformTasks = (tasks: TaskDashboard[]) => {
   const byPlatformId = group(
-    tasks.filter((task) => task.platform),
+    tasks.filter((task) => !!task.platform),
     (task) => task.platform!.id
   ) as Record<number, TaskDashboard[]>;
 

@@ -54,11 +54,23 @@ export const useStartPlatformApplicationImport = () => {
     platform: SourcePlatform,
     filters?: JsonDocument
   ) => {
-    const result = await createAndSubmitTask(platform, filters);
+    const results = await Promise.allSettled(
+      [platform].map(async (p) => createAndSubmitTask(p, filters))
+    );
 
-    const success = result.success ? [result.success] : [];
-    const failure = result.failure ? [result.failure] : [];
+    const success = [];
+    const failure = [];
 
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        if (result.value.success) {
+          success.push(result.value.success);
+        }
+        if (result.value.failure) {
+          failure.push(result.value.failure);
+        }
+      }
+    }
     return { success, failure };
   };
 
