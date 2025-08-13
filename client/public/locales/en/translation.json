@@ -717,6 +717,7 @@
       "title": "Platform Discovery Results",
       "summary": "Summary of platform application discovery task submissions.",
       "noResults": "No results available.",
+      "noTasksSubmitted": "No tasks were submitted.",
       "failedSubmissions_one": "Failed Submission",
       "failedSubmissions_other": "Failed Submissions ({{count}})",
       "successSubmissions_one": "Successful Submission",
