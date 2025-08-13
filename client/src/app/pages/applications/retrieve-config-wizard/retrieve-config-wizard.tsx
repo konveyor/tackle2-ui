@@ -14,7 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationTask, EmptyTaskData, New } from "@app/api/models";
+import { ApplicationManifestTask, EmptyObject, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -61,7 +61,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
 }: IRetrieveConfigWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const { submitTasks } = useFetchApplicationManifest();
+  const { submitTasks } = useStartFetchApplicationManifest();
 
   // State to track submission results and current step
   const [submissionResults, setSubmissionResults] =
@@ -186,27 +186,27 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   );
 };
 
-const useFetchApplicationManifest = () => {
+const useStartFetchApplicationManifest = () => {
   const { mutateAsync: createTask } = useCreateTaskMutation<
-    EmptyTaskData,
-    ApplicationTask<EmptyTaskData>
+    EmptyObject,
+    ApplicationManifestTask
   >();
 
   const createAndSubmitTask = async (
     application: DecoratedApplication
   ): Promise<{
     success?: {
-      task: ApplicationTask<EmptyTaskData>;
+      task: ApplicationManifestTask;
       application: DecoratedApplication;
     };
     failure?: {
       message: string;
       cause: Error;
       application: DecoratedApplication;
-      newTask: New<ApplicationTask<EmptyTaskData>>;
+      newTask: New<ApplicationManifestTask>;
     };
   }> => {
-    const newTask: New<ApplicationTask<EmptyTaskData>> = {
+    const newTask: New<ApplicationManifestTask> = {
       name: `${application.name}.${application.id}.application-manifest`,
       kind: "application-manifest",
       application: { id: application.id, name: application.name },

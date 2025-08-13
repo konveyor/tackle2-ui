@@ -71,11 +71,11 @@ export interface DecoratedApplication extends Application {
 /**
  * Take an array of `Tasks`, group by application id and then by task kind.
  */
-const groupTasks = (tasks: TaskDashboard[]) => {
-  const byApplicationId = group(tasks, (task) => task.application.id) as Record<
-    number,
-    TaskDashboard[]
-  >;
+const groupApplicationTasks = (tasks: TaskDashboard[]) => {
+  const byApplicationId = group(
+    tasks.filter((task) => task.application),
+    (task) => task.application!.id
+  ) as Record<number, TaskDashboard[]>;
 
   const groupedByIdByKind = mapEntries(byApplicationId, (id, tasks) => [
     id,
@@ -123,7 +123,7 @@ const decorateApplications = (
   assessments: AssessmentWithSectionOrder[],
   businessServices: BusinessService[]
 ) => {
-  const { tasksById, tasksByIdByKind } = groupTasks(tasks);
+  const { tasksById, tasksByIdByKind } = groupApplicationTasks(tasks);
 
   const decorated = applications.map((app: Application) => {
     const tasksByKind = tasksByIdByKind[app.id] ?? [];
@@ -241,10 +241,20 @@ export const useDecoratedApplications = (
     [applications]
   );
 
+  const referencedPlatformRefs = useMemo(
+    () =>
+      unique(
+        applications.flatMap((app) => app.platform).filter(Boolean),
+        ({ id, name }) => `${id}:${name}`
+      ).sort((a, b) => universalComparator(a.name, b.name)),
+    [applications]
+  );
+
   return {
     applications: decoratedApplications,
     applicationNames,
     referencedArchetypeRefs,
     referencedBusinessServiceRefs,
+    referencedPlatformRefs,
   };
 };
