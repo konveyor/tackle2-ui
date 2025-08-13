@@ -39,7 +39,10 @@ import {
   useFetchTagCategories,
 } from "@app/queries/tags";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";
+import {
+  COLOR_NAMES_BY_HEX_VALUE,
+  DEFAULT_REFETCH_INTERVAL,
+} from "@app/Constants";
 import { TagForm } from "./components/tag-form";
 import { TagCategoryForm } from "./components/tag-category-form";
 import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
@@ -84,7 +87,6 @@ export const Tags: React.FC = () => {
       title: t("terms.tagDeleted"),
       variant: "success",
     });
-    refetch();
   };
 
   const onDeleteTagError = (error: AxiosError) => {
@@ -114,7 +116,6 @@ export const Tags: React.FC = () => {
       title: t("terms.tagCategoryDeleted"),
       variant: "success",
     });
-    refetch();
   };
 
   const onDeleteTagCategoryError = (error: AxiosError) => {
@@ -139,26 +140,11 @@ export const Tags: React.FC = () => {
     onDeleteTagCategoryError
   );
 
-  const closeTagCategoryModal = () => {
-    setTagCategoryModalState(null);
-    refetch();
-  };
-
-  const closeTagModal = () => {
-    setTagModalState(null);
-    refetch();
-  };
-
   const {
     tagCategories: tagCategories,
     isFetching,
     fetchError,
-    refetch,
-  } = useFetchTagCategories();
-
-  const deleteTagFromTable = (tag: Tag) => {
-    setTagToDelete(tag);
-  };
+  } = useFetchTagCategories(DEFAULT_REFETCH_INTERVAL);
 
   const tableControls = useLocalTableControls({
     tableName: "business-services-table",
@@ -303,13 +289,9 @@ export const Tags: React.FC = () => {
             <Thead>
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
-                  <Th
-                    {...getThProps({ columnKey: "tagCategory" })}
-                    width={30}
-                  />
-                  <Th {...getThProps({ columnKey: "color" })} width={20} />
-                  <Th {...getThProps({ columnKey: "tagCount" })} width={20} />
-                  <Th screenReaderText="row actions" width={10} />
+                  <Th {...getThProps({ columnKey: "tagCategory" })} />
+                  <Th {...getThProps({ columnKey: "color" })} />
+                  <Th {...getThProps({ columnKey: "tagCount" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -335,7 +317,7 @@ export const Tags: React.FC = () => {
               }
               numRenderedColumns={numRenderedColumns}
             >
-              {currentPageItems?.map((tagCategory, rowIndex) => {
+              {currentPageItems.map((tagCategory, rowIndex) => {
                 const hasTags = tagCategory.tags && tagCategory.tags.length > 0;
                 const categoryColor =
                   tagCategory.colour ||
@@ -367,6 +349,7 @@ export const Tags: React.FC = () => {
                         >
                           {tagCategory.tags?.length || 0}
                         </Td>
+                        {/* TODO: Convert to pencil-action / row-actions Td isActionCell */}
                         <ControlTableActionButtons
                           isDeleteEnabled={!!tagCategory.tags?.length}
                           deleteTooltipMessage={t(
@@ -385,7 +368,7 @@ export const Tags: React.FC = () => {
                               <TagTable
                                 tagCategory={tagCategory}
                                 onEdit={setTagModalState}
-                                onDelete={deleteTagFromTable}
+                                onDelete={setTagToDelete}
                               />
                             ) : (
                               <EmptyState variant="sm">
@@ -428,11 +411,11 @@ export const Tags: React.FC = () => {
         }
         variant={ModalVariant.medium}
         isOpen={isTagCategoryModalOpen}
-        onClose={closeTagCategoryModal}
+        onClose={() => setTagCategoryModalState(null)}
       >
         <TagCategoryForm
           tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
-          onClose={closeTagCategoryModal}
+          onClose={() => setTagCategoryModalState(null)}
         />
       </Modal>
 
@@ -449,11 +432,11 @@ export const Tags: React.FC = () => {
         }
         variant={ModalVariant.medium}
         isOpen={isTagModalOpen}
-        onClose={closeTagModal}
+        onClose={() => setTagModalState(null)}
       >
         <TagForm
           tag={tagToUpdate ? tagToUpdate : undefined}
-          onClose={closeTagModal}
+          onClose={() => setTagModalState(null)}
         />
       </Modal>
 
