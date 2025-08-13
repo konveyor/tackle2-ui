@@ -14,12 +14,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationManifestTask, EmptyObject, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
+import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,
@@ -38,15 +37,10 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   );
 };
 
-interface IRetrieveConfigWizard {
+export interface IRetrieveConfigWizard {
   applications?: DecoratedApplication[];
   onClose: () => void;
   isOpen: boolean;
-}
-
-enum StepId {
-  Review = 1,
-  Results = 2,
 }
 
 export interface FormValues {
@@ -125,7 +119,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     return (
       <Modal
         variant={ModalVariant.medium}
-        title={t("dialog.title.retrieveConfigurations")}
+        title={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
         onClose={handleCancel}
         footer={
@@ -146,7 +140,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     <FormProvider {...methods}>
       <Modal
         variant={ModalVariant.large}
-        aria-label={t("dialog.title.retrieveConfigurations")}
+        aria-label={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
         showClose={false}
         hasNoBodyWrapper
@@ -157,13 +151,13 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
           header={
             <WizardHeader
               onClose={handleCancel}
-              title={t("dialog.title.retrieveConfigurations")}
-              description={t("dialog.message.retrieveConfigurations")}
+              title={t("retrieveConfigWizard.title")}
+              description={t("retrieveConfigWizard.description")}
             />
           }
         >
           <WizardStep
-            id={StepId.Review}
+            id="review"
             name="Review"
             footer={{
               nextButtonText: showResults
@@ -184,74 +178,4 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
       </Modal>
     </FormProvider>
   );
-};
-
-const useStartFetchApplicationManifest = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation<
-    EmptyObject,
-    ApplicationManifestTask
-  >();
-
-  const createAndSubmitTask = async (
-    application: DecoratedApplication
-  ): Promise<{
-    success?: {
-      task: ApplicationManifestTask;
-      application: DecoratedApplication;
-    };
-    failure?: {
-      message: string;
-      cause: Error;
-      application: DecoratedApplication;
-      newTask: New<ApplicationManifestTask>;
-    };
-  }> => {
-    const newTask: New<ApplicationManifestTask> = {
-      name: `${application.name}.${application.id}.application-manifest`,
-      kind: "application-manifest",
-      application: { id: application.id, name: application.name },
-      state: "Ready",
-      data: {},
-    };
-
-    try {
-      const task = await createTask(newTask);
-      return { success: { task, application } };
-    } catch (error) {
-      return {
-        failure: {
-          message: "Failed to submit the application manifest fetch task",
-          cause: error as Error,
-          application,
-          newTask,
-        },
-      };
-    }
-  };
-
-  const submitTasks = async (applications: DecoratedApplication[]) => {
-    const results = await Promise.allSettled(
-      applications.map(createAndSubmitTask)
-    );
-
-    const success = [];
-    const failure = [];
-
-    for (const result of results) {
-      if (result.status === "fulfilled") {
-        if (result.value.success) {
-          success.push(result.value.success);
-        }
-        if (result.value.failure) {
-          failure.push(result.value.failure);
-        }
-      }
-    }
-
-    return { success, failure };
-  };
-
-  return {
-    submitTasks,
-  };
 };
