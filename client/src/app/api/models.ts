@@ -389,7 +389,7 @@ export interface TaskDashboard {
   kind?: string;
   addon?: string;
   state: TaskState;
-  application: Ref;
+  application?: Ref;
   started?: string; // ISO-8601
   terminated?: string; // ISO-8601
 
