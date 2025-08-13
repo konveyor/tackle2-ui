@@ -1,0 +1,11 @@
+.platform-name-popover {
+  --pf-v5-c-popover__header--MarginBottom: 1rem;
+}
+
+.platform-name-popover .pf-v5-c-popover__title {
+  flex-grow: 1;
+}
+
+.platform-name-popover .pf-v5-c-popover__title-text {
+  flex-grow: 1;
+}

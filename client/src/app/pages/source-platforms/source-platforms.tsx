@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -19,7 +18,6 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
-  Popover,
 } from "@patternfly/react-core";
 import {
   Table,
@@ -41,23 +39,21 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import {
-  useDeletePlatformMutation,
-  useFetchPlatforms,
-} from "@app/queries/platforms";
+import { useDeletePlatformMutation } from "@app/queries/platforms";
 import { SourcePlatform } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskStateIcon } from "@app/components/Icons";
 import { SimplePagination } from "@app/components/SimplePagination";
 
 import LinkToPlatformApplications from "./components/link-to-platform-applications";
 import PlatformDetailDrawer from "./components/platform-detail-drawer";
 import { PlatformForm } from "./components/platform-form";
 import { DiscoverImportWizard } from "./discover-import-wizard/discover-import-wizard";
+import { useFetchPlatformsWithTasks } from "./useFetchPlatformsWithTasks";
+import { ColumnPlatformName } from "./components/column-platform-name";
 
-const SourcePlatforms: React.FC = () => {
+export const SourcePlatforms: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -69,21 +65,22 @@ const SourcePlatforms: React.FC = () => {
   );
 
   const [platformToDelete, setPlatformToDelete] =
-    React.useState<SourcePlatform | null>(null);
+    useState<SourcePlatform | null>(null);
 
   const [platformToDiscoverImport, setPlatformToDiscoverImport] =
-    React.useState<SourcePlatform | null>(null);
+    useState<SourcePlatform | null>(null);
 
-  const { platforms, isFetching, error: fetchError } = useFetchPlatforms();
+  const isModalOpen =
+    openCreatePlatform ||
+    !!platformToEdit ||
+    !!platformToDelete ||
+    !!platformToDiscoverImport;
 
-  // TODO: Add platform task query to get the state of any task attached to the platforms
-
-  const onError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
+  const {
+    platforms,
+    isFetching,
+    error: fetchError,
+  } = useFetchPlatformsWithTasks(isModalOpen);
 
   const { mutate: deletePlatform } = useDeletePlatformMutation(
     (platformDeleted) =>
@@ -94,7 +91,12 @@ const SourcePlatforms: React.FC = () => {
         }),
         variant: "success",
       }),
-    onError
+    (error) => {
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
   );
 
   const tableControls = useLocalTableControls({
@@ -190,7 +192,7 @@ const SourcePlatforms: React.FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
-  const discoverApplications = (platform: SourcePlatform) => {
+  const discoverImport = (platform: SourcePlatform) => {
     if (platform) {
       setPlatformToDiscoverImport(platform);
     }
@@ -274,21 +276,7 @@ const SourcePlatforms: React.FC = () => {
                         rowIndex={rowIndex}
                       >
                         <Td {...getTdProps({ columnKey: "name" })}>
-                          {/* TODO: Make the task popover for a platform work */}
-                          <Popover
-                            headerContent={platform.name}
-                            bodyContent={`discover applications for ${platform.name} status: ${platform.discoverApplicationsState}`}
-                            headerIcon={
-                              <TaskStateIcon
-                                state={platform.discoverApplicationsState}
-                              />
-                            }
-                            position="top"
-                            id={`platform-name-popover-${platform.id}`}
-                            triggerAction="hover"
-                          >
-                            <Text>{platform.name}</Text>
-                          </Popover>
+                          <ColumnPlatformName platform={platform} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "platformKind" })}>
                           {platform.kind}
@@ -312,7 +300,7 @@ const SourcePlatforms: React.FC = () => {
                               ...[
                                 {
                                   title: t("actions.discoverApplications"),
-                                  onClick: () => discoverApplications(platform),
+                                  onClick: () => discoverImport(platform),
                                 },
                               ],
                               { isSeparator: true },
