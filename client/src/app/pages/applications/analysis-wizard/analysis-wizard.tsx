@@ -16,7 +16,7 @@ import {
   Application,
   New,
   Ref,
-  TaskData,
+  AnalysisTaskData,
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
@@ -51,7 +51,7 @@ interface IAnalysisWizard {
   isOpen: boolean;
 }
 
-const defaultTaskData: TaskData = {
+const defaultTaskData: AnalysisTaskData = {
   tagger: {
     enabled: true,
   },

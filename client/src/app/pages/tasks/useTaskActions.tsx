@@ -20,6 +20,7 @@ const canTogglePreemption = (state: TaskState = "No task") =>
 const useAsyncTaskActions = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+
   const { mutate: cancelTask } = useCancelTaskMutation(
     () =>
       pushNotification({
@@ -50,7 +51,7 @@ const useAsyncTaskActions = () => {
       })
   );
 
-  const togglePreemption = (task: Task) =>
+  const togglePreemption = (task: Task<unknown>) =>
     updateTask({
       id: task.id,
       policy: {
@@ -61,7 +62,7 @@ const useAsyncTaskActions = () => {
   return { cancelTask, togglePreemption };
 };
 
-export const useTaskActions = (task: Task) => {
+export const useTaskActions = (task: Task<unknown>) => {
   const { cancelTask, togglePreemption } = useAsyncTaskActions();
   const { t } = useTranslation();
   const history = useHistory();

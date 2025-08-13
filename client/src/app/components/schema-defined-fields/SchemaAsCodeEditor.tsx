@@ -28,6 +28,11 @@ export interface ISchemaAsCodeEditorProps {
   onDocumentSaved?: (newSchemaContent: object) => void;
   onDocumentChanged?: (newSchemaContent: object) => void;
   isReadOnly?: boolean;
+  /**
+   * Height of the editor. Defaults to 600px. Use "sizeToFit" to size editor to fit content.
+   * Set to "100%" to make the editor take up the full height of its container.
+   */
+  height?: string;
 }
 
 export const SchemaAsCodeEditor = ({
@@ -37,6 +42,7 @@ export const SchemaAsCodeEditor = ({
   onDocumentSaved,
   onDocumentChanged,
   isReadOnly = false,
+  height = "600px",
 }: ISchemaAsCodeEditorProps) => {
   const editorRef = React.useRef<ControlledEditor>();
 
@@ -101,7 +107,7 @@ export const SchemaAsCodeEditor = ({
       isDownloadEnabled
       isLineNumbersVisible
       isReadOnly={isReadOnly}
-      height="600px"
+      height={height}
       downloadFileName="my-schema-download.json"
       language={Language.json}
       code={currentCode}
