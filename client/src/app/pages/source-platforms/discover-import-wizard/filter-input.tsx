@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, UseFormReturn } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -13,6 +13,7 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 
 interface FiltersFormValues {
+  filterRequired: boolean;
   schema?: TargetedSchema;
   document?: JsonDocument;
 }
@@ -24,10 +25,40 @@ export interface FilterState {
   isValid: boolean;
 }
 
+const useFilterStateChangeHandler = (
+  form: UseFormReturn<FiltersFormValues>,
+  onFiltersChanged: (filterState: FilterState) => void
+) => {
+  const {
+    control,
+    formState: { isValid },
+  } = form;
+
+  const watchedValues = useWatch({
+    control,
+    name: ["schema", "document", "filterRequired"],
+  });
+
+  const filterState = React.useMemo((): FilterState => {
+    const [schema, document, filterRequired] = watchedValues;
+    return {
+      filterRequired,
+      schema,
+      document,
+      isValid,
+    };
+  }, [watchedValues, isValid]);
+
+  React.useEffect(() => {
+    onFiltersChanged(filterState);
+  }, [onFiltersChanged, filterState]);
+};
+
 export const FilterInput: React.FC<{
   platform: SourcePlatform;
   onFiltersChanged: (filterState: FilterState) => void;
-}> = ({ platform, onFiltersChanged }) => {
+  initialFilters?: FilterState;
+}> = ({ platform, onFiltersChanged, initialFilters }) => {
   const { t } = useTranslation();
 
   const validationSchema = yup.object().shape({
@@ -41,54 +72,35 @@ export const FilterInput: React.FC<{
       }),
   });
 
-  const {
-    control,
-    reset,
-    getValues,
-    watch,
-    formState: { isValid },
-  } = useForm<FiltersFormValues>({
+  const form = useForm<FiltersFormValues>({
     defaultValues: {
-      schema: undefined,
-      document: {},
+      filterRequired: initialFilters?.filterRequired ?? true,
+      schema: initialFilters?.schema ?? undefined,
+      document: initialFilters?.document ?? {},
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+  const { setValue, control } = form;
 
-  // Fetch the discovery filters schema for the platform and put it in the form
+  // Fetch the discovery filter schema for the platform
   const { filtersSchema } = useFetchPlatformDiscoveryFilterSchema(
     platform?.kind
   );
+
+  // Update form values that react to schema changes
   React.useEffect(() => {
+    // TODO: If the schema is undefined, it could be a 404 and we should not require a filter
     if (filtersSchema) {
-      reset({
-        ...getValues(),
-        schema: filtersSchema,
-        document: {},
-      });
+      setValue("schema", filtersSchema);
+      setValue("filterRequired", true);
     } else {
-      reset({
-        ...getValues(),
-        schema: undefined,
-        document: undefined,
-      });
+      setValue("schema", undefined);
+      setValue("filterRequired", false);
     }
-  }, [filtersSchema, reset, getValues]);
+  }, [filtersSchema, setValue]);
 
-  // Relay form state changes to parent component
-  const watchedValues = watch();
-  React.useEffect(() => {
-    // TODO: Track the filter loading state -- 404 = no filter needed, !!data = filter needed
-    const filterRequired = !!filtersSchema;
-
-    onFiltersChanged({
-      filterRequired,
-      schema: watchedValues.schema,
-      document: watchedValues.document,
-      isValid: isValid,
-    });
-  }, [onFiltersChanged, watchedValues, isValid, filtersSchema]);
+  useFilterStateChangeHandler(form, onFiltersChanged);
 
   return (
     <div>

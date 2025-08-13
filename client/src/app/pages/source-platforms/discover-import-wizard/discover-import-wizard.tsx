@@ -125,6 +125,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             description={t("platformDiscoverWizard.description")}
           />
         }
+        isVisitRequired
       >
         <WizardStep
           id="filter-input"
@@ -134,7 +135,11 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             isNextDisabled: !filters.isValid,
           }}
         >
-          <FilterInput platform={platform} onFiltersChanged={setFilters} />
+          <FilterInput
+            platform={platform}
+            onFiltersChanged={setFilters}
+            initialFilters={filters}
+          />
         </WizardStep>
 
         <WizardStep

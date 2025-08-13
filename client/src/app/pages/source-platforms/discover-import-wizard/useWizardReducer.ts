@@ -51,16 +51,23 @@ export const useWizardReducer = () => {
     validateWizardState
   );
 
+  // Create stable callbacks using useCallback
+  const setFilters = React.useCallback((filters: FilterState) => {
+    dispatch({ type: "SET_FILTERS", payload: filters });
+  }, []);
+
+  const setResults = React.useCallback((results: ResultsData | null) => {
+    dispatch({ type: "SET_RESULTS", payload: results });
+  }, []);
+
+  const reset = React.useCallback(() => {
+    dispatch({ type: "RESET" });
+  }, []);
+
   return {
     state,
-    setFilters(filters: FilterState) {
-      dispatch({ type: "SET_FILTERS", payload: filters });
-    },
-    setResults(results: ResultsData | null) {
-      dispatch({ type: "SET_RESULTS", payload: results });
-    },
-    reset() {
-      dispatch({ type: "RESET" });
-    },
+    setFilters,
+    setResults,
+    reset,
   };
 };
