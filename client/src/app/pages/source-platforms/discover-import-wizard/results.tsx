@@ -35,7 +35,7 @@ export interface ResultsData {
 }
 
 interface IResultsProps {
-  results: ResultsData;
+  results?: ResultsData;
 }
 
 export const Results: React.FC<IResultsProps> = ({ results }) => {
