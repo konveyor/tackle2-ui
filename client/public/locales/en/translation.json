@@ -53,7 +53,6 @@
     "reset": "Reset",
     "review": "Review",
     "retrieve": "Retrieve",
-    "retrieveConfigurations": "Retrieve configurations",
     "save": "Save",
     "saveAndReview": "Save and review",
     "selectAll": "Select all",
@@ -167,7 +166,6 @@
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
-      "retrieveConfigurations": "Retrieve configurations",
       "update": "Update {{what}}",
       "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
@@ -669,9 +667,10 @@
     }
   },
   "retrieveConfigWizard": {
+    "title": "Retrieve Configurations",
+    "description": "Retrieve configurations from the selected applications.",
     "selectedCount": "{{count}} of {{total}} applications selected",
     "noApplicationsWithSourcePlatforms": "No applications with source platforms selected.",
-    "noTasksSubmitted": "No tasks were submitted.",
     "toast": {
       "submittedOk": "Application manifest fetches submitted",
       "submittedFailed": "Application manifest fetches failed"
@@ -680,10 +679,11 @@
       "title": "Configuration Retrieval Results",
       "summary": "Summary of configuration retrieval task submissions.",
       "noResults": "No results available.",
+      "noTasksSubmitted": "No tasks were submitted.",
       "failedSubmissions_one": "Failed Submission",
       "failedSubmissions_other": "Failed Submissions ({{count}})",
-      "successSubmissions_one": "Success Submission",
-      "successSubmissions_other": "Success Submissions ({{count}})"
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
     },
     "review": {
       "description_one": "This application is ready to retrieve configurations from its source platform. The application's platform coordinates will be used to connect to the platform and build the application's discovery manifest.",
