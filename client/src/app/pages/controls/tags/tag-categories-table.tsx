@@ -59,7 +59,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
 import { TagTable } from "./components/tag-table";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();
@@ -350,7 +350,7 @@ export const Tags: React.FC = () => {
                           {tagCategory.tags?.length || 0}
                         </Td>
                         {/* TODO: Convert to pencil-action / row-actions Td isActionCell */}
-                        <ControlTableActionButtons
+                        <ControlTableActionsColumn
                           isDeleteEnabled={!!tagCategory.tags?.length}
                           deleteTooltipMessage={t(
                             "message.cannotDeleteNonEmptyTagCategory"

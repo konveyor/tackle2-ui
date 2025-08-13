@@ -51,7 +51,7 @@ import {
 } from "@app/components/TableControls";
 import { StakeholderForm } from "./components/stakeholder-form";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
@@ -305,7 +305,7 @@ export const Stakeholders: React.FC = () => {
                           >
                             {stakeholder.stakeholderGroups?.length}
                           </Td>
-                          <ControlTableActionButtons
+                          <ControlTableActionsColumn
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholder)
                             }

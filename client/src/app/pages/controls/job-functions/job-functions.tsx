@@ -36,7 +36,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const JobFunctions: React.FC = () => {
@@ -217,7 +217,7 @@ export const JobFunctions: React.FC = () => {
                         <Td width={90} {...getTdProps({ columnKey: "name" })}>
                           {jobFunction.name}
                         </Td>
-                        <ControlTableActionButtons
+                        <ControlTableActionsColumn
                           isDeleteEnabled={!!jobFunction.stakeholders}
                           deleteTooltipMessage={t(
                             "message.cannotDeleteJobFunctionWithStakeholders"
