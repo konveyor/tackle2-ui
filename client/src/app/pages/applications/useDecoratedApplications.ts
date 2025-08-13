@@ -241,10 +241,20 @@ export const useDecoratedApplications = (
     [applications]
   );
 
+  const referencedPlatformRefs = useMemo(
+    () =>
+      unique(
+        applications.flatMap((app) => app.platform).filter(Boolean),
+        ({ id, name }) => `${id}:${name}`
+      ).sort((a, b) => universalComparator(a.name, b.name)),
+    [applications]
+  );
+
   return {
     applications: decoratedApplications,
     applicationNames,
     referencedArchetypeRefs,
     referencedBusinessServiceRefs,
+    referencedPlatformRefs,
   };
 };
