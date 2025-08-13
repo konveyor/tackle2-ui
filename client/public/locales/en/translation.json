@@ -34,6 +34,7 @@
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "discoverApplications": "Discover applications",
+    "discoverImport": "Discover & Import",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -689,6 +690,38 @@
       "description_other": "These applications are ready to retrieve configurations from their source platforms. The applications' platform coordinates will be used to connect to the platform and build the applications' discovery manifests.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
+    }
+  },
+  "platformDiscoverWizard": {
+    "title": "Discover Applications",
+    "description": "Discover and import applications from the selected platform.",
+    "noPlatformSelected": "No platform selected for discovery.",
+    "toast": {
+      "submittedOk": "Platform application discovery task submitted",
+      "submittedFailed": "Platform application discovery task failed"
+    },
+    "filterInput": {
+      "stepTitle": "Filters",
+      "title": "Configure Discovery Filters",
+      "description": "Configure the filters for discovering applications on platform {{platformName}} ({{platformKind}}). These filters will determine which applications are discovered and imported.",
+      "filtersLabel": "{{platformName}} discovery filters",
+      "noFiltersAvailable": "No discovery filters are available for platform kind {{platformKind}}."
+    },
+    "review": {
+      "stepTitle": "Review",
+      "title": "Review Platform Discovery",
+      "description": "Review the platform and discovery filters before starting application discovery on {{platformName}}.",
+      "discoveryFilters": "Discovery Filters"
+    },
+    "results": {
+      "title": "Platform Discovery Results",
+      "summary": "Summary of platform application discovery task submissions.",
+      "noResults": "No results available.",
+      "noTasksSubmitted": "No tasks were submitted.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
     }
   },
   "credentials": {
