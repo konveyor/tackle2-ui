@@ -54,33 +54,35 @@ export const useFetchPlatformById = (
 };
 
 export const useCreatePlatformMutation = (
-  onSuccess: () => void,
+  onSuccess: (platform: SourcePlatform) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createPlatform,
-    onSuccess: () => {
-      onSuccess();
+    onSuccess: (platform, _variables) => {
       queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
+      onSuccess(platform);
     },
     onError: onError,
   });
 };
 
 export const useUpdatePlatformMutation = (
-  onSuccess: (id: number) => void,
+  onSuccess: (platform: SourcePlatform) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updatePlatform,
-    onSuccess: (_, { id }) => {
-      onSuccess(id);
+    onSuccess: (_, platform) => {
       queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [PLATFORM_QUERY_KEY, id] });
+      queryClient.invalidateQueries({
+        queryKey: [PLATFORM_QUERY_KEY, platform.id],
+      });
+      onSuccess(platform);
     },
     onError: onError,
   });
@@ -95,11 +97,11 @@ export const useDeletePlatformMutation = (
   return useMutation({
     mutationFn: (platform: SourcePlatform) => deletePlatform(platform.id),
     onSuccess: (_, platform) => {
-      onSuccess(platform);
       queryClient.invalidateQueries({ queryKey: [PLATFORMS_QUERY_KEY] });
       queryClient.invalidateQueries({
         queryKey: [PLATFORM_QUERY_KEY, platform.id],
       });
+      onSuccess(platform);
     },
     onError: onError,
   });
