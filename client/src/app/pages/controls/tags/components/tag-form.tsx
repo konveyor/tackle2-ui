@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AxiosError, AxiosResponse } from "axios";
 import { object, string, mixed } from "yup";
@@ -42,10 +42,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [error, setError] = useState<AxiosError>();
-
   const { tags } = useFetchTags();
-
   const { tagCategories } = useFetchTagCategories();
 
   const tagCategoryOptions = useMemo(() => {
@@ -101,7 +98,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       variant: "success",
     });
 
-  const onTagError = (error: AxiosError) => {
+  const onTagError = (_: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.tag").toLowerCase(),
@@ -120,7 +117,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       variant: "success",
     });
 
-  const onUpdateTagError = (error: AxiosError) => {
+  const onUpdateTagError = (_: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.tag").toLowerCase(),
