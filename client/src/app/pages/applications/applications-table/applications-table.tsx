@@ -772,13 +772,16 @@ export const ApplicationsTable: React.FC = () => {
         ),
       ],
       [
-        <DropdownItem
-          key="change-source-platform-applications"
-          isDisabled={true}
-          onClick={() => handleChangeSourcePlatform(selectedRows)}
-        >
-          {t("actions.changeSourcePlatform")}
-        </DropdownItem>,
+        // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+        // applicationWriteAccess && (
+        //   <DropdownItem
+        //     key="change-source-platform-applications"
+        //     isDisabled={true}
+        //     onClick={() => handleChangeSourcePlatform(selectedRows)}
+        //   >
+        //     {t("actions.changeSourcePlatform")}
+        //   </DropdownItem>
+        // ),
         applicationWriteAccess && (
           <DropdownItem
             key="retrieve-configurations-bulk"
