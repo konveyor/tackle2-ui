@@ -5,8 +5,17 @@
 .vscode/
 .idea/
 .eslintcache/
+.gitignore
+LICENSE
+license-checker-config.json
+
+cypress/downloads/
+cypress/reports/
+cypress/screenshots/
 
 #
 # NOTE: Could ignore anything that eslint will look at since eslint also applies
 #       prettier.
 #
+
+
