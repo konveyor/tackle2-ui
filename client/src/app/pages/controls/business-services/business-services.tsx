@@ -38,7 +38,7 @@ import {
 } from "@app/components/TableControls";
 import { CubesIcon } from "@patternfly/react-icons";
 import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
 
 export const BusinessServices: React.FC = () => {
   const { t } = useTranslation();
@@ -271,7 +271,7 @@ export const BusinessServices: React.FC = () => {
                         <Td width={10} {...getTdProps({ columnKey: "owner" })}>
                           {businessService.owner?.name}
                         </Td>
-                        <ControlTableActionButtons
+                        <ControlTableActionsColumn
                           isDeleteEnabled={isAssignedToApplication}
                           deleteTooltipMessage={t(
                             "message.cannotRemoveBusinessServiceAssociatedWithApplication"
