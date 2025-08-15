@@ -53,6 +53,7 @@
     "reset": "Reset",
     "review": "Review",
     "retrieve": "Retrieve",
+    "retrieveConfigurations": "Retrieve configurations",
     "save": "Save",
     "saveAndReview": "Save and review",
     "selectAll": "Select all",
