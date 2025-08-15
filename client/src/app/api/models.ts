@@ -374,6 +374,12 @@ export interface ApplicationManifestTask
   application: Ref;
 }
 
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
+  kind: "asset-generation";
+  application: Ref;
+}
+
 export interface PlatformApplicationImportTask
   extends Omit<Task<JsonDocument>, "application" | "platform"> {
   kind: "application-import";
@@ -464,6 +470,11 @@ export interface AnalysisTaskData {
     };
     ruleSets?: Ref[]; // Target.ruleset.{ id, name }
   };
+}
+
+export interface AssetGenerationTaskData {
+  profiles: Ref[];
+  params: JsonDocument;
 }
 
 export interface TaskgroupTask {

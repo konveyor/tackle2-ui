@@ -9,7 +9,7 @@ import {
   TextVariants,
   Grid,
   GridItem,
-  Button,
+  Icon,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useTranslation } from "react-i18next";
@@ -19,12 +19,12 @@ import {
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
 
-import { ApplicationTask, EmptyTaskData } from "@app/api/models";
+import { ApplicationAssetGenerationTask } from "@app/api/models";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface ResultsData {
   success: {
-    task: ApplicationTask<EmptyTaskData>;
+    task: ApplicationAssetGenerationTask;
     application: DecoratedApplication;
   }[];
   failure: {
@@ -35,13 +35,13 @@ export interface ResultsData {
 }
 
 export interface ResultsProps {
-  data: ResultsData | null;
+  results: ResultsData | null;
 }
 
-export const Results: React.FC<ResultsProps> = ({ data }) => {
+export const Results: React.FC<ResultsProps> = ({ results }) => {
   const { t } = useTranslation();
 
-  if (!data) {
+  if (!results) {
     return (
       <div>
         <TextContent>
@@ -56,7 +56,7 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
     );
   }
 
-  const { success = [], failure = [] } = data;
+  const { success = [], failure = [] } = results;
 
   return (
     <>
@@ -70,57 +70,58 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
       </TextContent>
 
       <Grid hasGutter>
+        {success.length === 0 && failure.length === 0 && (
+          <GridItem span={12}>
+            <Card>
+              <CardBody>
+                <Text>{t("generateAssetsWizard.noTasksSubmitted")}</Text>
+              </CardBody>
+            </Card>
+          </GridItem>
+        )}
+
         {success.length > 0 && (
           <GridItem span={12}>
             <Card>
               <CardHeader>
                 <CardTitle>
-                  <CheckCircleIcon
-                    color="var(--pf-global--success-color--100)"
+                  <Icon
+                    status="success"
+                    isInline
                     style={{ marginRight: "8px" }}
-                  />
+                  >
+                    <CheckCircleIcon />
+                  </Icon>
                   {t("generateAssetsWizard.results.successSubmissions", {
                     count: success.length,
                   })}
                 </CardTitle>
               </CardHeader>
               <CardBody>
-                <Table aria-label="Successful asset generation task submissions">
+                <Table aria-label="Successful task submissions">
                   <Thead>
                     <Tr>
                       <Th>{t("terms.application")}</Th>
                       <Th>{t("terms.task")}</Th>
-                      <Th>{t("actions.actions")}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {success.map((result) => (
-                      <Tr key={result.application.id}>
+                    {success.map(({ application, task }) => (
+                      <Tr key={application.id}>
                         <Td>
                           <div>
-                            <strong>{result.application.name}</strong>
-                            {result.application.description && (
+                            <strong>{application.name}</strong>
+                            {application.description && (
                               <div
                                 style={{ fontSize: "0.9em", color: "#6a6e73" }}
                               >
-                                {result.application.description}
+                                {application.description}
                               </div>
                             )}
                           </div>
                         </Td>
-                        <Td>{result.task.id}</Td>
                         <Td>
-                          <Button
-                            variant="link"
-                            component={(props) => (
-                              <Link
-                                {...props}
-                                to={`/tasks/${result.task.id}`}
-                              />
-                            )}
-                          >
-                            View Task
-                          </Button>
+                          <Link to={`/tasks/${task.id}`}>{task.id}</Link>
                         </Td>
                       </Tr>
                     ))}
@@ -136,10 +137,9 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  <ExclamationTriangleIcon
-                    color="var(--pf-global--danger-color--100)"
-                    style={{ marginRight: "8px" }}
-                  />
+                  <Icon status="danger" isInline style={{ marginRight: "8px" }}>
+                    <ExclamationTriangleIcon />
+                  </Icon>
                   {t("generateAssetsWizard.results.failedSubmissions", {
                     count: failure.length,
                   })}
@@ -154,16 +154,16 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {failure.map((result) => (
-                      <Tr key={result.application.id}>
+                    {failure.map(({ application, message, cause }) => (
+                      <Tr key={application.id}>
                         <Td>
                           <div>
-                            <strong>{result.application.name}</strong>
-                            {result.application.description && (
+                            <strong>{application.name}</strong>
+                            {application.description && (
                               <div
                                 style={{ fontSize: "0.9em", color: "#6a6e73" }}
                               >
-                                {result.application.description}
+                                {application.description}
                               </div>
                             )}
                           </div>
@@ -174,9 +174,9 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
                               color: "var(--pf-global--danger-color--100)",
                             }}
                           >
-                            {result.message}
+                            {message}
                           </div>
-                          {result.cause?.message && (
+                          {cause?.message && (
                             <div
                               style={{
                                 fontSize: "0.8em",
@@ -184,7 +184,7 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
                                 marginTop: "4px",
                               }}
                             >
-                              {result.cause.message}
+                              {cause.message}
                             </div>
                           )}
                         </Td>
@@ -192,16 +192,6 @@ export const Results: React.FC<ResultsProps> = ({ data }) => {
                     ))}
                   </Tbody>
                 </Table>
-              </CardBody>
-            </Card>
-          </GridItem>
-        )}
-
-        {success.length === 0 && failure.length === 0 && (
-          <GridItem span={12}>
-            <Card>
-              <CardBody>
-                <Text>{t("generateAssetsWizard.noTasksSubmitted")}</Text>
               </CardBody>
             </Card>
           </GridItem>

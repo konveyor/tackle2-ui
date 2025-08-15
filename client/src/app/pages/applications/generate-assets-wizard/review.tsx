@@ -15,35 +15,41 @@ import {
   TextVariants,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { useFormContext } from "react-hook-form";
 
-import { FormValues } from "./generate-assets-wizard";
+import { DecoratedApplication } from "../useDecoratedApplications";
 
-export const Review: React.FC = () => {
+export const Review: React.FC<{
+  applications: DecoratedApplication[];
+  targetProfile: unknown; // TODO: Replace with TargetProfile after #2534
+  inputParameters: unknown; // TODO: Replace with InputParameters after #2534
+}> = ({ applications, targetProfile, inputParameters }) => {
   const { t } = useTranslation();
-  const { watch } = useFormContext<FormValues>();
-  const ready = watch("ready", []);
 
   return (
     <>
       <TextContent>
         <Text component={TextVariants.h3}>
           {t("generateAssetsWizard.review.selectedApplications", {
-            count: ready.length,
+            count: applications.length,
           })}
         </Text>
         <Text component={TextVariants.p}>
           {t("generateAssetsWizard.review.description", {
-            count: ready.length,
+            count: applications.length,
           })}
         </Text>
       </TextContent>
 
+      {/* TODO: Show:
+        (1) the application details
+        (2) the selected target profile
+        (3) the input parameters
+      */}
       <Panel isScrollable>
         <PanelMain>
           <PanelMainBody>
             <DataList aria-label="applications to generate assets">
-              {ready.map((application) => (
+              {applications.map((application) => (
                 <DataListItem
                   key={application.id}
                   aria-labelledby={`application-${application.id}`}
