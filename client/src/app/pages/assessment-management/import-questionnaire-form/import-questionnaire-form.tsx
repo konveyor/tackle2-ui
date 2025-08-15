@@ -18,7 +18,10 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useForm } from "react-hook-form";
 import { Questionnaire } from "@app/api/models";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCreateQuestionnaireMutation } from "@app/queries/questionnaires";
+import {
+  useCreateQuestionnaireMutation,
+  useFetchQuestionnaires,
+} from "@app/queries/questionnaires";
 import jsYaml from "js-yaml";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -37,6 +40,7 @@ export const ImportQuestionnaireForm: React.FC<
 
   const [filename, setFilename] = useState<string>();
   const [isFileRejected, setIsFileRejected] = useState(false);
+  const { questionnaires } = useFetchQuestionnaires();
   const validationSchema: yup.SchemaOf<ImportQuestionnaireFormValues> = yup
     .object()
     .shape({
@@ -113,6 +117,21 @@ export const ImportQuestionnaireForm: React.FC<
         if (isQuestionnaire(jsonData)) {
           const questionnaireData = jsonData as Questionnaire;
 
+          // Duplicate validation
+          const isDuplicate = questionnaires?.some(
+            (q) =>
+              q.name.trim().toLowerCase() ===
+              questionnaireData.name.trim().toLowerCase()
+          );
+          if (isDuplicate) {
+            pushNotification({
+              title: "Duplicate questionnaire",
+              message: "A questionnaire with this name already exists.",
+              variant: "danger",
+              timeout: 30000,
+            });
+            return;
+          }
           createQuestionnaire(questionnaireData);
         } else {
           console.error("Invalid JSON data.");
