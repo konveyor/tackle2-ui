@@ -14,12 +14,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationTask, EmptyTaskData, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
+import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -56,7 +55,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
 }: IGenerateAssetsWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const { submitTasks } = useFetchApplicationAssetGeneration();
+  const { submitTasks } = useStartApplicationAssetGeneration();
 
   // State to track submission results and current step
   const [submissionResults, setSubmissionResults] =
@@ -86,8 +85,8 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
     onClose();
   };
 
-  const onSubmit = async ({ ready }: FormValues) => {
-    const { success, failure } = await submitTasks(ready);
+  const submitTasksAndSaveResults = async ({ ready }: FormValues) => {
+    const { success, failure } = await submitTasks(ready, null, null);
 
     // Store results and move to Results step
     setSubmissionResults({ success, failure });
@@ -151,99 +150,38 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
               onClose={handleCancel}
             />
           }
-          onSave={handleSubmit(onSubmit)}
+          onClose={handleCancel}
+          isVisitRequired
         >
+          {/* TODO: Add a step to select the target profile from one of the application's archetypes */}
+          {/* TODO: Add a step to capture the target profile's generator parameters */}
           <WizardStep
-            name={t("generateAssetsWizard.steps.review")}
-            id="review-step"
-            footer={{ nextButtonText: t("actions.generate") }}
+            id="review"
+            name={t("generateAssetsWizard.review.stepTitle")}
+            footer={{
+              nextButtonText: submissionResults
+                ? t("actions.close")
+                : t("actions.generateAssets"),
+              onNext: submissionResults
+                ? handleCancel
+                : handleSubmit(submitTasksAndSaveResults),
+              isNextDisabled: false, // TODO: Check if all required inputs are valid
+              isBackDisabled: !!submissionResults,
+              isCancelHidden: !!submissionResults,
+            }}
           >
-            <Review />
+            {!submissionResults ? (
+              <Review
+                applications={readyApplications}
+                targetProfile={null} // TODO: Replace with a target profile after #2534
+                inputParameters={null} // TODO: Replace with input parameters after #2534
+              />
+            ) : (
+              <Results results={submissionResults} />
+            )}
           </WizardStep>
-          {submissionResults && (
-            <WizardStep
-              name={t("generateAssetsWizard.steps.results")}
-              id="results-step"
-              footer={{
-                nextButtonText: t("actions.close"),
-                onNext: handleCancel,
-              }}
-            >
-              <Results data={submissionResults} />
-            </WizardStep>
-          )}
         </Wizard>
       </FormProvider>
     </Modal>
   );
-};
-
-const useFetchApplicationAssetGeneration = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation<
-    EmptyTaskData,
-    ApplicationTask<EmptyTaskData>
-  >();
-
-  const createAndSubmitTask = async (
-    application: DecoratedApplication
-  ): Promise<{
-    success?: {
-      task: ApplicationTask<EmptyTaskData>;
-      application: DecoratedApplication;
-    };
-    failure?: {
-      message: string;
-      cause: Error;
-      application: DecoratedApplication;
-      newTask: New<ApplicationTask<EmptyTaskData>>;
-    };
-  }> => {
-    const newTask: New<ApplicationTask<EmptyTaskData>> = {
-      name: `${application.name}.${application.id}.asset-generation`,
-      kind: "asset-generation",
-      application: { id: application.id, name: application.name },
-      state: "Ready",
-      data: {},
-    };
-
-    try {
-      const task = await createTask(newTask);
-      return { success: { task, application } };
-    } catch (error) {
-      return {
-        failure: {
-          message: "Failed to submit the asset generation task",
-          cause: error as Error,
-          application,
-          newTask,
-        },
-      };
-    }
-  };
-
-  const submitTasks = async (applications: DecoratedApplication[]) => {
-    const results = await Promise.allSettled(
-      applications.map(createAndSubmitTask)
-    );
-
-    const success = [];
-    const failure = [];
-
-    for (const result of results) {
-      if (result.status === "fulfilled") {
-        if (result.value.success) {
-          success.push(result.value.success);
-        }
-        if (result.value.failure) {
-          failure.push(result.value.failure);
-        }
-      }
-    }
-
-    return { success, failure };
-  };
-
-  return {
-    submitTasks,
-  };
 };
