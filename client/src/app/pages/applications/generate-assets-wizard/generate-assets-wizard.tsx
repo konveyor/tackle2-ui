@@ -18,10 +18,10 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
-import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
+import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
 import { universalComparator } from "@app/utils/utils";
 
-export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
+export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
   ...props
 }) => {
@@ -30,7 +30,7 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   }
 
   return (
-    <RetrieveConfigWizardInner
+    <GenerateAssetsWizardInner
       key={isOpen ? "open" : "closed"}
       isOpen={isOpen}
       {...props}
@@ -38,10 +38,10 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   );
 };
 
-export interface IRetrieveConfigWizard {
+interface IGenerateAssetsWizard {
   applications?: DecoratedApplication[];
-  onClose: () => void;
   isOpen: boolean;
+  onClose: () => void;
 }
 
 export interface FormValues {
@@ -49,21 +49,21 @@ export interface FormValues {
   notReady: DecoratedApplication[];
 }
 
-const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
+const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   applications = [],
   onClose,
   isOpen,
-}: IRetrieveConfigWizard) => {
+}: IGenerateAssetsWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const { submitTasks } = useStartFetchApplicationManifest();
+  const { submitTasks } = useStartApplicationAssetGeneration();
 
   // State to track submission results and current step
   const [submissionResults, setSubmissionResults] =
     React.useState<ResultsData | null>(null);
 
   const { ready = [], notReady = [] } = group(applications, (app) =>
-    app.isReadyForRetrieveConfigurations ? "ready" : "notReady"
+    app.isReadyForGenerateAssets ? "ready" : "notReady"
   );
 
   const methods = useForm<FormValues>({
@@ -86,15 +86,15 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     onClose();
   };
 
-  const onSubmit = async ({ ready }: FormValues) => {
-    const { success, failure } = await submitTasks(ready);
+  const submitTasksAndSaveResults = async ({ ready }: FormValues) => {
+    const { success, failure } = await submitTasks(ready, null, null);
 
     // Store results and move to Results step
     setSubmissionResults({ success, failure });
 
     if (success.length > 0) {
       pushNotification({
-        title: t("retrieveConfigWizard.toast.submittedOk"),
+        title: t("generateAssetsWizard.toast.submittedOk"),
         message: `Task IDs: ${success
           .map((result) => result.task.id)
           .sort(universalComparator)
@@ -105,7 +105,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
 
     if (failure.length > 0) {
       pushNotification({
-        title: t("retrieveConfigWizard.toast.submittedFailed"),
+        title: t("generateAssetsWizard.toast.submittedFailed"),
         message: `Applications: ${failure
           .map((result) => result.application.name)
           .sort(universalComparator)
@@ -119,64 +119,70 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   if (readyApplications.length === 0) {
     return (
       <Modal
-        variant={ModalVariant.medium}
-        title={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
+        variant={ModalVariant.medium}
+        title={t("generateAssetsWizard.title")}
         onClose={handleCancel}
-        footer={
-          <Button variant="primary" onClick={handleCancel}>
-            {t("actions.close")}
-          </Button>
-        }
+        actions={[
+          <Button key="cancel" variant="link" onClick={handleCancel}>
+            {t("actions.cancel")}
+          </Button>,
+        ]}
       >
-        <div style={{ padding: "20px" }}>
-          <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
-        </div>
+        {t("generateAssetsWizard.noApplicationsReady")}
       </Modal>
     );
   }
 
-  const showResults = submissionResults !== null;
   return (
-    <FormProvider {...methods}>
-      <Modal
-        variant={ModalVariant.large}
-        aria-label={t("retrieveConfigWizard.title")}
-        isOpen={isOpen}
-        showClose={false}
-        hasNoBodyWrapper
-        onEscapePress={handleCancel}
-      >
+    <Modal
+      isOpen={isOpen}
+      variant={ModalVariant.large}
+      showClose={false}
+      hasNoBodyWrapper
+      onClose={handleCancel}
+    >
+      <FormProvider {...methods}>
         <Wizard
-          onClose={handleCancel}
           header={
             <WizardHeader
+              title={t("generateAssetsWizard.title")}
+              description={t("generateAssetsWizard.description")}
               onClose={handleCancel}
-              title={t("retrieveConfigWizard.title")}
-              description={t("retrieveConfigWizard.description")}
             />
           }
+          onClose={handleCancel}
+          isVisitRequired
         >
+          {/* TODO: Add a step to select the target profile from one of the application's archetypes */}
+          {/* TODO: Add a step to capture the target profile's generator parameters */}
           <WizardStep
             id="review"
-            name="Review"
+            name={t("generateAssetsWizard.review.stepTitle")}
             footer={{
-              nextButtonText: showResults
+              nextButtonText: submissionResults
                 ? t("actions.close")
-                : t("actions.retrieve"),
-              onNext: showResults ? handleCancel : handleSubmit(onSubmit),
-              isBackDisabled: showResults,
-              isCancelHidden: showResults,
+                : t("actions.generateAssets"),
+              onNext: submissionResults
+                ? handleCancel
+                : handleSubmit(submitTasksAndSaveResults),
+              isNextDisabled: false, // TODO: Check if all required inputs are valid
+              isBackDisabled: !!submissionResults,
+              isCancelHidden: !!submissionResults,
             }}
           >
-            {!showResults ? (
-              <Review />
+            {!submissionResults ? (
+              <Review
+                applications={readyApplications}
+                targetProfile={null} // TODO: Replace with a target profile after #2534
+                inputParameters={null} // TODO: Replace with input parameters after #2534
+              />
             ) : (
               <Results results={submissionResults} />
             )}
           </WizardStep>
         </Wizard>
-      </Modal>
-    </FormProvider>
+      </FormProvider>
+    </Modal>
   );
 };

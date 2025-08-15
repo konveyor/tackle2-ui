@@ -42,6 +42,7 @@
     "enablePreemption": "Enable preemption",
     "export": "Export",
     "filterBy": "Filter by {{what}}",
+    "generate": "Generate",
     "import": "Import",
     "logout": "Logout",
     "manageAccount": "User management",
@@ -719,6 +720,33 @@
       "summary": "Summary of platform application discovery task submissions.",
       "noResults": "No results available.",
       "noTasksSubmitted": "No tasks were submitted.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
+    }
+  },
+  "generateAssetsWizard": {
+    "title": "Generate Assets",
+    "description": "Generate deployment assets for the selected applications using their discovery manifests and configured generators.",
+    "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
+    "noTasksSubmitted": "No asset generation tasks were submitted.",
+    "toast": {
+      "submittedOk": "Asset generation tasks submitted",
+      "submittedFailed": "Asset generation task submissions failed"
+    },
+    "review": {
+      "stepTitle": "Review",
+      "title": "Review details",
+      "description_one": "This application is ready for {{targetProfile}} asset generation. Assets will be generated based on the application's discovery manifest, target profile, and input parameters.",
+      "description_other": "These applications are ready for {{targetProfile}} asset generation. Assets will be generated based on the applications' discovery manifests, target profile, and input parameters.",
+      "selectedApplications_one": "Selected application",
+      "selectedApplications_other": "Selected applications ({{count}})"
+    },
+    "results": {
+      "title": "Asset Generation Results",
+      "summary": "Summary of asset generation task submissions.",
+      "noResults": "No results available.",
       "failedSubmissions_one": "Failed Submission",
       "failedSubmissions_other": "Failed Submissions ({{count}})",
       "successSubmissions_one": "Successful Submission",

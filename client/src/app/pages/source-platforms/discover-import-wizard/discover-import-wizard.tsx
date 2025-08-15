@@ -16,6 +16,7 @@ import { FilterInput } from "./filter-input";
 import { Review } from "./review";
 import { Results } from "./results";
 import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
+import { universalComparator } from "@app/utils/utils";
 
 export const DiscoverImportWizard: React.FC<IDiscoverImportWizard> = ({
   isOpen,
@@ -69,7 +70,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         title: t("platformDiscoverWizard.toast.submittedOk"),
         message: `Task IDs: ${success
           .map((result) => result.task.id)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "info",
       });
@@ -80,7 +81,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         title: t("platformDiscoverWizard.toast.submittedFailed"),
         message: `Platform: ${failure
           .map((result) => result.platform.name)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "danger",
       });
