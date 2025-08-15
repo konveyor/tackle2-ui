@@ -155,6 +155,7 @@ export interface Application {
   platform?: Ref;
   archetypes?: Ref[];
   assessments?: Ref[];
+  manifests?: Ref[];
   assessed?: boolean;
   risk?: Risk;
   confidence?: number;
