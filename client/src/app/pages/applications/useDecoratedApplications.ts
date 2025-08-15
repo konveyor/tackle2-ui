@@ -167,12 +167,13 @@ const decorateApplications = (
       ),
 
       isReadyForRetrieveConfigurations:
-        app.platform && app.coordinates?.content ? true : false,
+        !!app.platform && !!app.coordinates?.content,
 
       isReadyForGenerateAssets:
-        // TODO: Add a check for the application to have an asset repository
-        // TODO: Add a check for the application to have a manifest
-        app.platform && app.coordinates?.content ? true : false,
+        !!app.platform &&
+        !!app.coordinates?.content &&
+        (app.manifests?.length ?? 0) > 0 &&
+        !!app.assets,
 
       direct: {
         identities: app.identities
