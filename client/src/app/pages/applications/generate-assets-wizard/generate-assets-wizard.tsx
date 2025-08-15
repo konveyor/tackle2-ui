@@ -19,6 +19,7 @@ import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
 import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
+import { universalComparator } from "@app/utils/utils";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -96,7 +97,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
         title: t("generateAssetsWizard.toast.submittedOk"),
         message: `Task IDs: ${success
           .map((result) => result.task.id)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "info",
       });
@@ -107,7 +108,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
         title: t("generateAssetsWizard.toast.submittedFailed"),
         message: `Applications: ${failure
           .map((result) => result.application.name)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "danger",
       });
