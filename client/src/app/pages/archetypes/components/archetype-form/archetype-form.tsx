@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,17 +22,8 @@ import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  useFetchArchetypes,
-  useCreateArchetypeMutation,
-  useUpdateArchetypeMutation,
-} from "@app/queries/archetypes";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  universalComparator,
-} from "@app/utils/utils";
+import { useFetchArchetypes } from "@app/queries/archetypes";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
@@ -43,6 +33,7 @@ import { TargetProfilesSection } from "../target-profile-form/target-profiles-se
 import { matchItemsToRefs } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { useArchetypeMutations } from "../../hooks/useArchetypeMutations";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -72,9 +63,6 @@ export interface ArchetypeFormProps {
  * is data available.
  *
  * TL;DR: Wait for all data to be ready before rendering so existing data is rendered!
- *
- * TODO: The first `!isDataReady` to `isDataReady` transition could be detected and
- *       if the the form is unchanged, new default values could be pushed.
  */
 export const ArchetypeFormDataWaiter: React.FC<ArchetypeFormProps> = ({
   ...rest
@@ -378,9 +366,6 @@ const useArchetypeFormData = ({
   onActionSuccess?: () => void;
   onActionFail?: () => void;
 } = {}) => {
-  const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
-
   // Fetch data
   const { archetypes: existingArchetypes, isSuccess: isArchetypesSuccess } =
     useFetchArchetypes();
@@ -407,45 +392,11 @@ const useArchetypeFormData = ({
   const idsToStakeholderGroupRefs = (ids: number[] | undefined | null) =>
     matchItemsToRefs(stakeholderGroups, (i) => i.id, ids);
 
-  // Mutation notification handlers
-  const onCreateSuccess = (archetype: Archetype) => {
-    pushNotification({
-      title: t("toastr.success.createWhat", {
-        type: t("terms.archetype"),
-        what: archetype.name,
-      }),
-      variant: "success",
-    });
-    onActionSuccess();
-  };
-
-  const onUpdateSuccess = (_id: number) => {
-    pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.archetype"),
-      }),
-      variant: "success",
-    });
-    onActionSuccess();
-  };
-
-  const onCreateUpdateError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    onActionFail();
-  };
-
-  const { mutate: createArchetype } = useCreateArchetypeMutation(
-    onCreateSuccess,
-    onCreateUpdateError
-  );
-
-  const { mutate: updateArchetype } = useUpdateArchetypeMutation(
-    onUpdateSuccess,
-    onCreateUpdateError
-  );
+  // Get mutations from custom hook
+  const { createArchetype, updateArchetype } = useArchetypeMutations({
+    onActionSuccess,
+    onActionFail,
+  });
 
   return {
     isDataReady:

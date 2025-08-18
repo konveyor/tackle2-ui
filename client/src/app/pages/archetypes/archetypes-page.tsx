@@ -32,7 +32,7 @@ import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -42,12 +42,7 @@ import {
   deserializeFilterUrlParams,
   useLocalTableControls,
 } from "@app/hooks/table-controls";
-import {
-  ARCHETYPES_QUERY_KEY,
-  ARCHETYPE_QUERY_KEY,
-  useDeleteArchetypeMutation,
-  useFetchArchetypes,
-} from "@app/queries/archetypes";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 
 import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
@@ -56,13 +51,11 @@ import ArchetypeMaintainersColumn from "./components/archetype-maintainers-colum
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
 import { Archetype } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
+import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { useDeleteAssessmentMutation } from "@app/queries/assessments";
-import { useDeleteReviewMutation } from "@app/queries/reviews";
+
 import {
   assessmentWriteScopes,
   reviewsWriteScopes,
@@ -71,24 +64,23 @@ import {
 import { checkAccess } from "@app/utils/rbac-utils";
 import keycloak from "@app/keycloak";
 import { IconedStatus } from "@app/components/Icons";
-import { useQueryClient } from "@tanstack/react-query";
+import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const queryClient = useQueryClient();
 
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
 
-  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
-
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
+
   const [assessmentToDiscard, setAssessmentToDiscard] =
     React.useState<Archetype | null>(null);
+
+  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
 
   const [reviewToDiscard, setReviewToDiscard] =
     React.useState<Archetype | null>(null);
@@ -96,99 +88,17 @@ const Archetypes: React.FC = () => {
   const [archetypeToDuplicate, setArchetypeToDuplicate] =
     useState<Archetype | null>(null);
 
-  const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
-
-  const onError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
   const [archetypeToDelete, setArchetypeToDelete] =
     React.useState<Archetype | null>(null);
-  const { mutate: deleteArchetype } = useDeleteArchetypeMutation(
-    (archetypeDeleted) =>
-      pushNotification({
-        title: t("toastr.success.deletedWhat", {
-          what: archetypeDeleted.name,
-          type: t("terms.archetype"),
-        }),
-        variant: "success",
-      }),
-    onError
-  );
 
-  const { mutateAsync: deleteAssessment } = useDeleteAssessmentMutation();
+  const { deleteArchetype, discardAssessment, discardReview } =
+    useArchetypeMutations();
 
-  const discardAssessment = (archetype: Archetype) => {
-    if (!archetype.assessments) {
-      return;
-    }
-    Promise.all(
-      archetype.assessments.map((assessment) =>
-        deleteAssessment({
-          assessmentId: assessment.id,
-          archetypeId: archetype.id,
-        })
-      )
-    )
-      .then(() => {
-        pushNotification({
-          title: t("toastr.success.assessmentDiscarded", {
-            application: archetype.name,
-          }),
-          variant: "success",
-        });
-        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
-      })
-      .catch((error) => {
-        console.error("Error while deleting assessments:", error);
-        pushNotification({
-          title: getAxiosErrorMessage(error as AxiosError),
-          variant: "danger",
-        });
-      });
-  };
-
-  const onDeleteReviewSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.reviewDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-  };
-
-  const { mutateAsync: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess
-  );
-
-  const discardReview = (archetype: Archetype) => {
-    if (!archetype.review?.id) {
-      return;
-    }
-    deleteReview({
-      id: archetype.review.id,
-      name: archetype.name,
-    })
-      .then(() => {
-        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
-      })
-      .catch((error) => {
-        console.error("Error while deleting review:", error);
-        pushNotification({
-          title: getAxiosErrorMessage(error as AxiosError),
-          variant: "danger",
-        });
-      });
-  };
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters");
-
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
+
+  const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
   const tableControls = useLocalTableControls({
     tableName: "archetypes-table",
@@ -285,10 +195,6 @@ const Archetypes: React.FC = () => {
     },
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
-
-  // TODO: RBAC access checks need to be added.  Only Architect (and Administrator) personas
-  // TODO: should be able to create/edit archetypes.  Every persona should be able to view
-  // TODO: the archetypes.
 
   const CreateButton = () => (
     <Button
@@ -588,7 +494,10 @@ const Archetypes: React.FC = () => {
         isOpen={openCreateArchetype}
         onClose={() => setOpenCreateArchetype(false)}
       >
-        <ArchetypeForm onClose={() => setOpenCreateArchetype(false)} />
+        <ArchetypeForm
+          key={openCreateArchetype ? 1 : 0}
+          onClose={() => setOpenCreateArchetype(false)}
+        />
       </Modal>
 
       {/* Edit modal */}
@@ -619,6 +528,8 @@ const Archetypes: React.FC = () => {
           onClose={() => setArchetypeToDuplicate(null)}
         />
       </Modal>
+
+      {/* Confirm discard assessment modal */}
       <ConfirmDialog
         title={t("dialog.title.discard", {
           what: t("terms.assessment").toLowerCase(),
@@ -645,6 +556,8 @@ const Archetypes: React.FC = () => {
           setAssessmentToDiscard(null);
         }}
       />
+
+      {/* Confirm discard review modal */}
       <ConfirmDialog
         title={t("dialog.title.discard", {
           what: t("terms.review").toLowerCase(),
@@ -672,7 +585,7 @@ const Archetypes: React.FC = () => {
         }}
       />
 
-      {/* Delete confirm modal */}
+      {/* Confirm delete archetype modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
           what: t("terms.archetype").toLowerCase(),
@@ -694,7 +607,7 @@ const Archetypes: React.FC = () => {
         }}
       />
 
-      {/* Override existing assessment confirm modal */}
+      {/* Confirm override existing assessment modal */}
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}
@@ -715,6 +628,8 @@ const Archetypes: React.FC = () => {
           setArchetypeToAssess(null);
         }}
       />
+
+      {/* Confirm edit review modal */}
       <ConfirmDialog
         title={t("composed.editQuestion", {
           what: t("terms.review").toLowerCase(),
