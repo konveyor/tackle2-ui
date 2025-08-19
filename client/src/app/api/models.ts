@@ -981,7 +981,7 @@ export interface Generator {
   params?: JsonDocument;
   values?: JsonDocument;
   identity?: Ref;
-  profiles?: Ref[];
+  /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
 export interface ManifestDeployment {
