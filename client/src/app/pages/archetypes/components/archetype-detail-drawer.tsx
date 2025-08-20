@@ -16,6 +16,7 @@ import { Archetype, Review } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 import {
+  DrawerTabContent,
   DrawerTabsContainer,
   NoEntitySelected,
 } from "@app/components/detail-drawer";
@@ -82,7 +83,9 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
               eventKey={TabKey.Reviews}
               title={<TabTitleText>{t("terms.review")}</TabTitleText>}
             >
-              <ReviewFields archetype={archetype} reviews={reviews} />
+              <DrawerTabContent>
+                <ReviewFields archetype={archetype} reviews={reviews} />
+              </DrawerTabContent>
             </Tab>
           </Tabs>
         </DrawerTabsContainer>

@@ -16,6 +16,7 @@ import {
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
 import {
+  DrawerTabContent,
   DrawerTabsContainer,
   NoEntitySelected,
   ReviewFields,
@@ -105,7 +106,9 @@ export const ApplicationDetailDrawer: React.FC<
               eventKey={TabKey.Reviews}
               title={<TabTitleText>{t("terms.review")}</TabTitleText>}
             >
-              <ReviewFields application={application} />
+              <DrawerTabContent>
+                <ReviewFields application={application} />
+              </DrawerTabContent>
             </Tab>
 
             <Tab
