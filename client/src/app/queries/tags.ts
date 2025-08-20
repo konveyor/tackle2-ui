@@ -32,11 +32,9 @@ export const useFetchTags = (refetchInterval: number | false = false) => {
   };
 };
 
-export const useFetchTagCategories = (
-  refetchInterval: number | false = false
-) => {
+export const useFetchTagCategories = (refetchInterval?: number | false) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
-    queryKey: [TagCategoriesQueryKey, TagsQueryKey],
+    queryKey: [TagCategoriesQueryKey],
     queryFn: getTagCategories,
     onError: (error: AxiosError) => console.log("error, ", error),
     refetchInterval,
@@ -118,16 +116,14 @@ export const useCreateTagMutation = (
   return useMutation({
     mutationFn: createTag,
     onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onSuccess(res);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
     onError: (err: AxiosError) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onError(err);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
   });
 };
@@ -141,12 +137,12 @@ export const useCreateTagCategoryMutation = (
   return useMutation({
     mutationFn: createTagCategory,
     onSuccess: (res) => {
-      onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      onSuccess(res);
     },
     onError: (err: AxiosError) => {
-      onError(err);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      onError(err);
     },
   });
 };
@@ -160,16 +156,14 @@ export const useUpdateTagMutation = (
   return useMutation({
     mutationFn: updateTag,
     onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onSuccess(res);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
     onError: (err: AxiosError) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onError(err);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
   });
 };
@@ -183,12 +177,14 @@ export const useUpdateTagCategoryMutation = (
   return useMutation({
     mutationFn: updateTagCategory,
     onSuccess: (res) => {
-      onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
+      onSuccess(res);
     },
     onError: (err: AxiosError) => {
-      onError(err);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
+      onError(err);
     },
   });
 };
@@ -201,16 +197,14 @@ export const useDeleteTagMutation = (
   return useMutation({
     mutationFn: deleteTag,
     onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onSuccess(res);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
     onError: (err: AxiosError) => {
+      queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
       onError(err);
-      queryClient.invalidateQueries({
-        queryKey: [TagCategoriesQueryKey, TagsQueryKey],
-      });
     },
   });
 };
@@ -224,12 +218,14 @@ export const useDeleteTagCategoryMutation = (
   return useMutation({
     mutationFn: deleteTagCategory,
     onSuccess: (res) => {
-      onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
+      onSuccess(res);
     },
     onError: (err: AxiosError) => {
-      onError(err);
       queryClient.invalidateQueries({ queryKey: [TagCategoriesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TagsQueryKey] });
+      onError(err);
     },
   });
 };

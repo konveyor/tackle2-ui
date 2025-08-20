@@ -4,7 +4,7 @@ import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
 import { universalComparator } from "@app/utils/utils";
-import { ControlTableActionButtons } from "../../ControlTableActionButtons";
+import { ControlTableActionsColumn } from "../../ControlTableActionsColumn";
 
 export interface TabTableProps {
   tagCategory: TagCategory;
@@ -33,7 +33,7 @@ export const TagTable: React.FC<TabTableProps> = ({
           .map((tag) => (
             <Tr key={tag.name}>
               <Td>{tag.name}</Td>
-              <ControlTableActionButtons
+              <ControlTableActionsColumn
                 onEdit={() => onEdit(tag)}
                 onDelete={() => onDelete(tag)}
               />

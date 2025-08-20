@@ -34,10 +34,7 @@ import {
   Tag,
   TagCategory,
   Target,
-  Task,
   Taskgroup,
-  TaskQueue,
-  TaskDashboard,
   Ticket,
   Tracker,
   TrackerProject,
@@ -96,7 +93,6 @@ export const TAG_CATEGORIES = hub`/tagcategories`;
 export const TAGS = hub`/tags`;
 export const TARGETS = hub`/targets`;
 export const TASKGROUPS = hub`/taskgroups`;
-export const TASKS = hub`/tasks`;
 export const TICKETS = hub`/tickets`;
 export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 export const TRACKER_PROJECTS = "projects"; // TODO: ????
@@ -122,8 +118,9 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 
 export * from "./rest/analysis";
 export * from "./rest/files";
-export * from "./rest/schemas";
 export * from "./rest/generators";
+export * from "./rest/schemas";
+export * from "./rest/tasks";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -377,101 +374,6 @@ export const getApplicationSummaryCSV = (id: string) => {
     }
   );
 };
-
-// ---------------------------------------
-// Tasks
-//
-export function getTaskById(id: number) {
-  return axios
-    .get<Task>(`${TASKS}/${id}`, {
-      headers: { ...HEADERS.json },
-      responseType: "json",
-    })
-    .then((response) => {
-      return response.data;
-    });
-}
-
-export function getTaskByIdAndFormat(
-  id: number,
-  format: "json" | "yaml",
-  merged: boolean = false
-): Promise<string> {
-  const isYaml = format === "yaml";
-  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
-  const responseType = isYaml ? "text" : "json";
-
-  let url = `${TASKS}/${id}`;
-  if (merged) {
-    url += "?merged=1";
-  }
-
-  return axios
-    .get<Task | string>(url, {
-      headers: headers,
-      responseType: responseType,
-    })
-    .then((response) => {
-      return isYaml
-        ? String(response.data ?? "")
-        : JSON.stringify(response.data, undefined, 2);
-    });
-}
-
-export function getTasksByIds(
-  ids: number[],
-  format: "json" | "yaml" = "json"
-): Promise<Task[]> {
-  const isYaml = format === "yaml";
-  const headers = isYaml ? { ...HEADERS.yaml } : { ...HEADERS.json };
-  const responseType = isYaml ? "text" : "json";
-  const filterParam = `id:(${ids.join("|")})`;
-
-  return axios
-    .get<Task[]>(`${TASKS}`, {
-      headers,
-      responseType,
-      params: {
-        filter: filterParam,
-      },
-    })
-    .then((response) => {
-      return response.data;
-    });
-}
-
-export const getTasksDashboard = () =>
-  axios
-    .get<TaskDashboard[]>(`${TASKS}/report/dashboard`)
-    .then((response) => response.data);
-
-export const getServerTasks = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<Task>(TASKS, params);
-
-export const deleteTask = (id: number) => axios.delete<void>(`${TASKS}/${id}`);
-
-export const cancelTask = (id: number) =>
-  axios.put<void>(`${TASKS}/${id}/cancel`);
-
-export const cancelTasks = (ids: number[]) =>
-  axios.put<void>(`${TASKS}/cancel?filter=id:(${ids.join("|")})`);
-
-export const getTaskQueue = (addon?: string): Promise<TaskQueue> =>
-  axios
-    .get<TaskQueue>(`${TASKS}/report/queue`, { params: { addon } })
-    .then(({ data }) => data);
-
-export const createTask = <TaskData, TaskType extends Task<TaskData>>(
-  task: New<TaskType>
-) => axios.post<TaskType>(TASKS, task).then((response) => response.data);
-
-export const updateTask = <TaskData, TaskType extends Task<TaskData>>(
-  task: Partial<TaskType> & { id: number }
-) => axios.patch<TaskType>(`${TASKS}/${task.id}`, task);
-
-export const submitTask = <TaskData, TaskType extends Task<TaskData>>(
-  task: TaskType
-) => axios.put<void>(`${TASKS}/${task.id}/submit`, { id: task.id });
 
 // ---------------------------------------
 // Task Groups
@@ -815,7 +717,7 @@ export const getPlatformById = (id: number | string) =>
 
 // success with code 201 and created entity as response data
 export const createPlatform = (platform: New<SourcePlatform>) =>
-  axios.post<void>(PLATFORMS, platform).then((res) => res.data);
+  axios.post<SourcePlatform>(PLATFORMS, platform).then((res) => res.data);
 
 // success with code 204 and therefore no response content
 export const updatePlatform = (platform: SourcePlatform) =>

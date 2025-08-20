@@ -16,6 +16,10 @@ export type New<T extends { id: number }> = Omit<T, "id">;
  */
 export type WithUiId<T> = T & { _ui_unique_id: string };
 
+export interface EmptyObject extends Record<string, never> {}
+
+export interface JsonDocument extends Record<string, unknown> {}
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -328,14 +332,14 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task<DataType = TaskData> {
+export interface Task<DataType> {
   id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;
 
   name?: string;
-  kind?: string;
+  kind: string;
   addon?: string;
   extensions?: string[];
   state?: TaskState;
@@ -344,7 +348,7 @@ export interface Task<DataType = TaskData> {
   policy?: TaskPolicy;
   ttl?: TTL;
   data?: DataType;
-  application: Ref;
+  application?: Ref;
   platform?: Ref;
   bucket?: Ref;
   pod?: string;
@@ -357,15 +361,21 @@ export interface Task<DataType = TaskData> {
   attached?: TaskAttachment[];
 }
 
-export type EmptyTaskData = Record<string, never>;
-
-export interface ApplicationTask<DataType>
-  extends Omit<Task<DataType>, "application" | "platform"> {
+export interface AnalysisTask
+  extends Omit<Task<AnalysisTaskData>, "application" | "platform"> {
+  kind: "analysis";
   application: Ref;
 }
 
-export interface PlatformTask<DataType>
-  extends Omit<Task<DataType>, "application" | "platform"> {
+export interface ApplicationManifestTask
+  extends Omit<Task<EmptyObject>, "application" | "platform"> {
+  kind: "application-manifest";
+  application: Ref;
+}
+
+export interface PlatformApplicationImportTask
+  extends Omit<Task<JsonDocument>, "application" | "platform"> {
+  kind: "application-import";
   platform: Ref;
 }
 
@@ -379,7 +389,8 @@ export interface TaskDashboard {
   kind?: string;
   addon?: string;
   state: TaskState;
-  application: Ref;
+  application?: Ref;
+  platform?: Ref;
   started?: string; // ISO-8601
   terminated?: string; // ISO-8601
 
@@ -419,7 +430,7 @@ export interface TaskAttachment {
   activity?: number;
 }
 
-export interface TaskData {
+export interface AnalysisTaskData {
   tagger: {
     enabled: boolean;
   };
@@ -465,7 +476,7 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: TaskData;
+  data: AnalysisTaskData;
   tasks: TaskgroupTask[];
 }
 
@@ -935,8 +946,6 @@ export interface GroupedStakeholderRef extends Ref {
   group: StakeholderType.Stakeholder | StakeholderType.StakeholderGroup;
   uniqueId: string;
 }
-
-export interface JsonDocument extends Record<string, unknown> {}
 
 export interface SourcePlatform {
   id: number;

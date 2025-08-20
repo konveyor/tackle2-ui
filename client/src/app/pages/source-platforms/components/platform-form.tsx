@@ -276,20 +276,22 @@ const usePlatformFormData = ({
     useFetchPlatforms();
 
   // Mutation notification handlers
-  const onCreateSuccess = () => {
+  const onCreateSuccess = (platform: SourcePlatform) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
-        type: t("terms.platform").toLocaleLowerCase(),
+        type: t("terms.sourcePlatform"),
+        what: platform.name,
       }),
       variant: "success",
     });
     onActionSuccess();
   };
 
-  const onUpdateSuccess = (_id: number) => {
+  const onUpdateSuccess = (platform: SourcePlatform) => {
     pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.platform").toLocaleLowerCase(),
+      title: t("toastr.success.saveWhat", {
+        type: t("terms.sourcePlatform"),
+        what: platform.name,
       }),
       variant: "success",
     });

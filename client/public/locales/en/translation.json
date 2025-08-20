@@ -34,6 +34,7 @@
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "discoverApplications": "Discover applications",
+    "discoverImport": "Discover & Import",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -166,7 +167,6 @@
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
-      "retrieveConfigurations": "Retrieve configurations",
       "update": "Update {{what}}",
       "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
@@ -668,9 +668,10 @@
     }
   },
   "retrieveConfigWizard": {
+    "title": "Retrieve Configurations",
+    "description": "Retrieve configurations from the selected applications.",
     "selectedCount": "{{count}} of {{total}} applications selected",
     "noApplicationsWithSourcePlatforms": "No applications with source platforms selected.",
-    "noTasksSubmitted": "No tasks were submitted.",
     "toast": {
       "submittedOk": "Application manifest fetches submitted",
       "submittedFailed": "Application manifest fetches failed"
@@ -679,16 +680,49 @@
       "title": "Configuration Retrieval Results",
       "summary": "Summary of configuration retrieval task submissions.",
       "noResults": "No results available.",
+      "noTasksSubmitted": "No tasks were submitted.",
       "failedSubmissions_one": "Failed Submission",
       "failedSubmissions_other": "Failed Submissions ({{count}})",
-      "successSubmissions_one": "Success Submission",
-      "successSubmissions_other": "Success Submissions ({{count}})"
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
     },
     "review": {
       "description_one": "This application is ready to retrieve configurations from its source platform. The application's platform coordinates will be used to connect to the platform and build the application's discovery manifest.",
       "description_other": "These applications are ready to retrieve configurations from their source platforms. The applications' platform coordinates will be used to connect to the platform and build the applications' discovery manifests.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
+    }
+  },
+  "platformDiscoverWizard": {
+    "title": "Discover Applications",
+    "description": "Discover and import applications from the selected platform.",
+    "noPlatformSelected": "No platform selected for discovery.",
+    "toast": {
+      "submittedOk": "Platform application discovery task submitted",
+      "submittedFailed": "Platform application discovery task failed"
+    },
+    "filterInput": {
+      "stepTitle": "Filters",
+      "title": "Configure Discovery Filters",
+      "description": "Configure the filters for discovering applications on platform {{platformName}} ({{platformKind}}). These filters will determine which applications are discovered and imported.",
+      "filtersLabel": "{{platformName}} discovery filters",
+      "noFiltersAvailable": "No discovery filters are available for platform kind {{platformKind}}."
+    },
+    "review": {
+      "stepTitle": "Review",
+      "title": "Review Platform Discovery",
+      "description": "Review the platform and discovery filters before starting application discovery on {{platformName}}.",
+      "discoveryFilters": "Discovery Filters"
+    },
+    "results": {
+      "title": "Platform Discovery Results",
+      "summary": "Summary of platform application discovery task submissions.",
+      "noResults": "No results available.",
+      "noTasksSubmitted": "No tasks were submitted.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
     }
   },
   "credentials": {

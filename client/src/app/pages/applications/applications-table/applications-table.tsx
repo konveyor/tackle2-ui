@@ -334,6 +334,7 @@ export const ApplicationsTable: React.FC = () => {
     applicationNames,
     referencedArchetypeRefs,
     referencedBusinessServiceRefs,
+    referencedPlatformRefs,
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -496,6 +497,21 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
+        categoryKey: "platforms",
+        title: t("terms.sourcePlatforms"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.sourcePlatforms").toLowerCase(),
+          }) + "...",
+        selectOptions: referencedPlatformRefs.map(({ name }) => ({
+          key: name,
+          value: name,
+        })),
+        logicOperator: "OR",
+        getItemValue: (app) => app.platform?.name ?? "",
+      },
+      {
         categoryKey: "businessService",
         title: t("terms.businessService"),
         type: FilterType.multiselect,
@@ -612,7 +628,6 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
-
       {
         categoryKey: "analysis",
         title: t("terms.analysis"),
@@ -757,13 +772,16 @@ export const ApplicationsTable: React.FC = () => {
         ),
       ],
       [
-        <DropdownItem
-          key="change-source-platform-applications"
-          isDisabled={true}
-          onClick={() => handleChangeSourcePlatform(selectedRows)}
-        >
-          {t("actions.changeSourcePlatform")}
-        </DropdownItem>,
+        // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+        // applicationWriteAccess && (
+        //   <DropdownItem
+        //     key="change-source-platform-applications"
+        //     isDisabled={true}
+        //     onClick={() => handleChangeSourcePlatform(selectedRows)}
+        //   >
+        //     {t("actions.changeSourcePlatform")}
+        //   </DropdownItem>
+        // ),
         applicationWriteAccess && (
           <DropdownItem
             key="retrieve-configurations-bulk"

@@ -26,7 +26,9 @@ export const SchemaDefinedField = ({
   onDocumentChanged,
   isReadOnly = false,
 }: ISchemaDefinedFieldProps) => {
-  const [isJsonView, setIsJsonView] = React.useState<boolean>(!jsonSchema);
+  const [isJsonView, setIsJsonView] = React.useState<boolean>(
+    !jsonSchema || isComplexSchema(jsonSchema)
+  );
 
   const onSavedHandler = !onDocumentSaved
     ? undefined
@@ -38,22 +40,27 @@ export const SchemaDefinedField = ({
     onDocumentChanged?.(newJsonDocument);
   };
 
+  const isComplex = React.useMemo(() => {
+    const isComplex = jsonSchema && isComplexSchema(jsonSchema);
+    // console.log("jsonSchema", jsonSchema, "isComplex?", isComplex);
+    return isComplex;
+  }, [jsonSchema]);
+
   return (
     <Panel className={className} id={id}>
-      {jsonSchema ? (
+      {jsonSchema && !isComplex ? (
         <PanelHeader>
           <Switch
             id={`${id}-json-toggle`}
             label="JSON"
             isChecked={isJsonView}
             onChange={() => setIsJsonView(!isJsonView)}
-            isDisabled={!jsonSchema || isComplexSchema(jsonSchema)}
           />
         </PanelHeader>
       ) : null}
 
       <PanelMain maxHeight="100%">
-        {isJsonView || !jsonSchema ? (
+        {!jsonSchema || isComplex || isJsonView ? (
           <SchemaAsCodeEditor
             id={`${id}-as-code-editor`}
             isReadOnly={isReadOnly}
