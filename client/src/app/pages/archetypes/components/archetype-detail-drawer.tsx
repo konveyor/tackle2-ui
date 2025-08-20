@@ -11,7 +11,7 @@ import {
   TabTitleText,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Archetype, Review } from "@app/api/models";
+import { Archetype } from "@app/api/models";
 
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { ReviewFields } from "@app/components/detail-drawer/review-fields";
@@ -26,7 +26,6 @@ import { TabDetailsContent } from "./tab-details-content";
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
   archetype: Archetype | null;
-  reviews?: Review[];
 }
 
 enum TabKey {
@@ -38,7 +37,6 @@ enum TabKey {
 const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
   onCloseClick,
   archetype,
-  reviews,
 }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
@@ -84,7 +82,7 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
               title={<TabTitleText>{t("terms.review")}</TabTitleText>}
             >
               <DrawerTabContent>
-                <ReviewFields archetype={archetype} reviews={reviews} />
+                <ReviewFields archetype={archetype} />
               </DrawerTabContent>
             </Tab>
           </Tabs>
