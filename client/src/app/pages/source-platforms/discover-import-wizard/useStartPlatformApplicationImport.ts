@@ -32,7 +32,7 @@ export const useStartPlatformApplicationImport = () => {
       kind: "application-import",
       platform: { id: platform.id, name: platform.name },
       state: "Ready",
-      data: filters || {},
+      data: filters ? { filter: filters } : undefined,
     };
 
     try {

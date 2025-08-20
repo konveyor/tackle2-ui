@@ -374,7 +374,7 @@ export interface ApplicationManifestTask
 }
 
 export interface PlatformApplicationImportTask
-  extends Omit<Task<JsonDocument>, "application" | "platform"> {
+  extends Omit<Task<{ filter: JsonDocument }>, "application" | "platform"> {
   kind: "application-import";
   platform: Ref;
 }
