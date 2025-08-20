@@ -909,7 +909,7 @@ export interface AssessmentConfidence {
 }
 
 export interface TargetProfile {
-  id?: number | string;
+  id: number;
   name: string;
   generators: Ref[];
 }

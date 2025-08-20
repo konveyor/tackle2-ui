@@ -415,6 +415,24 @@ const Archetypes: React.FC = () => {
                                       },
                                     ]
                                   : []),
+                                ...(archetypeWriteAccess
+                                  ? [
+                                      {
+                                        title: t(
+                                          "actions.manageTargetProfiles"
+                                        ),
+                                        onClick: () =>
+                                          history.push(
+                                            formatPath(
+                                              Paths.archetypeTargetProfiles,
+                                              {
+                                                archetypeId: archetype.id,
+                                              }
+                                            )
+                                          ),
+                                      },
+                                    ]
+                                  : []),
                                 ...(assessmentWriteAccess
                                   ? [
                                       {

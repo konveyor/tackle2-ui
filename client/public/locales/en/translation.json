@@ -24,10 +24,12 @@
     "copyAssessment": "Copy assessment",
     "copyAssessmentAndReview": "Copy assessment and review",
     "create": "Create",
+    "createArchetype": "Create new archetype",
     "createNew": "Create new",
     "createTag": "Create tag",
     "createTagCategory": "Create tag category",
     "createTags": "Create tags",
+    "createTargetProfile": "Create new target profile",
     "cancelAnalysis": "Cancel analysis",
     "delete": "Delete",
     "disablePreemption": "Disable preemption",
@@ -48,6 +50,7 @@
     "manageCredentials": "Manage credentials",
     "manageDependencies": "Manage dependencies",
     "manageImports": "Manage imports",
+    "manageTargetProfiles": "Manage target profiles",
     "next": "Next",
     "override": "Override",
     "reset": "Reset",
@@ -167,6 +170,7 @@
       "newStakeholderGroup": "New stakeholder group",
       "newTag": "New Tag",
       "newTagCategory": "New tag category",
+      "newTargetProfile": "Create new target profile",
       "update": "Update {{what}}",
       "updateArchetype": "Update archetype",
       "updateApplication": "Update application",
@@ -177,7 +181,8 @@
       "updateStakeholder": "Update stakeholder",
       "updateStakeholderGroup": "Update stakeholder group",
       "updateTag": "Update tag",
-      "updateTagCategory": "Update tag category"
+      "updateTagCategory": "Update tag category",
+      "updateTargetProfile": "Update target profile"
     }
   },
   "efforts": {
@@ -234,7 +239,7 @@
     "noCodesSnippetAvailableTitle": "No code snippet available",
     "noCodesSnippetAvailableBody": "No code snippet was created for this incident.",
     "noTargetProfilesConfigured": "No target profiles configured",
-    "noTargetProfilesConfiguredDescription": "Create target profiles to define migration targets and their associated generators.",
+    "noTargetProfilesConfiguredDescription": "Edit the archetype to define target profiles.",
     "overrideAssessmentDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
     "overrideAssessmentConfirmation": "Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?",
     "overrideArchetypeReviewDescription": "The application {{name}} already is associated with archetypes: {{what}}.",
@@ -556,6 +561,7 @@
   },
   "titles": {
     "archetypeDrawer": "Archetype details",
+    "archetypeTargetProfiles": "Target profiles for {{archetypeName}}",
     "generatorDrawer": "Generator details",
     "platformDrawer": "Platform details",
     "taskManager": "Task Manager",
