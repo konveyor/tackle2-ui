@@ -19,11 +19,11 @@ import { CubesIcon } from "@patternfly/react-icons";
 import { Archetype, TargetProfile } from "@app/api/models";
 import { useFetchGenerators } from "@app/queries/generators";
 
-export interface TargetProfilesTabProps {
-  archetype: Archetype | null;
+export interface TabTargetProfilesProps {
+  archetype: Archetype;
 }
 
-export const TargetProfilesTab: React.FC<TargetProfilesTabProps> = ({
+export const TabTargetProfiles: React.FC<TabTargetProfilesProps> = ({
   archetype,
 }) => {
   const { t } = useTranslation();
