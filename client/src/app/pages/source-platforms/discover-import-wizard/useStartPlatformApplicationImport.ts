@@ -2,13 +2,14 @@ import {
   JsonDocument,
   New,
   PlatformApplicationImportTask,
+  PlatformApplicationImportTaskData,
   SourcePlatform,
 } from "@app/api/models";
 import { useCreateTaskMutation } from "@app/queries/tasks";
 
 export const useStartPlatformApplicationImport = () => {
   const { mutateAsync: createTask } = useCreateTaskMutation<
-    JsonDocument,
+    PlatformApplicationImportTaskData,
     PlatformApplicationImportTask
   >();
 
