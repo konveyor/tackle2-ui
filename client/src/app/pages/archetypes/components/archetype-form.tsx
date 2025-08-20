@@ -29,11 +29,11 @@ import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
-import { TargetProfilesSection } from "../target-profile-form/target-profiles-section";
+import { TargetProfilesSection } from "./target-profile-form/target-profiles-section";
 import { matchItemsToRefs } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { useArchetypeMutations } from "../../hooks/useArchetypeMutations";
+import { useArchetypeMutations } from "../hooks/useArchetypeMutations";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -54,28 +54,24 @@ export interface ArchetypeFormProps {
 }
 
 /**
- * This component simply wraps `ArchetypeForm` and will render it when the form's data
- * is ready to render.  Since the form's `defaultValues` are built on the first render,
- * if the fetch data is not ready at that moment, the initial values will be wrong.  Very
- * specifically, if the app is loaded on the archetype page, on the first load of the
- * form, that tag data may not yet be loaded.  Without the tag data, the criteria and
- * manual tags can nothing to match to and would incorrectly render no data even if there
- * is data available.
+ * TL;DR: Wait for all data to be ready before rendering the form so existing data is rendered!
  *
- * TL;DR: Wait for all data to be ready before rendering so existing data is rendered!
+ * Wraps `ArchetypeFormReady` and render it when the form's data is ready to render.
+ * Since the form's `defaultValues` are built on the first render, if the fetch data
+ * is not ready at that moment, the initial values will be wrong.
  */
-export const ArchetypeFormDataWaiter: React.FC<ArchetypeFormProps> = ({
-  ...rest
-}) => {
+export const ArchetypeForm: React.FC<ArchetypeFormProps> = (props) => {
   const { isDataReady } = useArchetypeFormData();
   return (
     <ConditionalRender when={!isDataReady} then={<AppPlaceholder />}>
-      <ArchetypeForm {...rest} />
+      <ArchetypeFormReady {...props} />
     </ConditionalRender>
   );
 };
 
-const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
+export default ArchetypeForm;
+
+const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
   archetype,
   isDuplicating = false,
   onClose,
