@@ -114,12 +114,16 @@ export const TabDetailsContent: React.FC<{
             <Stack>
               <StackItem>
                 <TextContent>
-                  <Text>{t("terms.stakeholder(s)")}</Text>
+                  <Text>
+                    {t("terms.stakeholder", {
+                      count: archetype.stakeholders?.length ?? 0,
+                    })}
+                  </Text>
                 </TextContent>
               </StackItem>
               <StackItem>
                 {(archetype.stakeholders?.length ?? 0) > 0 ? (
-                  <StakeholderLabels archetype={archetype as Archetype} />
+                  <StakeholderLabels archetype={archetype} />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
@@ -130,12 +134,16 @@ export const TabDetailsContent: React.FC<{
             <Stack>
               <StackItem>
                 <TextContent>
-                  <Text>{t("terms.stakeholderGroup(s)")}</Text>
+                  <Text>
+                    {t("terms.stakeholderGroup", {
+                      count: archetype.stakeholderGroups?.length ?? 0,
+                    })}
+                  </Text>
                 </TextContent>
               </StackItem>
               <StackItem>
                 {(archetype.stakeholderGroups?.length ?? 0) > 0 ? (
-                  <StakeholderGroupsLabels archetype={archetype as Archetype} />
+                  <StakeholderGroupsLabels archetype={archetype} />
                 ) : (
                   <EmptyTextMessage message={t("terms.none")} />
                 )}
