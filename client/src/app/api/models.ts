@@ -374,7 +374,10 @@ export interface ApplicationManifestTask
 }
 
 export interface PlatformApplicationImportTask
-  extends Omit<Task<JsonDocument>, "application" | "platform"> {
+  extends Omit<
+    Task<PlatformApplicationImportTaskData>,
+    "application" | "platform"
+  > {
   kind: "application-import";
   platform: Ref;
 }
@@ -463,6 +466,10 @@ export interface AnalysisTaskData {
     };
     ruleSets?: Ref[]; // Target.ruleset.{ id, name }
   };
+}
+
+export interface PlatformApplicationImportTaskData {
+  filter: JsonDocument;
 }
 
 export interface TaskgroupTask {
