@@ -122,18 +122,7 @@ import {
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { DropdownSeparator } from "@patternfly/react-core/deprecated";
-
-const filterAndAddSeparator = <T,>(
-  separator: (index: number) => T,
-  groups: Array<Array<T | Falsy>>
-): Array<T> => {
-  return groups
-    .map<Array<T>>((group) => group.filter(Boolean))
-    .filter((group) => group.length > 0)
-    .flatMap((group, index) =>
-      index === 0 ? group : [separator(index), ...group]
-    );
-};
+import { filterAndAddSeparator } from "@app/utils/grouping";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();

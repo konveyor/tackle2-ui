@@ -27,6 +27,7 @@ import {
   Tr,
   Td,
   ActionsColumn,
+  IAction,
 } from "@patternfly/react-table";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -55,6 +56,7 @@ import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
 import { SimplePagination } from "@app/components/SimplePagination";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { filterAndAddSeparator } from "@app/utils/grouping";
 
 import {
   assessmentWriteScopes,
@@ -405,83 +407,60 @@ const Archetypes: React.FC = () => {
                               assessmentWriteAccess) ||
                             (archetype?.review && reviewsWriteAccess)) && (
                             <ActionsColumn
-                              items={[
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.duplicate"),
-                                        onClick: () =>
-                                          setArchetypeToDuplicate(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t(
-                                          "actions.manageTargetProfiles"
+                              items={filterAndAddSeparator<IAction>(
+                                (_index) => ({ isSeparator: true }),
+                                [
+                                  [
+                                    archetypeWriteAccess && {
+                                      title: t("actions.manageTargetProfiles"),
+                                      onClick: () =>
+                                        history.push(
+                                          formatPath(
+                                            Paths.archetypeTargetProfiles,
+                                            {
+                                              archetypeId: archetype.id,
+                                            }
+                                          )
                                         ),
-                                        onClick: () =>
-                                          history.push(
-                                            formatPath(
-                                              Paths.archetypeTargetProfiles,
-                                              {
-                                                archetypeId: archetype.id,
-                                              }
-                                            )
-                                          ),
-                                      },
-                                    ]
-                                  : []),
-                                ...(assessmentWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.assess"),
-                                        onClick: () =>
-                                          assessSelectedArchetype(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(reviewsWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.review"),
-                                        onClick: () =>
-                                          reviewSelectedArchetype(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(archetype?.assessments?.length &&
-                                assessmentWriteAccess
-                                  ? [
-                                      {
+                                    },
+                                    archetypeWriteAccess && {
+                                      title: t("actions.duplicate"),
+                                      onClick: () =>
+                                        setArchetypeToDuplicate(archetype),
+                                    },
+                                    assessmentWriteAccess && {
+                                      title: t("actions.assess"),
+                                      onClick: () =>
+                                        assessSelectedArchetype(archetype),
+                                    },
+                                    archetype?.assessments?.length &&
+                                      assessmentWriteAccess && {
                                         title: t("actions.discardAssessment"),
                                         onClick: () =>
                                           setAssessmentToDiscard(archetype),
                                       },
-                                    ]
-                                  : []),
-                                ...(archetype?.review && reviewsWriteAccess
-                                  ? [
-                                      {
+                                    reviewsWriteAccess && {
+                                      title: t("actions.review"),
+                                      onClick: () =>
+                                        reviewSelectedArchetype(archetype),
+                                    },
+                                    archetype?.review &&
+                                      reviewsWriteAccess && {
                                         title: t("actions.discardReview"),
                                         onClick: () =>
                                           setReviewToDiscard(archetype),
                                       },
-                                    ]
-                                  : []),
-                                { isSeparator: true },
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.delete"),
-                                        onClick: () =>
-                                          setArchetypeToDelete(archetype),
-                                        isDanger: true,
-                                      },
-                                    ]
-                                  : []),
-                              ]}
+                                  ],
+                                  [
+                                    archetypeWriteAccess && {
+                                      title: t("actions.delete"),
+                                      onClick: () =>
+                                        setArchetypeToDelete(archetype),
+                                      isDanger: true,
+                                    },
+                                  ],
+                                ]
+                              )}
                             />
                           )}
                         </Td>
