@@ -11,28 +11,21 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type {
-  Archetype,
-  New,
-  Ref,
-  TagRef,
-  TargetProfile,
-} from "@app/api/models";
+import type { Archetype, New, Ref, TagRef } from "@app/api/models";
 import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { useFetchArchetypes } from "@app/queries/archetypes";
-import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
-
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
-import { TargetProfilesSection } from "./target-profile-form/target-profiles-section";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 import { matchItemsToRefs } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+
 import { useArchetypeMutations } from "../hooks/useArchetypeMutations";
 
 export interface ArchetypeFormValues {
@@ -44,7 +37,6 @@ export interface ArchetypeFormValues {
   tags: TagItemType[];
   stakeholders?: Ref[];
   stakeholderGroups?: Ref[];
-  profiles: TargetProfile[];
 }
 
 export interface ArchetypeFormProps {
@@ -146,14 +138,6 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
     stakeholderGroups: yup
       .array()
       .of(yup.object({ id: yup.number(), name: yup.string() })),
-
-    profiles: yup.array().of(
-      yup.object({
-        id: yup.mixed(),
-        name: yup.string().required(),
-        generators: yup.array().min(1).required(),
-      })
-    ),
   });
 
   const getDefaultName = () => {
@@ -169,8 +153,6 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-    watch,
-    setValue,
     // for debugging
     // getValues,
     // getFieldState,
@@ -197,7 +179,6 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
         archetype?.stakeholderGroups?.sort((a, b) =>
           universalComparator(a.name, b.name)
         ) ?? [],
-      profiles: archetype?.profiles ?? [],
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -221,15 +202,12 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
       stakeholderGroups: idsToStakeholderGroupRefs(
         values.stakeholderGroups?.map((s) => s.id)
       ),
-      // Submit all target profiles as part of the archetype
-      // These profiles were managed locally and are now being submitted to the backend
-      profiles: values.profiles.map((profile) => ({
-        name: profile.name,
-        generators: profile.generators,
-        // Only include id if it's a number (persisted profile), exclude temp string IDs
-        ...(typeof profile.id === "number" && { id: profile.id }),
-      })),
     };
+
+    // Note: We need to manually retain the target profiles
+    if (archetype?.profiles) {
+      payload.profiles = archetype.profiles;
+    }
 
     if (archetype && !isDuplicating) {
       updateArchetype({ id: archetype.id, ...payload });
@@ -306,13 +284,6 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
           what: t("terms.stakeholderGroup(s)").toLowerCase(),
         })}
         searchInputAriaLabel="stakeholder-groups-select-toggle"
-      />
-
-      <TargetProfilesSection
-        profiles={watch("profiles")}
-        onChange={(profiles: TargetProfile[]) =>
-          setValue("profiles", profiles, { shouldDirty: true })
-        }
       />
 
       <HookFormPFTextArea
