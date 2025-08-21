@@ -25,7 +25,7 @@ export const useFetchGenerators = (
   });
 
   return {
-    generators: data,
+    generators: data || [],
     isLoading,
     isSuccess,
     fetchError: error,
