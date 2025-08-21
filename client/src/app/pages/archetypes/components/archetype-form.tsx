@@ -206,7 +206,11 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
 
     // Note: We need to manually retain the target profiles
     if (archetype?.profiles) {
-      payload.profiles = archetype.profiles;
+      payload.profiles = archetype.profiles.map(({ name, generators }) => ({
+        id: 0,
+        name,
+        generators,
+      }));
     }
 
     if (archetype && !isDuplicating) {

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
-import type { Archetype } from "@app/api/models";
+import type { Archetype, TargetProfile } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   ARCHETYPES_QUERY_KEY,
@@ -126,7 +126,7 @@ export const useArchetypeMutations = ({
         });
         queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
         queryClient.invalidateQueries({
-          queryKey: [ARCHETYPE_QUERY_KEY, archetype.id],
+          queryKey: [ARCHETYPE_QUERY_KEY, String(archetype.id)],
         });
       })
       .catch((error) => {
@@ -150,7 +150,7 @@ export const useArchetypeMutations = ({
       .then(() => {
         queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
         queryClient.invalidateQueries({
-          queryKey: [ARCHETYPE_QUERY_KEY, archetype.id],
+          queryKey: [ARCHETYPE_QUERY_KEY, String(archetype.id)],
         });
       })
       .catch((error) => {
@@ -162,11 +162,42 @@ export const useArchetypeMutations = ({
       });
   };
 
+  // Target profile function
+  const addTargetProfile = (archetype: Archetype, profile: TargetProfile) => {
+    const updatedProfiles = (
+      archetype.profiles ? [...archetype.profiles, profile] : [profile]
+    ).map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    updateArchetype({ ...archetype, profiles: updatedProfiles });
+  };
+
+  const updateTargetProfile = (
+    archetype: Archetype,
+    profile: TargetProfile
+  ) => {
+    const updatedProfiles = archetype.profiles
+      ?.map((p) => (p.id === profile.id ? profile : p))
+      .map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    updateArchetype({ ...archetype, profiles: updatedProfiles });
+  };
+
+  const deleteTargetProfile = (
+    archetype: Archetype,
+    profile: TargetProfile
+  ) => {
+    const updatedProfiles = archetype.profiles
+      ?.filter((p) => p.id !== profile.id)
+      .map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    updateArchetype({ ...archetype, profiles: updatedProfiles });
+  };
+
   return {
     createArchetype,
     updateArchetype,
     deleteArchetype,
     discardAssessment,
     discardReview,
+    addTargetProfile,
+    updateTargetProfile,
+    deleteTargetProfile,
   };
 };
