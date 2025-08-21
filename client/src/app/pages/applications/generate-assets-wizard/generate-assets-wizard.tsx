@@ -163,7 +163,6 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           }}
         >
           <CaptureParameters
-            applications={ready}
             targetProfile={state.profile}
             onParametersChanged={setParameters}
             initialParameters={state.parameters}

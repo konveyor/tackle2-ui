@@ -153,6 +153,20 @@ export const isComplexSchema = (schema: JsonSchemaObject): boolean => {
   return false;
 };
 
+export const isSchemaEmpty = (schema?: JsonSchemaObject): boolean => {
+  if (!schema) return true;
+
+  if (schema.type === "object") {
+    return Object.keys(schema.properties ?? {}).length === 0;
+  }
+
+  if (schema.type === "array") {
+    return isSchemaEmpty(schema.items);
+  }
+
+  return ["string", "number", "boolean", "integer"].includes(schema.type);
+};
+
 /**
  * Combines multiple schemas into a single schema.  Only supports schemas with a root type of "object".
  */

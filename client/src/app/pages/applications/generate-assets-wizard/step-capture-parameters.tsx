@@ -10,13 +10,19 @@ import {
   Text,
   Alert,
   AlertVariant,
+  PanelMainBody,
+  PanelMain,
+  Panel,
 } from "@patternfly/react-core";
 
-import { JsonDocument, JsonSchemaObject } from "@app/api/models";
-import { DecoratedApplication } from "../useDecoratedApplications";
+import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import {
+  combineSchemas,
+  isSchemaEmpty,
+  jsonSchemaToYupSchema,
+} from "@app/components/schema-defined-fields/utils";
 import { useFetchGenerators } from "@app/queries/generators";
 
 export interface ParameterState {
@@ -60,60 +66,46 @@ const useParametersStateChangeHandler = (
   }, [onParametersChanged, parameterState]);
 };
 
+const useGeneratorsForTargetProfile = (targetProfile?: TargetProfile) => {
+  const { generators: fetchedGenerators } = useFetchGenerators();
+
+  const allGenerators = React.useMemo(
+    () =>
+      !targetProfile
+        ? []
+        : targetProfile.generators
+            .map(({ id }) => fetchedGenerators.find((g) => g.id === id))
+            .filter(Boolean),
+    [targetProfile, fetchedGenerators]
+  );
+
+  const generators = React.useMemo(
+    () => allGenerators.filter((g) => Object.keys(g?.params ?? {}).length > 0),
+    [allGenerators]
+  );
+
+  return {
+    allGenerators,
+    generators,
+  };
+};
+
 export const CaptureParameters: React.FC<{
-  applications: DecoratedApplication[];
-  targetProfile?: { generators: { id: number; name: string }[] };
+  targetProfile?: TargetProfile;
   onParametersChanged: (parameters: ParameterState) => void;
   initialParameters?: ParameterState;
-}> = ({
-  applications,
-  targetProfile,
-  onParametersChanged,
-  initialParameters,
-}) => {
+}> = ({ targetProfile, onParametersChanged, initialParameters }) => {
   const { t } = useTranslation();
-  const { generators } = useFetchGenerators();
-
-  // Create a combined schema from all generators in the target profile
-  const combinedSchema = React.useMemo((): JsonSchemaObject | undefined => {
-    if (!targetProfile?.generators || !generators) return undefined;
-
-    const profileGenerators = generators.filter((g) =>
-      targetProfile.generators.some((pg) => pg.id === g.id)
-    );
-
-    if (profileGenerators.length === 0) return undefined;
-
-    // Create a combined schema from all generator parameters
-    const properties: Record<string, any> = {};
-    const required: string[] = [];
-
-    profileGenerators.forEach((generator) => {
-      if (generator.params) {
-        // If generator has parameter schema definition, add to combined schema
-        Object.entries(generator.params).forEach(([key, value]) => {
-          properties[`${generator.name}_${key}`] = {
-            type: "string",
-            title: `${generator.name} - ${key}`,
-            description: `Parameter for ${generator.name} generator`,
-          };
-        });
-      } else {
-        // Default parameter for generator without specific schema
-        properties[`${generator.name}_params`] = {
-          type: "string",
-          title: `${generator.name} Parameters`,
-          description: `Parameters for ${generator.name} generator`,
-        };
-      }
-    });
-
-    return {
-      type: "object",
-      properties,
-      required,
-    };
-  }, [targetProfile, generators]);
+  const { generators } = useGeneratorsForTargetProfile(targetProfile);
+  const schema = React.useMemo(() => {
+    return !generators
+      ? undefined
+      : combineSchemas(
+          generators
+            .filter((g) => Object.keys(g.params ?? {}).length > 0)
+            .map((g) => g.params as unknown as JsonSchemaObject) // TODO: Fix this with #2498
+        );
+  }, [generators]);
 
   const validationSchema = yup.object().shape({
     schema: yup.object().nullable(),
@@ -129,7 +121,7 @@ export const CaptureParameters: React.FC<{
   const form = useForm<ParametersFormValues>({
     defaultValues: {
       parametersRequired: initialParameters?.parametersRequired ?? true,
-      schema: initialParameters?.schema ?? combinedSchema,
+      schema: initialParameters?.schema,
       parameters: initialParameters?.parameters ?? {},
     },
     resolver: yupResolver(validationSchema),
@@ -137,64 +129,79 @@ export const CaptureParameters: React.FC<{
   });
   const { setValue, control } = form;
 
-  // Update form values when schema changes
+  // Update form values when the combined schema changes
   React.useEffect(() => {
-    if (combinedSchema) {
-      setValue("schema", combinedSchema);
+    if (schema) {
+      setValue("schema", schema);
       setValue("parametersRequired", true);
     } else {
       setValue("schema", undefined);
       setValue("parametersRequired", false);
     }
-  }, [combinedSchema, setValue]);
+  }, [schema, setValue]);
 
   useParametersStateChangeHandler(form, onParametersChanged);
 
   return (
-    <div>
+    <>
       <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
         <Text component="h3">
           {t("generateAssetsWizard.captureParameters.title")}
         </Text>
-        <Text component="p">
-          {t("generateAssetsWizard.captureParameters.description")}
-        </Text>
-      </TextContent>
 
-      {!targetProfile ? (
-        <Alert
-          variant={AlertVariant.info}
-          title={t(
-            "generateAssetsWizard.captureParameters.noTargetProfileSelected"
-          )}
-        />
-      ) : !combinedSchema ? (
-        <div style={{ padding: "20px" }}>
-          <Text>
-            {t("generateAssetsWizard.captureParameters.noParametersRequired")}
+        {targetProfile ? (
+          <Text component="p">
+            {t("generateAssetsWizard.captureParameters.description", {
+              count: generators.length,
+              name: targetProfile?.name ?? "",
+            })}
           </Text>
-        </div>
-      ) : (
-        <Form>
-          <HookFormPFGroupController
-            control={control}
-            name="parameters"
-            label={t("generateAssetsWizard.captureParameters.parametersLabel")}
-            fieldId="parameters"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SchemaDefinedField
-                key={targetProfile?.generators?.map((g) => g.id).join("-")}
-                id={name}
-                jsonDocument={value ?? {}}
-                jsonSchema={combinedSchema}
-                onDocumentChanged={(newJsonDocument) => {
-                  onChange(newJsonDocument);
-                }}
-              />
+        ) : (
+          <Alert
+            variant={AlertVariant.danger}
+            title={t(
+              "generateAssetsWizard.captureParameters.noTargetProfileSelected"
             )}
           />
-        </Form>
-      )}
-    </div>
+        )}
+      </TextContent>
+
+      <Panel>
+        <PanelMain>
+          <PanelMainBody>
+            {isSchemaEmpty(schema) ? (
+              <Alert
+                variant={AlertVariant.info}
+                title={t(
+                  "generateAssetsWizard.captureParameters.noParametersRequired"
+                )}
+              />
+            ) : (
+              <Form>
+                <HookFormPFGroupController
+                  control={control}
+                  name="parameters"
+                  label={t(
+                    "generateAssetsWizard.captureParameters.parametersLabel"
+                  )}
+                  fieldId="parameters"
+                  renderInput={({ field: { value, name, onChange } }) => (
+                    // TODO: Verify this works with the combined schema with #2498
+                    <SchemaDefinedField
+                      id={name}
+                      jsonDocument={value ?? {}}
+                      jsonSchema={schema}
+                      onDocumentChanged={(newJsonDocument) => {
+                        onChange(newJsonDocument);
+                      }}
+                    />
+                  )}
+                />
+              </Form>
+            )}
+          </PanelMainBody>
+        </PanelMain>
+      </Panel>
+    </>
   );
 };

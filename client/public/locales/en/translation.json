@@ -770,8 +770,12 @@
     },
     "captureParameters": {
       "stepTitle": "User parameters",
-      "title": "User Parameters",
-      "description": "Capture the parameters for the asset generation.",
+      "title": "Input user parameters",
+      "description_zero": "The selected target profile {{name}} does not include a generator that requires user input.",
+      "description_one": "The selected target profile {{name}} includes a generator that requires user input.",
+      "description_other": "The selected target profile {{name}} includes {{count}} generators that require user input.",
+      "noTargetProfileSelected": "No target profile selected.  Please select a target profile to continue.",
+      "noParametersRequired": "No user input parameters are required for this target profile.",
       "parametersLabel": "Parameters"
     },
     "review": {
