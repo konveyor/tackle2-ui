@@ -43,7 +43,7 @@ import {
   SourcePlatform,
   AnalysisDependency,
   AnalysisAppDependency,
-  Manifest,
+  JsonDocument,
 } from "./models";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
@@ -302,9 +302,9 @@ export const getApplicationById = (id: number | string): Promise<Application> =>
 
 export const getApplicationManifest = (
   applicationId: number | string
-): Promise<Manifest> =>
+): Promise<JsonDocument> =>
   axios
-    .get<Manifest>(template(APPLICATION_MANIFEST, { id: applicationId }))
+    .get<JsonDocument>(template(APPLICATION_MANIFEST, { id: applicationId }))
     .then((response) => response.data);
 
 export const getApplications = (): Promise<Application[]> =>

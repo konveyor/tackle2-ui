@@ -75,7 +75,7 @@ export const ApplicationDetailDrawer: React.FC<
           <Tabs
             activeKey={activeTabKey}
             onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-            // isOverflowHorizontal={{ showTabCount: true }}
+            isOverflowHorizontal={{ showTabCount: true }}
           >
             <Tab
               eventKey={TabKey.Details}
