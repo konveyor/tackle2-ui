@@ -19,6 +19,7 @@ import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
 import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
+import { universalComparator } from "@app/utils/utils";
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,
@@ -96,7 +97,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         title: t("retrieveConfigWizard.toast.submittedOk"),
         message: `Task IDs: ${success
           .map((result) => result.task.id)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "info",
       });
@@ -107,7 +108,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         title: t("retrieveConfigWizard.toast.submittedFailed"),
         message: `Applications: ${failure
           .map((result) => result.application.name)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "danger",
       });

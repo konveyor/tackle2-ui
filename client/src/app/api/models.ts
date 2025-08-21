@@ -155,6 +155,7 @@ export interface Application {
   platform?: Ref;
   archetypes?: Ref[];
   assessments?: Ref[];
+  manifests?: Ref[];
   assessed?: boolean;
   risk?: Risk;
   confidence?: number;
@@ -373,6 +374,12 @@ export interface ApplicationManifestTask
   application: Ref;
 }
 
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
+  kind: "asset-generation";
+  application: Ref;
+}
+
 export interface PlatformApplicationImportTask
   extends Omit<
     Task<PlatformApplicationImportTaskData>,
@@ -470,6 +477,11 @@ export interface AnalysisTaskData {
 
 export interface PlatformApplicationImportTaskData {
   filter: JsonDocument;
+}
+
+export interface AssetGenerationTaskData {
+  profiles: Ref[];
+  params: JsonDocument;
 }
 
 export interface TaskgroupTask {
@@ -984,26 +996,9 @@ export interface Generator {
   /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
-export interface ManifestDeployment {
-  name: string;
-  other?: number;
-}
-
-export interface ManifestSecret {
-  user?: string;
-  password?: string;
-}
-
-export interface Manifest {
-  id: number;
-  content: JsonDocument;
-  secret: ManifestSecret;
-  application?: Ref;
-}
-
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
-  $schema?: string;
+  $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;

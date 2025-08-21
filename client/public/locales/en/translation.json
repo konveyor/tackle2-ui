@@ -748,6 +748,53 @@
       "successSubmissions_other": "Successful Submissions ({{count}})"
     }
   },
+  "generateAssetsWizard": {
+    "title": "Generate Assets",
+    "description_one": "Generate deployment assets for application {{first}}.",
+    "description_other": "Generate deployment assets for {{count}} selected applications.",
+    "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
+    "noTasksSubmitted": "No asset generation tasks were submitted.",
+    "toast": {
+      "submittedOk": "Asset generation tasks submitted",
+      "submittedFailed": "Asset generation task submissions failed"
+    },
+    "selectTargetProfile": {
+      "stepTitle": "Target profile",
+      "title": "Select a target profile",
+      "description_one": "Select a target profile from the list of available target profiles for {{first}}.",
+      "description_other": "Select a target profile from the list of target profiles available to all {{count}} selected applications",
+      "noProfilesAvailable": "No target profiles are available from any of the application archetypes.",
+      "columnArchetype": "Archetype",
+      "columnTargetPlatform": "Target Platform"
+    },
+    "captureParameters": {
+      "stepTitle": "User parameters",
+      "title": "Input user parameters",
+      "description_zero": "The selected target profile {{name}} does not include a generator that requires user input.",
+      "description_one": "The selected target profile {{name}} includes a generator that requires user input.",
+      "description_other": "The selected target profile {{name}} includes {{count}} generators that require user input.",
+      "noTargetProfileSelected": "No target profile selected.  Please select a target profile to continue.",
+      "noParametersRequired": "No user input parameters are required for this target profile.",
+      "parametersLabel": "Parameters"
+    },
+    "review": {
+      "stepTitle": "Review",
+      "title": "Review details",
+      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's discovery manifest, target profile, input parameters, and generator settings.",
+      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' discovery manifests, target profile, input parameters, and generator settings.",
+      "selectedApplications_one": "Selected application",
+      "selectedApplications_other": "Selected applications ({{count}})"
+    },
+    "results": {
+      "title": "Asset Generation Results",
+      "summary": "Summary of asset generation task submissions.",
+      "noResults": "No results available.",
+      "failedSubmissions_one": "Failed Submission",
+      "failedSubmissions_other": "Failed Submissions ({{count}})",
+      "successSubmissions_one": "Successful Submission",
+      "successSubmissions_other": "Successful Submissions ({{count}})"
+    }
+  },
   "credentials": {
     "delete": {
       "application_one": "1 application",

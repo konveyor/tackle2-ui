@@ -115,6 +115,7 @@ import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { RetrieveConfigWizard } from "../retrieve-config-wizard";
+import { GenerateAssetsWizard } from "../generate-assets-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -157,6 +158,10 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
   const [retrieveConfigApplications, setRetrieveConfigApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
+
+  const [generateAssetsApplications, setGenerateAssetsApplications] = useState<
     DecoratedApplication[] | null
   >(null);
 
@@ -784,14 +789,16 @@ export const ApplicationsTable: React.FC = () => {
           </DropdownItem>
         ),
         // TODO: Add this back when we can handle the generate operation in bulk
-        // <DropdownItem
-        //   key="generate-assets-for-applications"
-        //   component="button"
-        //   isDisabled={selectedRows.length < 1}
-        //   onClick={() => handleGenerateAssetsBulk(selectedRows)}
-        // >
-        //   {t("actions.generateAssets")}
-        // </DropdownItem>,
+        // applicationWriteAccess && tasksWriteAccess && (
+        //   <DropdownItem
+        //     key="generate-assets-for-applications"
+        //     component="button"
+        //     isDisabled={selectedRows.length < 1}
+        //     onClick={() => handleGenerateAssetsBulk(selectedRows)}
+        //   >
+        //     {t("actions.generateAssets")}
+        //   </DropdownItem>
+        // ),
       ],
       [
         applicationWriteAccess && (
@@ -929,20 +936,14 @@ export const ApplicationsTable: React.FC = () => {
     setRetrieveConfigApplications(apps);
   };
 
-  const handleGenerateAssetsBulk = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
+  const handleGenerateAssets = (app: DecoratedApplication) => {
+    setGenerateAssetsApplications([app]);
   };
 
-  const handleGenerateAssets = (_app: DecoratedApplication) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
-  };
-
-  const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2509
-    console.log("change source platform coming with #2509");
-  };
+  // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+  // const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
+  //   console.log("change source platform coming with #2509");
+  // };
 
   return (
     <ConditionalRender
@@ -1271,12 +1272,14 @@ export const ApplicationsTable: React.FC = () => {
                             ],
                             [
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForRetrieveConfigurations && {
                                   title: t("actions.retrieveConfigurations"),
                                   onClick: () =>
                                     handleRetrieveConfigurations(application),
                                 },
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForGenerateAssets && {
                                   title: t("actions.generateAssets"),
                                   onClick: () =>
@@ -1323,11 +1326,27 @@ export const ApplicationsTable: React.FC = () => {
         />
       </TaskGroupProvider>
       <RetrieveConfigWizard
-        key={retrieveConfigApplications ? "open" : "closed"}
+        key={
+          retrieveConfigApplications
+            ? "retrieve-config-open"
+            : "retrieve-config-closed"
+        }
         applications={retrieveConfigApplications ?? undefined}
         isOpen={!!retrieveConfigApplications}
         onClose={() => {
           setRetrieveConfigApplications(null);
+        }}
+      />
+      <GenerateAssetsWizard
+        key={
+          generateAssetsApplications
+            ? "generate-assets-open"
+            : "generate-assets-closed"
+        }
+        application={generateAssetsApplications?.[0] ?? undefined}
+        isOpen={!!generateAssetsApplications}
+        onClose={() => {
+          setGenerateAssetsApplications(null);
         }}
       />
 
