@@ -133,7 +133,7 @@ export const CaptureParameters: React.FC<{
   React.useEffect(() => {
     if (schema) {
       setValue("schema", schema);
-      setValue("parametersRequired", true);
+      setValue("parametersRequired", !isSchemaEmpty(schema));
     } else {
       setValue("schema", undefined);
       setValue("parametersRequired", false);
