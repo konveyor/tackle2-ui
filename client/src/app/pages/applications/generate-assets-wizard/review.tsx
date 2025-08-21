@@ -5,6 +5,10 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Panel,
   PanelMain,
   PanelMainBody,
@@ -17,13 +21,19 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
+import { TargetProfile } from "@app/api/models";
+import { ParameterState } from "./useWizardReducer";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { RepositoryDetails } from "@app/components/detail-drawer";
 
 export const Review: React.FC<{
   applications: DecoratedApplication[];
-  targetProfile: unknown; // TODO: Replace with TargetProfile after #2534
-  inputParameters: unknown; // TODO: Replace with InputParameters after #2534
-}> = ({ applications, targetProfile, inputParameters }) => {
+  targetProfile: TargetProfile;
+  parameters: ParameterState;
+}> = ({ applications, targetProfile, parameters }) => {
   const { t } = useTranslation();
+  const showParameters = parameters.parametersRequired && parameters.parameters;
 
   return (
     <>
@@ -40,11 +50,6 @@ export const Review: React.FC<{
         </Text>
       </TextContent>
 
-      {/* TODO: Show:
-        (1) the application details
-        (2) the selected target profile
-        (3) the input parameters
-      */}
       <Panel isScrollable>
         <PanelMain>
           <PanelMainBody>
@@ -72,9 +77,57 @@ export const Review: React.FC<{
                             </StackItem>
                           </Stack>
                         </DataListCell>,
-                        <DataListCell key="2" wrapModifier="breakWord">
-                          {t("terms.sourcePlatform")}:{" "}
-                          {application.platform?.name}
+                        <DataListCell key="2">
+                          <DescriptionList isHorizontal>
+                            <DescriptionListGroup>
+                              <DescriptionListTerm>
+                                {t("terms.assetRepository")}
+                              </DescriptionListTerm>
+                              <DescriptionListDescription>
+                                {!application.assets ? (
+                                  <EmptyTextMessage />
+                                ) : (
+                                  <RepositoryDetails
+                                    repository={application.assets}
+                                  />
+                                )}
+                              </DescriptionListDescription>
+                            </DescriptionListGroup>
+
+                            <DescriptionListGroup>
+                              <DescriptionListTerm>
+                                {t("terms.targetProfile")}
+                              </DescriptionListTerm>
+                              <DescriptionListDescription>
+                                {targetProfile.name}
+                              </DescriptionListDescription>
+                            </DescriptionListGroup>
+
+                            {showParameters && (
+                              <DescriptionListGroup>
+                                <DescriptionListTerm>
+                                  {t("terms.inputParameters")}
+                                </DescriptionListTerm>
+                                <DescriptionListDescription>
+                                  <div
+                                    style={{
+                                      border:
+                                        "1px solid var(--pf-v5-global--BorderColor--100)",
+                                      borderRadius: "3px",
+                                      padding: "16px",
+                                    }}
+                                  >
+                                    <SchemaDefinedField
+                                      id="generate-assets-parameters-review"
+                                      jsonDocument={parameters.parameters ?? {}}
+                                      jsonSchema={parameters.schema}
+                                      isReadOnly={true}
+                                    />
+                                  </div>
+                                </DescriptionListDescription>
+                              </DescriptionListGroup>
+                            )}
+                          </DescriptionList>
                         </DataListCell>,
                       ]}
                     />

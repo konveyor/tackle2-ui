@@ -8,18 +8,15 @@ import {
   Button,
 } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-
-import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { group } from "radash";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
-import { Results, ResultsData } from "./results";
+import { Results } from "./results";
 import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
 import { universalComparator } from "@app/utils/utils";
+import { useWizardReducer } from "./useWizardReducer";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -39,58 +36,44 @@ export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
 };
 
 interface IGenerateAssetsWizard {
-  applications?: DecoratedApplication[];
-  isOpen: boolean;
+  application?: DecoratedApplication;
   onClose: () => void;
-}
-
-export interface FormValues {
-  ready: DecoratedApplication[];
-  notReady: DecoratedApplication[];
+  isOpen: boolean;
 }
 
 const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
-  applications = [],
+  application,
   onClose,
   isOpen,
 }: IGenerateAssetsWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTasks } = useStartApplicationAssetGeneration();
+  const { state, setProfile, setParameters, setResults, reset } =
+    useWizardReducer();
+  const { results } = state;
 
-  // State to track submission results and current step
-  const [submissionResults, setSubmissionResults] =
-    React.useState<ResultsData | null>(null);
-
-  const { ready = [], notReady = [] } = group(applications, (app) =>
-    app.isReadyForGenerateAssets ? "ready" : "notReady"
+  const { ready = [], notReady = [] } = group(
+    [application].filter(Boolean),
+    (app) => ((app?.isReadyForGenerateAssets ?? false) ? "ready" : "notReady")
   );
 
-  const methods = useForm<FormValues>({
-    defaultValues: {
-      ready,
-      notReady,
-    },
-    resolver: yupResolver(
-      yup.object({
-        ready: yup.array().of(yup.object()),
-        notReady: yup.array().of(yup.object()),
-      })
-    ),
-    mode: "all",
-  });
-  const { handleSubmit, watch } = methods;
-
   const handleCancel = () => {
-    setSubmissionResults(null);
+    reset();
     onClose();
   };
 
-  const submitTasksAndSaveResults = async ({ ready }: FormValues) => {
-    const { success, failure } = await submitTasks(ready, null, null);
+  const submitTasksAndSaveResults = async () => {
+    if (ready.length === 0 || !state.profile || !state.parameters.parameters) {
+      return;
+    }
 
-    // Store results and move to Results step
-    setSubmissionResults({ success, failure });
+    const { success, failure } = await submitTasks(
+      ready,
+      state.profile,
+      state.parameters.parameters
+    );
+    setResults({ success, failure });
 
     if (success.length > 0) {
       pushNotification({
@@ -115,8 +98,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
     }
   };
 
-  const readyApplications = watch("ready");
-  if (readyApplications.length === 0) {
+  if (ready.length === 0) {
     return (
       <Modal
         isOpen={isOpen}
@@ -142,47 +124,71 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
       hasNoBodyWrapper
       onClose={handleCancel}
     >
-      <FormProvider {...methods}>
-        <Wizard
-          header={
-            <WizardHeader
-              title={t("generateAssetsWizard.title")}
-              description={t("generateAssetsWizard.description")}
-              onClose={handleCancel}
-            />
-          }
-          onClose={handleCancel}
-          isVisitRequired
+      <Wizard
+        onClose={handleCancel}
+        header={
+          <WizardHeader
+            onClose={handleCancel}
+            title={t("generateAssetsWizard.title")}
+            description={t("generateAssetsWizard.description")}
+          />
+        }
+        isVisitRequired
+      >
+        {/* TODO: Add a step to select the target profile from one of the application's archetypes */}
+        <WizardStep
+          id="select-target-profile"
+          name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
+          footer={{
+            isNextDisabled: !!state.profile,
+          }}
         >
-          {/* TODO: Add a step to select the target profile from one of the application's archetypes */}
-          {/* TODO: Add a step to capture the target profile's generator parameters */}
-          <WizardStep
-            id="review"
-            name={t("generateAssetsWizard.review.stepTitle")}
-            footer={{
-              nextButtonText: submissionResults
-                ? t("actions.close")
-                : t("actions.generateAssets"),
-              onNext: submissionResults
-                ? handleCancel
-                : handleSubmit(submitTasksAndSaveResults),
-              isNextDisabled: false, // TODO: Check if all required inputs are valid
-              isBackDisabled: !!submissionResults,
-              isCancelHidden: !!submissionResults,
-            }}
-          >
-            {!submissionResults ? (
-              <Review
-                applications={readyApplications}
-                targetProfile={null} // TODO: Replace with a target profile after #2534
-                inputParameters={null} // TODO: Replace with input parameters after #2534
-              />
-            ) : (
-              <Results results={submissionResults} />
-            )}
-          </WizardStep>
-        </Wizard>
-      </FormProvider>
+          {/* <SelectTargetProfile
+            applications={ready}
+            onTargetProfileChanged={setProfile}
+            initialTargetProfile={state.profile}
+          /> */}
+        </WizardStep>
+
+        {/* TODO: Add a step to capture the target profile's generator parameters */}
+        <WizardStep
+          id="capture-parameters"
+          name={t("generateAssetsWizard.captureParameters.stepTitle")}
+          footer={{
+            isNextDisabled: !state.parameters.isValid,
+          }}
+        >
+          {/* <CaptureParameters
+            applications={ready}
+            onParametersChanged={setParameters}
+            initialParameters={state.parameters}
+          /> */}
+        </WizardStep>
+
+        <WizardStep
+          id="review"
+          name={t("generateAssetsWizard.review.stepTitle")}
+          footer={{
+            nextButtonText: results
+              ? t("actions.close")
+              : t("actions.generateAssets"),
+            onNext: results ? handleCancel : submitTasksAndSaveResults,
+            isNextDisabled: !state.isReady && !results,
+            isBackDisabled: !!results,
+            isCancelHidden: !!results,
+          }}
+        >
+          {!results ? (
+            <Review
+              applications={ready}
+              targetProfile={state.profile!}
+              parameters={state.parameters}
+            />
+          ) : (
+            <Results results={results} />
+          )}
+        </WizardStep>
+      </Wizard>
     </Modal>
   );
 };

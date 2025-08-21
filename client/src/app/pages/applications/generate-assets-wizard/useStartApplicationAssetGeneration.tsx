@@ -3,7 +3,7 @@ import {
   AssetGenerationTaskData,
   JsonDocument,
   New,
-  Ref,
+  TargetProfile,
 } from "@app/api/models";
 import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -17,7 +17,7 @@ export const useStartApplicationAssetGeneration = () => {
 
   const createAndSubmitTask = async (
     application: DecoratedApplication,
-    targetProfile: unknown, // TODO: Replace with TargetProfile after #2534
+    targetProfile: TargetProfile,
     inputParameters: unknown // TODO: Replace with InputParameters after #2534
   ): Promise<{
     success?: {
@@ -37,7 +37,7 @@ export const useStartApplicationAssetGeneration = () => {
       application: toRef(application),
       state: "Ready",
       data: {
-        profiles: toRefs([targetProfile as Ref]),
+        profiles: toRefs([targetProfile]),
         params: inputParameters as JsonDocument, // TODO: Double check this
       },
     };
@@ -59,7 +59,7 @@ export const useStartApplicationAssetGeneration = () => {
 
   const submitTasks = async (
     applications: DecoratedApplication[],
-    targetProfile: unknown, // TODO: Replace with TargetProfile after #2534
+    targetProfile: TargetProfile,
     inputParameters: unknown // TODO: Replace with InputParameters after #2534
   ) => {
     const results = await Promise.allSettled(
