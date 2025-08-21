@@ -10,13 +10,15 @@ import {
 import { useTranslation } from "react-i18next";
 import { group } from "radash";
 
+import { universalComparator } from "@app/utils/utils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { DecoratedApplication } from "../useDecoratedApplications";
-import { Review } from "./review";
-import { Results } from "./results";
 import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
-import { universalComparator } from "@app/utils/utils";
 import { useWizardReducer } from "./useWizardReducer";
+import { SelectTargetProfile } from "./step-select-target-profile";
+import { CaptureParameters } from "./step-capture-parameters";
+import { Review } from "./step-review";
+import { Results } from "./step-results";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -140,14 +142,14 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           id="select-target-profile"
           name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
           footer={{
-            isNextDisabled: !!state.profile,
+            isNextDisabled: !state.profile,
           }}
         >
-          {/* <SelectTargetProfile
+          <SelectTargetProfile
             applications={ready}
             onTargetProfileChanged={setProfile}
             initialTargetProfile={state.profile}
-          /> */}
+          />
         </WizardStep>
 
         {/* TODO: Add a step to capture the target profile's generator parameters */}
@@ -158,11 +160,12 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
             isNextDisabled: !state.parameters.isValid,
           }}
         >
-          {/* <CaptureParameters
+          <CaptureParameters
             applications={ready}
+            targetProfile={state.profile}
             onParametersChanged={setParameters}
             initialParameters={state.parameters}
-          /> */}
+          />
         </WizardStep>
 
         <WizardStep

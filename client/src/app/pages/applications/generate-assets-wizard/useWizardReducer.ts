@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ResultsData } from "./results";
+import { ResultsData } from "./step-results";
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
 
 export interface ParameterState {
@@ -39,6 +39,7 @@ const validateWizardState = (state: WizardState): WizardState => {
 };
 
 const wizardReducer: WizardReducer = (state, action) => {
+  console.log("wizardReducer", state, action);
   switch (action.type) {
     case "SET_PROFILE":
       return { ...state, profile: action.payload };

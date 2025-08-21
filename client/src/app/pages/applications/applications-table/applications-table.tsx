@@ -1326,7 +1326,11 @@ export const ApplicationsTable: React.FC = () => {
         />
       </TaskGroupProvider>
       <RetrieveConfigWizard
-        key={retrieveConfigApplications ? "open" : "closed"}
+        key={
+          retrieveConfigApplications
+            ? "retrieve-config-open"
+            : "retrieve-config-closed"
+        }
         applications={retrieveConfigApplications ?? undefined}
         isOpen={!!retrieveConfigApplications}
         onClose={() => {
@@ -1334,7 +1338,11 @@ export const ApplicationsTable: React.FC = () => {
         }}
       />
       <GenerateAssetsWizard
-        key={generateAssetsApplications ? "open" : "closed"}
+        key={
+          generateAssetsApplications
+            ? "generate-assets-open"
+            : "generate-assets-closed"
+        }
         application={generateAssetsApplications?.[0] ?? undefined}
         isOpen={!!generateAssetsApplications}
         onClose={() => {

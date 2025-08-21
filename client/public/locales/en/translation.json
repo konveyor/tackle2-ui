@@ -758,6 +758,20 @@
       "submittedOk": "Asset generation tasks submitted",
       "submittedFailed": "Asset generation task submissions failed"
     },
+    "selectTargetProfile": {
+      "stepTitle": "Select Target Profile",
+      "title": "Select Target Profile",
+      "description": "Select the target profile for the asset generation.",
+      "noProfilesAvailable": "No target profiles are available from any of the application archetypes.",
+      "profilesLabel": "Target profiles",
+      "generatorCount": "{{count}} generator(s)"
+    },
+    "captureParameters": {
+      "stepTitle": "Capture Parameters",
+      "title": "Capture Parameters",
+      "description": "Capture the parameters for the asset generation.",
+      "parametersLabel": "Parameters"
+    },
     "review": {
       "stepTitle": "Review",
       "title": "Review details",
