@@ -1335,7 +1335,7 @@ export const ApplicationsTable: React.FC = () => {
       />
       <GenerateAssetsWizard
         key={generateAssetsApplications ? "open" : "closed"}
-        applications={generateAssetsApplications ?? undefined}
+        application={generateAssetsApplications?.[0] ?? undefined}
         isOpen={!!generateAssetsApplications}
         onClose={() => {
           setGenerateAssetsApplications(null);
