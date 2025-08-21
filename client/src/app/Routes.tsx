@@ -59,6 +59,9 @@ const AssessmentActions = lazy(
     )
 );
 const Archetypes = lazy(() => import("./pages/archetypes/archetypes-page"));
+const TargetProfilesPage = lazy(
+  () => import("./pages/archetypes/target-profiles-page")
+);
 
 const AssessmentSummary = lazy(
   () =>
@@ -218,6 +221,12 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.dependencies,
     comp: Dependencies,
+    exact: false,
+  },
+  // Target profiles route must come before archetypes route due to route matching order
+  {
+    path: Paths.archetypeTargetProfiles,
+    comp: TargetProfilesPage,
     exact: false,
   },
   {

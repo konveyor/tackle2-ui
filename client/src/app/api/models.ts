@@ -908,6 +908,12 @@ export interface AssessmentConfidence {
   confidence: number;
 }
 
+export interface TargetProfile {
+  id: number;
+  name: string;
+  generators: Ref[];
+}
+
 export interface Archetype {
   id: number;
   name: string;
@@ -922,6 +928,7 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
   risk?: Risk;
+  profiles?: TargetProfile[];
 }
 
 export interface QuestionWithSectionOrder extends Question {
@@ -974,7 +981,7 @@ export interface Generator {
   params?: JsonDocument;
   values?: JsonDocument;
   identity?: Ref;
-  profiles?: Ref[];
+  /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
 export interface ManifestDeployment {
