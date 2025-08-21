@@ -174,8 +174,8 @@ const TargetProfileForm: React.FC<TargetProfileFormProps> = ({
               chosenOptions={chosenOptions.map(({ name }) => name)}
               onListChange={onListChange}
               id="target-profile-generators-selector"
-              availableOptionsTitle={t("Available Generators")}
-              chosenOptionsTitle={t("Chosen Generators")}
+              availableOptionsTitle={t("message.generatorsAvailable")}
+              chosenOptionsTitle={t("message.generatorsChosen")}
             />
           )}
         />

@@ -1,23 +1,18 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  Stack,
-  StackItem,
-  Text,
-  Label,
-  Divider,
   EmptyState,
   EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateBody,
+  Bullseye,
 } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { CubesIcon } from "@patternfly/react-icons";
-import { Archetype, TargetProfile } from "@app/api/models";
-import { useFetchGenerators } from "@app/queries/generators";
+import { Archetype } from "@app/api/models";
+import { Table, Tr, Th, Thead, Tbody, Td } from "@patternfly/react-table";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
+import { DrawerTabContent } from "@app/components/detail-drawer";
 
 export interface TabTargetProfilesProps {
   archetype: Archetype;
@@ -27,69 +22,49 @@ export const TabTargetProfiles: React.FC<TabTargetProfilesProps> = ({
   archetype,
 }) => {
   const { t } = useTranslation();
-  const { generators } = useFetchGenerators();
-
-  const getGeneratorNames = useMemo(
-    () => (generatorRefs: TargetProfile["generators"]) => {
-      if (!generators || !generatorRefs) return [];
-      return generatorRefs
-        .map((ref) => generators.find((g) => g.id === ref.id)?.name)
-        .filter(Boolean) as string[];
-    },
-    [generators]
-  );
-
   const profiles = archetype?.profiles || [];
 
   if (profiles.length === 0) {
     return (
-      <EmptyState>
-        <EmptyStateHeader
-          headingLevel="h4"
-          titleText={t("message.noTargetProfilesConfigured")}
-          icon={<EmptyStateIcon icon={CubesIcon} />}
-        />
-        <EmptyStateBody>
-          {t("message.noTargetProfilesConfiguredDescription")}
-        </EmptyStateBody>
-      </EmptyState>
+      <Bullseye>
+        <EmptyState>
+          <EmptyStateHeader
+            headingLevel="h4"
+            titleText={t("message.noTargetProfilesTitle")}
+            icon={<EmptyStateIcon icon={CubesIcon} />}
+          />
+          <EmptyStateBody>
+            {t("message.noTargetProfilesDescription")}
+          </EmptyStateBody>
+        </EmptyState>
+      </Bullseye>
     );
   }
 
   return (
-    <Stack hasGutter>
-      {profiles.map((profile, index) => (
-        <StackItem key={profile.id || profile.name || index}>
-          <Card isFlat>
-            <CardHeader>
-              <CardTitle>
-                <Text component="h5">{profile.name}</Text>
-              </CardTitle>
-            </CardHeader>
-            <CardBody>
-              <div>
-                <Text
-                  component="small"
-                  className="pf-v5-u-color-200 pf-v5-u-mb-sm"
-                >
-                  {t("terms.generators")} ({profile.generators.length}):
-                </Text>
-                <div className="pf-v5-u-mt-xs">
-                  {getGeneratorNames(profile.generators).map((name, i) => (
-                    <Label key={i} className="pf-v5-u-mr-xs pf-v5-u-mb-xs">
-                      {name}
-                    </Label>
-                  ))}
-                  {profile.generators.length === 0 && (
-                    <Text className="pf-v5-u-color-200">{t("terms.none")}</Text>
-                  )}
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-          {index < profiles.length - 1 && <Divider />}
-        </StackItem>
-      ))}
-    </Stack>
+    <DrawerTabContent>
+      <Table
+        aria-label="Target profiles"
+        className={spacing.mtMd}
+        variant="compact"
+      >
+        <Thead>
+          <Tr>
+            <Th>{t("terms.name")}</Th>
+            <Th>{t("terms.generators")}</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {profiles.map((profile) => (
+            <Tr key={profile.id}>
+              <Td width={40}>{profile.name}</Td>
+              <Td width={60}>
+                <LabelsFromItems items={profile.generators} />
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </DrawerTabContent>
   );
 };

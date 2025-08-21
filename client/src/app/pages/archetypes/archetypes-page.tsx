@@ -322,12 +322,12 @@ const Archetypes: React.FC = () => {
                 noDataEmptyState={
                   <EmptyState variant="sm">
                     <EmptyStateHeader
-                      titleText="No archetypes have been created"
+                      titleText={t("message.noArchetypesCreatedTitle")}
                       headingLevel="h2"
                       icon={<EmptyStateIcon icon={CubesIcon} />}
                     />
                     <EmptyStateBody>
-                      Create a new archetype to get started.
+                      {t("message.noArchetypesCreatedDescription")}
                     </EmptyStateBody>
                   </EmptyState>
                 }

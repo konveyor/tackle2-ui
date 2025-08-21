@@ -37,7 +37,7 @@ import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 import { ArchetypeTargetProfilesRoute, Paths } from "@app/Paths";
 import { PageHeader } from "@app/components/PageHeader";
-import TargetProfileForm from "./target-profile-form";
+import TargetProfileForm from "./components/target-profile-form";
 import { ConditionalTableBody } from "@app/components/TableControls";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 
@@ -153,12 +153,12 @@ const TargetProfilesPage: React.FC = () => {
                 noDataEmptyState={
                   <EmptyState variant="sm">
                     <EmptyStateHeader
-                      titleText="No target profiles have been created"
+                      titleText={t("message.noTargetProfilesTitle")}
                       headingLevel="h2"
                       icon={<EmptyStateIcon icon={CubesIcon} />}
                     />
                     <EmptyStateBody>
-                      Create a new target profile to get started.
+                      {t("message.noTargetProfilesCreate")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
