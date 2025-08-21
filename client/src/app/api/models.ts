@@ -996,26 +996,9 @@ export interface Generator {
   /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
-export interface ManifestDeployment {
-  name: string;
-  other?: number;
-}
-
-export interface ManifestSecret {
-  user?: string;
-  password?: string;
-}
-
-export interface Manifest {
-  id: number;
-  content: JsonDocument;
-  secret: ManifestSecret;
-  application?: Ref;
-}
-
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
-  $schema?: string;
+  $schema?: "https://json-schema.org/draft/2020-12/schema";
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;
