@@ -777,8 +777,8 @@
     "review": {
       "stepTitle": "Review",
       "title": "Review details",
-      "description_one": "This application is ready for {{targetProfile}} asset generation. Assets will be generated based on the application's discovery manifest, target profile, and input parameters.",
-      "description_other": "These applications are ready for {{targetProfile}} asset generation. Assets will be generated based on the applications' discovery manifests, target profile, and input parameters.",
+      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's discovery manifest, target profile, input parameters, and generator settings.",
+      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' discovery manifests, target profile, input parameters, and generator settings.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
     },

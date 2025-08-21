@@ -34,13 +34,12 @@ export const Review: React.FC<{
     <>
       <TextContent>
         <Text component={TextVariants.h3}>
-          {t("generateAssetsWizard.review.selectedApplications", {
-            count: applications.length,
-          })}
+          {t("generateAssetsWizard.review.title")}
         </Text>
         <Text component={TextVariants.p}>
           {t("generateAssetsWizard.review.description", {
             count: applications.length,
+            targetProfile: targetProfile.name,
           })}
         </Text>
       </TextContent>
@@ -49,16 +48,21 @@ export const Review: React.FC<{
         <PanelMain>
           <PanelMainBody>
             {applications.map((application) => (
-              <DescriptionList isHorizontal key={application.id}>
+              <DescriptionList isHorizontal key={application.id} isCompact>
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t("terms.targetProfile")}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {targetProfile.name}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
+
                 <DescriptionListGroup>
                   <DescriptionListTerm>Application</DescriptionListTerm>
                   <DescriptionListDescription>
                     <Stack>
-                      <StackItem>
-                        <strong id={`application-${application.id}`}>
-                          {application.name}
-                        </strong>
-                      </StackItem>
+                      <StackItem>{application.name}</StackItem>
                       <StackItem>
                         <Text component={TextVariants.small}>
                           {application.description}
@@ -81,17 +85,8 @@ export const Review: React.FC<{
                   </DescriptionListDescription>
                 </DescriptionListGroup>
 
-                <DescriptionListGroup>
-                  <DescriptionListTerm>
-                    {t("terms.targetProfile")}
-                  </DescriptionListTerm>
-                  <DescriptionListDescription>
-                    {targetProfile.name}
-                  </DescriptionListDescription>
-                </DescriptionListGroup>
-
                 {showParameters && (
-                  <DescriptionListGroup>
+                  <DescriptionListGroup style={{ alignItems: "flex-start" }}>
                     <DescriptionListTerm>
                       Generator Parameters
                     </DescriptionListTerm>
