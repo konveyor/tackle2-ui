@@ -789,14 +789,16 @@ export const ApplicationsTable: React.FC = () => {
           </DropdownItem>
         ),
         // TODO: Add this back when we can handle the generate operation in bulk
-        <DropdownItem
-          key="generate-assets-for-applications"
-          component="button"
-          isDisabled={selectedRows.length < 1}
-          onClick={() => handleGenerateAssetsBulk(selectedRows)}
-        >
-          {t("actions.generateAssets")}
-        </DropdownItem>,
+        // applicationWriteAccess && tasksWriteAccess && (
+        //   <DropdownItem
+        //     key="generate-assets-for-applications"
+        //     component="button"
+        //     isDisabled={selectedRows.length < 1}
+        //     onClick={() => handleGenerateAssetsBulk(selectedRows)}
+        //   >
+        //     {t("actions.generateAssets")}
+        //   </DropdownItem>
+        // ),
       ],
       [
         applicationWriteAccess && (
@@ -938,14 +940,10 @@ export const ApplicationsTable: React.FC = () => {
     setGenerateAssetsApplications([app]);
   };
 
-  const handleGenerateAssetsBulk = (apps: DecoratedApplication[]) => {
-    setGenerateAssetsApplications(apps);
-  };
-
-  const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2509
-    console.log("change source platform coming with #2509");
-  };
+  // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+  // const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
+  //   console.log("change source platform coming with #2509");
+  // };
 
   return (
     <ConditionalRender
@@ -1274,12 +1272,14 @@ export const ApplicationsTable: React.FC = () => {
                             ],
                             [
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForRetrieveConfigurations && {
                                   title: t("actions.retrieveConfigurations"),
                                   onClick: () =>
                                     handleRetrieveConfigurations(application),
                                 },
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForGenerateAssets && {
                                   title: t("actions.generateAssets"),
                                   onClick: () =>
