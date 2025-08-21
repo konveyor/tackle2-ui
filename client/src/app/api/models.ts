@@ -998,7 +998,7 @@ export interface Generator {
 
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
-  $schema?: "https://json-schema.org/draft/2020-12/schema";
+  $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;
