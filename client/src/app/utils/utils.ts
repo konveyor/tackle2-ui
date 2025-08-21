@@ -222,3 +222,29 @@ export const universalComparator = (
   b: any,
   locale: string = i18n.language
 ) => localeNumericCompare(String(a ?? ""), String(b ?? ""), locale);
+
+export function intersection<T>(
+  arrays?: T[][],
+  eqTest: (a: T, b: T) => boolean = (a, b) => a == b
+): T[] {
+  if (!arrays) return [];
+  if (arrays.length === 0) return [];
+  if (arrays.length === 1) return [...arrays[0]];
+
+  // Deduplicate the first array to ensure unique results
+  const firstArray = arrays[0];
+  const uniqueFirst = firstArray.filter(
+    (item, index) =>
+      !firstArray.slice(0, index).some((prev) => eqTest(item, prev))
+  );
+
+  return arrays
+    .slice(1)
+    .reduce(
+      (acc, current) =>
+        acc.filter((item) =>
+          current.some((currentItem) => eqTest(item, currentItem))
+        ),
+      uniqueFirst
+    );
+}
