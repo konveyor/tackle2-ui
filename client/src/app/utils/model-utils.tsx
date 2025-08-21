@@ -302,3 +302,20 @@ export const matchItemsToRefs = <RefLike extends Ref, V>(
         )
         .map<Ref | undefined>(toRef)
         .filter(Boolean);
+
+/**
+ * Convert an array of `Ref`-like objects to an array of items.  Any items in the
+ * collection that cannot be converted to an item will be filtered out.  By default,
+ * the items are matched by their `id` property.
+ */
+export const refsToItems = <I extends { id: number }, RefLike extends Ref>(
+  items: Array<I>,
+  refs: Array<RefLike> | undefined,
+  matcher: (item: I, ref: RefLike) => boolean = (item, ref) =>
+    item.id === ref.id
+): Array<I> => {
+  if (!refs) return [];
+  return refs
+    .map((ref) => items.find((item) => matcher(item, ref)))
+    .filter(Boolean);
+};

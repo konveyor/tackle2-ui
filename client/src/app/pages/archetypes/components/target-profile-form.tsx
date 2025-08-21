@@ -17,7 +17,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import type { TargetProfile, Generator, Archetype } from "@app/api/models";
-import { toRefs } from "@app/utils/model-utils";
+import { refsToItems, toRefs } from "@app/utils/model-utils";
 import { useFetchGenerators } from "@app/queries/generators";
 import { duplicateNameCheck } from "@app/utils/utils";
 import { fork } from "radash";
@@ -48,22 +48,6 @@ const TargetProfileForm: React.FC<TargetProfileFormProps> = ({
   // Dual list selector state
   const [availableOptions, setAvailableOptions] = useState<Generator[]>([]);
   const [chosenOptions, setChosenOptions] = useState<Generator[]>([]);
-
-  // Initialize dual list selector options when modal opens
-  React.useEffect(() => {
-    if (isOpen && generators) {
-      if (!profile) {
-        setAvailableOptions(generators);
-        setChosenOptions([]);
-      } else {
-        const [chosen, available] = fork(generators, (g) =>
-          profile.generators?.some((ref) => ref.id === g.id)
-        );
-        setAvailableOptions(available);
-        setChosenOptions(chosen);
-      }
-    }
-  }, [isOpen, profile, generators]);
 
   const validationSchema = yup.object().shape({
     name: yup
@@ -98,11 +82,29 @@ const TargetProfileForm: React.FC<TargetProfileFormProps> = ({
   } = useForm<TargetProfileFormValues>({
     defaultValues: {
       name: profile?.name ?? "",
-      generators: profile?.generators ?? [],
+      generators: refsToItems(generators, profile?.generators),
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+
+  // Initialize dual list selector options when modal opens
+  React.useEffect(() => {
+    if (isOpen && generators) {
+      if (!profile) {
+        setAvailableOptions(generators);
+        setChosenOptions([]);
+        setValue("generators", [], { shouldValidate: true });
+      } else {
+        const [chosen, available] = fork(generators, (g) =>
+          profile.generators?.some((ref) => ref.id === g.id)
+        );
+        setAvailableOptions(available);
+        setChosenOptions(chosen);
+        setValue("generators", chosen, { shouldValidate: true });
+      }
+    }
+  }, [isOpen, profile, generators, setValue]);
 
   const onListChange = useCallback(
     (
