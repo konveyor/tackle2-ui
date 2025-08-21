@@ -52,7 +52,7 @@ export const useFetchArchetypeById = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [ARCHETYPE_QUERY_KEY, id],
+    queryKey: [ARCHETYPE_QUERY_KEY, String(id)],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getArchetypeById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
@@ -76,8 +76,8 @@ export const useCreateArchetypeMutation = (
   return useMutation({
     mutationFn: createArchetype,
     onSuccess: (archetype) => {
-      onSuccess(archetype);
       queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
+      onSuccess(archetype);
     },
     onError: onError,
   });
@@ -92,9 +92,11 @@ export const useUpdateArchetypeMutation = (
   return useMutation({
     mutationFn: updateArchetype,
     onSuccess: (_, { id }) => {
-      onSuccess(id);
       queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [ARCHETYPE_QUERY_KEY, id] });
+      queryClient.invalidateQueries({
+        queryKey: [ARCHETYPE_QUERY_KEY, String(id)],
+      });
+      onSuccess(id);
     },
     onError: onError,
   });
@@ -109,11 +111,11 @@ export const useDeleteArchetypeMutation = (
   return useMutation({
     mutationFn: (archetype: Archetype) => deleteArchetype(archetype.id),
     onSuccess: (_, archetype) => {
-      onSuccess(archetype);
       queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
       queryClient.invalidateQueries({
-        queryKey: [ARCHETYPE_QUERY_KEY, archetype.id],
+        queryKey: [ARCHETYPE_QUERY_KEY, String(archetype.id)],
       });
+      onSuccess(archetype);
     },
     onError: onError,
   });
