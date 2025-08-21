@@ -66,7 +66,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   };
 
   const submitTasksAndSaveResults = async () => {
-    if (ready.length === 0 || !state.profile || !state.parameters.parameters) {
+    if (ready.length === 0 || !state.profile || !state.parameters.isValid) {
       return;
     }
 
