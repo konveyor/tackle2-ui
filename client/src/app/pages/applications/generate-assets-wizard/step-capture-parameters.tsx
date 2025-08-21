@@ -14,12 +14,17 @@ import {
 
 import { JsonDocument, JsonSchemaObject } from "@app/api/models";
 import { DecoratedApplication } from "../useDecoratedApplications";
-import { ParameterState } from "./useWizardReducer";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { useFetchGenerators } from "@app/queries/generators";
 
+export interface ParameterState {
+  isValid: boolean;
+  parametersRequired: boolean;
+  parameters?: JsonDocument;
+  schema?: JsonSchemaObject;
+}
 interface ParametersFormValues {
   parametersRequired: boolean;
   schema?: JsonSchemaObject;

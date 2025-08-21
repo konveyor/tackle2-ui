@@ -55,9 +55,9 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
     useWizardReducer();
   const { results } = state;
 
-  const { ready = [], notReady = [] } = group(
-    [application].filter(Boolean),
-    (app) => ((app?.isReadyForGenerateAssets ?? false) ? "ready" : "notReady")
+  // TODO: Capture notReady when bulk generate assets is implemented
+  const { ready = [] } = group([application].filter(Boolean), (app) =>
+    (app?.isReadyForGenerateAssets ?? false) ? "ready" : "notReady"
   );
 
   const handleCancel = () => {
@@ -124,6 +124,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
       variant={ModalVariant.large}
       showClose={false}
       hasNoBodyWrapper
+      aria-label={t("generateAssetsWizard.title")}
       onClose={handleCancel}
     >
       <Wizard

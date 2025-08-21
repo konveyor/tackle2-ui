@@ -1,13 +1,7 @@
 import * as React from "react";
+import { ParameterState } from "./step-capture-parameters";
 import { ResultsData } from "./step-results";
-import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
-
-export interface ParameterState {
-  isValid: boolean;
-  parametersRequired: boolean;
-  parameters?: JsonDocument;
-  schema?: JsonSchemaObject;
-}
+import { TargetProfile } from "@app/api/models";
 
 export interface WizardState {
   profile?: TargetProfile;

@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { TargetProfile } from "@app/api/models";
-import { ParameterState } from "./useWizardReducer";
+import { ParameterState } from "./step-capture-parameters";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { RepositoryDetails } from "@app/components/detail-drawer";
