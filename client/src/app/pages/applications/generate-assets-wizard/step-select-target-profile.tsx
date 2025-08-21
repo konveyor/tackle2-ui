@@ -1,55 +1,45 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useForm, useWatch, UseFormReturn } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-
-import {
-  Form,
-  TextContent,
-  Text,
-  FormGroup,
-  Radio,
-} from "@patternfly/react-core";
+import { TextContent, Text } from "@patternfly/react-core";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Archetype, TargetProfile } from "@app/api/models";
+import { intersection } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-
-interface TargetProfileFormValues {
-  selectedProfile?: TargetProfile;
-}
 
 export interface TargetProfileState {
   selectedProfile?: TargetProfile;
   isValid: boolean;
 }
 
-const useTargetProfileStateChangeHandler = (
-  form: UseFormReturn<TargetProfileFormValues>,
-  onTargetProfileChanged: (profileState: TargetProfileState) => void
-) => {
-  const {
-    control,
-    formState: { isValid },
-  } = form;
+const useCommonTargetProfiles = (applications: DecoratedApplication[]) => {
+  const commonArchetypes = React.useMemo(
+    () =>
+      intersection(
+        applications.map((app) => app.direct.archetypes).filter(Boolean),
+        (a, b) => a.id === b.id
+      ),
+    [applications]
+  );
 
-  const watchedValues = useWatch({
-    control,
-    name: ["selectedProfile"],
-  });
+  const availableProfiles = React.useMemo(
+    () =>
+      commonArchetypes.reduce(
+        (acc, archetype) => {
+          archetype.profiles?.forEach((profile) => {
+            acc.push({ archetype, profile });
+          });
+          return acc;
+        },
+        [] as { archetype: Archetype; profile: TargetProfile }[]
+      ),
+    [commonArchetypes]
+  );
 
-  const profileState = React.useMemo((): TargetProfileState => {
-    const [selectedProfile] = watchedValues;
-    return {
-      selectedProfile,
-      isValid,
-    };
-  }, [watchedValues, isValid]);
-
-  React.useEffect(() => {
-    onTargetProfileChanged(profileState);
-  }, [onTargetProfileChanged, profileState]);
+  return {
+    commonArchetypes,
+    availableProfiles,
+  };
 };
 
 export const SelectTargetProfile: React.FC<{
@@ -58,51 +48,16 @@ export const SelectTargetProfile: React.FC<{
   initialTargetProfile?: TargetProfile;
 }> = ({ applications, onTargetProfileChanged, initialTargetProfile }) => {
   const { t } = useTranslation();
-  const { archetypes } = useFetchArchetypes();
+  const { availableProfiles } = useCommonTargetProfiles(applications);
 
-  const validationSchema = yup.object().shape({
-    selectedProfile: yup.object().nullable().required(t("validation.required")),
-  });
+  const [selectedProfile, setSelectedProfile] = React.useState<
+    TargetProfile | undefined
+  >(initialTargetProfile);
 
-  const form = useForm<TargetProfileFormValues>({
-    defaultValues: {
-      selectedProfile: initialTargetProfile ?? undefined,
-    },
-    resolver: yupResolver(validationSchema),
-    mode: "all",
-  });
-  const { setValue, control, watch } = form;
-
-  // Get all unique target profiles from applications' archetypes
-  const availableProfiles = React.useMemo(() => {
-    const archeTypeAndProfile: {
-      archetype: Archetype;
-      profile: TargetProfile;
-    }[] = [];
-
-    applications.forEach((app) => {
-      app.archetypes?.forEach((archetypeRef) => {
-        const archetype = archetypes?.find((a) => a.id === archetypeRef.id);
-        archetype?.profiles?.forEach((profile) => {
-          archeTypeAndProfile.push({ archetype, profile });
-        });
-      });
-    });
-
-    return archeTypeAndProfile.sort((a, b) =>
-      (a.archetype.name + a.profile.name).localeCompare(
-        b.archetype.name + b.profile.name
-      )
-    );
-  }, [applications, archetypes]);
-
-  useTargetProfileStateChangeHandler(form, (state) => {
-    if (state.isValid) {
-      onTargetProfileChanged(state.selectedProfile!);
-    }
-  });
-
-  const selectedProfileId = watch("selectedProfile")?.id;
+  const onChangeSelection = (profile: TargetProfile) => {
+    setSelectedProfile(profile);
+    onTargetProfileChanged(profile);
+  };
 
   return (
     <div>
@@ -111,7 +66,10 @@ export const SelectTargetProfile: React.FC<{
           {t("generateAssetsWizard.selectTargetProfile.title")}
         </Text>
         <Text component="p">
-          {t("generateAssetsWizard.selectTargetProfile.description")}
+          {t("generateAssetsWizard.selectTargetProfile.description", {
+            count: applications.length,
+            first: applications?.[0].name ?? "",
+          })}
         </Text>
       </TextContent>
 
@@ -122,31 +80,41 @@ export const SelectTargetProfile: React.FC<{
           </Text>
         </div>
       ) : (
-        <Form>
-          <FormGroup
-            label={t("generateAssetsWizard.selectTargetProfile.profilesLabel")}
-            fieldId="target-profile-selection"
-          >
-            {availableProfiles.map(({ archetype, profile }) => (
-              <Radio
-                key={profile.id}
-                id={`profile-${profile.id}`}
-                name="selectedProfile"
-                label={`${archetype.name} - ${profile.name}`}
-                description={t(
-                  "generateAssetsWizard.selectTargetProfile.generatorCount",
-                  {
-                    count: profile.generators?.length || 0,
-                  }
+        <Table aria-label="available target profiles">
+          <Thead>
+            <Tr>
+              <Th screenReaderText="row select" />
+              <Th>
+                {t("generateAssetsWizard.selectTargetProfile.columnArchetype")}
+              </Th>
+              <Th>
+                {t(
+                  "generateAssetsWizard.selectTargetProfile.columnTargetPlatform"
                 )}
-                isChecked={selectedProfileId === profile.id}
-                onChange={() =>
-                  setValue("selectedProfile", profile, { shouldValidate: true })
-                }
-              />
+              </Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {availableProfiles.map(({ archetype, profile }, index) => (
+              <Tr
+                key={`${archetype.id}-${profile.id}`}
+                isClickable
+                onClick={() => onChangeSelection(profile)}
+              >
+                <Td
+                  select={{
+                    rowIndex: index,
+                    onSelect: () => onChangeSelection(profile),
+                    isSelected: selectedProfile?.id === profile.id,
+                    variant: "radio",
+                  }}
+                />
+                <Td>{archetype.name}</Td>
+                <Td>{profile.name}</Td>
+              </Tr>
             ))}
-          </FormGroup>
-        </Form>
+          </Tbody>
+        </Table>
       )}
     </div>
   );

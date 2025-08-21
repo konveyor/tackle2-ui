@@ -132,12 +132,14 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           <WizardHeader
             onClose={handleCancel}
             title={t("generateAssetsWizard.title")}
-            description={t("generateAssetsWizard.description")}
+            description={t("generateAssetsWizard.description", {
+              count: ready.length,
+              first: ready?.[0].name ?? "",
+            })}
           />
         }
         isVisitRequired
       >
-        {/* TODO: Add a step to select the target profile from one of the application's archetypes */}
         <WizardStep
           id="select-target-profile"
           name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
@@ -152,7 +154,6 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           />
         </WizardStep>
 
-        {/* TODO: Add a step to capture the target profile's generator parameters */}
         <WizardStep
           id="capture-parameters"
           name={t("generateAssetsWizard.captureParameters.stepTitle")}

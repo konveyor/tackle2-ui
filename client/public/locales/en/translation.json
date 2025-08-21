@@ -751,7 +751,8 @@
   },
   "generateAssetsWizard": {
     "title": "Generate Assets",
-    "description": "Generate deployment assets for the selected applications using their discovery manifests and configured generators.",
+    "description_one": "Generate deployment assets for application {{first}}.",
+    "description_other": "Generate deployment assets for {{count}} selected applications.",
     "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
     "noTasksSubmitted": "No asset generation tasks were submitted.",
     "toast": {
@@ -759,16 +760,17 @@
       "submittedFailed": "Asset generation task submissions failed"
     },
     "selectTargetProfile": {
-      "stepTitle": "Select Target Profile",
-      "title": "Select Target Profile",
-      "description": "Select the target profile for the asset generation.",
+      "stepTitle": "Target profile",
+      "title": "Select a target profile",
+      "description_one": "Select a target profile from the list of available target profiles for {{first}}.",
+      "description_other": "Select a target profile from the list of target profiles available to all {{count}} selected applications",
       "noProfilesAvailable": "No target profiles are available from any of the application archetypes.",
-      "profilesLabel": "Target profiles",
-      "generatorCount": "{{count}} generator(s)"
+      "columnArchetype": "Archetype",
+      "columnTargetPlatform": "Target Platform"
     },
     "captureParameters": {
-      "stepTitle": "Capture Parameters",
-      "title": "Capture Parameters",
+      "stepTitle": "User parameters",
+      "title": "User Parameters",
       "description": "Capture the parameters for the asset generation.",
       "parametersLabel": "Parameters"
     },
