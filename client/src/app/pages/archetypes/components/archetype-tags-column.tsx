@@ -32,7 +32,9 @@ const ArchetypeTagsColumn: React.FC<{ archetype: Archetype }> = ({
   archetype,
 }) => (
   <LabelGroup>
-    {archetype.tags?.map((tag) => <TagLabel key={tag.id} tag={tag} />)}
+    {archetype.tags?.map((tag) => (
+      <TagLabel key={tag.id} tag={tag} />
+    ))}
   </LabelGroup>
 );
 

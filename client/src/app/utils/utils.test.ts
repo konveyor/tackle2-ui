@@ -10,6 +10,7 @@ import {
   formatPath,
   extractFirstSha,
   collapseSpacesAndCompare,
+  intersection,
 } from "./utils";
 import { Paths } from "@app/Paths";
 
@@ -349,4 +350,131 @@ describe("space collapse string compare (using en-US compares)", () => {
       expect(result).toBe(expected);
     }
   );
+});
+
+describe("intersection", () => {
+  it("returns empty array when no arrays are provided", () => {
+    expect(intersection()).toEqual([]);
+  });
+
+  it("returns a copy of the single array when only one array is provided", () => {
+    const arr = [1, 2, 3];
+    expect(intersection([arr])).toEqual([1, 2, 3]);
+  });
+
+  it("returns intersection of two arrays with common elements", () => {
+    expect(
+      intersection([
+        [1, 2, 3],
+        [2, 3, 4],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("returns empty array when there is no intersection", () => {
+    expect(
+      intersection([
+        [1, 2],
+        [3, 4],
+      ])
+    ).toEqual([]);
+  });
+
+  it("returns intersection for more than two arrays", () => {
+    expect(
+      intersection([
+        [1, 2, 3, 4],
+        [2, 3, 5],
+        [2, 6, 3],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("handles arrays with duplicate values", () => {
+    expect(
+      intersection([
+        [1, 2, 2, 3],
+        [2, 2, 3, 4],
+        [2, 3, 3],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("returns empty array if any array is empty", () => {
+    expect(intersection([[1, 2, 3], [], [2, 3]])).toEqual([]);
+  });
+
+  it("works with arrays of strings", () => {
+    expect(
+      intersection([
+        ["a", "b", "c"],
+        ["b", "c", "d"],
+        ["c", "b"],
+      ])
+    ).toEqual(["b", "c"]);
+  });
+
+  it("works with arrays of objects by reference", () => {
+    const a = { id: 1 };
+    const b = { id: 2 };
+    const c = { id: 3 };
+    expect(intersection([[a, b], [b, c], [b]])).toEqual([b]);
+  });
+
+  it("works with arrays of objects using eqTest for deep equality", () => {
+    const a1 = { id: 1 };
+    const a2 = { id: 1 };
+    const b1 = { id: 2 };
+    const b2 = { id: 2 };
+    const c = { id: 3 };
+
+    // eqTest compares by id property
+    const eqTest = (x: { id: number }, y: { id: number }) => x.id === y.id;
+
+    expect(
+      intersection(
+        [
+          [a1, b1, c],
+          [a2, b2],
+          [b2, { id: 4 }],
+        ],
+        eqTest
+      )
+    ).toEqual([b1]);
+  });
+
+  it("returns empty array if no objects match using eqTest", () => {
+    const a = { id: 1 };
+    const b = { id: 2 };
+    const c = { id: 3 };
+    const d = { id: 4 };
+
+    const eqTest = (x: { id: number }, y: { id: number }) => x.id === y.id;
+
+    expect(
+      intersection(
+        [
+          [a, b],
+          [c, d],
+        ],
+        eqTest
+      )
+    ).toEqual([]);
+  });
+
+  it("works with custom eqTest for case-insensitive string comparison", () => {
+    const eqTest = (a: string, b: string) =>
+      a.toLowerCase() === b.toLowerCase();
+
+    expect(
+      intersection(
+        [
+          ["Apple", "Banana", "Cherry"],
+          ["banana", "cherry", "Date"],
+          ["BANANA", "CHERRY"],
+        ],
+        eqTest
+      )
+    ).toEqual(["Banana", "Cherry"]);
+  });
 });

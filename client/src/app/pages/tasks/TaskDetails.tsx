@@ -17,7 +17,6 @@ export const TaskDetails = () => {
   const { application } = useFetchApplicationById(applicationId);
 
   const appName: string = application?.name ?? t("terms.unknown");
-  console.log(appName);
   const detailsPath = isFromApplication
     ? formatPath(Paths.applicationsTaskDetails, {
         applicationId: applicationId,

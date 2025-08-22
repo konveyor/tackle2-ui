@@ -84,7 +84,7 @@ export const useFetchApplicationById = (
 
 export const useFetchApplicationManifest = (
   applicationId?: number | string,
-  refetchInterval: number | false = false
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL * 2
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [ApplicationManifestQueryKey, applicationId],

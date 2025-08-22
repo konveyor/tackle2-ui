@@ -20,7 +20,9 @@ export const TabPlatformContent: React.FC<{
   application: DecoratedApplication;
 }> = ({ application }) => {
   const { t } = useTranslation();
-  const { manifest } = useFetchApplicationManifest(application?.id, false);
+  const { manifest } = useFetchApplicationManifest(
+    (application.manifests?.length ?? 0) > 0 ? application.id : undefined
+  );
   const { platform } = useFetchPlatformById(application.platform?.id);
   const { coordinatesSchema } = useFetchPlatformCoordinatesSchema(
     platform?.kind

@@ -24,6 +24,7 @@ export const DevPaths = {
   archetypeReview: "/archetypes/:archetypeId/review",
   applicationsAnalysis: "/applications/analysis",
   archetypes: "/archetypes",
+  archetypeTargetProfiles: "/archetypes/:archetypeId/target-profiles",
   controls: "/controls",
   controlsBusinessServices: "/controls/business-services",
   controlsStakeholders: "/controls/stakeholders",
@@ -120,4 +121,8 @@ export interface TaskDetailsAttachmentRoute {
   taskId: string;
   attachmentId: string;
   applicationId: string;
+}
+
+export interface ArchetypeTargetProfilesRoute {
+  archetypeId: string;
 }

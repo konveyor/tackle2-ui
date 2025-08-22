@@ -5,15 +5,15 @@ import { ActionsColumn, Td } from "@patternfly/react-table";
 import { Button, OverflowMenu, Tooltip } from "@patternfly/react-core";
 import { PencilAltIcon } from "@patternfly/react-icons";
 
-export interface ControlTableActionButtonsProps {
+export interface ControlTableActionsColumnProps {
   isDeleteEnabled?: boolean;
   deleteTooltipMessage?: string;
   onEdit: () => void;
   onDelete: () => void;
 }
 
-export const ControlTableActionButtons: React.FC<
-  ControlTableActionButtonsProps
+export const ControlTableActionsColumn: React.FC<
+  ControlTableActionsColumnProps
 > = ({
   isDeleteEnabled = false,
   deleteTooltipMessage = "",
