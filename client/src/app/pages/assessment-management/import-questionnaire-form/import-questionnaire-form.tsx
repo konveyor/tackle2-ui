@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -40,7 +40,12 @@ export const ImportQuestionnaireForm: React.FC<
 
   const [filename, setFilename] = useState<string>();
   const [isFileRejected, setIsFileRejected] = useState(false);
-  const { questionnaires } = useFetchQuestionnaires();
+  const { questionnaires, isFetching } = useFetchQuestionnaires();
+
+  const existingNames = useMemo(() => {
+    return questionnaires?.map(({ name }) => name.trim().toLowerCase()) || [];
+  }, [questionnaires]);
+
   const validationSchema: yup.SchemaOf<ImportQuestionnaireFormValues> = yup
     .object()
     .shape({
@@ -118,11 +123,9 @@ export const ImportQuestionnaireForm: React.FC<
           const questionnaireData = jsonData as Questionnaire;
 
           // Duplicate validation
-          const isDuplicate = questionnaires?.some(
-            (q) =>
-              q.name.trim().toLowerCase() ===
-              questionnaireData.name.trim().toLowerCase()
-          );
+          const normalizedName = questionnaireData.name.trim().toLowerCase();
+          const isDuplicate = existingNames.includes(normalizedName);
+
           if (isDuplicate) {
             pushNotification({
               title: "Duplicate questionnaire",
@@ -239,7 +242,9 @@ export const ImportQuestionnaireForm: React.FC<
           aria-label="submit"
           id="import-questionnaire-submit-button"
           variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={
+            !isValid || isSubmitting || isValidating || isFetching || !isDirty
+          }
         >
           {t("actions.import")}
         </Button>
