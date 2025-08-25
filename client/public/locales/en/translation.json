@@ -228,6 +228,7 @@
     "editApplicationReviewConfirmation": "This application has already been reviewed. Do you want to continue?",
     "editArchetypeReviewConfirmation": "This archetype has already been reviewed. Do you want to continue?",
     "errorFetchingGenerators": "Error fetching generators",
+    "errorReadingFile": "Error reading file",
     "generatorsAvailable": "Available Generators",
     "generatorsChosen": "Chosen Generators",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
@@ -624,6 +625,7 @@
     "duplicateArchetypeName": "An archetype with this name already exists. Use a different name.",
     "duplicateTargetProfileName": "A target profile with this name already exists.",
     "invalidFormat": "Invalid format",
+    "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
     "mustBeNumber": "Must be a number"
   },

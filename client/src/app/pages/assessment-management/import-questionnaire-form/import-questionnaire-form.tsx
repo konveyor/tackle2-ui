@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -18,7 +18,10 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useForm } from "react-hook-form";
 import { Questionnaire } from "@app/api/models";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCreateQuestionnaireMutation } from "@app/queries/questionnaires";
+import {
+  useCreateQuestionnaireMutation,
+  useFetchQuestionnaires,
+} from "@app/queries/questionnaires";
 import jsYaml from "js-yaml";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -34,27 +37,63 @@ export const ImportQuestionnaireForm: React.FC<
   ImportQuestionnaireFormProps
 > = ({ onSaved }) => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [filename, setFilename] = useState<string>();
   const [isFileRejected, setIsFileRejected] = useState(false);
+  const { questionnaires, isFetching } = useFetchQuestionnaires();
+
+  const existingNames = useMemo(() => {
+    return questionnaires?.map(({ name }) => name.trim().toLowerCase()) || [];
+  }, [questionnaires]);
+
   const validationSchema: yup.SchemaOf<ImportQuestionnaireFormValues> = yup
     .object()
     .shape({
-      yamlFile: yup.string().required(),
+      yamlFile: yup
+        .string()
+        .required(t("validation.invalidQuestionnaireYAML"))
+        .test(
+          "Valid Questionnaire YAML",
+          t("validation.invalidQuestionnaireYAML"),
+          (yamlFile) => {
+            if (!yamlFile) {
+              return true;
+            }
+            const jsonData = convertYamlToJson(yamlFile);
+            return isQuestionnaire(jsonData);
+          }
+        )
+        .test(
+          "Duplicate name",
+          t("validation.duplicateName", { type: "questionnaire" }),
+          (yamlFile) => {
+            if (!yamlFile) {
+              return true;
+            }
+            const jsonData = convertYamlToJson(yamlFile);
+            if (isQuestionnaire(jsonData)) {
+              const normalizedName = jsonData.name.trim().toLowerCase();
+              const isDuplicate = existingNames.includes(normalizedName);
+              return !isDuplicate;
+            }
+            return true;
+          }
+        ),
     });
-  const methods = useForm<ImportQuestionnaireFormValues>({
-    resolver: yupResolver(validationSchema),
-    mode: "onChange",
-  });
 
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
     setFocus,
+    setError,
     clearErrors,
     trigger,
-  } = methods;
+  } = useForm<ImportQuestionnaireFormValues>({
+    resolver: yupResolver(validationSchema),
+    mode: "onChange",
+  });
 
   const onHandleSuccessfulQuestionnaireCreation = (response: Questionnaire) => {
     onSaved(response);
@@ -80,23 +119,16 @@ export const ImportQuestionnaireForm: React.FC<
     onHandleFailedQuestionnaireCreation
   );
 
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const convertYamlToJson = (yamlString: string) => {
+  const convertYamlToJson = (yamlString: string): unknown | null => {
     try {
       const jsonData = jsYaml.load(yamlString);
       return jsonData;
     } catch (error) {
-      pushNotification({
-        title: "Failed",
-        message: getAxiosErrorMessage(error as AxiosError),
-        variant: "danger",
-        timeout: 30000,
-      });
+      return null;
     }
   };
 
-  function isQuestionnaire(data: any): data is Questionnaire {
+  function isQuestionnaire(data: unknown): data is Questionnaire {
     return (
       typeof data === "object" &&
       data !== null &&
@@ -105,34 +137,26 @@ export const ImportQuestionnaireForm: React.FC<
     );
   }
 
-  const onSubmit = (values: ImportQuestionnaireFormValues) => {
-    if (values.yamlFile) {
+  const onSubmit = ({ yamlFile }: ImportQuestionnaireFormValues) => {
+    if (yamlFile) {
       try {
-        const jsonData = convertYamlToJson(values.yamlFile);
-
-        if (isQuestionnaire(jsonData)) {
-          const questionnaireData = jsonData as Questionnaire;
-
-          createQuestionnaire(questionnaireData);
-        } else {
-          console.error("Invalid JSON data.");
-          pushNotification({
-            title: "Failed",
-            message: "Invalid JSON data.",
-            variant: "danger",
-            timeout: 30000,
-          });
-        }
+        createQuestionnaire(convertYamlToJson(yamlFile) as Questionnaire);
       } catch (error) {
         pushNotification({
           title: "Failed",
-          message: getAxiosErrorMessage(error as AxiosError),
+          message:
+            error instanceof AxiosError
+              ? getAxiosErrorMessage(error as AxiosError)
+              : error instanceof Error
+                ? error.message
+                : "Error",
           variant: "danger",
           timeout: 30000,
         });
       }
     }
   };
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <HookFormPFGroupController
@@ -155,7 +179,7 @@ export const ImportQuestionnaireForm: React.FC<
               onDropRejected: (event) => {
                 const currentFile = event[0];
                 if (currentFile.file.size > 1000000) {
-                  methods.setError(name, {
+                  setError(name, {
                     type: "custom",
                     message: t("dialog.message.maxFileSize"),
                   });
@@ -167,7 +191,6 @@ export const ImportQuestionnaireForm: React.FC<
             onFileInputChange={async (_, file) => {
               try {
                 if (!file) {
-                  console.error("No file selected.");
                   return;
                 }
 
@@ -179,7 +202,10 @@ export const ImportQuestionnaireForm: React.FC<
                     onChange(yamlContent);
                     setFilename(file.name);
                   } catch (error) {
-                    console.error("Error reading YAML file:", error);
+                    setError(name, {
+                      type: "custom",
+                      message: t("message.errorReadingFile"),
+                    });
                   }
                 };
 
@@ -220,7 +246,9 @@ export const ImportQuestionnaireForm: React.FC<
           aria-label="submit"
           id="import-questionnaire-submit-button"
           variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+          isDisabled={
+            !isValid || isSubmitting || isValidating || isFetching || !isDirty
+          }
         >
           {t("actions.import")}
         </Button>
