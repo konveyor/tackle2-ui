@@ -47,17 +47,17 @@ export const Dependencies: React.FC = () => {
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencies,
     columnNames: {
-      name: "Dependency name",
-      foundIn: "Found in",
-      provider: "Language",
-      labels: "Labels",
+      name: t("terms.dependencyName"),
+      foundIn: t("terms.foundIn"),
+      provider: t("terms.language"),
+      labels: t("terms.labels"),
     },
     initialFilterValues: deserializedFilterValues,
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: true,
-    sortableColumns: ["name", "foundIn", "labels"],
+    sortableColumns: ["name", "foundIn", "provider"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       ...allAffectedApplicationsFilterCategories,
@@ -83,6 +83,17 @@ export const Dependencies: React.FC = () => {
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
+      {
+        categoryKey: "labels",
+        title: t("terms.labels"),
+        type: FilterType.search,
+        filterGroup: "Dependency",
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.labels").toLowerCase(),
+          }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
     ],
     initialItemsPerPage: 10,
   });
@@ -97,7 +108,7 @@ export const Dependencies: React.FC = () => {
       hubSortFieldKeys: {
         name: "name",
         foundIn: "applications",
-        labels: "labels",
+        provider: "provider",
       },
     })
   );
