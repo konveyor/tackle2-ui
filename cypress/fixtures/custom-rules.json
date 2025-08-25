@@ -1,0 +1,48 @@
+{
+  "java_manual_rules": {
+    "image": "img/cloud.png",
+    "rulesFiles": ["yaml/01-javax-package-custom-target.windup.yaml"]
+  },
+  "rules_from_tackle_testApp": {
+    "image": "img/cloud.png",
+    "repository": {
+      "repositoryType": "git",
+      "repositoryUrl": "https://github.com/konveyor/tackle-testapp",
+      "branch": "main",
+      "rootPath": "rules"
+    }
+  },
+  "rules_from_bookServerApp": {
+    "image": "img/cloud.png",
+    "repository": {
+      "repositoryType": "git",
+      "repositoryUrl": "https://github.com/ibraginsky/book-server",
+      "branch": "",
+      "rootPath": "custom-rules"
+    }
+  },
+  "rules_from_bug_3330": {
+    "image": "img/cloud.png",
+    "repository": {
+      "repositoryType": "git",
+      "repositoryUrl": "https://github.com/abrugaro/book-server",
+      "branch": "",
+      "rootPath": "bug-3330-rules"
+    }
+  },
+  "hazelcast_target": {
+    "image": "img/cloud.png",
+    "rulesFiles": ["yaml/hazelcast.yaml"]
+  },
+
+  "rules_with_source_target_element": {
+    "image": "img/cloud.png",
+    "rulesFiles": ["yaml/corporate-framework-config.yaml"],
+    "sources": ["traditional-corporate-framework"],
+    "targets": ["cloud-corporate-framework"]
+  },
+  "golang_manual_rules": {
+    "image": "img/cloud.png",
+    "rulesFiles": ["yaml/golang-dep-rules.yaml"]
+  }
+}
