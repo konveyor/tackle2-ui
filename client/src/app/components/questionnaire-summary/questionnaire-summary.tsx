@@ -11,10 +11,8 @@ import {
   PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
-  Button,
   Text,
 } from "@patternfly/react-core";
-import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
 import { Link } from "react-router-dom";
 import { Paths } from "@app/Paths";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -68,8 +66,8 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
       sections: summaryData?.sections?.map((section) => ({
         ...section,
         questions: section.questions.filter(({ text, explanation }) =>
-          [text, explanation].some(
-            (text) => text?.toLowerCase().includes(searchValue.toLowerCase())
+          [text, explanation].some((text) =>
+            text?.toLowerCase().includes(searchValue.toLowerCase())
           )
         ),
       })),
@@ -140,25 +138,6 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-
-            <Link
-              to={
-                summaryType === SummaryType.Assessment
-                  ? isArchetype
-                    ? formatPath(Paths.archetypeAssessmentActions, {
-                        archetypeId: (summaryData as Assessment)?.archetype?.id,
-                      })
-                    : formatPath(Paths.applicationAssessmentActions, {
-                        applicationId: (summaryData as Assessment)?.application
-                          ?.id,
-                      })
-                  : Paths.assessment
-              }
-            >
-              <Button variant="link" icon={<AngleLeftIcon />}>
-                Back to {summaryType.toLowerCase()}
-              </Button>
-            </Link>
             <div className="tabs-vertical-container">
               <Tabs
                 activeKey={activeSectionIndex}
