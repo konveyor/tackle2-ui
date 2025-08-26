@@ -164,9 +164,9 @@ export const useArchetypeMutations = ({
 
   // Target profile function
   const addTargetProfile = (archetype: Archetype, profile: TargetProfile) => {
-    const updatedProfiles = (
-      archetype.profiles ? [...archetype.profiles, profile] : [profile]
-    ).map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    const updatedProfiles = archetype.profiles
+      ? [...archetype.profiles, profile]
+      : [profile];
     updateArchetype({ ...archetype, profiles: updatedProfiles });
   };
 
@@ -174,9 +174,9 @@ export const useArchetypeMutations = ({
     archetype: Archetype,
     profile: TargetProfile
   ) => {
-    const updatedProfiles = archetype.profiles
-      ?.map((p) => (p.id === profile.id ? profile : p))
-      .map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    const updatedProfiles = archetype.profiles?.map((p) =>
+      p.id === profile.id ? profile : p
+    );
     updateArchetype({ ...archetype, profiles: updatedProfiles });
   };
 
@@ -184,9 +184,9 @@ export const useArchetypeMutations = ({
     archetype: Archetype,
     profile: TargetProfile
   ) => {
-    const updatedProfiles = archetype.profiles
-      ?.filter((p) => p.id !== profile.id)
-      .map((p) => ({ ...p, id: 0 })); // TODO: Verify why this is needed.
+    const updatedProfiles = archetype.profiles?.filter(
+      (p) => p.id !== profile.id
+    );
     updateArchetype({ ...archetype, profiles: updatedProfiles });
   };
 
