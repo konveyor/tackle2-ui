@@ -2,13 +2,14 @@ import {
   JsonDocument,
   New,
   PlatformApplicationImportTask,
+  PlatformApplicationImportTaskData,
   SourcePlatform,
 } from "@app/api/models";
 import { useCreateTaskMutation } from "@app/queries/tasks";
 
 export const useStartPlatformApplicationImport = () => {
   const { mutateAsync: createTask } = useCreateTaskMutation<
-    JsonDocument,
+    PlatformApplicationImportTaskData,
     PlatformApplicationImportTask
   >();
 
@@ -32,7 +33,7 @@ export const useStartPlatformApplicationImport = () => {
       kind: "application-import",
       platform: { id: platform.id, name: platform.name },
       state: "Ready",
-      data: filters || {},
+      data: filters ? { filter: filters } : undefined,
     };
 
     try {

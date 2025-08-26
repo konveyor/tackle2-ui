@@ -16,7 +16,9 @@ import {
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
 import {
+  DrawerTabContent,
   DrawerTabsContainer,
+  NoEntitySelected,
   ReviewFields,
 } from "@app/components/detail-drawer";
 
@@ -68,13 +70,13 @@ export const ApplicationDetailDrawer: React.FC<
         </TextContent>
       }
     >
-      <DrawerTabsContainer>
-        <Tabs
-          activeKey={activeTabKey}
-          onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
-          // isOverflowHorizontal={{ showTabCount: true }}
-        >
-          {!application ? null : (
+      {application ? (
+        <DrawerTabsContainer>
+          <Tabs
+            activeKey={activeTabKey}
+            onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+            isOverflowHorizontal={{ showTabCount: true }}
+          >
             <Tab
               eventKey={TabKey.Details}
               title={<TabTitleText>{t("terms.details")}</TabTitleText>}
@@ -85,54 +87,48 @@ export const ApplicationDetailDrawer: React.FC<
                 onEditClick={onEditClick}
               />
             </Tab>
-          )}
 
-          {!application ? null : (
             <Tab
               eventKey={TabKey.Tags}
               title={<TabTitleText>{t("terms.tags")}</TabTitleText>}
             >
               <TabTagsContent application={application} />
             </Tab>
-          )}
 
-          {!application ? null : (
             <Tab
               eventKey={TabKey.Reports}
               title={<TabTitleText>{t("terms.reports")}</TabTitleText>}
             >
               <TabReportsContent application={application} />
             </Tab>
-          )}
 
-          {!application ? null : (
             <Tab
               eventKey={TabKey.Reviews}
               title={<TabTitleText>{t("terms.review")}</TabTitleText>}
             >
-              <ReviewFields application={application} />
+              <DrawerTabContent>
+                <ReviewFields application={application} />
+              </DrawerTabContent>
             </Tab>
-          )}
 
-          {!application ? null : (
             <Tab
               eventKey={TabKey.Tasks}
               title={<TabTitleText>{t("terms.tasks")}</TabTitleText>}
             >
               <TabTasksContent application={application} />
             </Tab>
-          )}
 
-          {!application ? null : (
             <Tab
               eventKey={TabKey.Platform}
               title={<TabTitleText>{t("terms.platform")}</TabTitleText>}
             >
               <TabPlatformContent application={application} />
             </Tab>
-          )}
-        </Tabs>
-      </DrawerTabsContainer>
+          </Tabs>
+        </DrawerTabsContainer>
+      ) : (
+        <NoEntitySelected entityName={t("terms.application").toLowerCase()} />
+      )}
     </PageDrawerContent>
   );
 };

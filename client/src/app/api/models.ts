@@ -155,6 +155,7 @@ export interface Application {
   platform?: Ref;
   archetypes?: Ref[];
   assessments?: Ref[];
+  manifests?: Ref[];
   assessed?: boolean;
   risk?: Risk;
   confidence?: number;
@@ -373,8 +374,17 @@ export interface ApplicationManifestTask
   application: Ref;
 }
 
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
+  kind: "asset-generation";
+  application: Ref;
+}
+
 export interface PlatformApplicationImportTask
-  extends Omit<Task<JsonDocument>, "application" | "platform"> {
+  extends Omit<
+    Task<PlatformApplicationImportTaskData>,
+    "application" | "platform"
+  > {
   kind: "application-import";
   platform: Ref;
 }
@@ -463,6 +473,15 @@ export interface AnalysisTaskData {
     };
     ruleSets?: Ref[]; // Target.ruleset.{ id, name }
   };
+}
+
+export interface PlatformApplicationImportTaskData {
+  filter: JsonDocument;
+}
+
+export interface AssetGenerationTaskData {
+  profiles: Ref[];
+  params: JsonDocument;
 }
 
 export interface TaskgroupTask {
@@ -901,6 +920,12 @@ export interface AssessmentConfidence {
   confidence: number;
 }
 
+export interface TargetProfile {
+  id: number;
+  name: string;
+  generators: Ref[];
+}
+
 export interface Archetype {
   id: number;
   name: string;
@@ -915,6 +940,7 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
   risk?: Risk;
+  profiles?: TargetProfile[];
 }
 
 export interface QuestionWithSectionOrder extends Question {
@@ -967,29 +993,12 @@ export interface Generator {
   params?: JsonDocument;
   values?: JsonDocument;
   identity?: Ref;
-  profiles?: Ref[];
-}
-
-export interface ManifestDeployment {
-  name: string;
-  other?: number;
-}
-
-export interface ManifestSecret {
-  user?: string;
-  password?: string;
-}
-
-export interface Manifest {
-  id: number;
-  content: JsonDocument;
-  secret: ManifestSecret;
-  application?: Ref;
+  /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
-  $schema?: string;
+  $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;

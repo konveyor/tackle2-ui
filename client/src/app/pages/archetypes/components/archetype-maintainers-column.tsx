@@ -10,7 +10,9 @@ const ArchetypeMaintainersColumn: React.FC<{ archetype: Archetype }> = ({
   archetype,
 }) => (
   <LabelGroup>
-    {archetype.stakeholders?.map((sh) => <Label key={sh.id}>{sh.name}</Label>)}
+    {archetype.stakeholders?.map((sh) => (
+      <Label key={sh.id}>{sh.name}</Label>
+    ))}
     {archetype.stakeholderGroups?.map((shg) => (
       <Label key={shg.id}>{shg.name}</Label>
     ))}

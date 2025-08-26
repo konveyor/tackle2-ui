@@ -25,7 +25,6 @@ export type ReviewDrawerLabelItem = {
 export const ReviewFields: React.FC<{
   application?: Application | null;
   archetype?: Archetype | null;
-  reviews?: Review[];
 }> = ({ application, archetype }) => {
   const { archetypes } = useFetchArchetypes();
   const { t } = useTranslation();
