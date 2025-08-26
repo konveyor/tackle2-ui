@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
@@ -34,17 +35,17 @@ import {
 } from "@app/hooks/table-controls";
 
 import { SimplePagination } from "@app/components/SimplePagination";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 import { useServerTasks } from "@app/queries/tasks";
 import { Task, TaskState } from "@app/api/models";
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
-import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
-import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
 import { Paths } from "@app/Paths";
+import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 import { TaskActionColumn } from "./TaskActionColumn";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 
 export const taskStateToLabel: Record<TaskState, string> = {
   "No task": "taskState.NoTask",
@@ -228,9 +229,9 @@ export const TasksPage: React.FC = () => {
     pod,
     started,
     terminated,
-  }: Task) => ({
+  }: Task<unknown>) => ({
     id,
-    application: application.name,
+    application: application?.name ?? <EmptyTextMessage />,
     kind: kind ?? addon,
     state: (
       <IconWithLabel
@@ -315,7 +316,7 @@ export const TasksPage: React.FC = () => {
             >
               <Tbody>
                 {currentPageItems
-                  ?.map((task): [Task, { [p: string]: ReactNode }] => [
+                  ?.map((task): [Task<unknown>, { [p: string]: ReactNode }] => [
                     task,
                     toCells(task),
                   ])

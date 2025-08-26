@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -17,25 +16,17 @@ import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  useFetchArchetypes,
-  useCreateArchetypeMutation,
-  useUpdateArchetypeMutation,
-} from "@app/queries/archetypes";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  universalComparator,
-} from "@app/utils/utils";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
-
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 import { matchItemsToRefs } from "@app/utils/model-utils";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+
+import { useArchetypeMutations } from "../hooks/useArchetypeMutations";
 
 export interface ArchetypeFormValues {
   name: string;
@@ -55,31 +46,24 @@ export interface ArchetypeFormProps {
 }
 
 /**
- * This component simply wraps `ArchetypeForm` and will render it when the form's data
- * is ready to render.  Since the form's `defaultValues` are built on the first render,
- * if the fetch data is not ready at that moment, the initial values will be wrong.  Very
- * specifically, if the app is loaded on the archetype page, on the first load of the
- * form, that tag data may not yet be loaded.  Without the tag data, the criteria and
- * manual tags can nothing to match to and would incorrectly render no data even if there
- * is data available.
+ * TL;DR: Wait for all data to be ready before rendering the form so existing data is rendered!
  *
- * TL;DR: Wait for all data to be ready before rendering so existing data is rendered!
- *
- * TODO: The first `!isDataReady` to `isDataReady` transition could be detected and
- *       if the the form is unchanged, new default values could be pushed.
+ * Wraps `ArchetypeFormReady` and render it when the form's data is ready to render.
+ * Since the form's `defaultValues` are built on the first render, if the fetch data
+ * is not ready at that moment, the initial values will be wrong.
  */
-export const ArchetypeFormDataWaiter: React.FC<ArchetypeFormProps> = ({
-  ...rest
-}) => {
+export const ArchetypeForm: React.FC<ArchetypeFormProps> = (props) => {
   const { isDataReady } = useArchetypeFormData();
   return (
     <ConditionalRender when={!isDataReady} then={<AppPlaceholder />}>
-      <ArchetypeForm {...rest} />
+      <ArchetypeFormReady {...props} />
     </ConditionalRender>
   );
 };
 
-const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
+export default ArchetypeForm;
+
+const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
   archetype,
   isDuplicating = false,
   onClose,
@@ -115,15 +99,12 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
       .required(t("validation.required"))
       .min(3, t("validation.minLength", { length: 3 }))
       .max(120, t("validation.maxLength", { length: 120 }))
-      .test(
-        "Duplicate name",
-        "An archetype with this name already exists. Use a different name.",
-        (value) =>
-          duplicateNameCheck(
-            existingArchetypes,
-            (!isDuplicating && archetype) || null,
-            value ?? ""
-          )
+      .test("Duplicate name", t("validation.duplicateArchetypeName"), (value) =>
+        duplicateNameCheck(
+          existingArchetypes,
+          (!isDuplicating && archetype) || null,
+          value ?? ""
+        )
       ),
 
     description: yup
@@ -172,7 +153,6 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-
     // for debugging
     // getValues,
     // getFieldState,
@@ -223,6 +203,11 @@ const ArchetypeForm: React.FC<ArchetypeFormProps> = ({
         values.stakeholderGroups?.map((s) => s.id)
       ),
     };
+
+    // Note: We need to manually retain the target profiles
+    if (archetype?.profiles) {
+      payload.profiles = archetype.profiles;
+    }
 
     if (archetype && !isDuplicating) {
       updateArchetype({ id: archetype.id, ...payload });
@@ -348,9 +333,6 @@ const useArchetypeFormData = ({
   onActionSuccess?: () => void;
   onActionFail?: () => void;
 } = {}) => {
-  const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
-
   // Fetch data
   const { archetypes: existingArchetypes, isSuccess: isArchetypesSuccess } =
     useFetchArchetypes();
@@ -377,45 +359,11 @@ const useArchetypeFormData = ({
   const idsToStakeholderGroupRefs = (ids: number[] | undefined | null) =>
     matchItemsToRefs(stakeholderGroups, (i) => i.id, ids);
 
-  // Mutation notification handlers
-  const onCreateSuccess = (archetype: Archetype) => {
-    pushNotification({
-      title: t("toastr.success.createWhat", {
-        type: t("terms.archetype"),
-        what: archetype.name,
-      }),
-      variant: "success",
-    });
-    onActionSuccess();
-  };
-
-  const onUpdateSuccess = (_id: number) => {
-    pushNotification({
-      title: t("toastr.success.save", {
-        type: t("terms.archetype"),
-      }),
-      variant: "success",
-    });
-    onActionSuccess();
-  };
-
-  const onCreateUpdateError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    onActionFail();
-  };
-
-  const { mutate: createArchetype } = useCreateArchetypeMutation(
-    onCreateSuccess,
-    onCreateUpdateError
-  );
-
-  const { mutate: updateArchetype } = useUpdateArchetypeMutation(
-    onUpdateSuccess,
-    onCreateUpdateError
-  );
+  // Get mutations from custom hook
+  const { createArchetype, updateArchetype } = useArchetypeMutations({
+    onActionSuccess,
+    onActionFail,
+  });
 
   return {
     isDataReady:

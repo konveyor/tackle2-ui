@@ -115,6 +115,7 @@ import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { RetrieveConfigWizard } from "../retrieve-config-wizard";
+import { GenerateAssetsWizard } from "../generate-assets-wizard";
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
@@ -122,18 +123,7 @@ import {
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { DropdownSeparator } from "@patternfly/react-core/deprecated";
-
-const filterAndAddSeparator = <T,>(
-  separator: (index: number) => T,
-  groups: Array<Array<T | Falsy>>
-): Array<T> => {
-  return groups
-    .map<Array<T>>((group) => group.filter(Boolean))
-    .filter((group) => group.length > 0)
-    .flatMap((group, index) =>
-      index === 0 ? group : [separator(index), ...group]
-    );
-};
+import { filterAndAddSeparator } from "@app/utils/grouping";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -168,6 +158,10 @@ export const ApplicationsTable: React.FC = () => {
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
   const [retrieveConfigApplications, setRetrieveConfigApplications] = useState<
+    DecoratedApplication[] | null
+  >(null);
+
+  const [generateAssetsApplications, setGenerateAssetsApplications] = useState<
     DecoratedApplication[] | null
   >(null);
 
@@ -334,6 +328,7 @@ export const ApplicationsTable: React.FC = () => {
     applicationNames,
     referencedArchetypeRefs,
     referencedBusinessServiceRefs,
+    referencedPlatformRefs,
   } = useDecoratedApplications(baseApplications, tasks);
 
   const onDeleteApplicationSuccess = (appIDCount: number) => {
@@ -496,6 +491,21 @@ export const ApplicationsTable: React.FC = () => {
         },
       },
       {
+        categoryKey: "platforms",
+        title: t("terms.sourcePlatforms"),
+        type: FilterType.multiselect,
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.sourcePlatforms").toLowerCase(),
+          }) + "...",
+        selectOptions: referencedPlatformRefs.map(({ name }) => ({
+          key: name,
+          value: name,
+        })),
+        logicOperator: "OR",
+        getItemValue: (app) => app.platform?.name ?? "",
+      },
+      {
         categoryKey: "businessService",
         title: t("terms.businessService"),
         type: FilterType.multiselect,
@@ -612,7 +622,6 @@ export const ApplicationsTable: React.FC = () => {
         ],
         getItemValue: (item) => normalizeRisk(item.risk) ?? "",
       },
-
       {
         categoryKey: "analysis",
         title: t("terms.analysis"),
@@ -757,13 +766,16 @@ export const ApplicationsTable: React.FC = () => {
         ),
       ],
       [
-        <DropdownItem
-          key="change-source-platform-applications"
-          isDisabled={true}
-          onClick={() => handleChangeSourcePlatform(selectedRows)}
-        >
-          {t("actions.changeSourcePlatform")}
-        </DropdownItem>,
+        // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+        // applicationWriteAccess && (
+        //   <DropdownItem
+        //     key="change-source-platform-applications"
+        //     isDisabled={true}
+        //     onClick={() => handleChangeSourcePlatform(selectedRows)}
+        //   >
+        //     {t("actions.changeSourcePlatform")}
+        //   </DropdownItem>
+        // ),
         applicationWriteAccess && (
           <DropdownItem
             key="retrieve-configurations-bulk"
@@ -777,14 +789,16 @@ export const ApplicationsTable: React.FC = () => {
           </DropdownItem>
         ),
         // TODO: Add this back when we can handle the generate operation in bulk
-        // <DropdownItem
-        //   key="generate-assets-for-applications"
-        //   component="button"
-        //   isDisabled={selectedRows.length < 1}
-        //   onClick={() => handleGenerateAssetsBulk(selectedRows)}
-        // >
-        //   {t("actions.generateAssets")}
-        // </DropdownItem>,
+        // applicationWriteAccess && tasksWriteAccess && (
+        //   <DropdownItem
+        //     key="generate-assets-for-applications"
+        //     component="button"
+        //     isDisabled={selectedRows.length < 1}
+        //     onClick={() => handleGenerateAssetsBulk(selectedRows)}
+        //   >
+        //     {t("actions.generateAssets")}
+        //   </DropdownItem>
+        // ),
       ],
       [
         applicationWriteAccess && (
@@ -922,20 +936,14 @@ export const ApplicationsTable: React.FC = () => {
     setRetrieveConfigApplications(apps);
   };
 
-  const handleGenerateAssetsBulk = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
+  const handleGenerateAssets = (app: DecoratedApplication) => {
+    setGenerateAssetsApplications([app]);
   };
 
-  const handleGenerateAssets = (_app: DecoratedApplication) => {
-    // TODO: Implement this with #2294
-    console.log("generate assets coming with #2294");
-  };
-
-  const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
-    // TODO: Implement this with #2509
-    console.log("change source platform coming with #2509");
-  };
+  // TODO: Add this back when we can handle the change source platform operation in bulk (#2509)
+  // const handleChangeSourcePlatform = (_apps: DecoratedApplication[]) => {
+  //   console.log("change source platform coming with #2509");
+  // };
 
   return (
     <ConditionalRender
@@ -1264,12 +1272,14 @@ export const ApplicationsTable: React.FC = () => {
                             ],
                             [
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForRetrieveConfigurations && {
                                   title: t("actions.retrieveConfigurations"),
                                   onClick: () =>
                                     handleRetrieveConfigurations(application),
                                 },
                               applicationWriteAccess &&
+                                tasksWriteAccess &&
                                 application.isReadyForGenerateAssets && {
                                   title: t("actions.generateAssets"),
                                   onClick: () =>
@@ -1316,11 +1326,27 @@ export const ApplicationsTable: React.FC = () => {
         />
       </TaskGroupProvider>
       <RetrieveConfigWizard
-        key={retrieveConfigApplications ? "open" : "closed"}
+        key={
+          retrieveConfigApplications
+            ? "retrieve-config-open"
+            : "retrieve-config-closed"
+        }
         applications={retrieveConfigApplications ?? undefined}
         isOpen={!!retrieveConfigApplications}
         onClose={() => {
           setRetrieveConfigApplications(null);
+        }}
+      />
+      <GenerateAssetsWizard
+        key={
+          generateAssetsApplications
+            ? "generate-assets-open"
+            : "generate-assets-closed"
+        }
+        application={generateAssetsApplications?.[0] ?? undefined}
+        isOpen={!!generateAssetsApplications}
+        onClose={() => {
+          setGenerateAssetsApplications(null);
         }}
       />
 

@@ -49,12 +49,12 @@ interface TaskManagerTask {
   extensions: string[];
   state: TaskState;
   priority: number;
-  applicationId: number;
-  applicationName: string;
+  applicationName?: string;
+  platformName?: string;
   preemptEnabled: boolean;
 
   // full object to be used with library functions
-  _: Task;
+  _: Task<unknown>;
 }
 
 const PAGE_SIZE = 20;
@@ -215,10 +215,12 @@ const TaskItem: React.FC<{
             </Tooltip>
           }
         >
-          <div>{task.applicationName}</div>
-          {/* TODO: Link to /applications with filter applied? */}
-          <div>Priority {task.priority}</div>
+          {/* TODO: Link to /applications or /platforms with filter applied? */}
+          {task.applicationName && <div>{task.applicationName}</div>}
+          {task.platformName && <div>{task.platformName}</div>}
+
           {/* TODO: Bucket to Low, Medium, High? */}
+          <div>Priority {task.priority}</div>
         </NotificationDrawerListItemBody>
       ) : undefined}
     </NotificationDrawerListItem>
@@ -266,8 +268,8 @@ const useTaskManagerData = () => {
               extensions: task.extensions,
               state: task.state ?? "",
               priority: task.priority ?? 0,
-              applicationId: task.application.id,
-              applicationName: task.application.name,
+              applicationName: task.application?.name,
+              platformName: task.platform?.name,
               preemptEnabled: task?.policy?.preemptEnabled ?? false,
 
               _: task,

@@ -226,19 +226,33 @@ export const toIdRef = <RefLike extends IdRef>(
  * Convert any object that looks like a `Ref` into a `Ref`.  If the source object
  * is `undefined`, or doesn't look like a `Ref`, return `undefined`.
  */
-export const toRef = <RefLike extends Ref>(
+export function toRef<RefLike extends Ref>(source: RefLike): Ref;
+export function toRef<RefLike extends Ref>(
   source: RefLike | undefined
-): Ref | undefined =>
-  source?.id && source?.name ? { id: source.id, name: source.name } : undefined;
+): Ref | undefined;
+export function toRef<RefLike extends Ref>(
+  source: RefLike | undefined
+): Ref | undefined {
+  return source?.id && source?.name
+    ? { id: source.id, name: source.name }
+    : undefined;
+}
 
 /**
  * Convert an iterable collection of `Ref`-like objects to a `Ref[]`.  Any items in the
  * collection that cannot be converted to a `Ref` will be filtered out.
  */
-export const toRefs = <RefLike extends Ref>(
+export function toRefs<RefLike extends Ref>(
   source: Iterable<RefLike>
-): Array<Ref> | undefined =>
-  !source ? undefined : [...source].map(toRef).filter(Boolean);
+): Array<Ref>;
+export function toRefs<RefLike extends Ref>(
+  source: Iterable<RefLike> | undefined
+): Array<Ref> | undefined;
+export function toRefs<RefLike extends Ref>(
+  source: Iterable<RefLike> | undefined
+): Array<Ref> | undefined {
+  return !source ? undefined : [...source].map(toRef).filter(Boolean);
+}
 
 /**
  * Take an array of source items that look like a `Ref`, find the first one that matches
@@ -258,8 +272,8 @@ export const matchItemsToRef = <RefLike extends Ref, V>(
 ): Ref | undefined =>
   !matchValue
     ? undefined
-    : matchItemsToRefs(items, itemMatchFn, [matchValue], matchOperator)?.[0] ??
-      undefined;
+    : (matchItemsToRefs(items, itemMatchFn, [matchValue], matchOperator)?.[0] ??
+      undefined);
 
 /**
  * Take an array of source items that look like a `Ref`, find the item that matches one
@@ -288,3 +302,20 @@ export const matchItemsToRefs = <RefLike extends Ref, V>(
         )
         .map<Ref | undefined>(toRef)
         .filter(Boolean);
+
+/**
+ * Convert an array of `Ref`-like objects to an array of items.  Any items in the
+ * collection that cannot be converted to an item will be filtered out.  By default,
+ * the items are matched by their `id` property.
+ */
+export const refsToItems = <I extends { id: number }, RefLike extends Ref>(
+  items: Array<I>,
+  refs: Array<RefLike> | undefined,
+  matcher: (item: I, ref: RefLike) => boolean = (item, ref) =>
+    item.id === ref.id
+): Array<I> => {
+  if (!refs) return [];
+  return refs
+    .map((ref) => items.find((item) => matcher(item, ref)))
+    .filter(Boolean);
+};

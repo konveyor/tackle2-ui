@@ -23,13 +23,13 @@ export const getPlatformCoordinatesSchema = (platformKind: string) =>
     )
     .then(({ data }) => data);
 
-export const getPlatformDiscoveryFiltersSchema = (platformKind: string) =>
+export const getPlatformDiscoveryFilterSchema = (platformKind: string) =>
   axios
     .get<TargetedSchema>(
       template(TARGETED_SCHEMA, {
         domain: "platform",
         variant: platformKind,
-        subject: "filters",
+        subject: "filter",
       })
     )
     .then(({ data }) => data);

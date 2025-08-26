@@ -9,7 +9,7 @@ import {
   TextVariants,
   Grid,
   GridItem,
-  Button,
+  Icon,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useTranslation } from "react-i18next";
@@ -19,12 +19,12 @@ import {
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
 
-import { ApplicationTask, EmptyTaskData } from "@app/api/models";
+import { ApplicationManifestTask } from "@app/api/models";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface ResultsData {
   success: {
-    task: ApplicationTask<EmptyTaskData>;
+    task: ApplicationManifestTask;
     application: DecoratedApplication;
   }[];
   failure: {
@@ -70,15 +70,30 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
       </TextContent>
 
       <Grid hasGutter>
+        {success.length === 0 && failure.length === 0 && (
+          <GridItem span={12}>
+            <Card>
+              <CardBody>
+                <Text>
+                  {t("retrieveConfigWizard.results.noTasksSubmitted")}
+                </Text>
+              </CardBody>
+            </Card>
+          </GridItem>
+        )}
+
         {success.length > 0 && (
           <GridItem span={12}>
             <Card>
               <CardHeader>
                 <CardTitle>
-                  <CheckCircleIcon
-                    color="var(--pf-global--success-color--100)"
+                  <Icon
+                    status="success"
+                    isInline
                     style={{ marginRight: "8px" }}
-                  />
+                  >
+                    <CheckCircleIcon />
+                  </Icon>
                   {t("retrieveConfigWizard.results.successSubmissions", {
                     count: success.length,
                   })}
@@ -90,7 +105,6 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
                     <Tr>
                       <Th>{t("terms.application")}</Th>
                       <Th>{t("terms.task")}</Th>
-                      <Th>{t("actions.actions")}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -108,19 +122,10 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
                             )}
                           </div>
                         </Td>
-                        <Td>{result.task.id}</Td>
                         <Td>
-                          <Button
-                            variant="link"
-                            component={(props) => (
-                              <Link
-                                {...props}
-                                to={`/tasks/${result.task.id}`}
-                              />
-                            )}
-                          >
-                            View Task
-                          </Button>
+                          <Link to={`/tasks/${result.task.id}`}>
+                            {result.task.id}
+                          </Link>
                         </Td>
                       </Tr>
                     ))}
@@ -136,10 +141,9 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  <ExclamationTriangleIcon
-                    color="var(--pf-global--danger-color--100)"
-                    style={{ marginRight: "8px" }}
-                  />
+                  <Icon status="danger" isInline style={{ marginRight: "8px" }}>
+                    <ExclamationTriangleIcon />
+                  </Icon>
                   {t("retrieveConfigWizard.results.failedSubmissions", {
                     count: failure.length,
                   })}
@@ -192,16 +196,6 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
                     ))}
                   </Tbody>
                 </Table>
-              </CardBody>
-            </Card>
-          </GridItem>
-        )}
-
-        {success.length === 0 && failure.length === 0 && (
-          <GridItem span={12}>
-            <Card>
-              <CardBody>
-                <Text>{t("retrieveConfigWizard.noTasksSubmitted")}</Text>
               </CardBody>
             </Card>
           </GridItem>

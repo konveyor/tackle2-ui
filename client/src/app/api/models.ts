@@ -16,6 +16,10 @@ export type New<T extends { id: number }> = Omit<T, "id">;
  */
 export type WithUiId<T> = T & { _ui_unique_id: string };
 
+export interface EmptyObject extends Record<string, never> {}
+
+export interface JsonDocument extends Record<string, unknown> {}
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -151,6 +155,7 @@ export interface Application {
   platform?: Ref;
   archetypes?: Ref[];
   assessments?: Ref[];
+  manifests?: Ref[];
   assessed?: boolean;
   risk?: Risk;
   confidence?: number;
@@ -328,14 +333,14 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task<DataType = TaskData> {
+export interface Task<DataType> {
   id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;
 
   name?: string;
-  kind?: string;
+  kind: string;
   addon?: string;
   extensions?: string[];
   state?: TaskState;
@@ -344,7 +349,7 @@ export interface Task<DataType = TaskData> {
   policy?: TaskPolicy;
   ttl?: TTL;
   data?: DataType;
-  application: Ref;
+  application?: Ref;
   platform?: Ref;
   bucket?: Ref;
   pod?: string;
@@ -357,15 +362,30 @@ export interface Task<DataType = TaskData> {
   attached?: TaskAttachment[];
 }
 
-export type EmptyTaskData = Record<string, never>;
-
-export interface ApplicationTask<DataType>
-  extends Omit<Task<DataType>, "application" | "platform"> {
+export interface AnalysisTask
+  extends Omit<Task<AnalysisTaskData>, "application" | "platform"> {
+  kind: "analysis";
   application: Ref;
 }
 
-export interface PlatformTask<DataType>
-  extends Omit<Task<DataType>, "application" | "platform"> {
+export interface ApplicationManifestTask
+  extends Omit<Task<EmptyObject>, "application" | "platform"> {
+  kind: "application-manifest";
+  application: Ref;
+}
+
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
+  kind: "asset-generation";
+  application: Ref;
+}
+
+export interface PlatformApplicationImportTask
+  extends Omit<
+    Task<PlatformApplicationImportTaskData>,
+    "application" | "platform"
+  > {
+  kind: "application-import";
   platform: Ref;
 }
 
@@ -379,7 +399,8 @@ export interface TaskDashboard {
   kind?: string;
   addon?: string;
   state: TaskState;
-  application: Ref;
+  application?: Ref;
+  platform?: Ref;
   started?: string; // ISO-8601
   terminated?: string; // ISO-8601
 
@@ -419,7 +440,7 @@ export interface TaskAttachment {
   activity?: number;
 }
 
-export interface TaskData {
+export interface AnalysisTaskData {
   tagger: {
     enabled: boolean;
   };
@@ -454,6 +475,15 @@ export interface TaskData {
   };
 }
 
+export interface PlatformApplicationImportTaskData {
+  filter: JsonDocument;
+}
+
+export interface AssetGenerationTaskData {
+  profiles: Ref[];
+  params: JsonDocument;
+}
+
 export interface TaskgroupTask {
   name: string;
   data: unknown;
@@ -465,7 +495,7 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: TaskData;
+  data: AnalysisTaskData;
   tasks: TaskgroupTask[];
 }
 
@@ -890,6 +920,12 @@ export interface AssessmentConfidence {
   confidence: number;
 }
 
+export interface TargetProfile {
+  id: number;
+  name: string;
+  generators: Ref[];
+}
+
 export interface Archetype {
   id: number;
   name: string;
@@ -904,6 +940,7 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
   risk?: Risk;
+  profiles?: TargetProfile[];
 }
 
 export interface QuestionWithSectionOrder extends Question {
@@ -936,8 +973,6 @@ export interface GroupedStakeholderRef extends Ref {
   uniqueId: string;
 }
 
-export interface JsonDocument extends Record<string, unknown> {}
-
 export interface SourcePlatform {
   id: number;
   kind: string;
@@ -958,29 +993,12 @@ export interface Generator {
   params?: JsonDocument;
   values?: JsonDocument;
   identity?: Ref;
-  profiles?: Ref[];
-}
-
-export interface ManifestDeployment {
-  name: string;
-  other?: number;
-}
-
-export interface ManifestSecret {
-  user?: string;
-  password?: string;
-}
-
-export interface Manifest {
-  id: number;
-  content: JsonDocument;
-  secret: ManifestSecret;
-  application?: Ref;
+  /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
-  $schema?: string;
+  $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
   type: "string" | "integer" | "number" | "boolean" | "object" | "array";
   title?: string;
   description?: string;

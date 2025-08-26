@@ -14,12 +14,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { group } from "radash";
 
-import { ApplicationTask, EmptyTaskData, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useCreateTaskMutation } from "@app/queries/tasks";
 import { DecoratedApplication } from "../useDecoratedApplications";
 import { Review } from "./review";
 import { Results, ResultsData } from "./results";
+import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
+import { universalComparator } from "@app/utils/utils";
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,
@@ -38,15 +38,10 @@ export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   );
 };
 
-interface IRetrieveConfigWizard {
+export interface IRetrieveConfigWizard {
   applications?: DecoratedApplication[];
   onClose: () => void;
   isOpen: boolean;
-}
-
-enum StepId {
-  Review = 1,
-  Results = 2,
 }
 
 export interface FormValues {
@@ -61,7 +56,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
 }: IRetrieveConfigWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const { submitTasks } = useFetchApplicationManifest();
+  const { submitTasks } = useStartFetchApplicationManifest();
 
   // State to track submission results and current step
   const [submissionResults, setSubmissionResults] =
@@ -102,7 +97,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         title: t("retrieveConfigWizard.toast.submittedOk"),
         message: `Task IDs: ${success
           .map((result) => result.task.id)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "info",
       });
@@ -113,7 +108,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         title: t("retrieveConfigWizard.toast.submittedFailed"),
         message: `Applications: ${failure
           .map((result) => result.application.name)
-          .sort()
+          .sort(universalComparator)
           .join(", ")}`,
         variant: "danger",
       });
@@ -125,7 +120,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     return (
       <Modal
         variant={ModalVariant.medium}
-        title={t("dialog.title.retrieveConfigurations")}
+        title={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
         onClose={handleCancel}
         footer={
@@ -146,7 +141,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     <FormProvider {...methods}>
       <Modal
         variant={ModalVariant.large}
-        aria-label={t("dialog.title.retrieveConfigurations")}
+        aria-label={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
         showClose={false}
         hasNoBodyWrapper
@@ -157,13 +152,13 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
           header={
             <WizardHeader
               onClose={handleCancel}
-              title={t("dialog.title.retrieveConfigurations")}
-              description={t("dialog.message.retrieveConfigurations")}
+              title={t("retrieveConfigWizard.title")}
+              description={t("retrieveConfigWizard.description")}
             />
           }
         >
           <WizardStep
-            id={StepId.Review}
+            id="review"
             name="Review"
             footer={{
               nextButtonText: showResults
@@ -184,74 +179,4 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
       </Modal>
     </FormProvider>
   );
-};
-
-const useFetchApplicationManifest = () => {
-  const { mutateAsync: createTask } = useCreateTaskMutation<
-    EmptyTaskData,
-    ApplicationTask<EmptyTaskData>
-  >();
-
-  const createAndSubmitTask = async (
-    application: DecoratedApplication
-  ): Promise<{
-    success?: {
-      task: ApplicationTask<EmptyTaskData>;
-      application: DecoratedApplication;
-    };
-    failure?: {
-      message: string;
-      cause: Error;
-      application: DecoratedApplication;
-      newTask: New<ApplicationTask<EmptyTaskData>>;
-    };
-  }> => {
-    const newTask: New<ApplicationTask<EmptyTaskData>> = {
-      name: `${application.name}.${application.id}.application-manifest`,
-      kind: "application-manifest",
-      application: { id: application.id, name: application.name },
-      state: "Ready",
-      data: {},
-    };
-
-    try {
-      const task = await createTask(newTask);
-      return { success: { task, application } };
-    } catch (error) {
-      return {
-        failure: {
-          message: "Failed to submit the application manifest fetch task",
-          cause: error as Error,
-          application,
-          newTask,
-        },
-      };
-    }
-  };
-
-  const submitTasks = async (applications: DecoratedApplication[]) => {
-    const results = await Promise.allSettled(
-      applications.map(createAndSubmitTask)
-    );
-
-    const success = [];
-    const failure = [];
-
-    for (const result of results) {
-      if (result.status === "fulfilled") {
-        if (result.value.success) {
-          success.push(result.value.success);
-        }
-        if (result.value.failure) {
-          failure.push(result.value.failure);
-        }
-      }
-    }
-
-    return { success, failure };
-  };
-
-  return {
-    submitTasks,
-  };
 };
