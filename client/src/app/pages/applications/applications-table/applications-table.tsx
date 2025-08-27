@@ -104,7 +104,6 @@ import { ColumnAssessmentStatus } from "./components/column-assessment-status";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
-import { ApplicationIdentityForm } from "../application-identity-form/application-identity-form";
 import { ColumnReviewStatus } from "./components/column-review-status";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
@@ -124,6 +123,7 @@ import {
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 import { filterAndAddSeparator } from "@app/utils/grouping";
+import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -1227,6 +1227,8 @@ export const ApplicationsTable: React.FC = () => {
                                   onClick: () =>
                                     setReviewToDiscard(application),
                                 },
+                            ],
+                            [
                               dependenciesWriteAccess && {
                                 title: t("actions.manageDependencies"),
                                 onClick: () =>
@@ -1350,19 +1352,10 @@ export const ApplicationsTable: React.FC = () => {
         }}
       />
 
-      <Modal
-        isOpen={isCreateUpdateCredentialsModalOpen}
-        variant="medium"
-        title="Manage credentials"
+      <ApplicationIdentityModal
+        applications={applicationsCredentialsToUpdate}
         onClose={() => setSaveApplicationsCredentialsModalState(null)}
-      >
-        {applicationsCredentialsToUpdate && (
-          <ApplicationIdentityForm
-            applications={applicationsCredentialsToUpdate.map((a) => a._)}
-            onClose={() => setSaveApplicationsCredentialsModalState(null)}
-          />
-        )}
-      </Modal>
+      />
       {isCreateUpdateApplicationsModalOpen && (
         <ApplicationFormModal
           application={createUpdateApplications?._ ?? null}
@@ -1384,6 +1377,7 @@ export const ApplicationsTable: React.FC = () => {
           />
         )}
       </Modal>
+
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
@@ -1396,6 +1390,7 @@ export const ApplicationsTable: React.FC = () => {
           }}
         />
       </Modal>
+
       <ConfirmDialog
         title={t(
           applicationsToDelete.length > 1
@@ -1614,6 +1609,7 @@ export const ApplicationsTable: React.FC = () => {
           applicationToAssess && handleNavToAssessment(applicationToAssess);
         }}
       />
+
       <Modal
         variant="small"
         title={t("actions.download", { what: "analysis details" })}
