@@ -52,11 +52,14 @@ import { PlatformForm } from "./components/platform-form";
 import { DiscoverImportWizard } from "./discover-import-wizard/discover-import-wizard";
 import { useFetchPlatformsWithTasks } from "./useFetchPlatformsWithTasks";
 import { ColumnPlatformName } from "./components/column-platform-name";
+import { usePlatformKindList } from "./usePlatformKindList";
 
 export const SourcePlatforms: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = React.useContext(NotificationsContext);
+
+  const { getDisplayLabel } = usePlatformKindList();
 
   const [openCreatePlatform, setOpenCreatePlatform] = useState<boolean>(false);
 
@@ -279,7 +282,7 @@ export const SourcePlatforms: React.FC = () => {
                           <ColumnPlatformName platform={platform} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "platformKind" })}>
-                          {platform.kind}
+                          {getDisplayLabel(platform.kind)}
                         </Td>
                         <Td {...getTdProps({ columnKey: "applications" })}>
                           <LinkToPlatformApplications platform={platform} />
