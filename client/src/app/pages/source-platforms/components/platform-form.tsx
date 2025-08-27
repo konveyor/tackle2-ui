@@ -31,6 +31,8 @@ import { SimpleSelect } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/queries/identities";
 import { usePlatformKindList } from "../usePlatformKindList";
+import { OptionWithValue } from "@app/components/SimpleSelect";
+import { toOptionLike } from "@app/utils/model-utils";
 
 export interface PlatformFormValues {
   kind: string;
@@ -189,10 +191,11 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
               id="platform-kind-select"
               toggleAriaLabel="Platform kind select dropdown toggle"
               aria-label={name}
-              value={value}
+              value={value ? toOptionLike(value, platformKindList) : undefined}
               options={platformKindList || []}
               onChange={(selection) => {
-                onChange(selection);
+                const selectionValue = selection as OptionWithValue<string>;
+                onChange(selectionValue.value);
               }}
               onClear={() => onChange("")}
             />

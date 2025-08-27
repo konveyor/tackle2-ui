@@ -24,6 +24,7 @@ import {
   DrawerTabsContainer,
 } from "@app/components/detail-drawer";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { usePlatformKindList } from "../usePlatformKindList";
 
 export interface IPlatformDetailDrawerProps {
   onCloseClick: () => void;
@@ -41,6 +42,7 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
   platform,
 }) => {
   const { t } = useTranslation();
+  const { getDisplayLabel } = usePlatformKindList();
 
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
     TabKey.Details
@@ -85,7 +87,7 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
                     {t("terms.platformKind")}
                   </DescriptionListTerm>
                   <DescriptionListDescription>
-                    {platform?.kind}
+                    {getDisplayLabel(platform?.kind)}
                   </DescriptionListDescription>
                 </DescriptionListGroup>
                 <DescriptionListGroup>
