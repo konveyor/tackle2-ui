@@ -1,0 +1,102 @@
+{
+  "bookserver-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/ibraginsky/book-server"
+  },
+  "daytrader-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/WASdev/sample.daytrader7"
+  },
+  "tackle-testapp-binary": {
+    "group": "io.konveyor.demo",
+    "artifact": "customers-tomcat",
+    "version": "0.0.1-SNAPSHOT",
+    "packaging": "war"
+  },
+  "tackle-testapp-git": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/tackle-testapp"
+  },
+  "tackle-testapp-ssh": {
+    "repoType": "Git",
+    "sourceRepo": "git@github.com:konveyor/tackle-testapp.git"
+  },
+  "tackle-testapp-svn": {
+    "repoType": "Subversion",
+    "sourceRepo": "https://github.com/konveyor/tackle-testapp"
+  },
+  "tackle-testapp": {
+    "repoType": "Git",
+    "sourceRepo": "http://github.com/konveyor/tackle-testapp"
+  },
+  "bookserver-svn-insecure": {
+    "repoType": "Subversion",
+    "sourceRepo": "http://10.0.188.129/svn/mtaqe-svn/book-server"
+  },
+  "bookserver-svn-insecure-no-trunk": {
+    "repoType": "Subversion",
+    "sourceRepo": "http://10.0.188.129/svn/mtaqe-svn/bookserver-no-trunk"
+  },
+  "bookserver-svn-branch": {
+    "repoType": "Subversion",
+    "sourceRepo": "http://10.0.188.129/svn/mtaqe-svn/book-server",
+    "branch": "branches/bookserver-app"
+  },
+  "konveyor-exampleapp": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/example-applications",
+    "branch": "main",
+    "rootPath": "example-1"
+  },
+  "day-trader-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/WASdev/sample.daytrader7"
+  },
+  "nexus": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/sonatype/nexus-public"
+  },
+  "openmrs": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/openmrs/openmrs-core"
+  },
+  "pet-clinic": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/spring-framework-petclinic"
+  },
+  "tackle-testapp-public-jdk9": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/tackle-testapp-public",
+    "branch": "feature/test-java9-removed-packagek"
+  },
+  "java-example-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/ibraginsky/book-server"
+  },
+  "tackle-testapp-public": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/tackle-testapp-public"
+  },
+  "jmh-gradle-example": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/melix/jmh-gradle-example"
+  },
+  "python-demo-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/Shopify/sample-django-app"
+  },
+  "coolstore-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor-ecosystem/coolstore"
+  },
+  "python-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/analyzer-lsp",
+    "rootPath": "examples/python"
+  },
+  "nodejs-app": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/konveyor/analyzer-lsp",
+    "rootPath": "examples/nodejs"
+  }
+}
