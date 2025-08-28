@@ -200,10 +200,12 @@ export const getKindIdByRef = (
 };
 
 export const toOptionLike = <T,>(
-  value: T | undefined,
+  value: T | undefined | null,
   options: OptionWithValue<T>[]
 ) => {
-  return value ? options.find((option) => option.value === value) : undefined;
+  return value === null || value === undefined
+    ? undefined
+    : options.find((option) => option.value === value);
 };
 
 export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [

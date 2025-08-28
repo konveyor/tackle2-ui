@@ -130,17 +130,14 @@ const patchAndUpdateApplications = async ({
   applications: Application[];
   patch: (application: Application) => Application;
 }): Promise<UpdateAllApplicationsResult> => {
-  const patchedApplications = applications.map((application) =>
-    patch(application)
-  );
-
   // TODO: Ideally we'd have a single request to update all applications instead of one per application.
   const results = await Promise.allSettled(
-    patchedApplications.map(async (application) => {
+    applications.map(async (application) => {
       try {
-        const response = await updateApplication(application);
+        const patchedApplication = patch(application);
+        const response = await updateApplication(patchedApplication);
         return {
-          success: { application, response },
+          success: { application: patchedApplication, response },
         };
       } catch (error) {
         return {

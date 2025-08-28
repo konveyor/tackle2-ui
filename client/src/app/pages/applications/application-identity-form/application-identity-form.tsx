@@ -18,7 +18,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Application, Identity, IdentityKind, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { toOptionLike, toRef } from "@app/utils/model-utils";
+import { toOptionLike, toRef, toRefs } from "@app/utils/model-utils";
 import {
   UpdateAllApplicationsResult,
   useBulkPatchApplicationsMutation,
@@ -131,9 +131,23 @@ export const ApplicationIdentityForm: React.FC<
       toRef(identitiesByKind.asset?.find((i) => i.id === asset)),
     ].filter(Boolean);
 
+    // Retain identities that aren't managed by the form
+    const otherIdentities = applications.reduce((acc, application) => {
+      const otherIdentities = application.direct.identities?.filter(
+        (i) => !["source", "maven", "asset"].includes(i.kind)
+      );
+      if (otherIdentities?.length) {
+        acc.set(application.id, toRefs(otherIdentities));
+      }
+      return acc;
+    }, new Map<number, Ref[]>());
+
     const patch = (application: Application) => {
       return Object.assign({}, application, {
-        identities: updatedIdentities,
+        identities: [
+          ...updatedIdentities,
+          ...(otherIdentities.get(application.id) ?? []),
+        ],
       });
     };
 
