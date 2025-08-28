@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { group } from "radash";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -60,8 +62,14 @@ export const useFetchIdentities = (refetchInterval: number | false = false) => {
     onError: (error) => console.log("error, ", error),
     refetchInterval,
   });
+
+  const identitiesByKind = useMemo(() => {
+    return data === undefined ? {} : group(data, (item) => item.kind);
+  }, [data]);
+
   return {
     identities: data || [],
+    identitiesByKind,
     isFetching: isLoading,
     isSuccess,
     fetchError: error,
