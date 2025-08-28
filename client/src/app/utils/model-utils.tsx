@@ -199,8 +199,11 @@ export const getKindIdByRef = (
   return matchingIdentity;
 };
 
-export const toOptionLike = (value: string, options: OptionWithValue[]) => {
-  return options.find((option) => option.value === value);
+export const toOptionLike = <T,>(
+  value: T | undefined,
+  options: OptionWithValue<T>[]
+) => {
+  return value ? options.find((option) => option.value === value) : undefined;
 };
 
 export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [
