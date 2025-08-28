@@ -285,33 +285,32 @@ export const deleteIdentity = (identity: Identity) => {
 // Applications
 //
 
-/** success with code 201 and created entity as response data */
 export const createApplication = (application: New<Application>) =>
   axios
     .post<Application>(`${APPLICATIONS}`, application)
     .then((response) => response.data);
 
-export const deleteApplication = (id: number): Promise<Application> =>
-  axios.delete(`${APPLICATIONS}/${id}`);
+export const deleteApplication = (id: number) =>
+  axios.delete<void>(`${APPLICATIONS}/${id}`);
 
-export const deleteBulkApplications = (ids: number[]): Promise<Application[]> =>
-  axios.delete(APPLICATIONS, { data: ids });
+export const deleteBulkApplications = (ids: number[]) =>
+  axios.delete<void>(APPLICATIONS, { data: ids });
 
-export const getApplicationById = (id: number | string): Promise<Application> =>
-  axios.get(`${APPLICATIONS}/${id}`).then((response) => response.data);
+export const getApplicationById = (id: number | string) =>
+  axios
+    .get<Application>(`${APPLICATIONS}/${id}`)
+    .then((response) => response.data);
 
-export const getApplicationManifest = (
-  applicationId: number | string
-): Promise<JsonDocument> =>
+export const getApplicationManifest = (applicationId: number | string) =>
   axios
     .get<JsonDocument>(template(APPLICATION_MANIFEST, { id: applicationId }))
     .then((response) => response.data);
 
-export const getApplications = (): Promise<Application[]> =>
-  axios.get(APPLICATIONS).then((response) => response.data);
+export const getApplications = () =>
+  axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
 
-export const updateApplication = (obj: Application): Promise<Application> =>
-  axios.put(`${APPLICATIONS}/${obj.id}`, obj);
+export const updateApplication = (obj: Application) =>
+  axios.put<void>(`${APPLICATIONS}/${obj.id}`, obj);
 
 /** @deprecated Not used */
 export const getApplicationAnalysis = (
@@ -329,14 +328,6 @@ export const getApplicationAnalysis = (
       },
     }
   );
-
-export const updateAllApplications = (
-  updatePromises: Promise<Application>[]
-) => {
-  return Promise.all(updatePromises)
-    .then((response) => response)
-    .catch((error) => error);
-};
 
 // ---------------------------------------
 // Application Import
