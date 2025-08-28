@@ -67,10 +67,12 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const getUserCredentialsInitialValue = (
     identity?: Identity
   ): UserCredentials | undefined => {
-    if (identity?.kind === "source" && identity?.user && identity?.password) {
-      return "userpass";
-    } else if (identity?.kind === "source") {
-      return "source";
+    if (identity?.kind && ["source", "asset"].includes(identity.kind)) {
+      if (identity?.user && identity?.password) {
+        return "userpass";
+      } else {
+        return "source";
+      }
     } else {
       return undefined;
     }
