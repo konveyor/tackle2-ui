@@ -8,6 +8,7 @@ export const KIND_STRINGS: Record<IdentityKind, string> = {
   proxy: "Proxy",
   "basic-auth": "Basic Auth (Jira)",
   bearer: "Bearer Token (Jira)",
+  asset: "Asset Repository",
 };
 
 export const KIND_OPTIONS: OptionWithValue<IdentityKind>[] = Object.entries(
@@ -27,6 +28,7 @@ export const lookupDefaults = (
     proxy: undefined,
     "basic-auth": undefined,
     bearer: undefined,
+    asset: undefined,
   };
   return mapValues(df, (_, kind) =>
     identities.find((i) => i.default && i.kind === kind)

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 import {
   Application,
@@ -18,7 +18,6 @@ import {
   getApplicationDependencies,
   getApplicationManifest,
   getApplications,
-  updateAllApplications,
   updateApplication,
 } from "@app/api/rest";
 import { assessmentsByItemIdQueryKey } from "./assessments";
@@ -119,16 +118,61 @@ export const useUpdateApplicationMutation = (
   });
 };
 
-export const useUpdateAllApplicationsMutation = (
-  onSuccess: (res: any) => void,
+export interface UpdateAllApplicationsResult {
+  success: { application: Application; response: AxiosResponse<void> }[];
+  failure: { application: Application; cause: Error }[];
+}
+
+const patchAndUpdateApplications = async ({
+  applications,
+  patch,
+}: {
+  applications: Application[];
+  patch: (application: Application) => Application;
+}): Promise<UpdateAllApplicationsResult> => {
+  // TODO: Ideally we'd have a single request to update all applications instead of one per application.
+  const results = await Promise.allSettled(
+    applications.map(async (application) => {
+      try {
+        const patchedApplication = patch(application);
+        const response = await updateApplication(patchedApplication);
+        return {
+          success: { application: patchedApplication, response },
+        };
+      } catch (error) {
+        return {
+          failure: { application, cause: error as Error },
+        };
+      }
+    })
+  );
+
+  return results.reduce(
+    (acc, result) => {
+      if (result.status === "fulfilled") {
+        if (result.value.success) acc.success.push(result.value.success);
+        if (result.value.failure) acc.failure.push(result.value.failure);
+      }
+      return acc;
+    },
+    { success: [], failure: [] } as UpdateAllApplicationsResult
+  );
+};
+
+/** Mutation to apply a patch function to multiple applications and individually update. */
+export const useBulkPatchApplicationsMutation = (
+  onSuccess: (results: UpdateAllApplicationsResult) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateAllApplications,
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
-      onSuccess(res);
+    mutationFn: patchAndUpdateApplications,
+    onSuccess: async (results) => {
+      await queryClient.invalidateQueries({
+        queryKey: [ApplicationsQueryKey],
+      });
+
+      onSuccess(results);
     },
     onError: onError,
   });
