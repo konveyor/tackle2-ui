@@ -11,6 +11,7 @@ import {
   ButtonVariant,
   Form,
   Text,
+  Title,
 } from "@patternfly/react-core";
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -30,9 +31,9 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface FormValues {
-  source?: number;
-  maven?: number;
-  asset?: number;
+  source: number | null;
+  maven: number | null;
+  asset: number | null;
 }
 
 export interface ApplicationIdentityFormProps {
@@ -76,7 +77,7 @@ export const ApplicationIdentityForm: React.FC<
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { identities, identitiesByKind } = useFetchIdentities();
+  const { identitiesByKind } = useFetchIdentities();
 
   const sourceIdentityOptions = identitiesToOptions(identitiesByKind.source);
   const mavenIdentityOptions = identitiesToOptions(identitiesByKind.maven);
@@ -144,24 +145,24 @@ export const ApplicationIdentityForm: React.FC<
 
   const validationSchema = yup.object({
     source: yup
-      .string()
-      .optional()
+      .number()
+      .nullable()
       .oneOf(
-        sourceIdentityOptions.map((o) => o.value.toString()),
+        [...sourceIdentityOptions.map((o) => o.value), null],
         t("validation.notOneOf")
       ),
     maven: yup
-      .string()
-      .optional()
+      .number()
+      .nullable()
       .oneOf(
-        mavenIdentityOptions.map((o) => o.value.toString()),
+        [...mavenIdentityOptions.map((o) => o.value), null],
         t("validation.notOneOf")
       ),
     asset: yup
-      .string()
-      .optional()
+      .number()
+      .nullable()
       .oneOf(
-        assetIdentityOptions.map((o) => o.value.toString()),
+        [...assetIdentityOptions.map((o) => o.value), null],
         t("validation.notOneOf")
       ),
   });
@@ -172,29 +173,28 @@ export const ApplicationIdentityForm: React.FC<
     control,
   } = useForm<FormValues>({
     defaultValues: {
-      source: firstIdentityOfKind(applications[0], "source")?.id,
-      maven: firstIdentityOfKind(applications[0], "maven")?.id,
-      asset: firstIdentityOfKind(applications[0], "asset")?.id,
+      source: firstIdentityOfKind(applications[0], "source")?.id ?? null,
+      maven: firstIdentityOfKind(applications[0], "maven")?.id ?? null,
+      asset: firstIdentityOfKind(applications[0], "asset")?.id ?? null,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
 
   const existingIdentitiesError = useMemo(() => {
-    if (identities && applications) {
-      return hasIdentityOfKind(applications, ["source", "maven", "asset"]);
-    }
-    return false;
-  }, [identities, applications]);
+    return applications.length === 1
+      ? false
+      : hasIdentityOfKind(applications, ["source", "maven", "asset"]);
+  }, [applications]);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <Text component="h4">
+      <Title headingLevel="h3">
         {t("dialog.message.updateApplications", {
           count: applications.length,
           names: applications.map((app) => app.name),
         })}
-      </Text>
+      </Title>
 
       <HookFormPFGroupController
         control={control}
@@ -216,7 +216,7 @@ export const ApplicationIdentityForm: React.FC<
                 selection as (typeof sourceIdentityOptions)[number];
               onChange(selectionValue.value);
             }}
-            onClear={() => onChange(undefined)}
+            onClear={() => onChange(null)}
           />
         )}
       />
@@ -241,7 +241,7 @@ export const ApplicationIdentityForm: React.FC<
                 selection as (typeof mavenIdentityOptions)[number];
               onChange(selectionValue.value);
             }}
-            onClear={() => onChange(undefined)}
+            onClear={() => onChange(null)}
           />
         )}
       />
@@ -266,7 +266,7 @@ export const ApplicationIdentityForm: React.FC<
                 selection as (typeof assetIdentityOptions)[number];
               onChange(selectionValue.value);
             }}
-            onClear={() => onChange(undefined)}
+            onClear={() => onChange(null)}
           />
         )}
       />
