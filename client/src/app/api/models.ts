@@ -211,6 +211,7 @@ export const IdentityKinds = [
   "proxy",
   "basic-auth",
   "bearer",
+  "asset",
 ] as const;
 
 export type IdentityKind = (typeof IdentityKinds)[number];

@@ -139,7 +139,12 @@
       "dragAndDropFile": "Drag and drop your file here or upload one.",
       "uploadYamlFile": "Upload your YAML file",
       "deleteQuestionnaire": "Deleting a questionnaire will cascade into the deletion of all answered questionnaires associated to applications and/or archetypes.",
-      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:"
+      "confirmDeletion": "Confirm deletion by typing <strong>{{nameToDelete}}</strong> below:",
+      "updateApplications_one": "Update the credentials for {{names, list}}",
+      "updateApplications_two": "Update the credentials for {{count}} applications: {{names, list}}",
+      "updateApplications_few": "Update the credentials for {{count}} applications: {{names, list}}",
+      "updateApplications_many": "Update the credentials for <strong>{{count}}</strong> applications",
+      "updateApplications_other": "Update the credentials for <strong>{{count}}</strong> applications"
     },
     "title": {
       "applicationAnalysis": "Application analysis",
@@ -587,12 +592,13 @@
       "save": "{{type}} was successfully saved.",
       "applicationDeleted": "Application {{appName}} successfully deleted.",
       "applicationsDeleted": "{{appIDCount}} application(s) successfully deleted.",
+      "applicationsUpdated_one": "Application {{firstName}} was successfully updated.",
+      "applicationsUpdated_other": "{{count}} applications were successfully updated.",
       "assessmentAndReviewCopied": "Success! Assessment and review copied to selected applications",
       "assessmentCopied": "Success! Assessment copied to selected applications",
       "assessmentDiscarded": "Success! Assessment discarded for {{application}}.",
       "create": "{{type}} was successfully created.",
       "createWhat": "{{type}} {{what}} was successfully created.",
-      "numberOfSaved": "{{count}} {{type}} were successfully saved.",
       "deleted": "{{type}} was successfully deleted.",
       "deletedWhat": "{{type}} {{what}} was successfully deleted.",
       "deletedAll": "{{type}} {{what}} were successfully deleted.",
@@ -601,6 +607,8 @@
       "discoverApplications": "Success! Applications discovered on platform {{platformName}}."
     },
     "fail": {
+      "applicationsUpdated_one": "Application {{firstName}} failed to update.",
+      "applicationsUpdated_other": "{{count}} applications failed to update.",
       "create": "Failed to create {{type}}.",
       "save": "Failed to save {{type}}."
     }
@@ -627,7 +635,8 @@
     "invalidFormat": "Invalid format",
     "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
-    "mustBeNumber": "Must be a number"
+    "mustBeNumber": "Must be a number",
+    "notOneOf": "Value is not a valid option."
   },
   "wizard": {
     "alert": {
