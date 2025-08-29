@@ -1,10 +1,12 @@
 import path from "path";
-import { Configuration, DefinePlugin } from "webpack";
+
 import CopyPlugin from "copy-webpack-plugin";
-import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
+import { TsconfigPathsPlugin } from "tsconfig-paths-webpack-plugin";
+import { Configuration, DefinePlugin } from "webpack";
 
 import { brandingAssetPath } from "@konveyor-ui/common";
+
 import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);

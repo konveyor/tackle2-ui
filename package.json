@@ -28,7 +28,8 @@
   "lint-staged": {
     "package-lock.json": "./scripts/verify_lock.mjs",
     "!(package-lock.json)*": "prettier --ignore-unknown --write",
-    ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write"
+    ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write",
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix"
   },
   "workspaces": [
     "common",
@@ -56,6 +57,7 @@
     "copyfiles": "^2.4.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.0",
