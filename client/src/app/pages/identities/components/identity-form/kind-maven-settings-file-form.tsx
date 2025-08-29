@@ -81,7 +81,7 @@ export const KindMavenSettingsFileForm: React.FC<{
             }}
             validated={isSettingsFileRejected ? "error" : "default"}
             onFileInputChange={(_, file) => {
-              setValue("settingsFilename", file.name);
+              setValue("settingsFilename", file?.name ?? "");
               setIsSettingsFileRejected(false);
             }}
             onDataChange={(_, value: string) => {

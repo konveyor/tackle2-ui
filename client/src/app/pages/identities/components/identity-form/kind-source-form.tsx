@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { Alert, FileUpload, Switch } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity, IdentityKind } from "@app/api/models";
@@ -21,7 +21,7 @@ const USER_CREDENTIALS_OPTIONS: OptionWithValue<UserCredentials>[] = [
   },
   {
     value: "source",
-    toString: () => `Private Key/Passphrase`,
+    toString: () => `Source Private Key/Passphrase`,
   },
 ];
 
@@ -30,8 +30,8 @@ export const KindSourceForm: React.FC<{
   defaultIdentities?: Record<IdentityKind, Identity | undefined>;
 }> = ({ identity, defaultIdentities }) => {
   const { t } = useTranslation();
-  const { control, getValues, setValue, resetField } = useFormContext();
-  const values = getValues();
+  const { control, setValue, resetField } = useFormContext();
+  const values = useWatch({ control });
 
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
 
@@ -145,7 +145,7 @@ export const KindSourceForm: React.FC<{
                 }}
                 validated={isKeyFileRejected ? "error" : "default"}
                 onFileInputChange={(_, file) => {
-                  setValue("keyFilename", file.name);
+                  setValue("keyFilename", file?.name ?? "");
                   setIsKeyFileRejected(false);
                 }}
                 onDataChange={(_, value: string) => {

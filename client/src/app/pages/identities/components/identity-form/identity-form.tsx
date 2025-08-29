@@ -45,6 +45,7 @@ interface IdentityFormValues {
 
   settings: string;
   settingsFilename: string;
+
   userCredentials?: UserCredentials;
   user: string;
   password: string;

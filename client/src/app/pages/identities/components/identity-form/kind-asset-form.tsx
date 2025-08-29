@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FileUpload } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity } from "@app/api/models";
@@ -27,8 +27,11 @@ const USER_CREDENTIALS_OPTIONS: OptionWithValue<UserCredentials>[] = [
 export const KindAssetForm: React.FC<{
   identity?: Identity;
 }> = ({ identity }) => {
-  const { control, getValues, setValue, resetField } = useFormContext();
-  const values = getValues();
+  const { control, setValue, resetField } = useFormContext();
+  const [password, key, userCredentials, keyFilename] = useWatch({
+    control,
+    name: ["password", "key", "userCredentials", "keyFilename"],
+  });
 
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
 
@@ -39,8 +42,8 @@ export const KindAssetForm: React.FC<{
     setIsPasswordHidden(!isPasswordHidden);
   };
 
-  const isPasswordEncrypted = identity?.password === values.password;
-  const isKeyEncrypted = identity?.key === values.key;
+  const isPasswordEncrypted = identity?.password === password;
+  const isKeyEncrypted = identity?.key === key;
 
   return (
     <>
@@ -65,16 +68,16 @@ export const KindAssetForm: React.FC<{
                 selection as OptionWithValue<UserCredentials>;
               onChange(selectionValue.value);
               // So we don't retain the values from the wrong type of credential
-              resetField("default");
               resetField("user");
-              resetField("key");
               resetField("password");
+              resetField("key");
+              resetField("keyFilename");
             }}
           />
         )}
       />
 
-      {values?.userCredentials === "userpass" && (
+      {userCredentials === "userpass" && (
         <KindSimpleUsernamePasswordForm
           identity={identity}
           usernameLabel="Username"
@@ -82,7 +85,7 @@ export const KindAssetForm: React.FC<{
         />
       )}
 
-      {values?.userCredentials === "source" && (
+      {userCredentials === "source" && (
         <>
           <HookFormPFGroupController
             control={control}
@@ -97,14 +100,14 @@ export const KindAssetForm: React.FC<{
                 name={name}
                 type="text"
                 value={isKeyEncrypted ? "[Encrypted]" : (value ?? "")}
-                filename={values.keyFilename}
+                filename={keyFilename}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 dropzoneProps={{
                   onDropRejected: () => setIsKeyFileRejected(true),
                 }}
                 validated={isKeyFileRejected ? "error" : "default"}
                 onFileInputChange={(_, file) => {
-                  setValue("keyFilename", file.name);
+                  setValue("keyFilename", file?.name ?? "");
                   setIsKeyFileRejected(false);
                 }}
                 onDataChange={(_, value: string) => {
