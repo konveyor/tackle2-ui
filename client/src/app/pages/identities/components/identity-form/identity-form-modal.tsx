@@ -23,7 +23,7 @@ export const IdentityFormModal: React.FC<IdentityFormModalProps> = ({
   return (
     <Modal
       id="credential.modal"
-      isOpen={isOpen}
+      isOpen
       variant="medium"
       title={
         identity

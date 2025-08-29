@@ -70,7 +70,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const getUserCredentialsInitialValue = (
     identity?: Identity
   ): UserCredentials | undefined => {
-    if (identity?.kind && ["source", "asset"].includes(identity.kind)) {
+    if ("source" === identity?.kind || "asset" === identity?.kind) {
       if (identity?.user && identity?.password) {
         return "userpass";
       } else {
@@ -316,10 +316,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               .min(3, t("validation.minLength", { length: 3 }))
               .max(120, t("validation.maxLength", { length: 120 })),
         }),
+
       key: yup
         .string()
         .defined()
-        .trim()
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>
             (kind === "source" || kind === "asset") &&
@@ -401,6 +401,10 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 // So we don't retain the values from the wrong type of credential
                 resetField("user");
                 resetField("password");
+                resetField("settings");
+                resetField("settingsFilename");
+                resetField("key");
+                resetField("keyFilename");
               }}
             />
           )}
