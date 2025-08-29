@@ -236,95 +236,101 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .required(),
       default: yup.bool().defined(),
 
-      userCredentials: yup
-        .mixed<UserCredentials>()
-        .when("kind", (kind: string, schema) =>
-          ["source", "asset"].includes(kind)
-            ? schema.required().oneOf(["userpass", "source"])
-            : schema
-        ),
+      userCredentials: yup.mixed<UserCredentials>().when("kind", {
+        is: (kind: IdentityKind) => kind === "source" || kind === "asset",
+        then: (schema) => schema.required().oneOf(["userpass", "source"]),
+      }),
 
       settings: yup
         .string()
         .defined()
-        .when("kind", (kind: string, schema: yup.StringSchema) =>
-          kind === "maven"
-            ? schema
-                .required()
-                .validMavenSettingsXml(
-                  (value?: string) => value === identity?.settings
-                )
-            : schema
-        ),
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "maven",
+          then: (schema) =>
+            schema
+              .required()
+              .validMavenSettingsXml(
+                (value?: string) => value === identity?.settings
+              ),
+        }),
       settingsFilename: yup.string().defined(),
 
       user: yup
         .string()
         .defined()
         .trim()
-        .when(
-          ["kind", "userCredentials"],
-          ([kind, uc]: string[], schema: yup.StringSchema) => {
-            if (
-              (["source", "asset"].includes(kind) && uc === "userpass") ||
-              kind === "proxy" ||
-              kind === "jira"
-            ) {
-              schema = schema
-                .required(t("validation.required"))
-                .min(3, t("validation.minLength", { length: 3 }))
-                .max(120, t("validation.maxLength", { length: 120 }));
-            }
-            if (kind === "jira") {
-              schema = schema.email("Username must be a valid email");
-            }
-            return schema;
-          }
-        ),
+        .when(["kind", "userCredentials"], {
+          is: (kind: IdentityKind, userCredentials: UserCredentials) =>
+            (kind === "source" || kind === "asset") &&
+            userCredentials === "userpass",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
+        })
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "proxy",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
+        })
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "basic-auth",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 }))
+              .email("Username must be a valid email"),
+        }),
       password: yup
         .string()
         .defined()
         .trim()
-        .when(
-          ["kind", "userCredentials"],
-          ([kind, uc]: string[], schema: yup.StringSchema) => {
-            if (["source", "asset"].includes(kind) && uc === "userpass") {
-              return schema
-                .required(t("validation.required"))
-                .min(3, t("validation.minLength", { length: 3 }))
-                .max(120, t("validation.maxLength", { length: 120 }));
-            }
-            if (kind === "proxy") {
-              return schema
-                .required(t("validation.required"))
-                .min(3, t("validation.minLength", { length: 3 }))
-                .max(220, t("validation.maxLength", { length: 220 }));
-            }
-            if (kind === "basic-auth") {
-              return schema
-                .required(t("validation.required"))
-                .min(3, t("validation.minLength", { length: 3 }))
-                .max(281, t("validation.maxLength", { length: 281 }));
-            }
-            return schema;
-          }
-        ),
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "proxy",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(220, t("validation.maxLength", { length: 220 })),
+        })
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "basic-auth",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(281, t("validation.maxLength", { length: 281 })),
+        })
+        .when(["kind", "userCredentials"], {
+          is: (kind: IdentityKind, userCredentials: UserCredentials) =>
+            (kind === "source" || kind === "asset") &&
+            userCredentials === "userpass",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
+        }),
       key: yup
         .string()
         .defined()
         .trim()
-        .when(
-          ["kind", "userCredentials"],
-          ([kind, uc]: string[], schema: yup.StringSchema) => {
-            if (["source", "asset"].includes(kind) && uc === "source") {
-              return schema.required(t("validation.required"));
-            }
-            if (kind === "bearer") {
-              return schema.required(t("validation.required"));
-            }
-            return schema;
-          }
-        ),
+        .when(["kind", "userCredentials"], {
+          is: (kind: IdentityKind, userCredentials: UserCredentials) =>
+            (kind === "source" || kind === "asset") &&
+            userCredentials === "source",
+          // If we want to verify key contents before saving, add the yup test in the then function
+          then: (schema) => schema.required(t("validation.required")),
+        })
+        .when("kind", {
+          is: (kind: IdentityKind) => kind === "bearer",
+          then: (schema) => schema.required(t("validation.required")),
+        }),
       keyFilename: yup.string().defined(),
     });
 
