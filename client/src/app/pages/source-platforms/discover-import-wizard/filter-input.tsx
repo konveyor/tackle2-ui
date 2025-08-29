@@ -11,6 +11,7 @@ import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { usePlatformKindList } from "../usePlatformKindList";
 
 interface FiltersFormValues {
   filterRequired: boolean;
@@ -60,6 +61,7 @@ export const FilterInput: React.FC<{
   initialFilters?: FilterState;
 }> = ({ platform, onFiltersChanged, initialFilters }) => {
   const { t } = useTranslation();
+  const { getDisplayLabel } = usePlatformKindList();
 
   const validationSchema = yup.object().shape({
     schema: yup.object().nullable(),
@@ -111,7 +113,7 @@ export const FilterInput: React.FC<{
         <Text component="p">
           {t("platformDiscoverWizard.filterInput.description", {
             platformName: platform?.name,
-            platformKind: platform?.kind,
+            platformKind: getDisplayLabel(platform?.kind),
           })}
         </Text>
       </TextContent>
@@ -122,7 +124,7 @@ export const FilterInput: React.FC<{
         <div style={{ padding: "20px" }}>
           <Text>
             {t("platformDiscoverWizard.filterInput.noFiltersAvailable", {
-              platformKind: platform.kind,
+              platformKind: getDisplayLabel(platform?.kind),
             })}
           </Text>
         </div>
