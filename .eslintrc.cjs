@@ -34,6 +34,7 @@ module.exports = {
     "react",
     "react-hooks",
     "@tanstack/query",
+    "import",
   ],
 
   // NOTE: Tweak the rules as needed when bulk fixes get merged
@@ -59,10 +60,52 @@ module.exports = {
 
     "@tanstack/query/exhaustive-deps": "error",
     "@tanstack/query/prefer-query-object-syntax": "error",
+
+    // Import ordering rule
+    "import/order": [
+      "warn",
+      {
+        groups: [
+          "builtin", // Node.js built-in modules
+          "external", // 3rd party libraries
+          "internal", // @app imports
+          ["parent", "sibling"], // ../ and ./
+          "index", // ./index
+        ],
+        pathGroups: [
+          {
+            pattern: "@patternfly/**",
+            group: "external",
+            position: "after",
+          },
+          {
+            pattern: "@konveyor-ui/**",
+            group: "internal",
+            position: "before",
+          },
+          {
+            pattern: "@app/**",
+            group: "internal",
+            position: "before",
+          },
+        ],
+        pathGroupsExcludedImportTypes: ["builtin"],
+        "newlines-between": "always",
+        named: true,
+        alphabetize: {
+          order: "asc",
+        },
+      },
+    ],
   },
 
   settings: {
     react: { version: "detect" },
+    "import/resolver": {
+      node: {
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
+      },
+    },
   },
 
   ignorePatterns: [
