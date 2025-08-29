@@ -5,10 +5,10 @@ import { mapValues } from "radash";
 export const KIND_STRINGS: Record<IdentityKind, string> = {
   source: "Source Control",
   maven: "Maven Settings File",
+  asset: "Asset Repository",
   proxy: "Proxy",
   "basic-auth": "Basic Auth (Jira)",
   bearer: "Bearer Token (Jira)",
-  asset: "Asset Repository",
 };
 
 export const KIND_OPTIONS: OptionWithValue<IdentityKind>[] = Object.entries(

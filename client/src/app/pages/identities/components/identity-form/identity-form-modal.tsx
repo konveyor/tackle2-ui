@@ -15,10 +15,15 @@ export const IdentityFormModal: React.FC<IdentityFormModalProps> = ({
   ...rest
 }) => {
   const { t } = useTranslation();
+
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <Modal
       id="credential.modal"
-      isOpen={isOpen}
+      isOpen
       variant="medium"
       title={
         identity

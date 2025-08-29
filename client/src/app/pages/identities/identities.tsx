@@ -56,6 +56,7 @@ import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { DefaultLabel } from "./components/DefaultLabel";
 import { KIND_STRINGS, KIND_VALUES, lookupDefaults } from "./utils";
 import { objectify } from "radash";
+import { filterAndAddSeparator } from "@app/utils/grouping";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
@@ -322,44 +323,49 @@ export const Identities: React.FC = () => {
                         </Td>
                         <Td isActionCell id="row-actions">
                           <ActionsColumn
-                            items={(
+                            items={filterAndAddSeparator<IAction>(
+                              (_index) => ({ isSeparator: true }),
                               [
-                                identityMeta[identity.id].okToSetAsDefault && {
-                                  title: t("actions.setAsDefault"),
-                                  onClick: () => {
-                                    if (defaultIdentities[identity.kind]) {
-                                      setIdentityToDefault(identity);
-                                    } else {
-                                      // TODO: Maybe we want to confirm this first since it will
-                                      //       rerun tech-discovery and language-discovery on all
-                                      //       applications w/o credentials
-                                      doAssignDefaultIdentity(identity);
-                                    }
+                                [
+                                  identityMeta[identity.id]
+                                    .okToSetAsDefault && {
+                                    title: t("actions.setAsDefault"),
+                                    onClick: () => {
+                                      if (defaultIdentities[identity.kind]) {
+                                        setIdentityToDefault(identity);
+                                      } else {
+                                        // TODO: Maybe we want to confirm this first since it will
+                                        //       rerun tech-discovery and language-discovery on all
+                                        //       applications w/o credentials
+                                        doAssignDefaultIdentity(identity);
+                                      }
+                                    },
                                   },
-                                },
 
-                                identityMeta[identity.id].okToRemoveDefault && {
-                                  title: t("actions.removeDefault"),
-                                  onClick: () => {
-                                    setIdentityToRemoveDefault(identity);
+                                  identityMeta[identity.id]
+                                    .okToRemoveDefault && {
+                                    title: t("actions.removeDefault"),
+                                    onClick: () => {
+                                      setIdentityToRemoveDefault(identity);
+                                    },
                                   },
-                                },
-
-                                { isSeparator: true },
-                                {
-                                  isDanger: true,
-                                  title: t("actions.delete"),
-                                  onClick: () => {
-                                    setIdentityToDelete(identity);
+                                ],
+                                [
+                                  {
+                                    isDanger: true,
+                                    title: t("actions.delete"),
+                                    onClick: () => {
+                                      setIdentityToDelete(identity);
+                                    },
+                                    isAriaDisabled:
+                                      identityMeta[identity.id].inUse,
+                                    tooltipProps: {
+                                      content: getDeleteTooltip(identity),
+                                    },
                                   },
-                                  isAriaDisabled:
-                                    identityMeta[identity.id].inUse,
-                                  tooltipProps: {
-                                    content: getDeleteTooltip(identity),
-                                  },
-                                },
-                              ] as IAction[]
-                            ).filter(Boolean)}
+                                ],
+                              ]
+                            )}
                           />
                         </Td>
                       </TableRowContentWithControls>
