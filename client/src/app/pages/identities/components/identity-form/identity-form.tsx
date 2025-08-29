@@ -233,10 +233,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .required(),
       default: yup.bool().defined(),
 
-      userCredentials: yup.mixed<UserCredentials>().when("kind", {
-        is: (kind: string) => ["source", "asset"].includes(kind),
-        then: (schema) => schema.required().oneOf(["userpass", "source"]),
-      }),
+      userCredentials: yup
+        .mixed<UserCredentials>()
+        .when("kind", (kind: string, schema) =>
+          ["source", "asset"].includes(kind)
+            ? schema.required().oneOf(["userpass", "source"])
+            : schema
+        ),
 
       settings: yup
         .string()
