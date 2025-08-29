@@ -1,19 +1,19 @@
 /* eslint-env node */
-
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import express from "express";
 import ejs from "ejs";
-import { createHttpTerminator } from "http-terminator";
+import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { createHttpTerminator } from "http-terminator";
 
 import {
-  encodeEnv,
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
   brandingStrings,
+  encodeEnv,
 } from "@konveyor-ui/common";
+
 import proxies from "./proxies";
 
 const developmentMode = KONVEYOR_ENV.NODE_ENV === "development";
