@@ -28,7 +28,8 @@
   "lint-staged": {
     "package-lock.json": "./scripts/verify_lock.mjs",
     "!(package-lock.json)*": "prettier --ignore-unknown --write",
-    ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write"
+    ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write",
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix"
   },
   "workspaces": [
     "common",
