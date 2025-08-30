@@ -1,4 +1,4 @@
-import { Location } from "history";
+import { Location, LocationDescriptor } from "history";
 import {
   AnalysisInsight,
   UiAnalysisReportInsight,
@@ -181,6 +181,27 @@ export const getBackToAllInsightsUrl = ({
         .filters,
     },
   })}`;
+};
+
+// When selecting an application, we want to preserve any issue filters that might be present.
+export const getInsightsSingleAppSelectedLocation = (
+  applicationId: number,
+  fromLocation?: Location
+): LocationDescriptor => {
+  const existingFiltersParam =
+    fromLocation &&
+    new URLSearchParams(fromLocation.search).get(
+      `${TablePersistenceKeyPrefix.insights}:filters`
+    );
+  return {
+    pathname: Paths.insightsSingleAppSelected.replace(
+      ":applicationId",
+      String(applicationId)
+    ),
+    search: existingFiltersParam
+      ? new URLSearchParams({ filters: existingFiltersParam }).toString()
+      : undefined,
+  };
 };
 
 export const getInsightTitle = (
