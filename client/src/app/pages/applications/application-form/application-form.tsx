@@ -22,10 +22,12 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
+import { Application } from "@app/api/models";
 
 export const ApplicationForm: React.FC<{
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
+  application: Application | null;
 }> = ({
   form: { control, trigger, getValues },
   data: {
@@ -36,6 +38,7 @@ export const ApplicationForm: React.FC<{
     businessServiceOptions,
     sourcePlatformOptions,
   },
+  application,
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
@@ -45,19 +48,24 @@ export const ApplicationForm: React.FC<{
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
 
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(
-    !!values.kind && !!values.sourceRepository
+    application === null || (!!values.kind && !!values.sourceRepository)
   );
 
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(
-    !!values.group && !!values.artifact && !!values.version
+    application !== null &&
+      !!values.group &&
+      !!values.artifact &&
+      !!values.version
   );
 
   const [isSourcePlatformExpanded, setSourcePlatformExpanded] = React.useState(
-    values.id === undefined || !!values.sourcePlatform
+    application !== null && !!values.sourcePlatform
   );
 
   const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
-    React.useState(!!values.assetKind && !!values.assetRepository);
+    React.useState(
+      application !== null && !!values.assetKind && !!values.assetRepository
+    );
 
   return (
     <Form>
