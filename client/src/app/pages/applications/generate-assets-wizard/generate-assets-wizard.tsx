@@ -145,6 +145,8 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           id="select-target-profile"
           name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
           footer={{
+            nextButtonText: t("actions.next"),
+            backButtonText: t("actions.back"),
             isNextDisabled: !state.profile,
           }}
         >
@@ -159,6 +161,8 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           id="capture-parameters"
           name={t("generateAssetsWizard.captureParameters.stepTitle")}
           footer={{
+            nextButtonText: t("actions.next"),
+            backButtonText: t("actions.back"),
             isNextDisabled: !state.parameters.isValid,
           }}
         >
@@ -176,10 +180,11 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
             nextButtonText: results
               ? t("actions.close")
               : t("actions.generateAssets"),
-            onNext: results ? handleCancel : submitTasksAndSaveResults,
+            backButtonText: t("actions.back"),
             isNextDisabled: !state.isReady && !results,
             isBackDisabled: !!results,
             isCancelHidden: !!results,
+            onNext: results ? handleCancel : submitTasksAndSaveResults,
           }}
         >
           {!results ? (

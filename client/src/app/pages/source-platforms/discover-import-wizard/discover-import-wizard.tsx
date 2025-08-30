@@ -133,6 +133,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
           name={t("platformDiscoverWizard.filterInput.stepTitle")}
           footer={{
             nextButtonText: t("actions.next"),
+            backButtonText: t("actions.back"),
             isNextDisabled: !filters.isValid,
           }}
         >
@@ -150,11 +151,11 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             nextButtonText: results
               ? t("actions.close")
               : t("actions.discoverApplications"),
-            onNext: results ? handleCancel : onSubmitTask,
-            isNextDisabled: !state.isReady && !results,
             backButtonText: t("actions.back"),
+            isNextDisabled: !state.isReady && !results,
             isBackDisabled: !!results,
             isCancelHidden: !!results,
+            onNext: results ? handleCancel : onSubmitTask,
           }}
         >
           {!results ? (
