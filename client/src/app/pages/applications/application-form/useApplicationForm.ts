@@ -17,6 +17,7 @@ import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/uti
 import { useFetchPlatformCoordinatesSchema } from "@app/queries/schemas";
 import { useApplicationFormData } from "./useApplicationFormData";
 
+type RepositoryKind = "git" | "subversion" | "";
 export interface FormValues {
   id?: number;
   name: string;
@@ -26,7 +27,7 @@ export interface FormValues {
   tags: TagItemType[];
   owner: string | null;
   contributors: string[];
-  kind: string;
+  kind: RepositoryKind;
   sourceRepository: string;
   branch: string;
   rootPath: string;
@@ -34,7 +35,7 @@ export interface FormValues {
   artifact: string;
   version: string;
   packaging: string;
-  assetKind: string;
+  assetKind: RepositoryKind;
   assetRepository: string;
   assetBranch: string;
   assetRootPath: string;
@@ -230,7 +231,7 @@ export const useApplicationForm = ({
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
 
-      kind: application?.repository?.kind || "",
+      kind: (application?.repository?.kind ?? "") as RepositoryKind,
       sourceRepository: application?.repository?.url || "",
       branch: application?.repository?.branch || "",
       rootPath: application?.repository?.path || "",
@@ -239,7 +240,7 @@ export const useApplicationForm = ({
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
 
-      assetKind: application?.assets?.kind || "",
+      assetKind: (application?.assets?.kind ?? "") as RepositoryKind,
       assetRepository: application?.assets?.url || "",
       assetBranch: application?.assets?.branch || "",
       assetRootPath: application?.assets?.path || "",
