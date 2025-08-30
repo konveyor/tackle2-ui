@@ -38,6 +38,7 @@ import {
 import { useFetchTickets } from "@app/queries/tickets";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import ExternalLink from "@app/components/ExternalLink";
+import { getInsightsSingleAppSelectedLocation } from "@app/pages/insights/helpers";
 
 const ApplicationArchetypesLabels: React.FC<{
   application: DecoratedApplication;
@@ -73,6 +74,11 @@ export const TabDetailsContent: React.FC<{
           <ListItem>
             <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
               {t("terms.issues")}
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link to={getInsightsSingleAppSelectedLocation(application.id)}>
+              {t("terms.insights")}
             </Link>
           </ListItem>
           <ListItem>
