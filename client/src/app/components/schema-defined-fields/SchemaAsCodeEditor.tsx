@@ -7,7 +7,6 @@ import {
   Spinner,
   Title,
 } from "@patternfly/react-core";
-import { SaveControl } from "./SaveControl";
 import { JsonSchemaObject } from "@app/api/models";
 import { jsonSchemaToYupSchema } from "./utils";
 import { useMemo } from "react";
@@ -84,20 +83,6 @@ export const SchemaAsCodeEditor = ({
     }
   };
 
-  const handleSave = () => {
-    if (editorRef.current && okToSave && onDocumentSaved) {
-      try {
-        const asJson = JSON.parse(editorRef.current.getValue());
-        if (!validator || validator.isValidSync(asJson)) {
-          onDocumentSaved(asJson);
-        }
-      } catch (error) {
-        console.error("Invalid JSON:", error);
-        // TODO: Use useNotify() to toast the save error to the user
-      }
-    }
-  };
-
   return (
     <CodeEditor
       id={id}
@@ -108,7 +93,7 @@ export const SchemaAsCodeEditor = ({
       isLineNumbersVisible
       isReadOnly={isReadOnly}
       height={height}
-      downloadFileName="my-schema-download.json"
+      downloadFileName="my-schema-download"
       language={Language.json}
       code={currentCode}
       onChange={handleCodeChange}
@@ -144,15 +129,6 @@ export const SchemaAsCodeEditor = ({
           </EmptyState>
         </div>
       }
-      customControls={[
-        !isReadOnly && (
-          <SaveControl
-            key="save-json"
-            onSave={handleSave}
-            isDisabled={!okToSave}
-          />
-        ),
-      ].filter(Boolean)}
     />
   );
 };
