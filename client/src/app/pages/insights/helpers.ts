@@ -183,7 +183,9 @@ export const getBackToAllInsightsUrl = ({
   })}`;
 };
 
-// When selecting an application, we want to preserve any issue filters that might be present.
+// When linking to the insights page for a single application, we want to be able to preserve any
+// filters on the all insights page that may be given.  Linking from outside insights does not
+// need to preserve any filters.
 export const getInsightsSingleAppSelectedLocation = (
   applicationId: number,
   fromLocation?: Location
