@@ -108,12 +108,12 @@ export default {
 
   kai: {
     pathFilter: "/kai",
-    target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
+    target: KONVEYOR_ENV.KAI_URL || "http://localhost:9003",
     logger,
 
     changeOrigin: true,
     pathRewrite: {
-      "^/kai": "/services/kai",
+      "^/kai": "",
     },
 
     on: {
