@@ -1,10 +1,11 @@
 import { OptionWithValue } from "@app/components/SimpleSelect";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export const DEFAULT_KIND = "cloudfoundry";
 
 // Extend this map as new platform kinds are added
-const KIND_MAP = {
+const KIND_MAP: Record<string, { label: string }> = {
   cloudfoundry: {
     label: "Cloud Foundry",
   },
@@ -23,15 +24,16 @@ export const usePlatformKindList = (): {
     []
   );
 
-  const getDisplayLabel = React.useCallback((kind?: string | null): string => {
-    if (!kind) return "";
-    const map = KIND_MAP as Record<string, { label: string }>;
-    const entry = map[kind];
-    if (entry?.label) {
-      return entry.label;
-    }
-    return kind;
-  }, []);
+  const { t } = useTranslation();
+  const getDisplayLabel = React.useCallback(
+    (kind: string | undefined | null): string => {
+      if (kind && kind in KIND_MAP) {
+        return KIND_MAP[kind].label;
+      }
+      return t("terms.unknown");
+    },
+    [t]
+  );
 
   return { kinds, getDisplayLabel };
 };
