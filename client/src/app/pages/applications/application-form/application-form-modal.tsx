@@ -65,7 +65,7 @@ export const ApplicationFormModal: React.FC<ApplicationFormModalProps> = ({
         </Button>,
       ]}
     >
-      <ApplicationForm form={form} data={data} />
+      <ApplicationForm application={application} form={form} data={data} />
     </Modal>
   );
 };
