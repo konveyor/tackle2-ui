@@ -152,8 +152,8 @@ const TaskItem: React.FC<{
 }) => {
   const starttime = dayjs(task.started ?? task.createTime);
   const title = expanded
-    ? `${task.id} (${task.addon})`
-    : `${task.id} (${task.addon}) - ${task.applicationName} - ${
+    ? `${task.id} (${task.kind})`
+    : `${task.id} (${task.kind}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
 
