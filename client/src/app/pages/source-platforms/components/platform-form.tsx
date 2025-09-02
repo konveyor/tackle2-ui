@@ -10,7 +10,9 @@ import {
   Button,
   ButtonVariant,
   Form,
+  Popover,
 } from "@patternfly/react-core";
+import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import type { SourcePlatform, New } from "@app/api/models";
 import {
@@ -61,7 +63,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { kinds: platformKindList } = usePlatformKindList();
+  const { kinds: platformKindList, getUrlTooltip } = usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({
@@ -209,6 +211,18 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         label={t("terms.url")}
         fieldId="url"
         isRequired
+        labelIcon={
+          <Popover bodyContent={<div>{getUrlTooltip(platform?.kind)}</div>}>
+            <button
+              type="button"
+              aria-label="More info for URL field"
+              onClick={(e) => e.preventDefault()}
+              className="pf-v5-c-button pf-m-plain"
+            >
+              <HelpIcon />
+            </button>
+          </Popover>
+        }
       />
 
       <HookFormPFGroupController
