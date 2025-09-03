@@ -164,9 +164,9 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
               nextButtonText: showResults
                 ? t("actions.close")
                 : t("actions.retrieve"),
-              onNext: showResults ? handleCancel : handleSubmit(onSubmit),
-              isBackDisabled: showResults,
+              isBackHidden: true, // one step wizard, no back button needed
               isCancelHidden: showResults,
+              onNext: showResults ? handleCancel : handleSubmit(onSubmit),
             }}
           >
             {!showResults ? (
