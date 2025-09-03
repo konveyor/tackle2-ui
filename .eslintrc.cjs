@@ -67,12 +67,18 @@ module.exports = {
       {
         groups: [
           "builtin", // Node.js built-in modules
-          "external", // 3rd party libraries
+          "external", // React then 3rd party libraries
           "internal", // @app imports
-          ["parent", "sibling"], // ../ and ./
+          "parent",
+          "sibling", // ../ and ./
           "index", // ./index
         ],
         pathGroups: [
+          {
+            pattern: "react",
+            group: "external",
+            position: "before",
+          },
           {
             pattern: "@patternfly/**",
             group: "external",
@@ -90,6 +96,7 @@ module.exports = {
           },
         ],
         pathGroupsExcludedImportTypes: ["builtin"],
+        distinctGroup: false,
         "newlines-between": "always",
         named: true,
         alphabetize: {
