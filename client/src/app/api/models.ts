@@ -483,6 +483,7 @@ export interface PlatformApplicationImportTaskData {
 export interface AssetGenerationTaskData {
   profiles: Ref[];
   params: JsonDocument;
+  render: boolean;
 }
 
 export interface TaskgroupTask {

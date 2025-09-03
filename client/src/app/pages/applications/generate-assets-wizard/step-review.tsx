@@ -21,12 +21,14 @@ import { ParameterState } from "./step-capture-parameters";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { RepositoryDetails } from "@app/components/detail-drawer";
+import { AdvancedOptionsState } from "./step-advanced-options";
 
 export const Review: React.FC<{
   applications: DecoratedApplication[];
   targetProfile: TargetProfile;
   parameters: ParameterState;
-}> = ({ applications, targetProfile, parameters }) => {
+  advancedOptions: AdvancedOptionsState;
+}> = ({ applications, targetProfile, parameters, advancedOptions }) => {
   const { t } = useTranslation();
   const showParameters = parameters.parametersRequired && parameters.parameters;
 
@@ -48,7 +50,7 @@ export const Review: React.FC<{
         <PanelMain>
           <PanelMainBody>
             {applications.map((application) => (
-              <DescriptionList isHorizontal key={application.id} isCompact>
+              <DescriptionList isHorizontal key={application.id}>
                 <DescriptionListGroup>
                   <DescriptionListTerm>
                     {t("terms.targetProfile")}
@@ -109,6 +111,21 @@ export const Review: React.FC<{
                     </DescriptionListDescription>
                   </DescriptionListGroup>
                 )}
+
+                <DescriptionListGroup>
+                  <DescriptionListTerm>
+                    {t(
+                      "generateAssetsWizard.advancedOptions.renderTemplatesLabel"
+                    )}
+                  </DescriptionListTerm>
+                  <DescriptionListDescription>
+                    {t(
+                      advancedOptions.renderTemplates
+                        ? "generateAssetsWizard.advancedOptions.renderTemplates-true"
+                        : "generateAssetsWizard.advancedOptions.renderTemplates-false"
+                    )}
+                  </DescriptionListDescription>
+                </DescriptionListGroup>
               </DescriptionList>
             ))}
           </PanelMainBody>

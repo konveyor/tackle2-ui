@@ -791,6 +791,15 @@
       "noParametersRequired": "No user input parameters are required for this target profile.",
       "parametersLabel": "Parameters"
     },
+    "advancedOptions": {
+      "stepTitle": "Advanced",
+      "title": "Advanced options",
+      "description": "Select advanced options here.",
+      "renderTemplatesLabel": "Output rendering",
+      "renderTemplatesPopover": "When generating assets, each generator can output a helm chart and values.yaml file or a set of assets from the templates. This selection allows you to choose the output of the generators.",
+      "renderTemplates-true": "Render asset templates",
+      "renderTemplates-false": "Render to helm charts and values.yaml"
+    },
     "review": {
       "stepTitle": "Review",
       "title": "Review details",

@@ -18,6 +18,7 @@ import { useWizardReducer } from "./useWizardReducer";
 import { SelectTargetProfile } from "./step-select-target-profile";
 import { Review } from "./step-review";
 import { Results } from "./step-results";
+import { AdvancedOptions } from "./step-advanced-options";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -50,8 +51,14 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTasks } = useStartApplicationAssetGeneration();
-  const { state, setProfile, setParameters, setResults, reset } =
-    useWizardReducer();
+  const {
+    state,
+    setProfile,
+    setParameters,
+    setAdvancedOptions,
+    setResults,
+    reset,
+  } = useWizardReducer();
   const { results } = state;
 
   // TODO: Capture notReady when bulk generate assets is implemented
@@ -65,14 +72,20 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   };
 
   const submitTasksAndSaveResults = async () => {
-    if (ready.length === 0 || !state.profile || !state.parameters.isValid) {
+    if (
+      ready.length === 0 ||
+      !state.profile ||
+      !state.parameters.isValid ||
+      !state.advancedOptions.isValid
+    ) {
       return;
     }
 
     const { success, failure } = await submitTasks(
       ready,
       state.profile,
-      state.parameters.parameters
+      state.parameters.parameters,
+      state.advancedOptions.renderTemplates
     );
     setResults({ success, failure });
 
@@ -175,6 +188,21 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
         */}
 
         <WizardStep
+          id="advanced-options"
+          name={t("generateAssetsWizard.advancedOptions.stepTitle")}
+          footer={{
+            nextButtonText: t("actions.next"),
+            backButtonText: t("actions.back"),
+            isNextDisabled: !state.advancedOptions.isValid,
+          }}
+        >
+          <AdvancedOptions
+            onStateChanged={setAdvancedOptions}
+            initialState={state.advancedOptions}
+          />
+        </WizardStep>
+
+        <WizardStep
           id="review"
           name={t("generateAssetsWizard.review.stepTitle")}
           footer={{
@@ -193,6 +221,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
               applications={ready}
               targetProfile={state.profile!}
               parameters={state.parameters}
+              advancedOptions={state.advancedOptions}
             />
           ) : (
             <Results results={results} />
