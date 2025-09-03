@@ -1,4 +1,4 @@
-import { Location } from "history";
+import { Location, LocationDescriptor } from "history";
 import {
   AnalysisInsight,
   UiAnalysisReportInsight,
@@ -181,6 +181,29 @@ export const getBackToAllInsightsUrl = ({
         .filters,
     },
   })}`;
+};
+
+// When linking to the insights page for a single application, we want to be able to preserve any
+// filters on the all insights page that may be given.  Linking from outside insights does not
+// need to preserve any filters.
+export const getInsightsSingleAppSelectedLocation = (
+  applicationId: number,
+  fromLocation?: Location
+): LocationDescriptor => {
+  const existingFiltersParam =
+    fromLocation &&
+    new URLSearchParams(fromLocation.search).get(
+      `${TablePersistenceKeyPrefix.insights}:filters`
+    );
+  return {
+    pathname: Paths.insightsSingleAppSelected.replace(
+      ":applicationId",
+      String(applicationId)
+    ),
+    search: existingFiltersParam
+      ? new URLSearchParams({ filters: existingFiltersParam }).toString()
+      : undefined,
+  };
 };
 
 export const getInsightTitle = (
