@@ -10,7 +10,9 @@ import {
   Button,
   ButtonVariant,
   Form,
+  Popover,
 } from "@patternfly/react-core";
+import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import type { SourcePlatform, New } from "@app/api/models";
 import {
@@ -31,6 +33,8 @@ import { SimpleSelect } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/queries/identities";
 import { usePlatformKindList } from "../usePlatformKindList";
+import { OptionWithValue } from "@app/components/SimpleSelect";
+import { toOptionLike } from "@app/utils/model-utils";
 
 export interface PlatformFormValues {
   kind: string;
@@ -59,7 +63,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { kinds: platformKindList } = usePlatformKindList();
+  const { kinds: platformKindList, getUrlTooltip } = usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({
@@ -189,10 +193,11 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
               id="platform-kind-select"
               toggleAriaLabel="Platform kind select dropdown toggle"
               aria-label={name}
-              value={value}
+              value={value ? toOptionLike(value, platformKindList) : undefined}
               options={platformKindList || []}
               onChange={(selection) => {
-                onChange(selection);
+                const selectionValue = selection as OptionWithValue<string>;
+                onChange(selectionValue.value);
               }}
               onClear={() => onChange("")}
             />
@@ -206,6 +211,18 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         label={t("terms.url")}
         fieldId="url"
         isRequired
+        labelIcon={
+          <Popover bodyContent={<div>{getUrlTooltip(platform?.kind)}</div>}>
+            <button
+              type="button"
+              aria-label="More info for URL field"
+              onClick={(e) => e.preventDefault()}
+              className="pf-v5-c-button pf-m-plain"
+            >
+              <HelpIcon />
+            </button>
+          </Popover>
+        }
       />
 
       <HookFormPFGroupController

@@ -13,12 +13,14 @@ import { SchemaDefinedField } from "@app/components/schema-defined-fields/Schema
 import { SourcePlatform } from "@app/api/models";
 import { FilterState } from "./filter-input";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { usePlatformKindList } from "../usePlatformKindList";
 
 export const Review: React.FC<{
   platform: SourcePlatform;
   filters: FilterState;
 }> = ({ platform, filters }) => {
   const { t } = useTranslation();
+  const { getDisplayLabel } = usePlatformKindList();
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
 
@@ -44,7 +46,7 @@ export const Review: React.FC<{
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.platformKind")}</DescriptionListTerm>
           <DescriptionListDescription>
-            {platform?.kind}
+            {getDisplayLabel(platform?.kind)}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
