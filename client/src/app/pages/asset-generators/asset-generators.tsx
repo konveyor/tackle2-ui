@@ -120,7 +120,9 @@ const AssetGenerators: React.FC = () => {
     columnNames: {
       name: t("terms.name"),
       repository: t("terms.repository"),
+      /* TODO: Restore with #2498
       parameters: t("terms.parameters"),
+      */
       values: t("terms.values"),
     },
     isFilterEnabled: true,
@@ -266,7 +268,9 @@ const AssetGenerators: React.FC = () => {
                   <TableHeaderContentWithControls {...tableControls}>
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "repository" })} />
+                    {/* TODO: Restore with #2498
                     <Th {...getThProps({ columnKey: "parameters" })} />
+                    */}
                     <Th {...getThProps({ columnKey: "values" })} />
                   </TableHeaderContentWithControls>
                 </Tr>
@@ -298,9 +302,11 @@ const AssetGenerators: React.FC = () => {
                         >
                           {generator?.repository?.url}
                         </Td>
+                        {/* TODO: Restore with #2498
                         <Td {...getTdProps({ columnKey: "parameters" })}>
                           {Object.keys(generator?.params || {}).length}
                         </Td>
+                        */}
                         <Td {...getTdProps({ columnKey: "values" })}>
                           {Object.keys(generator?.values || {}).length}
                         </Td>

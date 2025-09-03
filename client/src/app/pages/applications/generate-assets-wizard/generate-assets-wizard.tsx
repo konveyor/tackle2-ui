@@ -16,7 +16,6 @@ import { DecoratedApplication } from "../useDecoratedApplications";
 import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
 import { useWizardReducer } from "./useWizardReducer";
 import { SelectTargetProfile } from "./step-select-target-profile";
-import { CaptureParameters } from "./step-capture-parameters";
 import { Review } from "./step-review";
 import { Results } from "./step-results";
 
@@ -157,6 +156,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
           />
         </WizardStep>
 
+        {/* TODO: Restore with #2498
         <WizardStep
           id="capture-parameters"
           name={t("generateAssetsWizard.captureParameters.stepTitle")}
@@ -172,6 +172,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
             initialParameters={state.parameters}
           />
         </WizardStep>
+        */}
 
         <WizardStep
           id="review"

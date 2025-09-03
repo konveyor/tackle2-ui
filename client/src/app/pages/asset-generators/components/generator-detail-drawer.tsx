@@ -75,12 +75,14 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
           >
             <ValuesTab generator={generator} />
           </Tab>
+          {/* TODO: Restore with #2498
           <Tab
             eventKey={TabKey.Parameters}
             title={<TabTitleText>{t("terms.parameters")}</TabTitleText>}
           >
             <ParametersTab generator={generator} />
           </Tab>
+          */}
         </Tabs>
       </div>
     </PageDrawerContent>
