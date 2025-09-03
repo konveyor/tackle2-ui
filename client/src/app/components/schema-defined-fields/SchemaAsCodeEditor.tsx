@@ -24,7 +24,6 @@ export interface ISchemaAsCodeEditorProps {
   id: string;
   jsonDocument: object;
   jsonSchema?: JsonSchemaObject;
-  onDocumentSaved?: (newSchemaContent: object) => void;
   onDocumentChanged?: (newSchemaContent: object) => void;
   isReadOnly?: boolean;
   /**
@@ -38,7 +37,6 @@ export const SchemaAsCodeEditor = ({
   id,
   jsonDocument,
   jsonSchema,
-  onDocumentSaved,
   onDocumentChanged,
   isReadOnly = false,
   height = "600px",
@@ -48,7 +46,7 @@ export const SchemaAsCodeEditor = ({
   const [currentCode, setCurrentCode] = React.useState(
     JSON.stringify(jsonDocument, null, 2)
   );
-  const [okToSave, setOkToSave] = React.useState(true);
+  // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
   const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
   React.useEffect(() => {
@@ -61,7 +59,7 @@ export const SchemaAsCodeEditor = ({
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
-      editorRef.current.setPosition({ column: 0, lineNumber: 1 });
+      editorRef.current.setPosition({ column: 1, lineNumber: 1 });
     }
   };
 
@@ -113,11 +111,13 @@ export const SchemaAsCodeEditor = ({
           });
         }
       }}
-      editorProps={{
-        onValidate: (markers) => {
-          setOkToSave(markers.every(({ severity }) => severity !== 8));
-        },
-      }}
+      // editorProps={{
+      //   onValidate: (markers) => {
+      //     setDocumentIsValid(
+      //       markers.every(({ severity }) => severity !== MarkerSeverity.Error)
+      //     );
+      //   },
+      // }}
       showEditor={!!currentCode}
       emptyState={
         <div className="simple-task-viewer-empty-state">

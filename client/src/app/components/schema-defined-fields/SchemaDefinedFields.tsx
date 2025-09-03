@@ -12,7 +12,6 @@ export interface ISchemaDefinedFieldProps {
   className?: string;
   jsonDocument: object;
   jsonSchema?: JsonSchemaObject;
-  onDocumentSaved?: (newJsonDocument: object) => void;
   onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
 }
@@ -22,19 +21,12 @@ export const SchemaDefinedField = ({
   className,
   jsonDocument,
   jsonSchema,
-  onDocumentSaved,
   onDocumentChanged,
   isReadOnly = false,
 }: ISchemaDefinedFieldProps) => {
   const [isJsonView, setIsJsonView] = React.useState<boolean>(
     !jsonSchema || isComplexSchema(jsonSchema)
   );
-
-  const onSavedHandler = !onDocumentSaved
-    ? undefined
-    : (newJsonDocument: object) => {
-        onDocumentSaved?.(newJsonDocument);
-      };
 
   const onChangeHandler = (newJsonDocument: object) => {
     onDocumentChanged?.(newJsonDocument);
@@ -66,7 +58,6 @@ export const SchemaDefinedField = ({
             isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
-            onDocumentSaved={onSavedHandler}
             onDocumentChanged={onChangeHandler}
           />
         ) : (
@@ -75,7 +66,6 @@ export const SchemaDefinedField = ({
             isReadOnly={isReadOnly}
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
-            onDocumentSaved={onSavedHandler}
             onDocumentChanged={onChangeHandler}
           />
         )}
