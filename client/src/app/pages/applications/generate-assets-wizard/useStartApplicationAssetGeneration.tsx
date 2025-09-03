@@ -18,7 +18,8 @@ export const useStartApplicationAssetGeneration = () => {
   const createAndSubmitTask = async (
     application: DecoratedApplication,
     targetProfile: TargetProfile,
-    parameters?: JsonDocument
+    parameters?: JsonDocument,
+    renderTemplates?: boolean
   ): Promise<{
     success?: {
       task: ApplicationAssetGenerationTask;
@@ -39,6 +40,7 @@ export const useStartApplicationAssetGeneration = () => {
       data: {
         profiles: toRefs([targetProfile]),
         params: parameters ?? {},
+        render: renderTemplates ?? false,
       },
     };
 
@@ -60,11 +62,12 @@ export const useStartApplicationAssetGeneration = () => {
   const submitTasks = async (
     applications: DecoratedApplication[],
     targetProfile: TargetProfile,
-    parameters?: JsonDocument
+    parameters?: JsonDocument,
+    renderTemplates?: boolean
   ) => {
     const results = await Promise.allSettled(
       applications.map(async (a) =>
-        createAndSubmitTask(a, targetProfile, parameters)
+        createAndSubmitTask(a, targetProfile, parameters, renderTemplates)
       )
     );
 
