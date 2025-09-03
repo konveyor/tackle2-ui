@@ -806,10 +806,7 @@
       "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's discovery manifest, target profile, input parameters, and generator settings.",
       "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' discovery manifests, target profile, input parameters, and generator settings.",
       "selectedApplications_one": "Selected application",
-      "selectedApplications_other": "Selected applications ({{count}})",
-      "renderTemplates": "Output rendering",
-      "renderTemplates-true": "Render asset templates",
-      "renderTemplates-false": "Render to helm charts and values.yaml"
+      "selectedApplications_other": "Selected applications ({{count}})"
     },
     "results": {
       "title": "Asset Generation Results",
