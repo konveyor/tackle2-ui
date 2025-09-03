@@ -34,7 +34,6 @@ import {
 import { useGeneratorProviderList } from "../../useGeneratorProviderList";
 import { parametersToArray, arrayToParameters } from "../../utils";
 import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
-import { GeneratorFormParameters as GeneratorParametersSection } from "./generator-form-parameters";
 import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
 import { matchItemsToRef } from "@app/utils/model-utils";
 
@@ -265,7 +264,9 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
         <GeneratorValuesSection />
 
         {/* Parameters section */}
+        {/* TODO: Restore with #2498
         <GeneratorParametersSection />
+        */}
 
         <ActionGroup>
           <Button
