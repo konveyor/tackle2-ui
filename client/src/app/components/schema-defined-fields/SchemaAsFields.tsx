@@ -20,7 +20,6 @@ export interface SchemaAsFieldsProps {
   id: string;
   jsonDocument: object;
   jsonSchema: JsonSchemaObject;
-  onDocumentSaved?: (newJsonDocument: object) => void;
   onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
 }
@@ -222,7 +221,6 @@ export const SchemaAsFields: React.FC<SchemaAsFieldsProps> = ({
   jsonDocument,
   jsonSchema,
   onDocumentChanged,
-  // Note: onDocumentSaved doesn't make sense for this component
   isReadOnly = false,
 }) => {
   const { t } = useTranslation();
