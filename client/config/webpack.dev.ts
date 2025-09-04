@@ -1,20 +1,22 @@
 import path from "path";
-import { mergeWithRules } from "webpack-merge";
-import type { Configuration as WebpackConfiguration } from "webpack";
-import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
+
+import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
+import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import ReactRefreshTypeScript from "react-refresh-typescript";
-import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
-import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import type { Configuration as WebpackConfiguration } from "webpack";
+import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
+import { mergeWithRules } from "webpack-merge";
 
 import {
-  encodeEnv,
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
-  brandingStrings,
   brandingAssetPath,
+  brandingStrings,
+  encodeEnv,
 } from "@konveyor-ui/common";
+
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 
