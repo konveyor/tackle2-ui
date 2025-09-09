@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import process from "node:process";
-import path from "node:path";
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import process from "node:process";
 
 // set the working directory to project root
 // fs.accessSync("./package-lock.json")
