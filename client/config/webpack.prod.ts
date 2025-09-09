@@ -1,11 +1,13 @@
 import path from "path";
-import merge from "webpack-merge";
-import webpack, { Configuration } from "webpack";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import webpack, { Configuration } from "webpack";
+import merge from "webpack-merge";
 
 import { brandingAssetPath } from "@konveyor-ui/common";
+
 import { stylePaths } from "./stylePaths";
 import commonWebpackConfiguration from "./webpack.common";
 

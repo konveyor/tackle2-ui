@@ -12,6 +12,7 @@
     "radash",
     "taskgroup",
     "taskgroups",
-    "toastr"
+    "toastr",
+    "userpass"
   ]
 }
