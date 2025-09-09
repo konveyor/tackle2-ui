@@ -1,8 +1,8 @@
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 
 import {
   Application,
@@ -11,13 +11,13 @@ import {
   TagRef,
   TargetedSchema,
 } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { type TagItemType } from "@app/queries/tags";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
-import { useFetchPlatformCoordinatesSchema } from "@app/queries/schemas";
+import { type RepositoryKind } from "@app/hooks/useRepositoryKind";
+import { type TagItemType } from "@app/queries/tags";
+import { duplicateNameCheck } from "@app/utils/utils";
+
 import { useApplicationFormData } from "./useApplicationFormData";
 
-type RepositoryKind = "git" | "subversion" | "";
 export interface FormValues {
   id?: number;
   name: string;
@@ -246,7 +246,8 @@ export const useApplicationForm = ({
       assetRootPath: application?.assets?.path || "",
 
       sourcePlatform: application?.platform?.name || "",
-      coordinatesSchema: undefined, // will be set by useEffect below
+      coordinatesSchema: sourcePlatformFromName(application?.platform?.name)
+        ?.coordinatesSchema,
       coordinatesDocument: application?.coordinates?.content,
     },
     resolver: yupResolver(validationSchema),
@@ -255,30 +256,7 @@ export const useApplicationForm = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    watch,
-    reset,
   } = form;
-
-  const selectedPlatform = watch("sourcePlatform");
-  const { coordinatesSchema } = useFetchPlatformCoordinatesSchema(
-    sourcePlatformFromName(selectedPlatform)?.kind
-  );
-  useEffect(() => {
-    if (coordinatesSchema) {
-      // use reset() to change >1 field at once
-      reset({
-        ...form.getValues(),
-        coordinatesSchema: coordinatesSchema,
-        coordinatesDocument: {},
-      });
-    } else {
-      reset({
-        ...form.getValues(),
-        coordinatesSchema: undefined,
-        coordinatesDocument: undefined,
-      });
-    }
-  }, [coordinatesSchema, reset, form]);
 
   const onValidSubmit = (formValues: FormValues) => {
     const binaryValues = [
@@ -306,7 +284,7 @@ export const useApplicationForm = ({
 
       repository: formValues.sourceRepository
         ? {
-            kind: formValues.kind.trim(),
+            kind: formValues.kind?.trim(),
             url: formValues.sourceRepository.trim(),
             branch: formValues.branch.trim(),
             path: formValues.rootPath.trim(),

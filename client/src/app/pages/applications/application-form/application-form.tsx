@@ -1,5 +1,6 @@
 import "./application-form.css";
 import React from "react";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   ExpandableSection,
@@ -7,35 +8,41 @@ import {
   Popover,
   PopoverPosition,
 } from "@patternfly/react-core";
-import { useWatch } from "react-hook-form";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
-import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { toOptionLike } from "@app/utils/model-utils";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
+  HookFormAutocomplete,
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-  HookFormAutocomplete,
 } from "@app/components/HookFormPFFields";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
+import { toOptionLike } from "@app/utils/model-utils";
+
+import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
-import { Application } from "@app/api/models";
 
-export const ApplicationForm: React.FC<{
+export interface ApplicationFormProps {
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
-  application: Application | null;
-}> = ({
-  form: { control, trigger, getValues },
+  application: DecoratedApplication | null;
+}
+
+export const ApplicationForm: React.FC<ApplicationFormProps> = ({
+  form: { control, trigger, getValues, setValue },
   data: {
+    isDataReady,
     tagItems,
     stakeholdersOptions,
     repositoryKindOptions,
     stakeholders,
     businessServiceOptions,
+    sourcePlatformFromName,
     sourcePlatformOptions,
   },
   application,
@@ -66,6 +73,10 @@ export const ApplicationForm: React.FC<{
     React.useState(
       application !== null && !!values.assetKind && !!values.assetRepository
     );
+
+  if (!isDataReady) {
+    return <AppPlaceholder />;
+  }
 
   return (
     <Form>
@@ -355,10 +366,17 @@ export const ApplicationForm: React.FC<{
                 }
                 options={sourcePlatformOptions}
                 onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
+                  const name = (selection as OptionWithValue<string>).value;
+                  const platform = sourcePlatformFromName(name);
+                  onChange(name);
+                  setValue("coordinatesSchema", platform?.coordinatesSchema);
+                  setValue("coordinatesDocument", undefined);
                 }}
-                onClear={() => onChange("")}
+                onClear={() => {
+                  onChange("");
+                  setValue("coordinatesSchema", undefined);
+                  setValue("coordinatesDocument", undefined);
+                }}
               />
             )}
           />
@@ -376,7 +394,7 @@ export const ApplicationForm: React.FC<{
                 </i>
               ) : (
                 <SchemaDefinedField
-                  key={values.sourcePlatform}
+                  key={`${application?.id ?? -1}-${values.sourcePlatform}`}
                   id={name}
                   jsonDocument={value ?? {}}
                   jsonSchema={values.coordinatesSchema.definition}

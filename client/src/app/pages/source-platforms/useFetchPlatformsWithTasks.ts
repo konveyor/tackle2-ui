@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { group, listify, mapEntries } from "radash";
+
 import { SourcePlatform, TaskDashboard } from "@app/api/models";
-import { TaskStates, useFetchTaskDashboard } from "@app/queries/tasks";
 import { useFetchPlatforms } from "@app/queries/platforms";
+import { TaskStates, useFetchTaskDashboard } from "@app/queries/tasks";
 
 export interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];
@@ -130,7 +131,7 @@ const decoratePlatforms = (
 };
 
 export const useFetchPlatformsWithTasks = (refetchDisabled: boolean) => {
-  const { platforms, isFetching, isSuccess, error } = useFetchPlatforms();
+  const { platforms, isLoading, isSuccess, error } = useFetchPlatforms();
   const { tasks } = useFetchTaskDashboard(refetchDisabled);
 
   const decoratedPlatforms = useMemo(
@@ -146,7 +147,7 @@ export const useFetchPlatformsWithTasks = (refetchDisabled: boolean) => {
   return {
     platforms: decoratedPlatforms,
     // platformNames,
-    isFetching,
+    isLoading,
     isSuccess,
     error,
   };
