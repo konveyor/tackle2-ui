@@ -1,25 +1,19 @@
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 
-import {
-  Application,
-  JsonDocument,
-  New,
-  TagRef,
-  TargetedSchema,
-} from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { type TagItemType } from "@app/queries/tags";
+import { Application, JsonDocument, New, TagRef } from "@app/api/models";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
-import { useFetchPlatformCoordinatesSchema } from "@app/queries/schemas";
+import { type RepositoryKind } from "@app/hooks/useRepositoryKind";
+import { type TagItemType } from "@app/queries/tags";
+import { toRef } from "@app/utils/model-utils";
+import { duplicateNameCheck } from "@app/utils/utils";
+
 import { useApplicationFormData } from "./useApplicationFormData";
 
-type RepositoryKind = "git" | "subversion" | "";
 export interface FormValues {
-  id?: number;
   name: string;
   description: string;
   comments: string;
@@ -39,9 +33,8 @@ export interface FormValues {
   assetRepository: string;
   assetBranch: string;
   assetRootPath: string;
-  sourcePlatform?: string;
-  coordinatesSchema?: TargetedSchema;
-  coordinatesDocument?: JsonDocument;
+  sourcePlatform: string | null;
+  coordinatesDocument: JsonDocument | null;
 }
 
 export interface ApplicationFormProps {
@@ -84,8 +77,7 @@ export const useApplicationForm = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
-    sourcePlatformToRef,
-    sourcePlatformFromName,
+    platformFromName,
   },
 }: ApplicationFormProps) => {
   const { t } = useTranslation();
@@ -118,16 +110,9 @@ export const useApplicationForm = ({
       description: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      businessService: object()
-        .shape({
-          id: string()
-            .trim()
-            .max(250, t("validation.maxLength", { length: 250 })),
-          value: string()
-            .trim()
-            .max(250, t("validation.maxLength", { length: 250 })),
-        })
-        .nullable(),
+      businessServiceName: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
       comments: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
@@ -195,15 +180,16 @@ export const useApplicationForm = ({
 
       // source platform and coordinates
       sourcePlatform: string().nullable(),
-      coordinatesSchema: object().nullable(),
-      coordinatesDocument: object().when(
-        "coordinatesSchema",
-        (coordinatesSchema: TargetedSchema | undefined) => {
+      coordinatesDocument: object()
+        .nullable()
+        .when("sourcePlatform", (sourcePlatform: string | null) => {
+          const coordinatesSchema = sourcePlatform
+            ? platformFromName(sourcePlatform)?.coordinatesSchema
+            : null;
           return coordinatesSchema
             ? jsonSchemaToYupSchema(coordinatesSchema.definition, t)
             : object().nullable();
-        }
-      ),
+        }),
     },
     [
       ["version", "group"],
@@ -217,7 +203,6 @@ export const useApplicationForm = ({
 
   const form = useForm<FormValues>({
     defaultValues: {
-      id: application?.id,
       name: application?.name || "",
       description: application?.description || "",
       comments: application?.comments || "",
@@ -245,40 +230,17 @@ export const useApplicationForm = ({
       assetBranch: application?.assets?.branch || "",
       assetRootPath: application?.assets?.path || "",
 
-      sourcePlatform: application?.platform?.name || "",
-      coordinatesSchema: undefined, // will be set by useEffect below
-      coordinatesDocument: application?.coordinates?.content,
+      sourcePlatform: application?.platform?.name || null,
+      coordinatesDocument: application?.coordinates?.content ?? null,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
+    shouldUnregister: true,
   });
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    watch,
-    reset,
   } = form;
-
-  const selectedPlatform = watch("sourcePlatform");
-  const { coordinatesSchema } = useFetchPlatformCoordinatesSchema(
-    sourcePlatformFromName(selectedPlatform)?.kind
-  );
-  useEffect(() => {
-    if (coordinatesSchema) {
-      // use reset() to change >1 field at once
-      reset({
-        ...form.getValues(),
-        coordinatesSchema: coordinatesSchema,
-        coordinatesDocument: {},
-      });
-    } else {
-      reset({
-        ...form.getValues(),
-        coordinatesSchema: undefined,
-        coordinatesDocument: undefined,
-      });
-    }
-  }, [coordinatesSchema, reset, form]);
 
   const onValidSubmit = (formValues: FormValues) => {
     const binaryValues = [
@@ -287,6 +249,8 @@ export const useApplicationForm = ({
       formValues.version,
       formValues.packaging,
     ].filter(Boolean);
+
+    const platform = platformFromName(formValues.sourcePlatform);
 
     const payload: New<Application> = {
       name: formValues.name.trim(),
@@ -306,12 +270,13 @@ export const useApplicationForm = ({
 
       repository: formValues.sourceRepository
         ? {
-            kind: formValues.kind.trim(),
+            kind: formValues.kind?.trim(),
             url: formValues.sourceRepository.trim(),
             branch: formValues.branch.trim(),
             path: formValues.rootPath.trim(),
           }
         : undefined,
+
       binary:
         binaryValues.length > 0 ? `mvn://${binaryValues.join(":")}` : undefined,
 
@@ -324,12 +289,13 @@ export const useApplicationForm = ({
         },
       }),
 
-      platform: sourcePlatformToRef(formValues.sourcePlatform),
-      ...(formValues.coordinatesDocument &&
-        formValues.coordinatesSchema && {
+      platform: toRef(platform),
+      ...(platform &&
+        platform.coordinatesSchema &&
+        formValues.coordinatesDocument && {
           coordinates: {
             content: formValues.coordinatesDocument,
-            schema: formValues.coordinatesSchema.name,
+            schema: platform.coordinatesSchema.name,
           },
         }),
 

@@ -291,6 +291,11 @@
     "retain": "Retain",
     "retire": "Retire"
   },
+  "repositoryKind": {
+    "git": "Git",
+    "subversion": "Subversion",
+    "none": "None"
+  },
   "risks": {
     "high": "High",
     "low": "Low",
