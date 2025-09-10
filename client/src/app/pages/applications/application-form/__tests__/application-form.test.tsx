@@ -1,17 +1,17 @@
 import React from "react";
+import { server } from "@mocks/server";
+import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+import { rest } from "msw";
+
 import {
-  render,
-  waitFor,
-  screen,
   fireEvent,
+  render,
+  screen,
+  waitFor,
 } from "@app/test-config/test-utils";
 
-import userEvent from "@testing-library/user-event";
-
-import "@testing-library/jest-dom";
 import { ApplicationFormModal } from "../application-form-modal";
-import { server } from "@mocks/server";
-import { rest } from "msw";
 
 describe("Component: application-form", () => {
   const mockChangeValue = jest.fn();
@@ -33,7 +33,7 @@ describe("Component: application-form", () => {
     const data = {
       name: "app-name",
       businessService: "service",
-      repoType: "Git",
+      repoType: "repositoryKind.git", // display name or i18n key if i18n is disabled
       repoUrl: "https://github.com/username/tackle-testapp.git",
     };
 
