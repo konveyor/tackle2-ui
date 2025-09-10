@@ -19,20 +19,25 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import {
+  ActionsColumn,
   Table,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
-  Td,
-  ActionsColumn,
 } from "@patternfly/react-table";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { SourcePlatform } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -40,18 +45,14 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeletePlatformMutation } from "@app/queries/platforms";
-import { SourcePlatform } from "@app/api/models";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { SimplePagination } from "@app/components/SimplePagination";
 
+import { ColumnPlatformName } from "./components/column-platform-name";
 import LinkToPlatformApplications from "./components/link-to-platform-applications";
 import PlatformDetailDrawer from "./components/platform-detail-drawer";
 import { PlatformForm } from "./components/platform-form";
 import { DiscoverImportWizard } from "./discover-import-wizard/discover-import-wizard";
 import { useFetchPlatformsWithTasks } from "./useFetchPlatformsWithTasks";
-import { ColumnPlatformName } from "./components/column-platform-name";
 import { usePlatformKindList } from "./usePlatformKindList";
 
 export const SourcePlatforms: React.FC = () => {
@@ -145,7 +146,7 @@ export const SourcePlatforms: React.FC = () => {
             what: t("terms.platformKind").toLowerCase(),
           }) + "...",
         getItemValue: (platform) => {
-          return platform?.kind ?? "";
+          return getDisplayLabel(platform?.kind) ?? "";
         },
       },
     ],
