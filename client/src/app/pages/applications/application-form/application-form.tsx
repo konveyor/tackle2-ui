@@ -12,6 +12,7 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   HookFormAutocomplete,
   HookFormPFGroupController,
@@ -33,10 +34,18 @@ export interface ApplicationFormProps {
   application: DecoratedApplication | null;
 }
 
-export const ApplicationForm: React.FC<ApplicationFormProps> = ({
+export const ApplicationForm: React.FC<ApplicationFormProps> = (props) => {
+  const { isDataReady } = props.data;
+  return (
+    <ConditionalRender when={!isDataReady} then={<AppPlaceholder />}>
+      <ApplicationFormReady {...props} key={props.application?.id ?? -1} />
+    </ConditionalRender>
+  );
+};
+
+export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   form: { control, trigger, getValues, setValue },
   data: {
-    isDataReady,
     tagItems,
     stakeholdersOptions,
     repositoryKindOptions,
@@ -73,10 +82,6 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
     React.useState(
       application !== null && !!values.assetKind && !!values.assetRepository
     );
-
-  if (!isDataReady) {
-    return <AppPlaceholder />;
-  }
 
   return (
     <Form>
@@ -367,15 +372,18 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                 options={sourcePlatformOptions}
                 onChange={(selection) => {
                   const name = (selection as OptionWithValue<string>).value;
-                  const platform = sourcePlatformFromName(name);
-                  onChange(name);
-                  setValue("coordinatesSchema", platform?.coordinatesSchema);
-                  setValue("coordinatesDocument", undefined);
+                  if (name !== value) {
+                    onChange(name);
+                    setValue("coordinatesDocument", null, {
+                      shouldValidate: true,
+                    });
+                  }
                 }}
                 onClear={() => {
-                  onChange("");
-                  setValue("coordinatesSchema", undefined);
-                  setValue("coordinatesDocument", undefined);
+                  onChange(null);
+                  setValue("coordinatesDocument", null, {
+                    shouldValidate: true,
+                  });
                 }}
               />
             )}
@@ -385,10 +393,13 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
             name="coordinatesDocument"
             label={t("terms.sourcePlatformCoordinates")}
             fieldId="coordinatesDocument"
-            renderInput={({ field: { value, name, onChange } }) =>
-              !values.sourcePlatform ? (
+            renderInput={({ field: { value, name, onChange } }) => {
+              const sp = values.sourcePlatform;
+              const cs = sourcePlatformFromName(sp)?.coordinatesSchema;
+
+              return !sp ? (
                 <i>Select a source platform to setup the coordinates.</i>
-              ) : !values.coordinatesSchema ? (
+              ) : !cs ? (
                 <i>
                   No coordinates are available for the selected source platform.
                 </i>
@@ -397,13 +408,20 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
                   key={`${application?.id ?? -1}-${values.sourcePlatform}`}
                   id={name}
                   jsonDocument={value ?? {}}
-                  jsonSchema={values.coordinatesSchema.definition}
+                  jsonSchema={cs.definition}
                   onDocumentChanged={(newJsonDocument) => {
-                    onChange(newJsonDocument);
+                    // Note: Since the shape of the json document __could__ look like an event
+                    //       object, we wrap it up so it will always be processed correctly.
+                    onChange({
+                      target: {
+                        name,
+                        value: newJsonDocument,
+                      },
+                    });
                   }}
                 />
-              )
-            }
+              );
+            }}
           />
         </div>
       </ExpandableSection>

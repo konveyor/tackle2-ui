@@ -4,22 +4,16 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 
-import {
-  Application,
-  JsonDocument,
-  New,
-  TagRef,
-  TargetedSchema,
-} from "@app/api/models";
+import { Application, JsonDocument, New, TagRef } from "@app/api/models";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { type RepositoryKind } from "@app/hooks/useRepositoryKind";
 import { type TagItemType } from "@app/queries/tags";
+import { toRef } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
 
 import { useApplicationFormData } from "./useApplicationFormData";
 
 export interface FormValues {
-  id?: number;
   name: string;
   description: string;
   comments: string;
@@ -39,9 +33,8 @@ export interface FormValues {
   assetRepository: string;
   assetBranch: string;
   assetRootPath: string;
-  sourcePlatform?: string;
-  coordinatesSchema?: TargetedSchema;
-  coordinatesDocument?: JsonDocument;
+  sourcePlatform: string | null;
+  coordinatesDocument: JsonDocument | null;
 }
 
 export interface ApplicationFormProps {
@@ -84,7 +77,6 @@ export const useApplicationForm = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
-    sourcePlatformToRef,
     sourcePlatformFromName,
   },
 }: ApplicationFormProps) => {
@@ -195,10 +187,12 @@ export const useApplicationForm = ({
 
       // source platform and coordinates
       sourcePlatform: string().nullable(),
-      coordinatesSchema: object().nullable(),
       coordinatesDocument: object().when(
-        "coordinatesSchema",
-        (coordinatesSchema: TargetedSchema | undefined) => {
+        "sourcePlatform",
+        (sourcePlatform: string | null) => {
+          const coordinatesSchema = sourcePlatform
+            ? sourcePlatformFromName(sourcePlatform)?.coordinatesSchema
+            : null;
           return coordinatesSchema
             ? jsonSchemaToYupSchema(coordinatesSchema.definition, t)
             : object().nullable();
@@ -217,7 +211,6 @@ export const useApplicationForm = ({
 
   const form = useForm<FormValues>({
     defaultValues: {
-      id: application?.id,
       name: application?.name || "",
       description: application?.description || "",
       comments: application?.comments || "",
@@ -245,13 +238,12 @@ export const useApplicationForm = ({
       assetBranch: application?.assets?.branch || "",
       assetRootPath: application?.assets?.path || "",
 
-      sourcePlatform: application?.platform?.name || "",
-      coordinatesSchema: sourcePlatformFromName(application?.platform?.name)
-        ?.coordinatesSchema,
-      coordinatesDocument: application?.coordinates?.content,
+      sourcePlatform: application?.platform?.name || null,
+      coordinatesDocument: application?.coordinates?.content ?? null,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
+    shouldUnregister: true,
   });
   const {
     handleSubmit,
@@ -265,6 +257,8 @@ export const useApplicationForm = ({
       formValues.version,
       formValues.packaging,
     ].filter(Boolean);
+
+    const sourcePlatform = sourcePlatformFromName(formValues.sourcePlatform);
 
     const payload: New<Application> = {
       name: formValues.name.trim(),
@@ -290,6 +284,7 @@ export const useApplicationForm = ({
             path: formValues.rootPath.trim(),
           }
         : undefined,
+
       binary:
         binaryValues.length > 0 ? `mvn://${binaryValues.join(":")}` : undefined,
 
@@ -302,12 +297,12 @@ export const useApplicationForm = ({
         },
       }),
 
-      platform: sourcePlatformToRef(formValues.sourcePlatform),
-      ...(formValues.coordinatesDocument &&
-        formValues.coordinatesSchema && {
+      platform: toRef(sourcePlatform),
+      ...(sourcePlatform &&
+        formValues.coordinatesDocument && {
           coordinates: {
             content: formValues.coordinatesDocument,
-            schema: formValues.coordinatesSchema.name,
+            schema: sourcePlatform.coordinatesSchema?.name ?? "",
           },
         }),
 

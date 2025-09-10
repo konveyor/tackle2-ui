@@ -68,8 +68,8 @@ export const useFetchPlatformsWithCoordinatesSchemas = (
     })),
   });
 
-  const aggregatedSchemaResults = useMemo(() => {
-    const r = {
+  const aggregatedSchemaResults = useMemo(
+    () => ({
       isLoading: schemaResults.some((result) => result.isLoading),
       isFetching: schemaResults.every((result) => result.isFetching),
       isSuccess: schemaResults.every((result) => result.isSuccess),
@@ -77,10 +77,9 @@ export const useFetchPlatformsWithCoordinatesSchemas = (
       schemasByKind: Object.fromEntries(
         uniqueKinds.map((kind, index) => [kind, schemaResults[index].data])
       ),
-    };
-    console.log("aggregatedSchemaResults", r);
-    return r;
-  }, [schemaResults, uniqueKinds]);
+    }),
+    [schemaResults, uniqueKinds]
+  );
 
   const platformsWithSchemas = useMemo(() => {
     const { schemasByKind } = aggregatedSchemaResults;

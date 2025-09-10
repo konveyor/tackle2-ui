@@ -68,7 +68,7 @@ export const useApplicationFormData = ({
   );
 
   const sourcePlatformFromName = useCallback(
-    (name?: string) =>
+    (name?: string | null) =>
       name ? platforms.find((p) => p.name === name) : undefined,
     [platforms]
   );
