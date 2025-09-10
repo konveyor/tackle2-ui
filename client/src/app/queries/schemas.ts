@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { AxiosError } from "axios";
+
 import {
-  getSchemas,
-  getSchemaByName,
   getPlatformCoordinatesSchema,
   getPlatformDiscoveryFilterSchema,
+  getSchemaByName,
+  getSchemas,
 } from "@app/api/rest";
 
 export const SCHEMAS_QUERY_KEY = "schemas";
@@ -33,7 +33,7 @@ export const useFetchSchemas = (refetchInterval: number | false = false) => {
 };
 
 export const useFetchSchemaByName = (name?: string) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isSuccess, error } = useQuery({
     queryKey: [SCHEMA_QUERY_KEY, name],
     queryFn: () =>
       name === undefined ? Promise.resolve(undefined) : getSchemaByName(name),
@@ -44,12 +44,13 @@ export const useFetchSchemaByName = (name?: string) => {
   return {
     schema: data,
     isLoading,
+    isSuccess,
     fetchError: error,
   };
 };
 
 export const useFetchPlatformCoordinatesSchema = (platformKind?: string) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isSuccess, error } = useQuery({
     queryKey: [PLATFORM_COORDINATES_SCHEMA_QUERY_KEY, platformKind],
     queryFn: () =>
       platformKind === undefined
@@ -62,6 +63,7 @@ export const useFetchPlatformCoordinatesSchema = (platformKind?: string) => {
   return {
     coordinatesSchema: data,
     isLoading,
+    isSuccess,
     fetchError: error,
   };
 };

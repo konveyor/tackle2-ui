@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { BusinessService, New } from "@app/api/models";
 import {
   createBusinessService,
   deleteBusinessService,
@@ -8,8 +10,6 @@ import {
   getBusinessServices,
   updateBusinessService,
 } from "@app/api/rest";
-import { BusinessService, New } from "@app/api/models";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const BusinessServicesQueryKey = "businessservices";
 export const BusinessServiceQueryKey = "businessservice";
@@ -17,7 +17,7 @@ export const BusinessServiceQueryKey = "businessservice";
 export const useFetchBusinessServices = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [BusinessServicesQueryKey],
     queryFn: getBusinessServices,
     onError: (error: AxiosError) => console.log("error, ", error),
@@ -26,6 +26,8 @@ export const useFetchBusinessServices = (
   return {
     businessServices: data || [],
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
     fetchError: error as AxiosError,
     refetch,
   };
