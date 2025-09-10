@@ -51,14 +51,15 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
     repositoryKindOptions,
     stakeholders,
     businessServiceOptions,
-    sourcePlatformFromName,
-    sourcePlatformOptions,
+    platformFromName,
+    platformOptions,
   },
   application,
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
   const watchAssetKind = useWatch({ control, name: "assetKind" });
+  const watchSourcePlatform = useWatch({ control, name: "sourcePlatform" });
   const values = getValues();
 
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
@@ -366,10 +367,8 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 id="source-platform-select"
                 toggleAriaLabel="Source platform select dropdown toggle"
                 aria-label={name}
-                value={
-                  value ? toOptionLike(value, sourcePlatformOptions) : undefined
-                }
-                options={sourcePlatformOptions}
+                value={value ? toOptionLike(value, platformOptions) : undefined}
+                options={platformOptions}
                 onChange={(selection) => {
                   const name = (selection as OptionWithValue<string>).value;
                   if (name !== value) {
@@ -394,21 +393,21 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.sourcePlatformCoordinates")}
             fieldId="coordinatesDocument"
             renderInput={({ field: { value, name, onChange } }) => {
-              const sp = values.sourcePlatform;
-              const cs = sourcePlatformFromName(sp)?.coordinatesSchema;
+              const coordinatesSchema =
+                platformFromName(watchSourcePlatform)?.coordinatesSchema;
 
-              return !sp ? (
+              return !watchSourcePlatform ? (
                 <i>Select a source platform to setup the coordinates.</i>
-              ) : !cs ? (
+              ) : !coordinatesSchema ? (
                 <i>
                   No coordinates are available for the selected source platform.
                 </i>
               ) : (
                 <SchemaDefinedField
-                  key={`${application?.id ?? -1}-${values.sourcePlatform}`}
+                  key={`${application?.id ?? -1}-${watchSourcePlatform}`}
                   id={name}
                   jsonDocument={value ?? {}}
-                  jsonSchema={cs.definition}
+                  jsonSchema={coordinatesSchema.definition}
                   onDocumentChanged={(newJsonDocument) => {
                     // Note: Since the shape of the json document __could__ look like an event
                     //       object, we wrap it up so it will always be processed correctly.

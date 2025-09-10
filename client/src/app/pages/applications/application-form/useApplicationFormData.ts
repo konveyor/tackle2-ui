@@ -61,13 +61,7 @@ export const useApplicationFormData = ({
     [businessServices]
   );
 
-  const sourcePlatformToRef = useCallback(
-    (name: string | undefined | null) =>
-      matchItemsToRef(platforms, (i) => i.name, name),
-    [platforms]
-  );
-
-  const sourcePlatformFromName = useCallback(
+  const platformFromName = useCallback(
     (name?: string | null) =>
       name ? platforms.find((p) => p.name === name) : undefined,
     [platforms]
@@ -152,10 +146,9 @@ export const useApplicationFormData = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
-    sourcePlatforms: platforms,
-    sourcePlatformOptions: platforms.map(entityToOptionWithValue),
-    sourcePlatformFromName,
-    sourcePlatformToRef,
+    platforms,
+    platformOptions: platforms.map(entityToOptionWithValue),
+    platformFromName,
     repositoryKindOptions: kindOptions,
   };
 };

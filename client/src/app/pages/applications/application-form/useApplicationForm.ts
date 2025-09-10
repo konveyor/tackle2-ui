@@ -77,7 +77,7 @@ export const useApplicationForm = ({
     idsToTagRefs,
     createApplication,
     updateApplication,
-    sourcePlatformFromName,
+    platformFromName,
   },
 }: ApplicationFormProps) => {
   const { t } = useTranslation();
@@ -110,16 +110,9 @@ export const useApplicationForm = ({
       description: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
-      businessService: object()
-        .shape({
-          id: string()
-            .trim()
-            .max(250, t("validation.maxLength", { length: 250 })),
-          value: string()
-            .trim()
-            .max(250, t("validation.maxLength", { length: 250 })),
-        })
-        .nullable(),
+      businessServiceName: string()
+        .trim()
+        .max(250, t("validation.maxLength", { length: 250 })),
       comments: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
@@ -187,17 +180,16 @@ export const useApplicationForm = ({
 
       // source platform and coordinates
       sourcePlatform: string().nullable(),
-      coordinatesDocument: object().when(
-        "sourcePlatform",
-        (sourcePlatform: string | null) => {
+      coordinatesDocument: object()
+        .nullable()
+        .when("sourcePlatform", (sourcePlatform: string | null) => {
           const coordinatesSchema = sourcePlatform
-            ? sourcePlatformFromName(sourcePlatform)?.coordinatesSchema
+            ? platformFromName(sourcePlatform)?.coordinatesSchema
             : null;
           return coordinatesSchema
             ? jsonSchemaToYupSchema(coordinatesSchema.definition, t)
             : object().nullable();
-        }
-      ),
+        }),
     },
     [
       ["version", "group"],
@@ -258,7 +250,7 @@ export const useApplicationForm = ({
       formValues.packaging,
     ].filter(Boolean);
 
-    const sourcePlatform = sourcePlatformFromName(formValues.sourcePlatform);
+    const platform = platformFromName(formValues.sourcePlatform);
 
     const payload: New<Application> = {
       name: formValues.name.trim(),
@@ -297,12 +289,13 @@ export const useApplicationForm = ({
         },
       }),
 
-      platform: toRef(sourcePlatform),
-      ...(sourcePlatform &&
+      platform: toRef(platform),
+      ...(platform &&
+        platform.coordinatesSchema &&
         formValues.coordinatesDocument && {
           coordinates: {
             content: formValues.coordinatesDocument,
-            schema: sourcePlatform.coordinatesSchema?.name ?? "",
+            schema: platform.coordinatesSchema.name,
           },
         }),
 

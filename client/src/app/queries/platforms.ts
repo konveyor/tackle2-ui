@@ -65,13 +65,14 @@ export const useFetchPlatformsWithCoordinatesSchemas = (
       queryKey: [PLATFORM_COORDINATES_SCHEMA_QUERY_KEY, kind],
       queryFn: () => getPlatformCoordinatesSchema(kind),
       refetchInterval: false,
+      staleTime: Infinity,
     })),
   });
 
   const aggregatedSchemaResults = useMemo(
     () => ({
       isLoading: schemaResults.some((result) => result.isLoading),
-      isFetching: schemaResults.every((result) => result.isFetching),
+      isFetching: schemaResults.some((result) => result.isFetching),
       isSuccess: schemaResults.every((result) => result.isSuccess),
       errors: schemaResults.map(({ error }) => error).filter(Boolean),
       schemasByKind: Object.fromEntries(
