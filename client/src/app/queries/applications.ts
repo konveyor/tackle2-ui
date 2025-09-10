@@ -11,6 +11,7 @@ import {
 } from "@app/api/models";
 import {
   APPLICATIONS,
+  HEADERS,
   createApplication,
   createApplicationDependency,
   deleteApplication,
@@ -207,9 +208,9 @@ export const useDeleteApplicationMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id }: { id: number }) => deleteApplication(id),
-    onSuccess: (_res) => {
+    onSuccess: (_res, vars) => {
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
-      onSuccess(1);
+      onSuccess(vars.id);
     },
     onError: onError,
   });
@@ -230,11 +231,10 @@ export const useBulkDeleteApplicationMutation = (
   });
 };
 
-export const downloadStaticReport = async ({
+const downloadStaticReport = async ({
   application,
   mimeType,
 }: DownloadOptions): Promise<void> => {
-  const yamlAcceptHeader = "application/x-yaml";
   let url = `${APPLICATIONS}/${application.id}/analysis/report`;
 
   switch (mimeType) {
@@ -249,11 +249,7 @@ export const downloadStaticReport = async ({
   try {
     const response = await axios.get(url, {
       responseType: "blob",
-      ...(MimeType.YAML && {
-        headers: {
-          Accept: yamlAcceptHeader,
-        },
-      }),
+      ...(mimeType === MimeType.YAML && { headers: HEADERS.yaml }),
     });
 
     if (response.status !== 200) {

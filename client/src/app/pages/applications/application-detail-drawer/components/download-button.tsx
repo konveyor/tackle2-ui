@@ -1,11 +1,10 @@
 import React from "react";
 import { Button } from "@patternfly/react-core";
+import { Alert, Spinner } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useDownloadStaticReport } from "@app/queries/applications";
-import { Application } from "@app/api/models";
-import { Spinner, Alert } from "@patternfly/react-core";
 
-import { MimeType } from "@app/api/models";
+import { Application, MimeType } from "@app/api/models";
+import { useDownloadStaticReport } from "@app/queries/applications";
 
 interface IDownloadButtonProps {
   application: Application;
@@ -20,8 +19,8 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
   isDownloadEnabled,
 }) => {
   const {
-    mutate: downloadFile,
-    isLoading,
+    mutateAsync: downloadFile,
+    isPending,
     isError,
   } = useDownloadStaticReport();
 
@@ -34,7 +33,7 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
 
   return (
     <>
-      {isLoading ? (
+      {isPending ? (
         <Spinner size="sm" />
       ) : isError ? (
         <Alert variant="warning" isInline title={"Error downloading report"}>
