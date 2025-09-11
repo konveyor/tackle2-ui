@@ -1,17 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
 import {
   createStakeholder,
   deleteStakeholder,
   getStakeholders,
   updateStakeholder,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
-import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+
+import { ARCHETYPES_QUERY_KEY } from "./archetypes";
+import { assessmentsQueryKey } from "./assessments";
 import { BusinessServicesQueryKey } from "./businessservices";
 import { MigrationWavesQueryKey } from "./migration-waves";
-import { assessmentsQueryKey } from "./assessments";
-import { ARCHETYPES_QUERY_KEY } from "./archetypes";
 
 export const StakeholdersQueryKey = "stakeholders";
 
@@ -45,6 +47,7 @@ export const useFetchStakeholders = (
   return {
     stakeholders: data || [],
     isFetching: isLoading,
+    isLoading,
     isSuccess,
     fetchError: error,
     refetch,

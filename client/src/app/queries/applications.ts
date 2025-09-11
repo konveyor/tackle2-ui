@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosResponse } from "axios";
+import saveAs from "file-saver";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   Application,
   ApplicationDependency,
@@ -9,6 +11,7 @@ import {
 } from "@app/api/models";
 import {
   APPLICATIONS,
+  HEADERS,
   createApplication,
   createApplicationDependency,
   deleteApplication,
@@ -20,9 +23,8 @@ import {
   getApplications,
   updateApplication,
 } from "@app/api/rest";
+
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import saveAs from "file-saver";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
@@ -40,7 +42,7 @@ export const useFetchApplications = (
     | (() => number | false) = DEFAULT_REFETCH_INTERVAL
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, error, refetch, data } = useQuery({
+  const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
     onSuccess: () => {
@@ -54,6 +56,8 @@ export const useFetchApplications = (
   return {
     data: data || [],
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
     error,
     refetch,
   };
@@ -65,7 +69,7 @@ export const useFetchApplicationById = (
   id?: number | string,
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isSuccess, error } = useQuery({
     queryKey: [ApplicationQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getApplicationById(id),
@@ -77,6 +81,8 @@ export const useFetchApplicationById = (
   return {
     application: data,
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
     fetchError: error,
   };
 };
@@ -85,7 +91,7 @@ export const useFetchApplicationManifest = (
   applicationId?: number | string,
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL * 2
 ) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isSuccess, error } = useQuery({
     queryKey: [ApplicationManifestQueryKey, applicationId],
     queryFn: () =>
       applicationId === undefined
@@ -99,6 +105,8 @@ export const useFetchApplicationManifest = (
   return {
     manifest: data,
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
     fetchError: error,
   };
 };
@@ -200,9 +208,9 @@ export const useDeleteApplicationMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id }: { id: number }) => deleteApplication(id),
-    onSuccess: (_res) => {
+    onSuccess: (_res, vars) => {
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
-      onSuccess(1);
+      onSuccess(vars.id);
     },
     onError: onError,
   });
@@ -223,11 +231,10 @@ export const useBulkDeleteApplicationMutation = (
   });
 };
 
-export const downloadStaticReport = async ({
+const downloadStaticReport = async ({
   application,
   mimeType,
 }: DownloadOptions): Promise<void> => {
-  const yamlAcceptHeader = "application/x-yaml";
   let url = `${APPLICATIONS}/${application.id}/analysis/report`;
 
   switch (mimeType) {
@@ -242,11 +249,7 @@ export const downloadStaticReport = async ({
   try {
     const response = await axios.get(url, {
       responseType: "blob",
-      ...(MimeType.YAML && {
-        headers: {
-          Accept: yamlAcceptHeader,
-        },
-      }),
+      ...(mimeType === MimeType.YAML && { headers: HEADERS.yaml }),
     });
 
     if (response.status !== 200) {

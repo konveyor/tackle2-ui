@@ -1,10 +1,9 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -14,27 +13,27 @@ import {
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
-import type { SourcePlatform, New } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import type { New, SourcePlatform } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimpleSelect } from "@app/components/SimpleSelect";
+import { OptionWithValue } from "@app/components/SimpleSelect";
+import { useFetchIdentities } from "@app/queries/identities";
 import {
-  useFetchPlatforms,
   useCreatePlatformMutation,
+  useFetchPlatforms,
   useUpdatePlatformMutation,
 } from "@app/queries/platforms";
+import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { SimpleSelect } from "@app/components/SimpleSelect";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useFetchIdentities } from "@app/queries/identities";
 import { usePlatformKindList } from "../usePlatformKindList";
-import { OptionWithValue } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
 
 export interface PlatformFormValues {
   kind: string;
@@ -119,6 +118,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
+    watch,
   } = useForm<PlatformFormValues>({
     defaultValues: !platform
       ? {
@@ -138,6 +138,8 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+
+  const selectedKind = watch("kind");
 
   const getIdentity = (identityName: string | undefined) => {
     const temp = identities.find((identity) => identity.name === identityName);
@@ -212,7 +214,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         fieldId="url"
         isRequired
         labelIcon={
-          <Popover bodyContent={<div>{getUrlTooltip(platform?.kind)}</div>}>
+          <Popover bodyContent={<div>{getUrlTooltip(selectedKind)}</div>}>
             <button
               type="button"
               aria-label="More info for URL field"

@@ -1,47 +1,56 @@
 // External libraries
 import React, { useState } from "react";
 import { AxiosError } from "axios";
-import { useHistory } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 
 // @patternfly
 import {
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
   Button,
-  ToolbarGroup,
   ButtonVariant,
   DropdownItem,
-  Modal,
-  Tooltip,
   FormSelect,
   FormSelectOption,
+  Modal,
   TextContent,
+  Toolbar,
+  ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
+import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,
   WarningTriangleIcon,
 } from "@patternfly/react-icons";
-
 import {
+  ActionsColumn,
+  IAction,
   Table,
+  Tbody,
+  Td,
+  Th,
   Thead,
   Tr,
-  Th,
-  Td,
-  ActionsColumn,
-  Tbody,
-  IAction,
 } from "@patternfly/react-table";
 
 // @app components and utilities
+import { Paths } from "@app/Paths";
+import { Assessment, Ref, TaskState } from "@app/api/models";
+import { getArchetypeById, getTasksByIds } from "@app/api/rest";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import {
-  FilterType,
   FilterToolbar,
+  FilterType,
 } from "@app/components/FilterToolbar/FilterToolbar";
+import { IconWithLabel } from "@app/components/Icons";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   TableHeaderContentWithControls,
@@ -49,14 +58,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  formatPath,
-  getAxiosErrorMessage,
-  universalComparator,
-} from "@app/utils/utils";
-import { Paths } from "@app/Paths";
 import keycloak from "@app/keycloak";
 import {
   RBAC,
@@ -71,6 +72,11 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/rbac";
+import {
+  formatPath,
+  getAxiosErrorMessage,
+  universalComparator,
+} from "@app/utils/utils";
 import { normalizeRisk } from "@app/utils/type-utils";
 import { checkAccess } from "@app/utils/rbac-utils";
 
@@ -78,8 +84,6 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 // Queries
-import { getArchetypeById, getTasksByIds } from "@app/api/rest";
-import { Assessment, Ref, TaskState } from "@app/api/models";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -96,33 +100,34 @@ import { useFetchTagsWithTagItems } from "@app/queries/tags";
 
 // Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
+import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
+import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
+import { ApplicationFormModal } from "../application-form";
+import { ImportApplicationsForm } from "../components/import-applications-form";
+
+import { RetrieveConfigWizard } from "../retrieve-config-wizard";
 import {
   ColumnAnalysisStatus,
   mapAnalysisStateToLabel,
 } from "./components/column-analysis-status";
 import { ColumnAssessmentStatus } from "./components/column-assessment-status";
-import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
-import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
-import { ApplicationFormModal } from "../application-form";
+
 import { ColumnReviewStatus } from "./components/column-review-status";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { IconWithLabel } from "@app/components/Icons";
-import { ImportApplicationsForm } from "../components/import-applications-form";
 import { KebabDropdown } from "@app/components/KebabDropdown";
+
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
-import { RetrieveConfigWizard } from "../retrieve-config-wizard";
+
 import { GenerateAssetsWizard } from "../generate-assets-wizard";
+
 import { ColumnApplicationName } from "./components/column-application-name";
 import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "../useDecoratedApplications";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
-import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 import { filterAndAddSeparator } from "@app/utils/grouping";
+
 import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
 
 export const ApplicationsTable: React.FC = () => {
@@ -1356,12 +1361,12 @@ export const ApplicationsTable: React.FC = () => {
         applications={applicationsCredentialsToUpdate}
         onClose={() => setSaveApplicationsCredentialsModalState(null)}
       />
-      {isCreateUpdateApplicationsModalOpen && (
-        <ApplicationFormModal
-          application={createUpdateApplications?._ ?? null}
-          onClose={() => setSaveApplicationModalState(null)}
-        />
-      )}
+      <ApplicationFormModal
+        isOpen={isCreateUpdateApplicationsModalOpen}
+        application={createUpdateApplications ?? null}
+        onClose={() => setSaveApplicationModalState(null)}
+      />
+
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"

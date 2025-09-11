@@ -82,7 +82,7 @@ export const SourcePlatforms: React.FC = () => {
 
   const {
     platforms,
-    isFetching,
+    isLoading,
     error: fetchError,
   } = useFetchPlatformsWithTasks(isModalOpen);
 
@@ -110,7 +110,7 @@ export const SourcePlatforms: React.FC = () => {
     idProperty: "id",
     dataNameProperty: "name",
     items: platforms || [],
-    isLoading: isFetching,
+    isLoading,
     hasActionsColumn: true,
 
     columnNames: {
@@ -211,7 +211,7 @@ export const SourcePlatforms: React.FC = () => {
       </PageSection>
       <PageSection>
         <ConditionalRender
-          when={isFetching && !(platforms || fetchError)}
+          when={isLoading && !(platforms || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
@@ -254,7 +254,7 @@ export const SourcePlatforms: React.FC = () => {
                 </Tr>
               </Thead>
               <ConditionalTableBody
-                isLoading={isFetching}
+                isLoading={isLoading}
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={

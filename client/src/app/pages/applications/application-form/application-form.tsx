@@ -1,5 +1,6 @@
 import "./application-form.css";
 import React from "react";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   ExpandableSection,
@@ -7,42 +8,58 @@ import {
   Popover,
   PopoverPosition,
 } from "@patternfly/react-core";
-import { useWatch } from "react-hook-form";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 
-import { SimpleSelect, OptionWithValue } from "@app/components/SimpleSelect";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { toOptionLike } from "@app/utils/model-utils";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
+  HookFormAutocomplete,
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
-  HookFormAutocomplete,
 } from "@app/components/HookFormPFFields";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
+import { toOptionLike } from "@app/utils/model-utils";
+
+import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
-import { Application } from "@app/api/models";
 
-export const ApplicationForm: React.FC<{
+export interface ApplicationFormProps {
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
-  application: Application | null;
-}> = ({
-  form: { control, trigger, getValues },
+  application: DecoratedApplication | null;
+}
+
+export const ApplicationForm: React.FC<ApplicationFormProps> = (props) => {
+  const { isDataReady } = props.data;
+  return (
+    <ConditionalRender when={!isDataReady} then={<AppPlaceholder />}>
+      <ApplicationFormReady {...props} key={props.application?.id ?? -1} />
+    </ConditionalRender>
+  );
+};
+
+export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
+  form: { control, trigger, getValues, setValue },
   data: {
     tagItems,
     stakeholdersOptions,
     repositoryKindOptions,
     stakeholders,
     businessServiceOptions,
-    sourcePlatformOptions,
+    platformFromName,
+    platformOptions,
   },
   application,
 }) => {
   const { t } = useTranslation();
   const watchKind = useWatch({ control, name: "kind" });
   const watchAssetKind = useWatch({ control, name: "assetKind" });
+  const watchSourcePlatform = useWatch({ control, name: "sourcePlatform" });
   const values = getValues();
 
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
@@ -350,15 +367,23 @@ export const ApplicationForm: React.FC<{
                 id="source-platform-select"
                 toggleAriaLabel="Source platform select dropdown toggle"
                 aria-label={name}
-                value={
-                  value ? toOptionLike(value, sourcePlatformOptions) : undefined
-                }
-                options={sourcePlatformOptions}
+                value={value ? toOptionLike(value, platformOptions) : undefined}
+                options={platformOptions}
                 onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
+                  const name = (selection as OptionWithValue<string>).value;
+                  if (name !== value) {
+                    onChange(name);
+                    setValue("coordinatesDocument", null, {
+                      shouldValidate: true,
+                    });
+                  }
                 }}
-                onClear={() => onChange("")}
+                onClear={() => {
+                  onChange(null);
+                  setValue("coordinatesDocument", null, {
+                    shouldValidate: true,
+                  });
+                }}
               />
             )}
           />
@@ -367,25 +392,35 @@ export const ApplicationForm: React.FC<{
             name="coordinatesDocument"
             label={t("terms.sourcePlatformCoordinates")}
             fieldId="coordinatesDocument"
-            renderInput={({ field: { value, name, onChange } }) =>
-              !values.sourcePlatform ? (
+            renderInput={({ field: { value, name, onChange } }) => {
+              const coordinatesSchema =
+                platformFromName(watchSourcePlatform)?.coordinatesSchema;
+
+              return !watchSourcePlatform ? (
                 <i>Select a source platform to setup the coordinates.</i>
-              ) : !values.coordinatesSchema ? (
+              ) : !coordinatesSchema ? (
                 <i>
                   No coordinates are available for the selected source platform.
                 </i>
               ) : (
                 <SchemaDefinedField
-                  key={values.sourcePlatform}
+                  key={`${application?.id ?? -1}-${watchSourcePlatform}`}
                   id={name}
                   jsonDocument={value ?? {}}
-                  jsonSchema={values.coordinatesSchema.definition}
+                  jsonSchema={coordinatesSchema.definition}
                   onDocumentChanged={(newJsonDocument) => {
-                    onChange(newJsonDocument);
+                    // Note: Since the shape of the json document __could__ look like an event
+                    //       object, we wrap it up so it will always be processed correctly.
+                    onChange({
+                      target: {
+                        name,
+                        value: newJsonDocument,
+                      },
+                    });
                   }}
                 />
-              )
-            }
+              );
+            }}
           />
         </div>
       </ExpandableSection>
