@@ -1,18 +1,18 @@
 import * as React from "react";
 import {
-  FormGroup,
-  FormGroupProps,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-} from "@patternfly/react-core";
-import {
   Control,
   Controller,
   ControllerProps,
   FieldValues,
   Path,
 } from "react-hook-form";
+import {
+  FormGroup,
+  FormGroupProps,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+} from "@patternfly/react-core";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.
@@ -27,6 +27,7 @@ export interface BaseHookFormPFGroupControllerProps<
   fieldId: string;
   isRequired?: boolean;
   errorsSuppressed?: boolean;
+  forceShowErrors?: boolean;
   helperText?: React.ReactNode;
   className?: string;
   formGroupProps?: FormGroupProps;
@@ -50,6 +51,7 @@ export const HookFormPFGroupController = <
   fieldId,
   isRequired = false,
   errorsSuppressed = false,
+  forceShowErrors = false,
   helperText,
   className,
   formGroupProps = {},
@@ -61,7 +63,9 @@ export const HookFormPFGroupController = <
     render={({ field, fieldState, formState }) => {
       const { isDirty, isTouched, error } = fieldState;
       const shouldDisplayError =
-        error?.message && (isDirty || isTouched) && !errorsSuppressed;
+        error?.message &&
+        (forceShowErrors || isDirty || isTouched) &&
+        !errorsSuppressed;
       return (
         <FormGroup
           labelIcon={labelIcon}
@@ -112,6 +116,7 @@ export const extractGroupControllerProps = <
     fieldId,
     isRequired,
     errorsSuppressed,
+    forceShowErrors,
     helperText,
     className,
     formGroupProps,
@@ -126,6 +131,7 @@ export const extractGroupControllerProps = <
       fieldId,
       isRequired,
       errorsSuppressed,
+      forceShowErrors,
       helperText,
       className,
       formGroupProps,
