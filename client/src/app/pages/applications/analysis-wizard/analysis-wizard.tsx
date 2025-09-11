@@ -1,47 +1,48 @@
 import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useIsMutating } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   ModalVariant,
+  Truncate,
   Wizard,
+  WizardHeader,
   WizardStep,
   WizardStepType,
-  WizardHeader,
-  Truncate,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 
 import {
+  AnalysisTaskData,
   Application,
   New,
   Ref,
-  AnalysisTaskData,
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
-import { Review } from "./review";
-import { SetMode } from "./set-mode";
-import { SetOptions } from "./set-options";
-import { SetScope } from "./set-scope";
-import { SetTargets } from "./set-targets";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
+import { useFetchIdentities } from "@app/queries/identities";
 import {
   useCreateTaskgroupMutation,
   useDeleteTaskgroupMutation,
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
-import { yupResolver } from "@hookform/resolvers/yup";
+
+import { CustomRules } from "./custom-rules";
+import { Review } from "./review";
+import { SetMode } from "./set-mode";
+import { SetOptions } from "./set-options";
+import { SetScope } from "./set-scope";
+import { SetTargets } from "./set-targets";
 
 import "./wizard.css";
-import { useAnalyzableApplications, isModeSupported } from "./utils";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { isModeSupported, useAnalyzableApplications } from "./utils";
 import {
   AnalysisWizardFormValues,
   useAnalysisWizardFormValidationSchema,
 } from "./schema";
-import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
-import { CustomRules } from "./custom-rules";
-import { useFetchIdentities } from "@app/queries/identities";
 import { useTaskGroup } from "./components/TaskGroupContext";
 import { getParsedLabel } from "@app/utils/rules-utils";
 
@@ -188,8 +189,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     mode: "all",
   });
 
-  const { handleSubmit, watch, reset } = methods;
+  const { handleSubmit, watch, reset, trigger } = methods;
   const values = watch();
+
+  // Trigger validation after schemas stabilize
+  React.useEffect(() => {
+    trigger();
+  }, [trigger, applications]);
 
   enum StepId {
     AnalysisMode = 1,
