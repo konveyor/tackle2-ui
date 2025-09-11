@@ -146,7 +146,7 @@ export const SourcePlatforms: React.FC = () => {
             what: t("terms.platformKind").toLowerCase(),
           }) + "...",
         getItemValue: (platform) => {
-          return platform?.kind ?? "";
+          return getDisplayLabel(platform?.kind) ?? "";
         },
       },
     ],
