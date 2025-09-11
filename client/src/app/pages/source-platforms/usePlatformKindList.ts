@@ -1,49 +1,51 @@
-import React from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { OptionWithValue } from "@app/components/SimpleSelect";
 
 export const DEFAULT_KIND = "cloudfoundry";
 
-// Extend this map as new platform kinds are added
-const KIND_MAP: Record<string, { label: string; urlTooltip: string }> = {
-  cloudfoundry: {
-    label: "Cloud Foundry",
-    urlTooltip: "API URL to Cloud Foundry",
-  },
-} as const;
+export const KIND_MAP: Map<
+  string,
+  { labelKey: string; urlTooltipKey: string }
+> = new Map([
+  [
+    "cloudfoundry",
+    {
+      labelKey: "cloudfoundry.label",
+      urlTooltipKey: "cloudfoundry.urlTooltip",
+    },
+  ],
+]);
 
-export const usePlatformKindList = (): {
-  kinds: OptionWithValue<string>[];
-  getDisplayLabel: (kind?: string | null) => string;
-  getUrlTooltip: (kind?: string | null) => string;
-} => {
-  const kinds: OptionWithValue<string>[] = React.useMemo(
+export const usePlatformKindList = () => {
+  const { t } = useTranslation();
+
+  const kinds: OptionWithValue<string>[] = useMemo(
     () =>
-      Object.entries(KIND_MAP).map(([key, values]) => ({
+      Array.from(KIND_MAP.entries()).map(([key, meta]) => ({
         value: key,
-        toString: () => values.label,
+        toString: () => t(meta.labelKey),
       })),
-    []
+    [t]
   );
 
-  const { t } = useTranslation();
-  const getDisplayLabel = React.useCallback(
+  const getDisplayLabel = useCallback(
     (kind: string | undefined | null): string => {
-      if (kind && kind in KIND_MAP) {
-        return KIND_MAP[kind].label;
+      if (kind && KIND_MAP.has(kind)) {
+        return t(KIND_MAP.get(kind)!.labelKey);
       }
       return t("terms.unknown");
     },
     [t]
   );
 
-  const getUrlTooltip = React.useCallback(
+  const getUrlTooltip = useCallback(
     (kind: string | undefined | null): string => {
-      if (kind && kind in KIND_MAP) {
-        return KIND_MAP[kind].urlTooltip;
+      if (kind && KIND_MAP.has(kind)) {
+        return t(KIND_MAP.get(kind)!.urlTooltipKey);
       }
-      return t("tooltip.platformUrl");
+      return "";
     },
     [t]
   );

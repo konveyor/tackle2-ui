@@ -621,8 +621,7 @@
   "tooltip": {
     "priority": "Tasks priority, a non-negative number, impacts tasks scheduling policy. Lowest priority is 0. Higher priority tasks run before lower priority tasks.",
     "preemption": "If enabled, allows the scheduler to reschedule other running tasks to free cluster resources needed to run higher priority tasks.",
-    "defaultIdentity": "Credential {{name}} is the default credential for {{type}} types.",
-    "platformUrl": "API URL to the source platform"
+    "defaultIdentity": "Credential {{name}} is the default credential for {{type}} types."
   },
   "validation": {
     "email": "This field requires a valid email.",
@@ -848,5 +847,9 @@
       "removeDefaultTitle": "Remove {{name}} as default?",
       "removeDefaultMessage": "This credential will no longer be used as the default credential for {{typeString}} types."
     }
+  },
+  "cloudfoundry": {
+    "label": "Cloud Foundry",
+    "urlTooltip": "API URL to Cloud Foundry"
   }
 }
