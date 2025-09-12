@@ -42,11 +42,11 @@ export interface FormValues {
   asset: number | null;
 }
 
-const MANAGED_IDENTITY_ROLES: ManagedIdentityRole[] = [
+const MANAGED_IDENTITY_SET: Set<IdentityRole> = new Set([
   "source",
   "maven",
   "asset",
-] as const;
+]);
 
 function identitiesToOptions(
   identities?: Identity[]
@@ -70,18 +70,19 @@ function identityToRefWithRole(
   return identity ? { ...toRef(identity), role } : undefined;
 }
 
-function firstIdentityOfRole(application: DecoratedApplication, role: string) {
+function firstIdentityOfRole(
+  application: DecoratedApplication,
+  role: ManagedIdentityRole
+) {
   return application.identities?.find((i) => i.role === role);
 }
 
-function hasIdentityOfRole(
-  applications: DecoratedApplication | DecoratedApplication[],
-  role: string | string[]
+function hasIdentityOfManagedRoles(
+  applications: DecoratedApplication | DecoratedApplication[]
 ) {
-  const roles = Array.isArray(role) ? role : [role];
   const apps = Array.isArray(applications) ? applications : [applications];
   return apps.some((app) =>
-    app.identities?.some((i) => i.role && roles.includes(i.role))
+    app.identities?.some((i) => i.role && MANAGED_IDENTITY_SET.has(i.role))
   );
 }
 
@@ -154,9 +155,7 @@ export const ApplicationIdentityForm: React.FC<
     const otherIdentitiesPerApplication = applications.reduce(
       (acc, application) => {
         const withUnmanagedRoles = application.identities?.filter(
-          ({ role }) =>
-            !role ||
-            !MANAGED_IDENTITY_ROLES.includes(role as ManagedIdentityRole)
+          ({ role }) => !role || !MANAGED_IDENTITY_SET.has(role)
         );
         if (withUnmanagedRoles?.length) {
           acc.set(application.id, withUnmanagedRoles);
@@ -222,7 +221,7 @@ export const ApplicationIdentityForm: React.FC<
   const existingIdentitiesError = useMemo(() => {
     return applications.length === 1
       ? false
-      : hasIdentityOfRole(applications, ["source", "maven", "asset"]);
+      : hasIdentityOfManagedRoles(applications);
   }, [applications]);
 
   return (
