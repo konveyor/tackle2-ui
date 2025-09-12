@@ -4,6 +4,7 @@ import { Icon, Tooltip } from "@patternfly/react-core";
 import StarIcon from "@patternfly/react-icons/dist/esm/icons/star-icon";
 
 import { Identity } from "@app/api/models";
+
 import { KIND_VALUES } from "../utils";
 
 export interface DefaultLabelProps {
