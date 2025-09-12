@@ -1,14 +1,14 @@
 import React from "react";
-import {
-  render,
-  waitFor,
-  screen,
-  fireEvent,
-} from "@app/test-config/test-utils";
-
 import "@testing-library/jest-dom";
 import { server } from "@mocks/server";
 import { rest } from "msw";
+
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@app/test-config/test-utils";
 
 import { IdentityForm } from "..";
 
