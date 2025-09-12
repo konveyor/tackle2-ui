@@ -1,37 +1,37 @@
 import React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { AxiosError } from "axios";
 import {
   ActionGroup,
   Button,
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
-import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity, IdentityKind, IdentityKinds, New } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
-import {
-  useCreateIdentityMutation,
-  useFetchIdentities,
-  useUpdateIdentityMutation,
-} from "@app/queries/identities";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  useCreateIdentityMutation,
+  useFetchIdentities,
+  useUpdateIdentityMutation,
+} from "@app/queries/identities";
+import { toOptionLike } from "@app/utils/model-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { KIND_OPTIONS } from "../../utils";
-import { KindSourceForm } from "./kind-source-form";
-import { KindAssetForm } from "./kind-asset-form";
+
+import { KindBearerTokenForm } from "./kind-bearer-token-form";
 import { KindMavenSettingsFileForm } from "./kind-maven-settings-file-form";
 import { KindSimpleUsernamePasswordForm } from "./kind-simple-username-password-form";
-import { KindBearerTokenForm } from "./kind-bearer-token-form";
+import { KindSourceForm } from "./kind-source-form";
 
 import "./identity-form.css";
 
@@ -70,7 +70,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const getUserCredentialsInitialValue = (
     identity?: Identity
   ): UserCredentials | undefined => {
-    if ("source" === identity?.kind || "asset" === identity?.kind) {
+    if ("source" === identity?.kind) {
       if (identity?.user && identity?.password) {
         return "userpass";
       } else {
@@ -159,20 +159,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       });
     }
 
-    if (kind === "asset" && formValues.userCredentials === "source") {
-      Object.assign(payload, {
-        key: formValues.key,
-        password: formValues.password.trim(),
-      });
-    }
-
-    if (kind === "asset" && formValues.userCredentials === "userpass") {
-      Object.assign(payload, {
-        user: formValues.user.trim(),
-        password: formValues.password.trim(),
-      });
-    }
-
     if (kind === "basic-auth") {
       Object.assign(payload, {
         user: formValues.user.trim(),
@@ -237,7 +223,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
       default: yup.bool().defined(),
 
       userCredentials: yup.mixed<UserCredentials>().when("kind", {
-        is: (kind: IdentityKind) => kind === "source" || kind === "asset",
+        is: (kind: IdentityKind) => kind === "source",
         then: (schema) => schema.required().oneOf(["userpass", "source"]),
       }),
 
@@ -259,16 +245,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .string()
         .defined()
         .trim()
-        .when(["kind", "userCredentials"], {
-          is: (kind: IdentityKind, userCredentials: UserCredentials) =>
-            (kind === "source" || kind === "asset") &&
-            userCredentials === "userpass",
-          then: (schema) =>
-            schema
-              .required(t("validation.required"))
-              .min(3, t("validation.minLength", { length: 3 }))
-              .max(120, t("validation.maxLength", { length: 120 })),
-        })
         .when("kind", {
           is: (kind: IdentityKind) => kind === "proxy",
           then: (schema) =>
@@ -285,6 +261,15 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               .min(3, t("validation.minLength", { length: 3 }))
               .max(120, t("validation.maxLength", { length: 120 }))
               .email("Username must be a valid email"),
+        })
+        .when(["kind", "userCredentials"], {
+          is: (kind: IdentityKind, userCredentials: UserCredentials) =>
+            kind === "source" && userCredentials === "userpass",
+          then: (schema) =>
+            schema
+              .required(t("validation.required"))
+              .min(3, t("validation.minLength", { length: 3 }))
+              .max(120, t("validation.maxLength", { length: 120 })),
         }),
       password: yup
         .string()
@@ -308,8 +293,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         })
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>
-            (kind === "source" || kind === "asset") &&
-            userCredentials === "userpass",
+            kind === "source" && userCredentials === "userpass",
           then: (schema) =>
             schema
               .required(t("validation.required"))
@@ -322,8 +306,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
         .defined()
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>
-            (kind === "source" || kind === "asset") &&
-            userCredentials === "source",
+            kind === "source" && userCredentials === "source",
           // If we want to verify key contents before saving, add the yup test in the then function
           then: (schema) => schema.required(t("validation.required")),
         })
@@ -416,8 +399,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             defaultIdentities={defaultIdentities}
           />
         )}
-
-        {values?.kind === "asset" && <KindAssetForm identity={identity} />}
 
         {values?.kind === "maven" && (
           <KindMavenSettingsFileForm

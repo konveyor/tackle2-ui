@@ -1,22 +1,25 @@
 import React, { useMemo } from "react";
+import { AxiosError } from "axios";
+import { objectify } from "radash";
 import { Trans, useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
-  PageSection,
-  PageSectionVariants,
-  TextContent,
-  ToolbarGroup,
-  ToolbarItem,
-  Text,
   EmptyState,
   EmptyStateBody,
   EmptyStateIcon,
+  PageSection,
+  PageSectionVariants,
+  Text,
+  TextContent,
   Title,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
+  ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import {
   ActionsColumn,
   IAction,
@@ -29,34 +32,32 @@ import {
 } from "@patternfly/react-table";
 
 import { Identity, IdentityKind } from "@app/api/models";
-import { AxiosError } from "axios";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useFetchApplications } from "@app/queries/applications";
 import {
   useDeleteIdentityMutation,
   useFetchIdentities,
   useUpdateIdentityMutation,
 } from "@app/queries/identities";
-import { useFetchApplications } from "@app/queries/applications";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { IdentityFormModal } from "./components/identity-form";
-import { useFetchTrackers } from "@app/queries/trackers";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { useFetchTargets } from "@app/queries/targets";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
-import { DefaultLabel } from "./components/DefaultLabel";
-import { KIND_STRINGS, KIND_VALUES, lookupDefaults } from "./utils";
-import { objectify } from "radash";
+import { useFetchTrackers } from "@app/queries/trackers";
 import { filterAndAddSeparator } from "@app/utils/grouping";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import { DefaultLabel } from "./components/DefaultLabel";
+import { IdentityFormModal } from "./components/identity-form";
+import { KIND_STRINGS, KIND_VALUES, lookupDefaults } from "./utils";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
