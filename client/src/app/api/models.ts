@@ -139,6 +139,9 @@ export interface Document {
   /** name of the schema */ schema: string;
 }
 
+export type ManagedIdentityRole = "source" | "maven" | "asset";
+export type IdentityRole = ManagedIdentityRole | string;
+
 export interface Application {
   id: number;
   name: string;
@@ -150,7 +153,7 @@ export interface Application {
   coordinates?: Document;
   review?: Ref;
   comments?: string;
-  identities?: RefWithRole<"source" | "maven" | "asset">[];
+  identities?: RefWithRole<IdentityRole>[];
   tags?: TagRef[];
   businessService?: Ref;
   owner?: Ref;

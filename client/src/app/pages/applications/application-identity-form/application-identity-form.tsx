@@ -16,7 +16,13 @@ import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Application, Identity, Ref, RefWithRole } from "@app/api/models";
+import {
+  Application,
+  Identity,
+  IdentityRole,
+  ManagedIdentityRole,
+  RefWithRole,
+} from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
@@ -25,7 +31,7 @@ import {
   useBulkPatchApplicationsMutation,
 } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
-import { toOptionLike, toRef, toRefs } from "@app/utils/model-utils";
+import { toOptionLike, toRef } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -36,10 +42,11 @@ export interface FormValues {
   asset: number | null;
 }
 
-export interface ApplicationIdentityFormProps {
-  applications: DecoratedApplication[];
-  onClose: () => void;
-}
+const MANAGED_IDENTITY_ROLES: ManagedIdentityRole[] = [
+  "source",
+  "maven",
+  "asset",
+] as const;
 
 function identitiesToOptions(
   identities?: Identity[]
@@ -56,8 +63,8 @@ function identitiesToOptions(
 function identityToRefWithRole(
   identities: Identity[],
   id: number | null,
-  role: "source" | "maven" | "asset"
-): RefWithRole<"source" | "maven" | "asset"> | undefined {
+  role: ManagedIdentityRole
+): RefWithRole<ManagedIdentityRole> | undefined {
   const identity =
     id === null ? undefined : identities.find((i) => i.id === id);
   return identity ? { ...toRef(identity), role } : undefined;
@@ -76,6 +83,11 @@ function hasIdentityOfRole(
   return apps.some((app) =>
     app.identities?.some((i) => i.role && roles.includes(i.role))
   );
+}
+
+export interface ApplicationIdentityFormProps {
+  applications: DecoratedApplication[];
+  onClose: () => void;
 }
 
 export const ApplicationIdentityForm: React.FC<
@@ -132,7 +144,7 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = ({ source, maven, asset }: FormValues) => {
-    const updatedIdentities: RefWithRole<"source" | "maven" | "asset">[] = [
+    const updatedIdentities: RefWithRole<ManagedIdentityRole>[] = [
       identityToRefWithRole(identities, source, "source"),
       identityToRefWithRole(identities, maven, "maven"),
       identityToRefWithRole(identities, asset, "asset"),
@@ -141,15 +153,17 @@ export const ApplicationIdentityForm: React.FC<
     // Retain identities that aren't managed by the form
     const otherIdentitiesPerApplication = applications.reduce(
       (acc, application) => {
-        const withEmptyRoles = application.identities?.filter(
-          ({ role }) => role && !["source", "maven", "asset"].includes(role)
+        const withUnmanagedRoles = application.identities?.filter(
+          ({ role }) =>
+            !role ||
+            !MANAGED_IDENTITY_ROLES.includes(role as ManagedIdentityRole)
         );
-        if (withEmptyRoles?.length) {
-          acc.set(application.id, toRefs(withEmptyRoles));
+        if (withUnmanagedRoles?.length) {
+          acc.set(application.id, withUnmanagedRoles);
         }
         return acc;
       },
-      new Map<number, Ref[]>()
+      new Map<number, RefWithRole<IdentityRole>[]>()
     );
 
     const patch = (application: Application) => {
