@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { AxiosError } from "axios";
 import { objectify } from "radash";
 import { Trans, useTranslation } from "react-i18next";
@@ -31,7 +31,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { Identity, IdentityKind } from "@app/api/models";
+import { Identity } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -44,6 +44,8 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useIdentityKind } from "@app/hooks/useIdentityKind";
+import { useIdentityKindDefaults } from "@app/hooks/useIdentityKindDefaults";
 import { useFetchApplications } from "@app/queries/applications";
 import {
   useDeleteIdentityMutation,
@@ -57,7 +59,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DefaultLabel } from "./components/DefaultLabel";
 import { IdentityFormModal } from "./components/identity-form";
-import { KIND_STRINGS, KIND_VALUES, lookupDefaults } from "./utils";
 
 export const Identities: React.FC = () => {
   const { t } = useTranslation();
@@ -86,6 +87,8 @@ export const Identities: React.FC = () => {
     doAssignDefaultIdentity,
     doRemoveDefaultIdentity,
   } = useIdentityMeta(identities);
+
+  const { kindLabels } = useIdentityKind();
 
   const tableControls = useLocalTableControls({
     tableName: "identities-table",
@@ -118,9 +121,9 @@ export const Identities: React.FC = () => {
         title: "Type",
         type: FilterType.select,
         placeholderText: "Filter by type...",
-        selectOptions: KIND_VALUES.map(({ key, value }) => ({
-          value: key,
-          label: value,
+        selectOptions: Object.entries(kindLabels).map(([kind, label]) => ({
+          value: kind,
+          label: label,
         })),
         getItemValue: (item) => {
           return item.kind || "";
@@ -299,9 +302,7 @@ export const Identities: React.FC = () => {
                           width={20}
                           {...getTdProps({ columnKey: "type" })}
                         >
-                          {KIND_VALUES.find(
-                            (type) => type.key === identity.kind
-                          )?.value ?? identity.kind}
+                          {kindLabels[identity.kind] ?? identity.kind}
                         </Td>
                         <Td
                           width={10}
@@ -427,7 +428,7 @@ export const Identities: React.FC = () => {
                 values={{
                   name: defaultIdentities[identityToDefault.kind]?.name,
                   typeString:
-                    KIND_STRINGS[identityToDefault.kind] ??
+                    kindLabels[identityToDefault.kind] ??
                     identityToDefault.kind,
                 }}
               />
@@ -453,7 +454,7 @@ export const Identities: React.FC = () => {
             titleIconVariant={"warning"}
             message={t("credentials.confirm.removeDefaultMessage", {
               typeString:
-                KIND_STRINGS[identityToRemoveDefault.kind] ??
+                kindLabels[identityToRemoveDefault.kind] ??
                 identityToRemoveDefault.kind,
             })}
             isOpen={true}
@@ -479,11 +480,7 @@ const useIdentityMeta = (identities: Identity[]) => {
   const { trackers } = useFetchTrackers();
   const { targets } = useFetchTargets();
   const { data: applications } = useFetchApplications();
-
-  const defaultIdentities: Record<IdentityKind, Identity | undefined> = useMemo(
-    () => lookupDefaults(identities),
-    [identities]
-  );
+  const { defaultIdentities } = useIdentityKindDefaults(identities);
 
   const identityMeta = objectify(
     identities,
