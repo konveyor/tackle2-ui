@@ -1,7 +1,9 @@
 import React from "react";
 import { Modal } from "@patternfly/react-core";
-import { ApplicationIdentityForm } from "./application-identity-form";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
+
+import { ApplicationIdentityForm } from "./application-identity-form";
 
 export const ApplicationIdentityModal: React.FC<{
   applications: DecoratedApplication[] | null;
