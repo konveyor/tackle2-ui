@@ -1,10 +1,7 @@
-// External libraries
 import React, { useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-
-// @patternfly
 import {
   Button,
   ButtonVariant,
@@ -36,7 +33,6 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-// @app components and utilities
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
@@ -50,15 +46,32 @@ import {
   FilterType,
 } from "@app/components/FilterToolbar/FilterToolbar";
 import { IconWithLabel } from "@app/components/Icons";
+import { KebabDropdown } from "@app/components/KebabDropdown";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
-  TableHeaderContentWithControls,
   ConditionalTableBody,
+  TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import keycloak from "@app/keycloak";
+import {
+  useBulkDeleteApplicationMutation,
+  useFetchApplications,
+} from "@app/queries/applications";
+import { useDeleteAssessmentMutation } from "@app/queries/assessments";
+import { useDeleteReviewMutation } from "@app/queries/reviews";
+import { useFetchTagsWithTagItems } from "@app/queries/tags";
+import {
+  TaskStates,
+  useCancelTaskMutation,
+  useCancelTasksMutation,
+  useFetchTaskDashboard,
+} from "@app/queries/tasks";
 import {
   RBAC,
   RBAC_TYPE,
@@ -72,63 +85,36 @@ import {
   tasksReadScopes,
   tasksWriteScopes,
 } from "@app/rbac";
+import { filterAndAddSeparator } from "@app/utils/grouping";
+import { checkAccess } from "@app/utils/rbac-utils";
+import { normalizeRisk } from "@app/utils/type-utils";
 import {
   formatPath,
   getAxiosErrorMessage,
   universalComparator,
 } from "@app/utils/utils";
-import { normalizeRisk } from "@app/utils/type-utils";
-import { checkAccess } from "@app/utils/rbac-utils";
 
-// Hooks
-import { useLocalTableControls } from "@app/hooks/table-controls";
-
-// Queries
-import {
-  useBulkDeleteApplicationMutation,
-  useFetchApplications,
-} from "@app/queries/applications";
-import {
-  TaskStates,
-  useCancelTaskMutation,
-  useCancelTasksMutation,
-  useFetchTaskDashboard,
-} from "@app/queries/tasks";
-import { useDeleteAssessmentMutation } from "@app/queries/assessments";
-import { useDeleteReviewMutation } from "@app/queries/reviews";
-import { useFetchTagsWithTagItems } from "@app/queries/tags";
-
-// Relative components
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
 import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
+import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
 import { ImportApplicationsForm } from "../components/import-applications-form";
-
-import { RetrieveConfigWizard } from "../retrieve-config-wizard";
-import {
-  ColumnAnalysisStatus,
-  mapAnalysisStateToLabel,
-} from "./components/column-analysis-status";
-import { ColumnAssessmentStatus } from "./components/column-assessment-status";
-
-import { ColumnReviewStatus } from "./components/column-review-status";
-import { KebabDropdown } from "@app/components/KebabDropdown";
-
-import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-
 import { GenerateAssetsWizard } from "../generate-assets-wizard";
-
-import { ColumnApplicationName } from "./components/column-application-name";
+import { RetrieveConfigWizard } from "../retrieve-config-wizard";
 import {
   DecoratedApplication,
   useDecoratedApplications,
 } from "../useDecoratedApplications";
-import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
-import { filterAndAddSeparator } from "@app/utils/grouping";
 
-import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
+import {
+  ColumnAnalysisStatus,
+  mapAnalysisStateToLabel,
+} from "./components/column-analysis-status";
+import { ColumnApplicationName } from "./components/column-application-name";
+import { ColumnAssessmentStatus } from "./components/column-assessment-status";
+import { ColumnReviewStatus } from "./components/column-review-status";
+import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 
 export const ApplicationsTable: React.FC = () => {
   const { t } = useTranslation();
@@ -213,8 +199,6 @@ export const ApplicationsTable: React.FC = () => {
     saveApplicationsCredentialsModalState,
     setSaveApplicationsCredentialsModalState,
   ] = useState<"create" | DecoratedApplication[] | null>(null);
-  const isCreateUpdateCredentialsModalOpen =
-    saveApplicationsCredentialsModalState !== null;
   const applicationsCredentialsToUpdate =
     saveApplicationsCredentialsModalState !== "create"
       ? saveApplicationsCredentialsModalState
@@ -1279,18 +1263,20 @@ export const ApplicationsTable: React.FC = () => {
                             ],
                             [
                               applicationWriteAccess &&
-                                tasksWriteAccess &&
-                                application.isReadyForRetrieveConfigurations && {
+                                tasksWriteAccess && {
                                   title: t("actions.retrieveConfigurations"),
                                   onClick: () =>
                                     handleRetrieveConfigurations(application),
+                                  isDisabled:
+                                    !application.isReadyForRetrieveConfigurations,
                                 },
                               applicationWriteAccess &&
-                                tasksWriteAccess &&
-                                application.isReadyForGenerateAssets && {
+                                tasksWriteAccess && {
                                   title: t("actions.generateAssets"),
                                   onClick: () =>
                                     handleGenerateAssets(application),
+                                  isDisabled:
+                                    !application.isReadyForGenerateAssets,
                                 },
                             ],
                             [
