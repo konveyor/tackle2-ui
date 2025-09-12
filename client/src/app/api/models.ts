@@ -90,6 +90,10 @@ export interface IdRef {
   id: number;
 }
 
+export interface RefWithRole<RoleType = string> extends Ref {
+  role?: RoleType;
+}
+
 export interface JobFunction {
   id: number;
   name: string;
@@ -146,7 +150,7 @@ export interface Application {
   coordinates?: Document;
   review?: Ref;
   comments?: string;
-  identities?: Ref[];
+  identities?: RefWithRole<"source" | "maven" | "asset">[];
   tags?: TagRef[];
   businessService?: Ref;
   owner?: Ref;
