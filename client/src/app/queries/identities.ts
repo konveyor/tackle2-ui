@@ -55,12 +55,16 @@ export const useCreateIdentityMutation = (
 };
 
 // TODO: Add a filter to the query to only return identities of given kind
-export const useFetchIdentities = (refetchInterval: number | false = false) => {
+export const useFetchIdentities = (
+  refetchInterval: number | false = false,
+  enabled: boolean = true
+) => {
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
     queryFn: getIdentities,
     onError: (error) => console.log("error, ", error),
     refetchInterval,
+    enabled,
   });
 
   const identitiesByKind = useMemo(() => {

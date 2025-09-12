@@ -18,6 +18,7 @@ import {
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useIdentityKind } from "@app/hooks/useIdentityKind";
 import {
   useCreateIdentityMutation,
   useFetchIdentities,
@@ -25,8 +26,6 @@ import {
 } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-
-import { KIND_OPTIONS } from "../../utils";
 
 import { KindBearerTokenForm } from "./kind-bearer-token-form";
 import { KindMavenSettingsFileForm } from "./kind-maven-settings-file-form";
@@ -66,6 +65,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const { kindOptions } = useIdentityKind();
 
   const getUserCredentialsInitialValue = (
     identity?: Identity
@@ -375,8 +375,8 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
               toggleId="type-select-toggle"
               toggleAriaLabel="Type select dropdown toggle"
               aria-label={name}
-              value={value ? toOptionLike(value, KIND_OPTIONS) : undefined}
-              options={KIND_OPTIONS}
+              value={value ? toOptionLike(value, kindOptions) : undefined}
+              options={kindOptions}
               onChange={(selection) => {
                 const selectionValue =
                   selection as OptionWithValue<IdentityKind>;
