@@ -12,8 +12,8 @@ export const KIND_MAP: Map<
   [
     "cloudfoundry",
     {
-      labelKey: "cloudfoundry.label",
-      urlTooltipKey: "cloudfoundry.urlTooltip",
+      labelKey: "platformKind.cloudfoundry.label",
+      urlTooltipKey: "platformKind.cloudfoundry.urlTooltip",
     },
   ],
 ]);

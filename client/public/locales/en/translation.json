@@ -848,8 +848,10 @@
       "removeDefaultMessage": "This credential will no longer be used as the default credential for {{typeString}} types."
     }
   },
-  "cloudfoundry": {
-    "label": "Cloud Foundry",
-    "urlTooltip": "API URL to Cloud Foundry"
+  "platformKind": {
+    "cloudfoundry": {
+      "label": "Cloud Foundry",
+      "urlTooltip": "API URL to Cloud Foundry"
+    }
   }
 }
