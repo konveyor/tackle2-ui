@@ -214,16 +214,18 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         fieldId="url"
         isRequired
         labelIcon={
-          <Popover bodyContent={<div>{getUrlTooltip(selectedKind)}</div>}>
-            <button
-              type="button"
-              aria-label="More info for URL field"
-              onClick={(e) => e.preventDefault()}
-              className="pf-v5-c-button pf-m-plain"
-            >
-              <HelpIcon />
-            </button>
-          </Popover>
+          getUrlTooltip(selectedKind) ? (
+            <Popover bodyContent={<div>{getUrlTooltip(selectedKind)}</div>}>
+              <button
+                type="button"
+                aria-label="More info for URL field"
+                onClick={(e) => e.preventDefault()}
+                className="pf-v5-c-button pf-m-plain"
+              >
+                <HelpIcon />
+              </button>
+            </Popover>
+          ) : undefined
         }
       />
 
