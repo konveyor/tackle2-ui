@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
-import { AxiosError } from "axios";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
+import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   ActionGroup,
   Button,
@@ -16,18 +15,25 @@ import {
 import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Application, Identity, IdentityKind, Ref } from "@app/api/models";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { toOptionLike, toRef, toRefs } from "@app/utils/model-utils";
+import {
+  Application,
+  Identity,
+  IdentityRole,
+  ManagedIdentityRole,
+  RefWithRole,
+} from "@app/api/models";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   UpdateAllApplicationsResult,
   useBulkPatchApplicationsMutation,
 } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
-import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { toOptionLike, toRef } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface FormValues {
@@ -36,10 +42,11 @@ export interface FormValues {
   asset: number | null;
 }
 
-export interface ApplicationIdentityFormProps {
-  applications: DecoratedApplication[];
-  onClose: () => void;
-}
+const MANAGED_IDENTITY_SET: Set<IdentityRole> = new Set([
+  "source",
+  "maven",
+  "asset",
+]);
 
 function identitiesToOptions(
   identities?: Identity[]
@@ -53,22 +60,35 @@ function identitiesToOptions(
   }));
 }
 
-function firstIdentityOfKind(
-  application: DecoratedApplication,
-  kind: IdentityKind
-) {
-  return application.direct.identities?.find((i) => i.kind === kind);
+function identityToRefWithRole(
+  identities: Identity[],
+  id: number | null,
+  role: ManagedIdentityRole
+): RefWithRole<ManagedIdentityRole> | undefined {
+  const identity =
+    id === null ? undefined : identities.find((i) => i.id === id);
+  return identity ? { ...toRef(identity), role } : undefined;
 }
 
-function hasIdentityOfKind(
-  applications: DecoratedApplication | DecoratedApplication[],
-  kind: IdentityKind | IdentityKind[]
+function firstIdentityOfRole(
+  application: DecoratedApplication,
+  role: ManagedIdentityRole
 ) {
-  const kinds = Array.isArray(kind) ? kind : [kind];
+  return application.identities?.find((i) => i.role === role);
+}
+
+function hasIdentityOfManagedRoles(
+  applications: DecoratedApplication | DecoratedApplication[]
+) {
   const apps = Array.isArray(applications) ? applications : [applications];
   return apps.some((app) =>
-    app.direct.identities?.some((i) => kinds.includes(i.kind))
+    app.identities?.some((i) => i.role && MANAGED_IDENTITY_SET.has(i.role))
   );
+}
+
+export interface ApplicationIdentityFormProps {
+  applications: DecoratedApplication[];
+  onClose: () => void;
 }
 
 export const ApplicationIdentityForm: React.FC<
@@ -77,11 +97,11 @@ export const ApplicationIdentityForm: React.FC<
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { identitiesByKind } = useFetchIdentities();
+  const { identities, identitiesByKind } = useFetchIdentities();
 
   const sourceIdentityOptions = identitiesToOptions(identitiesByKind.source);
   const mavenIdentityOptions = identitiesToOptions(identitiesByKind.maven);
-  const assetIdentityOptions = identitiesToOptions(identitiesByKind.asset);
+  const assetIdentityOptions = identitiesToOptions(identitiesByKind.source);
 
   const onUpdateApplicationsSuccess = ({
     success,
@@ -125,28 +145,31 @@ export const ApplicationIdentityForm: React.FC<
   );
 
   const onSubmit = ({ source, maven, asset }: FormValues) => {
-    const updatedIdentities: Ref[] = [
-      toRef(identitiesByKind.source?.find((i) => i.id === source)),
-      toRef(identitiesByKind.maven?.find((i) => i.id === maven)),
-      toRef(identitiesByKind.asset?.find((i) => i.id === asset)),
+    const updatedIdentities: RefWithRole<ManagedIdentityRole>[] = [
+      identityToRefWithRole(identities, source, "source"),
+      identityToRefWithRole(identities, maven, "maven"),
+      identityToRefWithRole(identities, asset, "asset"),
     ].filter(Boolean);
 
     // Retain identities that aren't managed by the form
-    const otherIdentities = applications.reduce((acc, application) => {
-      const otherIdentities = application.direct.identities?.filter(
-        (i) => !["source", "maven", "asset"].includes(i.kind)
-      );
-      if (otherIdentities?.length) {
-        acc.set(application.id, toRefs(otherIdentities));
-      }
-      return acc;
-    }, new Map<number, Ref[]>());
+    const otherIdentitiesPerApplication = applications.reduce(
+      (acc, application) => {
+        const withUnmanagedRoles = application.identities?.filter(
+          ({ role }) => !role || !MANAGED_IDENTITY_SET.has(role)
+        );
+        if (withUnmanagedRoles?.length) {
+          acc.set(application.id, withUnmanagedRoles);
+        }
+        return acc;
+      },
+      new Map<number, RefWithRole<IdentityRole>[]>()
+    );
 
     const patch = (application: Application) => {
       return Object.assign({}, application, {
         identities: [
           ...updatedIdentities,
-          ...(otherIdentities.get(application.id) ?? []),
+          ...(otherIdentitiesPerApplication.get(application.id) ?? []),
         ],
       });
     };
@@ -187,9 +210,9 @@ export const ApplicationIdentityForm: React.FC<
     control,
   } = useForm<FormValues>({
     defaultValues: {
-      source: firstIdentityOfKind(applications[0], "source")?.id ?? null,
-      maven: firstIdentityOfKind(applications[0], "maven")?.id ?? null,
-      asset: firstIdentityOfKind(applications[0], "asset")?.id ?? null,
+      source: firstIdentityOfRole(applications[0], "source")?.id ?? null,
+      maven: firstIdentityOfRole(applications[0], "maven")?.id ?? null,
+      asset: firstIdentityOfRole(applications[0], "asset")?.id ?? null,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -198,7 +221,7 @@ export const ApplicationIdentityForm: React.FC<
   const existingIdentitiesError = useMemo(() => {
     return applications.length === 1
       ? false
-      : hasIdentityOfKind(applications, ["source", "maven", "asset"]);
+      : hasIdentityOfManagedRoles(applications);
   }, [applications]);
 
   return (
