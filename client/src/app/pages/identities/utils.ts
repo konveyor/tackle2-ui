@@ -1,11 +1,11 @@
-import { Identity, IdentityKind, ITypeOptions } from "@app/api/models";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 import { mapValues } from "radash";
+
+import { ITypeOptions, Identity, IdentityKind } from "@app/api/models";
+import { OptionWithValue } from "@app/components/SimpleSelect";
 
 export const KIND_STRINGS: Record<IdentityKind, string> = {
   source: "Source Control",
   maven: "Maven Settings File",
-  asset: "Asset Repository",
   proxy: "Proxy",
   "basic-auth": "Basic Auth (Jira)",
   bearer: "Bearer Token (Jira)",
@@ -28,7 +28,6 @@ export const lookupDefaults = (
     proxy: undefined,
     "basic-auth": undefined,
     bearer: undefined,
-    asset: undefined,
   };
   return mapValues(df, (_, kind) =>
     identities.find((i) => i.default && i.kind === kind)

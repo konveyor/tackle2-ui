@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Alert, FileUpload, Switch } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
 
 import { Identity, IdentityKind } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
