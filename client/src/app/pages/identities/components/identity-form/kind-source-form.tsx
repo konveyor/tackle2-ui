@@ -1,16 +1,17 @@
 import React, { useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Alert, FileUpload, Switch } from "@patternfly/react-core";
-import { useFormContext, useWatch } from "react-hook-form";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { Identity, IdentityKind } from "@app/api/models";
-import { toOptionLike } from "@app/utils/model-utils";
-import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { toOptionLike } from "@app/utils/model-utils";
+
 import { UserCredentials } from "./identity-form";
 import { KindSimpleUsernamePasswordForm } from "./kind-simple-username-password-form";
 

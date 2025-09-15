@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { Identity } from "@app/api/models";
-import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
+import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
 
 export const KindSimpleUsernamePasswordForm: React.FC<{
   identity?: Identity;
