@@ -1,0 +1,22 @@
+.full-height-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.full-height {
+  flex-grow: 1;
+  min-height: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.full-height .pf-v5-c-file-upload,
+.full-height .pf-v5-c-code-editor__main {
+  flex-grow: 1;
+}
+
+.full-height .pf-v5-c-code-editor__main .pf-v5-c-code-editor__code {
+  height: 100%;
+}

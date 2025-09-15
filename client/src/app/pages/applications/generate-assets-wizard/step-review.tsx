@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -13,15 +14,16 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 
-import { DecoratedApplication } from "../useDecoratedApplications";
 import { TargetProfile } from "@app/api/models";
-import { ParameterState } from "./step-capture-parameters";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { RepositoryDetails } from "@app/components/detail-drawer";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields";
+
+import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { AdvancedOptionsState } from "./step-advanced-options";
+import { ParameterState } from "./step-capture-parameters";
 
 export const Review: React.FC<{
   applications: DecoratedApplication[];

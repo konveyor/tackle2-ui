@@ -1,24 +1,29 @@
 import React, { FC } from "react";
-import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ReactElement } from "react-markdown/lib/react-markdown";
+import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import {
   Nav,
-  NavItem,
-  PageSidebar,
-  NavList,
   NavExpandable,
+  NavItem,
+  NavList,
+  PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
 
-import { AdminPaths, DevPaths } from "@app/Paths";
-import { LayoutTheme } from "../LayoutUtils";
-import { checkAccess } from "@app/utils/rbac-utils";
-import keycloak from "@app/keycloak";
-
+import { isDevtoolsEnabled } from "@app/Constants";
+import { AdminPaths, DevPaths, DevtoolPaths } from "@app/Paths";
+import {
+  administrationRoutes,
+  devtoolRoutes,
+  migrationRoutes,
+} from "@app/Routes";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
+import keycloak from "@app/keycloak";
+import { checkAccess } from "@app/utils/rbac-utils";
+
+import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
-import { ReactElement } from "react-markdown/lib/react-markdown";
-import { adminRoutes, devRoutes } from "@app/Routes";
 
 const PersonaDefinition = {
   ADMINISTRATION: {
@@ -29,13 +34,17 @@ const PersonaDefinition = {
     label: "Migration",
     startPath: DevPaths.applications,
   },
+  DEVTOOL: {
+    label: "Development Tools",
+    startPath: DevtoolPaths.schemaDefined,
+  },
 } as const;
 
 type PersonaType = keyof typeof PersonaDefinition;
 
 export const SidebarApp: React.FC = () => (
   <Switch>
-    {devRoutes.map(({ path, exact }, index) => (
+    {migrationRoutes.map(({ path, exact }, index) => (
       <Route
         path={path}
         exact={exact}
@@ -43,12 +52,20 @@ export const SidebarApp: React.FC = () => (
         render={() => <MigrationSidebar />}
       />
     ))}
-    {adminRoutes.map(({ path, exact }, index) => (
+    {administrationRoutes.map(({ path, exact }, index) => (
       <Route
         path={path}
         exact={exact}
         key={index}
         render={() => <AdminSidebar />}
+      />
+    ))}
+    {devtoolRoutes.map(({ path, exact }, index) => (
+      <Route
+        path={path}
+        exact={exact}
+        key={index}
+        render={() => <DevtoolSidebar />}
       />
     ))}
   </Switch>
@@ -65,6 +82,7 @@ const PersonaSidebar: FC<{
   const personaOptions: PersonaType[] = [
     "MIGRATION",
     adminAccess && "ADMINISTRATION",
+    isDevtoolsEnabled && "DEVTOOL",
   ].filter(Boolean);
 
   const history = useHistory();
@@ -247,3 +265,20 @@ export const AdminSidebar = () => {
     </PersonaSidebar>
   );
 };
+
+const DevtoolSidebar = !isDevtoolsEnabled
+  ? () => null
+  : () => (
+      <PersonaSidebar selectedPersona="DEVTOOL">
+        <NavList title="Devtool">
+          <NavItem>
+            <NavLink
+              to={DevtoolPaths.schemaDefined}
+              activeClassName="pf-m-current"
+            >
+              SDF Testing
+            </NavLink>
+          </NavItem>
+        </NavList>
+      </PersonaSidebar>
+    );

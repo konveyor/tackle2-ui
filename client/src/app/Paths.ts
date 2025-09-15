@@ -81,6 +81,13 @@ export const GeneralPaths = {
   notFound: "/not-found",
 } as const;
 
+export const DevtoolPaths = {
+  schemaDefined: "/tool/schema-defined",
+} as const;
+
+export type DevtoolPathValues =
+  (typeof DevtoolPaths)[keyof typeof DevtoolPaths];
+
 export const Paths = { ...GeneralPaths, ...AdminPaths, ...DevPaths } as const;
 
 export interface AssessmentRoute {

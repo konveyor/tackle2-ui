@@ -1,13 +1,13 @@
 import "@patternfly/react-core/dist/styles/base.css";
 
 import React from "react";
-import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { createRoot } from "react-dom/client";
 
-import ENV from "@app/env";
 import App from "@app/App";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
+import ENV from "@app/env";
 
 import "@app/dayjs";
 import "@app/i18n";

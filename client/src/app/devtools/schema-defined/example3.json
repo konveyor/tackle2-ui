@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "names": {
+      "description": "Application names. Each may be a glob expression.",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 0,
+      "type": "array"
+    },
+    "spaces": {
+      "description": "Space names.",
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": ["spaces"],
+  "title": "CloudFoundry Discover Filter",
+  "type": "object"
+}
