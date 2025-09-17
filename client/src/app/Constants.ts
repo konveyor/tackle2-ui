@@ -2,14 +2,15 @@ import {
   global_palette_black_1000 as black,
   global_palette_black_500 as gray,
   global_palette_blue_300 as blue,
-  global_palette_green_300 as green,
   global_palette_cyan_300 as cyan,
-  global_palette_purple_600 as purple,
   global_palette_gold_300 as gold,
+  global_palette_green_300 as green,
   global_palette_orange_300 as orange,
+  global_palette_purple_600 as purple,
 } from "@patternfly/react-tokens";
 
 import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
+
 import { ENV } from "./env";
 
 export const DEFAULT_REFETCH_INTERVAL = 5000;
@@ -19,6 +20,8 @@ export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
 
 export const DEFAULT_SELECT_MAX_HEIGHT = 200;
+
+export const isDevtoolsEnabled = ENV.DEVTOOLS === "on";
 
 /**
  * The name of the client generated id field inserted in a object marked with mixin type
