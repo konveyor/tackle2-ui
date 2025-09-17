@@ -57,16 +57,16 @@ const EXAMPLES: ObjectWithOptionalNameOrTitle[] = [
   example3,
 ];
 
-const toString = (schema: string | object) => {
+const asString = (schema: string | object) => {
   return typeof schema === "string" ? schema : JSON.stringify(schema, null, 2);
 };
 
-const toObject = (schema: string | object) => {
+const asObject = (schema: string | object) => {
   return typeof schema === "string" ? JSON.parse(schema) : schema;
 };
 
 export const SchemaDefinedPage: React.FC = () => {
-  const [schemaCode, setSchemaCode] = useState<string>(toString(example1));
+  const [schemaCode, setSchemaCode] = useState<string>(asString(example1));
   const [parsedSchema, setParsedSchema] = useState<
     JsonSchemaObject | undefined
   >(example1 as JsonSchemaObject);
@@ -75,10 +75,10 @@ export const SchemaDefinedPage: React.FC = () => {
 
   // Handle changes to the schema editor
   const handleSchemaChange = useCallback((newSchemaCode: string | object) => {
-    setSchemaCode(toString(newSchemaCode));
+    setSchemaCode(asString(newSchemaCode));
 
     try {
-      const parsed = toObject(newSchemaCode) as JsonSchemaObject;
+      const parsed = asObject(newSchemaCode) as JsonSchemaObject;
       setParsedSchema(parsed);
     } catch (error) {
       // Invalid JSON, keep the previous schema
@@ -94,7 +94,7 @@ export const SchemaDefinedPage: React.FC = () => {
   const schemaStatus: StatusType = useMemo(() => {
     if (schemaCode) {
       try {
-        toObject(schemaCode);
+        asObject(schemaCode);
         return "y";
       } catch (error) {
         return "n";
