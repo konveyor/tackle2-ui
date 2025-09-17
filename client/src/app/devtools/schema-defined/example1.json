@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "Platform Configuration Schema",
   "description": "Defines the structure and validation rules for platform metadata and coordinates.",
   "type": "object",

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "name": {
+      "description": "Application name.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "space": {
+      "description": "Space name.",
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": ["space", "name"],
+  "title": "CloudFoundry Application Coordinates",
+  "type": "object"
+}
