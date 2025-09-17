@@ -5,15 +5,17 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  TextContent,
   Text,
+  TextContent,
 } from "@patternfly/react-core";
 
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { SourcePlatform } from "@app/api/models";
-import { FilterState } from "./filter-input";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields";
+
 import { usePlatformKindList } from "../usePlatformKindList";
+
+import { FilterState } from "./filter-input";
 
 export const Review: React.FC<{
   platform: SourcePlatform;

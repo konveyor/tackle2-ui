@@ -20,7 +20,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { toOptionLike } from "@app/utils/model-utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";

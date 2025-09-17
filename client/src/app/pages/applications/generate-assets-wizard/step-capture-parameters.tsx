@@ -1,23 +1,22 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useForm, useWatch, UseFormReturn } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
+import { UseFormReturn, useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
-  Form,
-  TextContent,
-  Text,
   Alert,
   AlertVariant,
-  PanelMainBody,
-  PanelMain,
+  Form,
   Panel,
+  PanelMain,
+  PanelMainBody,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
 
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import {
   combineSchemas,
   isSchemaEmpty,

@@ -16,6 +16,9 @@ export type KonveyorEnvType = {
   /** Controls how mock data is injected on the client */
   MOCK: string;
 
+  /** Enable devtools */
+  DEVTOOLS: "on" | "off";
+
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
 
@@ -63,6 +66,7 @@ export const buildKonveyorEnv = ({
   PORT,
   VERSION = "99.0.0",
   MOCK = "off",
+  DEVTOOLS = "off",
 
   KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED = "false",
@@ -78,6 +82,7 @@ export const buildKonveyorEnv = ({
   PORT,
   VERSION,
   MOCK,
+  DEVTOOLS,
 
   KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED,

@@ -1,0 +1,24 @@
+{
+  "title": "Very simple example",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "The name field"
+    },
+    "age": {
+      "type": "number",
+      "title": "Age",
+      "description": "The age field",
+      "minimum": 0,
+      "maximum": 150
+    },
+    "isActive": {
+      "type": "boolean",
+      "title": "Is Active",
+      "description": "Whether the person is active"
+    }
+  },
+  "required": ["name"]
+}
