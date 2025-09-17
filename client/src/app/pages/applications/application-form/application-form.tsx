@@ -22,6 +22,7 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { toOptionLike } from "@app/utils/model-utils";
+import { wrapAsEvent } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
@@ -409,14 +410,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                   jsonDocument={value ?? {}}
                   jsonSchema={coordinatesSchema.definition}
                   onDocumentChanged={(newJsonDocument) => {
-                    // Note: Since the shape of the json document __could__ look like an event
-                    //       object, we wrap it up so it will always be processed correctly.
-                    onChange({
-                      target: {
-                        name,
-                        value: newJsonDocument,
-                      },
-                    });
+                    onChange(wrapAsEvent(newJsonDocument, name));
                   }}
                 />
               );
