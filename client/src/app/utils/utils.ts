@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
-import { ToolbarChip } from "@patternfly/react-core";
 import gitUrlParse from "git-url-parse";
+import { ToolbarChip } from "@patternfly/react-core";
 
 import { AdminPathValues, DevPathValues } from "@app/Paths";
 import i18n from "@app/i18n";
@@ -247,4 +247,19 @@ export function intersection<T>(
         ),
       uniqueFirst
     );
+}
+
+/**
+ * When working with react-hook-form, we may need to wrap a value in an event object to make
+ * sure it is processed correctly.  The shape of an object __could__ look like an event and
+ * that would cause issues with how react-hook-form handles the value.  Best to remove all
+ * doubt.
+ */
+export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
+  return {
+    target: {
+      name,
+      value,
+    },
+  };
 }

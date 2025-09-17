@@ -1032,6 +1032,12 @@ export interface JsonSchemaObject {
   /** For type array */
   items?: JsonSchemaObject;
 
+  /** For type array, minimum number of items */
+  minItems?: number;
+
+  /** For type array, maximum number of items */
+  maxItems?: number;
+
   /** For type object, defined properties */
   properties?: { [key: string]: JsonSchemaObject };
 
