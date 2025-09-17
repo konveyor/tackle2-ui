@@ -1,16 +1,16 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useForm, useWatch, UseFormReturn } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-import { Form, TextContent, Text } from "@patternfly/react-core";
+import { UseFormReturn, useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
+import { Form, Text, TextContent } from "@patternfly/react-core";
 
 import { JsonDocument, SourcePlatform, TargetedSchema } from "@app/api/models";
-import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
-import { SchemaDefinedField } from "@app/components/schema-defined-fields/SchemaDefinedFields";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
+
 import { usePlatformKindList } from "../usePlatformKindList";
 
 interface FiltersFormValues {

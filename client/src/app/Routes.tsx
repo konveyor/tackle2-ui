@@ -1,15 +1,23 @@
-import React, { lazy, Suspense } from "react";
-import { Switch, Redirect, useLocation } from "react-router-dom";
+import React, { Suspense, lazy } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { Redirect, Switch, useLocation } from "react-router-dom";
 
+import {
+  AdminPathValues,
+  DevPathValues,
+  DevtoolPathValues,
+  DevtoolPaths,
+  Paths,
+} from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ErrorFallback } from "@app/components/ErrorFallback";
+
+import { isDevtoolsEnabled } from "./Constants";
+import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
-import { Paths, DevPathValues, AdminPathValues } from "@app/Paths";
-import { RouteWrapper } from "./components/RouteWrapper";
 import { adminRoles, devRoles } from "./rbac";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "@app/components/ErrorFallback";
 
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
@@ -82,12 +90,11 @@ const AssetGenerators = lazy(
 
 export interface IRoute<T> {
   path: T;
-  comp: React.ComponentType<any>;
+  comp: React.ComponentType;
   exact?: boolean;
-  routes?: undefined;
 }
 
-export const devRoutes: IRoute<DevPathValues>[] = [
+export const migrationRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.applicationsImportsDetails,
     comp: ImportDetails,
@@ -251,7 +258,7 @@ export const devRoutes: IRoute<DevPathValues>[] = [
   },
 ];
 
-export const adminRoutes: IRoute<AdminPathValues>[] = [
+export const administrationRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: General,
     path: Paths.general,
@@ -306,6 +313,18 @@ export const adminRoutes: IRoute<AdminPathValues>[] = [
   },
 ];
 
+export const devtoolRoutes: IRoute<DevtoolPathValues>[] = isDevtoolsEnabled
+  ? [
+      {
+        comp: lazy(
+          () => import("./devtools/schema-defined/schema-defined-page")
+        ),
+        path: DevtoolPaths.schemaDefined,
+        exact: false,
+      },
+    ]
+  : [];
+
 export const AppRoutes = () => {
   const location = useLocation();
 
@@ -313,7 +332,7 @@ export const AppRoutes = () => {
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
         <Switch>
-          {devRoutes.map(({ comp, path, exact }, index) => (
+          {migrationRoutes.map(({ comp, path, exact }, index) => (
             <RouteWrapper
               comp={comp}
               key={index}
@@ -322,11 +341,20 @@ export const AppRoutes = () => {
               exact={exact}
             />
           ))}
-          {adminRoutes.map(({ comp, path, exact }, index) => (
+          {administrationRoutes.map(({ comp, path, exact }, index) => (
             <RouteWrapper
               comp={comp}
               key={index}
               roles={adminRoles}
+              path={path}
+              exact={exact}
+            />
+          ))}
+          {devtoolRoutes.map(({ comp, path, exact }, index) => (
+            <RouteWrapper
+              comp={comp}
+              key={index}
+              roles={devRoles}
               path={path}
               exact={exact}
             />
