@@ -10,8 +10,11 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
+import { wrapAsEvent } from "@app/utils/utils";
 
 import { usePlatformKindList } from "../usePlatformKindList";
+
+import { FilterInputCloudFoundry } from "./filter-input-cloudfoundry";
 
 interface FiltersFormValues {
   filterRequired: boolean;
@@ -137,17 +140,28 @@ export const FilterInput: React.FC<{
               platformName: platform.name,
             })}
             fieldId="document"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SchemaDefinedField
-                key={platform.kind}
-                id={name}
-                jsonDocument={value ?? {}}
-                jsonSchema={filtersSchema.definition}
-                onDocumentChanged={(newJsonDocument) => {
-                  onChange(newJsonDocument);
-                }}
-              />
-            )}
+            renderInput={({ field: { value, name, onChange } }) =>
+              platform.kind === "cloudfoundry" ? (
+                <FilterInputCloudFoundry
+                  key={platform.kind}
+                  id={name}
+                  values={value ?? {}}
+                  onDocumentChanged={(newJsonDocument) => {
+                    onChange(wrapAsEvent(newJsonDocument, name));
+                  }}
+                />
+              ) : (
+                <SchemaDefinedField
+                  key={platform.kind}
+                  id={name}
+                  jsonDocument={value ?? {}}
+                  jsonSchema={filtersSchema.definition}
+                  onDocumentChanged={(newJsonDocument) => {
+                    onChange(wrapAsEvent(newJsonDocument, name));
+                  }}
+                />
+              )
+            }
           />
         </Form>
       )}

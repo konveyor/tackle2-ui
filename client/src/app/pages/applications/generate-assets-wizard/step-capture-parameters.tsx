@@ -23,6 +23,7 @@ import {
   jsonSchemaToYupSchema,
 } from "@app/components/schema-defined-fields/utils";
 import { useFetchGenerators } from "@app/queries/generators";
+import { wrapAsEvent } from "@app/utils/utils";
 
 export interface ParameterState {
   isValid: boolean;
@@ -191,7 +192,7 @@ export const CaptureParameters: React.FC<{
                       jsonDocument={value ?? {}}
                       jsonSchema={schema}
                       onDocumentChanged={(newJsonDocument) => {
-                        onChange(newJsonDocument);
+                        onChange(wrapAsEvent(newJsonDocument, name));
                       }}
                     />
                   )}

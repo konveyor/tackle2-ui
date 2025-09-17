@@ -1,8 +1,9 @@
-import { JsonSchemaObject } from "@app/api/models";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { TFunction } from "i18next";
 import { unique } from "radash";
 import * as yup from "yup";
+
+import { JsonSchemaObject } from "@app/api/models";
 
 const fallbackT = (k: string, v?: object) => `${k}: ${JSON.stringify(v)}`;
 
@@ -19,7 +20,21 @@ export const jsonSchemaToYupSchema = (
     if (jsonSchema.items) {
       schema = schema.of(jsonSchemaToYupSchema(jsonSchema.items, t));
     }
-    // TODO: minItems, maxItems, uniqueItems
+
+    if (jsonSchema.minItems) {
+      schema = schema.min(
+        jsonSchema.minItems,
+        t("validation.minItems", { count: jsonSchema.minItems })
+      );
+    }
+    if (jsonSchema.maxItems) {
+      schema = schema.max(
+        jsonSchema.maxItems,
+        t("validation.maxItems", { count: jsonSchema.maxItems })
+      );
+    }
+    // TODO: uniqueItems
+
     return schema;
   }
 
