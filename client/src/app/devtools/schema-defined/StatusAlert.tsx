@@ -4,7 +4,7 @@ import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 
-import { StatusType } from "./schema-defined-page";
+import type { StatusType } from "./schema-defined-page";
 
 export const STATUS_MAP: Record<
   StatusType,

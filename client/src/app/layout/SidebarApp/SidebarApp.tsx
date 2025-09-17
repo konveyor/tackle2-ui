@@ -1,6 +1,5 @@
-import React, { FC } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import { ReactElement } from "react-markdown/lib/react-markdown";
 import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import {
   Nav,
@@ -71,19 +70,19 @@ export const SidebarApp: React.FC = () => (
   </Switch>
 );
 
-const PersonaSidebar: FC<{
-  children: ReactElement;
+const PersonaSidebar: React.FC<{
+  children: React.ReactNode;
   selectedPersona: PersonaType;
 }> = ({ children, selectedPersona }) => {
   const token = keycloak.tokenParsed || undefined;
   const userRoles = token?.realm_access?.roles || [];
   const adminAccess = checkAccess(userRoles, ["tackle-admin"]);
 
-  const personaOptions: PersonaType[] = [
+  const personaOptions = [
     "MIGRATION",
     adminAccess && "ADMINISTRATION",
     isDevtoolsEnabled && "DEVTOOL",
-  ].filter(Boolean);
+  ].filter<PersonaType>(Boolean);
 
   const history = useHistory();
   return (
@@ -276,7 +275,7 @@ const DevtoolSidebar = !isDevtoolsEnabled
               to={DevtoolPaths.schemaDefined}
               activeClassName="pf-m-current"
             >
-              SDF Testing
+              SDF Playground
             </NavLink>
           </NavItem>
         </NavList>

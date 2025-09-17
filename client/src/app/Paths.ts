@@ -82,7 +82,7 @@ export const GeneralPaths = {
 } as const;
 
 export const DevtoolPaths = {
-  schemaDefined: "/tool/schema-defined",
+  schemaDefined: "/devtools/schema-defined",
 } as const;
 
 export type DevtoolPathValues =

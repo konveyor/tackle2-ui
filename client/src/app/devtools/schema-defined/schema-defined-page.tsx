@@ -34,9 +34,9 @@ import {
   SchemaDefinedField,
   jsonSchemaToYupSchema,
 } from "@app/components/schema-defined-fields";
-import "./schema-defined-page.css";
 
 import { DocumentStatusAlert, SchemaStatusAlert } from "./StatusAlert";
+import "./schema-defined-page.css";
 import example0 from "./example0.json";
 import example1 from "./example1.json";
 import example2 from "./example2.json";
@@ -86,7 +86,7 @@ export const SchemaDefinedPage: React.FC = () => {
     }
   }, []);
 
-  // Handle changes to the document from SchemaDefinedField
+  // Handle changes to the document from SchemaDefinedFields
   const handleDocumentChange = useCallback((newDocument: object) => {
     setCurrentDocument(newDocument);
   }, []);
@@ -116,12 +116,12 @@ export const SchemaDefinedPage: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     return (
       <Dropdown
-        onSelect={() => setIsOpen(!isOpen)}
+        onSelect={() => setIsOpen(false)}
         toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
           <MenuToggle
             ref={toggleRef}
             isExpanded={isOpen}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => setIsOpen((current) => !current)}
             variant="plain"
           >
             <EllipsisVIcon aria-hidden="true" />
@@ -151,7 +151,7 @@ export const SchemaDefinedPage: React.FC = () => {
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
             <TextContent>
-              <Title headingLevel="h1">SchemaDefinedField Tester</Title>
+              <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
             </TextContent>
           </FlexItem>
           <FlexItem align={{ default: "alignRight" }}>
@@ -197,7 +197,7 @@ export const SchemaDefinedPage: React.FC = () => {
 
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
-                  <CardTitle>Schema Defined Field</CardTitle>
+                  <CardTitle>SchemaDefinedFields</CardTitle>
                   <CardBody className="full-height-container">
                     <SchemaDefinedField
                       id="demo-schema-field"
