@@ -16,6 +16,7 @@ import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { usePlatformKindList } from "../usePlatformKindList";
 
 import { FilterState } from "./filter-input";
+import { ReviewInputCloudFoundry } from "./review-input-cloudfoundry";
 
 export const Review: React.FC<{
   platform: SourcePlatform;
@@ -81,12 +82,19 @@ export const Review: React.FC<{
                   padding: "16px",
                 }}
               >
-                <SchemaDefinedField
-                  id="platform-discovery-filters-review"
-                  jsonDocument={filters.document ?? {}}
-                  jsonSchema={filters.schema?.definition}
-                  isReadOnly={true}
-                />
+                {platform.kind === "cloudfoundry" ? (
+                  <ReviewInputCloudFoundry
+                    id="platform-discovery-filters-review"
+                    values={filters.document}
+                  />
+                ) : (
+                  <SchemaDefinedField
+                    id="platform-discovery-filters-review"
+                    jsonDocument={filters.document ?? {}}
+                    jsonSchema={filters.schema?.definition}
+                    isReadOnly={true}
+                  />
+                )}
               </div>
             </DescriptionListDescription>
           </DescriptionListGroup>
