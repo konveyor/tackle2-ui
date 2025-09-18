@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+
 import {
   AnyAutocompleteOptionProps,
   GroupMap,
@@ -56,7 +57,6 @@ export const useAutocompleteHandlers = ({
 
     return groups;
   }, [options, selections, inputValue]);
-  const allOptions = Object.values(groupedFilteredOptions).flat();
 
   const handleInputChange = (value: string) => {
     setInputValue(value);

@@ -1,8 +1,10 @@
 import * as React from "react";
-import { Application, Target, TargetLabel } from "@app/api/models";
-import { AnalysisMode, ANALYSIS_MODES } from "./schema";
 import { toggle, unique } from "radash";
+
+import { Application, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel } from "@app/utils/rules-utils";
+
+import { ANALYSIS_MODES, AnalysisMode } from "./schema";
 
 export const isApplicationBinaryEnabled = (
   application: Application

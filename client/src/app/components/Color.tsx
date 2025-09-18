@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { Split, SplitItem } from "@patternfly/react-core";
 
 import { COLOR_NAMES_BY_HEX_VALUE } from "@app/Constants";

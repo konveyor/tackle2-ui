@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
+
 import { JsonSchemaObject } from "@app/api/models";
 
 import { SchemaAsCodeEditor } from "./SchemaAsCodeEditor";

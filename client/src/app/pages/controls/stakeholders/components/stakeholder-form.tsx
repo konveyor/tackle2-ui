@@ -1,8 +1,9 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -11,23 +12,21 @@ import {
 } from "@patternfly/react-core";
 
 import { New, Ref, Stakeholder } from "@app/api/models";
-import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useFetchJobFunctions } from "@app/queries/jobfunctions";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import {
   useCreateStakeholderMutation,
   useFetchStakeholders,
   useUpdateStakeholderMutation,
 } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
-import { useFetchJobFunctions } from "@app/queries/jobfunctions";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  HookFormPFGroupController,
-  HookFormPFTextInput,
-} from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { toOptionLike } from "@app/utils/model-utils";
+import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
   email: string;
@@ -99,7 +98,6 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
     control,
   } = useForm<FormValues>({
     defaultValues: {
@@ -122,7 +120,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       variant: "success",
     });
 
-  const onCreateStakeholderError = (error: AxiosError) => {
+  const onCreateStakeholderError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.stakeholder").toLowerCase(),
@@ -144,7 +142,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
       variant: "success",
     });
 
-  const onUpdateStakeholderError = (error: AxiosError) => {
+  const onUpdateStakeholderError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.stakeholder").toLowerCase(),
@@ -159,9 +157,8 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
 
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderGroupRefs: Ref[] = stakeholderGroups
-      .filter(
-        (stakeholderGroup) =>
-          formValues?.stakeholderGroupNames?.includes(stakeholderGroup.name)
+      .filter((stakeholderGroup) =>
+        formValues?.stakeholderGroupNames?.includes(stakeholderGroup.name)
       )
       .map((stakeholderGroup) => {
         return {

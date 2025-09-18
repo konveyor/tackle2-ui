@@ -1,16 +1,17 @@
 import React from "react";
 import "@testing-library/jest-dom";
+import { server } from "@mocks/server";
+import userEvent from "@testing-library/user-event";
+import { rest } from "msw";
+
 import {
-  render,
-  waitFor,
-  screen,
   fireEvent,
+  render,
+  screen,
+  waitFor,
 } from "@app/test-config/test-utils";
 
 import { Proxies } from "../proxies";
-import userEvent from "@testing-library/user-event";
-import { server } from "@mocks/server";
-import { rest } from "msw";
 
 describe("Component: proxy-form", () => {
   beforeEach(() => {

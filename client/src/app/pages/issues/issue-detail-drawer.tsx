@@ -1,22 +1,24 @@
 import * as React from "react";
 import {
+  Tab,
+  TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
+} from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
-import {
-  TextContent,
-  Text,
-  Title,
-  Tabs,
-  TabTitleText,
-  Tab,
-} from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IssueAffectedFilesTable } from "./issue-affected-files-table";
-import { useFetchInsight } from "@app/queries/analysis";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
+import { useFetchInsight } from "@app/queries/analysis";
+
 import { getIssueTitle } from "./helpers";
+import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 
 export interface IIssueDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

@@ -1,22 +1,23 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { Ref } from "@app/api/models";
-import {
-  useTableControlState,
-  useTableControlProps,
-  deserializeFilterUrlParams,
-} from "@app/hooks/table-controls";
+
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Ref } from "@app/api/models";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { useHistory } from "react-router-dom";
+import {
+  deserializeFilterUrlParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
 
 export interface IPlatformAppsTableProps {

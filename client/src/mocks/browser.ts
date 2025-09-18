@@ -1,4 +1,4 @@
-import { type RestHandler, setupWorker, rest } from "msw";
+import { type RestHandler, rest, setupWorker } from "msw";
 
 import config from "./config";
 import stubNewWork from "./stub-new-work";

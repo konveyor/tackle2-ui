@@ -1,3 +1,9 @@
+import { useActiveItemState } from "./active-item";
+import { useColumnState } from "./column/useColumnState";
+import { useExpansionState } from "./expansion";
+import { useFilterState } from "./filtering";
+import { usePaginationState } from "./pagination";
+import { useSortState } from "./sorting";
 import {
   IFeaturePersistenceArgs,
   ITableControlState,
@@ -5,12 +11,6 @@ import {
   IUseTableControlStateArgs,
   TableFeature,
 } from "./types";
-import { useFilterState } from "./filtering";
-import { useSortState } from "./sorting";
-import { usePaginationState } from "./pagination";
-import { useActiveItemState } from "./active-item";
-import { useExpansionState } from "./expansion";
-import { useColumnState } from "./column/useColumnState";
 
 const getPersistTo = ({
   feature,

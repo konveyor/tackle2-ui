@@ -1,4 +1,5 @@
 import { Target, TargetLabel } from "@app/api/models";
+
 import { updateSelectedTargetLabels } from "../utils";
 
 const TARGET_LABELS: TargetLabel[] = [

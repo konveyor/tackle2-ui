@@ -18,19 +18,18 @@ import {
 } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";
-import { useFetchApplications } from "@app/queries/applications";
-import { useFetchAssessments } from "@app/queries/assessments";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
-
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { StateError } from "@app/components/StateError";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchAssessments } from "@app/queries/assessments";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+import { toIdRef } from "@app/utils/model-utils";
+import { universalComparator } from "@app/utils/utils";
 
 import { ApplicationSelectionContextProvider } from "./application-selection-context";
-import { IdentifiedRisksTable } from "./components/identified-risks-table";
-import { toIdRef } from "@app/utils/model-utils";
 import { ApplicationLandscape } from "./components/application-landscape";
-import { universalComparator } from "@app/utils/utils";
+import { IdentifiedRisksTable } from "./components/identified-risks-table";
 
 const ALL_QUESTIONNAIRES = -1;
 

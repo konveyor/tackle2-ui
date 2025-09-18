@@ -1,10 +1,15 @@
 import React, { forwardRef, useCallback, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import dayjs from "dayjs";
+import { Link } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
   DropdownList,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
   NotificationDrawer,
@@ -15,23 +20,19 @@ import {
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
   Tooltip,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateBody,
-  EmptyStateVariant,
 } from "@patternfly/react-core";
-import { EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
 import { Task, TaskState } from "@app/api/models";
-import { useTaskManagerContext } from "./TaskManagerContext";
+import { useTaskActions } from "@app/pages/tasks/useTaskActions";
 import { useInfiniteServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
 import { TaskStateIcon } from "../Icons";
-import { useTaskActions } from "@app/pages/tasks/useTaskActions";
 import { InfiniteScroller } from "../InfiniteScroller";
+
+import { useTaskManagerContext } from "./TaskManagerContext";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {

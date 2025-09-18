@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AxiosError, AxiosResponse } from "axios";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
@@ -13,24 +14,23 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import dayjs from "dayjs";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Application, MigrationWave } from "@app/api/models";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useLocalTableControls } from "@app/hooks/table-controls";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { dedupeFunction } from "@app/utils/utils";
-import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
+import { dedupeFunction } from "@app/utils/utils";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];

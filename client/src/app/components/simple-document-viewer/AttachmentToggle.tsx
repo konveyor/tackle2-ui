@@ -1,12 +1,12 @@
 import React, { FC, useState } from "react";
-
 import {
-  Select,
-  SelectOption,
-  SelectList,
-  MenuToggleElement,
   MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
 } from "@patternfly/react-core";
+
 import { Document } from "./SimpleDocumentViewer";
 import "./SimpleDocumentViewer.css";
 

@@ -1,5 +1,6 @@
-import { useFetchTaskQueue } from "@app/queries/tasks";
 import React, { useContext, useMemo, useState } from "react";
+
+import { useFetchTaskQueue } from "@app/queries/tasks";
 
 interface TaskManagerContextProps {
   /** Count of the currently "queued" Tasks */

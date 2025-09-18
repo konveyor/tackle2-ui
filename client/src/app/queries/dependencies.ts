@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   AnalysisDependency,
   HubPaginatedResult,
@@ -7,7 +9,6 @@ import {
 } from "@app/api/models";
 import { getAppDependencies, getDependencies } from "@app/api/rest";
 import { useWithUiId } from "@app/utils/query-utils";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const DependenciesQueryKey = "dependencies";
 export const AppDependenciesQueryKey = "appDependencies";

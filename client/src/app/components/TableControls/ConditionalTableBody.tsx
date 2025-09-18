@@ -1,6 +1,7 @@
 import React from "react";
 import { Bullseye, Spinner } from "@patternfly/react-core";
-import { Tbody, Tr, Td } from "@patternfly/react-table";
+import { Tbody, Td, Tr } from "@patternfly/react-table";
+
 import { StateError } from "../StateError";
 import { StateNoData } from "../StateNoData";
 

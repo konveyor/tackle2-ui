@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   createStakeholderGroup,
   deleteStakeholderGroup,
   getStakeholderGroups,
   updateStakeholderGroup,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const StakeholderGroupsQueryKey = "stakeholderGroups";
 

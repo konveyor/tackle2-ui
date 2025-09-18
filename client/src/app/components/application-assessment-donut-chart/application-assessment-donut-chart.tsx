@@ -1,15 +1,15 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ChartDonut, ChartLegend } from "@patternfly/react-charts";
+import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
+
 import { RISK_LIST } from "@app/Constants";
 import {
   Assessment,
-  Section,
-  IdRef,
   AssessmentWithArchetypeApplications,
+  IdRef,
+  Section,
 } from "@app/api/models";
-
-import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 
 export interface ChartData {

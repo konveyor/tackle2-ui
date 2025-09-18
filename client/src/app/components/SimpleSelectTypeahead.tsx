@@ -1,18 +1,17 @@
 import React from "react";
-
 import {
+  Button,
+  Chip,
+  ChipGroup,
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
-  MenuToggle,
-  MenuToggleElement,
-  Button,
   SelectOptionProps,
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
-  ChipGroup,
-  Chip,
 } from "@patternfly/react-core";
 import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
 
@@ -134,8 +133,8 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
             ? selectOptions.length - 1
             : currentIndex - 1
           : currentIndex === null || currentIndex === selectOptions.length - 1
-          ? 0
-          : currentIndex + 1;
+            ? 0
+            : currentIndex + 1;
 
       setFocusedItemIndex(indexToFocus);
       const focusedItem = selectOptions[indexToFocus];

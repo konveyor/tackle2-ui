@@ -1,18 +1,19 @@
 import React from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
+  Alert,
+  Form,
   SelectOptionProps,
   TextContent,
   Title,
-  Alert,
-  Form,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
+
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 
 import { UploadBinary } from "./components/upload-binary";
 import { AnalysisWizardFormValues } from "./schema";
-import { useFormContext } from "react-hook-form";
-import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 
 interface ISetMode {
   isSingleApp: boolean;

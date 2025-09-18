@@ -1,16 +1,17 @@
 import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useKeycloak } from "@react-keycloak/web";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Dropdown,
-  MenuToggle,
   DropdownGroup,
   DropdownItem,
   DropdownList,
+  MenuToggle,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { isAuthRequired, LocalStorageKey } from "@app/Constants";
-import { useHistory } from "react-router-dom";
+
+import { LocalStorageKey, isAuthRequired } from "@app/Constants";
 
 export const SsoToolbarItem: React.FC = () => {
   return isAuthRequired ? <AuthEnabledSsoToolbarItem /> : <></>;

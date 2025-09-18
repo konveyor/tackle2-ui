@@ -1,13 +1,13 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 import { AnalysisDetailsAttachmentRoute, Paths } from "@app/Paths";
+import { TaskDetailsBase } from "@app/pages/tasks/TaskDetailsBase";
+import { useFetchApplicationById } from "@app/queries/applications";
 import { formatPath } from "@app/utils/utils";
 
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
-import { TaskDetailsBase } from "@app/pages/tasks/TaskDetailsBase";
-import { useFetchApplicationById } from "@app/queries/applications";
 
 export const AnalysisDetails = () => {
   const { t } = useTranslation();

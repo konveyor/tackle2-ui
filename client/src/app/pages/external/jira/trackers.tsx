@@ -1,4 +1,6 @@
 import * as React from "react";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
@@ -16,34 +18,33 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import {
-  useDeleteTrackerMutation,
-  useFetchTrackers,
-} from "@app/queries/trackers";
-import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { Tracker } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { TrackerForm } from "./tracker-form";
-import { Tracker } from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchTickets } from "@app/queries/tickets";
-import TrackerStatus from "./components/tracker-status";
+import {
+  useDeleteTrackerMutation,
+  useFetchTrackers,
+} from "@app/queries/trackers";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import TrackerStatus from "./components/tracker-status";
+import { TrackerForm } from "./tracker-form";
 import useUpdatingTrackerIds from "./useUpdatingTrackerIds";
 
 export const JiraTrackers: React.FC = () => {

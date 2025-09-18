@@ -1,5 +1,6 @@
-import { EmptyObject, ApplicationManifestTask, New } from "@app/api/models";
+import { ApplicationManifestTask, EmptyObject, New } from "@app/api/models";
 import { useCreateTaskMutation } from "@app/queries/tasks";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export const useStartFetchApplicationManifest = () => {

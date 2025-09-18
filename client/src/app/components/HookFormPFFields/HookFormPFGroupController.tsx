@@ -1,18 +1,18 @@
 import * as React from "react";
 import {
-  FormGroup,
-  FormGroupProps,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-} from "@patternfly/react-core";
-import {
   Control,
   Controller,
   ControllerProps,
   FieldValues,
   Path,
 } from "react-hook-form";
+import {
+  FormGroup,
+  FormGroupProps,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+} from "@patternfly/react-core";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.

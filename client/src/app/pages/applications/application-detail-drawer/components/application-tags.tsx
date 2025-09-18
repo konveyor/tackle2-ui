@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
+  Bullseye,
   Button,
+  ButtonVariant,
   Flex,
   Spinner,
-  TextContent,
   Text,
+  TextContent,
   Toolbar,
   ToolbarContent,
-  ToolbarToggleGroup,
   ToolbarItem,
-  ButtonVariant,
-  Bullseye,
+  ToolbarToggleGroup,
 } from "@patternfly/react-core";
-
+import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+
 import { Application, Tag, TagCategory } from "@app/api/models";
 import { getTagById, getTagCategoryById } from "@app/api/rest";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { useHistory } from "react-router-dom";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { ItemTagLabel } from "@app/components/labels/item-tag-label/item-tag-label";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { capitalizeFirstLetter, universalComparator } from "@app/utils/utils";
 
 interface TagWithSource extends Tag {
@@ -201,7 +201,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
       {Array.from(tagsBySource.keys())
         .sort(compareSources)
-        .map((source, tagSourceIndex) => {
+        .map((source) => {
           const tagsInThisSource = tagsBySource.get(source);
           const tagCategoriesInThisSource = new Set<TagCategory>();
           tagsInThisSource?.forEach((tag) => {

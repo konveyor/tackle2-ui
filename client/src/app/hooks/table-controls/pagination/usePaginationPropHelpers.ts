@@ -1,9 +1,10 @@
 import { PaginationProps, ToolbarItemProps } from "@patternfly/react-core";
-import { IPaginationState } from "./usePaginationState";
+
 import {
   IUsePaginationEffectsArgs,
   usePaginationEffects,
 } from "./usePaginationEffects";
+import { IPaginationState } from "./usePaginationState";
 
 /**
  * Args for usePaginationPropHelpers that come from outside useTableControlProps

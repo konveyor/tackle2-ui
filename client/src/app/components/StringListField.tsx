@@ -1,15 +1,16 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { InputGroup, TextInput, Button } from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Button, InputGroup, TextInput } from "@patternfly/react-core";
 import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import { getValidatedFromErrors } from "@app/utils/utils";
-import { HookFormPFGroupController } from "./HookFormPFFields";
-
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Tr } from "@patternfly/react-table";
+
+import { getValidatedFromErrors } from "@app/utils/utils";
+
+import { HookFormPFGroupController } from "./HookFormPFFields";
 
 export interface StringListFieldProps {
   listItems: string[];

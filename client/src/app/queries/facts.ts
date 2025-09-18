@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-
-import { getFacts } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { Fact } from "@app/api/models";
+
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { Fact } from "@app/api/models";
+import { getFacts } from "@app/api/rest";
 
 export const FactsQueryKey = "facts";
 

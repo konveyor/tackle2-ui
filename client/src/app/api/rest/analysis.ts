@@ -1,15 +1,15 @@
 import axios from "axios";
 
-import { hub, template, getHubPaginatedResult } from "../rest";
 import {
-  HubRequestParams,
-  AnalysisReportInsight,
-  AnalysisReportInsightApplication,
   AnalysisIncident,
-  AnalysisReportFile,
   AnalysisInsight,
   AnalysisReportApplicationInsight,
+  AnalysisReportFile,
+  AnalysisReportInsight,
+  AnalysisReportInsightApplication,
+  HubRequestParams,
 } from "../models";
+import { getHubPaginatedResult, hub, template } from "../rest";
 
 /*
   - Analysis uses a collection of rulesets containing rules, and activating labels to produce a

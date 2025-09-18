@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ChartDonut, ChartLegend } from "@patternfly/react-charts";
-
 import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
 
 import { RISK_LIST } from "@app/Constants";

@@ -1,9 +1,8 @@
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -12,19 +11,19 @@ import {
 } from "@patternfly/react-core";
 
 import type { Archetype, New, Ref, TagRef } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { useFetchArchetypes } from "@app/queries/archetypes";
-import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
-import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
+import { type TagItemType, useFetchTagsWithTagItems } from "@app/queries/tags";
 import { matchItemsToRefs } from "@app/utils/model-utils";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 
 import { useArchetypeMutations } from "../hooks/useArchetypeMutations";
 

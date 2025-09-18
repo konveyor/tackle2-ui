@@ -1,6 +1,8 @@
-import { useLocalStorage } from "@app/hooks/useStorage";
-import { ColumnSetting } from "../types";
 import { useEffect } from "react";
+
+import { useLocalStorage } from "@app/hooks/useStorage";
+
+import { ColumnSetting } from "../types";
 
 export interface ColumnState<TColumnKey extends string> {
   id: TColumnKey;

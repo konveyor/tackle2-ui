@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
+import jsYaml from "js-yaml";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -14,16 +16,13 @@ import {
   HelperTextItem,
 } from "@patternfly/react-core";
 
-import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { useForm } from "react-hook-form";
 import { Questionnaire } from "@app/api/models";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useCreateQuestionnaireMutation,
   useFetchQuestionnaires,
 } from "@app/queries/questionnaires";
-import jsYaml from "js-yaml";
-import { NotificationsContext } from "@app/components/NotificationsContext";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface ImportQuestionnaireFormProps {

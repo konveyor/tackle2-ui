@@ -1,13 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
-  TextContent,
-  Text,
-  Title,
-  Tabs,
   Tab,
   TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -23,11 +22,12 @@ import {
 } from "@app/components/detail-drawer";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { TabDetailsContent } from "./tab-details-content";
-import { TabTagsContent } from "./tab-tags-content";
-import { TabReportsContent } from "./tab-reports-contents";
-import { TabTasksContent } from "./tab-tasks-content";
 import { TabPlatformContent } from "./tab-platform-content";
+import { TabReportsContent } from "./tab-reports-contents";
+import { TabTagsContent } from "./tab-tags-content";
+import { TabTasksContent } from "./tab-tasks-content";
 
 export interface IApplicationDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

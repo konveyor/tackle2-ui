@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardBody,
@@ -12,9 +13,10 @@ import {
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
-import { ProxyForm } from "./proxy-form";
+
 import { useFetchProxies } from "@app/queries/proxies";
+
+import { ProxyForm } from "./proxy-form";
 import "./proxies.css";
 
 export const Proxies: React.FC = () => {

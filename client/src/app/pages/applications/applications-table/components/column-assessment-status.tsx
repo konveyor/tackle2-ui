@@ -1,6 +1,8 @@
 import React from "react";
-import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
 import { Spinner } from "@patternfly/react-core";
+
+import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";
+
 import { DecoratedApplication } from "../../useDecoratedApplications";
 
 interface ColumnAssessmentStatusProps {

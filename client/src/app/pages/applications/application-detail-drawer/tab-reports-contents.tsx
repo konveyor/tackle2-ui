@@ -1,37 +1,37 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { useHistory } from "react-router-dom";
 import {
-  TextContent,
-  Text,
-  Title,
   Button,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   Divider,
+  Text,
+  TextContent,
+  Title,
   Tooltip,
 } from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Identity, MimeType } from "@app/api/models";
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { Identity, MimeType } from "@app/api/models";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useFetchFacts } from "@app/queries/facts";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSetting } from "@app/queries/settings";
-import { getKindIdByRef } from "@app/utils/model-utils";
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
-import { DecoratedApplication } from "../useDecoratedApplications";
 import { TaskStates } from "@app/queries/tasks";
+import { getKindIdByRef } from "@app/utils/model-utils";
+import { formatPath } from "@app/utils/utils";
 
-import DownloadButton from "./components/download-button";
+import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { ApplicationFacts } from "./application-facts";
+import DownloadButton from "./components/download-button";
 
 export const TabReportsContent: React.FC<{
   application: DecoratedApplication;

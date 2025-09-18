@@ -1,4 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { HubFile, Target } from "@app/api/models";
 import {
   createFile,
@@ -7,8 +10,6 @@ import {
   getTargets,
   updateTarget,
 } from "@app/api/rest";
-import { AxiosError, AxiosResponse } from "axios";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const TargetsQueryKey = "targets";
 

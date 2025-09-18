@@ -1,23 +1,25 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Tab,
+  TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
+} from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import {
   IPageDrawerContentProps,
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
-import {
-  TextContent,
-  Text,
-  Title,
-  Tabs,
-  TabTitleText,
-  Tab,
-} from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useFetchInsight } from "@app/queries/analysis";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { StateNoData } from "@app/components/StateNoData";
-import { InsightAffectedFilesTable } from "./insight-affected-files-table";
+import { useFetchInsight } from "@app/queries/analysis";
+
 import { getInsightTitle } from "./helpers";
+import { InsightAffectedFilesTable } from "./insight-affected-files-table";
 
 export interface IInsightDetailDrawerProps
   extends Pick<IPageDrawerContentProps, "onCloseClick"> {

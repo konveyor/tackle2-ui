@@ -1,9 +1,10 @@
-import {
-  jsonSchemaToYupSchema,
-  isComplexSchema,
-  combineSchemas,
-} from "./utils";
 import { JsonSchemaObject } from "@app/api/models";
+
+import {
+  combineSchemas,
+  isComplexSchema,
+  jsonSchemaToYupSchema,
+} from "./utils";
 
 describe("jsonSchemaToYupSchema", () => {
   it("should return a yup schema", () => {

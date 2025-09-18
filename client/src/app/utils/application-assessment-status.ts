@@ -41,9 +41,8 @@ export const buildApplicationAssessmentStatus = (
   const directStatus = chooseAssessmentStatus(application.assessed, direct);
 
   const inherited = archetypes
-    .filter(
-      (archetype) =>
-        archetype.applications?.some(({ id }) => id === application.id)
+    .filter((archetype) =>
+      archetype.applications?.some(({ id }) => id === application.id)
     )
     .map((archetype) => {
       const archetypeAssessments = assessments.filter(
@@ -67,8 +66,8 @@ export const buildApplicationAssessmentStatus = (
     inherited.every(({ status }) => status === "none")
       ? "none"
       : inherited.every(({ status }) => status === "complete")
-      ? "complete"
-      : "partial";
+        ? "complete"
+        : "partial";
 
   return {
     isDirectlyAssessed,

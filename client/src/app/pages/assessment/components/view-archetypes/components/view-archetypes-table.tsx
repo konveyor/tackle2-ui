@@ -1,8 +1,10 @@
 import React from "react";
+
 import { Ref } from "@app/api/models";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
-import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
+import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+
 import QuestionnairesTable from "../../assessment-actions/components/questionnaires-table";
 
 export interface ViewArchetypesTableProps {

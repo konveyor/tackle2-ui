@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from "@app/test-config/test-utils";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+
+import { fireEvent, render, screen } from "@app/test-config/test-utils";
+
 import { BreadCrumbPath } from "../BreadCrumbPath";
 
 describe("BreadCrumbPath", () => {

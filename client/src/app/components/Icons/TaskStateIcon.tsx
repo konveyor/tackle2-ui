@@ -1,17 +1,18 @@
-import { TaskState } from "@app/api/models";
 import React, { FC } from "react";
 import { Icon } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
-  TimesCircleIcon,
-  InProgressIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
-  UnknownIcon,
+  InProgressIcon,
+  PauseCircleIcon,
   PendingIcon,
   TaskIcon,
-  PauseCircleIcon,
+  TimesCircleIcon,
+  UnknownIcon,
 } from "@patternfly/react-icons";
+
+import { TaskState } from "@app/api/models";
 
 export const TaskStateIcon: FC<{ state?: TaskState }> = ({ state }) => {
   switch (state) {
