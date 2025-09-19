@@ -15,6 +15,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import {
   ExpandableRowContent,
   Table,
@@ -24,42 +25,43 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
 
+import {
+  COLOR_NAMES_BY_HEX_VALUE,
+  DEFAULT_REFETCH_INTERVAL,
+} from "@app/Constants";
+import { Tag, TagCategory } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { Color } from "@app/components/Color";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import {
+  useDeleteTagCategoryMutation,
+  useDeleteTagMutation,
+  useFetchTagCategories,
+} from "@app/queries/tags";
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
 import {
   dedupeFunction,
   getAxiosErrorMessage,
   universalComparator,
 } from "@app/utils/utils";
-import { Tag, TagCategory } from "@app/api/models";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import {
-  useDeleteTagMutation,
-  useDeleteTagCategoryMutation,
-  useFetchTagCategories,
-} from "@app/queries/tags";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  COLOR_NAMES_BY_HEX_VALUE,
-  DEFAULT_REFETCH_INTERVAL,
-} from "@app/Constants";
-import { TagForm } from "./components/tag-form";
-import { TagCategoryForm } from "./components/tag-category-form";
-import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
-import { Color } from "@app/components/Color";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { RBAC, controlsWriteScopes, RBAC_TYPE } from "@app/rbac";
-import { TagTable } from "./components/tag-table";
+
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
+
+import { TagCategoryForm } from "./components/tag-category-form";
+import { TagForm } from "./components/tag-form";
+import { TagTable } from "./components/tag-table";
 
 export const Tags: React.FC = () => {
   const { t } = useTranslation();

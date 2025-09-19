@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Card,
@@ -9,7 +10,6 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 
 import "./Repositories.css";
 import { useSetting, useSettingMutation } from "@app/queries/settings";

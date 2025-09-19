@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  Select,
-  SelectOption,
-  SelectList,
-  MenuToggle,
   Badge,
-  SelectOptionProps,
+  MenuToggle,
   MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+  SelectOptionProps,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

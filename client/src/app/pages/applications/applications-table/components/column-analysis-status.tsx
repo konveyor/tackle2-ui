@@ -2,9 +2,9 @@ import React from "react";
 
 import { TaskState } from "@app/api/models";
 import {
-  buildPresetLabels,
   IconedStatus,
   IconedStatusPreset,
+  buildPresetLabels,
 } from "@app/components/Icons";
 
 export interface ColumnAnalysisStatusProps {

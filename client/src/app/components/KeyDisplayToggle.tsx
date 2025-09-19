@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@patternfly/react-core";
-import EyeSlashIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 import EyeIcon from "@patternfly/react-icons/dist/js/icons/eye-icon";
+import EyeSlashIcon from "@patternfly/react-icons/dist/js/icons/eye-slash-icon";
 // TODO this is a good candidate for lib-ui
 
 interface IKeyDisplayToggleProps {

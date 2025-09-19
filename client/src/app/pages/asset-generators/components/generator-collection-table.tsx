@@ -2,20 +2,21 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import {
-  useTableControlState,
-  useTableControlProps,
-} from "@app/hooks/table-controls";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import {
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 
 interface GeneratorCollectionItem {
   key: string;

@@ -1,4 +1,6 @@
 import React from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
   DescriptionListDescription,
@@ -10,12 +12,11 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
-import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
-import { AnalysisWizardFormValues } from "./schema";
 import { getParsedLabel } from "@app/utils/rules-utils";
+
+import { AnalysisWizardFormValues } from "./schema";
 
 interface IReview {
   applications: Application[];

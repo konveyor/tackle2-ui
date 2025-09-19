@@ -1,30 +1,31 @@
 import "./platform-detail-drawer.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
-  TextContent,
-  Text,
-  Title,
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
-  Tabs,
   Tab,
   TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { SourcePlatform } from "@app/api/models";
 
+import { SourcePlatform } from "@app/api/models";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
-import PlatformAppsTable from "./platform-applications-table";
 import {
   DrawerTabContent,
   DrawerTabsContainer,
 } from "@app/components/detail-drawer";
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+
 import { usePlatformKindList } from "../usePlatformKindList";
+
+import PlatformAppsTable from "./platform-applications-table";
 
 export interface IPlatformDetailDrawerProps {
   onCloseClick: () => void;

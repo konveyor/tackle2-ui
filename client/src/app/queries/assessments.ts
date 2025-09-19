@@ -5,7 +5,14 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import {
+  Assessment,
+  AssessmentWithSectionOrder,
+  InitialAssessment,
+} from "@app/api/models";
 import {
   createAssessment,
   deleteAssessment,
@@ -15,16 +22,10 @@ import {
   getAssessmentsByItemId,
   updateAssessment,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
-import {
-  Assessment,
-  AssessmentWithSectionOrder,
-  InitialAssessment,
-} from "@app/api/models";
-import { QuestionnairesQueryKey } from "./questionnaires";
-import { ARCHETYPE_QUERY_KEY } from "./archetypes";
+
 import { ApplicationsQueryKey } from "./applications";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { ARCHETYPE_QUERY_KEY } from "./archetypes";
+import { QuestionnairesQueryKey } from "./questionnaires";
 
 export const assessmentsQueryKey = "assessments";
 export const assessmentQueryKey = "assessment";

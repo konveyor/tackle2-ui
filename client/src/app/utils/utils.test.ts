@@ -1,18 +1,20 @@
 import { AxiosError } from "axios";
+
+import { Paths } from "@app/Paths";
+
 import {
+  collapseSpacesAndCompare,
+  extractFirstSha,
+  formatPath,
   getAxiosErrorMessage,
+  getToolbarChipKey,
   getValidatedFromError,
   getValidatedFromErrors,
-  getToolbarChipKey,
+  intersection,
   isValidGitUrl,
   isValidStandardUrl,
   isValidSvnUrl,
-  formatPath,
-  extractFirstSha,
-  collapseSpacesAndCompare,
-  intersection,
 } from "./utils";
-import { Paths } from "@app/Paths";
 
 describe("utils", () => {
   // getAxiosErrorMessage

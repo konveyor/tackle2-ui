@@ -1,41 +1,40 @@
 import * as React from "react";
+import { useRef } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
+import dayjs from "dayjs";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import {
   ActionGroup,
   Button,
+  DatePicker,
   Form,
   Grid,
   GridItem,
-  DatePicker,
 } from "@patternfly/react-core";
 
-import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
-  useCreateMigrationWaveMutation,
-  useUpdateMigrationWaveMutation,
-} from "@app/queries/migration-waves";
-import dayjs from "dayjs";
-
-import {
-  Stakeholder,
-  StakeholderGroup,
   MigrationWave,
   New,
+  Stakeholder,
+  StakeholderGroup,
 } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  useCreateMigrationWaveMutation,
+  useUpdateMigrationWaveMutation,
+} from "@app/queries/migration-waves";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { matchItemsToRefs } from "@app/utils/model-utils";
-import { useRef } from "react";
 
 const stakeholderGroupToOption = (
   value: StakeholderGroup
@@ -195,13 +194,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
 
   const {
     handleSubmit,
-    formState: {
-      isSubmitting,
-      isValidating,
-      isValid,
-      isDirty,
-      errors: formErrors,
-    },
+    formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
     watch,
     trigger,

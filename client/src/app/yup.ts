@@ -1,10 +1,11 @@
 import * as yup from "yup";
+
+import { validateSettingsXml } from "@app/utils/maven-settings";
 import {
   isValidGitUrl,
   isValidStandardUrl,
   isValidSvnUrl,
 } from "@app/utils/utils";
-import { validateSettingsXml } from "@app/utils/maven-settings";
 
 export {};
 declare module "yup" {

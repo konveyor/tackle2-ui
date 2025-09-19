@@ -2,6 +2,7 @@ import {
   QuestionWithSectionOrder,
   SectionWithQuestionOrder,
 } from "@app/api/models";
+
 import { getCommentFieldName, getQuestionFieldName } from "./form-utils";
 
 describe("Application assessment - form utils", () => {

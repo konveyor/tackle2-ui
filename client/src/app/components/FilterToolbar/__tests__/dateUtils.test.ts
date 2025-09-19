@@ -2,9 +2,9 @@ import {
   isInClosedRange,
   isValidAmericanShortDate,
   isValidInterval,
+  localizeInterval,
   parseInterval,
   toISODateInterval,
-  localizeInterval,
 } from "../dateUtils";
 
 describe("isValidAmericanShortDate", () => {

@@ -9,14 +9,15 @@ import {
 } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
+import { TaskAttachment } from "@app/api/models";
 import {
   useFetchTaskAttachmentById,
   useFetchTaskByIdAndFormat,
 } from "@app/queries/tasks";
-import { RefreshControl } from "./RefreshControl";
-import { LanguageToggle } from "./LanguageToggle";
+
 import { AttachmentToggle } from "./AttachmentToggle";
-import { TaskAttachment } from "@app/api/models";
+import { LanguageToggle } from "./LanguageToggle";
+import { RefreshControl } from "./RefreshControl";
 
 export { Language } from "@patternfly/react-code-editor";
 

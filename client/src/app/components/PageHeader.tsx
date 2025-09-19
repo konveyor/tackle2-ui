@@ -1,12 +1,13 @@
 import React from "react";
 import {
-  Stack,
-  StackItem,
   Split,
   SplitItem,
-  TextContent,
+  Stack,
+  StackItem,
   Text,
+  TextContent,
 } from "@patternfly/react-core";
+
 import { BreadCrumbPath } from "./BreadCrumbPath";
 import { HorizontalNav } from "./HorizontalNav";
 

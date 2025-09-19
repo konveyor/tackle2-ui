@@ -13,31 +13,33 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { JobFunction } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { JobFunction } from "@app/api/models";
-import { JobFunctionForm } from "./components/job-function-form";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { CubesIcon } from "@patternfly/react-icons";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+
+import { JobFunctionForm } from "./components/job-function-form";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();

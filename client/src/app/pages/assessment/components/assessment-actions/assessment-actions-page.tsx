@@ -1,20 +1,22 @@
 import React from "react";
+import { Link, useParams } from "react-router-dom";
 import {
-  Text,
-  TextContent,
-  PageSection,
-  PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
+  PageSection,
+  PageSectionVariants,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
-import { Link, useParams } from "react-router-dom";
+
 import { AssessmentActionsRoute, Paths } from "@app/Paths";
-import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import AssessmentActionsTable from "./components/assessment-actions-table";
-import { useFetchArchetypeById } from "@app/queries/archetypes";
-import { useFetchApplicationById } from "@app/queries/applications";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import useIsArchetype from "@app/hooks/useIsArchetype";
+import { useFetchApplicationById } from "@app/queries/applications";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
+
+import AssessmentActionsTable from "./components/assessment-actions-table";
 
 const AssessmentActions: React.FC = () => {
   const { applicationId, archetypeId } = useParams<AssessmentActionsRoute>();

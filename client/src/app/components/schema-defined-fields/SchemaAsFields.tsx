@@ -1,7 +1,6 @@
 import React from "react";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
-
 import {
   Checkbox,
   FormFieldGroup,
@@ -9,11 +8,12 @@ import {
 } from "@patternfly/react-core";
 import styles from "@patternfly/react-styles/css/components/Form/form";
 
+import { JsonSchemaObject } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { JsonSchemaObject } from "@app/api/models";
+
 import { jsonSchemaToYupResolver } from "./utils";
 
 export interface SchemaAsFieldsProps {

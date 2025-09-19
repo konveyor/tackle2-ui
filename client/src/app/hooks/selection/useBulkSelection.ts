@@ -1,5 +1,7 @@
 import { TdProps } from "@patternfly/react-table";
+
 import { IToolbarBulkSelectorProps } from "@app/components/ToolbarBulkSelector";
+
 import { useSelectionState } from "../useSelectionState/useSelectionState";
 
 export interface BulkSelectionArgs<ItemType> {

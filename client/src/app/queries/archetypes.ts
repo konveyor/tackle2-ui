@@ -1,6 +1,9 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { AxiosError } from "axios";
+import { objectify } from "radash";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { Archetype } from "@app/api/models";
 import {
   createArchetype,
@@ -9,10 +12,8 @@ import {
   getArchetypes,
   updateArchetype,
 } from "@app/api/rest";
+
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import { useMemo } from "react";
-import { objectify } from "radash";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ARCHETYPES_QUERY_KEY = "archetypes";
 export const ARCHETYPE_QUERY_KEY = "archetype";

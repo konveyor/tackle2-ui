@@ -4,6 +4,7 @@ import {
   AlertActionCloseButton,
   AlertGroup,
 } from "@patternfly/react-core";
+
 import { NotificationsContext } from "./NotificationsContext";
 
 export const Notifications: React.FunctionComponent = () => {

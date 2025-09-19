@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-
 import {
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
   SelectOptionProps,
-  MenuToggle,
-  MenuToggleElement,
 } from "@patternfly/react-core";
 
 export interface ISimpleSelectBasicProps {

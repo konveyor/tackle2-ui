@@ -1,13 +1,14 @@
 import * as React from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { Form, Radio, Switch, Text, Title } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
 
 import "./wizard.css";
-import { AnalysisWizardFormValues } from "./schema";
 import { StringListField } from "@app/components/StringListField";
+
+import { AnalysisWizardFormValues } from "./schema";
 
 export const SetScope: React.FC = () => {
   const { t } = useTranslation();

@@ -1,22 +1,23 @@
 import "./file-all-incidents-table.css";
 import * as React from "react";
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
+import ReactMarkdown from "react-markdown";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AnalysisReportFile } from "@app/api/models";
-import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
-  TableHeaderContentWithControls,
   ConditionalTableBody,
+  TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-} from "@app/hooks/table-controls";
-import ReactMarkdown from "react-markdown";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
+import {
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
+import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 
 export interface IFileRemainingIncidentsTableProps {
   fileReport: AnalysisReportFile;

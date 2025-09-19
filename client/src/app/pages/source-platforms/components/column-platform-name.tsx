@@ -1,9 +1,8 @@
 import "./column-platform-name.css";
 
 import React from "react";
-import { Link } from "react-router-dom";
 import dayjs from "dayjs";
-
+import { Link } from "react-router-dom";
 import {
   Alert,
   Icon,
@@ -13,19 +12,20 @@ import {
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
-  TimesCircleIcon,
-  InProgressIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
+  InProgressIcon,
   PendingIcon,
   ResourcesEmptyIcon,
+  TimesCircleIcon,
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { Paths } from "@app/Paths";
-import { formatPath, universalComparator } from "@app/utils/utils";
 import { TaskDashboard } from "@app/api/models";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { formatPath, universalComparator } from "@app/utils/utils";
+
 import {
   SourcePlatformTasksStatus,
   SourcePlatformWithTasks,

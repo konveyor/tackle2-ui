@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Language } from "@patternfly/react-code-editor";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
+import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 import { css } from "@patternfly/react-styles";
 import editorStyles from "@patternfly/react-styles/css/components/CodeEditor/code-editor";
-import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
 import "./SimpleDocumentViewer.css";
 
 export const LanguageToggle: React.FC<{

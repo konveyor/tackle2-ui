@@ -1,21 +1,20 @@
 import React, { FormEvent, useState } from "react";
-
 import {
   DatePicker,
   InputGroup,
-  isValidDate as isValidJSDate,
   ToolbarChip,
   ToolbarChipGroup,
   ToolbarFilter,
   Tooltip,
+  isValidDate as isValidJSDate,
 } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import {
-  localizeInterval,
   americanDateFormat,
   isValidAmericanShortDate,
   isValidInterval,
+  localizeInterval,
   parseAmericanDate,
   parseInterval,
   toISODateInterval,

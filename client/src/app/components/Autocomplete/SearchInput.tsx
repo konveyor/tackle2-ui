@@ -1,6 +1,8 @@
 import React from "react";
 import { SearchInput } from "@patternfly/react-core";
+
 import { getString } from "@app/utils/utils";
+
 import { AnyAutocompleteOptionProps } from "./type-utils";
 
 export interface SearchInputProps {

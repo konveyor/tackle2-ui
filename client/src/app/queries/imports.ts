@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   deleteApplicationImportSummary,
-  getApplicationImports,
   getApplicationImportSummaryById,
+  getApplicationImports,
   getApplicationsImportSummary,
 } from "@app/api/rest";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const ImportSummariesQueryKey = "importsummaries";
 export const ImportsQueryKey = "imports";

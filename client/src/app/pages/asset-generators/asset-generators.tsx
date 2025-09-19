@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -19,12 +20,17 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Th, Thead, Tr, Td } from "@patternfly/react-table";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Generator } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { useNotifications } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -32,15 +38,11 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteGeneratorMutation } from "@app/queries/generators";
-import { Generator } from "@app/api/models";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useFetchGenerators } from "@app/queries/generators";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+
 import GeneratorDetailDrawer from "./components/generator-detail-drawer";
 import GeneratorForm from "./components/generator-form";
-import { useFetchGenerators } from "@app/queries/generators";
 
 // Static empty state configuration
 const NO_DATA_EMPTY_STATE = (

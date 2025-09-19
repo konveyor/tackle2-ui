@@ -1,6 +1,6 @@
-import { useTableControlProps } from "./useTableControlProps";
 import { IUseLocalTableControlsArgs } from "./types";
 import { useLocalTableControlDerivedState } from "./useLocalTableControlDerivedState";
+import { useTableControlProps } from "./useTableControlProps";
 import { useTableControlState } from "./useTableControlState";
 
 /**

@@ -1,4 +1,5 @@
 import Keycloak, { KeycloakConfig } from "keycloak-js";
+
 import { ENV } from "./env";
 
 const config: KeycloakConfig = {

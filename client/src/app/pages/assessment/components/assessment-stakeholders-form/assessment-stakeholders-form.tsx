@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
 import {
   FormSection,
   Grid,
@@ -8,13 +8,13 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
 
-import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
-import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
-import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
 import { GroupedStakeholderRef, Ref, StakeholderType } from "@app/api/models";
+import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
+import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+
+import { AssessmentWizardValues } from "../assessment-wizard/assessment-wizard";
 
 export const AssessmentStakeholdersForm: React.FC = () => {
   const { t } = useTranslation();

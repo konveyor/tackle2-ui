@@ -1,11 +1,13 @@
 import * as React from "react";
 import { FieldValues, Path, PathValue } from "react-hook-form";
 import { TextInput, TextInputProps } from "@patternfly/react-core";
+
 import { getValidatedFromErrors } from "@app/utils/utils";
+
 import {
-  extractGroupControllerProps,
-  HookFormPFGroupController,
   BaseHookFormPFGroupControllerProps,
+  HookFormPFGroupController,
+  extractGroupControllerProps,
 } from "./HookFormPFGroupController";
 
 interface WithIntegerType extends Omit<TextInputProps, "type"> {

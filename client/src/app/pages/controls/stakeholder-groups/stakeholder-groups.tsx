@@ -19,6 +19,8 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   ExpandableRowContent,
   Table,
@@ -29,29 +31,29 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
 import { StakeholderGroup } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteStakeholderGroupMutation,
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergroups";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { StakeholderGroupForm } from "./components/stakeholder-group-form";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
+
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
+
+import { StakeholderGroupForm } from "./components/stakeholder-group-form";
 
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();

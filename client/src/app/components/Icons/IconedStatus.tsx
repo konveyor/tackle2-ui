@@ -1,18 +1,18 @@
 import React from "react";
-import { Icon } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { IconWithLabel } from "./IconWithLabel";
 import { ReactElement } from "react-markdown/lib/react-markdown";
-
+import { Icon } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
-  TimesCircleIcon,
-  InProgressIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
-  UnknownIcon,
+  InProgressIcon,
+  TimesCircleIcon,
   TopologyIcon,
+  UnknownIcon,
 } from "@patternfly/react-icons";
+
+import { IconWithLabel } from "./IconWithLabel";
 
 export type IconedStatusPreset =
   | "InheritedReviews"

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -11,22 +10,23 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import UnlinkIcon from "@patternfly/react-icons/dist/esm/icons/unlink-icon";
+import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { MigrationWave, Ticket, WaveWithStatus } from "@app/api/models";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { useHistory } from "react-router-dom";
-import { useFetchTickets } from "@app/queries/tickets";
-import { TicketIssue } from "./ticket-issue";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
-import UnlinkIcon from "@patternfly/react-icons/dist/esm/icons/unlink-icon";
+import { useFetchTickets } from "@app/queries/tickets";
+
+import { TicketIssue } from "./ticket-issue";
 
 type SetCellExpandedArgs = {
   item: WaveWithStatus;
@@ -55,7 +55,6 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
   const [codeModalState, setCodeModalState] = useState<
     string | null | undefined
   >("");
-  const history = useHistory();
 
   const { tickets } = useFetchTickets();
   const { mutate: deleteTicket } = useDeleteTicketMutation();

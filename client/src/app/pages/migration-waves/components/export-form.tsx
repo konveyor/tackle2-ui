@@ -1,6 +1,8 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   ActionGroup,
@@ -8,25 +10,23 @@ import {
   ButtonVariant,
   Form,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 
-import { Tracker, IssueManagerKind, Ref, Ticket, New } from "@app/api/models";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
-import {
-  useTrackerTypesByProjectName,
-  useTrackerProjectsByTracker,
-  getTrackersByKind,
-} from "@app/queries/trackers";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { IssueManagerKind, New, Ref, Ticket, Tracker } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateTicketsMutation,
   useFetchTickets,
 } from "@app/queries/tickets";
+import {
+  getTrackersByKind,
+  useTrackerProjectsByTracker,
+  useTrackerTypesByProjectName,
+} from "@app/queries/trackers";
+import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface FormValues {
   issueManager: IssueManagerKind | undefined;
