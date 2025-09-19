@@ -1,13 +1,14 @@
-import * as yup from "yup";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 
 import {
   Application,
-  TargetLabel,
   Target,
+  TargetLabel,
   UploadFile,
   UploadFileStatus,
 } from "@app/api/models";
+
 import { useAnalyzableApplicationsByMode } from "./utils";
 
 export const ANALYSIS_MODES = [

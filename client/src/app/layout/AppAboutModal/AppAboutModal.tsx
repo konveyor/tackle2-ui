@@ -1,14 +1,14 @@
 import React from "react";
-import { useTranslation, Trans } from "react-i18next";
-
+import { Trans, useTranslation } from "react-i18next";
 import {
   AboutModal,
-  TextContent,
   Text,
-  TextVariants,
+  TextContent,
   TextList,
   TextListItem,
+  TextVariants,
 } from "@patternfly/react-core";
+
 import { ENV } from "@app/env";
 import useBranding from "@app/hooks/useBranding";
 

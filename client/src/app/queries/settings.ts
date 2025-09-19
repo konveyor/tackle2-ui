@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getSettingById, updateSetting } from "@app/api/rest";
-import { SettingTypes } from "@app/api/models";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { SettingTypes } from "@app/api/models";
+import { getSettingById, updateSetting } from "@app/api/rest";
 
 export const SettingQueryKey = "setting";
 

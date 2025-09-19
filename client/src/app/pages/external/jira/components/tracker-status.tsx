@@ -1,6 +1,5 @@
 import "./tracker-status.css";
 import React, { useState } from "react";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -8,11 +7,13 @@ import {
   CodeBlockCode,
   ExpandableSectionToggle,
   Popover,
+  Spinner,
   Text,
   TextContent,
-  Spinner,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { IconedStatus } from "@app/components/Icons";
 
 interface ITrackerStatusProps {

@@ -6,25 +6,27 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisReportFile, AnalysisInsight, WithUiId } from "@app/api/models";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-} from "@app/hooks/table-controls";
-import { useFetchReportInsightFiles } from "@app/queries/analysis";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
+import { AnalysisInsight, AnalysisReportFile, WithUiId } from "@app/api/models";
+import { BreakingPathDisplay } from "@app/components/BreakingPathDisplay";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
+import { useFetchReportInsightFiles } from "@app/queries/analysis";
+
 import { FileIncidentsDetailModal } from "./file-incidents-detail-modal";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { BreakingPathDisplay } from "@app/components/BreakingPathDisplay";
 
 export interface IIssueAffectedFilesTableProps {
   issue: AnalysisInsight;

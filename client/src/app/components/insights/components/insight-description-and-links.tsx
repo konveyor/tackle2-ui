@@ -1,11 +1,11 @@
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { TextContent, List, ListItem } from "@patternfly/react-core";
+import { List, ListItem, TextContent } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisInsightLink } from "@app/api/models";
-import { markdownPFComponents } from "@app/components/markdownPFComponents";
 import ExternalLink from "@app/components/ExternalLink";
+import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
 export interface IInsightDescriptionAndLinksProps {
   description: string;

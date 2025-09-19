@@ -19,21 +19,27 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import {
+  ActionsColumn,
+  IAction,
   Table,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
-  Td,
-  ActionsColumn,
-  IAction,
 } from "@patternfly/react-table";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { Archetype } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-
+import { IconedStatus } from "@app/components/Icons";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -43,29 +49,22 @@ import {
   deserializeFilterUrlParams,
   useLocalTableControls,
 } from "@app/hooks/table-controls";
+import keycloak from "@app/keycloak";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import {
+  archetypesWriteScopes,
+  assessmentWriteScopes,
+  reviewsWriteScopes,
+} from "@app/rbac";
+import { filterAndAddSeparator } from "@app/utils/grouping";
+import { checkAccess } from "@app/utils/rbac-utils";
+import { formatPath } from "@app/utils/utils";
 
-import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
 import ArchetypeForm from "./components/archetype-form";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
-import { Archetype } from "@app/api/models";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { filterAndAddSeparator } from "@app/utils/grouping";
-
-import {
-  assessmentWriteScopes,
-  reviewsWriteScopes,
-  archetypesWriteScopes,
-} from "@app/rbac";
-import { checkAccess } from "@app/utils/rbac-utils";
-import keycloak from "@app/keycloak";
-import { IconedStatus } from "@app/components/Icons";
+import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
 import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const Archetypes: React.FC = () => {

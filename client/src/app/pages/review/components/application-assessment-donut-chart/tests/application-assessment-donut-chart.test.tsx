@@ -1,5 +1,5 @@
 describe("AppTable", () => {
-  const assessments = [];
+  // const assessments = [];
   // const assessment: Assessment = {
   //   id: 209,
   //   applicationId: 1,

@@ -1,7 +1,7 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 import type { Archetype, TargetProfile } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -9,8 +9,8 @@ import {
   ARCHETYPES_QUERY_KEY,
   ARCHETYPE_QUERY_KEY,
   useCreateArchetypeMutation,
-  useUpdateArchetypeMutation,
   useDeleteArchetypeMutation,
+  useUpdateArchetypeMutation,
 } from "@app/queries/archetypes";
 import { useDeleteAssessmentMutation } from "@app/queries/assessments";
 import { useDeleteReviewMutation } from "@app/queries/reviews";

@@ -1,14 +1,15 @@
 import React, { FC, useState } from "react";
-import { useTranslation, Trans } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import {
-  ModalProps,
   Button,
   ButtonVariant,
   Modal,
+  ModalProps,
   ModalVariant,
   Text,
   TextInput,
 } from "@patternfly/react-core";
+
 import { collapseSpacesAndCompare } from "@app/utils/utils";
 
 import "./ConfirmDeleteDialog.css";

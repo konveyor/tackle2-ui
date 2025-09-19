@@ -1,7 +1,9 @@
 import React from "react";
-import { ConfirmDialog } from "../ConfirmDialog";
 import { ButtonVariant } from "@patternfly/react-core";
+
 import { fireEvent, render, screen } from "@app/test-config/test-utils";
+
+import { ConfirmDialog } from "../ConfirmDialog";
 
 describe("ConfirmDialog", () => {
   it("Renders without crashing", () => {

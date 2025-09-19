@@ -1,12 +1,13 @@
+import { useMemo } from "react";
+
 import { getLocalFilterDerivedState } from "./filtering";
-import { getLocalSortDerivedState } from "./sorting";
 import { getLocalPaginationDerivedState } from "./pagination";
+import { getLocalSortDerivedState } from "./sorting";
 import {
-  ITableControlLocalDerivedStateArgs,
   ITableControlDerivedState,
+  ITableControlLocalDerivedStateArgs,
   ITableControlState,
 } from "./types";
-import { useMemo } from "react";
 
 /**
  * Returns table-level "derived state" (the results of local/client-computed filtering/sorting/pagination)

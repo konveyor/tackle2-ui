@@ -1,7 +1,9 @@
-import { Modal, ModalVariant } from "@patternfly/react-core";
 import React, { FunctionComponent } from "react";
-import { AssessmentWizard } from "./assessment-wizard";
+import { Modal, ModalVariant } from "@patternfly/react-core";
+
 import { AssessmentWithSectionOrder } from "@app/api/models";
+
+import { AssessmentWizard } from "./assessment-wizard";
 
 interface AssessmentModalProps {
   isOpen: boolean;

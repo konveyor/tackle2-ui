@@ -1,6 +1,5 @@
-import { server } from "@mocks/server";
-
 // init @testing-library
+import { server } from "@mocks/server";
 import "@testing-library/jest-dom";
 import { configure } from "@testing-library/react";
 

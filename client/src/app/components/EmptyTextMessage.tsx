@@ -1,6 +1,6 @@
 import React from "react";
-import { Text } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { Text } from "@patternfly/react-core";
 
 export interface EmptyTextMessageProps {
   message?: string;

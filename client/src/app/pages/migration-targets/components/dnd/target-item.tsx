@@ -2,8 +2,8 @@ import React, { forwardRef } from "react";
 import { Button, ButtonVariant } from "@patternfly/react-core";
 import { GripVerticalIcon } from "@patternfly/react-icons";
 
-import { TargetCard } from "@app/components/target-card/target-card";
 import { Target } from "@app/api/models";
+import { TargetCard } from "@app/components/target-card/target-card";
 import "./target-item.css";
 
 interface TargetItemProps {

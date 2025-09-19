@@ -18,11 +18,13 @@ import {
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import BarsIcon from "@patternfly/react-icons/dist/js/icons/bars-icon";
 
-import useBranding from "@app/hooks/useBranding";
 import { TaskNotificationBadge } from "@app/components/task-manager/TaskNotificaitonBadge";
+import useBranding from "@app/hooks/useBranding";
+
 import { AppAboutModalState } from "../AppAboutModalState";
-import { SsoToolbarItem } from "./SsoToolbarItem";
+
 import { MobileDropdown } from "./MobileDropdown";
+import { SsoToolbarItem } from "./SsoToolbarItem";
 
 import "./header.css";
 

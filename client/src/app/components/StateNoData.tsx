@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+
 import { NoDataEmptyState } from "./NoDataEmptyState";
 
 export const StateNoData: React.FC = () => {

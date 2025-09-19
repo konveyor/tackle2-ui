@@ -1,26 +1,27 @@
 import React from "react";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
+import { Label, List, ListItem, Tooltip } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
+  ExpandableRowContent,
   Table,
-  Thead,
-  Tr,
-  Th,
   Tbody,
   Td,
-  ExpandableRowContent,
+  Th,
+  Thead,
+  Tr,
 } from "@patternfly/react-table";
+
+import { Assessment, Question, Questionnaire } from "@app/api/models";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { useTranslation } from "react-i18next";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Assessment, Question, Questionnaire } from "@app/api/models";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { Label, List, ListItem, Tooltip } from "@patternfly/react-core";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import AnswerTable from "@app/components/answer-table/answer-table";
-import { AxiosError } from "axios";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 
 const QuestionsTable: React.FC<{
   fetchError: AxiosError | null;

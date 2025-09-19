@@ -1,6 +1,7 @@
 import React from "react";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Label } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { ReviewDrawerLabelItem } from "./review-fields";
 
 interface ReviewLabelProps {

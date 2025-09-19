@@ -1,7 +1,8 @@
 import * as React from "react";
-import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import { Fact } from "@app/api/models";
 import yaml from "js-yaml";
+import { CodeEditor, Language } from "@patternfly/react-code-editor";
+
+import { Fact } from "@app/api/models";
 export interface IFactCodeSnipViewerProps {
   fact: Fact;
 }

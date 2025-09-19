@@ -1,5 +1,6 @@
 import React, { FC, ReactElement, ReactNode } from "react";
 import { Flex, FlexItem } from "@patternfly/react-core";
+
 import { OptionalTooltip } from "./OptionalTooltip";
 
 export const IconWithLabel: FC<{

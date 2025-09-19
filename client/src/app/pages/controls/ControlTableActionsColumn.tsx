@@ -1,9 +1,10 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
-import { ActionsColumn, Td } from "@patternfly/react-table";
 import { Button, OverflowMenu, Tooltip } from "@patternfly/react-core";
 import { PencilAltIcon } from "@patternfly/react-icons";
+import { ActionsColumn, Td } from "@patternfly/react-table";
+
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
 
 export interface ControlTableActionsColumnProps {
   isDeleteEnabled?: boolean;

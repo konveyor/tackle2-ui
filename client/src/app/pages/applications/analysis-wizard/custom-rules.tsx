@@ -1,12 +1,15 @@
 import * as React from "react";
+import { unique } from "radash";
+import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
   Form,
   Modal,
   Tab,
-  Tabs,
   TabTitleText,
+  Tabs,
   Text,
   TextContent,
   Title,
@@ -16,40 +19,38 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import { cellWidth, ICell, IRow, TableText } from "@patternfly/react-table";
+import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { ICell, IRow, TableText, cellWidth } from "@patternfly/react-table";
 import {
   Table,
   TableBody,
   TableHeader,
 } from "@patternfly/react-table/deprecated";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { unique } from "radash";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { TargetLabel, UploadFile } from "@app/api/models";
+import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 import {
   FilterCategory,
   FilterToolbar,
   FilterType,
 } from "@app/components/FilterToolbar";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
-import { UploadFile, TargetLabel } from "@app/api/models";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-
-import "./wizard.css";
-import { AnalysisWizardFormValues } from "./schema";
-import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchIdentities } from "@app/queries/identities";
+import { toOptionLike } from "@app/utils/model-utils";
+import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+
 import { useTaskGroup } from "./components/TaskGroupContext";
-import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import { AnalysisWizardFormValues } from "./schema";
+
+import "./wizard.css";
 
 const buildSetOfTargetLabelsFromUploadFiles = (
   ruleFiles: UploadFile[],

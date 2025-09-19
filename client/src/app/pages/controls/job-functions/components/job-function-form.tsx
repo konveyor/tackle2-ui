@@ -1,8 +1,9 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -11,16 +12,14 @@ import {
 } from "@patternfly/react-core";
 
 import { JobFunction, New } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
+import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useCreateJobFunctionMutation,
   useFetchJobFunctions,
   useUpdateJobFunctionMutation,
 } from "@app/queries/jobfunctions";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
   name: string;

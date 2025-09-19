@@ -1,7 +1,9 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
 import { Target } from "@app/api/models";
+
 import { TargetItem } from "./target-item";
 
 interface SortableTargetItemProps {

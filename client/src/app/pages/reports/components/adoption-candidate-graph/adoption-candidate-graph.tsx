@@ -1,13 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import Measure from "react-measure";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import {
-  Bullseye,
-  Checkbox,
-  Skeleton,
-  Stack,
-  StackItem,
-} from "@patternfly/react-core";
+import Measure from "react-measure";
 import {
   Chart,
   ChartAxis,
@@ -18,26 +12,33 @@ import {
   ChartTooltip,
 } from "@patternfly/react-charts";
 import {
-  global_palette_black_800 as black,
+  Bullseye,
+  Checkbox,
+  Skeleton,
+  Stack,
+  StackItem,
+} from "@patternfly/react-core";
+import {
   chart_color_green_100 as green,
+  global_palette_black_800 as black,
   global_palette_white as white,
 } from "@patternfly/react-tokens";
-import { useQuery } from "@tanstack/react-query";
 
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { StateError } from "@app/components/StateError";
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
-// import { getAssessmentConfidence } from "@app/api/rest";
 import {
   Application,
   AssessmentConfidence,
   ProposedAction,
 } from "@app/api/models";
-import { ApplicationSelectionContext } from "../../application-selection-context";
-import { CartesianSquare } from "./cartesian-square";
-import { Arrow } from "./arrow";
-import { useFetchReviewById } from "@app/queries/reviews";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 import { useFetchApplicationDependencies } from "@app/queries/applications";
+import { useFetchReviewById } from "@app/queries/reviews";
+
+import { ApplicationSelectionContext } from "../../application-selection-context";
+
+import { Arrow } from "./arrow";
+import { CartesianSquare } from "./cartesian-square";
 
 interface Line {
   from: LinePoint;

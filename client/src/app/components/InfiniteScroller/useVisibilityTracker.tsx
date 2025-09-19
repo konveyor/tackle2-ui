@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const nodeRef = useRef<HTMLDivElement>(null);

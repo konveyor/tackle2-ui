@@ -1,31 +1,31 @@
 import * as React from "react";
-import { Link, useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { Link, useHistory } from "react-router-dom";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { SimplePagination } from "@app/components/SimplePagination";
-import { useServerTasks } from "@app/queries/tasks";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-  deserializeFilterUrlParams,
-} from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { TaskActionColumn } from "@app/pages/tasks/TaskActionColumn";
+import { Paths } from "@app/Paths";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import {
+  deserializeFilterUrlParams,
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
+import { TaskActionColumn } from "@app/pages/tasks/TaskActionColumn";
 import { taskStateToLabel } from "@app/pages/tasks/tasks-page";
+import { useServerTasks } from "@app/queries/tasks";
 import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export const TabTasksContent: React.FC<{

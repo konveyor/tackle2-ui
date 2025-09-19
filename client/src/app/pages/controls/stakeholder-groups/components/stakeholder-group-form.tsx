@@ -1,8 +1,9 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -10,26 +11,23 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Ref, StakeholderGroup } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
-import { useFetchStakeholders } from "@app/queries/stakeholders";
-import {
-  useCreateStakeholderGroupMutation,
-  useFetchStakeholderGroups,
-  useUpdateStakeholderGroupMutation,
-} from "@app/queries/stakeholdergroups";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  useCreateStakeholderGroupMutation,
+  useFetchStakeholderGroups,
+  useUpdateStakeholderGroupMutation,
+} from "@app/queries/stakeholdergroups";
+import { useFetchStakeholders } from "@app/queries/stakeholders";
+import { toOptionLike } from "@app/utils/model-utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
   name: string;
@@ -49,17 +47,9 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const {
-    stakeholders,
-    isFetching: isFetchingStakeholders,
-    fetchError: fetchErrorStakeholders,
-  } = useFetchStakeholders();
+  const { stakeholders } = useFetchStakeholders();
 
-  const {
-    stakeholderGroups,
-    isFetching: isFetchingStakeholderGroups,
-    fetchError: fetchErrorStakeholderGroups,
-  } = useFetchStakeholderGroups();
+  const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const stakeholdersOptions = stakeholders.map((stakeholder) => {
     return {
@@ -93,10 +83,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       name: stakeholderGroup?.name || "",
@@ -119,7 +106,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       variant: "success",
     });
 
-  const onCreateStakeholderGroupError = (error: AxiosError) => {
+  const onCreateStakeholderGroupError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.stakeholderGroup").toLowerCase(),
@@ -144,7 +131,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       variant: "success",
     });
 
-  const onUpdateStakeholderGroupError = (error: AxiosError) => {
+  const onUpdateStakeholderGroupError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.stakeholderGroup").toLowerCase(),
@@ -160,9 +147,8 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
 
   const onSubmit = (formValues: FormValues) => {
     const matchingStakeholderRefs: Ref[] = stakeholders
-      .filter(
-        (stakeholder) =>
-          formValues?.stakeholderNames?.includes(stakeholder.name)
+      .filter((stakeholder) =>
+        formValues?.stakeholderNames?.includes(stakeholder.name)
       )
       .map((stakeholder) => {
         return {

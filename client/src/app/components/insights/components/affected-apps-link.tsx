@@ -1,8 +1,10 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
 import { Location } from "history";
+import { Link } from "react-router-dom";
 import { Button } from "@patternfly/react-core";
+
 import { UiAnalysisReportInsight } from "@app/api/models";
+
 import { InsightsFilterValuesToCarry, getAffectedAppsUrl } from "../helpers";
 
 export interface IAffectedAppsLinkProps {

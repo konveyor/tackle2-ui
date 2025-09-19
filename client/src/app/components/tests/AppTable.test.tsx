@@ -1,15 +1,10 @@
 import React from "react";
-import { Label, Skeleton, Spinner } from "@patternfly/react-core";
-import {
-  ICell,
-  IRow,
-  IActions,
-  SortColumn,
-  sortable,
-} from "@patternfly/react-table";
+import { Label } from "@patternfly/react-core";
+import { ICell, IRow, sortable } from "@patternfly/react-table";
+
+import { render, screen } from "@app/test-config/test-utils";
 
 import { AppTable } from "../AppTable";
-import { render, screen } from "@app/test-config/test-utils";
 
 describe("AppTable", () => {
   const columns: ICell[] = [
@@ -24,16 +19,6 @@ describe("AppTable", () => {
       })),
     };
   });
-  const actions: IActions = [
-    {
-      title: "Action1",
-      onClick: jest.fn,
-    },
-    {
-      title: "Action2",
-      onClick: jest.fn,
-    },
-  ];
 
   it("Renders without crashing", () => {
     const wrapper = render(
@@ -90,7 +75,7 @@ describe("AppTable", () => {
   });
 
   it.skip("Renders empty table after applying filters", () => {
-    const wrapper = render(
+    render(
       <AppTable
         cells={columns}
         rows={[]}

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { AxiosError } from "axios";
+import { counting } from "radash";
 import {
   Alert,
   DropEvent,
@@ -8,15 +9,15 @@ import {
   MultipleFileUploadStatus,
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
-import { counting } from "radash";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { HubFile, UploadFile } from "@app/api/models";
 import { useCreateFileMutation } from "@app/queries/targets";
 import { useUploadTaskgroupFileMutation } from "@app/queries/taskgroups";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import { checkRuleFileType, validateYamlFile } from "@app/utils/rules-utils";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
 import { NotificationsContext } from "./NotificationsContext";
 
 export interface CustomRuleFilesUploadProps {

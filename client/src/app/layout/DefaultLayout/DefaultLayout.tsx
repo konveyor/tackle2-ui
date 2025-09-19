@@ -1,12 +1,13 @@
 import React, { useRef } from "react";
 import { Page, SkipToContent } from "@patternfly/react-core";
 
-import { HeaderApp } from "../HeaderApp";
-import { SidebarApp } from "../SidebarApp";
 import { Notifications } from "@app/components/Notifications";
 import { PageContentWithDrawerProvider } from "@app/components/PageDrawerContext";
-import { TaskManagerDrawer } from "@app/components/task-manager/TaskManagerDrawer";
 import { useTaskManagerContext } from "@app/components/task-manager/TaskManagerContext";
+import { TaskManagerDrawer } from "@app/components/task-manager/TaskManagerDrawer";
+
+import { HeaderApp } from "../HeaderApp";
+import { SidebarApp } from "../SidebarApp";
 
 export interface DefaultLayoutProps {
   children?: React.ReactNode;

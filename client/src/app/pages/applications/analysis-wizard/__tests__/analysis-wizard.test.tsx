@@ -1,15 +1,17 @@
 import React from "react";
 import "@testing-library/jest-dom";
+import { server } from "@mocks/server";
+import userEvent from "@testing-library/user-event";
+import { rest } from "msw";
+
 import {
   fireEvent,
   render,
   screen,
   waitFor,
 } from "@app/test-config/test-utils";
+
 import { AnalysisWizard } from "../analysis-wizard";
-import userEvent from "@testing-library/user-event";
-import { server } from "@mocks/server";
-import { rest } from "msw";
 
 const applicationData1 = {
   id: 1,

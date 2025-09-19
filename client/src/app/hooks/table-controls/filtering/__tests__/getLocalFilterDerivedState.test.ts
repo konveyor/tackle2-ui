@@ -1,4 +1,5 @@
 import { FilterCategory, FilterType } from "@app/components/FilterToolbar";
+
 import { getLocalFilterDerivedState } from "../getLocalFilterDerivedState";
 
 interface TestItem {

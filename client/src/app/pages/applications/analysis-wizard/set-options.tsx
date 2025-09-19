@@ -1,4 +1,8 @@
 import * as React from "react";
+import { toggle } from "radash";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   Checkbox,
   Flex,
@@ -10,27 +14,25 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import {
-  SelectVariant,
   Select,
   SelectOption,
+  SelectVariant,
 } from "@patternfly/react-core/deprecated";
-import { useFormContext } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import * as yup from "yup";
-
-import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
-import { defaultTargets } from "../../../data/targets";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisWizardFormValues } from "./schema";
+
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
-import { getParsedLabel } from "@app/utils/rules-utils";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchTargets } from "@app/queries/targets";
+import { getParsedLabel } from "@app/utils/rules-utils";
+import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
+
+import { defaultTargets } from "../../../data/targets";
+
+import { AnalysisWizardFormValues } from "./schema";
 import defaultSources from "./sources";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { updateSelectedTargetsBasedOnLabels } from "./utils";
-import { toggle } from "radash";
 
 export const SetOptions: React.FC = () => {
   const { t } = useTranslation();

@@ -1,21 +1,22 @@
 import * as React from "react";
 import {
-  Text,
   Flex,
   FlexItem,
   Label,
   LabelGroup,
+  Text,
 } from "@patternfly/react-core";
-import { ExpandableRowContent } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
+import { ExpandableRowContent } from "@patternfly/react-table";
 
 import {
   UiAnalysisReportApplicationInsight,
   UiAnalysisReportInsight,
 } from "@app/api/models";
-import { parseReportLabels } from "../helpers";
+
 import { InsightDescriptionAndLinks } from "../components";
+import { parseReportLabels } from "../helpers";
 
 export const ExpandedFieldHeading: React.FC<{
   children: React.ReactNode;

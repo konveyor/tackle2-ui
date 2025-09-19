@@ -1,6 +1,6 @@
 import React from "react";
-import { Label, LabelGroup, LabelProps } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
+import { Label, LabelGroup, LabelProps } from "@patternfly/react-core";
 
 export function LabelsFromItems<T extends { name: string }>({
   items,

@@ -1,8 +1,10 @@
-import { render } from "@app/test-config/test-utils";
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { DefaultLayout } from "../DefaultLayout";
+
+import { render } from "@app/test-config/test-utils";
+
 import { NotificationsProvider } from "../../../components/NotificationsContext";
+import { DefaultLayout } from "../DefaultLayout";
 
 it.skip("Test snapshot", () => {
   const wrapper = render(

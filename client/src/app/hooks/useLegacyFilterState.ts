@@ -1,4 +1,5 @@
-import { IFilterValues, FilterCategory } from "@app/components/FilterToolbar";
+import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
+
 import {
   getLocalFilterDerivedState,
   useFilterState,

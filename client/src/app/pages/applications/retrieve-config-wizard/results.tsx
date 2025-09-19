@@ -1,25 +1,26 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardBody,
   CardHeader,
   CardTitle,
-  Text,
-  TextContent,
-  TextVariants,
   Grid,
   GridItem,
   Icon,
+  Text,
+  TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { ApplicationManifestTask } from "@app/api/models";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface ResultsData {

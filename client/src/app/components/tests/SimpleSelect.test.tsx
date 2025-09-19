@@ -1,6 +1,8 @@
 import React from "react";
-import { SimpleSelect } from "../SimpleSelect";
+
 import { render } from "@app/test-config/test-utils";
+
+import { SimpleSelect } from "../SimpleSelect";
 
 describe("SimpleSelect", () => {
   it("Renders without crashing", () => {
