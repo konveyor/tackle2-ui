@@ -88,7 +88,7 @@ export const Identities: React.FC = () => {
     doRemoveDefaultIdentity,
   } = useIdentityMeta(identities);
 
-  const { kindLabels } = useIdentityKind();
+  const { kindLabels, kindFilterOptions } = useIdentityKind();
 
   const tableControls = useLocalTableControls({
     tableName: "identities-table",
@@ -121,10 +121,7 @@ export const Identities: React.FC = () => {
         title: "Type",
         type: FilterType.select,
         placeholderText: "Filter by type...",
-        selectOptions: Object.entries(kindLabels).map(([kind, label]) => ({
-          value: kind,
-          label: label,
-        })),
+        selectOptions: kindFilterOptions,
         getItemValue: (item) => {
           return item.kind || "";
         },

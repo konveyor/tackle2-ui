@@ -24,6 +24,15 @@ export const useIdentityKind = () => {
     [t]
   );
 
+  const kindFilterOptions = useMemo(
+    () =>
+      Array.from(KIND_META.entries()).map(([key, meta]) => ({
+        value: key,
+        label: t(meta.label),
+      })),
+    [t]
+  );
+
   const kindLabels: Record<IdentityKind, string> = useMemo(
     () =>
       Object.fromEntries(
@@ -34,6 +43,7 @@ export const useIdentityKind = () => {
 
   return {
     kindOptions,
+    kindFilterOptions,
     kindLabels,
   };
 };
