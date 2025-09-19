@@ -1,8 +1,7 @@
 import React from "react";
-import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { saveAs } from "file-saver";
-
+import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -16,31 +15,31 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { ImportSummaryRoute, Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import {
-  useFetchImports,
-  useFetchImportSummaryById,
-} from "@app/queries/imports";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   FilterToolbar,
   FilterType,
 } from "@app/components/FilterToolbar/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { PageHeader } from "@app/components/PageHeader";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConditionalRender } from "@app/components/ConditionalRender";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
-  TableHeaderContentWithControls,
   ConditionalTableBody,
+  TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { CubesIcon } from "@patternfly/react-icons";
+import {
+  useFetchImportSummaryById,
+  useFetchImports,
+} from "@app/queries/imports";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const ManageImportsDetails: React.FC = () => {
   // i18

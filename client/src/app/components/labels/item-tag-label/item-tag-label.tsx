@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Tag, TagCategory } from "@app/api/models";
+
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
+import { Tag, TagCategory } from "@app/api/models";
 import { LabelCustomColor } from "@app/components/LabelCustomColor";
 
 export const getTagCategoryFallbackColor = (category?: TagCategory | null) => {

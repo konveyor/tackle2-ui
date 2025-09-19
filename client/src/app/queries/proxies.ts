@@ -1,7 +1,8 @@
-import { AxiosError } from "axios";
-import { getProxies, updateProxy } from "@app/api/rest";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { getProxies, updateProxy } from "@app/api/rest";
 
 export const ProxiesTasksQueryKey = "proxies";
 

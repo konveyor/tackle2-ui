@@ -1,9 +1,13 @@
 import { Location, LocationDescriptor } from "history";
+import { useTranslation } from "react-i18next";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
   AnalysisInsight,
-  UiAnalysisReportInsight,
-  UiAnalysisReportApplicationInsight,
   Archetype,
+  UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
 } from "@app/api/models";
 import {
   FilterCategory,
@@ -15,15 +19,13 @@ import {
   serializeFilterUrlParams,
 } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
-import { Paths } from "@app/Paths";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { IssueFilterGroups } from "./issues-page";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { useTranslation } from "react-i18next";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchApplications } from "@app/queries/applications";
 import { universalComparator } from "@app/utils/utils";
+
+import { IssueFilterGroups } from "./issues-page";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.

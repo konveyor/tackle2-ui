@@ -1,7 +1,9 @@
-import { render } from "@app/test-config/test-utils";
 import React from "react";
-import { HorizontalNav } from "../HorizontalNav";
 import { BrowserRouter as Router } from "react-router-dom";
+
+import { render } from "@app/test-config/test-utils";
+
+import { HorizontalNav } from "../HorizontalNav";
 
 describe("HorizontalNav", () => {
   it("Renders without crashing", () => {

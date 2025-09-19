@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import {
   Button,
   EmptyState,
@@ -12,43 +12,44 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
-import {
-  ConditionalTableBody,
-  TableRowContentWithControls,
-  TableHeaderContentWithControls,
-} from "@app/components/TableControls";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import {
-  getHubRequestParams,
-  useTableControlProps,
-  useTableControlState,
-} from "@app/hooks/table-controls";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import {
   Application,
   UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
 import { HubRequestParams } from "@app/api/models";
-import { AnalysisQueryResults } from "@app/queries/analysis";
-import { useFetchApplications } from "@app/queries/applications";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { FilterToolbar } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
-
-import { parseReportLabels } from "../helpers";
-import { InsightExpandedRowContent } from "../components";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
 import {
-  useInsightsTableFilters,
-  InsightFilterGroups,
-} from "./use-insight-filters";
-import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import {
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
+import { AnalysisQueryResults } from "@app/queries/analysis";
+import { useFetchApplications } from "@app/queries/applications";
+
+import { InsightExpandedRowContent } from "../components";
+import { parseReportLabels } from "../helpers";
+
 import { InsightTitleColumn } from "./column-insight-title";
+import { TableColumns, useDynamicColumns } from "./use-dynamic-columns";
+import {
+  InsightFilterGroups,
+  useInsightsTableFilters,
+} from "./use-insight-filters";
 
 const useSelectedApplicationId = (
   pathPattern: string,

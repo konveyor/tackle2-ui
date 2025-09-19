@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { New, Review } from "@app/api/models";
 import {
   createReview,
   deleteReview,
@@ -8,9 +10,8 @@ import {
   getReviews,
   updateReview,
 } from "@app/api/rest";
-import { New, Review } from "@app/api/models";
+
 import { ApplicationsQueryKey } from "./applications";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";

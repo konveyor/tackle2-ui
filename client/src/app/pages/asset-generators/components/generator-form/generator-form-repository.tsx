@@ -1,18 +1,19 @@
 import React from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   FormFieldGroupExpandable,
   FormFieldGroupHeader,
 } from "@patternfly/react-core";
-import { useFormContext } from "react-hook-form";
+
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { useFetchIdentities } from "@app/queries/identities";
+import { toOptionLike } from "@app/utils/model-utils";
 
 // Static configuration moved outside component to prevent recreation
 const REPOSITORY_KIND_OPTIONS = [

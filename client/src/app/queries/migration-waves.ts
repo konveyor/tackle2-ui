@@ -1,19 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
-  getMigrationWaves,
   createMigrationWave,
-  deleteMigrationWave,
-  updateMigrationWave,
   deleteAllMigrationWaves,
+  deleteMigrationWave,
   deleteTicket,
+  getMigrationWaves,
+  updateMigrationWave,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
-import { TicketsQueryKey, useFetchTickets } from "./tickets";
-import { TrackersQueryKey } from "./trackers";
+
 import { useFetchApplications } from "./applications";
 import { useFetchStakeholders } from "./stakeholders";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { TicketsQueryKey, useFetchTickets } from "./tickets";
+import { TrackersQueryKey } from "./trackers";
 
 export const MigrationWavesQueryKey = "migration-waves";
 

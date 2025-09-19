@@ -1,7 +1,7 @@
 import axios, { AxiosProgressEvent } from "axios";
 
-import { hub, template, HEADERS } from "../rest";
 import { HubFile } from "../models";
+import { HEADERS, hub, template } from "../rest";
 
 export const FILE = hub`/files/{{id}}`;
 

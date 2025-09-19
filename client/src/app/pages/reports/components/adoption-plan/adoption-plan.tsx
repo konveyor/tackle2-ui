@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo } from "react";
-import Measure from "react-measure";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-
-import { Bullseye, Skeleton } from "@patternfly/react-core";
+import Measure from "react-measure";
 import {
   Chart,
   ChartAxis,
@@ -11,15 +10,16 @@ import {
   ChartThemeColor,
   ChartVoronoiContainer,
 } from "@patternfly/react-charts";
+import { Bullseye, Skeleton } from "@patternfly/react-core";
 
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { StateError } from "@app/components/StateError";
 import { PROPOSED_ACTION_LIST } from "@app/Constants";
 import { ApplicationAdoptionPlan } from "@app/api/models";
 import { getApplicationAdoptionPlan } from "@app/api/rest";
-import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
-import { useQuery } from "@tanstack/react-query";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { StateError } from "@app/components/StateError";
 import { useFetchApplications } from "@app/queries/applications";
+
+import { NoApplicationSelectedEmptyState } from "../no-application-selected-empty-state";
 
 interface IChartData {
   applicationId: number;

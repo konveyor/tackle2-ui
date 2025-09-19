@@ -1,7 +1,6 @@
 import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
+import { useHistory, useLocation } from "react-router-dom";
 import { PageSection } from "@patternfly/react-core";
 
 import { PageHeader, PageHeaderProps } from "@app/components/PageHeader";

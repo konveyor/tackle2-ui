@@ -1,9 +1,11 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Flex, FlexItem } from "@patternfly/react-core";
-import { applicationsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
-import { ConditionalTooltip } from "./ConditionalTooltip";
 import { Td } from "@patternfly/react-table";
+
+import { RBAC, RBAC_TYPE, applicationsWriteScopes } from "@app/rbac";
+
+import { ConditionalTooltip } from "./ConditionalTooltip";
 
 export interface AppTableActionButtonsProps {
   isDeleteEnabled?: boolean;

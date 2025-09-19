@@ -1,8 +1,10 @@
 import React from "react";
-import { PageHeader } from "../PageHeader";
-import { Button } from "@patternfly/react-core";
-import { render } from "@app/test-config/test-utils";
 import { BrowserRouter as Router } from "react-router-dom";
+import { Button } from "@patternfly/react-core";
+
+import { render } from "@app/test-config/test-utils";
+
+import { PageHeader } from "../PageHeader";
 
 describe("PageHeader", () => {
   it("Renders without crashing", () => {

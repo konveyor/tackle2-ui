@@ -1,14 +1,15 @@
 import { Location } from "history";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
   AnalysisInsight,
-  UiAnalysisReportInsight,
   UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
 } from "@app/api/models";
 import { FilterValue } from "@app/components/FilterToolbar";
 import { serializeFilterUrlParams } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
-import { Paths } from "@app/Paths";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 // Certain filters are shared between the Insights page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.

@@ -1,18 +1,17 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
 import {
-  TextContent,
-  Text,
-  TextVariants,
-  CardBody,
   Card,
-  GridItem,
-  Grid,
-  CardTitle,
+  CardBody,
   CardHeader,
+  CardTitle,
+  Grid,
+  GridItem,
   Icon,
+  Text,
+  TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,

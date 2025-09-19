@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   OverflowMenu,
@@ -5,11 +7,11 @@ import {
   OverflowMenuItem,
   ToolbarItem,
 } from "@patternfly/react-core";
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
-import { ManageColumnsModal } from "./manage-columns-modal";
 import { ColumnsIcon } from "@patternfly/react-icons";
+
+import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
+
+import { ManageColumnsModal } from "./manage-columns-modal";
 
 interface ManageColumnsToolbarProps<TColumnKey extends string> {
   columns: ColumnState<TColumnKey>[];

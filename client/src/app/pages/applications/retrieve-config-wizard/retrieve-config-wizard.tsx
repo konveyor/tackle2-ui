@@ -1,25 +1,26 @@
 import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { group } from "radash";
+import { FormProvider, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
+  Button,
   Modal,
   ModalVariant,
   Wizard,
-  WizardStep,
   WizardHeader,
-  Button,
+  WizardStep,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-
-import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { group } from "radash";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { DecoratedApplication } from "../useDecoratedApplications";
-import { Review } from "./review";
-import { Results, ResultsData } from "./results";
-import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
 import { universalComparator } from "@app/utils/utils";
+
+import { DecoratedApplication } from "../useDecoratedApplications";
+
+import { Results, ResultsData } from "./results";
+import { Review } from "./review";
+import { useStartFetchApplicationManifest } from "./useStartFetchApplicationManifest";
 
 export const RetrieveConfigWizard: React.FC<IRetrieveConfigWizard> = ({
   isOpen,

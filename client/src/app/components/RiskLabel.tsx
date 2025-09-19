@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { Label } from "@patternfly/react-core";
 
 import { RISK_LIST } from "@app/Constants";

@@ -1,18 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Bullseye,
   EmptyState,
+  EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
-  EmptyStateBody,
-  Bullseye,
 } from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { CubesIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { Archetype } from "@app/api/models";
-import { Table, Tr, Th, Thead, Tbody, Td } from "@patternfly/react-table";
-import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { DrawerTabContent } from "@app/components/detail-drawer";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 
 export interface TabTargetProfilesProps {
   archetype: Archetype;

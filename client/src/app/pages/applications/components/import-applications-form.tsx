@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useTranslation } from "react-i18next";
-
 import {
   ActionGroup,
   Button,
@@ -15,8 +14,8 @@ import {
 } from "@patternfly/react-core";
 
 import { APP_IMPORTS_SUMMARY_UPLOAD } from "@app/api/rest";
-import { getAxiosErrorMessage } from "@app/utils/utils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface ImportApplicationsFormProps {
   onSaved: (response: AxiosResponse) => void;

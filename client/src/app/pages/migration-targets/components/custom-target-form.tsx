@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError, AxiosResponse } from "axios";
+import { unique } from "radash";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   ActionGroup,
   Alert,
@@ -9,39 +15,35 @@ import {
   Form,
   Radio,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { useFieldArray, useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import defaultImage from "./default.png";
+import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
+import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useCreateFileMutation } from "@app/queries/targets";
-import { UploadFile, New, Rule, Target, TargetLabel } from "@app/api/models";
-import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike, toRef } from "@app/utils/model-utils";
-import { useFetchIdentities } from "@app/queries/identities";
-import { duplicateNameCheck } from "@app/utils/utils";
 import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
+import { useFetchIdentities } from "@app/queries/identities";
 import {
   useCreateTargetMutation,
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useCreateFileMutation } from "@app/queries/targets";
+import { toOptionLike, toRef } from "@app/utils/model-utils";
+import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { duplicateNameCheck } from "@app/utils/utils";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
 import {
   DEFAULT_PROVIDER,
   useMigrationProviderList,
 } from "../useMigrationProviderList";
-import { unique } from "radash";
-import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+
+import defaultImage from "./default.png";
 
 export interface CustomTargetFormProps {
   target?: Target | null;

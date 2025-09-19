@@ -1,4 +1,6 @@
 import React, { useContext } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 import {
@@ -9,27 +11,25 @@ import {
 } from "@patternfly/react-core";
 
 import {
-  DEFAULT_SELECT_MAX_HEIGHT,
   COLOR_HEX_VALUES_BY_NAME,
+  DEFAULT_SELECT_MAX_HEIGHT,
 } from "@app/Constants";
 import { New, TagCategory } from "@app/api/models";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
+import { Color } from "@app/components/Color";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
 import {
   useCreateTagCategoryMutation,
   useFetchTagCategories,
   useUpdateTagCategoryMutation,
 } from "@app/queries/tags";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  HookFormPFGroupController,
-  HookFormPFTextInput,
-} from "@app/components/HookFormPFFields";
-import { Color } from "@app/components/Color";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
+import { toOptionLike } from "@app/utils/model-utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
   name: string;

@@ -1,12 +1,13 @@
 import * as React from "react";
 import {
-  ToolbarFilter,
-  InputGroup,
-  TextInput,
   Button,
   ButtonVariant,
+  InputGroup,
+  TextInput,
+  ToolbarFilter,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+
 import { IFilterControlProps } from "./FilterControl";
 import { ISearchFilterCategory } from "./FilterToolbar";
 

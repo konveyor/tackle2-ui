@@ -1,6 +1,8 @@
 import React from "react";
 import { Tooltip } from "@patternfly/react-core";
+
 import { getString } from "@app/utils/utils";
+
 import { AutocompleteOptionProps } from "./Autocomplete/Autocomplete";
 
 export const LabelToolip: React.FC<{

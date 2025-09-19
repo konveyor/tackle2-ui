@@ -1,6 +1,8 @@
 import React from "react";
-import { ConditionalRender } from "../ConditionalRender";
+
 import { render, screen } from "@app/test-config/test-utils";
+
+import { ConditionalRender } from "../ConditionalRender";
 
 describe("ConditionalRender", () => {
   it("Renders WHEN=true", () => {

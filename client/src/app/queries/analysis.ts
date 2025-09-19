@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+
 import {
-  AnalysisReportFile,
   AnalysisIncident,
   AnalysisInsight,
   AnalysisReportApplicationInsight,
+  AnalysisReportFile,
   AnalysisReportInsight,
   HubPaginatedResult,
   HubRequestParams,
+  UiAnalysisReportApplicationInsight,
   UiAnalysisReportInsight,
   WithUiId,
-  UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
 import {
   getInsight,

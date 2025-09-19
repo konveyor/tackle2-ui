@@ -1,51 +1,50 @@
 import React, { useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
-import { unique } from "radash";
-
 import {
   DndContext,
-  closestCenter,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
+  DragOverEvent,
   DragOverlay,
   DragStartEvent,
-  DragOverEvent,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import { SortableTargetItem } from "./components/dnd/sortable-target-item";
-import { TargetItem } from "./components/dnd/target-item";
-
+import { AxiosError, AxiosResponse } from "axios";
+import { unique } from "radash";
+import { useTranslation } from "react-i18next";
 import {
+  Button,
+  Gallery,
+  Modal,
   PageSection,
   PageSectionVariants,
-  TextContent,
-  Button,
   Text,
-  Modal,
+  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Gallery,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { Target } from "@app/api/models";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { CustomTargetForm } from "./components/custom-target-form";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
-import { Target } from "@app/api/models";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import { CustomTargetForm } from "./components/custom-target-form";
+import { SortableTargetItem } from "./components/dnd/sortable-target-item";
+import { TargetItem } from "./components/dnd/target-item";
 import { DEFAULT_PROVIDER } from "./useMigrationProviderList";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 
 export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();

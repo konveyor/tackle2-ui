@@ -1,15 +1,15 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 
+import { Paths } from "@app/Paths";
+import { Task, TaskState } from "@app/api/models";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useCancelTaskMutation,
   useUpdateTaskMutation,
 } from "@app/queries/tasks";
-import { Task, TaskState } from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
 import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
 
 const canCancel = (state: TaskState = "No task") =>
   !["Succeeded", "Failed", "Canceled"].includes(state);

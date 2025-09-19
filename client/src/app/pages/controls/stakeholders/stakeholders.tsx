@@ -19,6 +19,8 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   ExpandableRowContent,
   Table,
@@ -28,30 +30,30 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 
+import { Stakeholder } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { Stakeholder } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import {
-  useDeleteStakeholderMutation,
-  useFetchStakeholders,
-} from "@app/queries/stakeholders";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useLocalTableControls } from "@app/hooks/table-controls";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { StakeholderForm } from "./components/stakeholder-form";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+import {
+  useDeleteStakeholderMutation,
+  useFetchStakeholders,
+} from "@app/queries/stakeholders";
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
+
+import { StakeholderForm } from "./components/stakeholder-form";
 
 export const Stakeholders: React.FC = () => {
   const { t } = useTranslation();
@@ -68,7 +70,7 @@ export const Stakeholders: React.FC = () => {
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onDeleteStakeholderSuccess = (response: any) => {
+  const onDeleteStakeholderSuccess = () => {
     pushNotification({
       title: t("terms.stakeholderDeleted"),
       variant: "success",

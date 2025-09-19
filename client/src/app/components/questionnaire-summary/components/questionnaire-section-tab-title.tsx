@@ -1,6 +1,7 @@
 import React from "react";
-import { TabTitleText, Badge } from "@patternfly/react-core";
+import { Badge, TabTitleText } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { Question } from "@app/api/models";
 
 const QuestionnaireSectionTabTitle: React.FC<{

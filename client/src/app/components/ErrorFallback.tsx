@@ -1,19 +1,19 @@
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
-  Title,
-  EmptyStateBody,
-  Button,
-} from "@patternfly/react-core";
 import React, { useEffect, useRef } from "react";
-import UserNinjaIcon from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
-import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Title,
+} from "@patternfly/react-core";
+import UserNinjaIcon from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 const usePrevious = <T,>(value: T) => {
   const ref = useRef<T>();

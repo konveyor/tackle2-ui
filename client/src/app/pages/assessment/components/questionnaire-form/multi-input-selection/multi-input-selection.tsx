@@ -1,14 +1,15 @@
 import React, { useMemo } from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Icon, Radio, Stack, StackItem, Tooltip } from "@patternfly/react-core";
 import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
 
 import { QuestionWithSectionOrder } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { useFormContext } from "react-hook-form";
-import { getQuestionFieldName } from "../../../form-utils";
-import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 import useIsArchetype from "@app/hooks/useIsArchetype";
-import { useTranslation } from "react-i18next";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+
+import { getQuestionFieldName } from "../../../form-utils";
 
 export interface MultiInputSelectionProps {
   question: QuestionWithSectionOrder;

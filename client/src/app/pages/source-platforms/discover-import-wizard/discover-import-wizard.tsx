@@ -1,22 +1,23 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
+  Button,
   Modal,
   ModalVariant,
   Wizard,
-  WizardStep,
   WizardHeader,
-  Button,
+  WizardStep,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 
 import { SourcePlatform } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useWizardReducer } from "./useWizardReducer";
-import { FilterInput } from "./filter-input";
-import { Review } from "./review";
-import { Results } from "./results";
-import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
 import { universalComparator } from "@app/utils/utils";
+
+import { FilterInput } from "./filter-input";
+import { Results } from "./results";
+import { Review } from "./review";
+import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
+import { useWizardReducer } from "./useWizardReducer";
 
 export const DiscoverImportWizard: React.FC<IDiscoverImportWizard> = ({
   isOpen,

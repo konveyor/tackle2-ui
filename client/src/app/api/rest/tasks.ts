@@ -7,7 +7,7 @@ import {
   TaskDashboard,
   TaskQueue,
 } from "../models";
-import { getHubPaginatedResult, HEADERS, hub } from "../rest";
+import { HEADERS, getHubPaginatedResult, hub } from "../rest";
 
 export const TASKS = hub`/tasks`;
 

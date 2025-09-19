@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
 import { JobFunction } from "@app/api/models";
 import {
   createJobFunction,
@@ -6,7 +8,6 @@ import {
   getJobFunctions,
   updateJobFunction,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
 
 export const JobFunctionsQueryKey = "jobfunctions";
 

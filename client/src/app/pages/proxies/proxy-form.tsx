@@ -1,4 +1,13 @@
 import React, { useMemo } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import {
+  Controller,
+  FieldValues,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
   Button,
@@ -6,29 +15,21 @@ import {
   Form,
   Switch,
 } from "@patternfly/react-core";
-import {
-  Controller,
-  FieldValues,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError } from "axios";
-import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
-import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import { Proxy } from "@app/api/models";
-import { useUpdateProxyMutation } from "@app/queries/proxies";
-import { useFetchIdentities } from "@app/queries/identities";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useFetchIdentities } from "@app/queries/identities";
+import { useUpdateProxyMutation } from "@app/queries/proxies";
+import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
+
+import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 
 export interface ProxyFormValues {
   isHttpProxyEnabled: boolean;
