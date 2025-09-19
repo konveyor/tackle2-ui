@@ -1,7 +1,7 @@
 import { rest } from "msw";
 
-import * as AppRest from "@app/api/rest";
 import { Application } from "@app/api/models";
+import * as AppRest from "@app/api/rest";
 
 function generateRandomId(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;

@@ -1,33 +1,35 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-  EmptyStateIcon,
-  Title,
+  Bullseye,
   Card,
   CardBody,
+  CardHeader,
   DropdownItem,
+  EmptyStateIcon,
   Flex,
   FlexItem,
   Label,
-  CardHeader,
+  Panel,
   PanelMain,
   PanelMainBody,
-  Panel,
   Stack,
   StackItem,
-  Bullseye,
+  Title,
 } from "@patternfly/react-core";
 import { InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
 
-import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
+import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+import { localeNumericCompare } from "@app/utils/utils";
+
 import { KebabDropdown } from "../KebabDropdown";
-import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
 import { SimpleSelectBasic } from "../SimpleSelectBasic";
 
+import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
+
 import "./target-card.css";
-import { localeNumericCompare } from "@app/utils/utils";
 
 export interface TargetCardProps {
   item: Target;

@@ -1,15 +1,16 @@
 import React from "react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import {
-  GridItem,
-  Grid,
-  Button,
   Bullseye,
+  Button,
+  Grid,
+  GridItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { useFieldArray, useFormContext } from "react-hook-form";
-import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 import { MinusCircleIcon } from "@patternfly/react-icons/dist/js/icons/minus-circle-icon";
+
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";
 
 interface KeyValueFieldsProps {
   noValuesMessage: string;

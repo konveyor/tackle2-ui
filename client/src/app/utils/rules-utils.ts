@@ -1,5 +1,6 @@
-import { UploadFile, ParsedRule } from "@app/api/models";
 import yaml from "js-yaml";
+
+import { ParsedRule, UploadFile } from "@app/api/models";
 
 type RuleFileType = "YAML" | null;
 

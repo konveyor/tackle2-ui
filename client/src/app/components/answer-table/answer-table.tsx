@@ -1,23 +1,24 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Label, Text, Tooltip } from "@patternfly/react-core";
+import { List, ListItem } from "@patternfly/react-core";
+import { TimesCircleIcon } from "@patternfly/react-icons";
+import { WarningTriangleIcon } from "@patternfly/react-icons";
+import { InfoCircleIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { Answer } from "@app/api/models";
+import { IconedStatus } from "@app/components/Icons";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { Answer } from "@app/api/models";
-import { Label, Text, Tooltip } from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { IconedStatus } from "@app/components/Icons";
-import { TimesCircleIcon } from "@patternfly/react-icons";
-import { WarningTriangleIcon } from "@patternfly/react-icons";
-import { List, ListItem } from "@patternfly/react-core";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+
 import RiskIcon from "../risk-icon/risk-icon";
-import { InfoCircleIcon } from "@patternfly/react-icons";
 
 export interface IAnswerTableProps {
   answers: Answer[];

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
@@ -7,9 +8,10 @@ import {
   Spinner,
   Title,
 } from "@patternfly/react-core";
+
 import { JsonSchemaObject } from "@app/api/models";
+
 import { jsonSchemaToYupSchema } from "./utils";
-import { useMemo } from "react";
 
 export { Language } from "@patternfly/react-code-editor";
 

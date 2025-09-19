@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -18,15 +19,15 @@ import {
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-
-import "./Repositories.css";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
+
 import { isRWXSupported } from "@app/Constants";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { useDeleteCacheMutation, useFetchCache } from "@app/queries/cache";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
+
+import "./Repositories.css";
 
 export const RepositoriesMvn: React.FC = () => {
   const { t } = useTranslation();

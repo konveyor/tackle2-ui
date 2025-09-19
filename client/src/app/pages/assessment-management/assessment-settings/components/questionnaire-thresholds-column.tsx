@@ -1,5 +1,6 @@
 import React from "react";
 import { ListItem } from "@patternfly/react-core";
+
 import { Questionnaire, Thresholds } from "@app/api/models";
 
 export const QuestionnaireThresholdsColumn: React.FC<{

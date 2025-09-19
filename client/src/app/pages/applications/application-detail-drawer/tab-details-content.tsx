@@ -1,44 +1,44 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
 import {
-  TextContent,
-  Text,
-  Title,
-  List,
-  ListItem,
+  Button,
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
-  GridItem,
   Grid,
-  Button,
-  TextVariants,
+  GridItem,
+  List,
+  ListItem,
   Spinner,
+  Text,
+  TextContent,
+  TextVariants,
+  Title,
   Tooltip,
 } from "@patternfly/react-core";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { EditIcon, UnlinkIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
-import { RiskLabel } from "@app/components/RiskLabel";
-import {
-  getDependenciesUrlFilteredByAppName,
-  getIssuesSingleAppSelectedLocation,
-} from "@app/pages/issues/helpers";
-import { DecoratedApplication } from "../useDecoratedApplications";
 import { Archetype } from "@app/api/models";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import ExternalLink from "@app/components/ExternalLink";
+import { RiskLabel } from "@app/components/RiskLabel";
 import {
   DrawerTabContent,
   DrawerTabContentSection,
 } from "@app/components/detail-drawer";
-import { useFetchTickets } from "@app/queries/tickets";
-import { useDeleteTicketMutation } from "@app/queries/migration-waves";
-import ExternalLink from "@app/components/ExternalLink";
+import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { getInsightsSingleAppSelectedLocation } from "@app/pages/insights/helpers";
+import {
+  getDependenciesUrlFilteredByAppName,
+  getIssuesSingleAppSelectedLocation,
+} from "@app/pages/issues/helpers";
+import { useDeleteTicketMutation } from "@app/queries/migration-waves";
+import { useFetchTickets } from "@app/queries/tickets";
+
+import { DecoratedApplication } from "../useDecoratedApplications";
 
 const ApplicationArchetypesLabels: React.FC<{
   application: DecoratedApplication;

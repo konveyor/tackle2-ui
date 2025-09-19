@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { AxiosError } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { Generator } from "@app/api/models";
 import {
   createGenerator,
@@ -9,7 +10,6 @@ import {
   getGenerators,
   updateGenerator,
 } from "@app/api/rest";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const GENERATORS_QUERY_KEY = "generators";
 export const GENERATOR_QUERY_KEY = "generator";

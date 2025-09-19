@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { group, listify, mapEntries, unique } from "radash";
+
 import {
   Application,
   Archetype,
@@ -7,17 +9,16 @@ import {
   Identity,
   TaskDashboard,
 } from "@app/api/models";
-import { group, listify, mapEntries, unique } from "radash";
+import { useFetchArchetypes } from "@app/queries/archetypes";
+import { useFetchAssessments } from "@app/queries/assessments";
+import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { useFetchIdentities } from "@app/queries/identities";
 import { TaskStates } from "@app/queries/tasks";
-import { universalComparator } from "@app/utils/utils";
 import {
   ApplicationAssessmentStatus,
   buildApplicationAssessmentStatus,
 } from "@app/utils/application-assessment-status";
-import { useFetchIdentities } from "@app/queries/identities";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchAssessments } from "@app/queries/assessments";
-import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { universalComparator } from "@app/utils/utils";
 
 export interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];

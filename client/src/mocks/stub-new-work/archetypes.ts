@@ -1,7 +1,7 @@
 import { type RestHandler, rest } from "msw";
 
-import * as AppRest from "@app/api/rest";
 import type { Archetype, Tag, TagCategory } from "@app/api/models";
+import * as AppRest from "@app/api/rest";
 
 /**
  * Simple stub handlers as place holders until hub API is ready.

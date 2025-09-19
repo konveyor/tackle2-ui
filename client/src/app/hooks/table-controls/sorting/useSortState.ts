@@ -1,6 +1,7 @@
-import { DiscriminatedArgs } from "@app/utils/type-utils";
-import { IFeaturePersistenceArgs, isPersistenceProvider } from "..";
 import { usePersistentState } from "@app/hooks/usePersistentState";
+import { DiscriminatedArgs } from "@app/utils/type-utils";
+
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "..";
 
 /**
  * The currently applied sort parameters
@@ -111,18 +112,18 @@ export const useSortState = <
               : null,
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? {
-          persistTo,
-          key: "sort",
-        }
-      : isPersistenceProvider(persistTo)
-      ? {
-          persistTo: "provider",
-          serialize: persistTo.write,
-          deserialize: () =>
-            persistTo.read() as IActiveSort<TSortableColumnKey> | null,
-        }
-      : { persistTo: "state" }),
+        ? {
+            persistTo,
+            key: "sort",
+          }
+        : isPersistenceProvider(persistTo)
+          ? {
+              persistTo: "provider",
+              serialize: persistTo.write,
+              deserialize: () =>
+                persistTo.read() as IActiveSort<TSortableColumnKey> | null,
+            }
+          : { persistTo: "state" }),
   });
   return { activeSort, setActiveSort };
 };

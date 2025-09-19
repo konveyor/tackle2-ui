@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { createTickets, getTickets } from "@app/api/rest";
 import { AxiosError } from "axios";
-import { New, Ref, Ticket } from "@app/api/models";
+
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { New, Ref, Ticket } from "@app/api/models";
+import { createTickets, getTickets } from "@app/api/rest";
 
 export const TicketsQueryKey = "tickets";
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Popover,
@@ -10,13 +11,15 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
-import { MultiInputSelection } from "./multi-input-selection";
-import { Question, QuestionHeader, QuestionBody } from "./question";
-import { getCommentFieldName } from "../../form-utils";
-import { useFormContext } from "react-hook-form";
+
 import { SectionWithQuestionOrder } from "@app/api/models";
-import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+
+import { getCommentFieldName } from "../../form-utils";
+
+import { MultiInputSelection } from "./multi-input-selection";
+import { Question, QuestionBody, QuestionHeader } from "./question";
 
 export interface QuestionnaireFormProps {
   section: SectionWithQuestionOrder;

@@ -5,7 +5,11 @@ import axios, {
 } from "axios";
 import { template } from "radash";
 
+import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
+
 import {
+  AnalysisAppDependency,
+  AnalysisDependency,
   Application,
   ApplicationAdoptionPlan,
   ApplicationDependency,
@@ -20,6 +24,7 @@ import {
   Identity,
   InitialAssessment,
   JobFunction,
+  JsonDocument,
   MigrationWave,
   MimeType,
   New,
@@ -29,6 +34,7 @@ import {
   Review,
   Setting,
   SettingTypes,
+  SourcePlatform,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -40,12 +46,7 @@ import {
   TrackerProject,
   TrackerProjectIssuetype,
   UnstructuredFact,
-  SourcePlatform,
-  AnalysisDependency,
-  AnalysisAppDependency,
-  JsonDocument,
 } from "./models";
-import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 // endpoint paths
 export { template };

@@ -1,14 +1,15 @@
 import React from "react";
-import { WaveWithStatus } from "@app/api/models";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+
+import { WaveWithStatus } from "@app/api/models";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 
 export interface IWaveStakeholdersTableProps {
   migrationWave: WaveWithStatus;

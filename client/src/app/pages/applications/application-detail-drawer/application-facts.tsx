@@ -1,8 +1,5 @@
-import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   Toolbar,
@@ -10,12 +7,17 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import React from "react";
 import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+
 import { Fact } from "@app/api/models";
+import {
+  FilterCategory,
+  FilterToolbar,
+  FilterType,
+} from "@app/components/FilterToolbar";
+import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
+
 import { FactDetailModal } from "./fact-detail-modal/fact-detail-modal";
 
 export interface IApplicationRiskProps {
@@ -76,7 +78,7 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
       </Toolbar>
       {filteredFacts.map((fact) => {
         return (
-          <div>
+          <div key={fact.name}>
             <Button
               variant="link"
               isInline

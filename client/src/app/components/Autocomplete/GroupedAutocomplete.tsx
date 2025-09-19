@@ -1,22 +1,25 @@
 import React, { useRef } from "react";
 import {
-  Label,
-  LabelProps,
+  Divider,
   Flex,
   FlexItem,
+  Label,
+  LabelProps,
   Menu,
   MenuContent,
+  MenuGroup,
   MenuItem,
   MenuList,
   Popper,
-  Divider,
-  MenuGroup,
 } from "@patternfly/react-core";
+
 import { getString } from "@app/utils/utils";
+
 import { LabelToolip } from "../LabelTooltip";
+
 import { SearchInputComponent } from "./SearchInput";
-import { useAutocompleteHandlers } from "./useAutocompleteHandlers";
 import { AnyAutocompleteOptionProps, getUniqueId } from "./type-utils";
+import { useAutocompleteHandlers } from "./useAutocompleteHandlers";
 
 export interface GroupedAutocompleteOptionProps {
   /** id for the option - unique id not the ref id */

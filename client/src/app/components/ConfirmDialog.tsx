@@ -1,10 +1,10 @@
 import React from "react";
 import {
-  Button,
-  Modal,
-  ButtonVariant,
-  ModalVariant,
   Alert,
+  Button,
+  ButtonVariant,
+  Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
 
 export interface ConfirmDialogProps {

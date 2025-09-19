@@ -1,9 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { ChartDonut } from "@patternfly/react-charts";
-import { global_palette_black_300 as black } from "@patternfly/react-tokens";
-
 import {
   Bullseye,
   Stack,
@@ -12,6 +9,7 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
+import { global_palette_black_300 as black } from "@patternfly/react-tokens";
 
 export interface IDonutProps {
   id: string;

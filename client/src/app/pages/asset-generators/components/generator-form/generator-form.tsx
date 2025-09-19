@@ -1,10 +1,9 @@
 import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { AxiosError } from "axios";
-import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { FormProvider, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-
 import {
   ActionGroup,
   Button,
@@ -12,30 +11,30 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import type { New, Generator, Repository } from "@app/api/models";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import type { Generator, New, Repository } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { SimpleSelect } from "@app/components/SimpleSelect";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { useFetchIdentities } from "@app/queries/identities";
 import {
   useCreateGeneratorMutation,
   useFetchGenerators,
   useUpdateGeneratorMutation,
 } from "@app/queries/generators";
-import { useGeneratorProviderList } from "../../useGeneratorProviderList";
-import { parametersToArray, arrayToParameters } from "../../utils";
-import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
-import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
+import { useFetchIdentities } from "@app/queries/identities";
 import { matchItemsToRef } from "@app/utils/model-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+
+import { useGeneratorProviderList } from "../../useGeneratorProviderList";
+import { arrayToParameters, parametersToArray } from "../../utils";
+
+import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
+import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
 
 export interface GeneratorFormValues {
   kind: string;

@@ -1,9 +1,11 @@
 import React from "react";
-import { LabelGroup } from "@patternfly/react-core";
 import { useTranslation } from "react-i18next";
-import { ItemTagLabel } from "../item-tag-label/item-tag-label";
+import { LabelGroup } from "@patternfly/react-core";
+
 import { Tag } from "@app/api/models";
 import { useFetchTagCategories } from "@app/queries/tags";
+
+import { ItemTagLabel } from "../item-tag-label/item-tag-label";
 
 export function LabelsFromTags({
   tags,
@@ -16,9 +18,8 @@ export function LabelsFromTags({
   const { tagCategories } = useFetchTagCategories();
 
   const findCategoryForTag = (tagId: number) => {
-    return tagCategories.find(
-      (category) =>
-        category.tags?.some((categoryTag) => categoryTag.id === tagId)
+    return tagCategories.find((category) =>
+      category.tags?.some((categoryTag) => categoryTag.id === tagId)
     );
   };
 

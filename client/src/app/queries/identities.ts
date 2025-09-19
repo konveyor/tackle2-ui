@@ -1,15 +1,15 @@
 import { useMemo } from "react";
-import { group } from "radash";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { group } from "radash";
 
+import { Identity, New } from "@app/api/models";
 import {
   createIdentity,
   deleteIdentity,
   getIdentities,
   updateIdentity,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
-import { Identity, New } from "@app/api/models";
 
 export const IdentitiesQueryKey = "identities";
 

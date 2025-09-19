@@ -1,4 +1,5 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Redirect,
   Route,
@@ -12,15 +13,14 @@ import {
   PageSection,
   PageSectionVariants,
   Tab,
-  Tabs,
   TabTitleText,
+  Tabs,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { useTranslation } from "react-i18next";
 
 const Stakeholders = lazy(() => import("./stakeholders"));
 const StakeholderGroups = lazy(() => import("./stakeholder-groups"));

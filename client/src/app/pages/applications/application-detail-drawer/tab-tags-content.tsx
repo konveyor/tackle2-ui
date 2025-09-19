@@ -2,13 +2,15 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
-  TextContent,
-  Text,
-  TextVariants,
   Spinner,
+  Text,
+  TextContent,
+  TextVariants,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
+
 import { ApplicationTags } from "./components/application-tags";
 
 export const TabTagsContent: React.FC<{

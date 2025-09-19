@@ -1,24 +1,26 @@
 import * as React from "react";
+import { group } from "radash";
+import { useTranslation } from "react-i18next";
 import {
+  Button,
   Modal,
   ModalVariant,
   Wizard,
-  WizardStep,
   WizardHeader,
-  Button,
+  WizardStep,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { group } from "radash";
 
-import { universalComparator } from "@app/utils/utils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { universalComparator } from "@app/utils/utils";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
+
+import { AdvancedOptions } from "./step-advanced-options";
+import { Results } from "./step-results";
+import { Review } from "./step-review";
+import { SelectTargetProfile } from "./step-select-target-profile";
 import { useStartApplicationAssetGeneration } from "./useStartApplicationAssetGeneration";
 import { useWizardReducer } from "./useWizardReducer";
-import { SelectTargetProfile } from "./step-select-target-profile";
-import { Review } from "./step-review";
-import { Results } from "./step-results";
-import { AdvancedOptions } from "./step-advanced-options";
 
 export const GenerateAssetsWizard: React.FC<IGenerateAssetsWizard> = ({
   isOpen,
@@ -54,7 +56,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   const {
     state,
     setProfile,
-    setParameters,
+    // setParameters,
     setAdvancedOptions,
     setResults,
     reset,

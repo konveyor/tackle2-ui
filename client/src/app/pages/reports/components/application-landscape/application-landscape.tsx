@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { Flex, FlexItem, Skeleton } from "@patternfly/react-core";
 
 import { RISK_LIST } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
   Application,
   AssessmentWithArchetypeApplications,
@@ -11,12 +13,11 @@ import {
   Ref,
 } from "@app/api/models";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
-import { useFetchApplications } from "@app/queries/applications";
-import { Donut } from "../donut/donut";
 import { serializeFilterUrlParams } from "@app/hooks/table-controls";
-import { Paths } from "@app/Paths";
-import { Link } from "react-router-dom";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
+
+import { Donut } from "../donut/donut";
 
 interface IAggregateRiskData {
   green: number;

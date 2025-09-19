@@ -1,7 +1,9 @@
 import React from "react";
+
 import { Section } from "@app/api/models";
-import { WizardStepNavDescription } from "../wizard-step-nav-description";
 import { render } from "@app/test-config/test-utils";
+
+import { WizardStepNavDescription } from "../wizard-step-nav-description";
 
 describe("WizardStepNavDescription", () => {
   const section: Section = {

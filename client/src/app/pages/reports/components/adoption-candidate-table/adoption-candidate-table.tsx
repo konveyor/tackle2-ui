@@ -1,17 +1,18 @@
 import React, { useContext, useMemo } from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { Application, Review } from "@app/api/models"; // Add the necessary model imports
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { RiskLabel } from "@app/components/RiskLabel";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { Application, Review } from "@app/api/models"; // Add the necessary model imports
-import { ApplicationSelectionContext } from "../../application-selection-context";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchReviews } from "@app/queries/reviews";
-import { RiskLabel } from "@app/components/RiskLabel";
+
+import { ApplicationSelectionContext } from "../../application-selection-context";
 
 interface AdoptionCandidateTableProps {
   allApplications?: Application[];

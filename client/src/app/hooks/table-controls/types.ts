@@ -1,47 +1,49 @@
+import {
+  PaginationProps,
+  ToolbarItemProps,
+  ToolbarProps,
+} from "@patternfly/react-core";
 import { TableProps, TdProps, ThProps, TrProps } from "@patternfly/react-table";
+
+import { IFilterToolbarProps } from "@app/components/FilterToolbar";
+import { ITToolbarBulkExpanderProps } from "@app/components/ToolbarBulkExpander";
 import {
   DisallowCharacters,
   DiscriminatedArgs,
   KeyWithValueType,
 } from "@app/utils/type-utils";
-import {
-  IFilterStateArgs,
-  ILocalFilterDerivedStateArgs,
-  IFilterPropHelpersExternalArgs,
-  IFilterState,
-} from "./filtering";
-import {
-  ILocalSortDerivedStateArgs,
-  ISortPropHelpersExternalArgs,
-  ISortState,
-  ISortStateArgs,
-} from "./sorting";
-import {
-  IPaginationStateArgs,
-  ILocalPaginationDerivedStateArgs,
-  IPaginationPropHelpersExternalArgs,
-  IPaginationState,
-} from "./pagination";
-import {
-  IExpansionDerivedState,
-  IExpansionState,
-  IExpansionStateArgs,
-} from "./expansion";
+
 import {
   IActiveItemDerivedState,
   IActiveItemPropHelpersExternalArgs,
   IActiveItemState,
   IActiveItemStateArgs,
 } from "./active-item";
-import {
-  PaginationProps,
-  ToolbarItemProps,
-  ToolbarProps,
-} from "@patternfly/react-core";
-import { IFilterToolbarProps } from "@app/components/FilterToolbar";
-import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
 import { IColumnState } from "./column/useColumnState";
-import { ITToolbarBulkExpanderProps } from "@app/components/ToolbarBulkExpander";
+import {
+  IExpansionDerivedState,
+  IExpansionState,
+  IExpansionStateArgs,
+} from "./expansion";
+import { IExpansionPropHelpersExternalArgs } from "./expansion/useExpansionPropHelpers";
+import {
+  IFilterPropHelpersExternalArgs,
+  IFilterState,
+  IFilterStateArgs,
+  ILocalFilterDerivedStateArgs,
+} from "./filtering";
+import {
+  ILocalPaginationDerivedStateArgs,
+  IPaginationPropHelpersExternalArgs,
+  IPaginationState,
+  IPaginationStateArgs,
+} from "./pagination";
+import {
+  ILocalSortDerivedStateArgs,
+  ISortPropHelpersExternalArgs,
+  ISortState,
+  ISortStateArgs,
+} from "./sorting";
 
 // Generic type params used here:
 //   TItem - The actual API objects represented by rows in the table. Can be any object.

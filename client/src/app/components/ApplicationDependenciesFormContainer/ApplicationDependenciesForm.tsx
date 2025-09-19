@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   ActionGroup,
   Button,
@@ -10,21 +9,19 @@ import {
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Spinner,
   Text,
   TextContent,
 } from "@patternfly/react-core";
 
-import { OptionWithValue } from "@app/components/SimpleSelect";
-
 import { Application, ApplicationDependency } from "@app/api/models";
-
-import { SelectDependency } from "./SelectDependency";
+import { OptionWithValue } from "@app/components/SimpleSelect";
 import {
   useFetchApplicationDependencies,
   useFetchApplications,
 } from "@app/queries/applications";
 import { toRef } from "@app/utils/model-utils";
+
+import { SelectDependency } from "./SelectDependency";
 
 const northToStringFn = (value: ApplicationDependency) => value.from.name;
 const southToStringFn = (value: ApplicationDependency) => value.to.name;
@@ -46,13 +43,8 @@ export const ApplicationDependenciesForm: React.FC<
   ApplicationDependenciesFormProps
 > = ({ application, onCancel }) => {
   const { t } = useTranslation();
-  const {
-    northboundDependencies,
-    southboundDependencies,
-    isFetching,
-    fetchError,
-    refetch,
-  } = useFetchApplicationDependencies(application?.id);
+  const { northboundDependencies, southboundDependencies, isFetching } =
+    useFetchApplicationDependencies(application?.id);
   const [southSaveError, setSouthSaveError] = useState<null | string>(null);
   const [northSaveError, setNorthSaveError] = useState<null | string>(null);
 
@@ -61,11 +53,8 @@ export const ApplicationDependenciesForm: React.FC<
   const [southboundDependenciesOptions, setSouthboundDependenciesOptions] =
     useState<OptionWithValue<ApplicationDependency>[]>([]);
 
-  const {
-    data: applications,
-    isFetching: isFetchingApplications,
-    error: fetchErrorApplications,
-  } = useFetchApplications();
+  const { data: applications, isFetching: isFetchingApplications } =
+    useFetchApplications();
 
   useEffect(() => {
     if (northboundDependencies) {
@@ -85,11 +74,6 @@ export const ApplicationDependenciesForm: React.FC<
     }
   }, [application, southboundDependencies]);
 
-  const savingMsg = (
-    <div className="pf-v5-u-font-size-sm">
-      <Spinner size="sm" /> {`${t("message.savingSelection")}...`}
-    </div>
-  );
   const existingDependencyMappings = southboundDependenciesOptions
     .map((sbd) => sbd.value.to.id)
     .concat(northboundDependenciesOptions.map((nbd) => nbd.value.from.id));

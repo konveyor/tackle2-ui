@@ -14,12 +14,13 @@ import {
   ToolbarChip,
   ToolbarFilter,
 } from "@patternfly/react-core";
+import { TimesIcon } from "@patternfly/react-icons";
+
 import { IFilterControlProps } from "./FilterControl";
 import {
   FilterSelectOptionProps,
   IMultiselectFilterCategory,
 } from "./FilterToolbar";
-import { TimesIcon } from "@patternfly/react-icons";
 
 import "./select-overrides.css";
 

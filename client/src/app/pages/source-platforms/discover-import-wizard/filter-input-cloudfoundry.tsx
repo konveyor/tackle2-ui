@@ -147,7 +147,7 @@ export const FilterInputCloudFoundry: React.FC<
     mode: "all",
   });
 
-  const { control, subscribe } = form;
+  const { subscribe } = form;
 
   React.useEffect(() => {
     const subscription = subscribe({

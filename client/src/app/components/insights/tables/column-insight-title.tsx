@@ -1,5 +1,6 @@
-import { AnalysisInsight } from "@app/api/models";
 import React from "react";
+
+import { AnalysisInsight } from "@app/api/models";
 
 export const InsightTitleColumn: React.FC<{
   insight: Pick<AnalysisInsight, "description" | "name">;

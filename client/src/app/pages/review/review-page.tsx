@@ -1,6 +1,6 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import {
   Bullseye,
   Card,
@@ -16,17 +16,19 @@ import {
 import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
 
 import { Paths, ReviewRoute } from "@app/Paths";
-import { ReviewForm } from "./components/review-form";
-import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
-import { ConditionalRender } from "@app/components/ConditionalRender";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
 import { PageHeader } from "@app/components/PageHeader";
-import { useFetchReviewById } from "@app/queries/reviews";
+import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
-import { IdentifiedRisksTable } from "../reports/components/identified-risks-table";
+import { useFetchReviewById } from "@app/queries/reviews";
+
 import { ApplicationAssessmentDonutChart } from "../../components/application-assessment-donut-chart/application-assessment-donut-chart";
+import { IdentifiedRisksTable } from "../reports/components/identified-risks-table";
+
+import { ReviewForm } from "./components/review-form";
 
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();

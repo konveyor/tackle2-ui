@@ -1,43 +1,44 @@
 import * as React from "react";
-import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { UiAnalysisReportInsight } from "@app/api/models";
+import { HubRequestParams } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { FilterToolbar } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
+import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
 import {
   ConditionalTableBody,
-  TableRowContentWithControls,
   TableHeaderContentWithControls,
+  TableRowContentWithControls,
 } from "@app/components/TableControls";
 import {
   getHubRequestParams,
   useTableControlProps,
   useTableControlState,
 } from "@app/hooks/table-controls";
-import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
-import { UiAnalysisReportInsight } from "@app/api/models";
-import { HubRequestParams } from "@app/api/models";
 import { AnalysisQueryResults } from "@app/queries/analysis";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
-import { FilterToolbar } from "@app/components/FilterToolbar";
-import { SimplePagination } from "@app/components/SimplePagination";
 
-import { parseReportLabels } from "../helpers";
 import { AffectedAppsLink, InsightExpandedRowContent } from "../components";
-import {
-  useInsightsTableFilters,
-  InsightFilterGroups,
-} from "./use-insight-filters";
-import { useDynamicColumns, TableColumns } from "./use-dynamic-columns";
+import { parseReportLabels } from "../helpers";
+
 import { InsightTitleColumn } from "./column-insight-title";
-import { Paths } from "@app/Paths";
+import { TableColumns, useDynamicColumns } from "./use-dynamic-columns";
+import {
+  InsightFilterGroups,
+  useInsightsTableFilters,
+} from "./use-insight-filters";
 
 export interface IAllInsightsTableProps {
   tableAriaLabel?: string;

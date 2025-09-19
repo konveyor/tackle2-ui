@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import {
   ButtonVariant,
   PageSection,
@@ -14,17 +14,18 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Paths } from "@app/Paths";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { UiAnalysisReportApplicationInsight } from "@app/api/models";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { AllInsightsTable } from "@app/components/insights/tables/all-insights-table";
+import { SingleApplicationInsightsTable } from "@app/components/insights/tables/single-application-insights-table";
 import {
   useFetchReportAllInsights,
   useFetchReportApplicationInsights,
 } from "@app/queries/analysis";
-import { SingleApplicationInsightsTable } from "@app/components/insights/tables/single-application-insights-table";
+
 import { InsightDetailDrawer } from "./insight-detail-drawer";
-import { UiAnalysisReportApplicationInsight } from "@app/api/models";
 
 export type InsightsTabPath =
   | typeof Paths.insightsAllTab

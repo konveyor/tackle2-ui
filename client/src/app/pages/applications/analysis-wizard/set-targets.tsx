@@ -1,32 +1,33 @@
 import React, { useMemo } from "react";
+import { unique } from "radash";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
-  Title,
-  TextContent,
-  Text,
+  Alert,
+  Form,
   Gallery,
   GalleryItem,
-  Form,
-  Alert,
+  Text,
+  TextContent,
+  Title,
   Toolbar,
   ToolbarContent,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { useFormContext } from "react-hook-form";
 
-import { TargetCard } from "@app/components/target-card/target-card";
-import { AnalysisWizardFormValues } from "./schema";
-import { useFetchTargets } from "@app/queries/targets";
 import { Application, Target } from "@app/api/models";
-import { useFetchTagCategories } from "@app/queries/tags";
-import { updateSelectedTargetLabels, toggleSelectedTargets } from "./utils";
-import { unique } from "radash";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { StateError } from "@app/components/StateError";
+import { TargetCard } from "@app/components/target-card/target-card";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useSetting } from "@app/queries/settings";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { StateError } from "@app/components/StateError";
-import { universalComparator } from "@app/utils/utils";
+import { useFetchTagCategories } from "@app/queries/tags";
+import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
+import { universalComparator } from "@app/utils/utils";
+
+import { AnalysisWizardFormValues } from "./schema";
+import { toggleSelectedTargets, updateSelectedTargetLabels } from "./utils";
 
 interface SetTargetsProps {
   applications: Application[];

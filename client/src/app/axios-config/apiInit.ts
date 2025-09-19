@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import keycloak from "@app/keycloak";
 
 export const initInterceptors = () => {

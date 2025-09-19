@@ -1,8 +1,10 @@
 import React from "react";
+
 import { Application, Archetype } from "@app/api/models";
-import { useFetchQuestionnaires } from "@app/queries/questionnaires";
-import QuestionnairesTable from "./questionnaires-table";
 import { useFetchAssessmentsByItemId } from "@app/queries/assessments";
+import { useFetchQuestionnaires } from "@app/queries/questionnaires";
+
+import QuestionnairesTable from "./questionnaires-table";
 
 export interface AssessmentActionsTableProps {
   application?: Application;

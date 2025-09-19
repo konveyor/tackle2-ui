@@ -2,21 +2,22 @@
 // TODO these could use some unit tests!
 
 import { HubRequestParams } from "@app/api/models";
+
 import {
   IGetFilterHubRequestParamsArgs,
   getFilterHubRequestParams,
   serializeFilterRequestParamsForHub,
 } from "./filtering";
 import {
-  IGetSortHubRequestParamsArgs,
-  getSortHubRequestParams,
-  serializeSortRequestParamsForHub,
-} from "./sorting";
-import {
   IGetPaginationHubRequestParamsArgs,
   getPaginationHubRequestParams,
   serializePaginationRequestParamsForHub,
 } from "./pagination";
+import {
+  IGetSortHubRequestParamsArgs,
+  getSortHubRequestParams,
+  serializeSortRequestParamsForHub,
+} from "./sorting";
 
 // TODO move this outside this directory as part of decoupling Konveyor-specific code from table-controls.
 

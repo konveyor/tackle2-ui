@@ -1,26 +1,26 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { fork } from "radash";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
+  ActionGroup,
   Button,
+  DualListSelector,
+  Form,
   Modal,
   ModalVariant,
-  Form,
-  ActionGroup,
-  DualListSelector,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 
+import type { Archetype, Generator, TargetProfile } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import type { TargetProfile, Generator, Archetype } from "@app/api/models";
-import { refsToItems, toRefs } from "@app/utils/model-utils";
 import { useFetchGenerators } from "@app/queries/generators";
+import { refsToItems, toRefs } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
-import { fork } from "radash";
 
 interface TargetProfileFormValues {
   name: string;

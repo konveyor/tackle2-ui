@@ -1,22 +1,25 @@
 import React, { useRef } from "react";
 import {
-  Label,
-  LabelProps,
+  Divider,
   Flex,
   FlexItem,
+  Label,
+  LabelProps,
   Menu,
   MenuContent,
+  MenuGroup,
   MenuItem,
   MenuList,
   Popper,
-  Divider,
-  MenuGroup,
 } from "@patternfly/react-core";
-import { LabelToolip } from "../LabelTooltip";
+
 import { getString } from "@app/utils/utils";
-import { useAutocompleteHandlers } from "./useAutocompleteHandlers";
+
+import { LabelToolip } from "../LabelTooltip";
+
 import { SearchInputComponent } from "./SearchInput";
 import { AnyAutocompleteOptionProps, getUniqueId } from "./type-utils";
+import { useAutocompleteHandlers } from "./useAutocompleteHandlers";
 
 export interface AutocompleteOptionProps {
   /** id for the option */
@@ -44,7 +47,6 @@ export interface IAutocompleteProps {
   searchString?: string;
   searchInputAriaLabel?: string;
   labelColor?: LabelProps["color"];
-  menuHeader?: string;
   noResultsMessage?: string;
 }
 
@@ -60,7 +62,6 @@ export const Autocomplete: React.FC<IAutocompleteProps> = ({
   searchInputAriaLabel = "Search input",
   labelColor,
   selections = [],
-  menuHeader = "",
   noResultsMessage = "No results found",
 }) => {
   const menuRef = useRef<HTMLDivElement>(null);

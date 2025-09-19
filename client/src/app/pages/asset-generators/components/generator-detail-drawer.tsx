@@ -1,24 +1,26 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  TextContent,
-  Text,
-  Title,
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
-  Tabs,
   Tab,
   TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Generator } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
 import { RepositoryDetails } from "@app/components/detail-drawer/repository-details";
-import GeneratorCollectionTable from "./generator-collection-table";
+
 import { parametersToArray } from "../utils";
+
+import GeneratorCollectionTable from "./generator-collection-table";
 
 export interface IGeneratorDetailDrawerProps {
   onCloseClick: () => void;
@@ -137,12 +139,13 @@ const ValuesTab: React.FC<{ generator: Generator | null }> = ({
   );
 };
 
-const ParametersTab: React.FC<{ generator: Generator | null }> = ({
-  generator,
-}) => {
-  return (
-    <GeneratorCollectionTable
-      collection={parametersToArray(generator?.params || {}) || []}
-    />
-  );
-};
+// TODO: Restore with #2498
+// const ParametersTab: React.FC<{ generator: Generator | null }> = ({
+//   generator,
+// }) => {
+//   return (
+//     <GeneratorCollectionTable
+//       collection={parametersToArray(generator?.params || {}) || []}
+//     />
+//   );
+// };
