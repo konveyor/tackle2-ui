@@ -1,19 +1,18 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useForm, useWatch, UseFormReturn } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
+import { UseFormReturn, useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   Form,
-  TextContent,
-  Text,
-  PanelMainBody,
-  PanelMain,
-  Panel,
-  Popover,
   Icon,
+  Panel,
+  PanelMain,
+  PanelMainBody,
+  Popover,
   Radio,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 

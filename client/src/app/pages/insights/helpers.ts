@@ -1,9 +1,13 @@
 import { Location, LocationDescriptor } from "history";
+import { useTranslation } from "react-i18next";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
   AnalysisInsight,
-  UiAnalysisReportInsight,
-  UiAnalysisReportApplicationInsight,
   Archetype,
+  UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
 } from "@app/api/models";
 import {
   FilterCategory,
@@ -15,13 +19,10 @@ import {
   serializeFilterUrlParams,
 } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
-import { Paths } from "@app/Paths";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { useTranslation } from "react-i18next";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchApplications } from "@app/queries/applications";
 import { universalComparator } from "@app/utils/utils";
 
 // Certain filters are shared between the Insights page and the Affected Applications Page.

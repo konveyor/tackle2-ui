@@ -1,5 +1,5 @@
 import React from "react";
-import { LabelGroup, Label } from "@patternfly/react-core";
+import { Label, LabelGroup } from "@patternfly/react-core";
 
 import type { Archetype } from "@app/api/models";
 

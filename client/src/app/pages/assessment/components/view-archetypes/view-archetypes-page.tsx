@@ -1,22 +1,24 @@
 import React, { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
-  Text,
-  TextContent,
-  PageSection,
-  PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
+  PageSection,
+  PageSectionVariants,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
-import { Link, useParams } from "react-router-dom";
-import { ViewArchetypesRoute, Paths } from "@app/Paths";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import ViewArchetypesTable from "./components/view-archetypes-table";
-import { useFetchArchetypeById } from "@app/queries/archetypes";
-import { useFetchApplicationById } from "@app/queries/applications";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+
+import { Paths, ViewArchetypesRoute } from "@app/Paths";
 import { Ref } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useFetchApplicationById } from "@app/queries/applications";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { formatPath } from "@app/utils/utils";
+
+import ViewArchetypesTable from "./components/view-archetypes-table";
 
 const ViewArchetypes: React.FC = () => {
   const { applicationId, archetypeId } = useParams<ViewArchetypesRoute>();

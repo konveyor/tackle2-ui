@@ -1,16 +1,16 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { PageHeader } from "@app/components/PageHeader";
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";
+import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { PageHeader } from "@app/components/PageHeader";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
-import useIsArchetype from "@app/hooks/useIsArchetype";
-import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 
 export interface AssessmentPageHeaderProps {
   assessment?: Assessment;

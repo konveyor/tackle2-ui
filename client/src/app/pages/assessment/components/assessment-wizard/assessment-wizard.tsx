@@ -1,8 +1,11 @@
-import * as yup from "yup";
 import React, { useMemo, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { FieldErrors, FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 import {
   ButtonVariant,
   Wizard,
@@ -10,6 +13,7 @@ import {
   WizardStep,
 } from "@patternfly/react-core";
 
+import { Paths } from "@app/Paths";
 import {
   Assessment,
   AssessmentStatus,
@@ -19,34 +23,31 @@ import {
   Ref,
   SectionWithQuestionOrder,
 } from "@app/api/models";
-import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, getArchetypeById } from "@app/api/rest";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { QuestionnaireForm } from "../questionnaire-form";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import useIsArchetype from "@app/hooks/useIsArchetype";
+import {
+  assessmentsByItemIdQueryKey,
+  useDeleteAssessmentMutation,
+  useUpdateAssessmentMutation,
+} from "@app/queries/assessments";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
   getCommentFieldName,
   getQuestionFieldName,
 } from "../../form-utils";
-import { AxiosError } from "axios";
-import {
-  assessmentsByItemIdQueryKey,
-  useDeleteAssessmentMutation,
-  useUpdateAssessmentMutation,
-} from "@app/queries/assessments";
-import { useQueryClient } from "@tanstack/react-query";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
-import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AssessmentStakeholdersForm,
   combineAndGroupStakeholderRefs,
 } from "../assessment-stakeholders-form/assessment-stakeholders-form";
-import useIsArchetype from "@app/hooks/useIsArchetype";
+import { CustomWizardFooter } from "../custom-wizard-footer";
+import { QuestionnaireForm } from "../questionnaire-form";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -117,8 +118,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return comments;
   }, [assessment]);
 
-  const initialStakeholders = assessment?.stakeholders ?? [];
-  const initialStakeholderGroups = assessment?.stakeholderGroups ?? [];
   const initialQuestions = useMemo(() => {
     const questions: { [key: string]: string | undefined } = {};
     if (assessment) {

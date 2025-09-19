@@ -2,9 +2,9 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
+  DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  DescriptionListDescription,
 } from "@patternfly/react-core";
 
 import { Repository } from "@app/api/models";

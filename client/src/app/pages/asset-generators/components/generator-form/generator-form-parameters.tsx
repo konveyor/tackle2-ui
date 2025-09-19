@@ -1,10 +1,12 @@
 import React, { useRef, useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button, FormFieldGroupHeader, Label } from "@patternfly/react-core";
 import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+
 import { ControlledFormFieldGroupExpandable } from "@app/components/ControlledFormFieldGroupExpandable";
+
 import { KeyValueFields } from "./generator-fields-mapper";
-import { useFormContext, useWatch } from "react-hook-form";
 
 interface GeneratorFormParametersProps {}
 

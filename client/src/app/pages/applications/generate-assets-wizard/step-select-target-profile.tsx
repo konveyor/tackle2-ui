@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { TextContent, Text } from "@patternfly/react-core";
+import { Text, TextContent } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Archetype, TargetProfile } from "@app/api/models";
 import { intersection } from "@app/utils/utils";
+
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 export interface TargetProfileState {

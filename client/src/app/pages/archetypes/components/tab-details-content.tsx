@@ -13,12 +13,12 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Archetype, Ref, Tag, TagRef } from "@app/api/models";
-import { DrawerTabContent } from "@app/components/detail-drawer";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { RiskLabel } from "@app/components/RiskLabel";
+import { DrawerTabContent } from "@app/components/detail-drawer";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { LabelsFromTags } from "@app/components/labels/labels-from-tags/labels-from-tags";
 import { dedupeArrayOfObjects } from "@app/utils/utils";
-import { RiskLabel } from "@app/components/RiskLabel";
 
 import LinkToArchetypeApplications from "./link-to-archetype-applications";
 

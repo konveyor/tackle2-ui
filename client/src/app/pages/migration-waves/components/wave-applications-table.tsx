@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
   ActionsColumn,
@@ -9,15 +10,15 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+
+import { MigrationWave, WaveWithStatus } from "@app/api/models";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { MigrationWave, WaveWithStatus } from "@app/api/models";
-import { useTranslation } from "react-i18next";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { useFetchTickets } from "@app/queries/tickets";
 

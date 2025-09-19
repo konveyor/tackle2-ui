@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 import {
   AggregateTicketStatus,
   Application,
@@ -8,7 +10,6 @@ import {
   TicketStatus,
   WaveWithStatus,
 } from "@app/api/models";
-import dayjs from "dayjs";
 
 export const getWavesWithStatus = (
   waves: MigrationWave[],

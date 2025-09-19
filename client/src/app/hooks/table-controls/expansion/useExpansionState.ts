@@ -1,7 +1,8 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { objectKeys } from "@app/utils/utils";
-import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
+import { objectKeys } from "@app/utils/utils";
+
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 
 /**
  * A map of item ids (strings resolved from `item[idProperty]`) to either:
@@ -109,17 +110,17 @@ export const useExpansionState = <
           },
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? {
-          persistTo,
-          key: "expandedCells",
-        }
-      : isPersistenceProvider(persistTo)
-      ? {
-          persistTo: "provider",
-          serialize: persistTo.write,
-          deserialize: () => persistTo.read() as TExpandedCells<TColumnKey>,
-        }
-      : { persistTo: "state" }),
+        ? {
+            persistTo,
+            key: "expandedCells",
+          }
+        : isPersistenceProvider(persistTo)
+          ? {
+              persistTo: "provider",
+              serialize: persistTo.write,
+              deserialize: () => persistTo.read() as TExpandedCells<TColumnKey>,
+            }
+          : { persistTo: "state" }),
   });
   return { expandedCells, setExpandedCells };
 };

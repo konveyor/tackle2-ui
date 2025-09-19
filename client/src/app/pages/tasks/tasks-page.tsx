@@ -14,14 +14,21 @@ import {
 import {
   Table,
   Tbody,
+  Td,
   Th,
+  ThProps,
   Thead,
   Tr,
-  Td,
-  ThProps,
 } from "@patternfly/react-table";
 
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { Task, TaskState } from "@app/api/models";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -33,18 +40,11 @@ import {
   useTableControlProps,
   useTableControlState,
 } from "@app/hooks/table-controls";
-
-import { SimplePagination } from "@app/components/SimplePagination";
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-
 import { useServerTasks } from "@app/queries/tasks";
-import { Task, TaskState } from "@app/api/models";
 import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
+
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
+
 import { TaskActionColumn } from "./TaskActionColumn";
 
 export const taskStateToLabel: Record<TaskState, string> = {

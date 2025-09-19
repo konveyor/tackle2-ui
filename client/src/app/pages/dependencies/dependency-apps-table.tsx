@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Text,
   TextContent,
@@ -7,30 +8,30 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { AnalysisAppDependency, AnalysisDependency } from "@app/api/models";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-  deserializeFilterUrlParams,
-} from "@app/hooks/table-controls";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { AnalysisAppDependency, AnalysisDependency } from "@app/api/models";
+import { ExternalLink } from "@app/components/ExternalLink";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { ExternalLink } from "@app/components/ExternalLink";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { useFetchAppDependencies } from "@app/queries/dependencies";
+import {
+  deserializeFilterUrlParams,
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
+import { useFetchAppDependencies } from "@app/queries/dependencies";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { getParsedLabel } from "@app/utils/rules-utils";
 import { extractFirstSha } from "@app/utils/utils";
-import { useHistory } from "react-router-dom";
 
 export interface IDependencyAppsTableProps {
   dependency: AnalysisDependency;

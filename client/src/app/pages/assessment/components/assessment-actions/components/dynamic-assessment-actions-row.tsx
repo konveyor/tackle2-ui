@@ -1,3 +1,17 @@
+import React, { FunctionComponent } from "react";
+import {
+  useIsFetching,
+  useIsMutating,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
+import { Button, Spinner } from "@patternfly/react-core";
+import { TrashIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Td } from "@patternfly/react-table";
+
 import { Paths } from "@app/Paths";
 import {
   Application,
@@ -6,29 +20,17 @@ import {
   InitialAssessment,
   Questionnaire,
 } from "@app/api/models";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 import {
   addSectionOrderToQuestions,
   assessmentsByItemIdQueryKey,
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
-import { Button, Spinner } from "@patternfly/react-core";
-import React, { FunctionComponent } from "react";
-import { useHistory } from "react-router-dom";
-import "./dynamic-assessment-actions-row.css";
-import { AxiosError } from "axios";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { Td } from "@patternfly/react-table";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useTranslation } from "react-i18next";
-import {
-  useIsFetching,
-  useIsMutating,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { TrashIcon } from "@patternfly/react-icons";
-import useIsArchetype from "@app/hooks/useIsArchetype";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import "./dynamic-assessment-actions-row.css";
 
 enum AssessmentAction {
   Take = "Take",
@@ -98,11 +100,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
 
-  const { mutateAsync: deleteAssessmentAsync } = useDeleteAssessmentMutation(
-    onDeleteAssessmentSuccess,
-    onDeleteError
-  );
-
   const determineAction = React.useCallback(() => {
     if (!assessment) {
       return AssessmentAction.Take;
@@ -136,8 +133,8 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           ? { archetype: { name: archetype.name, id: archetype.id } }
           : {}
         : application
-        ? { application: { name: application.name, id: application.id } }
-        : {}),
+          ? { application: { name: application.name, id: application.id } }
+          : {}),
     };
 
     try {

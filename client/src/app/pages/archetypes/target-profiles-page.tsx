@@ -2,44 +2,44 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
+  Alert,
+  AlertVariant,
   Button,
   ButtonVariant,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Alert,
-  AlertVariant,
-  EmptyStateHeader,
-  EmptyStateBody,
-  EmptyState,
-  EmptyStateIcon,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import {
+  ActionsColumn,
   Table,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
-  Td,
-  ActionsColumn,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
 
+import { ArchetypeTargetProfilesRoute, Paths } from "@app/Paths";
+import type { TargetProfile } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-
-import type { TargetProfile } from "@app/api/models";
-import { useFetchArchetypeById } from "@app/queries/archetypes";
-import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
-import { ArchetypeTargetProfilesRoute, Paths } from "@app/Paths";
 import { PageHeader } from "@app/components/PageHeader";
-import TargetProfileForm from "./components/target-profile-form";
 import { ConditionalTableBody } from "@app/components/TableControls";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
+
+import TargetProfileForm from "./components/target-profile-form";
+import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const TargetProfilesPage: React.FC = () => {
   const { t } = useTranslation();

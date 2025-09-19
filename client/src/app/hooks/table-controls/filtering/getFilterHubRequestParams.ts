@@ -1,9 +1,10 @@
 import { HubFilter, HubRequestParams } from "@app/api/models";
-import { objectKeys } from "@app/utils/utils";
 import {
   FilterCategory,
   getFilterLogicOperator,
 } from "@app/components/FilterToolbar";
+import { objectKeys } from "@app/utils/utils";
+
 import { IFilterState } from "./useFilterState";
 
 /**
@@ -164,10 +165,10 @@ export const serializeFilterForHub = (filter: HubFilter): string => {
     typeof value === "string"
       ? wrapInQuotesAndEscape(value)
       : typeof value === "number"
-      ? `"${value}"`
-      : `(${value.list
-          .map(wrapInQuotesAndEscape)
-          .join(value.operator === "OR" ? "|" : ",")})`;
+        ? `"${value}"`
+        : `(${value.list
+            .map(wrapInQuotesAndEscape)
+            .join(value.operator === "OR" ? "|" : ",")})`;
   return `${field}${operator}${joinedValue}`;
 };
 

@@ -1,28 +1,30 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Button,
   Grid,
   GridItem,
   Modal,
   Tab,
   Tabs,
-  TextContent,
   Text,
-  Alert,
+  TextContent,
   Truncate,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { AnalysisInsight, AnalysisReportFile } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { StateError } from "@app/components/StateError";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { AnalysisReportFile, AnalysisInsight } from "@app/api/models";
-import { useFetchIncidentsForInsight } from "@app/queries/analysis";
-import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
-import { FileAllIncidentsTable } from "./file-all-incidents-table";
+import { StateError } from "@app/components/StateError";
 import { InsightDescriptionAndLinks } from "@app/components/insights/components";
+import { useFetchIncidentsForInsight } from "@app/queries/analysis";
+
 import { getInsightTitle } from "../helpers";
+
+import { FileAllIncidentsTable } from "./file-all-incidents-table";
+import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 
 export interface IFileIncidentsDetailModalProps {
   insight: AnalysisInsight;

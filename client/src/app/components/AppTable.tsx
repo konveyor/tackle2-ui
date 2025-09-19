@@ -1,18 +1,19 @@
 import React from "react";
-import { Bullseye, Spinner, Skeleton } from "@patternfly/react-core";
+import { Bullseye, Skeleton, Spinner } from "@patternfly/react-core";
 import { IRow } from "@patternfly/react-table";
 import {
   Table,
-  TableHeader,
   TableBody,
+  TableHeader,
   TableProps,
 } from "@patternfly/react-table/deprecated";
 
-import { StateNoData } from "./StateNoData";
-import { StateNoResults } from "./StateNoResults";
-import { StateError } from "./StateError";
 import { Application } from "@app/api/models";
 import { handlePropagatedRowClick } from "@app/hooks/table-controls";
+
+import { StateError } from "./StateError";
+import { StateNoData } from "./StateNoData";
+import { StateNoResults } from "./StateNoResults";
 import "./AppTable.css";
 
 const ENTITY_FIELD = "entity";

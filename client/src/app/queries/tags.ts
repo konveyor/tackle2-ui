@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 import {
+  createTag,
+  createTagCategory,
   deleteTag,
   deleteTagCategory,
-  getTags,
   getTagCategories,
-  createTag,
+  getTags,
   updateTag,
-  createTagCategory,
   updateTagCategory,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
 import { universalComparator } from "@app/utils/utils";
 
 export const TagsQueryKey = "tags";

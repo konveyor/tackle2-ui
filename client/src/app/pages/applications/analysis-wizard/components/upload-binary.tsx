@@ -1,4 +1,6 @@
 import * as React from "react";
+import { AxiosError } from "axios";
+import { useFormContext } from "react-hook-form";
 import {
   Alert,
   DropEvent,
@@ -7,18 +9,18 @@ import {
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import { useFormContext } from "react-hook-form";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { uploadLimit } from "@app/Constants";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useRemoveTaskgroupFileMutation,
   useUploadTaskgroupFileMutation,
 } from "@app/queries/taskgroups";
-import { AxiosError } from "axios";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { uploadLimit } from "@app/Constants";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+
 import { AnalysisWizardFormValues } from "../schema";
+
 import { useTaskGroup } from "./TaskGroupContext";
 
 const readFile = (file: File, onProgress: (percent: number) => void) => {

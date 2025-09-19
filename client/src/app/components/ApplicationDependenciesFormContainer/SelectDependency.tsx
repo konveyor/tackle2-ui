@@ -1,16 +1,15 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { AxiosError } from "axios";
-
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useTranslation } from "react-i18next";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { ApplicationDependency } from "@app/api/models";
-import { toRef } from "@app/utils/model-utils";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateApplicationDependency,
   useDeleteApplicationDependency,
 } from "@app/queries/applications";
+import { toRef } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 const isEqual = (

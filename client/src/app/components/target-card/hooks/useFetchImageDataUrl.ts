@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+
 import { Target } from "@app/api/models";
 import { FILES } from "@app/api/rest";
+import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 
 const useFetchImageDataUrl = (target: Target) => {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);

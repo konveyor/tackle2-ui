@@ -1,9 +1,10 @@
 import { PaginationProps } from "@patternfly/react-core";
+
 import {
   getLocalPaginationDerivedState,
-  usePaginationState,
   usePaginationEffects,
   usePaginationPropHelpers,
+  usePaginationState,
 } from "./table-controls";
 
 /**

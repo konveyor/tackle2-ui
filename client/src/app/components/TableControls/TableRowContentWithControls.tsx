@@ -1,7 +1,8 @@
 import React from "react";
 import { Td } from "@patternfly/react-table";
-import { ITableControls } from "@app/hooks/table-controls";
+
 import { BulkSelectionValues } from "@app/hooks/selection/useBulkSelection";
+import { ITableControls } from "@app/hooks/table-controls";
 
 export interface ITableRowContentWithControlsProps<
   TItem,

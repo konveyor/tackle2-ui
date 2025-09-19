@@ -5,6 +5,15 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import {
+  HubPaginatedResult,
+  HubRequestParams,
+  New,
+  Task,
+  TaskDashboard,
+  TaskQueue,
+} from "@app/api/models";
 import {
   cancelTask,
   cancelTasks,
@@ -20,15 +29,6 @@ import {
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
-import {
-  HubPaginatedResult,
-  HubRequestParams,
-  Task,
-  TaskQueue,
-  TaskDashboard,
-  New,
-} from "@app/api/models";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const TaskStates = {
   Canceled: ["Canceled"],

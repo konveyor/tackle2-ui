@@ -1,7 +1,8 @@
-import { Assessment, InitialAssessment } from "@app/api/models";
 import { rest } from "msw";
 
+import { Assessment, InitialAssessment } from "@app/api/models";
 import * as AppRest from "@app/api/rest";
+
 import { mockApplicationArray } from "./applications";
 import questionnaireData from "./questionnaireData";
 

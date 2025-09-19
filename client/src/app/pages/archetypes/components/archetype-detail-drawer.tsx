@@ -1,27 +1,27 @@
 import "./archetype-detail-drawer.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
-  TextContent,
-  Text,
-  Title,
-  Tabs,
   Tab,
   TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Archetype } from "@app/api/models";
 
+import { Archetype } from "@app/api/models";
 import { PageDrawerContent } from "@app/components/PageDrawerContext";
-import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 import {
   DrawerTabContent,
   DrawerTabsContainer,
   NoEntitySelected,
 } from "@app/components/detail-drawer";
-import { TabTargetProfiles } from "./tab-target-profiles";
+import { ReviewFields } from "@app/components/detail-drawer/review-fields";
+
 import { TabDetailsContent } from "./tab-details-content";
+import { TabTargetProfiles } from "./tab-target-profiles";
 
 export interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;

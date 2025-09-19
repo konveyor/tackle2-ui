@@ -1,12 +1,13 @@
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { objectKeys } from "@app/utils/utils";
-import { ITableControls, IUseTableControlPropsArgs } from "./types";
-import { useFilterPropHelpers } from "./filtering";
-import { useSortPropHelpers } from "./sorting";
-import { usePaginationPropHelpers } from "./pagination";
+
 import { useActiveItemPropHelpers } from "./active-item";
 import { useExpansionPropHelpers } from "./expansion";
+import { useFilterPropHelpers } from "./filtering";
+import { usePaginationPropHelpers } from "./pagination";
+import { useSortPropHelpers } from "./sorting";
+import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { handlePropagatedRowClick } from "./utils";
 
 /**

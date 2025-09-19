@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { Tracker } from "@app/api/models";
 import {
   createTracker,
   deleteTracker,
@@ -9,9 +11,8 @@ import {
   getTrackers,
   updateTracker,
 } from "@app/api/rest";
-import { Tracker } from "@app/api/models";
+
 import { TicketsQueryKey } from "./tickets";
-import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 
 export const TrackersQueryKey = "trackers";
 export const TrackerProjectsQueryKey = "trackerProjects";

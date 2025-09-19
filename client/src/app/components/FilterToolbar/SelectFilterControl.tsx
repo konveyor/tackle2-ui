@@ -8,9 +8,10 @@ import {
   ToolbarChip,
   ToolbarFilter,
 } from "@patternfly/react-core";
+import { css } from "@patternfly/react-styles";
+
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";
-import { css } from "@patternfly/react-styles";
 
 import "./select-overrides.css";
 

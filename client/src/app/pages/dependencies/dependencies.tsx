@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Label,
   LabelGroup,
@@ -10,27 +12,28 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-  deserializeFilterUrlParams,
-} from "@app/hooks/table-controls";
+
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import {
+  deserializeFilterUrlParams,
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
-import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import { getParsedLabel } from "@app/utils/rules-utils";
-import { useHistory } from "react-router-dom";
+
+import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
+
+import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();

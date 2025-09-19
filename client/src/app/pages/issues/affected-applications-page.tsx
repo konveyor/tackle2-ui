@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useLocation, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,31 +12,30 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { ConditionalRender } from "@app/components/ConditionalRender";
+import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-} from "@app/hooks/table-controls";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { FilterToolbar } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import {
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 import { useFetchReportIssueApps } from "@app/queries/analysis";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { FilterToolbar } from "@app/components/FilterToolbar";
+
 import {
   getBackToAllIssuesUrl,
   useSharedAffectedApplicationFilterCategories,
 } from "./helpers";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
 
 interface IAffectedApplicationsRouteParams {
   ruleset: string;

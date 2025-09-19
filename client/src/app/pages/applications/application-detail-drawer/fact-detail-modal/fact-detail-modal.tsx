@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Button, Modal } from "@patternfly/react-core";
-import { FactCodeSnipViewer } from "./fact-code-snip-viewer";
+
 import { Fact } from "@app/api/models";
+
+import { FactCodeSnipViewer } from "./fact-code-snip-viewer";
 
 export interface IFactDetailModalProps {
   fact: Fact;

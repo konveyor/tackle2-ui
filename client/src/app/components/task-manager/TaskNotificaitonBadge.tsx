@@ -1,5 +1,6 @@
 import React from "react";
 import { NotificationBadge } from "@patternfly/react-core";
+
 import { useTaskManagerContext } from "./TaskManagerContext";
 
 export const TaskNotificationBadge: React.FC = () => {

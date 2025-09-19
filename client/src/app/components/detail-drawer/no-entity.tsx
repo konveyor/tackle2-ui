@@ -3,11 +3,11 @@ import "./drawer-tabs-container.css";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  EmptyStateIcon,
+  EmptyState,
   EmptyStateBody,
   EmptyStateHeader,
+  EmptyStateIcon,
   EmptyStateVariant,
-  EmptyState,
 } from "@patternfly/react-core";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 

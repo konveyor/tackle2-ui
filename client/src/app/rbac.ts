@@ -1,6 +1,6 @@
-import { checkAccess } from "./utils/rbac-utils";
 import { isAuthRequired } from "./Constants";
 import keycloak from "./keycloak";
+import { checkAccess } from "./utils/rbac-utils";
 interface IRBACProps {
   allowedPermissions: string[];
   children: any;
