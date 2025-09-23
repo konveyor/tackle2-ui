@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -74,13 +74,11 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     return isArrayDifferent(selectedIds, initialApplicationUsedByMigrationIds);
   };
 
-  const onUpdateMigrationWaveSuccess = (
-    response: AxiosResponse<MigrationWave>
-  ) => {
+  const onUpdateMigrationWaveSuccess = (migrationWave: MigrationWave) => {
     pushNotification({
       title: t("toastr.success.saveWhat", {
-        what: response.data.name,
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });

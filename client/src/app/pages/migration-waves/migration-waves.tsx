@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -37,7 +37,6 @@ import {
 } from "@patternfly/react-table";
 
 import { MigrationWave, Ref, Ticket, WaveWithStatus } from "@app/api/models";
-import { deleteMigrationWave } from "@app/api/rest";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
@@ -107,20 +106,18 @@ export const MigrationWaves: React.FC = () => {
     React.useState<MigrationWave | null>(null);
   const closeWaveModal = () => setWaveModalState(null);
 
-  const [migrationWaveToDelete, setMigrationWaveToDelete] = React.useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [migrationWaveToDelete, setMigrationWaveToDelete] =
+    React.useState<MigrationWave | null>(null);
 
   const [migrationWavesToDelete, setMigrationWavesToDelete] = React.useState<
-    number[] | null
+    MigrationWave[] | null
   >(null);
 
-  const onDeleteWaveSuccess = (name: string) => {
+  const onDeleteWaveSuccess = (migrationWave: MigrationWave) => {
     pushNotification({
       title: t("toastr.success.deletedWhat", {
-        what: name,
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
@@ -138,10 +135,15 @@ export const MigrationWaves: React.FC = () => {
     onError
   );
 
-  const onDeleteAllMigrationWavesSuccess = () => {
+  const onDeleteAllMigrationWavesSuccess = (
+    migrationWaves: MigrationWave[]
+  ) => {
     pushNotification({
-      title: t("toastr.success.deletedAll", {
-        type: t("terms.migrationWave(s)"),
+      title: t("toastr.success.deletedWhat", {
+        count: migrationWaves.length,
+        type: t("terms.migrationWave", {
+          count: migrationWaves.length,
+        }).toLowerCase(),
       }),
       variant: "success",
     });
@@ -153,10 +155,11 @@ export const MigrationWaves: React.FC = () => {
       onError
     );
 
-  const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
+  const onUpdateMigrationWaveSuccess = (migrationWave: MigrationWave) =>
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
@@ -349,11 +352,7 @@ export const MigrationWaves: React.FC = () => {
                           key="bulk-delete"
                           isDisabled={selectedItems.length === 0}
                           onClick={() =>
-                            setMigrationWavesToDelete(
-                              selectedItems.map(
-                                (migrationWave) => migrationWave.id
-                              )
-                            )
+                            setMigrationWavesToDelete(selectedItems)
                           }
                         >
                           {t("actions.delete")}
@@ -557,10 +556,7 @@ export const MigrationWaves: React.FC = () => {
                             <DropdownItem
                               key="delete"
                               onClick={() =>
-                                setMigrationWaveToDelete({
-                                  id: migrationWave.id,
-                                  name: migrationWave.name,
-                                })
+                                setMigrationWaveToDelete(migrationWave)
                               }
                             >
                               {t("actions.delete")}
@@ -613,7 +609,13 @@ export const MigrationWaves: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+
       <Modal
+        key={
+          migrationWaveModalState === "create"
+            ? 0
+            : (migrationWaveToEdit?.id ?? -1)
+        }
         id="create-edit-migration-wave-modal"
         title={
           migrationWaveToEdit
@@ -633,6 +635,7 @@ export const MigrationWaves: React.FC = () => {
           onClose={closeWaveModal}
         />
       </Modal>
+
       {applicationsToExport !== null && (
         <Modal
           title={t("terms.exportToIssue")}
@@ -647,6 +650,7 @@ export const MigrationWaves: React.FC = () => {
           />
         </Modal>
       )}
+
       <Modal
         title={t("composed.manage", {
           what: t("terms.applications").toLowerCase(),
@@ -664,40 +668,24 @@ export const MigrationWaves: React.FC = () => {
           />
         )}
       </Modal>
-      <ConfirmDialog
-        title={
-          migrationWaveToDelete
-            ? t("dialog.title.deleteWithName", {
-                what: t("terms.migrationWave").toLowerCase(),
-                name: migrationWaveToDelete.name,
-              })
-            : t("dialog.title.delete", {
-                what: t("terms.migrationWave(s)").toLowerCase(),
-              })
-        }
-        isOpen={!!migrationWaveToDelete || !!migrationWavesToDelete}
-        titleIconVariant={"warning"}
-        message={t("dialog.message.delete")}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => {
-          setMigrationWaveToDelete(null);
-          setMigrationWavesToDelete(null);
-        }}
-        onClose={() => {
-          setMigrationWaveToDelete(null);
-          setMigrationWavesToDelete(null);
-        }}
+
+      <ConfirmDeleteSingleMigrationWave
+        migrationWaveToDelete={migrationWaveToDelete}
+        onCancel={() => setMigrationWaveToDelete(null)}
         onConfirm={() => {
           if (migrationWaveToDelete) {
             deleteWave(migrationWaveToDelete);
             setMigrationWaveToDelete(null);
           }
+        }}
+      />
+
+      <ConfirmDeleteMultipleMigrationWave
+        migrationWaves={migrationWavesToDelete}
+        onCancel={() => setMigrationWavesToDelete(null)}
+        onConfirm={() => {
           if (migrationWavesToDelete) {
-            deleteAllMigrationWaves(
-              migrationWavesToDelete.map((id) => deleteMigrationWave(id))
-            );
+            deleteAllMigrationWaves(migrationWavesToDelete);
             setMigrationWavesToDelete(null);
           }
         }}
@@ -713,3 +701,65 @@ const hasExportableApplications = (tickets: Ticket[], applicationRefs: Ref[]) =>
         ?.map((ticket) => ticket?.application?.id)
         .includes(applicationRef.id)
   );
+
+const ConfirmDeleteSingleMigrationWave: React.FC<{
+  migrationWaveToDelete: MigrationWave | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}> = ({ migrationWaveToDelete, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
+  if (!migrationWaveToDelete) {
+    return null;
+  }
+
+  return (
+    <ConfirmDialog
+      title={t("dialog.title.deleteWithName", {
+        what: t("terms.migrationWave").toLowerCase(),
+        name: migrationWaveToDelete.name,
+      })}
+      isOpen={true}
+      titleIconVariant={"warning"}
+      message={t("dialog.message.delete")}
+      confirmBtnVariant={ButtonVariant.danger}
+      confirmBtnLabel={t("actions.delete")}
+      cancelBtnLabel={t("actions.cancel")}
+      onCancel={() => onCancel()}
+      onClose={() => onCancel()}
+      onConfirm={() => onConfirm()}
+    />
+  );
+};
+
+const ConfirmDeleteMultipleMigrationWave: React.FC<{
+  migrationWaves: MigrationWave[] | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}> = ({ migrationWaves, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
+  if (!migrationWaves || migrationWaves.length === 0) {
+    return null;
+  }
+
+  return (
+    <ConfirmDialog
+      title={t("dialog.title.deleteMultiple", {
+        count: migrationWaves.length,
+        what: t("terms.migrationWave", {
+          count: migrationWaves.length,
+        }).toLowerCase(),
+      })}
+      isOpen={true}
+      titleIconVariant={"warning"}
+      message={t("dialog.message.delete")}
+      confirmBtnVariant={ButtonVariant.danger}
+      confirmBtnLabel={t("actions.delete")}
+      cancelBtnLabel={t("actions.cancel")}
+      onCancel={() => onCancel()}
+      onClose={() => onCancel()}
+      onConfirm={() => onConfirm()}
+    />
+  );
+};
