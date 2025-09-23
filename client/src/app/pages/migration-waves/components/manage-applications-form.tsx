@@ -135,7 +135,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         type: FilterType.select,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.buisnessService").toLowerCase(),
+            what: t("terms.businessService").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
           return item?.businessService?.name || "";
