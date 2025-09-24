@@ -25,7 +25,6 @@ import {
   InitialAssessment,
   JobFunction,
   JsonDocument,
-  MigrationWave,
   MimeType,
   New,
   Proxy,
@@ -81,7 +80,6 @@ export const IDENTITIES = hub`/identities`;
 export const IDENTITY = hub`/identities/{{id}}`;
 export const JOB_FUNCTIONS = hub`/jobfunctions`;
 export const MANIFESTS = hub`/manifests`;
-export const MIGRATION_WAVES = hub`/migrationwaves`;
 export const PLATFORMS = hub`/platforms`;
 export const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
@@ -120,6 +118,7 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 export * from "./rest/analysis";
 export * from "./rest/files";
 export * from "./rest/generators";
+export * from "./rest/migration-waves";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
 
@@ -406,31 +405,6 @@ export const removeFileTaskgroup = ({
   path: string;
 }) => {
   return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
-};
-
-// ---------------------------------------
-// Migration Waves
-//
-export const getMigrationWaves = (): Promise<MigrationWave[]> =>
-  axios.get(MIGRATION_WAVES).then((response) => response.data);
-
-export const createMigrationWave = (
-  obj: New<MigrationWave>
-): Promise<MigrationWave> => axios.post(MIGRATION_WAVES, obj);
-
-export const deleteMigrationWave = (id: number): Promise<MigrationWave> =>
-  axios.delete(`${MIGRATION_WAVES}/${id}`);
-
-export const updateMigrationWave = (
-  obj: MigrationWave
-): Promise<MigrationWave> => axios.put(`${MIGRATION_WAVES}/${obj.id}`, obj);
-
-export const deleteAllMigrationWaves = (
-  deletePromises: Promise<MigrationWave>[]
-) => {
-  return Promise.all(deletePromises)
-    .then((response) => response)
-    .catch((error) => error);
 };
 
 // ---------------------------------------
