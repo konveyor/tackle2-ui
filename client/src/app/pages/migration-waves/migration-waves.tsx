@@ -725,9 +725,9 @@ const ConfirmDeleteSingleMigrationWave: React.FC<{
       confirmBtnVariant={ButtonVariant.danger}
       confirmBtnLabel={t("actions.delete")}
       cancelBtnLabel={t("actions.cancel")}
-      onCancel={() => onCancel()}
-      onClose={() => onCancel()}
-      onConfirm={() => onConfirm()}
+      onCancel={onCancel}
+      onClose={onCancel}
+      onConfirm={onConfirm}
     />
   );
 };
@@ -757,9 +757,9 @@ const ConfirmDeleteMultipleMigrationWave: React.FC<{
       confirmBtnVariant={ButtonVariant.danger}
       confirmBtnLabel={t("actions.delete")}
       cancelBtnLabel={t("actions.cancel")}
-      onCancel={() => onCancel()}
-      onClose={() => onCancel()}
-      onConfirm={() => onConfirm()}
+      onCancel={onCancel}
+      onClose={onCancel}
+      onConfirm={onConfirm}
     />
   );
 };

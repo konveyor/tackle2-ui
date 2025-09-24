@@ -109,7 +109,10 @@ export const useDeleteAllMigrationWavesMutation = (
       onSuccess(deleted);
       queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
-    onError: onError,
+    onError: (error: AxiosError) => {
+      onError(error);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+    },
   });
 };
 
