@@ -346,6 +346,16 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const values = getValues();
 
+  const resetIdentityDataFields = React.useCallback(() => {
+    resetField("settings");
+    resetField("settingsFilename");
+    resetField("userCredentials");
+    resetField("user");
+    resetField("password");
+    resetField("key");
+    resetField("keyFilename");
+  }, [resetField]);
+
   return (
     <FormProvider {...methods}>
       <Form onSubmit={handleSubmit(onSubmit)}>
@@ -381,13 +391,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 const selectionValue =
                   selection as OptionWithValue<IdentityKind>;
                 onChange(selectionValue.value);
-                // So we don't retain the values from the wrong type of credential
-                resetField("user");
-                resetField("password");
-                resetField("settings");
-                resetField("settingsFilename");
-                resetField("key");
-                resetField("keyFilename");
+                resetIdentityDataFields();
               }}
             />
           )}
