@@ -347,13 +347,13 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
   const values = getValues();
 
   const resetIdentityDataFields = React.useCallback(() => {
-    resetField("settings");
-    resetField("settingsFilename");
-    resetField("userCredentials");
-    resetField("user");
-    resetField("password");
-    resetField("key");
-    resetField("keyFilename");
+    resetField("settings", { defaultValue: "" });
+    resetField("settingsFilename", { defaultValue: "" });
+    resetField("userCredentials", { defaultValue: undefined });
+    resetField("user", { defaultValue: "" });
+    resetField("password", { defaultValue: "" });
+    resetField("key", { defaultValue: "" });
+    resetField("keyFilename", { defaultValue: "" });
   }, [resetField]);
 
   return (

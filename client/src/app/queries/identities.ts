@@ -10,6 +10,7 @@ import {
   getIdentities,
   updateIdentity,
 } from "@app/api/rest";
+import ENV from "@app/env";
 
 export const IdentitiesQueryKey = "identities";
 
@@ -62,7 +63,11 @@ export const useFetchIdentities = (
   const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
     queryFn: getIdentities,
-    onError: (error) => console.log("error, ", error),
+    onError: (error) => {
+      if (ENV.NODE_ENV !== "production") {
+        console.log("error", error);
+      }
+    },
     refetchInterval,
     enabled,
   });
