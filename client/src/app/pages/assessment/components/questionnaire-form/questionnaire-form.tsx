@@ -15,6 +15,7 @@ import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 import { SectionWithQuestionOrder } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
 import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+import { useWithUiId } from "@app/utils/query-utils";
 
 import { getCommentFieldName } from "../../form-utils";
 
@@ -45,6 +46,11 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
     return section.questions.sort((a, b) => a.order - b.order);
   }, [section]);
 
+  const questionsWithUiId = useWithUiId(
+    sortedQuestions,
+    (question) => `${section.name}-${question.order || "no-order"}`
+  );
+
   // Comments
 
   const commentFieldName = getCommentFieldName(section, true);
@@ -56,12 +62,9 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           <Text component="h1">{section.name}</Text>
         </TextContent>
       </StackItem>
-      {sortedQuestions.map((question, i) => {
-        const questionUniqueKey = `${section.name}-${
-          question.order || "no-order"
-        }-${question.text || "no-text"}-${i}`;
+      {questionsWithUiId.map((question) => {
         return (
-          <StackItem key={questionUniqueKey}>
+          <StackItem key={question._ui_unique_id}>
             <Question cy-data="question">
               <QuestionHeader>
                 <Split hasGutter>
@@ -82,7 +85,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
               </QuestionHeader>
               <QuestionBody>
                 <MultiInputSelection
-                  key={questionUniqueKey}
+                  key={question._ui_unique_id}
                   question={question}
                 />
               </QuestionBody>
