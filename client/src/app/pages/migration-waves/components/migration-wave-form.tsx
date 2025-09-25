@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useRef } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -77,13 +77,11 @@ export const WaveForm: React.FC<WaveFormProps> = ({
   const { stakeholders } = useFetchStakeholders();
   const { stakeholderGroups } = useFetchStakeholderGroups();
 
-  const onCreateMigrationWaveSuccess = (
-    response: AxiosResponse<MigrationWave>
-  ) => {
+  const onCreateMigrationWaveSuccess = (newMigrationWave: MigrationWave) => {
     pushNotification({
       title: t("toastr.success.createWhat", {
-        what: response.data.name,
         type: t("terms.migrationWave"),
+        what: newMigrationWave.name,
       }),
       variant: "success",
     });
@@ -109,10 +107,11 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     onCreateMigrationWaveError
   );
 
-  const onUpdateMigrationWaveSuccess = () => {
+  const onUpdateMigrationWaveSuccess = (migrationWave: MigrationWave) => {
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
