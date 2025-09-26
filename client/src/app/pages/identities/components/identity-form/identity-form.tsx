@@ -346,7 +346,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
 
   const values = getValues();
 
-  const resetIdentityDataFields = React.useCallback(() => {
+  const clearIdentityDataFields = React.useCallback(() => {
     resetField("settings", { defaultValue: "" });
     resetField("settingsFilename", { defaultValue: "" });
     resetField("userCredentials", { defaultValue: undefined });
@@ -391,7 +391,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
                 const selectionValue =
                   selection as OptionWithValue<IdentityKind>;
                 onChange(selectionValue.value);
-                resetIdentityDataFields();
+                clearIdentityDataFields();
               }}
             />
           )}
