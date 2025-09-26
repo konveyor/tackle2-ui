@@ -10,7 +10,6 @@ import {
   New,
 } from "@app/api/models";
 import {
-  APPLICATIONS,
   HEADERS,
   createApplication,
   createApplicationDependency,
@@ -21,6 +20,7 @@ import {
   getApplicationDependencies,
   getApplicationManifest,
   getApplications,
+  hub,
   updateApplication,
 } from "@app/api/rest";
 
@@ -235,15 +235,15 @@ const downloadStaticReport = async ({
   application,
   mimeType,
 }: DownloadOptions): Promise<void> => {
-  let url = `${APPLICATIONS}/${application.id}/analysis/report`;
+  let url = hub`/applications/${application.id}/analysis/report`;
 
   switch (mimeType) {
     case MimeType.YAML:
-      url = `${APPLICATIONS}/${application.id}/analysis`;
+      url = hub`/applications/${application.id}/analysis`;
       break;
     case MimeType.TAR:
     default:
-      url = `${APPLICATIONS}/${application.id}/analysis/report`;
+      url = hub`/applications/${application.id}/analysis/report`;
   }
 
   try {
