@@ -8,24 +8,13 @@ import { template } from "radash";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 import {
-  AnalysisAppDependency,
-  AnalysisDependency,
-  Application,
   ApplicationAdoptionPlan,
-  ApplicationDependency,
   ApplicationImport,
   ApplicationImportSummary,
-  Archetype,
   Assessment,
-  BusinessService,
-  Cache,
   HubPaginatedResult,
   HubRequestParams,
-  Identity,
   InitialAssessment,
-  JobFunction,
-  JsonDocument,
-  MimeType,
   New,
   Proxy,
   Questionnaire,
@@ -33,7 +22,6 @@ import {
   Review,
   Setting,
   SettingTypes,
-  SourcePlatform,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -47,7 +35,6 @@ import {
   UnstructuredFact,
 } from "./models";
 
-// endpoint paths
 export { template };
 export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
   let path = "";
@@ -61,26 +48,14 @@ export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
   return `/hub${path}`;
 }
 
-export const ANALYSIS_DEPS = hub`/analyses/report/dependencies`;
-export const ANALYSIS_DEPS_APPS = hub`/analyses/report/dependencies/applications`;
 export const APP_IMPORTS = hub`/imports`;
 export const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
 export const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
 export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
-export const APPLICATION_MANIFEST = hub`/applications/{{id}}/manifest`;
-export const APPLICATIONS = hub`/applications`;
-export const ARCHETYPES = hub`/archetypes`;
 export const ASSESSMENTS = hub`/assessments`;
-export const BUSINESS_SERVICES = hub`/businessservices`;
-export const CACHE = hub`/cache/m2`;
-export const DEPENDENCIES = hub`/dependencies`;
 export const FACTS = hub`/facts`;
 export const FILES = hub`/files`;
-export const IDENTITIES = hub`/identities`;
-export const IDENTITY = hub`/identities/{{id}}`;
-export const JOB_FUNCTIONS = hub`/jobfunctions`;
 export const MANIFESTS = hub`/manifests`;
-export const PLATFORMS = hub`/platforms`;
 export const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
 export const REPORT = hub`/reports`;
@@ -116,9 +91,17 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 };
 
 export * from "./rest/analysis";
+export * from "./rest/application-dependencies";
+export * from "./rest/applications";
+export * from "./rest/archetypes";
+export * from "./rest/business-services";
+export * from "./rest/cache";
 export * from "./rest/files";
 export * from "./rest/generators";
+export * from "./rest/identities";
+export * from "./rest/job-functions";
 export * from "./rest/migration-waves";
+export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
 
@@ -141,6 +124,20 @@ export const getHubPaginatedResult = <T>(
     }));
 
 // ----------
+// TODO: These rest functions are being used, but the return types are not consistent
+//       or are wrong. All functions that are correct have been moved to appropriate
+//       files under the rest folder.
+//
+//       The general pattern to follow is:
+//         GET returns code 200 with `Entity` or `Entity[]`
+//         POST takes a `New<Entity>` and returns code 201 with the created `Entity`
+//         PUT takes an Entity and returns code 204 with no content (void)
+//         DELETE takes an id and returns code 204 with no content (void)
+//
+//       Each function set should be reviewed, updated, and moved to the appropriate
+//       file under the rest folder.  Typically the query hooks and onSuccess/onError
+//       handlers will need to be updated.
+// ----------
 
 export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
   return axios.post<ApplicationAdoptionPlan[]>(
@@ -148,41 +145,6 @@ export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
     applicationIds.map((f) => ({ applicationId: f }))
   );
 };
-
-// ---------------------------------------
-// Application Dependencies
-//
-interface DependencyParams {
-  from?: string[];
-  to?: string[];
-}
-
-export const getApplicationDependencies = (params?: DependencyParams) => {
-  return axios
-    .get<ApplicationDependency[]>(`${DEPENDENCIES}`, {
-      params,
-      headers: HEADERS.json,
-    })
-    .then((response) => response.data);
-};
-
-export const createApplicationDependency = (obj: ApplicationDependency) => {
-  return axios
-    .post<ApplicationDependency>(`${DEPENDENCIES}`, obj)
-    .then((response) => response.data);
-};
-
-export const deleteApplicationDependency = (id: number) => {
-  return axios
-    .delete<void>(`${DEPENDENCIES}/${id}`)
-    .then((response) => response.data);
-};
-
-export const getDependencies = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisDependency>(ANALYSIS_DEPS, params);
-
-export const getAppDependencies = (params: HubRequestParams = {}) =>
-  getHubPaginatedResult<AnalysisAppDependency>(ANALYSIS_DEPS_APPS, params);
 
 // ---------------------------------------
 // Reviews
@@ -220,11 +182,11 @@ export const getAssessmentsByItemId = (
   if (!itemId) return Promise.resolve([]);
   if (isArchetype) {
     return axios
-      .get(`${ARCHETYPES}/${itemId}/assessments`)
+      .get(hub`/archetypes/${itemId}/assessments`)
       .then((response) => response.data);
   } else {
     return axios
-      .get(`${APPLICATIONS}/${itemId}/assessments`)
+      .get(hub`/applications/${itemId}/assessments`)
       .then((response) => response.data);
   }
 };
@@ -235,11 +197,11 @@ export const createAssessment = (
 ): Promise<Assessment> => {
   if (isArchetype) {
     return axios
-      .post(`${ARCHETYPES}/${obj?.archetype?.id}/assessments`, obj)
+      .post(hub`/archetypes/${obj?.archetype?.id}/assessments`, obj)
       .then((response) => response.data);
   } else {
     return axios
-      .post(`${APPLICATIONS}/${obj?.application?.id}/assessments`, obj)
+      .post(hub`/applications/${obj?.application?.id}/assessments`, obj)
       .then((response) => response.data);
   }
 };
@@ -257,77 +219,6 @@ export const getAssessmentById = (id: number | string): Promise<Assessment> => {
 export const deleteAssessment = (id: number) => {
   return axios.delete<void>(`${ASSESSMENTS}/${id}`);
 };
-
-// ---------------------------------------
-// Identities
-//
-export const getIdentities = () => {
-  return axios
-    .get<Identity[]>(IDENTITIES, { headers: HEADERS.json })
-    .then((response) => response.data);
-};
-
-export const createIdentity = (identity: New<Identity>) => {
-  return axios
-    .post<Identity>(IDENTITIES, identity)
-    .then((response) => response.data);
-};
-
-export const updateIdentity = (identity: Identity) => {
-  return axios.put<void>(template(IDENTITY, { id: identity.id }), identity);
-};
-
-export const deleteIdentity = (identity: Identity) => {
-  return axios.delete<void>(template(IDENTITY, { id: identity.id }));
-};
-
-// ---------------------------------------
-// Applications
-//
-
-export const createApplication = (application: New<Application>) =>
-  axios
-    .post<Application>(`${APPLICATIONS}`, application)
-    .then((response) => response.data);
-
-export const deleteApplication = (id: number) =>
-  axios.delete<void>(`${APPLICATIONS}/${id}`);
-
-export const deleteBulkApplications = (ids: number[]) =>
-  axios.delete<void>(APPLICATIONS, { data: ids });
-
-export const getApplicationById = (id: number | string) =>
-  axios
-    .get<Application>(`${APPLICATIONS}/${id}`)
-    .then((response) => response.data);
-
-export const getApplicationManifest = (applicationId: number | string) =>
-  axios
-    .get<JsonDocument>(template(APPLICATION_MANIFEST, { id: applicationId }))
-    .then((response) => response.data);
-
-export const getApplications = () =>
-  axios.get<Application[]>(APPLICATIONS).then((response) => response.data);
-
-export const updateApplication = (obj: Application) =>
-  axios.put<void>(`${APPLICATIONS}/${obj.id}`, obj);
-
-/** @deprecated Not used */
-export const getApplicationAnalysis = (
-  applicationId: number,
-  type: MimeType
-): Promise<Blob> =>
-  axios.get(
-    `${APPLICATIONS}/${String(applicationId)}/analysis${
-      type === MimeType.TAR ? "/report" : ""
-    }`,
-    {
-      responseType: "blob",
-      headers: {
-        Accept: `application/x-${type}`,
-      },
-    }
-  );
 
 // ---------------------------------------
 // Application Import
@@ -440,14 +331,6 @@ export const updateSetting = <K extends keyof SettingTypes>(
   );
 
 // ---------------------------------------
-// Cache
-//
-export const getCache = () =>
-  axios.get<Cache>(CACHE).then((response) => response.data);
-
-export const deleteCache = () => axios.delete<void>(CACHE);
-
-// ---------------------------------------
 // Trackers
 //
 export const getTrackers = (): Promise<Tracker[]> =>
@@ -534,43 +417,6 @@ export const updateStakeholderGroup = (
   axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
 
 // ---------------------------------------
-// Business services
-//
-export const getBusinessServices = () =>
-  axios
-    .get<BusinessService[]>(BUSINESS_SERVICES)
-    .then((response) => response.data);
-
-export const getBusinessServiceById = (id: number | string) =>
-  axios
-    .get<BusinessService>(`${BUSINESS_SERVICES}/${id}`)
-    .then((response) => response.data);
-
-export const createBusinessService = (obj: New<BusinessService>) =>
-  axios.post<BusinessService>(BUSINESS_SERVICES, obj);
-
-export const updateBusinessService = (obj: BusinessService) =>
-  axios.put<void>(`${BUSINESS_SERVICES}/${obj.id}`, obj);
-
-export const deleteBusinessService = (id: number | string) =>
-  axios.delete<void>(`${BUSINESS_SERVICES}/${id}`);
-
-// ---------------------------------------
-// Job functions
-//
-export const getJobFunctions = () =>
-  axios.get<JobFunction[]>(JOB_FUNCTIONS).then((response) => response.data);
-
-export const createJobFunction = (obj: New<JobFunction>) =>
-  axios.post<JobFunction>(JOB_FUNCTIONS, obj).then((response) => response.data);
-
-export const updateJobFunction = (obj: JobFunction) =>
-  axios.put<void>(`${JOB_FUNCTIONS}/${obj.id}`, obj);
-
-export const deleteJobFunction = (id: number) =>
-  axios.delete<void>(`${JOB_FUNCTIONS}/${id}`);
-
-// ---------------------------------------
 // Tags
 //
 export const getTags = (): Promise<Tag[]> =>
@@ -613,7 +459,7 @@ export const getFacts = (id: number | string | undefined) =>
   // TODO: Address this when moving to structured facts api
   id
     ? axios
-        .get<UnstructuredFact>(`${APPLICATIONS}/${id}/facts`)
+        .get<UnstructuredFact>(hub`/applications/${id}/facts`)
         .then((response) => response.data)
     : Promise.reject();
 
@@ -640,55 +486,9 @@ export const createQuestionnaire = (
 ): Promise<Questionnaire> =>
   axios.post(`${QUESTIONNAIRES}`, obj).then((response) => response.data);
 
-// TODO: The update handlers in hub don't return any content (success is a response code
-// TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const updateQuestionnaire = (
   obj: Questionnaire
 ): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
 
-// TODO: The delete handlers in hub don't return any content (success is a response code
-// TODO:  of 204 - NoContext) ... the return type does not make sense.
 export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
   axios.delete(`${QUESTIONNAIRES}/${id}`);
-
-// ---------------------------------------
-// Archetypes
-//
-export const getArchetypes = (): Promise<Archetype[]> =>
-  axios.get(ARCHETYPES).then(({ data }) => data);
-
-export const getArchetypeById = (id: number | string): Promise<Archetype> =>
-  axios.get(`${ARCHETYPES}/${id}`).then(({ data }) => data);
-
-// success with code 201 and created entity as response data
-export const createArchetype = (archetype: New<Archetype>) =>
-  axios.post<Archetype>(ARCHETYPES, archetype).then((res) => res.data);
-
-// success with code 204 and therefore no response content
-export const updateArchetype = (archetype: Archetype): Promise<void> =>
-  axios.put(`${ARCHETYPES}/${archetype.id}`, archetype);
-
-// success with code 204 and therefore no response content
-export const deleteArchetype = (id: number): Promise<void> =>
-  axios.delete(`${ARCHETYPES}/${id}`);
-
-// ---------------------------------------
-// Platforms
-//
-export const getPlatforms = () =>
-  axios.get<SourcePlatform[]>(PLATFORMS).then(({ data }) => data);
-
-export const getPlatformById = (id: number | string) =>
-  axios.get<SourcePlatform>(`${PLATFORMS}/${id}`).then(({ data }) => data);
-
-// success with code 201 and created entity as response data
-export const createPlatform = (platform: New<SourcePlatform>) =>
-  axios.post<SourcePlatform>(PLATFORMS, platform).then((res) => res.data);
-
-// success with code 204 and therefore no response content
-export const updatePlatform = (platform: SourcePlatform) =>
-  axios.put<void>(`${PLATFORMS}/${platform.id}`, platform);
-
-// success with code 204 and therefore no response content
-export const deletePlatform = (id: number) =>
-  axios.delete<void>(`${PLATFORMS}/${id}`);

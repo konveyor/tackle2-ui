@@ -1,7 +1,7 @@
 import { rest } from "msw";
 
 import { Assessment, InitialAssessment } from "@app/api/models";
-import * as AppRest from "@app/api/rest";
+import { hub } from "@app/api/rest";
 
 import { mockApplicationArray } from "./applications";
 import questionnaireData from "./questionnaireData";
@@ -198,30 +198,27 @@ const mockAssessmentArray: Assessment[] = [
 ];
 
 export const handlers = [
-  rest.get(AppRest.QUESTIONNAIRES, (req, res, ctx) => {
+  rest.get(hub`/questionnaires`, (req, res, ctx) => {
     return res(ctx.json(questionnaireData));
   }),
 
-  rest.get(AppRest.ASSESSMENTS, (req, res, ctx) => {
+  rest.get(hub`/assessments`, (req, res, ctx) => {
     return res(ctx.json(mockAssessmentArray));
   }),
 
-  rest.get(
-    `${AppRest.APPLICATIONS}/:applicationId/assessments`,
-    (req, res, ctx) => {
-      // Extract the applicationId from the route parameters
-      const applicationId = parseInt(req?.params?.applicationId as string, 10);
+  rest.get(hub`/applications/:applicationId/assessments`, (req, res, ctx) => {
+    // Extract the applicationId from the route parameters
+    const applicationId = parseInt(req?.params?.applicationId as string, 10);
 
-      // Filter the mock assessments based on the applicationId
-      const filteredAssessments = mockAssessmentArray.filter(
-        (assessment) => assessment?.application?.id === applicationId
-      );
+    // Filter the mock assessments based on the applicationId
+    const filteredAssessments = mockAssessmentArray.filter(
+      (assessment) => assessment?.application?.id === applicationId
+    );
 
-      return res(ctx.json(filteredAssessments));
-    }
-  ),
+    return res(ctx.json(filteredAssessments));
+  }),
 
-  rest.get(`${AppRest.ASSESSMENTS}/:assessmentId`, (req, res, ctx) => {
+  rest.get(hub`/assessments/:assessmentId`, (req, res, ctx) => {
     const { assessmentId } = req.params;
 
     const foundAssessment = mockAssessmentArray.find(
@@ -235,7 +232,7 @@ export const handlers = [
     }
   }),
   //TODO Finish updating mocks
-  rest.post(`${AppRest.ARCHETYPES}/`, async (req, res, ctx) => {
+  rest.post(hub`/assessments`, async (req, res, ctx) => {
     console.log("req need to find questionnaire id", req);
 
     const initialAssessment: InitialAssessment = await req.json();
@@ -280,7 +277,7 @@ export const handlers = [
 
     return res(ctx.json(newAssessment), ctx.status(201));
   }),
-  rest.patch(`${AppRest.ASSESSMENTS}/:assessmentId`, async (req, res, ctx) => {
+  rest.patch(hub`/assessments/:assessmentId`, async (req, res, ctx) => {
     const { assessmentId } = req.params;
     const updatedData = await req.json();
 
@@ -312,7 +309,7 @@ export const handlers = [
       return res(ctx.status(404), ctx.json({ error: "Assessment not found" }));
     }
   }),
-  rest.delete(`${AppRest.ASSESSMENTS}/:assessmentId`, (req, res, ctx) => {
+  rest.delete(hub`/assessments/:assessmentId`, (req, res, ctx) => {
     const { assessmentId } = req.params;
 
     const foundIndex = mockAssessmentArray.findIndex(
