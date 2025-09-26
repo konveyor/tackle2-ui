@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
   Modal,
   ModalVariant,
   Wizard,
@@ -16,6 +15,7 @@ import { universalComparator } from "@app/utils/utils";
 import { FilterInput } from "./filter-input";
 import { Results } from "./results";
 import { Review } from "./review";
+import { SelectPlatform } from "./select-platform";
 import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
 import { useWizardReducer } from "./useWizardReducer";
 
@@ -50,8 +50,10 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTask } = useStartPlatformApplicationImport();
-  const { state, setFilters, setResults, reset } = useWizardReducer();
+  const { state, setPlatform, setFilters, setResults, reset } =
+    useWizardReducer({ platform });
   const { results, filters } = state;
+  const [selectPlatform] = React.useState<boolean>(!platform);
 
   const handleCancel = () => {
     reset();
@@ -89,26 +91,6 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
     }
   };
 
-  if (!platform) {
-    return (
-      <Modal
-        variant={ModalVariant.medium}
-        title={t("dialog.title.discoverApplications")}
-        isOpen={isOpen}
-        onClose={handleCancel}
-        footer={
-          <Button variant="primary" onClick={handleCancel}>
-            {t("actions.close")}
-          </Button>
-        }
-      >
-        <div style={{ padding: "20px" }}>
-          <p>{t("platformDiscoverWizard.noPlatformSelected")}</p>
-        </div>
-      </Modal>
-    );
-  }
-
   return (
     <Modal
       variant={ModalVariant.large}
@@ -129,25 +111,46 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         }
         isVisitRequired
       >
+        {selectPlatform ? (
+          <WizardStep
+            id="platform"
+            name={t("platformDiscoverWizard.platformSelect.stepTitle")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: state.platform === null,
+            }}
+          >
+            <SelectPlatform
+              platform={state.platform}
+              onPlatformSelected={setPlatform}
+            />
+          </WizardStep>
+        ) : null}
+
         <WizardStep
           id="filter-input"
           name={t("platformDiscoverWizard.filterInput.stepTitle")}
+          isDisabled={!state.platform}
           footer={{
             nextButtonText: t("actions.next"),
             backButtonText: t("actions.back"),
             isNextDisabled: !filters.isValid,
           }}
         >
-          <FilterInput
-            platform={platform}
-            onFiltersChanged={setFilters}
-            initialFilters={filters}
-          />
+          {state.platform ? (
+            <FilterInput
+              platform={state.platform}
+              onFiltersChanged={setFilters}
+              initialFilters={filters}
+            />
+          ) : null}
         </WizardStep>
 
         <WizardStep
           id="review"
           name={t("platformDiscoverWizard.review.stepTitle")}
+          isDisabled={!state.platform || !state.filters.isValid}
           footer={{
             nextButtonText: results
               ? t("actions.close")
@@ -159,11 +162,13 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             onNext: results ? handleCancel : onSubmitTask,
           }}
         >
-          {!results ? (
-            <Review platform={platform} filters={filters} />
-          ) : (
-            <Results results={results} />
-          )}
+          {state.platform ? (
+            !results ? (
+              <Review platform={state.platform} filters={filters} />
+            ) : (
+              <Results results={results} />
+            )
+          ) : null}
         </WizardStep>
       </Wizard>
     </Modal>

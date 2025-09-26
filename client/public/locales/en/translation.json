@@ -749,11 +749,16 @@
   },
   "platformDiscoverWizard": {
     "title": "Discover Applications",
-    "description": "Discover and import applications from the selected platform.",
+    "description": "Discover and import applications from a source platform.",
     "noPlatformSelected": "No platform selected for discovery.",
     "toast": {
       "submittedOk": "Platform application discovery task submitted",
       "submittedFailed": "Platform application discovery task failed"
+    },
+    "platformSelect": {
+      "stepTitle": "Platform",
+      "title": "Select a platform",
+      "description": "Select a platform to access for application discovery and import."
     },
     "filterInput": {
       "stepTitle": "Filters",
