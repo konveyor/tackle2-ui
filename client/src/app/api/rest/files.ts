@@ -3,7 +3,7 @@ import axios, { AxiosProgressEvent } from "axios";
 import { HubFile } from "../models";
 import { HEADERS, hub, template } from "../rest";
 
-export const FILE = hub`/files/{{id}}`;
+const FILE = hub`/files/{{id}}`;
 
 export const createFile = (
   { file }: { file: File },
