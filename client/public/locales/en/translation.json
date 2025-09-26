@@ -197,6 +197,13 @@
     "medium": "Medium",
     "small": "Small"
   },
+  "identityKind": {
+    "source": "Source Control",
+    "maven": "Maven Settings File",
+    "proxy": "Proxy",
+    "basic-auth": "Basic Auth (Jira)",
+    "bearer": "Bearer Token (Jira)"
+  },
   "message": {
     "affectedAppEffortTooltip": "This column shows the calculated effort for all incidents related to this file.",
     "applicationEffortTooltip": "This column shows the total application effort.",
