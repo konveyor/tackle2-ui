@@ -253,7 +253,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
           <HookFormPFGroupController
             control={control}
             name="kind"
-            label="Repository type"
+            label={t("terms.repositoryType")}
             fieldId="repository-type-select"
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
@@ -271,6 +271,18 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 }}
               />
             )}
+            labelIcon={
+              <Popover
+                position={PopoverPosition.top}
+                aria-label="More information for source repository type"
+                bodyContent={t("tooltip.repositoryType")}
+                className="popover"
+              >
+                <span className="pf-v5-c-icon pf-m-info">
+                  <QuestionCircleIcon />
+                </span>
+              </Popover>
+            }
           />
           <HookFormPFTextInput
             control={control}
@@ -278,9 +290,6 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
             aria-label="source repository url"
-            isRequired={repositoryKindOptions.some(
-              ({ value }) => value === watchKind
-            )}
           />
           <HookFormPFTextInput
             control={control}
@@ -429,7 +438,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
           <HookFormPFGroupController
             control={control}
             name="assetKind"
-            label="Asset repository type"
+            label={t("terms.repositoryType")}
             fieldId="asset-repository-type-select"
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
@@ -447,6 +456,18 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 }}
               />
             )}
+            labelIcon={
+              <Popover
+                position={PopoverPosition.top}
+                aria-label="More information for asset repository type"
+                bodyContent={t("tooltip.repositoryType")}
+                className="popover"
+              >
+                <span className="pf-v5-c-icon pf-m-info">
+                  <QuestionCircleIcon />
+                </span>
+              </Popover>
+            }
           />
           <HookFormPFTextInput
             control={control}
@@ -454,9 +475,6 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.assetRepository")}
             fieldId="assetRepository"
             aria-label="asset repository url"
-            isRequired={repositoryKindOptions.some(
-              ({ value }) => value === watchAssetKind
-            )}
           />
           <HookFormPFTextInput
             control={control}

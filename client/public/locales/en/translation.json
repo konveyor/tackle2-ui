@@ -534,7 +534,7 @@
     "sourcePlatforms": "Source platforms",
     "sourcePlatform": "Source platform",
     "sourcePlatformCoordinates": "Source platform coordinates",
-    "sourceRepo": "Source Repository",
+    "sourceRepo": "Source repository",
     "sourceRootPath": "Root path",
     "southboundDependencies": "Southbound dependencies",
     "stakeholder": "Stakeholder",
@@ -633,7 +633,8 @@
   "tooltip": {
     "priority": "Tasks priority, a non-negative number, impacts tasks scheduling policy. Lowest priority is 0. Higher priority tasks run before lower priority tasks.",
     "preemption": "If enabled, allows the scheduler to reschedule other running tasks to free cluster resources needed to run higher priority tasks.",
-    "defaultIdentity": "Credential {{name}} is the default credential for {{type}} types."
+    "defaultIdentity": "Credential {{name}} is the default credential for {{type}} types.",
+    "repositoryType": "Repository type will default to Git if left empty"
   },
   "validation": {
     "email": "This field requires a valid email.",
