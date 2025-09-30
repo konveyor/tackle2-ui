@@ -34,13 +34,13 @@ yup.addMethod(
     return this.test("repositoryUrl", message, function (value) {
       const type = this.parent[repositoryTypeField];
       if (value) {
-        return type === "git"
+        return type === "git" || type === ""
           ? isValidGitUrl(value)
           : type === "svn" || type === "subversion"
             ? isValidSvnUrl(value)
             : isValidStandardUrl(value);
       }
-      return false;
+      return true;
     });
   }
 );
