@@ -85,6 +85,19 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
           status: "starting",
         }));
         onAddRuleFiles(newRuleFiles);
+      })
+      .then(() => {
+        // Trigger the upload process for each file automatically
+        incomingFiles.forEach((file) => {
+          const ruleFile = {
+            fileName: file.name,
+            fullFile: file,
+            uploadProgress: 0,
+            status: "starting" as const,
+          };
+          // Use setTimeout to ensure the state has been updated before processing
+          setTimeout(() => readVerifyAndUploadFile(ruleFile, file), 0);
+        });
       });
   };
 
@@ -150,27 +163,33 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
 
   const { uploadFile } = useFileUploader(
     (file, hubFile) => {
-      const ruleFile = ruleFileByName(file.name);
-      if (ruleFile) {
-        onChangeRuleFile({
-          ...ruleFile,
-          fileId: hubFile?.id,
-          uploadProgress: 100,
-          status: "uploaded",
-        });
-      }
+      // Use a timeout to ensure we get the latest state with contents
+      setTimeout(() => {
+        const ruleFile = ruleFileByName(file.name);
+        if (ruleFile) {
+          onChangeRuleFile({
+            ...ruleFile,
+            fileId: hubFile?.id,
+            uploadProgress: 100,
+            status: "uploaded",
+          });
+        }
+      }, 0);
     },
     (error, file) => {
       const msg = getAxiosErrorMessage(error);
 
-      const ruleFile = ruleFileByName(file.name);
-      if (ruleFile) {
-        onChangeRuleFile({
-          ...ruleFile,
-          loadError: msg,
-          status: "failed",
-        });
-      }
+      // Use a timeout to ensure we get the latest state with contents
+      setTimeout(() => {
+        const ruleFile = ruleFileByName(file.name);
+        if (ruleFile) {
+          onChangeRuleFile({
+            ...ruleFile,
+            loadError: msg,
+            status: "failed",
+          });
+        }
+      }, 0);
 
       pushNotification({ title: msg, variant: "danger" });
     }
