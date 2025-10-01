@@ -43,7 +43,7 @@ export interface IDiscoverImportWizard {
 }
 
 const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
-  platform,
+  platform: initialPlatform,
   onClose,
   isOpen,
 }: IDiscoverImportWizard) => {
@@ -51,9 +51,8 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTask } = useStartPlatformApplicationImport();
   const { state, setPlatform, setFilters, setResults, reset } =
-    useWizardReducer({ platform });
-  const { results, filters } = state;
-  const [selectPlatform] = React.useState<boolean>(!platform);
+    useWizardReducer({ platform: initialPlatform });
+  const { platform, results, filters, isReady } = state;
 
   const handleCancel = () => {
     reset();
@@ -61,14 +60,11 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   };
 
   const onSubmitTask = async () => {
-    if (!state.platform || !filters.document) {
+    if (!platform || !filters.document) {
       return;
     }
 
-    const { success, failure } = await submitTask(
-      state.platform,
-      filters.document
-    );
+    const { success, failure } = await submitTask(platform, filters.document);
     setResults({ success, failure });
 
     if (success.length > 0) {
@@ -114,18 +110,18 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         }
         isVisitRequired
       >
-        {selectPlatform ? (
+        {!initialPlatform ? (
           <WizardStep
             id="platform"
             name={t("platformDiscoverWizard.platformSelect.stepTitle")}
             footer={{
               nextButtonText: t("actions.next"),
               backButtonText: t("actions.back"),
-              isNextDisabled: state.platform === null,
+              isNextDisabled: platform === null,
             }}
           >
             <SelectPlatform
-              platform={state.platform}
+              platform={platform}
               onPlatformSelected={setPlatform}
             />
           </WizardStep>
@@ -134,16 +130,16 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         <WizardStep
           id="filter-input"
           name={t("platformDiscoverWizard.filterInput.stepTitle")}
-          isDisabled={!state.platform}
+          isDisabled={!platform}
           footer={{
             nextButtonText: t("actions.next"),
             backButtonText: t("actions.back"),
             isNextDisabled: !filters.isValid,
           }}
         >
-          {state.platform ? (
+          {platform ? (
             <FilterInput
-              platform={state.platform}
+              platform={platform}
               onFiltersChanged={setFilters}
               initialFilters={filters}
             />
@@ -153,21 +149,21 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         <WizardStep
           id="review"
           name={t("platformDiscoverWizard.review.stepTitle")}
-          isDisabled={!state.platform || !state.filters.isValid}
+          isDisabled={!platform || !filters.isValid}
           footer={{
             nextButtonText: results
               ? t("actions.close")
               : t("actions.discoverApplications"),
             backButtonText: t("actions.back"),
-            isNextDisabled: !state.isReady && !results,
+            isNextDisabled: !isReady && !results,
             isBackDisabled: !!results,
             isCancelHidden: !!results,
             onNext: results ? handleCancel : onSubmitTask,
           }}
         >
-          {state.platform ? (
+          {platform ? (
             !results ? (
-              <Review platform={state.platform} filters={filters} />
+              <Review platform={platform} filters={filters} />
             ) : (
               <Results results={results} />
             )
