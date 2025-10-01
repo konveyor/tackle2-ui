@@ -44,7 +44,7 @@ describe("Component: identity-form", () => {
     );
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await screen.findByText("Source Control");
+    const sourceControlOption = await screen.findByText("identityKind.source");
     await waitFor(() => fireEvent.click(sourceControlOption));
 
     const userCredentialsSelector = await screen.findByLabelText(
@@ -88,7 +88,7 @@ describe("Component: identity-form", () => {
     );
     fireEvent.click(typeSelector);
 
-    const mavenSettingsOption = await screen.findByText("Maven Settings File");
+    const mavenSettingsOption = await screen.findByText("identityKind.maven");
     fireEvent.click(mavenSettingsOption);
 
     const mavenSettingsUpload = await screen.findByLabelText(
@@ -104,7 +104,7 @@ describe("Component: identity-form", () => {
     );
     fireEvent.click(typeSelector);
 
-    const proxyOption = await screen.findByText("Proxy");
+    const proxyOption = await screen.findByText("identityKind.proxy");
 
     fireEvent.click(proxyOption);
 
@@ -123,7 +123,7 @@ describe("Component: identity-form", () => {
     );
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await screen.findByText("Source Control");
+    const sourceControlOption = await screen.findByText("identityKind.source");
     fireEvent.click(sourceControlOption);
 
     const userCredentialsSelector = await screen.findByLabelText(
@@ -192,7 +192,7 @@ describe("Component: identity-form", () => {
 
     fireEvent.click(typeSelector);
 
-    const sourceControlOption = await screen.findByText("Source Control");
+    const sourceControlOption = await screen.findByText("identityKind.source");
 
     fireEvent.click(sourceControlOption);
 
@@ -247,7 +247,7 @@ describe("Component: identity-form", () => {
 
     fireEvent.click(typeSelector);
 
-    const mavenOption = await screen.findByText("Maven Settings File");
+    const mavenOption = await screen.findByText("identityKind.maven");
 
     fireEvent.click(mavenOption);
 
@@ -303,7 +303,7 @@ describe("Component: identity-form", () => {
 
     fireEvent.click(typeSelector);
 
-    const proxyOption = await screen.findByText("Proxy");
+    const proxyOption = await screen.findByText("identityKind.proxy");
 
     fireEvent.click(proxyOption);
 
