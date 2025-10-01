@@ -61,11 +61,14 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   };
 
   const onSubmitTask = async () => {
-    if (!platform || !filters.document) {
+    if (!state.platform || !filters.document) {
       return;
     }
 
-    const { success, failure } = await submitTask(platform, filters.document);
+    const { success, failure } = await submitTask(
+      state.platform,
+      filters.document
+    );
     setResults({ success, failure });
 
     if (success.length > 0) {
