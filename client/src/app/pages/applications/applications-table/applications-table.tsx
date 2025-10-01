@@ -700,7 +700,7 @@ export const ApplicationsTable: React.FC = () => {
             component="button"
             onClick={() => setIsApplicationImportModalOpen(true)}
           >
-            {t("actions.import")}
+            {t("actions.importFromCsv")}
           </DropdownItem>
         ),
         importWriteAccess && (
@@ -710,7 +710,7 @@ export const ApplicationsTable: React.FC = () => {
               history.push(Paths.applicationsImports);
             }}
           >
-            {t("actions.manageImports")}
+            {t("actions.manageApplicationImports")}
           </DropdownItem>
         ),
         tasksWriteAccess && (
@@ -718,7 +718,7 @@ export const ApplicationsTable: React.FC = () => {
             key="discover-import-applications"
             onClick={() => setIsDiscoverImportWizardOpen(true)}
           >
-            {t("actions.discoverImport")}
+            {t("actions.discoverApplications")}
           </DropdownItem>
         ),
       ],
