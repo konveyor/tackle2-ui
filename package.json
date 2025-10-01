@@ -53,7 +53,7 @@
     "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "concurrently": "^9.1.2",
+    "concurrently": "^9.2.1",
     "copyfiles": "^2.4.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^10.1.2",
@@ -70,12 +70,12 @@
     "lint-staged": "^14.0.1",
     "prettier": "^3.6.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.46.2",
+    "rollup": "^4.52.3",
     "rollup-plugin-copy": "^3.5.0",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.1",
     "typescript": "~5.3.0",
-    "wait-on": "^8.0.4"
+    "wait-on": "^9.0.1"
   },
   "dependencies": {
     "ejs": "^3.1.10",
