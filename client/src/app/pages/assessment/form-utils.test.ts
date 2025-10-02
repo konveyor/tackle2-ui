@@ -31,11 +31,11 @@ describe("Application assessment - form utils", () => {
 
   it("getQuestionFieldName: fullName", () => {
     const fieldName = getQuestionFieldName(question, true);
-    expect(fieldName).toBe("questions.section-1-question-1-Question_321");
+    expect(fieldName).toBe("questions.section-1-question-1");
   });
 
   it("getQuestionFieldName: singleName", () => {
     const fieldName = getQuestionFieldName(question, false);
-    expect(fieldName).toBe("section-1-question-1-Question_321");
+    expect(fieldName).toBe("section-1-question-1");
   });
 });

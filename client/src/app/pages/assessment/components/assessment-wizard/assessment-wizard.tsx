@@ -33,6 +33,7 @@ import {
   useDeleteAssessmentMutation,
   useUpdateAssessmentMutation,
 } from "@app/queries/assessments";
+import { useWithUiId } from "@app/utils/query-utils";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import {
@@ -104,8 +105,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const sortedSections = (assessment ? assessment.sections : []).sort(
-    (a, b) => a.order - b.order
+  const sortedSections = useMemo(() => {
+    return (assessment ? assessment.sections : []).sort(
+      (a, b) => a.order - b.order
+    );
+  }, [assessment]);
+
+  const sectionsWithUiId = useWithUiId(
+    sortedSections,
+    (section) => `section-${section.order}-${section.name}`
   );
 
   const initialComments = useMemo(() => {
@@ -531,17 +539,17 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           section ? shouldNextBtnBeEnabled(section) : isFirstStepValid()
         }
         isFirstStep={step === 0}
-        isLastStep={step === sortedSections.length}
+        isLastStep={step === sectionsWithUiId.length}
         onNext={() => setCurrentStep(step + 1)}
         onBack={() => setCurrentStep(step - 1)}
         isAssessmentChanged={isAssessmentChanged()}
         isDisabled={
           isSubmitting ||
           isValidating ||
-          (step === sortedSections.length &&
-            !shouldNextBtnBeEnabled(sortedSections[step - 1]))
+          (step === sectionsWithUiId.length &&
+            !shouldNextBtnBeEnabled(sectionsWithUiId[step - 1]))
         }
-        isSaveAsDraftDisabled={shouldDisableSaveAsDraft(sortedSections)}
+        isSaveAsDraftDisabled={shouldDisableSaveAsDraft(sectionsWithUiId)}
         isFormInvalid={!isValid}
         onSave={(review) => {
           const saveActionValue = review
@@ -567,7 +575,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       ) : (
         <FormProvider {...methods}>
           <Wizard
-            key={sortedSections.length}
+            key={sectionsWithUiId.length}
             isVisitRequired
             onStepChange={(_e, curr) => {
               setCurrentStep(curr.index);
@@ -594,11 +602,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             >
               <AssessmentStakeholdersForm />
             </WizardStep>
-            {...sortedSections.map((section, index) => {
+            {...sectionsWithUiId.map((section, index) => {
               const stepIndex = index + 1;
               return (
                 <WizardStep
-                  key={`${index}-${section.name}`}
+                  key={section._ui_unique_id}
                   id={stepIndex}
                   name={section.name}
                   isDisabled={stepIndex !== currentStep && disableNavigation}
@@ -607,7 +615,10 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                   }}
                   footer={getWizardFooter(stepIndex, section)}
                 >
-                  <QuestionnaireForm key={section.name} section={section} />
+                  <QuestionnaireForm
+                    key={section._ui_unique_id}
+                    section={section}
+                  />
                 </WizardStep>
               );
             })}
