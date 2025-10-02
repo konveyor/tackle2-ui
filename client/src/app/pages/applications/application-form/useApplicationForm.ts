@@ -119,10 +119,7 @@ export const useApplicationForm = ({
 
       // source code fields
       kind: string().oneOf(["", "git", "subversion"]),
-      sourceRepository: string().when("kind", {
-        is: (kind: string) => kind !== "",
-        then: (schema) => schema.repositoryUrl("kind").required(),
-      }),
+      sourceRepository: string().repositoryUrl("kind"),
       branch: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
@@ -167,10 +164,7 @@ export const useApplicationForm = ({
 
       // asset repository fields
       assetKind: string().oneOf(["", "git", "subversion"]),
-      assetRepository: string().when("assetKind", {
-        is: (kind: string) => kind !== "",
-        then: (schema) => schema.repositoryUrl("assetKind").required(),
-      }),
+      assetRepository: string().repositoryUrl("assetKind"),
       assetBranch: string()
         .trim()
         .max(250, t("validation.maxLength", { length: 250 })),
