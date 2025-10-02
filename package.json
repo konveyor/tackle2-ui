@@ -20,7 +20,8 @@
     "start:dev": "concurrently -n port-forward,common,server,client -c 'white.bold.inverse,green.bold.inverse,teal,blue.bold.inverse' 'npm:port-forward' 'npm:start:dev:common' 'npm:start:dev:server' 'npm:start:dev:client'",
     "start": "npm run build -w common -w client && npm run start -w server",
     "test": "npm run test -ws --if-present --",
-    "lint": "npm run lint -ws --if-present --",
+    "lint": "npm run lint -ws --if-present && npm run e2e:lint",
+    "e2e:lint": "cd cypress && prettier --check '**/*.{ts,js,json}'",
     "port-forward:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "port-forward:keycloak": "kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080",
     "port-forward": "concurrently -c auto 'npm:port-forward:*'"

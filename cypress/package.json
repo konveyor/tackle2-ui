@@ -1,0 +1,60 @@
+{
+  "name": "tackle-ui-tests",
+  "version": "0.1.0",
+  "description": "Tackle Web UI Tests",
+  "license": "Apache-2.0",
+  "private": true,
+  "repository": "https://github.com/konveyor/tackle-ui-tests.git",
+  "dependencies": {
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@testing-library/cypress": "^10.0.1",
+    "@types/node": "^20.1.0",
+    "cy-verify-downloads": "^0.1.13",
+    "cypress": "^14.5.3",
+    "cypress-downloadfile": "^1.2.4",
+    "cypress-fail-fast": "^7.1.1",
+    "cypress-file-upload": "^5.0.8",
+    "cypress-fs": "^0.2.6",
+    "cypress-log-filter": "^1.0.5",
+    "cypress-mochawesome-reporter": "^3.2.2",
+    "cypress-multi-reporters": "^1.5.0",
+    "cypress-react-selector": "^3.0.0",
+    "cypress-real-events": "^1.14.0",
+    "cypress-tags": "^1.2.2",
+    "decompress": "^4.2.1",
+    "dotenv": "^17.2.1",
+    "esbuild": "^0.25.5",
+    "faker": "^5.5.3",
+    "husky": "^9.1.7",
+    "js-yaml": "^4.1.0",
+    "junit-report-merger": "^3.0.2",
+    "license-check-and-add": "^4.0.5",
+    "mocha": "^9.1.2",
+    "mocha-junit-reporter": "^2.0.2",
+    "prettier": "^2.2.1",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typedoc": "^0.23.28",
+    "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "prepare": "cd .. && node .husky/install.mjs",
+    "e2e:run:local": "cypress run --env baseUrl=http://localhost:9000",
+    "e2e:open:local": "cypress open --e2e --env baseUrl=http://localhost:9000",
+    "check": "prettier --check '**/*.{ts,js,json}'",
+    "format": "prettier --write '**/*.{ts,js,json}'",
+    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml",
+    "lint": "eslint ."
+  },
+  "lint-staged": {
+    "!(package-lock.json)*": "prettier --ignore-unknown --write",
+    "**/*.{ts,js,json}": "prettier --ignore-unknown --write"
+  },
+  "engines": {
+    "node": ">=20.17"
+  },
+  "devDependencies": {
+    "lint-staged": "^16.1.4"
+  }
+}
