@@ -6,7 +6,6 @@
   "scripts": {
     "analyze": "source-map-explorer 'dist/static/js/*.js'",
     "clean": "rimraf ./dist ./coverage",
-    "extract": "i18next --config i18next-parser.config.js",
     "prebuild": "npm run clean && npm run tsc -- --noEmit",
     "build": "NODE_ENV=production webpack --config ./config/webpack.prod.ts",
     "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
@@ -78,7 +77,6 @@
     "css-minimizer-webpack-plugin": "^7.0.2",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
     "html-webpack-plugin": "^5.6.3",
-    "i18next-parser": "^0.13.0",
     "mini-css-extract-plugin": "^2.8.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "msw": "^1.2.3",
