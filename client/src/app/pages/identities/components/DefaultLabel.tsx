@@ -4,8 +4,7 @@ import { Icon, Tooltip } from "@patternfly/react-core";
 import StarIcon from "@patternfly/react-icons/dist/esm/icons/star-icon";
 
 import { Identity } from "@app/api/models";
-
-import { KIND_VALUES } from "../utils";
+import { useIdentityKind } from "@app/hooks/useIdentityKind";
 
 export interface DefaultLabelProps {
   identity: Identity;
@@ -15,15 +14,14 @@ export const DefaultLabel: React.FC<{ identity: Identity }> = ({
   identity,
 }) => {
   const { t } = useTranslation();
+  const { kindLabels } = useIdentityKind();
   const isDefault = identity.default;
 
   if (!isDefault) {
     return <Icon aria-label="not default" />;
   }
 
-  const typeName =
-    KIND_VALUES.find(({ key }) => key === identity.kind)?.value ??
-    identity.kind;
+  const typeName = kindLabels[identity.kind] ?? identity.kind;
 
   return (
     <Tooltip
