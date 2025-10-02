@@ -16,6 +16,7 @@ import { FilterInput } from "./filter-input";
 import { Results } from "./results";
 import { Review } from "./review";
 import { SelectPlatform } from "./select-platform";
+import { SourcePlatformRequired } from "./source-platform-required";
 import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
 import { useWizardReducer } from "./useWizardReducer";
 
@@ -137,13 +138,17 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             isNextDisabled: !filters.isValid,
           }}
         >
-          {platform ? (
+          {!platform ? (
+            <SourcePlatformRequired
+              title={t("platformDiscoverWizard.filterInput.title")}
+            />
+          ) : (
             <FilterInput
               platform={platform}
               onFiltersChanged={setFilters}
               initialFilters={filters}
             />
-          ) : null}
+          )}
         </WizardStep>
 
         <WizardStep
@@ -161,13 +166,17 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
             onNext: results ? handleCancel : onSubmitTask,
           }}
         >
-          {platform ? (
-            !results ? (
-              <Review platform={platform} filters={filters} />
-            ) : (
-              <Results results={results} />
-            )
+          {!platform ? (
+            <SourcePlatformRequired
+              title={t("platformDiscoverWizard.review.title")}
+            />
           ) : null}
+
+          {platform && !results ? (
+            <Review platform={platform} filters={filters} />
+          ) : null}
+
+          {platform && results ? <Results results={results} /> : null}
         </WizardStep>
       </Wizard>
     </Modal>

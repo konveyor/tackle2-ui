@@ -23,6 +23,7 @@ export const Review: React.FC<{
 }> = ({ platform, filters }) => {
   const { t } = useTranslation();
   const { getDisplayLabel } = usePlatformKindList();
+
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
 

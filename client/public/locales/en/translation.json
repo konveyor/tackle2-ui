@@ -751,6 +751,7 @@
     "title": "Discover Applications",
     "description": "Discover and import applications from a source platform.",
     "noPlatformSelected": "No platform selected for discovery.",
+    "noPlatformSelectedDescription": "A source platform must be selected to continue.",
     "toast": {
       "submittedOk": "Platform application discovery task submitted",
       "submittedFailed": "Platform application discovery task failed"

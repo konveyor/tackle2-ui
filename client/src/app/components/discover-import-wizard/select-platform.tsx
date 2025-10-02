@@ -19,7 +19,7 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
   onPlatformSelected,
 }) => {
   const { t } = useTranslation();
-  const { platforms } = useFetchPlatforms();
+  const { platforms, isLoading } = useFetchPlatforms();
   const platformOptions = React.useMemo(
     () =>
       platforms.map((platform) => ({
@@ -43,9 +43,14 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
       <Form id="platform-select-form">
         <SimpleSelect
           maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-          placeholderText={t("composed.selectOne", {
-            what: t("terms.platform").toLowerCase(),
-          })}
+          placeholderText={
+            isLoading
+              ? t("message.loadingTripleDot")
+              : t("composed.selectOne", {
+                  what: t("terms.platform").toLowerCase(),
+                })
+          }
+          loadingVariant={isLoading ? "spinner" : undefined}
           variant="typeahead"
           toggleId="platform-select-toggle"
           id="platform-select"
