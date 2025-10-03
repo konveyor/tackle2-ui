@@ -9,7 +9,7 @@ import {
 } from "../models";
 import { HEADERS, getHubPaginatedResult, hub } from "../rest";
 
-export const TASKS = hub`/tasks`;
+const TASKS = hub`/tasks`;
 
 // ---------------------------------------
 // Fetch hub paginated, sorted, filtered Tasks
