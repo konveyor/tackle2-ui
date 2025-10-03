@@ -16,9 +16,9 @@ export const createArchetype = (archetype: New<Archetype>) =>
   axios.post<Archetype>(ARCHETYPES, archetype).then((res) => res.data);
 
 // success with code 204 and therefore no response content
-export const updateArchetype = (archetype: Archetype): Promise<void> =>
-  axios.put(`${ARCHETYPES}/${archetype.id}`, archetype);
+export const updateArchetype = (archetype: Archetype) =>
+  axios.put<void>(`${ARCHETYPES}/${archetype.id}`, archetype);
 
 // success with code 204 and therefore no response content
-export const deleteArchetype = (id: number): Promise<void> =>
-  axios.delete(`${ARCHETYPES}/${id}`);
+export const deleteArchetype = (id: number) =>
+  axios.delete<void>(`${ARCHETYPES}/${id}`);
