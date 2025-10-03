@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useReducer, useRef } from "react";
 import { assign } from "radash";
 
 import { SourcePlatform } from "@app/api/models";
@@ -28,7 +28,7 @@ type WizardAction =
   | { type: "SET_PLATFORM"; payload: SourcePlatform | null }
   | { type: "SET_FILTERS"; payload: FilterState }
   | { type: "SET_RESULTS"; payload: ResultsData | null }
-  | { type: "RESET" };
+  | { type: "RESET"; payload: WizardState };
 
 const validateWizardState = (state: WizardState): WizardState => {
   const isReady = !!state.platform && state.filters.isValid;
@@ -44,7 +44,7 @@ const wizardReducer: WizardReducer = (state, action) => {
     case "SET_RESULTS":
       return { ...state, results: action.payload };
     case "RESET":
-      return INITIAL_WIZARD_STATE;
+      return { ...action.payload };
     default:
       return state;
   }
@@ -55,17 +55,21 @@ const validatedReducer: WizardReducer = (state, action) =>
 
 const createInitialState = (
   initialValues: Partial<WizardState> = {}
-): WizardState =>
-  validateWizardState(
+): WizardState => {
+  return validateWizardState(
     assign(INITIAL_WIZARD_STATE, initialValues) as WizardState
   );
+};
 
 export const useWizardReducer = (initialValues?: Partial<WizardState>) => {
-  const [state, dispatch] = useReducer(
-    validatedReducer,
-    initialValues,
-    createInitialState
+  // Ref: https://18.react.dev/reference/react/useReducer#avoiding-recreating-the-initial-state
+  // Allow RESET to have the same semantics as useReducer()'s initialState argument by just
+  // calculating the initial state once and storing it in a ref.
+  const { current: firstInitialState } = useRef(
+    createInitialState(initialValues)
   );
+
+  const [state, dispatch] = useReducer(validatedReducer, firstInitialState);
 
   const setPlatform = useCallback((platform: SourcePlatform | null) => {
     dispatch({ type: "SET_PLATFORM", payload: platform });
@@ -80,8 +84,8 @@ export const useWizardReducer = (initialValues?: Partial<WizardState>) => {
   }, []);
 
   const reset = useCallback(() => {
-    dispatch({ type: "RESET" });
-  }, []);
+    dispatch({ type: "RESET", payload: firstInitialState });
+  }, [firstInitialState]);
 
   return {
     state,
