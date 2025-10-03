@@ -56,6 +56,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import keycloak from "@app/keycloak";
@@ -205,6 +206,9 @@ export const ApplicationsTable: React.FC = () => {
       : null;
 
   const [isApplicationImportModalOpen, setIsApplicationImportModalOpen] =
+    useState(false);
+
+  const [isDiscoverImportWizardOpen, setIsDiscoverImportWizardOpen] =
     useState(false);
 
   // ----- Table data fetches and mutations
@@ -696,7 +700,7 @@ export const ApplicationsTable: React.FC = () => {
             component="button"
             onClick={() => setIsApplicationImportModalOpen(true)}
           >
-            {t("actions.import")}
+            {t("actions.importFromCsv")}
           </DropdownItem>
         ),
         importWriteAccess && (
@@ -706,7 +710,15 @@ export const ApplicationsTable: React.FC = () => {
               history.push(Paths.applicationsImports);
             }}
           >
-            {t("actions.manageImports")}
+            {t("actions.manageApplicationImports")}
+          </DropdownItem>
+        ),
+        tasksWriteAccess && (
+          <DropdownItem
+            key="discover-import-applications"
+            onClick={() => setIsDiscoverImportWizardOpen(true)}
+          >
+            {t("actions.discoverApplications")}
           </DropdownItem>
         ),
       ],
@@ -1341,6 +1353,10 @@ export const ApplicationsTable: React.FC = () => {
         onClose={() => {
           setGenerateAssetsApplications(null);
         }}
+      />
+      <DiscoverImportWizard
+        isOpen={isDiscoverImportWizardOpen}
+        onClose={() => setIsDiscoverImportWizardOpen(false)}
       />
 
       <ApplicationIdentityModal

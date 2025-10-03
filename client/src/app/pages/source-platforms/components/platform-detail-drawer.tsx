@@ -22,8 +22,7 @@ import {
   DrawerTabContent,
   DrawerTabsContainer,
 } from "@app/components/detail-drawer";
-
-import { usePlatformKindList } from "../usePlatformKindList";
+import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 
 import PlatformAppsTable from "./platform-applications-table";
 

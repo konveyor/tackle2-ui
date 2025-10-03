@@ -24,6 +24,7 @@ import {
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimpleSelect } from "@app/components/SimpleSelect";
 import { OptionWithValue } from "@app/components/SimpleSelect";
+import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
   useCreatePlatformMutation,
@@ -32,8 +33,6 @@ import {
 } from "@app/queries/platforms";
 import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-
-import { usePlatformKindList } from "../usePlatformKindList";
 
 export interface PlatformFormValues {
   kind: string;

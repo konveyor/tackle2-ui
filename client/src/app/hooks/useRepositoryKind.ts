@@ -5,9 +5,9 @@ import { OptionWithValue } from "@app/components/SimpleSelect";
 
 export type RepositoryKind = "git" | "subversion" | "" | null;
 
-export const KIND_META: Map<RepositoryKind, { i18nKey: string }> = new Map([
-  ["git", { i18nKey: "repositoryKind.git" }],
-  ["subversion", { i18nKey: "repositoryKind.subversion" }],
+export const KIND_META: Map<RepositoryKind, { labelKey: string }> = new Map([
+  ["git", { labelKey: "repositoryKind.git" }],
+  ["subversion", { labelKey: "repositoryKind.subversion" }],
 ]);
 
 export const useRepositoryKind = () => {
@@ -17,7 +17,7 @@ export const useRepositoryKind = () => {
     () =>
       Array.from(KIND_META.entries()).map(([key, meta]) => ({
         value: key,
-        toString: () => t(meta.i18nKey),
+        toString: () => t(meta.labelKey),
       })),
     [t]
   );

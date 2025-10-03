@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
   Modal,
   ModalVariant,
   Wizard,
@@ -16,6 +15,8 @@ import { universalComparator } from "@app/utils/utils";
 import { FilterInput } from "./filter-input";
 import { Results } from "./results";
 import { Review } from "./review";
+import { SelectPlatform } from "./select-platform";
+import { SourcePlatformRequired } from "./source-platform-required";
 import { useStartPlatformApplicationImport } from "./useStartPlatformApplicationImport";
 import { useWizardReducer } from "./useWizardReducer";
 
@@ -43,15 +44,18 @@ export interface IDiscoverImportWizard {
 }
 
 const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
-  platform,
+  platform: initialPlatform,
   onClose,
   isOpen,
 }: IDiscoverImportWizard) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTask } = useStartPlatformApplicationImport();
-  const { state, setFilters, setResults, reset } = useWizardReducer();
-  const { results, filters } = state;
+  const { state, setPlatform, setFilters, setResults, reset } =
+    useWizardReducer((initial) => {
+      initial.platform = initialPlatform ?? null;
+    });
+  const { platform, results, filters, isReady } = state;
 
   const handleCancel = () => {
     reset();
@@ -89,26 +93,6 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
     }
   };
 
-  if (!platform) {
-    return (
-      <Modal
-        variant={ModalVariant.medium}
-        title={t("dialog.title.discoverApplications")}
-        isOpen={isOpen}
-        onClose={handleCancel}
-        footer={
-          <Button variant="primary" onClick={handleCancel}>
-            {t("actions.close")}
-          </Button>
-        }
-      >
-        <div style={{ padding: "20px" }}>
-          <p>{t("platformDiscoverWizard.noPlatformSelected")}</p>
-        </div>
-      </Modal>
-    );
-  }
-
   return (
     <Modal
       variant={ModalVariant.large}
@@ -129,41 +113,72 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
         }
         isVisitRequired
       >
+        {!initialPlatform ? (
+          <WizardStep
+            id="platform"
+            name={t("platformDiscoverWizard.platformSelect.stepTitle")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: platform === null,
+            }}
+          >
+            <SelectPlatform
+              platform={platform}
+              onPlatformSelected={setPlatform}
+            />
+          </WizardStep>
+        ) : null}
+
         <WizardStep
           id="filter-input"
           name={t("platformDiscoverWizard.filterInput.stepTitle")}
+          isDisabled={!platform}
           footer={{
             nextButtonText: t("actions.next"),
             backButtonText: t("actions.back"),
             isNextDisabled: !filters.isValid,
           }}
         >
-          <FilterInput
-            platform={platform}
-            onFiltersChanged={setFilters}
-            initialFilters={filters}
-          />
+          {!platform ? (
+            <SourcePlatformRequired
+              title={t("platformDiscoverWizard.filterInput.title")}
+            />
+          ) : (
+            <FilterInput
+              platform={platform}
+              onFiltersChanged={setFilters}
+              initialFilters={filters}
+            />
+          )}
         </WizardStep>
 
         <WizardStep
           id="review"
           name={t("platformDiscoverWizard.review.stepTitle")}
+          isDisabled={!platform || !filters.isValid}
           footer={{
             nextButtonText: results
               ? t("actions.close")
               : t("actions.discoverApplications"),
             backButtonText: t("actions.back"),
-            isNextDisabled: !state.isReady && !results,
+            isNextDisabled: !isReady && !results,
             isBackDisabled: !!results,
             isCancelHidden: !!results,
             onNext: results ? handleCancel : onSubmitTask,
           }}
         >
-          {!results ? (
+          {!platform ? (
+            <SourcePlatformRequired
+              title={t("platformDiscoverWizard.review.title")}
+            />
+          ) : null}
+
+          {platform && !results ? (
             <Review platform={platform} filters={filters} />
-          ) : (
-            <Results results={results} />
-          )}
+          ) : null}
+
+          {platform && results ? <Results results={results} /> : null}
         </WizardStep>
       </Wizard>
     </Modal>

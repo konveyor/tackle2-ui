@@ -41,6 +41,7 @@
     "git-url-parse": "^16.1.0",
     "i18next": "^25.3.0",
     "i18next-http-backend": "^3.0.2",
+    "immer": "^10.1.3",
     "js-yaml": "^4.1.0",
     "keycloak-js": "^26.1.0",
     "monaco-editor": "^0.52.2",
@@ -54,6 +55,7 @@
     "react-measure": "^2.5.2",
     "react-router-dom": "^5.2.0",
     "tinycolor2": "^1.6.0",
+    "use-immer": "^0.11.0",
     "xmllint-wasm": "^5.0.0",
     "yup": "^0.32.11"
   },
