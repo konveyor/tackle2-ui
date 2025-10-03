@@ -52,7 +52,9 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const { submitTask } = useStartPlatformApplicationImport();
   const { state, setPlatform, setFilters, setResults, reset } =
-    useWizardReducer({ platform: initialPlatform });
+    useWizardReducer((initial) => {
+      initial.platform = initialPlatform ?? null;
+    });
   const { platform, results, filters, isReady } = state;
 
   const handleCancel = () => {

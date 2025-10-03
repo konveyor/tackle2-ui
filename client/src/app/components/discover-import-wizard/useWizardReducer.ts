@@ -1,5 +1,6 @@
-import { useCallback, useReducer, useRef } from "react";
-import { assign } from "radash";
+import { useCallback, useRef } from "react";
+import { produce } from "immer";
+import { useImmerReducer } from "use-immer";
 
 import { SourcePlatform } from "@app/api/models";
 
@@ -23,69 +24,82 @@ const INITIAL_WIZARD_STATE: WizardState = {
   results: null,
 };
 
-type WizardReducer = (state: WizardState, action: WizardAction) => WizardState;
+type WizardReducer = (draft: WizardState, action?: WizardAction) => void;
 type WizardAction =
   | { type: "SET_PLATFORM"; payload: SourcePlatform | null }
   | { type: "SET_FILTERS"; payload: FilterState }
   | { type: "SET_RESULTS"; payload: ResultsData | null }
   | { type: "RESET"; payload: WizardState };
 
-const validateWizardState = (state: WizardState): WizardState => {
-  const isReady = !!state.platform && state.filters.isValid;
-  return { ...state, isReady };
-};
-
-const wizardReducer: WizardReducer = (state, action) => {
-  switch (action.type) {
-    case "SET_PLATFORM":
-      return { ...state, platform: action.payload };
-    case "SET_FILTERS":
-      return { ...state, filters: action.payload };
-    case "SET_RESULTS":
-      return { ...state, results: action.payload };
-    case "RESET":
-      return { ...action.payload };
-    default:
-      return state;
+const wizardReducer: WizardReducer = (draft, action) => {
+  if (action) {
+    switch (action.type) {
+      case "SET_PLATFORM":
+        draft.platform = action.payload;
+        break;
+      case "SET_FILTERS":
+        draft.filters = action.payload;
+        break;
+      case "SET_RESULTS":
+        draft.results = action.payload;
+        break;
+      case "RESET":
+        return action.payload;
+    }
   }
+
+  // Validate and update isReady state after any change
+  draft.isReady = !!draft.platform && draft.filters.isValid;
 };
 
-const validatedReducer: WizardReducer = (state, action) =>
-  validateWizardState(wizardReducer(state, action));
+export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 
-const createInitialState = (
-  initialValues: Partial<WizardState> = {}
+const useImmerInitialState = (
+  initialRecipe: InitialStateRecipe
 ): WizardState => {
-  return validateWizardState(
-    assign(INITIAL_WIZARD_STATE, initialValues) as WizardState
-  );
+  const initialRef = useRef<WizardState | null>(null);
+  if (initialRef.current === null) {
+    initialRef.current = produce(INITIAL_WIZARD_STATE, (draft) => {
+      initialRecipe(draft);
+      wizardReducer(draft);
+    });
+  }
+
+  return initialRef.current;
 };
 
-export const useWizardReducer = (initialValues?: Partial<WizardState>) => {
+export const useWizardReducer = (init: InitialStateRecipe) => {
   // Ref: https://18.react.dev/reference/react/useReducer#avoiding-recreating-the-initial-state
   // Allow RESET to have the same semantics as useReducer()'s initialState argument by just
   // calculating the initial state once and storing it in a ref.
-  const { current: firstInitialState } = useRef(
-    createInitialState(initialValues)
+  const firstInitialState = useImmerInitialState(init);
+
+  const [state, dispatch] = useImmerReducer(wizardReducer, firstInitialState);
+
+  const setPlatform = useCallback(
+    (platform: SourcePlatform | null) => {
+      dispatch({ type: "SET_PLATFORM", payload: platform });
+    },
+    [dispatch]
   );
 
-  const [state, dispatch] = useReducer(validatedReducer, firstInitialState);
+  const setFilters = useCallback(
+    (filters: FilterState) => {
+      dispatch({ type: "SET_FILTERS", payload: filters });
+    },
+    [dispatch]
+  );
 
-  const setPlatform = useCallback((platform: SourcePlatform | null) => {
-    dispatch({ type: "SET_PLATFORM", payload: platform });
-  }, []);
-
-  const setFilters = useCallback((filters: FilterState) => {
-    dispatch({ type: "SET_FILTERS", payload: filters });
-  }, []);
-
-  const setResults = useCallback((results: ResultsData | null) => {
-    dispatch({ type: "SET_RESULTS", payload: results });
-  }, []);
+  const setResults = useCallback(
+    (results: ResultsData | null) => {
+      dispatch({ type: "SET_RESULTS", payload: results });
+    },
+    [dispatch]
+  );
 
   const reset = useCallback(() => {
     dispatch({ type: "RESET", payload: firstInitialState });
-  }, [firstInitialState]);
+  }, [firstInitialState, dispatch]);
 
   return {
     state,
