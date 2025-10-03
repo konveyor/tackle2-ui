@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { Application, JsonDocument, MimeType, New } from "../models";
+import { Application, JsonDocument, New } from "../models";
 import { hub, template } from "../rest";
 
 const APPLICATIONS = hub`/applications`;
@@ -32,20 +32,3 @@ export const getApplications = () =>
 
 export const updateApplication = (obj: Application) =>
   axios.put<void>(`${APPLICATIONS}/${obj.id}`, obj);
-
-/** @deprecated Not used */
-export const getApplicationAnalysis = (
-  applicationId: number,
-  type: MimeType
-): Promise<Blob> =>
-  axios.get(
-    `${APPLICATIONS}/${String(applicationId)}/analysis${
-      type === MimeType.TAR ? "/report" : ""
-    }`,
-    {
-      responseType: "blob",
-      headers: {
-        Accept: `application/x-${type}`,
-      },
-    }
-  );
