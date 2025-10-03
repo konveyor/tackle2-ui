@@ -16,7 +16,9 @@ export const getBusinessServiceById = (id: number | string) =>
     .then((response) => response.data);
 
 export const createBusinessService = (obj: New<BusinessService>) =>
-  axios.post<BusinessService>(BUSINESS_SERVICES, obj);
+  axios
+    .post<BusinessService>(BUSINESS_SERVICES, obj)
+    .then((response) => response.data);
 
 export const updateBusinessService = (obj: BusinessService) =>
   axios.put<void>(`${BUSINESS_SERVICES}/${obj.id}`, obj);
