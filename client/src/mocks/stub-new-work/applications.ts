@@ -1,7 +1,7 @@
 import { rest } from "msw";
 
 import { Application } from "@app/api/models";
-import * as AppRest from "@app/api/rest";
+import { hub } from "@app/api/rest";
 
 function generateRandomId(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -36,10 +36,10 @@ export const mockApplicationArray: Application[] = [
 
 export const handlers = [
   // Commented out to avoid conflict with the real API
-  rest.get(AppRest.APPLICATIONS, (req, res, ctx) => {
+  rest.get(hub`/applications`, (req, res, ctx) => {
     return res(ctx.json(mockApplicationArray));
   }),
-  rest.get(`${AppRest.APPLICATIONS}/:id`, (req, res, ctx) => {
+  rest.get(hub`/applications/:id`, (req, res, ctx) => {
     const { id } = req.params;
     const mockApplication = mockApplicationArray.find(
       (app) => app.id === parseInt(id as string, 10)
@@ -53,7 +53,7 @@ export const handlers = [
       );
     }
   }),
-  rest.post(AppRest.APPLICATIONS, async (req, res, ctx) => {
+  rest.post(hub`/applications`, async (req, res, ctx) => {
     const newApplication: Application = await req.json();
     newApplication.id = generateRandomId(1000, 9999);
 
@@ -75,7 +75,7 @@ export const handlers = [
       );
     }
   }),
-  rest.delete(`${AppRest.APPLICATIONS}`, async (req, res, ctx) => {
+  rest.delete(hub`/applications`, async (req, res, ctx) => {
     const ids: number[] = await req.json();
 
     // Filter and remove applications from the mock array by their IDs
