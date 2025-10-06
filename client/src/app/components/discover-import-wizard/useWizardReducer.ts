@@ -59,12 +59,12 @@ const wizardReducer: WizardReducer = (draft, action) => {
 export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 
 const useImmerInitialState = (
-  initialRecipe: InitialStateRecipe
+  initialRecipe?: InitialStateRecipe
 ): WizardState => {
   const initialRef = useRef<WizardState | null>(null);
   if (initialRef.current === null) {
     initialRef.current = produce(INITIAL_WIZARD_STATE, (draft) => {
-      initialRecipe(draft);
+      initialRecipe?.(draft);
       wizardReducer(draft);
     });
   }
@@ -72,7 +72,7 @@ const useImmerInitialState = (
   return initialRef.current;
 };
 
-export const useWizardReducer = (init: InitialStateRecipe) => {
+export const useWizardReducer = (init?: InitialStateRecipe) => {
   // Ref: https://18.react.dev/reference/react/useReducer#avoiding-recreating-the-initial-state
   // Allow RESET to have the same semantics as useReducer()'s initialState argument by just
   // calculating the initial state once and storing it in a ref.
