@@ -33,6 +33,7 @@ type WizardAction =
 
 const updateIsReady = (draft: WizardState) => {
   draft.isReady = !!draft.platform && draft.filters.isValid;
+  return draft;
 };
 
 const wizardReducer: WizardReducer = (draft, action) => {
