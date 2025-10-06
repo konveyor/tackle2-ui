@@ -24,7 +24,6 @@ const INITIAL_WIZARD_STATE: WizardState = {
   results: null,
 };
 
-type WizardReducer = (draft: WizardState, action?: WizardAction) => void;
 type WizardAction =
   | { type: "SET_PLATFORM"; payload: SourcePlatform | null }
   | { type: "SET_FILTERS"; payload: FilterState }
@@ -36,7 +35,10 @@ const updateIsReady = (draft: WizardState) => {
   return draft;
 };
 
-const wizardReducer: WizardReducer = (draft, action) => {
+const wizardReducer = (
+  draft: WizardState,
+  action?: WizardAction
+): WizardState | void => {
   if (action) {
     switch (action.type) {
       case "SET_PLATFORM":

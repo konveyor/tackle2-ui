@@ -30,7 +30,6 @@ const INITIAL_WIZARD_STATE: WizardState = {
   results: null,
 };
 
-type WizardReducer = (draft: WizardState, action?: WizardAction) => void;
 type WizardAction =
   | { type: "SET_PROFILE"; payload: TargetProfile }
   | { type: "SET_PARAMETERS"; payload: ParameterState }
@@ -38,7 +37,7 @@ type WizardAction =
   | { type: "SET_RESULTS"; payload: ResultsData | null }
   | { type: "RESET"; payload: WizardState };
 
-const updateIsReady = (draft: WizardState) => {
+const updateIsReady = (draft: WizardState): WizardState => {
   draft.isReady =
     !!draft.profile &&
     draft.parameters.isValid &&
@@ -46,7 +45,10 @@ const updateIsReady = (draft: WizardState) => {
   return draft;
 };
 
-const wizardReducer: WizardReducer = (draft, action) => {
+const wizardReducer = (
+  draft: WizardState,
+  action?: WizardAction
+): WizardState | void => {
   if (action) {
     switch (action.type) {
       case "SET_PROFILE":
