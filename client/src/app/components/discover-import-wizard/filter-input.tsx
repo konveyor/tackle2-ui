@@ -9,10 +9,9 @@ import { JsonDocument, SourcePlatform, TargetedSchema } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
+import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
 import { wrapAsEvent } from "@app/utils/utils";
-
-import { usePlatformKindList } from "../usePlatformKindList";
 
 import { FilterInputCloudFoundry } from "./filter-input-cloudfoundry";
 

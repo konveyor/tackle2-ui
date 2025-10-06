@@ -36,7 +36,6 @@
     "discardAssessment": "Discard assessment(s)",
     "discardReview": "Discard review",
     "discoverApplications": "Discover applications",
-    "discoverImport": "Discover & Import",
     "downloadCsvTemplate": "Download CSV template",
     "download": "Download {{what}}",
     "duplicate": "Duplicate",
@@ -45,11 +44,12 @@
     "export": "Export",
     "filterBy": "Filter by {{what}}",
     "import": "Import",
+    "importFromCsv": "Import applications from CSV",
     "logout": "Logout",
     "manageAccount": "User management",
     "manageCredentials": "Manage credentials",
     "manageDependencies": "Manage dependencies",
-    "manageImports": "Manage imports",
+    "manageApplicationImports": "Manage application imports",
     "manageTargetProfiles": "Manage target profiles",
     "next": "Next",
     "override": "Override",
@@ -749,11 +749,17 @@
   },
   "platformDiscoverWizard": {
     "title": "Discover Applications",
-    "description": "Discover and import applications from the selected platform.",
+    "description": "Discover and import applications from a source platform.",
     "noPlatformSelected": "No platform selected for discovery.",
+    "noPlatformSelectedDescription": "A source platform must be selected to continue.",
     "toast": {
       "submittedOk": "Platform application discovery task submitted",
       "submittedFailed": "Platform application discovery task failed"
+    },
+    "platformSelect": {
+      "stepTitle": "Platform",
+      "title": "Select a platform",
+      "description": "Select a platform to access for application discovery and import."
     },
     "filterInput": {
       "stepTitle": "Filters",
