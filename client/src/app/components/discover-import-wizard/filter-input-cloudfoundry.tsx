@@ -157,22 +157,11 @@ export const FilterInputCloudFoundry: React.FC<
           names: formValueToStrings(values.names),
           spaces: formValueToStrings(values.spaces),
         };
-        console.log("subscription document", asDocument);
         onDocumentChanged(asDocument);
       },
     });
     return () => subscription();
   }, [subscribe, onDocumentChanged]);
-
-  // useFormUpdateHandler(form, onDocumentChanged);
-
-  // // Initialize from values prop
-  // useEffect(() => {
-  //   reset({
-  //     names: (values?.names as string[]) || [],
-  //     spaces: (values?.spaces as string[]) || [],
-  //   });
-  // }, [values, reset]);
 
   return (
     <Stack id={id}>
