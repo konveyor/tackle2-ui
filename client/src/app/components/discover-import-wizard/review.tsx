@@ -12,8 +12,7 @@ import {
 import { SourcePlatform } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
-
-import { usePlatformKindList } from "../usePlatformKindList";
+import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 
 import { FilterState } from "./filter-input";
 import { ReviewInputCloudFoundry } from "./review-input-cloudfoundry";
@@ -24,6 +23,7 @@ export const Review: React.FC<{
 }> = ({ platform, filters }) => {
   const { t } = useTranslation();
   const { getDisplayLabel } = usePlatformKindList();
+
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
 
