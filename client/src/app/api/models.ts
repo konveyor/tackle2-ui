@@ -126,8 +126,8 @@ export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
 
 export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
 
-export interface Repository {
-  kind?: string;
+export interface Repository<Kind = string> {
+  kind?: Kind;
   url?: string;
   branch?: string;
   path?: string;

@@ -4,7 +4,17 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
 
-import { Application, JsonDocument, New, TagRef } from "@app/api/models";
+import {
+  Application,
+  JsonDocument,
+  New,
+  Repository,
+  TagRef,
+} from "@app/api/models";
+import {
+  normalizeRepository,
+  yupRepositoryFields,
+} from "@app/components/repository-fields";
 import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { type RepositoryKind } from "@app/hooks/useRepositoryKind";
 import { type TagItemType } from "@app/queries/tags";
@@ -21,18 +31,12 @@ export interface FormValues {
   tags: TagItemType[];
   owner: string | null;
   contributors: string[];
-  kind: RepositoryKind;
-  sourceRepository: string;
-  branch: string;
-  rootPath: string;
+  source: Repository<RepositoryKind>;
   group: string;
   artifact: string;
   version: string;
   packaging: string;
-  assetKind: RepositoryKind;
-  assetRepository: string;
-  assetBranch: string;
-  assetRootPath: string;
+  assets: Repository<RepositoryKind>;
   sourcePlatform: string | null;
   coordinatesDocument: JsonDocument | null;
 }
@@ -118,17 +122,7 @@ export const useApplicationForm = ({
         .max(250, t("validation.maxLength", { length: 250 })),
 
       // source code fields
-      kind: string().oneOf(["", "git", "subversion"]),
-      sourceRepository: string().when("kind", {
-        is: (kind: string) => kind !== "",
-        then: (schema) => schema.repositoryUrl("kind").required(),
-      }),
-      branch: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
-      rootPath: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+      source: yupRepositoryFields({ t, allowEmptyKind: true }),
 
       // binary fields
       group: string()
@@ -166,17 +160,7 @@ export const useApplicationForm = ({
         }),
 
       // asset repository fields
-      assetKind: string().oneOf(["", "git", "subversion"]),
-      assetRepository: string().when("assetKind", {
-        is: (kind: string) => kind !== "",
-        then: (schema) => schema.repositoryUrl("assetKind").required(),
-      }),
-      assetBranch: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
-      assetRootPath: string()
-        .trim()
-        .max(250, t("validation.maxLength", { length: 250 })),
+      assets: yupRepositoryFields({ t, allowEmptyKind: true }),
 
       // source platform and coordinates
       sourcePlatform: string().nullable(),
@@ -216,19 +200,23 @@ export const useApplicationForm = ({
       contributors:
         application?.contributors?.map((contributor) => contributor.name) || [],
 
-      kind: (application?.repository?.kind ?? "") as RepositoryKind,
-      sourceRepository: application?.repository?.url || "",
-      branch: application?.repository?.branch || "",
-      rootPath: application?.repository?.path || "",
+      source: {
+        kind: (application?.repository?.kind ?? "git") as RepositoryKind,
+        url: application?.repository?.url || "",
+        branch: application?.repository?.branch || "",
+        path: application?.repository?.path || "",
+      },
       group: getBinaryInitialValue(application, "group"),
       artifact: getBinaryInitialValue(application, "artifact"),
       version: getBinaryInitialValue(application, "version"),
       packaging: getBinaryInitialValue(application, "packaging"),
 
-      assetKind: (application?.assets?.kind ?? "") as RepositoryKind,
-      assetRepository: application?.assets?.url || "",
-      assetBranch: application?.assets?.branch || "",
-      assetRootPath: application?.assets?.path || "",
+      assets: {
+        kind: (application?.assets?.kind ?? "git") as RepositoryKind,
+        url: application?.assets?.url || "",
+        branch: application?.assets?.branch || "",
+        path: application?.assets?.path || "",
+      },
 
       sourcePlatform: application?.platform?.name || null,
       coordinatesDocument: application?.coordinates?.content ?? null,
@@ -268,26 +256,16 @@ export const useApplicationForm = ({
       owner: stakeholderToRef(formValues.owner),
       contributors: stakeholdersToRefs(formValues.contributors),
 
-      repository: formValues.sourceRepository
-        ? {
-            kind: formValues.kind?.trim(),
-            url: formValues.sourceRepository.trim(),
-            branch: formValues.branch.trim(),
-            path: formValues.rootPath.trim(),
-          }
+      repository: formValues.source.url
+        ? normalizeRepository(formValues.source)
         : undefined,
 
       binary:
         binaryValues.length > 0 ? `mvn://${binaryValues.join(":")}` : undefined,
 
-      ...(formValues.assetKind && {
-        assets: {
-          kind: formValues.assetKind.trim(),
-          url: formValues.assetRepository.trim(),
-          branch: formValues.assetBranch.trim(),
-          path: formValues.assetRootPath.trim(),
-        },
-      }),
+      assets: formValues.assets.url
+        ? normalizeRepository(formValues.assets)
+        : undefined,
 
       platform: toRef(platform),
       ...(platform &&

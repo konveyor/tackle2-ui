@@ -16,7 +16,11 @@ declare module "yup" {
      * If the linked field's value is "svn" or "subversion", use svn URL validation.  Any
      * other type will use standard URL validation.
      */
-    repositoryUrl(repositoryTypeField: string, message?: string): StringSchema;
+    repositoryUrl(
+      repositoryTypeField: string,
+      allowEmpty?: boolean,
+      message?: string
+    ): StringSchema;
 
     validMavenSettingsXml(
       skipValidation?: (value?: string) => boolean
@@ -29,6 +33,7 @@ yup.addMethod(
   "repositoryUrl",
   function (
     repositoryTypeField: string,
+    allowEmpty = false,
     message = "Must be a valid repository URL."
   ) {
     return this.test("repositoryUrl", message, function (value) {
@@ -40,7 +45,7 @@ yup.addMethod(
             ? isValidSvnUrl(value)
             : isValidStandardUrl(value);
       }
-      return false;
+      return allowEmpty;
     });
   }
 );

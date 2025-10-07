@@ -20,6 +20,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { RepositoryFields } from "@app/components/repository-fields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { toOptionLike } from "@app/utils/model-utils";
 import { wrapAsEvent } from "@app/utils/utils";
@@ -45,7 +46,7 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = (props) => {
 };
 
 export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
-  form: { control, trigger, getValues, setValue },
+  form,
   data: {
     tagItems,
     stakeholdersOptions,
@@ -57,16 +58,15 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   },
   application,
 }) => {
+  const { control, getValues, setValue } = form;
   const { t } = useTranslation();
-  const watchKind = useWatch({ control, name: "kind" });
-  const watchAssetKind = useWatch({ control, name: "assetKind" });
   const watchSourcePlatform = useWatch({ control, name: "sourcePlatform" });
   const values = getValues();
 
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
 
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(
-    application === null || (!!values.kind && !!values.sourceRepository)
+    application === null || (!!values.source.kind && !!values.source.url)
   );
 
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(
@@ -82,7 +82,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
 
   const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
     React.useState(
-      application !== null && !!values.assetKind && !!values.assetRepository
+      application !== null && !!values.assets.kind && !!values.assets.url
     );
 
   return (
@@ -250,51 +250,25 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         isExpanded={isSourceCodeExpanded}
       >
         <div className="pf-v5-c-form">
-          <HookFormPFGroupController
-            control={control}
-            name="kind"
-            label="Repository type"
-            fieldId="repository-type-select"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                toggleId="repo-type-toggle"
-                toggleAriaLabel="Type select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, repositoryKindOptions) : undefined
-                }
-                options={repositoryKindOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                  trigger("sourceRepository");
-                }}
-              />
-            )}
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="sourceRepository"
-            label={t("terms.sourceRepo")}
-            fieldId="sourceRepository"
-            aria-label="source repository url"
-            isRequired={repositoryKindOptions.some(
-              ({ value }) => value === watchKind
-            )}
-          />
-          <HookFormPFTextInput
-            control={control}
-            type="text"
-            aria-label="Repository branch"
-            name="branch"
-            label={t("terms.sourceBranch")}
-            fieldId="branch"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="rootPath"
-            label={t("terms.sourceRootPath")}
-            fieldId="rootPath"
+          <RepositoryFields
+            form={form}
+            prefix="source"
+            kindOptions={repositoryKindOptions}
+            labels={{
+              type: t("terms.repositoryType"),
+              url: t("terms.sourceRepo"),
+              branch: t("terms.sourceBranch"),
+              path: t("terms.sourceRootPath"),
+            }}
+            fieldIds={{
+              type: "repository-type-select",
+              url: "sourceRepository",
+              branch: "branch",
+              path: "rootPath",
+            }}
+            toggleIds={{
+              type: "repo-type-toggle",
+            }}
           />
         </div>
       </ExpandableSection>
@@ -426,51 +400,25 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         isExpanded={isAssetRepositoryExpanded}
       >
         <div className="pf-v5-c-form">
-          <HookFormPFGroupController
-            control={control}
-            name="assetKind"
-            label="Asset repository type"
-            fieldId="asset-repository-type-select"
-            renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                toggleId="asset-repo-type-toggle"
-                toggleAriaLabel="Type select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, repositoryKindOptions) : undefined
-                }
-                options={repositoryKindOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                  trigger("assetRepository");
-                }}
-              />
-            )}
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="assetRepository"
-            label={t("terms.assetRepository")}
-            fieldId="assetRepository"
-            aria-label="asset repository url"
-            isRequired={repositoryKindOptions.some(
-              ({ value }) => value === watchAssetKind
-            )}
-          />
-          <HookFormPFTextInput
-            control={control}
-            type="text"
-            aria-label="Repository branch"
-            name="assetBranch"
-            label={t("terms.sourceBranch")}
-            fieldId="assetBranch"
-          />
-          <HookFormPFTextInput
-            control={control}
-            name="assetRootPath"
-            label={t("terms.sourceRootPath")}
-            fieldId="assetRootPath"
+          <RepositoryFields
+            form={form}
+            prefix="assets"
+            kindOptions={repositoryKindOptions}
+            labels={{
+              type: t("terms.repositoryType"),
+              url: t("terms.assetRepository"),
+              branch: t("terms.sourceBranch"),
+              path: t("terms.sourceRootPath"),
+            }}
+            fieldIds={{
+              type: "asset-repository-type-select",
+              url: "assetRepository",
+              branch: "assetBranch",
+              path: "assetRootPath",
+            }}
+            toggleIds={{
+              type: "asset-repo-type-toggle",
+            }}
           />
         </div>
       </ExpandableSection>
