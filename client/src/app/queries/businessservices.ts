@@ -51,15 +51,15 @@ export const useFetchBusinessServiceById = (
 };
 
 export const useCreateBusinessServiceMutation = (
-  onSuccess: (res: BusinessService) => void,
+  onSuccess: (newBusinessService: BusinessService) => void,
   onError: (err: AxiosError, payload: New<BusinessService>) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createBusinessService,
-    onSuccess: ({ data }, _payload) => {
-      onSuccess(data);
+    onSuccess: (res, _payload) => {
+      onSuccess(res);
       queryClient.invalidateQueries({ queryKey: [BusinessServicesQueryKey] });
     },
     onError,

@@ -85,19 +85,19 @@ export const useCreateArchetypeMutation = (
 };
 
 export const useUpdateArchetypeMutation = (
-  onSuccess: (id: number) => void,
+  onSuccess: (updatedArchetype: Archetype) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateArchetype,
-    onSuccess: (_, { id }) => {
+    onSuccess: (_, updatedArchetype) => {
       queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
       queryClient.invalidateQueries({
-        queryKey: [ARCHETYPE_QUERY_KEY, String(id)],
+        queryKey: [ARCHETYPE_QUERY_KEY, String(updatedArchetype.id)],
       });
-      onSuccess(id);
+      onSuccess(updatedArchetype);
     },
     onError: onError,
   });

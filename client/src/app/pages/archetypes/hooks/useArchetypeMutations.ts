@@ -51,7 +51,7 @@ export const useArchetypeMutations = ({
   };
 
   // Update archetype success handler
-  const onUpdateSuccess = (_id: number) => {
+  const onUpdateSuccess = (_updatedArchetype: Archetype) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.archetype"),

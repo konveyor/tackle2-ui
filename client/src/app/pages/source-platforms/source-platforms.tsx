@@ -43,7 +43,9 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useDeletePlatformMutation } from "@app/queries/platforms";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -51,9 +53,7 @@ import { ColumnPlatformName } from "./components/column-platform-name";
 import LinkToPlatformApplications from "./components/link-to-platform-applications";
 import PlatformDetailDrawer from "./components/platform-detail-drawer";
 import { PlatformForm } from "./components/platform-form";
-import { DiscoverImportWizard } from "./discover-import-wizard/discover-import-wizard";
 import { useFetchPlatformsWithTasks } from "./useFetchPlatformsWithTasks";
-import { usePlatformKindList } from "./usePlatformKindList";
 
 export const SourcePlatforms: React.FC = () => {
   const { t } = useTranslation();
