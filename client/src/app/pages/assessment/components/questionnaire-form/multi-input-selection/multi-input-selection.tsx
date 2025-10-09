@@ -8,6 +8,7 @@ import { QuestionWithSectionOrder } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+import { useWithUiId } from "@app/utils/query-utils";
 
 import { getQuestionFieldName } from "../../../form-utils";
 
@@ -24,16 +25,21 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
     return (question.answers || []).sort((a, b) => a.order - b.order);
   }, [question]);
 
+  const optionsWithUiId = useWithUiId(
+    sortedOptions,
+    (option) => `${question.order}-${option.order}`
+  );
+
   const questionFieldName = getQuestionFieldName(question, true);
 
   const isArchetype = useIsArchetype();
   const { t } = useTranslation();
   return (
     <Stack>
-      {sortedOptions.map((option, i) => {
-        const answerUniqueId = `${questionFieldName}-${option.text}-${i}`;
+      {optionsWithUiId.map((option) => {
+        const answerUniqueId = `${questionFieldName}-${option._ui_unique_id}`;
         return (
-          <StackItem key={answerUniqueId} className="pf-v5-u-pb-xs">
+          <StackItem key={option._ui_unique_id} className="pf-v5-u-pb-xs">
             <HookFormPFGroupController
               control={control}
               name={questionFieldName as `questions.${string}`}
