@@ -53,7 +53,6 @@ export interface RepositoryFieldsProps<TFormValues extends FieldValues> {
   toggleIds?: {
     type?: string;
   };
-  showRepositoryTypeTooltip?: boolean;
 }
 
 export const RepositoryFields = <TFormValues extends FieldValues>({

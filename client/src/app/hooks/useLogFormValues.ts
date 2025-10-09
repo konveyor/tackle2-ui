@@ -9,7 +9,7 @@ export const useLogFormValues = <TFormValues extends FieldValues>(
 ) => {
   useEffect(() => {
     const { subscribe } = form;
-    const subscription = subscribe({
+    return subscribe({
       formState: { values: true, isValid: true, errors: true },
       callback: ({ values, isValid, errors }) => {
         console.log(
@@ -22,6 +22,5 @@ export const useLogFormValues = <TFormValues extends FieldValues>(
         );
       },
     });
-    return () => subscription();
   }, [form]);
 };
