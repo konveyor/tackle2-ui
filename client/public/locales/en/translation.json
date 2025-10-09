@@ -653,7 +653,12 @@
     "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
     "mustBeNumber": "Must be a number",
-    "notOneOf": "Value is not a valid option."
+    "notOneOf": "Value is not a valid option.",
+    "repositoryTypeRequired": "Repository type is required.",
+    "repositoryTypeRequiredWhen": "Repository type is required when URL, branch, or path is specified.",
+    "repositoryUrlRequired": "Repository URL is required.",
+    "repositoryUrlRequiredWhen": "Repository URL is required when branch or path is specified.",
+    "repositoryUrlInvalid": "Must be a valid repository URL."
   },
   "wizard": {
     "alert": {
