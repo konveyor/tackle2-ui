@@ -25,7 +25,7 @@ export const getQuestionFieldName = (
   question: QuestionWithSectionOrder,
   fullName: boolean
 ): string => {
-  const fieldName = `section-${question.sectionOrder}-question-${question.order}-${question.text}`;
+  const fieldName = `section-${question.sectionOrder}-question-${question.order}`;
 
   const sanitizedFieldName = sanitizeKey(fieldName);
 
