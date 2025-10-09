@@ -1,11 +1,9 @@
 import * as React from "react";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -13,10 +11,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import {
-  useTableControlProps,
-  useTableControlState,
-} from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 
 interface GeneratorCollectionItem {
   key: string;
@@ -32,53 +27,45 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const filterCategories = useMemo(
-    () => [
+  const tableControls = useLocalTableControls({
+    tableName: "generator-collection-table",
+    idProperty: "key",
+    dataNameProperty: "key",
+    items: collection || [],
+    columnNames: {
+      key: "Key",
+      value: "Value",
+    },
+    isFilterEnabled: true,
+    isSortEnabled: true,
+    isPaginationEnabled: true,
+    sortableColumns: ["key", "value"],
+    initialSort: { columnKey: "key", direction: "asc" },
+    getSortValues: ({ key, value }) => ({
+      key: key ?? "",
+      value: value ?? "",
+    }),
+    filterCategories: [
       {
         categoryKey: "key",
         title: "Key",
         type: FilterType.search,
-        placeholderText:
-          t("actions.filterBy", {
-            what: t("terms.name").toLowerCase(),
-          }) + "...",
-        getServerFilterValue: (value: any) => (value ? [`*${value[0]}*`] : []),
+        placeholderText: t("actions.filterBy", { what: "key" }) + "...",
+        getItemValue: ({ key }) => key ?? "",
+      },
+      {
+        categoryKey: "value",
+        title: "Value",
+        type: FilterType.search,
+        placeholderText: t("actions.filterBy", { what: "value" }) + "...",
+        getItemValue: ({ value }) => value ?? "",
       },
     ],
-    [t]
-  );
-
-  const columnNames = useMemo(
-    () => ({
-      key: "key",
-      value: "value",
-    }),
-    []
-  );
-
-  const tableControlState = useTableControlState({
-    tableName: "generator-collection-table",
-    persistTo: "state",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.generatorCollections,
-    columnNames,
-    isFilterEnabled: true,
-    isSortEnabled: true,
-    isPaginationEnabled: true,
-    sortableColumns: ["key"],
-    initialSort: { columnKey: "key", direction: "asc" },
-    filterCategories,
     initialItemsPerPage: 10,
   });
 
-  const tableControls = useTableControlProps({
-    ...tableControlState,
-    idProperty: "key",
-    currentPageItems: collection || [],
-    totalItemCount: (collection || []).length,
-    isLoading: false,
-  });
-
   const {
+    currentPageItems,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -119,11 +106,11 @@ const GeneratorCollectionTable: React.FC<GeneratorCollectionTableProps> = ({
         <ConditionalTableBody
           isLoading={false}
           isError={false}
-          isNoData={!collection || collection.length === 0}
+          isNoData={currentPageItems.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {collection?.map((item, rowIndex) => (
+            {currentPageItems.map((item, rowIndex) => (
               <Tr key={item.key} {...getTrProps({ item })}>
                 <TableRowContentWithControls
                   {...tableControls}

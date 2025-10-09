@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Ref } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -13,11 +12,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import {
-  deserializeFilterUrlParams,
-  useTableControlProps,
-  useTableControlState,
-} from "@app/hooks/table-controls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
 
 export interface IPlatformAppsTableProps {
@@ -25,69 +20,53 @@ export interface IPlatformAppsTableProps {
 }
 
 const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
-  platformApplications,
+  platformApplications: platformApplicationRefs,
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const filters = urlParams.get("filters");
-  const deserializedFilterValues = deserializeFilterUrlParams({ filters });
-
   const {
-    data: baseApplications,
+    data: allApplications,
     isFetching: isFetchingApplications,
     error: applicationsFetchError,
   } = useFetchApplications();
 
-  const getPlatformApplication = () => {
-    const platformApplicationIds = platformApplications?.map(
-      (platformApplication) => platformApplication.id
-    );
-    return baseApplications?.filter((app) =>
-      platformApplicationIds?.includes(app.id)
-    );
-  };
+  const platformApplications = React.useMemo(() => {
+    const idsToInclude = new Set(platformApplicationRefs?.map(({ id }) => id));
+    return allApplications.filter(({ id }) => idsToInclude.has(id));
+  }, [allApplications, platformApplicationRefs]);
 
-  const tableApplications = getPlatformApplication();
-
-  const tableControlState = useTableControlState({
+  const tableControls = useLocalTableControls({
     tableName: "platform-apps-table",
-    persistTo: "urlParams",
-    persistenceKeyPrefix: TablePersistenceKeyPrefix.platformApplications,
+    idProperty: "id",
+    dataNameProperty: "name",
+    items: platformApplications,
     columnNames: {
-      name: "Application",
+      name: t("terms.name"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     sortableColumns: ["name"],
     initialSort: { columnKey: "name", direction: "asc" },
-    initialFilterValues: deserializedFilterValues,
+    getSortValues: (app) => ({ name: app.name }),
     filterCategories: [
       {
-        categoryKey: "application.name",
-        title: "Application Name",
+        categoryKey: "name",
+        title: t("terms.name"),
         type: FilterType.search,
         placeholderText:
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+        getItemValue: ({ name }) => name ?? "",
       },
     ],
     initialItemsPerPage: 10,
   });
 
-  const tableControls = useTableControlProps({
-    ...tableControlState,
-    idProperty: "id",
-    currentPageItems: tableApplications,
-    totalItemCount: tableApplications?.length ?? 0,
-    isLoading: isFetchingApplications,
-  });
-
   const {
+    currentPageItems,
     numRenderedColumns,
     propHelpers: {
       toolbarProps,
@@ -101,15 +80,9 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
     },
   } = tableControls;
 
-  const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
-    newSearch.delete("filters");
-    history.push(`${currentPath}`);
-  };
   return (
     <>
-      <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
+      <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
@@ -122,7 +95,7 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} aria-label="Dependency applications table">
+      <Table {...tableProps} aria-label="source platform applications table">
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
@@ -133,11 +106,11 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
         <ConditionalTableBody
           isLoading={isFetchingApplications}
           isError={!!applicationsFetchError}
-          isNoData={tableApplications?.length === 0}
+          isNoData={currentPageItems.length === 0}
           numRenderedColumns={numRenderedColumns}
         >
           <Tbody>
-            {tableApplications?.map((app, rowIndex) => (
+            {currentPageItems?.map((app, rowIndex) => (
               <Tr key={app.id} {...getTrProps({ item: app })}>
                 <TableRowContentWithControls
                   {...tableControls}
@@ -154,7 +127,7 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
         </ConditionalTableBody>
       </Table>
       <SimplePagination
-        idPrefix="dependency-apps-table"
+        idPrefix="platform-apps-table"
         isTop={false}
         isCompact
         paginationProps={paginationProps}
