@@ -24,19 +24,16 @@ const INITIAL_WIZARD_STATE: WizardState = {
   results: null,
 };
 
-type WizardReducer = (draft: WizardState, action?: WizardAction) => void;
 type WizardAction =
   | { type: "SET_PLATFORM"; payload: SourcePlatform | null }
   | { type: "SET_FILTERS"; payload: FilterState }
   | { type: "SET_RESULTS"; payload: ResultsData | null }
   | { type: "RESET"; payload: WizardState };
 
-const updateIsReady = (draft: WizardState) => {
-  draft.isReady = !!draft.platform && draft.filters.isValid;
-  return draft;
-};
-
-const wizardReducer: WizardReducer = (draft, action) => {
+const wizardReducer = (
+  draft: WizardState,
+  action?: WizardAction
+): WizardState | void => {
   if (action) {
     switch (action.type) {
       case "SET_PLATFORM":
@@ -49,12 +46,12 @@ const wizardReducer: WizardReducer = (draft, action) => {
         draft.results = action.payload;
         break;
       case "RESET":
-        return updateIsReady(action.payload);
+        return action.payload;
     }
   }
 
   // Validate and update isReady state after any change
-  updateIsReady(draft);
+  draft.isReady = !!draft.platform && draft.filters.isValid;
 };
 
 export type InitialStateRecipe = (draftInitialState: WizardState) => void;
