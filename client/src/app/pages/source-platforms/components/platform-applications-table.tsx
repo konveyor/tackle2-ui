@@ -80,15 +80,9 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
     },
   } = tableControls;
 
-  const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
-    newSearch.delete("filters");
-    history.push(`${currentPath}`);
-  };
   return (
     <>
-      <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
+      <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
@@ -133,7 +127,7 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
         </ConditionalTableBody>
       </Table>
       <SimplePagination
-        idPrefix="dependency-apps-table"
+        idPrefix="platform-apps-table"
         isTop={false}
         isCompact
         paginationProps={paginationProps}
