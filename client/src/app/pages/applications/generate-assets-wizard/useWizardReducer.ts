@@ -1,4 +1,6 @@
-import * as React from "react";
+import { useCallback, useRef } from "react";
+import { produce } from "immer";
+import { useImmerReducer } from "use-immer";
 
 import { TargetProfile } from "@app/api/models";
 
@@ -28,72 +30,99 @@ const INITIAL_WIZARD_STATE: WizardState = {
   results: null,
 };
 
-type WizardReducer = (state: WizardState, action: WizardAction) => WizardState;
 type WizardAction =
   | { type: "SET_PROFILE"; payload: TargetProfile }
   | { type: "SET_PARAMETERS"; payload: ParameterState }
   | { type: "SET_ADVANCED_OPTIONS"; payload: AdvancedOptionsState }
   | { type: "SET_RESULTS"; payload: ResultsData | null }
-  | { type: "RESET" };
+  | { type: "RESET"; payload: WizardState };
 
-const validateWizardState = (state: WizardState): WizardState => {
-  const isReady =
-    !!state.profile &&
-    state.parameters.isValid &&
-    state.advancedOptions.isValid;
-  return { ...state, isReady };
-};
-
-const wizardReducer: WizardReducer = (state, action) => {
-  switch (action.type) {
-    case "SET_PROFILE":
-      return { ...state, profile: action.payload };
-    case "SET_PARAMETERS":
-      return { ...state, parameters: action.payload };
-    case "SET_ADVANCED_OPTIONS":
-      return { ...state, advancedOptions: action.payload };
-    case "SET_RESULTS":
-      return { ...state, results: action.payload };
-    case "RESET":
-      return INITIAL_WIZARD_STATE;
-    default:
-      return state;
+const wizardReducer = (
+  draft: WizardState,
+  action?: WizardAction
+): WizardState | void => {
+  if (action) {
+    switch (action.type) {
+      case "SET_PROFILE":
+        draft.profile = action.payload;
+        break;
+      case "SET_PARAMETERS":
+        draft.parameters = action.payload;
+        break;
+      case "SET_ADVANCED_OPTIONS":
+        draft.advancedOptions = action.payload;
+        break;
+      case "SET_RESULTS":
+        draft.results = action.payload;
+        break;
+      case "RESET":
+        return action.payload;
+    }
   }
+
+  // Validate and update isReady state after any change
+  draft.isReady =
+    !!draft.profile &&
+    draft.parameters.isValid &&
+    draft.advancedOptions.isValid;
 };
 
-const validatedReducer: WizardReducer = (state, action) =>
-  validateWizardState(wizardReducer(state, action));
+export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 
-export const useWizardReducer = () => {
-  const [state, dispatch] = React.useReducer(
-    validatedReducer,
-    INITIAL_WIZARD_STATE,
-    validateWizardState
-  );
+const useImmerInitialState = (
+  initialRecipe?: InitialStateRecipe
+): WizardState => {
+  const initialRef = useRef<WizardState | null>(null);
+  if (initialRef.current === null) {
+    initialRef.current = produce(INITIAL_WIZARD_STATE, (draft) => {
+      initialRecipe?.(draft);
+      wizardReducer(draft);
+    });
+  }
+
+  return initialRef.current;
+};
+
+export const useWizardReducer = (init?: InitialStateRecipe) => {
+  // Ref: https://18.react.dev/reference/react/useReducer#avoiding-recreating-the-initial-state
+  // Allow RESET to have the same semantics as useReducer()'s initialState argument by just
+  // calculating the initial state once and storing it in a ref.
+  const firstInitialState = useImmerInitialState(init);
+
+  const [state, dispatch] = useImmerReducer(wizardReducer, firstInitialState);
 
   // Create stable callbacks using useCallback
-  const setProfile = React.useCallback((profile: TargetProfile) => {
-    dispatch({ type: "SET_PROFILE", payload: profile });
-  }, []);
+  const setProfile = useCallback(
+    (profile: TargetProfile) => {
+      dispatch({ type: "SET_PROFILE", payload: profile });
+    },
+    [dispatch]
+  );
 
-  const setParameters = React.useCallback((parameters: ParameterState) => {
-    dispatch({ type: "SET_PARAMETERS", payload: parameters });
-  }, []);
+  const setParameters = useCallback(
+    (parameters: ParameterState) => {
+      dispatch({ type: "SET_PARAMETERS", payload: parameters });
+    },
+    [dispatch]
+  );
 
-  const setAdvancedOptions = React.useCallback(
+  const setAdvancedOptions = useCallback(
     (advancedOptions: AdvancedOptionsState) => {
       dispatch({ type: "SET_ADVANCED_OPTIONS", payload: advancedOptions });
     },
-    []
+    [dispatch]
   );
 
-  const setResults = React.useCallback((results: ResultsData | null) => {
-    dispatch({ type: "SET_RESULTS", payload: results });
-  }, []);
+  const setResults = useCallback(
+    (results: ResultsData | null) => {
+      dispatch({ type: "SET_RESULTS", payload: results });
+    },
+    [dispatch]
+  );
 
-  const reset = React.useCallback(() => {
-    dispatch({ type: "RESET" });
-  }, []);
+  const reset = useCallback(() => {
+    dispatch({ type: "RESET", payload: firstInitialState });
+  }, [firstInitialState, dispatch]);
 
   return {
     state,
