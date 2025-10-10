@@ -153,9 +153,10 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
       const updatedRuleFile = {
         ...ruleFile,
         uploadProgress: 20,
-        status: "validated" as const,
+        status: "validated",
         contents: fileContents,
       };
+      onChangeRuleFile(updatedRuleFile);
       uploadFile(file, taskgroupId, updatedRuleFile);
     } catch (error) {
       onChangeRuleFile({
