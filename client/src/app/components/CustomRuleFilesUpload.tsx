@@ -85,18 +85,6 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
           status: "starting",
         }));
         onAddRuleFiles(newRuleFiles);
-      })
-      .then(() => {
-        // Automatically trigger customFileHandler for each file since PatternFly doesn't do this automatically
-        // Use setTimeout to ensure state has been updated
-        setTimeout(() => {
-          incomingFiles.forEach((file) => {
-            const ruleFile = ruleFileByName(file.name);
-            if (ruleFile) {
-              readVerifyAndUploadFile(ruleFile, file);
-            }
-          });
-        }, 0);
       });
   };
 
@@ -141,16 +129,9 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
           );
         }
       }
-      onChangeRuleFile({
-        ...ruleFile,
-        uploadProgress: 20,
-        status: "validated",
-        contents: fileContents,
-      });
-
       // Upload the file to hub!
       // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
-      const updatedRuleFile = {
+      const updatedRuleFile: UploadFile = {
         ...ruleFile,
         uploadProgress: 20,
         status: "validated",
