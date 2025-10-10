@@ -85,8 +85,8 @@ describe("Component: application-form", () => {
         })
       );
     });
-    await userEvent.selectOptions(screen.getByRole("listbox"), [data.repoType]);
-    expect(createButton).not.toBeEnabled();
+    await userEvent.click(screen.getByRole("option", { name: data.repoType }));
+    expect(createButton).toBeEnabled();
 
     // type in a valid git repo URL, and the create button should be enabled again
     const sourceRepositoryInput = await screen.findByLabelText(
