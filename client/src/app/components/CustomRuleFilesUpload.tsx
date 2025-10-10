@@ -129,16 +129,16 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
           );
         }
       }
-      onChangeRuleFile({
+      // Upload the file to hub!
+      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
+      const updatedRuleFile: UploadFile = {
         ...ruleFile,
         uploadProgress: 20,
         status: "validated",
         contents: fileContents,
-      });
-
-      // Upload the file to hub!
-      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
-      uploadFile(file, taskgroupId);
+      };
+      onChangeRuleFile(updatedRuleFile);
+      uploadFile(file, taskgroupId, updatedRuleFile);
     } catch (error) {
       onChangeRuleFile({
         ...ruleFile,
@@ -149,24 +149,22 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   };
 
   const { uploadFile } = useFileUploader(
-    (file, hubFile) => {
-      const ruleFile = ruleFileByName(file.name);
-      if (ruleFile) {
+    (file, hubFile, ruleFileContext) => {
+      if (ruleFileContext) {
         onChangeRuleFile({
-          ...ruleFile,
+          ...ruleFileContext,
           fileId: hubFile?.id,
           uploadProgress: 100,
           status: "uploaded",
         });
       }
     },
-    (error, file) => {
+    (error, file, ruleFileContext) => {
       const msg = getAxiosErrorMessage(error);
 
-      const ruleFile = ruleFileByName(file.name);
-      if (ruleFile) {
+      if (ruleFileContext) {
         onChangeRuleFile({
-          ...ruleFile,
+          ...ruleFileContext,
           loadError: msg,
           status: "failed",
         });
@@ -250,20 +248,52 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
 };
 
 function useFileUploader(
-  onSuccess: (file: File, hubFile?: HubFile) => void,
-  onError: (e: AxiosError, file: File) => void
+  onSuccess: (
+    file: File,
+    hubFile?: HubFile,
+    ruleFileContext?: UploadFile
+  ) => void,
+  onError: (e: AxiosError, file: File, ruleFileContext?: UploadFile) => void
 ) {
+  // Store file context to pass to callbacks
+  const fileContextRef = React.useRef(new Map<string, UploadFile>());
+
   const { mutate: createRuleFile } = useCreateFileMutation(
-    (hubFile, file) => onSuccess(file, hubFile),
-    (e, file) => onError(e, file)
+    (hubFile, file) => {
+      const ruleFileContext = fileContextRef.current.get(file.name);
+      onSuccess(file, hubFile, ruleFileContext);
+      fileContextRef.current.delete(file.name);
+    },
+    (e, file) => {
+      const ruleFileContext = fileContextRef.current.get(file.name);
+      onError(e, file, ruleFileContext);
+      fileContextRef.current.delete(file.name);
+    }
   );
 
   const { mutate: uploadTaskgroupFile } = useUploadTaskgroupFileMutation(
-    (_, { file }) => onSuccess(file),
-    (e, { file }) => onError(e, file)
+    (_, { file }) => {
+      const ruleFileContext = fileContextRef.current.get(file.name);
+      onSuccess(file, undefined, ruleFileContext);
+      fileContextRef.current.delete(file.name);
+    },
+    (e, { file }) => {
+      const ruleFileContext = fileContextRef.current.get(file.name);
+      onError(e, file, ruleFileContext);
+      fileContextRef.current.delete(file.name);
+    }
   );
 
-  const uploadFile = (file: File, taskgroupId?: number) => {
+  const uploadFile = (
+    file: File,
+    taskgroupId?: number,
+    ruleFileContext?: UploadFile
+  ) => {
+    // Store the ruleFile context for retrieval in callbacks
+    if (ruleFileContext) {
+      fileContextRef.current.set(file.name, ruleFileContext);
+    }
+
     if (taskgroupId === undefined) {
       createRuleFile({ file });
     } else {
