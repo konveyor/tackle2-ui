@@ -27,13 +27,11 @@
 Some tests require certain configuration parameters to be correctly defined in the `cypress.config.ts` file. Below is a list of tests and the parameters they require.
 
 - `export_to_jira_datacenter.test.ts`
-
   - `jira_stage_datacenter_project_id`
   - `jira_stage_bearer_token`
   - `jira_stage_datacenter_url`
 
 - `export_to_jira_cloud.test.ts`
-
   - `jira_atlassian_cloud_project`
   - `jira_atlassian_cloud_email`
   - `jira_atlassian_cloud_token`
