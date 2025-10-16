@@ -1,16 +1,30 @@
 {
-  "name": "tackle-ui-tests",
+  "name": "@konveyor-ui/cypress",
   "version": "0.1.0",
-  "description": "Tackle Web UI Tests",
+  "description": "Konveyor UI Cypress Tests",
   "license": "Apache-2.0",
   "private": true,
-  "repository": "https://github.com/konveyor/tackle-ui-tests.git",
-  "dependencies": {
+  "scripts": {
+    "clean": "rimraf cypress/",
+    "test:e2e": "npm run e2e:run:local --",
+    "e2e:run:local": "dotenvx run -- cypress run --e2e",
+    "e2e:open:local": "dotenvx run -- cypress open --e2e",
+    "e2e:run:minikube": "npm run e2e:run:local -- --config baseUrl=http://`minikube ip`",
+    "e2e:open:minikube": "npm run e2e:open:local -- --config baseUrl=http://`minikube ip`",
+    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml",
+    "lint": "eslint . && prettier --ignore-unknown --check .",
+    "lint:fix": "eslint --fix . && prettier --ignore-unknown --write ."
+  },
+  "lint-staged": {
+    "*.{ts,js}": "eslint --fix",
+    "*.!({ts,js})": "prettier --ignore-unknown --write"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.51.0",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@testing-library/cypress": "^10.0.1",
-    "@types/node": "^20.1.0",
     "cy-verify-downloads": "^0.1.13",
     "cypress": "^14.5.3",
     "cypress-downloadfile": "^1.2.4",
@@ -24,37 +38,12 @@
     "cypress-real-events": "^1.14.0",
     "cypress-tags": "^1.2.2",
     "decompress": "^4.2.1",
-    "dotenv": "^17.2.1",
     "esbuild": "^0.25.5",
     "faker": "^5.5.3",
-    "husky": "^9.1.7",
     "js-yaml": "^4.1.0",
     "junit-report-merger": "^3.0.2",
     "license-check-and-add": "^4.0.5",
     "mocha": "^9.1.2",
-    "mocha-junit-reporter": "^2.0.2",
-    "prettier": "^2.2.1",
-    "prettier-plugin-organize-imports": "^4.1.0",
-    "typedoc": "^0.23.28",
-    "typescript": "^4.2.4"
-  },
-  "scripts": {
-    "prepare": "cd .. && node .husky/install.mjs",
-    "e2e:run:local": "cypress run --env baseUrl=http://localhost:9000",
-    "e2e:open:local": "cypress open --e2e --env baseUrl=http://localhost:9000",
-    "check": "prettier --check '**/*.{ts,js,json}'",
-    "format": "prettier --write '**/*.{ts,js,json}'",
-    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml",
-    "lint": "eslint ."
-  },
-  "lint-staged": {
-    "!(package-lock.json)*": "prettier --ignore-unknown --write",
-    "**/*.{ts,js,json}": "prettier --ignore-unknown --write"
-  },
-  "engines": {
-    "node": ">=20.17"
-  },
-  "devDependencies": {
-    "lint-staged": "^16.1.4"
+    "mocha-junit-reporter": "^2.0.2"
   }
 }
