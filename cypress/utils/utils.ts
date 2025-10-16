@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { button, MIN, SEC } from "../e2e/types/constants";
-
+import { MIN, SEC, button } from "../e2e/types/constants";
 import {
   cancelButton,
   optionMenu,
   submitButton,
 } from "../e2e/views/common.view";
 import * as loginView from "../e2e/views/login.view";
+
 import Chainable = Cypress.Chainable;
 
 const fullUrl = Cypress.config("baseUrl") + "/applications";
