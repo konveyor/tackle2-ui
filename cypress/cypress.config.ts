@@ -1,13 +1,13 @@
-const dotenv = require("dotenv");
-dotenv.config();
-
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
 import { tagify } from "cypress-tags";
 import decompress from "decompress";
-import esbuildPreprocessor from "../cypress/support/esbuild-preprocessor";
-const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
+
+import esbuildPreprocessor from "./support/esbuild-preprocessor";
+
 const { verifyDownloadTasks } = require("cy-verify-downloads");
+const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
+const cypressFsPlugins = require("cypress-fs/plugins");
 
 export default defineConfig({
   viewportWidth: 1920,
@@ -75,7 +75,7 @@ export default defineConfig({
       esbuildPreprocessor(on);
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
-      require("cypress-fs/plugins")(on, config);
+      cypressFsPlugins(on, config);
 
       on("task", { downloadFile });
       on("task", verifyDownloadTasks);
