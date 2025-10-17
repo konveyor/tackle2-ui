@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-
-    "target": "es5",
-    "lib": ["es5", "dom", "es2015"],
+    "target": "es2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "types": [
       "node",
       "cy-verify-downloads",
@@ -19,14 +20,8 @@
     "resolveJsonModule": true,
     "sourceMap": true
   },
-  "typedocOptions": {
-    "entryPoints": ["cypress/integration"],
-    "out": "docs"
-  },
   "include": [
     "**/*.ts",
-    // "**/*.js",
     "../node_modules/dom-accessibility-api/dist/polyfills/SetLike.d.ts"
   ]
-  // "exclude": ["../node_modules"]
 }
