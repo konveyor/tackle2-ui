@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "types": [
+      "node",
+      "cy-verify-downloads",
+      "cypress",
+      "cypress-file-upload",
+      "cypress-react-selector",
+      "cypress-real-events",
+      "@testing-library/cypress"
+    ],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "sourceMap": true
+  },
+  "include": [
+    "**/*.ts",
+    "../node_modules/dom-accessibility-api/dist/polyfills/SetLike.d.ts"
+  ]
+}
