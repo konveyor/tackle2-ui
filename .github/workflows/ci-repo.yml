@@ -37,20 +37,21 @@ jobs:
           builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
 
-      - name: Did docs and hacks change?
-        id: docs-and-hacks
+      - name: Did cypress, docs and hacks change?
+        id: cypress-docs-and-hacks
         uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
         with:
           files: |
             docs/**
             hack/**
             *.md
+            cypress/**
 
-      - name: Check if only docs and hacks changes have been made in a PR
+      - name: Check if only cypress, docs and hacks changes have been made in a PR
         id: check-changes
         env:
           IS_PR: ${{ !!github.event.pull_request }}
-          ONLY_DOCS: ${{ steps.docs-and-hacks.outputs.only_modified }}
+          ONLY_DOCS: ${{ steps.cypress-docs-and-hacks.outputs.only_modified }}
         run: |
           SHOULD_TEST=$(
             if [[ $IS_PR == true ]] && [[ $ONLY_DOCS == true ]]; then
@@ -66,8 +67,8 @@ jobs:
 
       - name: Summarize findings
         env:
-          ONLY_DOCS: ${{ steps.docs-and-hacks.outputs.only_modified }}
-          MODIFIED_FILES: ${{ steps.docs-and-hacks.outputs.all_modified_files }}
+          ONLY_DOCS: ${{ steps.cypress-docs-and-hacks.outputs.only_modified }}
+          MODIFIED_FILES: ${{ steps.cypress-docs-and-hacks.outputs.all_modified_files }}
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Build container
