@@ -11,7 +11,6 @@
     "e2e:open:local": "dotenvx run -- cypress open --e2e",
     "e2e:run:minikube": "npm run e2e:run:local -- --config baseUrl=http://`minikube ip`",
     "e2e:open:minikube": "npm run e2e:open:local -- --config baseUrl=http://`minikube ip`",
-    "mergereports": "npx jrm ./reports/junitreport.xml ./reports/junit/*.xml",
     "lint": "eslint . && prettier --ignore-unknown --check .",
     "lint:fix": "eslint --fix . && prettier --ignore-unknown --write ."
   },
@@ -32,18 +31,17 @@
     "cypress-file-upload": "^5.0.8",
     "cypress-fs": "^0.2.6",
     "cypress-log-filter": "^1.0.5",
-    "cypress-mochawesome-reporter": "^3.2.2",
-    "cypress-multi-reporters": "^1.5.0",
+    "cypress-mochawesome-reporter": "^4.0.2",
+    "cypress-multi-reporters": "^2.0.5",
     "cypress-react-selector": "^3.0.0",
     "cypress-real-events": "^1.14.0",
     "cypress-tags": "^1.2.2",
     "decompress": "^4.2.1",
-    "esbuild": "^0.25.5",
+    "esbuild": "^0.25.11",
     "faker": "^5.5.3",
     "js-yaml": "^4.1.0",
-    "junit-report-merger": "^3.0.2",
     "license-check-and-add": "^4.0.5",
-    "mocha": "^9.1.2",
-    "mocha-junit-reporter": "^2.0.2"
+    "mocha": "^11.7.4",
+    "mocha-junit-reporter": "^2.2.1"
   }
 }

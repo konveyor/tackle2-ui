@@ -8,11 +8,10 @@ import esbuildPreprocessor from "./support/esbuild-preprocessor";
 const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
+const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
 
 export default defineConfig({
-  viewportWidth: 1920,
-  viewportHeight: 1080,
-  video: false,
+  // Cypress.env() values
   env: {
     jira_stage_datacenter_url: "https://issues.stage.redhat.com/",
     jira_stage_bearer_token: "",
@@ -30,37 +29,50 @@ export default defineConfig({
     FAIL_FAST_ENABLED: false,
     metricsUrl: "",
   },
+
+  // Cypress.config() values
+  viewportWidth: 1920,
+  viewportHeight: 1080,
+  video: false,
+  videosFolder: "run/videos",
+  screenshotsFolder: "run/screenshots",
+  downloadsFolder: "run/downloads",
+
   retries: {
     runMode: 0,
     openMode: 0,
   },
-  reporter: "cypress-multi-reporters",
+  defaultCommandTimeout: 8000,
+  experimentalMemoryManagement: true,
+
+  reporter: "../node_modules/cypress-multi-reporters",
   reporterOptions: {
-    reporterEnabled: "cypress-mochawesome-reporter, mocha-junit-reporter",
-    cypressMochawesomeReporterReporterOptions: {
-      reportDir: "cypress/reports",
-      charts: true,
-      reportPageTitle: "Tackle test report",
-      embeddedScreenshots: true,
-      inlineAssets: true,
-    },
+    reporterEnabled: "mocha-junit-reporter, cypress-mochawesome-reporter",
     mochaJunitReporterReporterOptions: {
-      mochaFile: "cypress/reports/junit/results-[hash].xml",
+      mochaFile: "run/report/junit/results-[hash].xml",
+    },
+    cypressMochawesomeReporterReporterOptions: {
+      reportDir: "run/report",
+      reportPageTitle: "Konveyor E2E Tests",
+      reportTitle: "Konveyor E2E Tests",
+      charts: true,
+      embeddedScreenshots: true,
+      inline: true,
+      saveJson: true,
+      // timestamp: "isoUtcDateTime",
     },
   },
-  defaultCommandTimeout: 8000,
+
   e2e: {
-    baseUrl: process.env.CYPRESS_BASE_URL,
+    baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:9000",
     specPattern: [
       "e2e/tests/login.test.ts",
       "e2e/tests/**/*.test.{js,jsx,ts,tsx}",
     ],
     supportFile: "support/e2e.ts",
     fixturesFolder: "fixtures",
-    experimentalMemoryManagement: true,
 
     setupNodeEvents(on, config) {
-      config.env.baseUrl = process.env.CYPRESS_BASE_URL;
       config.env.initialPassword = process.env.CYPRESS_INITIAL_PASSWORD;
       config.env.user = process.env.CYPRESS_USER;
       config.env.pass = process.env.CYPRESS_PASSWORD;
@@ -71,11 +83,12 @@ export default defineConfig({
       config.env.svn_user = process.env.CYPRESS_SVN_USER;
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
-      //Plugins
+      // Plugins
       esbuildPreprocessor(on);
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);
+      cypressMochawesomeReporter(on, config);
 
       on("task", { downloadFile });
       on("task", verifyDownloadTasks);

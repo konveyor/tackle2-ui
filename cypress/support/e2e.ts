@@ -15,6 +15,7 @@
  */
 
 // commands from libraries
+import "cypress-mochawesome-reporter/register";
 import "cypress-downloadfile/lib/downloadFileCommand";
 import "cypress-fail-fast";
 import "cypress-file-upload";

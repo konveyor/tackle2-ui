@@ -25,6 +25,7 @@ describe("Log In", () => {
     function () {
       selectUserPerspective(migration);
       cy.get("h1").should("contain", "Application inventory");
+      cy.screenshot();
     }
   );
 });
