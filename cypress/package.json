@@ -19,10 +19,8 @@
     "*.!({ts,js})": "prettier --ignore-unknown --write"
   },
   "devDependencies": {
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
     "@dotenvx/dotenvx": "^1.51.0",
-    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@testing-library/cypress": "^10.0.1",
     "cy-verify-downloads": "^0.1.13",
     "cypress": "^14.5.3",

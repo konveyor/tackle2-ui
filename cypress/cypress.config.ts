@@ -1,9 +1,8 @@
+import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
 import { tagify } from "cypress-tags";
 import decompress from "decompress";
-
-import esbuildPreprocessor from "./support/esbuild-preprocessor";
 
 const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
@@ -84,7 +83,7 @@ export default defineConfig({
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
       // Plugins
-      esbuildPreprocessor(on);
+      on("file:preprocessor", createBundler());
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);
