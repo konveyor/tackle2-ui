@@ -4,21 +4,30 @@
 
 ### Requirements
 
-1. Operating system (typically Fedora or MacOS)
+1. Operating system (typically Fedora or macOS)
 2. Install Node.js 20 or above (OS native packages, or [nodejs](https://nodejs.org/en/download), or [nvm](https://github.com/nvm-sh/nvm) managed installs are all ok)
 
 ### Install and run automation
 
 1. Clone automation repository and setup
+
    ```sh
    git clone https://github.com/konveyor/tackle2-ui.git
    cd tackle2-ui
    npm clean-install
    ```
-2. Create an cypress.config.ts file by copying the content of [cypress.config.ts.example] and replace the properties values with yours.
+
+2. Setup your cypress environment
+   Copy the sample `cypress/.env.example` to `cypress/.env` and update for your environment. The variables
+   in this file will not override and existing exported environment variables.
+
+   ```sh
+   cp cypress/.env.example cypress/.env
+   ```
 
 3. Open Cypress and run test cases
    ```sh
+   cd cypress
    npx cypress open
    ```
 
@@ -45,9 +54,9 @@ Some tests require certain configuration parameters to be correctly defined in t
 
 Husky and lint-staged are used to format staged files when committing.
 
-To manually format the cypress code: `npm run format`
+To manually check the code formatting: `npm run lint`
 
-To manually check the code formatting: `npm run check`
+To manually format the cypress code: `npm run lint:fix`
 
 ## Pull request testing
 
@@ -149,7 +158,7 @@ Tests include:
 ### `@ci` tag:
 
 - Runs on minikube for CI testing https://github.com/konveyor/ci
-- Running tests on github actions on minikube has some constraints like
+- Running tests on GitHub Actions on minikube has some constraints like
   1. Limited resources
   2. Cannot run tests with credentials
   3. Time taken to run CI tests
