@@ -23,7 +23,6 @@ import {
   WarningTriangleIcon,
 } from "@patternfly/react-icons";
 import {
-  ActionsColumn,
   IAction,
   Table,
   Tbody,
@@ -50,6 +49,7 @@ import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
+import { TableActionsColumn } from "@app/components/TableActionsColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -1189,120 +1189,115 @@ export const ApplicationsTable: FC = () => {
                         {application?.effort ?? "-"}
                       </Td>
                     )}
-                    <Td isActionCell id="pencil-action">
-                      {applicationWriteAccess && (
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() =>
-                              setSaveApplicationModalState(application)
-                            }
-                          />
-                        </Tooltip>
-                      )}
-                    </Td>
-                    <Td isActionCell id="row-actions">
-                      <ActionsColumn
-                        items={filterAndAddSeparator<IAction>(
-                          (_index) => ({ isSeparator: true }),
+                    <TableActionsColumn
+                      primaryAction={
+                        applicationWriteAccess && (
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() =>
+                                setSaveApplicationModalState(application)
+                              }
+                            />
+                          </Tooltip>
+                        )
+                      }
+                      items={filterAndAddSeparator<IAction>(
+                        (_index) => ({ isSeparator: true }),
+                        [
                           [
-                            [
-                              assessmentWriteAccess && {
-                                title: t("actions.assess"),
-                                onClick: () => assessSelectedApp(application),
-                              },
-                              assessmentWriteAccess &&
-                                (application.assessments?.length ?? 0) > 0 && {
-                                  title: t("actions.discardAssessment"),
-                                  onClick: () =>
-                                    setAssessmentToDiscard(application),
-                                },
-                              reviewsWriteAccess && {
-                                title: t("actions.review"),
-                                onClick: () => reviewSelectedApp(application),
-                              },
-                              reviewsWriteAccess &&
-                                application?.review && {
-                                  title: t("actions.discardReview"),
-                                  onClick: () =>
-                                    setReviewToDiscard(application),
-                                },
-                            ],
-                            [
-                              dependenciesWriteAccess && {
-                                title: t("actions.manageDependencies"),
+                            assessmentWriteAccess && {
+                              title: t("actions.assess"),
+                              onClick: () => assessSelectedApp(application),
+                            },
+                            assessmentWriteAccess &&
+                              (application.assessments?.length ?? 0) > 0 && {
+                                title: t("actions.discardAssessment"),
                                 onClick: () =>
-                                  setApplicationDependenciesToManage(
-                                    application
-                                  ),
+                                  setAssessmentToDiscard(application),
                               },
-                              credentialsReadAccess &&
-                                applicationWriteAccess && {
-                                  title: t("actions.manageCredentials"),
-                                  onClick: () =>
-                                    setSaveApplicationsCredentialsModalState([
-                                      application,
-                                    ]),
-                                },
-                            ],
-                            [
-                              analysesReadAccess &&
-                                !!application.tasks.currentAnalyzer && {
-                                  title: t("actions.analysisDetails"),
-                                  onClick: () => {
-                                    const taskId =
-                                      application.tasks.currentAnalyzer?.id;
-                                    if (taskId && application.id) {
-                                      history.push(
-                                        formatPath(
-                                          Paths.applicationsAnalysisDetails,
-                                          {
-                                            applicationId: application.id,
-                                            taskId,
-                                          }
-                                        )
-                                      );
-                                    }
-                                  },
-                                },
-                              tasksReadAccess &&
-                                tasksWriteAccess &&
-                                isTaskCancellable(application) && {
-                                  title: t("actions.cancelAnalysis"),
-                                  onClick: () => cancelAnalysis(application),
-                                },
-                            ],
-                            [
-                              applicationWriteAccess &&
-                                tasksWriteAccess && {
-                                  title: t("actions.retrieveConfigurations"),
-                                  onClick: () =>
-                                    handleRetrieveConfigurations(application),
-                                  isDisabled:
-                                    !application.isReadyForRetrieveConfigurations,
-                                },
-                              applicationWriteAccess &&
-                                tasksWriteAccess && {
-                                  title: t("actions.generateAssets"),
-                                  onClick: () =>
-                                    handleGenerateAssets(application),
-                                  isDisabled:
-                                    !application.isReadyForGenerateAssets,
-                                },
-                            ],
-                            [
+                            reviewsWriteAccess && {
+                              title: t("actions.review"),
+                              onClick: () => reviewSelectedApp(application),
+                            },
+                            reviewsWriteAccess &&
+                              application?.review && {
+                                title: t("actions.discardReview"),
+                                onClick: () => setReviewToDiscard(application),
+                              },
+                          ],
+                          [
+                            dependenciesWriteAccess && {
+                              title: t("actions.manageDependencies"),
+                              onClick: () =>
+                                setApplicationDependenciesToManage(application),
+                            },
+                            credentialsReadAccess &&
                               applicationWriteAccess && {
-                                title: t("actions.delete"),
+                                title: t("actions.manageCredentials"),
                                 onClick: () =>
-                                  setApplicationsToDelete([application]),
-                                isDanger: true,
+                                  setSaveApplicationsCredentialsModalState([
+                                    application,
+                                  ]),
                               },
-                            ],
-                          ]
-                        )}
-                      />
-                    </Td>
+                          ],
+                          [
+                            analysesReadAccess &&
+                              !!application.tasks.currentAnalyzer && {
+                                title: t("actions.analysisDetails"),
+                                onClick: () => {
+                                  const taskId =
+                                    application.tasks.currentAnalyzer?.id;
+                                  if (taskId && application.id) {
+                                    history.push(
+                                      formatPath(
+                                        Paths.applicationsAnalysisDetails,
+                                        {
+                                          applicationId: application.id,
+                                          taskId,
+                                        }
+                                      )
+                                    );
+                                  }
+                                },
+                              },
+                            tasksReadAccess &&
+                              tasksWriteAccess &&
+                              isTaskCancellable(application) && {
+                                title: t("actions.cancelAnalysis"),
+                                onClick: () => cancelAnalysis(application),
+                              },
+                          ],
+                          [
+                            applicationWriteAccess &&
+                              tasksWriteAccess && {
+                                title: t("actions.retrieveConfigurations"),
+                                onClick: () =>
+                                  handleRetrieveConfigurations(application),
+                                isDisabled:
+                                  !application.isReadyForRetrieveConfigurations,
+                              },
+                            applicationWriteAccess &&
+                              tasksWriteAccess && {
+                                title: t("actions.generateAssets"),
+                                onClick: () =>
+                                  handleGenerateAssets(application),
+                                isDisabled:
+                                  !application.isReadyForGenerateAssets,
+                              },
+                          ],
+                          [
+                            applicationWriteAccess && {
+                              title: t("actions.delete"),
+                              onClick: () =>
+                                setApplicationsToDelete([application]),
+                              isDanger: true,
+                            },
+                          ],
+                        ]
+                      )}
+                    />
                   </TableRowContentWithControls>
                 </Tr>
               ))}

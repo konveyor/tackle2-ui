@@ -21,7 +21,6 @@ import {
 } from "@patternfly/react-core";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import {
-  ActionsColumn,
   IAction,
   Table,
   Tbody,
@@ -38,6 +37,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
+import { TableActionsColumn } from "@app/components/TableActionsColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -308,65 +308,61 @@ export const Identities: React.FC = () => {
                           {identity.createUser}
                         </Td>
 
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              id="edit-action"
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() =>
-                                setCreateUpdateModalState(identity)
-                              }
-                            />
-                          </Tooltip>
-                        </Td>
-                        <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={filterAndAddSeparator<IAction>(
-                              (_index) => ({ isSeparator: true }),
+                        <TableActionsColumn
+                          primaryAction={
+                            <Tooltip content={t("actions.edit")}>
+                              <Button
+                                id="edit-action"
+                                variant="plain"
+                                icon={<PencilAltIcon />}
+                                onClick={() =>
+                                  setCreateUpdateModalState(identity)
+                                }
+                              />
+                            </Tooltip>
+                          }
+                          items={filterAndAddSeparator<IAction>(
+                            (_index) => ({ isSeparator: true }),
+                            [
                               [
-                                [
-                                  identityMeta[identity.id]
-                                    .okToSetAsDefault && {
-                                    title: t("actions.setAsDefault"),
-                                    onClick: () => {
-                                      if (defaultIdentities[identity.kind]) {
-                                        setIdentityToDefault(identity);
-                                      } else {
-                                        // TODO: Maybe we want to confirm this first since it will
-                                        //       rerun tech-discovery and language-discovery on all
-                                        //       applications w/o credentials
-                                        doAssignDefaultIdentity(identity);
-                                      }
-                                    },
+                                identityMeta[identity.id].okToSetAsDefault && {
+                                  title: t("actions.setAsDefault"),
+                                  onClick: () => {
+                                    if (defaultIdentities[identity.kind]) {
+                                      setIdentityToDefault(identity);
+                                    } else {
+                                      // TODO: Maybe we want to confirm this first since it will
+                                      //       rerun tech-discovery and language-discovery on all
+                                      //       applications w/o credentials
+                                      doAssignDefaultIdentity(identity);
+                                    }
                                   },
+                                },
 
-                                  identityMeta[identity.id]
-                                    .okToRemoveDefault && {
-                                    title: t("actions.removeDefault"),
-                                    onClick: () => {
-                                      setIdentityToRemoveDefault(identity);
-                                    },
+                                identityMeta[identity.id].okToRemoveDefault && {
+                                  title: t("actions.removeDefault"),
+                                  onClick: () => {
+                                    setIdentityToRemoveDefault(identity);
                                   },
-                                ],
-                                [
-                                  {
-                                    isDanger: true,
-                                    title: t("actions.delete"),
-                                    onClick: () => {
-                                      setIdentityToDelete(identity);
-                                    },
-                                    isAriaDisabled:
-                                      identityMeta[identity.id].inUse,
-                                    tooltipProps: {
-                                      content: getDeleteTooltip(identity),
-                                    },
+                                },
+                              ],
+                              [
+                                {
+                                  isDanger: true,
+                                  title: t("actions.delete"),
+                                  onClick: () => {
+                                    setIdentityToDelete(identity);
                                   },
-                                ],
-                              ]
-                            )}
-                          />
-                        </Td>
+                                  isAriaDisabled:
+                                    identityMeta[identity.id].inUse,
+                                  tooltipProps: {
+                                    content: getDeleteTooltip(identity),
+                                  },
+                                },
+                              ],
+                            ]
+                          )}
+                        />
                       </TableRowContentWithControls>
                     </Tr>
                   ))}

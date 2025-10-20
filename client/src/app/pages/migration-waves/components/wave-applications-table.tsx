@@ -1,18 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { MigrationWave, WaveWithStatus } from "@app/api/models";
 import { SimplePagination } from "@app/components/SimplePagination";
+import { TableActionsColumn } from "@app/components/TableActionsColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -137,24 +130,22 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                     <Td width={15} {...getTdProps({ columnKey: "owner" })}>
                       {app?.owner?.name}
                     </Td>
-                    <Td isActionCell>
-                      <ActionsColumn
-                        items={[
-                          {
-                            title: t("actions.delete"),
-                            onClick: () =>
-                              removeApplication(migrationWave, app.id),
+                    <TableActionsColumn
+                      items={[
+                        {
+                          title: t("actions.delete"),
+                          onClick: () =>
+                            removeApplication(migrationWave, app.id),
+                        },
+                        matchingTicket && {
+                          title: t("actions.unlink"),
+                          onClick: () => {
+                            matchingTicket?.id &&
+                              deleteTicket(matchingTicket?.id);
                           },
-                          matchingTicket && {
-                            title: t("actions.unlink"),
-                            onClick: () => {
-                              matchingTicket?.id &&
-                                deleteTicket(matchingTicket?.id);
-                            },
-                          },
-                        ].filter(Boolean)}
-                      />
-                    </Td>
+                        },
+                      ].filter(Boolean)}
+                    />
                   </TableRowContentWithControls>
                 </Tr>
               );
