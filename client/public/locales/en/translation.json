@@ -289,7 +289,9 @@
     "unlinkTicket": "Unlink from Jira",
     "unsavedChanges": "Are you sure you want to close the assessment? Any unsaved changes will be lost.",
     "updateFailed": "Update failed.",
-    "updateRequestSubmitted": "Update request submitted."
+    "updateRequestSubmitted": "Update request submitted.",
+    "noApplicationsForAssignment": "No applications are available for assignment.",
+    "noApplicationsForExport": "No applications are available for export."
   },
   "proposedActions": {
     "refactor": "Refactor",
