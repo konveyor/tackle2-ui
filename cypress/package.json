@@ -29,7 +29,7 @@
     "cypress-file-upload": "^5.0.8",
     "cypress-fs": "^0.2.6",
     "cypress-log-filter": "^1.0.5",
-    "cypress-mochawesome-reporter": "^3.8.4",
+    "cypress-mochawesome-reporter": "^4.0.2",
     "cypress-multi-reporters": "^2.0.5",
     "cypress-react-selector": "^3.0.0",
     "cypress-real-events": "^1.14.0",
