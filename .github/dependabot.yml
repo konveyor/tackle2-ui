@@ -39,12 +39,6 @@ updates:
           - "husky"
           - "*eslint-plugin-*"
 
-      "testing-tools":
-        patterns:
-          - "jest*"
-          - "@types/jest"
-          - "ts-jest"
-
       "typescript-tooling":
         patterns:
           - "typescript"
@@ -124,6 +118,13 @@ updates:
           - "js-yaml"
           - "xmllint-wasm"
 
+      "testing-tools":
+        patterns:
+          - "jest*"
+          - "@types/jest"
+          - "ts-jest"
+          - "@testing-library/*"
+
   # Server workspace dependencies
   - package-ecosystem: "npm"
     directory: "/server"
@@ -144,6 +145,17 @@ updates:
   # Common workspace dependencies
   - package-ecosystem: "npm"
     directory: "/common"
+    schedule:
+      interval: "monthly"
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+    allow:
+      - dependency-type: direct
+
+  # Cypress workspace dependencies
+  - package-ecosystem: "npm"
+    directory: "/cypress"
     schedule:
       interval: "monthly"
       day: monday
