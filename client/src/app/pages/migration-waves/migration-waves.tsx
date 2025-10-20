@@ -474,6 +474,7 @@ export const MigrationWaves: React.FC = () => {
                             <OverflowMenu breakpoint="sm">
                               <Tooltip content={t("actions.edit")}>
                                 <Button
+                                  aria-label={t("actions.edit")}
                                   variant="plain"
                                   icon={<PencilAltIcon />}
                                   onClick={() =>
@@ -492,15 +493,14 @@ export const MigrationWaves: React.FC = () => {
                                     onClick: () => {
                                       setWaveToManageModalState(migrationWave);
                                     },
-                                    isAriaDisabled: applications.length === 0,
-                                    tooltipProps:
-                                      applications.length === 0
-                                        ? {
-                                            content: t(
-                                              "message.noApplicationsForAssignment"
-                                            ),
-                                          }
-                                        : undefined,
+                                    isAriaDisabled: !applications?.length,
+                                    tooltipProps: !applications?.length
+                                      ? {
+                                          content: t(
+                                            "message.noApplicationsForAssignment"
+                                          ),
+                                        }
+                                      : undefined,
                                   },
                                   {
                                     title: t("terms.exportToIssue"),
