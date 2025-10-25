@@ -125,6 +125,7 @@ module.exports = {
     "dist/",
     "generated/",
     "node_modules/",
+    "cypress/cypress.config.ts",
   ],
 
   // this is a hack to make sure eslint will look at all of the file extensions we

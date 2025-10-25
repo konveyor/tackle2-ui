@@ -1,3 +1,5 @@
+import * as dotenv from "dotenv";
+
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
@@ -8,6 +10,8 @@ const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
 const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
+
+dotenv.config();
 
 export default defineConfig({
   // Cypress.env() values
