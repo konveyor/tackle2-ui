@@ -24,7 +24,12 @@ export class CredentialsMaven extends Credentials {
     const { name, description, settingFile, isDefault } = credentialsMavenData;
     this.name = name;
     this.description = description;
-    this.settingsFile = settingFile;
+    // Convert ArrayBuffer to string if necessary
+    if (settingFile instanceof ArrayBuffer) {
+      this.settingsFile = new TextDecoder().decode(settingFile);
+    } else {
+      this.settingsFile = settingFile as string;
+    }
     this.isDefault = isDefault;
   }
 
