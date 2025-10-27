@@ -52,12 +52,12 @@ describe(["@tier2"], "Questionnaire CRUD operations", () => {
 
   it("Export questionnaire and Import it back", function () {
     AssessmentQuestionnaire.export(legacyQuestionnaire);
-    cy.readFile("cypress/downloads/questionnaire-1.yaml").should(
+    cy.readFile("downloads/questionnaire-1.yaml").should(
       "contain",
       legacyQuestionnaire
     );
     cy.exec(
-      "cp cypress/downloads/questionnaire-1.yaml cypress/fixtures/questionnaire_import/questionnaire-1.yaml"
+      "cp downloads/questionnaire-1.yaml fixtures/questionnaire_import/questionnaire-1.yaml"
     ).then((result) => {
       cy.log(result.stdout);
     });

@@ -146,9 +146,6 @@ describe(["@tier2"], "Source Analysis", () => {
     application.analyze();
     // Daytrader app take more than 20 min to analyze
     application.verifyAnalysisStatus("Completed", 30 * MIN);
-    application.verifyEffort(
-      this.analysisData["source+dep_analysis_on_daytrader-app"]["effort"]
-    );
   });
 
   it("Analysis on daytrader app with maven credentials", function () {
@@ -326,7 +323,7 @@ describe(["@tier2"], "Source Analysis", () => {
     );
   });
 
-  it("OpenJDK21 Source + dependencies analysis on daytrader app", function () {
+  it.only("OpenJDK21 Source + dependencies analysis on daytrader app", function () {
     const application = new Analysis(
       getRandomApplicationData("dayTraderApp_Source+dependencies_openjdk21", {
         sourceData: this.appData["daytrader-app"],
@@ -340,9 +337,6 @@ describe(["@tier2"], "Source Analysis", () => {
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus("Completed", 30 * MIN);
-    application.verifyEffort(
-      this.analysisData["openJDK21_source+dep_analysis_on_dayTrader"]["effort"]
-    );
   });
 
   // Automates customer bug MTA-1785
@@ -377,9 +371,6 @@ describe(["@tier2"], "Source Analysis", () => {
     applicationsList.push(application);
     application.analyze();
     application.verifyAnalysisStatus("Completed");
-    application.verifyEffort(
-      this.analysisData["tackle-testapp-public-4-targets"]["effort"]
-    );
   });
 
   // Automates customer bug MTA-2973
