@@ -1078,8 +1078,7 @@ export const ApplicationsTable: FC = () => {
                     }}
                   />
                 )}
-                <Th screenReaderText="primary action" />
-                <Th screenReaderText="secondary actions" />
+                <Th screenReaderText="actions" />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -1194,6 +1193,7 @@ export const ApplicationsTable: FC = () => {
                         applicationWriteAccess && (
                           <Tooltip content={t("actions.edit")}>
                             <Button
+                              aria-label={t("actions.edit")}
                               variant="plain"
                               icon={<PencilAltIcon />}
                               onClick={() =>

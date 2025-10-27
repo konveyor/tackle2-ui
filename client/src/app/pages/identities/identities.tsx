@@ -239,8 +239,7 @@ export const Identities: React.FC = () => {
                     />
                     <Th width={25} {...getThProps({ columnKey: "type" })} />
                     <Th {...getThProps({ columnKey: "createdBy" })} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText="actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -312,6 +311,7 @@ export const Identities: React.FC = () => {
                           primaryAction={
                             <Tooltip content={t("actions.edit")}>
                               <Button
+                                aria-label={t("actions.edit")}
                                 id="edit-action"
                                 variant="plain"
                                 icon={<PencilAltIcon />}
