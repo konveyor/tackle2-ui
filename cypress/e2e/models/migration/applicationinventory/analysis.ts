@@ -92,7 +92,6 @@ import { CustomMigrationTargetView } from "../../../views/custom-migration-targe
 import { Application } from "./application";
 
 export class Analysis extends Application {
-  name: string;
   source: string;
   target: string[];
   binary?: string[];
