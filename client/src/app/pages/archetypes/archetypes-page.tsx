@@ -309,8 +309,7 @@ const Archetypes: React.FC = () => {
                       width={10}
                     />
                     <Th {...getThProps({ columnKey: "review" })} width={10} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText="actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -398,6 +397,7 @@ const Archetypes: React.FC = () => {
                               archetypeWriteAccess ? (
                                 <Tooltip content={t("actions.edit")}>
                                   <Button
+                                    aria-label={t("actions.edit")}
                                     variant="plain"
                                     icon={<PencilAltIcon />}
                                     onClick={() =>

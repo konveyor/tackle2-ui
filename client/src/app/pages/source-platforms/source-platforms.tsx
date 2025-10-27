@@ -241,8 +241,7 @@ export const SourcePlatforms: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "platformKind" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText="actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -286,6 +285,7 @@ export const SourcePlatforms: React.FC = () => {
                           primaryAction={
                             <Tooltip content={t("actions.edit")}>
                               <Button
+                                aria-label={t("actions.edit")}
                                 variant="plain"
                                 icon={<PencilAltIcon />}
                                 onClick={() => setPlatformToEdit(platform)}
