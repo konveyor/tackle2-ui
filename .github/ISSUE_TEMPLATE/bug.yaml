@@ -21,7 +21,7 @@ body:
     id: priority
     attributes:
       label: Priority
-      description: What is the prority of this bug?
+      description: What is the priority of this bug?
       options:
         - Critical
         - Blocker

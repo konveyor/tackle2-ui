@@ -8,7 +8,7 @@ export default {
   // YAML files in .github - run prettier
   ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write",
 
-  // Any other files in any directory that doesn't have it's own lint-staged config (but excludes package-lock.json)
+  // Any other files in any directory that doesn't have its own lint-staged config (but excludes package-lock.json)
   "!(package-lock.json)*": "prettier --ignore-unknown --write",
 };
 
