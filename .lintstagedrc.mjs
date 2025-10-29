@@ -5,10 +5,8 @@ export default {
   // JavaScript/TypeScript files (including dotfiles) - run eslint
   "{,.}*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
 
-  // YAML files in .github - run prettier
-  ".github/**/*.{yaml,yml}": "prettier --ignore-unknown --write",
-
-  // Any other files in any directory that doesn't have its own lint-staged config (but excludes package-lock.json)
-  "!(package-lock.json)*": "prettier --ignore-unknown --write",
+  // Any other files in any directory not already handled by the above globs, and that
+  // do not have overriding lint-staged config
+  "!(package-lock.json|{,.}*.{js,cjs,mjs,jsx,ts,cts,mts,tsx})*": "prettier --ignore-unknown --write",
 };
 
