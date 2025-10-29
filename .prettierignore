@@ -2,6 +2,7 @@
 **/node_modules/
 **/coverage/
 **/dist/
+**/generated/
 .vscode/
 .idea/
 .eslintcache/
@@ -19,3 +20,5 @@ cypress/run/
 
 **/*.ts
 **/*.tsx
+**/*.cts
+**/*.mts
