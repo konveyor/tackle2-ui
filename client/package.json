@@ -1,6 +1,7 @@
 {
   "name": "@konveyor-ui/client",
   "version": "0.1.0",
+  "type": "commonjs",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {

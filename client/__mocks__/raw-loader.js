@@ -1,10 +1,9 @@
-/* eslint-env node */
+/* global module, require */
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require("fs");
 
 module.exports = {
-  process(_sourceText, sourcePath, _options) {
+  process(_sourceText, sourcePath) {
     // Read the content of the file
     const fileContent = fs.readFileSync(sourcePath, "utf8");
 

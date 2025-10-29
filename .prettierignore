@@ -6,6 +6,9 @@
 .idea/
 .eslintcache/
 
+cypress/cypress/
+cypress/run/
+
 #
 # Ignore anything that eslint will look at since eslint also applies prettier.
 #
