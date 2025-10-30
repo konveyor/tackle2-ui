@@ -60,7 +60,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { kinds: platformKindList, getUrlTooltip } = usePlatformKindList();
+  const { kinds: platformKindList, getUrlTooltip, getCredentialTooltip } = usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({
@@ -231,6 +231,20 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         name="credentials"
         label={t("terms.credentials")}
         fieldId="credentials"
+        labelIcon={
+          getCredentialTooltip(selectedKind) ? (
+            <Popover bodyContent={<div>{getCredentialTooltip(selectedKind)}</div>}>
+              <button
+                type="button"
+                aria-label="More info for credential field"
+                onClick={(e) => e.preventDefault()}
+                className="pf-v5-c-button pf-m-plain"
+              >
+                <HelpIcon />
+              </button>
+            </Popover>
+          ) : undefined
+        }
         renderInput={({ field: { value, name, onChange } }) => (
           <>
             <SimpleSelect
