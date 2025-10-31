@@ -148,5 +148,3 @@ Refer to Konveyor's Code of Conduct
 | release-0.7 | MTA 7.3.0                   |
 | release-0.8 | MTA 8.0.0                   |
 | main        | Upstream development branch |
-
-<!-- test GPG signing -->
