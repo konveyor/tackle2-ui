@@ -10,17 +10,17 @@ import globals from "globals";
 import * as tseslint from "typescript-eslint";
 
 const allSources = [
-  "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",     // Root level files
-  ".*.{js,cjs,mjs}",                       // Root dotfiles (.prettierrc.mjs, etc)
-  ".*/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // Dotfile directories (like .husky/)
-  "**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // All files in sub-directories
+  "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",     // Root level sourcefiles
+  ".*.{js,cjs,mjs}",                       // Root level source dotfiles (.prettierrc.mjs, etc)
+  ".*/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // Source files inside Dotfile directories (like .husky/)
+  "**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // Source files in sub-directories
 ];
 
 const allTypescriptSources = [
-  "*.{ts,tsx,cts,mts}",     // Root level files
-  ".*.{ts,tsx,cts,mts}",    // Root dotfiles (.prettierrc.mjs, etc)
-  ".*/*.{ts,tsx,cts,mts}",  // Dotfile directories (like .husky/)
-  "**/*.{ts,tsx,cts,mts}",  // All files in sub-directories
+  "*.{ts,tsx,cts,mts}",     // Root level TypeScript files
+  ".*.{ts,tsx,cts,mts}",    // Root level TypeScript dotfiles
+  ".*/*.{ts,tsx,cts,mts}",  // TypeScript files inside Dotfile directories (like .husky/)
+  "**/*.{ts,tsx,cts,mts}",  // TypeScript files in sub-directories
 ];
 
 export default defineConfig([
