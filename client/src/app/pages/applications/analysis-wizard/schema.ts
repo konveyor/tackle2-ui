@@ -196,11 +196,22 @@ export type AnalysisWizardFormValues = ModeStepValues &
   CustomRulesStepValues &
   OptionsStepValues;
 
+export interface AnalysisWizardFormValidationSchema {
+  schemas: {
+    modeStep: yup.SchemaOf<ModeStepValues>;
+    targetsStep: yup.SchemaOf<TargetsStepValues>;
+    scopeStep: yup.SchemaOf<ScopeStepValues>;
+    customRulesStep: yup.SchemaOf<CustomRulesStepValues>;
+    optionsStep: yup.SchemaOf<OptionsStepValues>;
+  };
+  allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues>;
+}
+
 export const useAnalysisWizardFormValidationSchema = ({
   applications,
 }: {
   applications: Application[];
-}) => {
+}): AnalysisWizardFormValidationSchema => {
   const schemas = {
     modeStep: useModeStepSchema({ applications }),
     targetsStep: useTargetsStepSchema(),

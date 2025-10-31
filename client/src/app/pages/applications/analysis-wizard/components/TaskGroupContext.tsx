@@ -6,13 +6,13 @@ import { useCreateTaskgroupMutation } from "@app/queries/taskgroups";
 
 import { defaultTaskgroup } from "../analysis-wizard";
 
-interface TaskGroupContext {
+interface ITaskGroupContext {
   createTaskGroup: () => Promise<Taskgroup>;
   updateTaskGroup: (taskGroup: Taskgroup | null) => void;
   taskGroup: Taskgroup | null;
 }
 
-const TaskGroupContext = createContext<TaskGroupContext>({
+const TaskGroupContext = createContext<ITaskGroupContext>({
   createTaskGroup: () => Promise.resolve({ ...defaultTaskgroup, id: -1 }),
   updateTaskGroup: () => {},
   taskGroup: null,
@@ -20,11 +20,11 @@ const TaskGroupContext = createContext<TaskGroupContext>({
 
 export const useTaskGroup = () => useContext(TaskGroupContext);
 
-interface TaskGroupProvider {
+interface ITaskGroupProvider {
   children: React.ReactNode;
 }
 
-export const TaskGroupProvider: React.FunctionComponent<TaskGroupProvider> = ({
+export const TaskGroupProvider: React.FunctionComponent<ITaskGroupProvider> = ({
   children,
 }) => {
   const { pushNotification } = React.useContext(NotificationsContext);

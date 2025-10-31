@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 /*
  * Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
  *

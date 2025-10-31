@@ -1,6 +1,7 @@
 {
   "name": "@konveyor-ui/cypress",
   "version": "0.1.0",
+  "type": "commonjs",
   "description": "Konveyor UI Cypress Tests",
   "license": "Apache-2.0",
   "private": true,

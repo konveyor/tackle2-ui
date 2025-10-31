@@ -36,15 +36,12 @@ export interface FormValues {
 ```
 
 - Define a schema for your values using yup [example](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/pages/proxies/proxies-validation-schema.ts#L7-L67)
-
   - For TypeScript to be happy, you may have to chain .defined() on some field schema types so it doesn't yell at you for e.g. Type `string | undefined` is not assignable to type `string`.
 
   - You want to have your schema returned by a function beginning with the word use, so it can fit with the React Hooks conventions and call `useTranslation()` to get you the `t()` function for translated validation error messages. Or if the form is small enough you can just define the schema inline.
 
 - Call `useForm` (from react-hook-form) and pass it your interface as a `type` param. Pass it an object with `defaultValues`, `resolver: yupResolver(yourSchemaHere)`, and `mode: "onChange"` (this will revalidate when any field changes, as opposed to requiring manual imperative validation. We need this option for the way we render errors).
-
   - `useForm` returns an object with a bunch of stuff. We usually destructure it in-place like you see here. Important things you'll need to pull out include `control`, probably `formState` if you need to block some buttons based on validation, `getValues` and `setValue` if you need to get/set anything manually (might not be necessary), and `watch` (more info on `watch` [here](https://react-hook-form.com/api/useform/watch/)) .
-
     - Note: `watch` will not be needed if you are using least one controlled input field via our controller components below since the presence of a controlled input will cause RHF to auto-watch the form values anyway.
 
 - Write an onSubmit function of type `SubmitHandler<YourValuesInterface>`. Wrap your form fields in a PF `<Form>` component with `onSubmit={handleSubmit(onSubmit)}` where `handleSubmit` came from your `useForm` call. That's where you'll eventually want to do the submit logic, probably using [mutations](https://tanstack.com/query/v4/docs/framework/react/guides/mutations) from react-query.
@@ -52,7 +49,6 @@ export interface FormValues {
 ### react-hook-form / wrapper component usage
 
 - Now you can use our new components for the fields themselves. They will take care of rendering the PF FormGroups and properly styled validation errors. Pass them the `control` prop from your `useForm` call and a name string prop matching the field name key from your form values object. TS is smart enough to infer the right field value type from those 2 props.
-
   - If you're rendering a basic text input, you can use `HookFormPFTextInput` ([source](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/components/HookFormPFFields/HookFormPFTextInput.tsx), [example](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/pages/proxies/proxy-form.tsx)). It extends the props of PatternFly's [TextInput](https://www.patternfly.org/components/forms/text-input/#textinput), so you can pass whatever extra stuff you need directly into it.
 
   - Same for a multi-line textarea, you can use `HookFormPFTextArea` ([source](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/components/HookFormPFFields/HookFormPFTextArea.tsx), [example](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/pages/proxies/proxy-form.tsx)) which extends the props of PF [TextArea](https://www.patternfly.org/components/forms/text-area).

@@ -12,7 +12,6 @@ Each of the project modules need to do some branding enablement.
   from the common module.
 
 - `@konveyor-ui/client` uses branding from the common package:
-
   - The location of `favicon.ico`, `manifest.json` and any other branding
     assets that may be referenced in the `brandingStrings` are sourced from the
     common package.
