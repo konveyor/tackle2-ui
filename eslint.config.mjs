@@ -1,13 +1,13 @@
 import js from "@eslint/js";
 import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
-import importPlugin from "eslint-plugin-import";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+import * as importX from "eslint-plugin-import-x";
 import prettierRecommended from "eslint-plugin-prettier/recommended";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import * as tseslint from "typescript-eslint";
 
 const allSources = [
   "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",     // Root level files
@@ -47,6 +47,10 @@ export default defineConfig([
     },
     rules: {
       "prefer-const": "warn",
+      "no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
     },
   },
 
@@ -62,35 +66,32 @@ export default defineConfig([
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-redeclare": "error",
       "@typescript-eslint/no-unused-expressions": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^(_|React)" },
+      ],
     },
   },
 
   {
     name: "project/all sources/import rules",
     files: allSources,
-    plugins: {
-      "unused-imports": unusedImports,
-      import: importPlugin,
-    },
+    extends: [
+      importX.flatConfigs.recommended,
+      importX.flatConfigs.typescript,
+    ],
     settings: {
-      "import/resolver": {
-        node: {
-          extensions: [".js", ".jsx", ".ts", ".tsx"],
-        },
-      },
+      "import-x/resolver-next": [
+        createTypeScriptImportResolver({
+          noWarnOnMultipleProjects: true,
+          project: "*/tsconfig.json",
+        }),
+        importX.createNodeResolver(),
+      ],
+      "import-x/internal-regex": "^(?:@app|@konveyor-ui)",
     },
     rules: {
-      // Disable the base rules that conflict -- they need to be added before this config block
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-
-      // Enable the import rules
-      "unused-imports/no-unused-imports": "warn",
-      "unused-imports/no-unused-vars": [ // replaces other no-unused-vars rules
-        "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
-      "import/order": [
+      "import-x/order": [
         "warn",
         {
           groups: [
