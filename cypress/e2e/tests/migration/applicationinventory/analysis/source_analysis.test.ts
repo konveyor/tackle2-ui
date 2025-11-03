@@ -323,7 +323,7 @@ describe(["@tier2"], "Source Analysis", () => {
     );
   });
 
-  it.only("OpenJDK21 Source + dependencies analysis on daytrader app", function () {
+  it("OpenJDK21 Source + dependencies analysis on daytrader app", function () {
     const application = new Analysis(
       getRandomApplicationData("dayTraderApp_Source+dependencies_openjdk21", {
         sourceData: this.appData["daytrader-app"],

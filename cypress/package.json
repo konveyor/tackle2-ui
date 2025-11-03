@@ -35,6 +35,7 @@
     "cypress-real-events": "^1.14.0",
     "cypress-tags": "^1.2.2",
     "decompress": "^4.2.1",
+    "dotenv": "^16.0.0",
     "esbuild": "^0.25.11",
     "faker": "^5.5.3",
     "js-yaml": "^4.1.0",
