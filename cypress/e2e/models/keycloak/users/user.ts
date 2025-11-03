@@ -34,7 +34,7 @@ export class User {
   lastName: string;
   email: string;
   userEnabled: boolean;
-  roles = [""];
+  roles: string[] = [];
   firstLogin: boolean;
 
   constructor(userData: UserData) {

@@ -17,7 +17,6 @@ limitations under the License.
 
 import {
   clickByText,
-  login,
   openManageColumns,
   restoreColumnsToDefault,
   selectColumns,
@@ -44,8 +43,6 @@ describe(
   function () {
     //automates polarion MTA537
     before("Login and validate data", function () {
-      login();
-      cy.visit("/");
       Application.open();
       applicationInventoryTableColumns.forEach((column) =>
         validateTextPresence(trTag, column, true)

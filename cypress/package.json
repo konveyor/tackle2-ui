@@ -19,10 +19,10 @@
   },
   "devDependencies": {
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
-    "@dotenvx/dotenvx": "^1.51.0",
-    "@testing-library/cypress": "^10.0.1",
+    "@dotenvx/dotenvx": "^1.51.1",
+    "@testing-library/cypress": "^10.1.0",
     "cy-verify-downloads": "^0.1.13",
-    "cypress": "^14.5.3",
+    "cypress": "^15.7.0",
     "cypress-downloadfile": "^1.2.4",
     "cypress-fail-fast": "^7.1.1",
     "cypress-file-upload": "^5.0.8",
@@ -31,14 +31,17 @@
     "cypress-mochawesome-reporter": "^3.8.4",
     "cypress-multi-reporters": "^2.0.5",
     "cypress-react-selector": "^3.0.0",
-    "cypress-real-events": "^1.14.0",
+    "cypress-real-events": "^1.15.0",
     "cypress-tags": "^1.2.2",
     "decompress": "^4.2.1",
     "esbuild": "^0.27.1",
     "faker": "^5.5.3",
+    "glob": "^10.3.0",
     "js-yaml": "^4.1.0",
     "license-check-and-add": "^4.0.5",
     "mocha": "^11.7.4",
-    "mocha-junit-reporter": "^2.2.1"
+    "mocha-junit-reporter": "^2.2.1",
+    "mochawesome-merge": "^4.4.1",
+    "table": "^6.9.0"
   }
 }
