@@ -14,23 +14,23 @@
     Would be ignored: 43
 */
 
-import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import process from 'node:process';
+import { execSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import process from "node:process";
 
-import { globby } from 'globby';
-import { getFileInfo, resolveConfigFile } from 'prettier';
+import { globby } from "globby";
+import { getFileInfo, resolveConfigFile } from "prettier";
 
 // Change this to the directory you want to check
-const targetDir = path.resolve(process.cwd(), '.');
+const targetDir = path.resolve(process.cwd(), ".");
 
 // Find git root to ensure we respect all .gitignore files
 function findGitRoot(startPath) {
   try {
-    const gitRoot = execSync('git rev-parse --show-toplevel', {
+    const gitRoot = execSync("git rev-parse --show-toplevel", {
       cwd: startPath,
-      encoding: 'utf8',
+      encoding: "utf8",
     }).trim();
     return gitRoot;
   } catch {
@@ -46,7 +46,7 @@ function findGitignoreFiles(gitRoot, targetDir) {
 
   // Walk up from targetDir to gitRoot
   while (currentDir.startsWith(gitRoot)) {
-    const gitignorePath = path.join(currentDir, '.gitignore');
+    const gitignorePath = path.join(currentDir, ".gitignore");
     if (existsSync(gitignorePath)) {
       gitignoreFiles.push(path.relative(gitRoot, gitignorePath));
     }
@@ -66,24 +66,27 @@ async function analyzeFiles() {
   const gitignoreFiles = findGitignoreFiles(gitRoot, targetDir);
   if (gitignoreFiles.length > 0) {
     console.log(`\n🔍 Respecting .gitignore files:`);
-    gitignoreFiles.reverse().forEach(file => {
+    gitignoreFiles.reverse().forEach((file) => {
       console.log(`   - ${file}`);
     });
   }
 
   // Show which .prettierignore file will be used
-  const prettierignorePath = path.join(targetDir, '.prettierignore');
+  const prettierignorePath = path.join(targetDir, ".prettierignore");
   if (existsSync(prettierignorePath)) {
-    console.log(`\n🎨 Using .prettierignore from: ${path.relative(gitRoot, prettierignorePath) || '.prettierignore'}`);
+    console.log(
+      `\n🎨 Using .prettierignore from: ${path.relative(gitRoot, prettierignorePath) || ".prettierignore"}`
+    );
   } else {
     console.log(`\n⚠️  No .prettierignore found in ${targetDir}`);
   }
-  console.log('');
+  console.log("");
 
   // Glob all files, respecting .gitignore by default
   // Use gitRoot as cwd so gitignore patterns work correctly from any subdirectory
-  const relativeTargetDir = path.relative(gitRoot, targetDir) || '.';
-  const pattern = relativeTargetDir === '.' ? '**/*' : `${relativeTargetDir}/**/*`;
+  const relativeTargetDir = path.relative(gitRoot, targetDir) || ".";
+  const pattern =
+    relativeTargetDir === "." ? "**/*" : `${relativeTargetDir}/**/*`;
 
   const files = await globby(pattern, {
     cwd: gitRoot,
@@ -105,7 +108,7 @@ async function analyzeFiles() {
     // Get file info including whether it would be ignored
     // Use .prettierignore from the current working directory (targetDir)
     const fileInfo = await getFileInfo(filePath, {
-      ignorePath: path.join(targetDir, '.prettierignore'),
+      ignorePath: path.join(targetDir, ".prettierignore"),
       resolveConfig: true,
     });
 
@@ -113,39 +116,47 @@ async function analyzeFiles() {
     const displayPath = path.relative(targetDir, filePath);
     results.push({
       file: displayPath,
-      configFile: configFile ? path.relative(gitRoot, configFile) : 'none (defaults)',
+      configFile: configFile
+        ? path.relative(gitRoot, configFile)
+        : "none (defaults)",
       ignored: fileInfo.ignored,
       inferredParser: fileInfo.inferredParser,
     });
   }
 
   // Group by ignored status
-  const processedFiles = results.filter(r => !r.ignored).sort((a, b) => a.file.localeCompare(b.file));
-  const ignoredFiles = results.filter(r => r.ignored).sort((a, b) => a.file.localeCompare(b.file));
+  const processedFiles = results
+    .filter((r) => !r.ignored)
+    .sort((a, b) => a.file.localeCompare(b.file));
+  const ignoredFiles = results
+    .filter((r) => r.ignored)
+    .sort((a, b) => a.file.localeCompare(b.file));
 
-  console.log(`\n✅ Files that WOULD BE PROCESSED (${processedFiles.length}):\n`);
-  console.log('─'.repeat(80));
+  console.log(
+    `\n✅ Files that WOULD BE PROCESSED (${processedFiles.length}):\n`
+  );
+  console.log("─".repeat(80));
   processedFiles.forEach(({ file, configFile, inferredParser }) => {
     console.log(`📄 ${file}`);
     console.log(`   Config: ${configFile}`);
-    console.log(`   Parser: ${inferredParser || 'unknown'}`);
-    console.log('');
+    console.log(`   Parser: ${inferredParser || "unknown"}`);
+    console.log("");
   });
 
   console.log(`\n🚫 Files that WOULD BE IGNORED (${ignoredFiles.length}):\n`);
-  console.log('─'.repeat(80));
+  console.log("─".repeat(80));
   ignoredFiles.forEach(({ file, _configFile }) => {
     console.log(`📄 ${file}`);
   });
 
   // Summary
-  console.log('\n' + '═'.repeat(80));
-  console.log('📊 SUMMARY');
-  console.log('═'.repeat(80));
+  console.log("\n" + "═".repeat(80));
+  console.log("📊 SUMMARY");
+  console.log("═".repeat(80));
   console.log(`Total files found: ${results.length}`);
   console.log(`Would be processed: ${processedFiles.length}`);
   console.log(`Would be ignored: ${ignoredFiles.length}`);
-  console.log('');
+  console.log("");
 }
 
 analyzeFiles().catch(console.error);
