@@ -9,6 +9,7 @@
 
 cypress/cypress/
 cypress/run/
+**/*test.tsx.snap
 
 #
 # Ignore anything that eslint will look at since eslint also applies prettier.

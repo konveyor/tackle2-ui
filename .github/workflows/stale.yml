@@ -3,7 +3,7 @@ name: Mark Stale Issues and PRs
 on:
   schedule:
     # Runs daily at 1:00 AM UTC
-    - cron: '0 1 * * *'
+    - cron: "0 1 * * *"
   workflow_dispatch: # Allows manual trigger
 
 permissions:
@@ -27,21 +27,19 @@ jobs:
             This issue has been automatically marked as stale because it has not had any activity for 60 days.
             It will remain open for visibility and reporting purposes.
             Please comment if this issue is still relevant.
-          stale-issue-label: 'stale'
-
+          stale-issue-label: "stale"
           # Stale PR configuration
           stale-pr-message: |
             This pull request has been automatically marked as stale because it has not had any activity for 60 days.
             It will remain open for visibility and reporting purposes.
             Please comment if this PR is still relevant.
-          stale-pr-label: 'stale'
-
+          stale-pr-label: "stale"
           # Remove stale label when issues/PRs receive new comments or updates
           remove-stale-when-updated: true
 
           # Exempt items with these labels from being marked stale
-          exempt-issue-labels: 'security,critical,pinned,blocked,in-progress,under-review,enhancement,tech-debt'
-          exempt-pr-labels: 'security,critical,pinned,blocked,in-progress,under-review,enhancement,tech-debt'
+          exempt-issue-labels: "security,critical,pinned,blocked,in-progress,under-review,enhancement,tech-debt"
+          exempt-pr-labels: "security,critical,pinned,blocked,in-progress,under-review,enhancement,tech-debt"
 
           # Exempt items with assignees
           exempt-all-issue-assignees: true
