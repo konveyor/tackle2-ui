@@ -1,26 +1,26 @@
 import js from "@eslint/js";
 import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
+import prettierConfig from "eslint-config-prettier";
 import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 import * as importX from "eslint-plugin-import-x";
-import prettierRecommended from "eslint-plugin-prettier/recommended";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 import * as tseslint from "typescript-eslint";
 
 const allSources = [
-  "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",     // Root level sourcefiles
-  ".*.{js,cjs,mjs}",                       // Root level source dotfiles (.prettierrc.mjs, etc)
-  ".*/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // Source files inside Dotfile directories (like .husky/)
-  "**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}",  // Source files in sub-directories
+  "*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}", // Root level sourcefiles
+  ".*.{js,cjs,mjs}", // Root level source dotfiles (.prettierrc.mjs, etc)
+  ".*/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}", // Source files inside Dotfile directories (like .husky/)
+  "**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}", // Source files in sub-directories
 ];
 
 const allTypescriptSources = [
-  "*.{ts,tsx,cts,mts}",     // Root level TypeScript files
-  ".*.{ts,tsx,cts,mts}",    // Root level TypeScript dotfiles
-  ".*/*.{ts,tsx,cts,mts}",  // TypeScript files inside Dotfile directories (like .husky/)
-  "**/*.{ts,tsx,cts,mts}",  // TypeScript files in sub-directories
+  "*.{ts,tsx,cts,mts}", // Root level TypeScript files
+  ".*.{ts,tsx,cts,mts}", // Root level TypeScript dotfiles
+  ".*/*.{ts,tsx,cts,mts}", // TypeScript files inside Dotfile directories (like .husky/)
+  "**/*.{ts,tsx,cts,mts}", // TypeScript files in sub-directories
 ];
 
 export default defineConfig([
@@ -57,12 +57,13 @@ export default defineConfig([
   {
     name: "project/typescript sources/@typescript-eslint rules",
     files: allTypescriptSources,
-    extends: [
-      tseslint.configs.recommended,
-    ],
+    extends: [tseslint.configs.recommended],
     rules: {
       "@typescript-eslint/no-empty-interface": "off",
-      "@typescript-eslint/no-empty-object-type": ["warn", { allowInterfaces: "always" }],
+      "@typescript-eslint/no-empty-object-type": [
+        "warn",
+        { allowInterfaces: "always" },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-redeclare": "error",
       "@typescript-eslint/no-unused-expressions": "warn",
@@ -76,10 +77,7 @@ export default defineConfig([
   {
     name: "project/all sources/import rules",
     files: allSources,
-    extends: [
-      importX.flatConfigs.recommended,
-      importX.flatConfigs.typescript,
-    ],
+    extends: [importX.flatConfigs.recommended, importX.flatConfigs.typescript],
     settings: {
       "import-x/resolver-next": [
         createTypeScriptImportResolver({
@@ -209,13 +207,7 @@ export default defineConfig([
   },
 
   // Prettier config (MUST be last to disable conflicting formatting rules)
-  prettierRecommended,
-  {
-    name: "project/prettier",
-    rules: {
-      "prettier/prettier": ["warn"],
-    },
-  },
+  prettierConfig,
 
   globalIgnores([
     "**/node_modules/",

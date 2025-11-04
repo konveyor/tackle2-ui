@@ -12,11 +12,16 @@
     "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
     "start:dev": "NODE_ENV=development webpack serve --config ./config/webpack.dev.ts",
     "test": "NODE_ENV=test TZ=UTC jest --rootDir=. --config=./config/jest.config.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "tsc": "tsc -p ./tsconfig.json"
   },
   "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
     "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {

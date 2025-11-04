@@ -6,13 +6,18 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint .",
     "build": "NODE_ENV=production rollup -c",
     "start:dev": "NODE_ENV=development ROLLUP_RUN=true rollup -c -w",
     "start": "npm run build && node --enable-source-maps dist/index.js"
   },
   "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
+    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
     "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
