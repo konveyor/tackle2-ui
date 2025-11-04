@@ -84,7 +84,11 @@ async function analyzeFiles() {
 
   // Glob all files, respecting .gitignore by default
   // Use gitRoot as cwd so gitignore patterns work correctly from any subdirectory
-  const relativeTargetDir = path.relative(gitRoot, targetDir) || ".";
+  // Convert path prefix to POSIX path for globby compatibility (Windows uses backslashes)
+  const relativeTargetDir = (path.relative(gitRoot, targetDir) || ".").replace(
+    /\\/g,
+    "/"
+  );
   const pattern =
     relativeTargetDir === "." ? "**/*" : `${relativeTargetDir}/**/*`;
 
