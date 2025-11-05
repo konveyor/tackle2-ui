@@ -90,7 +90,7 @@ async function analyzeFiles() {
     "/"
   );
   const pattern =
-    relativeTargetDir === "." ? "**/*" : `${relativeTargetDir}/**/*`;
+    relativeTargetDir === "." ? "**/{,.}*" : `${relativeTargetDir}/**/{,.}*`;
 
   const files = await globby(pattern, {
     cwd: gitRoot,

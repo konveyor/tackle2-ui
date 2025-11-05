@@ -14,8 +14,8 @@
     "e2e:open:minikube": "npm run e2e:open:local -- --config baseUrl=http://`minikube ip`",
     "format": "prettier --ignore-unknown --write .",
     "format:check": "prettier --ignore-unknown --check .",
-    "lint": "prettier --ignore-unknown --check . && eslint .",
-    "lint:fix": "prettier --ignore-unknown --write . && eslint --fix ."
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
   "lint-staged": {
     "*.{ts,js}": [

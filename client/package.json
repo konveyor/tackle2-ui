@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "tsc": "tsc -p ./tsconfig.json"
   },
   "lint-staged": {

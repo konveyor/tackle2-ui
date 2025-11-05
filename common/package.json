@@ -21,6 +21,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production rollup -c",
     "start:dev": "NODE_ENV=development rollup -c --watch"
