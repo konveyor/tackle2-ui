@@ -71,7 +71,7 @@ echo "$POD_INFO" | while read -r pod_json; do
   echo "🔎 Processing Pod: $POD_NAME"
   echo "       Spec Image: $SPEC_IMAGE"
   echo "    Running Image: $IMAGE_TAG"
-  echo "                   $IMAGE_WITH_DIGEST"
+  # echo "                   $IMAGE_WITH_DIGEST"
   echo "   Running Digest: $RUNNING_DIGEST"
   echo ""
 
@@ -86,7 +86,10 @@ echo "$POD_INFO" | while read -r pod_json; do
   fi
 
   ## 2. Verify the digest against the remote repository tag
+  # Temporarily disable errexit to handle skopeo failures gracefully
+  set +e
   REMOTE_DIGEST=$(skopeo inspect "docker://$IMAGE_TAG" --format '{{.Digest}}' 2>/dev/null)
+  set -e
 
   if [[ "$RUNNING_DIGEST" == "$REMOTE_DIGEST" ]]; then
     echo "✅ Match: The running container's digest matches the remote digest for the tag."
@@ -103,13 +106,35 @@ echo "$POD_INFO" | while read -r pod_json; do
   echo "Fetching image labels..."
   # Use skopeo to inspect the manifest of the exact image digest and extract its labels.
   # We pipe the JSON output to jq for pretty-printing.
-  LABELS=$(skopeo inspect "docker://$IMAGE_WITH_DIGEST" --format '{{json .Labels}}' 2>/dev/null || echo "null")
+  # Temporarily disable errexit to handle skopeo failures gracefully
+  set +e
+  SKOPEO_OUTPUT=$(skopeo inspect "docker://$IMAGE_WITH_DIGEST" --format '{{json .Labels}}' 2>&1)
+  SKOPEO_EXIT=$?
+  set -e
 
-  if [[ -n "$LABELS" && "$LABELS" != "null" ]]; then
+  if [[ $SKOPEO_EXIT -eq 0 ]]; then
       echo "🏷️  Labels for $IMAGE_WITH_DIGEST:"
-      echo "$LABELS" | jq .
+      echo "$SKOPEO_OUTPUT" | jq .
   else
-      echo "🏷️  No labels found for the running digest image."
+      echo "⚠️  Unable to fetch labels for $IMAGE_WITH_DIGEST"
+
+      # Provide specific guidance based on the error
+      if echo "$SKOPEO_OUTPUT" | grep -qi "manifest unknown\|not found"; then
+          echo "   Reason: Image digest not found in the remote repository."
+          echo "   This may happen if:"
+          echo "     - The image was pulled from a local/private registry not accessible remotely"
+          echo "     - The image was built locally and never pushed"
+          echo "     - The image has been deleted from the remote registry"
+          echo "   Tip: Try inspecting with the tag instead: skopeo inspect docker://$IMAGE_TAG"
+      elif echo "$SKOPEO_OUTPUT" | grep -qi "unauthorized\|authentication"; then
+          echo "   Reason: Authentication required to access this image."
+          echo "   Tip: You may need to login with: skopeo login <registry>"
+      elif echo "$SKOPEO_OUTPUT" | grep -qi "connection\|network\|timeout"; then
+          echo "   Reason: Network connectivity issue."
+          echo "   Tip: Check your network connection and registry accessibility."
+      else
+          echo "   Error details: $SKOPEO_OUTPUT"
+      fi
   fi
   echo "--------------------------------------------------"
   echo ""
