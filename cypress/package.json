@@ -17,13 +17,6 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.!({ts,js})": "prettier --ignore-unknown --write"
-  },
   "devDependencies": {
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
     "@dotenvx/dotenvx": "^1.51.0",

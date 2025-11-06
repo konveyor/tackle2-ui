@@ -12,18 +12,11 @@
     "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
     "start:dev": "NODE_ENV=development webpack serve --config ./config/webpack.dev.ts",
     "test": "NODE_ENV=test TZ=UTC jest --rootDir=. --config=./config/jest.config.ts",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --ignore-unknown --write .",
+    "format:check": "prettier --ignore-unknown --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "tsc": "tsc -p ./tsconfig.json"
-  },
-  "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

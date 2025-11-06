@@ -14,13 +14,6 @@
     "start:dev": "NODE_ENV=development ROLLUP_RUN=true rollup -c -w",
     "start": "npm run build && node --enable-source-maps dist/index.js"
   },
-  "lint-staged": {
-    "*.{js,cjs,mjs,ts,cts,mts}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "!(*.{js,cjs,mjs,ts,cts,mts})*": "prettier --ignore-unknown --write"
-  },
   "dependencies": {
     "cookie": "^1.0.2",
     "http-terminator": "^3.2.0"

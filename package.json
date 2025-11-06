@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/konveyor/tackle2-ui.git"
   },
+  "bin": {
+    "prettier-wrapper": "./scripts/prettier_wrapper.js"
+  },
   "scripts": {
     "clean": "rimraf ./dist && npm run clean -ws --if-present",
     "clean:all": "npm run clean && rimraf ./node_modules ./**/node_modules/",
@@ -22,8 +25,8 @@
     "start": "npm run build -w common -w client && npm run start -w server",
     "test": "npm run test -ws --if-present --",
     "test:e2e": "npm run test:e2e -ws --if-present --",
-    "format": "scripts/prettier-w.sh --write . && npm run format -ws --if-present",
-    "format:check": "scripts/prettier-w.sh --check . && npm run format:check -ws --if-present",
+    "format": "scripts/prettier-w.sh --ignore-unknown --write . && npm run format -ws --if-present",
+    "format:check": "scripts/prettier-w.sh --ignore-unknown --check . && npm run format:check -ws --if-present",
     "lint": "scripts/eslint-w.sh . && npm run lint -ws --if-present",
     "lint:fix": "scripts/eslint-w.sh --fix . && npm run lint:fix -ws --if-present",
     "port-forward:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
