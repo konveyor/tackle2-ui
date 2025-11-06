@@ -1,31 +1,35 @@
 #!/bin/bash
-# set -eo pipefail
+#
+# This script inspects running container images in the 'konveyor-tackle' namespace.
+# It verifies if the running image's digest matches the remote repository's tag
+# and displays the labels of the running image.
+#
+# Prerequisites: kubectl, jq, skopeo
+set -eo pipefail
 
-NAMESPACE="${NAMESPACE:-konveyor-tackle}"
-POD_LABEL="${POD_LABEL:-app=tackle}"
-
-CMD=oc
-# CMD="minikube kubectl --"
-if ! command -v $CMD >/dev/null 2>&1; then
-  CMD=kubectl
-  if ! command -v $CMD >/dev/null 2>&1; then
-    CMD=oc
+# Check for required tools
+for tool in jq skopeo; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "Error: $tool is required but not found"
     exit 1
   fi
+done
+
+CMD="minikube kubectl --"
+if ! command -v $CMD >/dev/null 2>&1; then
+  CMD=kubectl
 fi
 if ! command -v $CMD >/dev/null 2>&1; then
   echo "Error: $CMD not found"
   exit 1
 fi
 
+# Set default namespace and label
+NAMESPACE="${NAMESPACE:-konveyor-tackle}"
+POD_LABEL="${POD_LABEL:-app=tackle}"
+
 echo "🤔 Using \"$CMD\" to get pod information"
 echo "🤔 Inspecting pods in the '$NAMESPACE' namespace with label '$POD_LABEL'"
-
-# This script inspects running container images in the 'konveyor-tackle' namespace.
-# It verifies if the running image's digest matches the remote repository's tag
-# and displays the labels of the running image.
-#
-# Prerequisites: kubectl, jq, skopeo
 
 # 1. Get all relevant pod information in a single, parsable block.
 POD_INFO=$($CMD \
@@ -42,7 +46,7 @@ POD_INFO=$($CMD \
 
 # Check if any pods were found
 if [[ -z "$POD_INFO" ]]; then
-  echo "No pods found with names starting with '$POD_NAME_PREFIX' in the '$NAMESPACE' namespace."
+  echo "No pods found with names starting with '$POD_LABEL' in the '$NAMESPACE' namespace."
   exit 1
 fi
 
@@ -67,6 +71,7 @@ echo "$POD_INFO" | while read -r pod_json; do
   echo "🔎 Processing Pod: $POD_NAME"
   echo "       Spec Image: $SPEC_IMAGE"
   echo "    Running Image: $IMAGE_TAG"
+  echo "                   $IMAGE_WITH_DIGEST"
   echo "   Running Digest: $RUNNING_DIGEST"
   echo ""
 
@@ -79,20 +84,8 @@ echo "$POD_INFO" | while read -r pod_json; do
     echo "--------------------------------------------------"
     continue # Skip to the next pod in the loop
   fi
-  # ---
 
-  # 2. For OpenShift, check the ImageStream to find the original public/external
-  #    registry image.
-  # We parse the ImageStream name and tag from the pod's image field.
-  IMAGE_STREAM_NAME=$(echo "$IMAGE_STREAM_TAG" | cut -d':' -f1)
-  TAG_NAME=$(echo "$IMAGE_STREAM_TAG" | cut -d':' -f2)
-  if [[ -z "$TAG_NAME" ]]; then TAG_NAME="latest"; fi
-  EXTERNAL_IMAGE_URL=$(oc get is "$IMAGE_STREAM_NAME" -n "$NAMESPACE" -o=jsonpath="{.status.tags[?(@.tag=='$TAG_NAME')].items[0].dockerImageReference}" 2>/dev/null)
-
-
-
-
-  ## 3. Verify the digest against the remote repository tag
+  ## 2. Verify the digest against the remote repository tag
   REMOTE_DIGEST=$(skopeo inspect "docker://$IMAGE_TAG" --format '{{.Digest}}' 2>/dev/null)
 
   if [[ "$RUNNING_DIGEST" == "$REMOTE_DIGEST" ]]; then
@@ -106,18 +99,17 @@ echo "$POD_INFO" | while read -r pod_json; do
   fi
   echo ""
 
-
-  ## 4. Show the container image labels
+  ## 3. Show the container image labels
   echo "Fetching image labels..."
   # Use skopeo to inspect the manifest of the exact image digest and extract its labels.
   # We pipe the JSON output to jq for pretty-printing.
-  LABELS=$(skopeo inspect "docker://$IMAGE_WITH_DIGEST" --format '{{json .Labels}}' 2>/dev/null)
+  LABELS=$(skopeo inspect "docker://$IMAGE_WITH_DIGEST" --format '{{json .Labels}}' 2>/dev/null || echo "null")
 
   if [[ -n "$LABELS" && "$LABELS" != "null" ]]; then
       echo "🏷️  Labels for $IMAGE_WITH_DIGEST:"
       echo "$LABELS" | jq .
   else
-      echo "🏷️  No labels found for this image."
+      echo "🏷️  No labels found for the running digest image."
   fi
   echo "--------------------------------------------------"
   echo ""
