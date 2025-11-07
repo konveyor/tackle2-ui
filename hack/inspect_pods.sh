@@ -15,12 +15,13 @@ for tool in jq skopeo; do
   fi
 done
 
-CMD="minikube kubectl --"
-if ! command -v $CMD >/dev/null 2>&1; then
-  CMD=kubectl
-fi
-if ! command -v $CMD >/dev/null 2>&1; then
-  echo "Error: $CMD not found"
+CMD=""
+if minikube kubectl -- cluster-info >/dev/null 2>&1; then
+  CMD="minikube kubectl --"
+elif kubectl cluster-info >/dev/null 2>&1; then
+  CMD="kubectl"
+else
+  echo "Error: Cannot find a connected cluster.  Try \"kubectl cluster-info\" to see if you are connected to a cluster."
   exit 1
 fi
 
@@ -33,7 +34,7 @@ echo "🤔 Inspecting pods in the '$NAMESPACE' namespace with label '$POD_LABEL'
 
 # 1. Get all relevant pod information in a single, parsable block.
 POD_INFO=$($CMD \
-  get pods -n $NAMESPACE -l $POD_LABEL -o=json \
+  get pods -n "$NAMESPACE" -l "$POD_LABEL" -o=json \
   | jq -c '
     .items[] |
     {
@@ -46,7 +47,7 @@ POD_INFO=$($CMD \
 
 # Check if any pods were found
 if [[ -z "$POD_INFO" ]]; then
-  echo "No pods found with names starting with '$POD_LABEL' in the '$NAMESPACE' namespace."
+  echo "No pods found matching label '$POD_LABEL' in the '$NAMESPACE' namespace."
   exit 1
 fi
 
