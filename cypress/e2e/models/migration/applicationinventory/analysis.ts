@@ -23,7 +23,6 @@ import {
   clickWithin,
   clickWithinByText,
   doesExistSelector,
-  doesExistText,
   inputText,
   next,
   selectAnalysisMode,
@@ -32,6 +31,7 @@ import {
   sidedrawerTab,
   uploadApplications,
   uploadFile,
+  verifySelectorText,
 } from "../../../../utils/utils";
 import {
   AnalysisStatuses,
@@ -42,6 +42,7 @@ import {
   SEC,
   analyzeAppButton,
   analyzeButton,
+  appInventoryKebab as kebab,
   button,
   clearAllFilters,
   save,
@@ -86,7 +87,10 @@ import {
   tabsPanel,
 } from "../../../views/analysis.view";
 import { bulkApplicationSelectionCheckBox } from "../../../views/applicationinventory.view";
-import { successAlertMessage } from "../../../views/common.view";
+import {
+  actionMenuItem,
+  successAlertMessage,
+} from "../../../views/common.view";
 import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
 
 import { Application } from "./application";
@@ -533,16 +537,26 @@ export class Analysis extends Application {
         .within(() => {
           clickWithin(kebabTopMenuButton, button);
         });
-      doesExistText("Import", rbacRules["Top action menu"]["Import"]);
-      doesExistText(
-        "Manage application imports",
+      verifySelectorText(
+        kebab.import,
+        actionMenuItem,
+        rbacRules["Top action menu"]["Import"]
+      );
+      verifySelectorText(
+        kebab.manageImports,
+        actionMenuItem,
         rbacRules["Top action menu"]["Manage application imports"]
       );
-      doesExistText(
-        "Manage credentials",
+      verifySelectorText(
+        kebab.manageCredentials,
+        actionMenuItem,
         rbacRules["Top action menu"]["Manage credentials"]
       );
-      doesExistText("Delete", rbacRules["Top action menu"]["Delete"]);
+      verifySelectorText(
+        kebab.delete,
+        actionMenuItem,
+        rbacRules["Top action menu"]["Delete"]
+      );
     }
   }
 

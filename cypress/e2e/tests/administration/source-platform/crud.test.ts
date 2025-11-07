@@ -18,6 +18,7 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   checkSuccessAlert,
+  deleteByList,
   exists,
   login,
   notExists,
@@ -26,8 +27,9 @@ import { CredentialsSourceControlUsername } from "../../../models/administration
 import { SourcePlatform } from "../../../models/administration/source-platform/source-platform";
 import { CredentialType, UserCredentials } from "../../../types/constants";
 import { successAlertMessage } from "../../../views/common.view";
+import * as selectors from "../../../views/source-platform.view";
 
-let cloudFoundryCreds: CredentialsSourceControlUsername;
+const cloudFoundryCreds: Array<CredentialsSourceControlUsername> = [];
 
 describe(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
   before("Login", function () {
@@ -41,25 +43,30 @@ describe(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
     }
     login();
     cy.visit("/");
-    cloudFoundryCreds = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        false,
-        null,
-        null,
-        true
-      )
-    );
-    cloudFoundryCreds.create();
+    for (let i = 0; i < 2; i++) {
+      const creds = new CredentialsSourceControlUsername(
+        data.getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword,
+          false,
+          null,
+          null,
+          true
+        )
+      );
+      creds.name = `CF-CREDS-${data.getRandomNumber(1, 500)}`;
+      creds.create();
+      cloudFoundryCreds.push(creds);
+    }
   });
 
-  it("Perform CRUD Tests on Cloud Foundry Source platform", function () {
+  it.skip("Perform CRUD Tests on Cloud Foundry Source platform", function () {
+    // TODO : Unskip tests once Infra ticket MTA-6241 is resolved
     const platform = new SourcePlatform(
-      "CF-" + data.getRandomNumber(1, 200),
+      `CF-${data.getRandomNumber(1, 500)}`,
       "Cloud Foundry",
       Cypress.env("cloudfoundry_url"),
-      cloudFoundryCreds.name
+      cloudFoundryCreds[0].name
     );
 
     platform.create();
@@ -70,11 +77,28 @@ describe(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
     );
     exists(platform.name);
 
+    const newName = `CF-updatedName-${data.getRandomNumber(1, 500)}`;
+    platform.edit({ name: newName });
+    exists(newName);
+
+    const newURL = "https://api.bosh-updated-lite.com";
+    platform.edit({ url: newURL });
+    cy.get(selectors.url).should("have.value", newURL);
+
+    const newCreds = cloudFoundryCreds[1].name;
+    platform.edit({ credentials: newCreds });
+    cy.get(selectors.credentials).should("have.value", newCreds);
+
     platform.delete();
+    checkSuccessAlert(
+      successAlertMessage,
+      `Success alert:Platform ${platform.name} was successfully deleted.`,
+      true
+    );
     notExists(platform.name);
   });
 
   after("Clear test data", function () {
-    cloudFoundryCreds.delete();
+    deleteByList(cloudFoundryCreds);
   });
 });
