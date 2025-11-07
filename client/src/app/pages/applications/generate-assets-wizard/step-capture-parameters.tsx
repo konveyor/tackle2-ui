@@ -17,12 +17,9 @@ import {
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
-import {
-  combineSchemas,
-  isSchemaEmpty,
-  jsonSchemaToYupSchema,
-} from "@app/components/schema-defined-fields/utils";
+import { jsonSchemaToYupSchema } from "@app/components/schema-defined-fields/utils";
 import { useFetchGenerators } from "@app/queries/generators";
+import { combineSchemas, isSchemaEmpty } from "@app/utils/json-schema";
 import { wrapAsEvent } from "@app/utils/utils";
 
 export interface ParameterState {
