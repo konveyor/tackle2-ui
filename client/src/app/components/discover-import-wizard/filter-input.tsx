@@ -107,7 +107,7 @@ export const FilterInput: React.FC<{
 
   useFilterStateChangeHandler(form, onFiltersChanged);
 
-  const useCloudFoundryFilterInput = useCloudFoundryCheck(
+  const shouldUseCloudFoundryInput = useCloudFoundryCheck(
     platform,
     filtersSchema
   );
@@ -146,7 +146,7 @@ export const FilterInput: React.FC<{
             })}
             fieldId="document"
             renderInput={({ field: { value, name, onChange } }) =>
-              useCloudFoundryFilterInput ? (
+              shouldUseCloudFoundryInput ? (
                 <FilterInputCloudFoundry
                   key={platform.kind}
                   id={name}

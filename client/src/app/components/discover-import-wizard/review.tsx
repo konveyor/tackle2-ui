@@ -28,7 +28,10 @@ export const Review: React.FC<{
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
 
-  const useCloudFoundryReview = useCloudFoundryCheck(platform, filters.schema);
+  const shouldUseCloudFoundryReview = useCloudFoundryCheck(
+    platform,
+    filters.schema
+  );
 
   return (
     <div>
@@ -85,7 +88,7 @@ export const Review: React.FC<{
                   padding: "16px",
                 }}
               >
-                {useCloudFoundryReview ? (
+                {shouldUseCloudFoundryReview ? (
                   <ReviewInputCloudFoundry
                     id="platform-discovery-filters-review"
                     values={filters.document}
