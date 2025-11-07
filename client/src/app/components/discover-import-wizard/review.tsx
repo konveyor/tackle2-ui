@@ -16,7 +16,7 @@ import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 
 import { FilterState } from "./filter-input";
 import { ReviewInputCloudFoundry } from "./review-input-cloudfoundry";
-import { validateCloudFoundrySchema } from "./validate-cloudfoundry-schema";
+import { useCloudFoundryCheck } from "./validate-cloudfoundry-schema";
 
 export const Review: React.FC<{
   platform: SourcePlatform;
@@ -28,13 +28,7 @@ export const Review: React.FC<{
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
 
-  const useCloudFoundryReview = React.useMemo(() => {
-    return (
-      platform.kind === "cloudfoundry" &&
-      filters.schema &&
-      validateCloudFoundrySchema(filters.schema.definition)
-    );
-  }, [platform.kind, filters.schema]);
+  const useCloudFoundryReview = useCloudFoundryCheck(platform, filters.schema);
 
   return (
     <div>

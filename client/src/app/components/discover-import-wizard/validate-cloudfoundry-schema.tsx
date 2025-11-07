@@ -1,4 +1,10 @@
-import { JsonSchemaObject } from "@app/api/models";
+import * as React from "react";
+
+import {
+  JsonSchemaObject,
+  SourcePlatform,
+  TargetedSchema,
+} from "@app/api/models";
 import { validatorGenerator } from "@app/utils/json-schema";
 
 /**
@@ -40,3 +46,16 @@ const SUPPORTED_SCHEMA: JsonSchemaObject = {
  * to build CloudFoundry forms.
  */
 export const validateCloudFoundrySchema = validatorGenerator(SUPPORTED_SCHEMA);
+
+export const useCloudFoundryCheck = (
+  platform: SourcePlatform,
+  schema?: TargetedSchema
+) => {
+  return React.useMemo(() => {
+    return (
+      platform.kind === "cloudfoundry" &&
+      schema &&
+      validateCloudFoundrySchema(schema.definition)
+    );
+  }, [platform.kind, schema]);
+};
