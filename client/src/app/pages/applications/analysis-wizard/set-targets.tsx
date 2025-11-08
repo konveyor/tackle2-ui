@@ -37,6 +37,7 @@ interface SetTargetsProps {
 const useEnhancedTargets = (applications: Application[]) => {
   const {
     targets,
+    targetsInOrder,
     isFetching: isTargetsLoading,
     fetchError: isTargetsError,
   } = useFetchTargets();
@@ -69,23 +70,6 @@ const useEnhancedTargets = (applications: Application[]) => {
     [applications, languageTags, languageProviders]
   );
 
-  // 1. missing target order setting is not a blocker (only lowers user experience)
-  // 2. targets without assigned position (if any) are put at the end
-  const targetsWithOrder = useMemo(
-    () =>
-      targets
-        .map((target) => {
-          const index = targetOrder.findIndex((id) => id === target.id);
-          return {
-            target,
-            order: index === -1 ? targets.length : index,
-          };
-        })
-        .sort((a, b) => a.order - b.order)
-        .map(({ target }) => target),
-    [targets, targetOrder]
-  );
-
   return {
     // true if some queries are still fetching data for the first time (initial load)
     // note that the default re-try count (3) is used
@@ -93,7 +77,7 @@ const useEnhancedTargets = (applications: Application[]) => {
       isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
     // missing targets are the only blocker
     isError: !!isTargetsError,
-    targets: targetsWithOrder,
+    targets: targetsInOrder,
     applicationProviders,
     languageProviders,
   };

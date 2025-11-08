@@ -27,6 +27,7 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useSettingMutation } from "@app/queries/settings";
 import {
   useCreateTargetMutation,
   useFetchTargets,
@@ -47,6 +48,7 @@ import defaultImage from "./default.png";
 
 export interface CustomTargetFormProps {
   target?: Target | null;
+  targetOrder: number[];
   onSaved: (response: AxiosResponse<Target>) => void;
   onCancel: () => void;
 }
@@ -77,12 +79,58 @@ const targetRulesetsToReadFiles = (target?: Target) =>
     };
   }) || [];
 
+const useTargetQueryHooks = (
+  onSaved: (response: AxiosResponse<Target>) => void,
+  reset: () => void
+) => {
+  const { pushNotification } = useContext(NotificationsContext);
+
+  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
+
+  const { mutateAsync: createTargetAsync } = useCreateTargetMutation(
+    (response: AxiosResponse<Target>) => {
+      // TODO: Consider any removed files and delete them from hub if necessary
+      onSaved(response);
+      reset();
+    },
+    (error: AxiosError) => {
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
+  );
+
+  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
+    // TODO: Consider any removed files and delete them from hub if necessary
+    onSaved(response);
+    reset();
+  };
+
+  const onUpdateTargetFailure = (_error: AxiosError) => {};
+
+  const { mutate: updateTarget } = useUpdateTargetMutation(
+    onUpdateTargetSuccess,
+    onUpdateTargetFailure
+  );
+
+  const { mutateAsync: targetOrderMutateAsync } =
+    useSettingMutation("ui.target.order");
+
+  return {
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  };
+};
+
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target: initialTarget,
+  targetOrder,
   onSaved,
   onCancel,
 }) => {
-  const { pushNotification } = useContext(NotificationsContext);
   const baseProviderList = useMigrationProviderList();
   const providerList = useMemo(
     () =>
@@ -261,6 +309,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const values = getValues();
 
+  const {
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  } = useTargetQueryHooks(onSaved, reset);
+
   const onSubmit = async (formValues: CustomTargetFormValues) => {
     const rules: Rule[] = formValues.customRulesFiles
       .map((file) => {
@@ -339,7 +394,22 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     if (target) {
       updateTarget({ id: target.id, ...payload });
     } else {
-      createTarget(payload);
+      let newTargetId: number | undefined;
+      try {
+        const response = await createTargetAsync(payload);
+        newTargetId = response.data.id;
+      } catch {
+        /* ignore */
+      }
+
+      // Add the new target to the target order and wait for it to complete before continuing.
+      if (newTargetId !== undefined) {
+        try {
+          await targetOrderMutateAsync([...targetOrder, newTargetId]);
+        } catch {
+          /* ignore */
+        }
+      }
     }
   };
 
@@ -347,39 +417,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     // TODO: Consider any uploaded files and delete them from hub if necessary
     onCancel();
   };
-
-  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
-
-  const onCreateTargetSuccess = (response: AxiosResponse<Target>) => {
-    // TODO: Consider any removed files and delete them from hub if necessary
-    onSaved(response);
-    reset();
-  };
-
-  const onCreateTargetFailure = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: createTarget } = useCreateTargetMutation(
-    onCreateTargetSuccess,
-    onCreateTargetFailure
-  );
-
-  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
-    // TODO: Consider any removed files and delete them from hub if necessary
-    onSaved(response);
-    reset();
-  };
-
-  const onUpdateTargetFailure = (_error: AxiosError) => {};
-
-  const { mutate: updateTarget } = useUpdateTargetMutation(
-    onUpdateTargetSuccess,
-    onUpdateTargetFailure
-  );
 
   const handleImageFileUpload = async (file: File) => {
     setImageFilename(file.name);

@@ -23,10 +23,10 @@ export const useSettingMutation = <K extends keyof SettingTypes>(key: K) => {
   return useMutation({
     mutationFn: (value: SettingTypes[K]) => updateSetting({ key, value }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SettingQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [SettingQueryKey, key] });
     },
     onError: () => {
-      queryClient.invalidateQueries({ queryKey: [SettingQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [SettingQueryKey, key] });
     },
   });
 };
