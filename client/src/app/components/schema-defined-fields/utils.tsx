@@ -1,6 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { TFunction } from "i18next";
-import { unique } from "radash";
 import * as yup from "yup";
 
 import { JsonSchemaObject } from "@app/api/models";
@@ -166,52 +165,4 @@ export const isComplexSchema = (schema: JsonSchemaObject): boolean => {
   }
 
   return false;
-};
-
-export const isSchemaEmpty = (schema?: JsonSchemaObject): boolean => {
-  if (!schema) return true;
-
-  if (schema.type === "object") {
-    return Object.keys(schema.properties ?? {}).length === 0;
-  }
-
-  if (schema.type === "array") {
-    return isSchemaEmpty(schema.items);
-  }
-
-  return ["string", "number", "boolean", "integer"].includes(schema.type);
-};
-
-/**
- * Combines multiple schemas into a single schema.  Only supports schemas with a root type of "object".
- */
-export const combineSchemas = (
-  schemas?: JsonSchemaObject[]
-): JsonSchemaObject | undefined => {
-  if (!schemas) return undefined;
-
-  const baseSchema: JsonSchemaObject = {
-    $schema: "https://json-schema.org/draft/2020-12/schema",
-    type: "object",
-    properties: {},
-    required: [],
-  };
-
-  const combinedSchema = schemas.reduce((acc, schema) => {
-    if (schema.type === "object") {
-      // add all properties to the base schema, overwriting any existing properties
-      if (schema.properties) {
-        Object.entries(schema.properties).forEach(([key, value]) => {
-          acc.properties![key] = value;
-        });
-      }
-      // uniquely add all required properties to the base schema
-      if (schema.required) {
-        acc.required = unique([...(acc.required ?? []), ...schema.required]);
-      }
-    }
-    return acc;
-  }, baseSchema);
-
-  return combinedSchema;
 };

@@ -61,38 +61,10 @@ const RemoveButton = ({
   );
 };
 
-/*
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "properties": {
-    "names": {
-      "description": "Application names. Each may be a glob expression.",
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      },
-      "minItems": 0,
-      "type": "array"
-    },
-    "spaces": {
-      "description": "Space names.",
-      "items": {
-        "minLength": 1,
-        "type": "string"
-      },
-      "minItems": 1,
-      "type": "array"
-    }
-  },
-  "required": ["spaces"],
-  "title": "CloudFoundry Discover Filter",
-  "type": "object"
-}
-*/
-
 interface FormValues {
-  names: { value: string }[];
+  organizations: { value: string }[];
   spaces: { value: string }[];
+  names: { value: string }[];
 }
 
 const stringsToFormValue = (values?: string[]) =>
@@ -108,40 +80,40 @@ export interface FilterInputCloudFoundryProps {
 }
 
 /**
- * Inputs for CloudFoundry discover applications filter.  This is based on the json schema.
+ * Inputs for CloudFoundry discover applications filter.
+ *
+ * This is based on the JSON schema for the Cloud Foundry discovery filter as defined in
+ * {@link ./validate-cloudfoundry-schema.tsx}.
  */
 export const FilterInputCloudFoundry: React.FC<
   FilterInputCloudFoundryProps
 > = ({ id, values, onDocumentChanged }) => {
   const validationSchema = yup.object().shape({
-    names: yup
-      .array()
-      .of(
-        yup.object().shape({
-          value: yup
-            .string()
-            .min(1, "Name must be at least 1 character")
-            .trim(),
-        })
-      )
-      .min(0),
-    spaces: yup
-      .array()
-      .of(
-        yup.object().shape({
-          value: yup
-            .string()
-            .min(1, "Space must be at least 1 character")
-            .trim(),
-        })
-      )
-      .min(1),
+    organizations: yup.array().of(
+      yup.object().shape({
+        value: yup
+          .string()
+          .min(1, "Organization name must be at least 1 character")
+          .trim(),
+      })
+    ),
+    spaces: yup.array().of(
+      yup.object().shape({
+        value: yup.string().min(1, "Space must be at least 1 character").trim(),
+      })
+    ),
+    names: yup.array().of(
+      yup.object().shape({
+        value: yup.string().min(1, "Name must be at least 1 character").trim(),
+      })
+    ),
   });
 
   const form = useForm<FormValues>({
     defaultValues: {
-      names: stringsToFormValue(values?.names as string[]),
+      organizations: stringsToFormValue(values?.organizations as string[]),
       spaces: stringsToFormValue(values?.spaces as string[]),
+      names: stringsToFormValue(values?.names as string[]),
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
@@ -154,8 +126,9 @@ export const FilterInputCloudFoundry: React.FC<
       formState: { values: true },
       callback: ({ values }) => {
         const asDocument = {
-          names: formValueToStrings(values.names),
+          organizations: formValueToStrings(values.organizations),
           spaces: formValueToStrings(values.spaces),
+          names: formValueToStrings(values.names),
         };
         onDocumentChanged(asDocument);
       },
@@ -168,12 +141,13 @@ export const FilterInputCloudFoundry: React.FC<
       <StackItem>
         <StringFieldsGroup
           control={form.control}
-          groupTitle="Names"
-          groupDescription="Enter application name (glob expressions allowed)"
-          fieldName="names"
-          addLabel="Add a name"
-          removeLabel="Remove this name"
-          emptyMessage="No application names specified"
+          groupTitle="Organizations"
+          groupDescription="Enter organization name"
+          fieldName="organizations"
+          addLabel="Add an organization"
+          removeLabel="Remove this organization"
+          emptyMessage="No organizations specified"
+          isRequired={false}
         />
       </StackItem>
 
@@ -185,8 +159,21 @@ export const FilterInputCloudFoundry: React.FC<
           fieldName="spaces"
           addLabel="Add a space"
           removeLabel="Remove this space"
-          emptyMessage="No spaces specified (at least one space is required)"
-          isRequired={true}
+          emptyMessage="No spaces specified"
+          isRequired={false}
+        />
+      </StackItem>
+
+      <StackItem>
+        <StringFieldsGroup
+          control={form.control}
+          groupTitle="Names"
+          groupDescription="Enter application name (glob expressions allowed)"
+          fieldName="names"
+          addLabel="Add a name"
+          removeLabel="Remove this name"
+          emptyMessage="No application names specified"
+          isRequired={false}
         />
       </StackItem>
     </Stack>

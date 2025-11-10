@@ -26,20 +26,21 @@ export const ReviewInputCloudFoundry: React.FC<
     return <EmptyTextMessage message="No filter values to display" />;
   }
 
-  const names = (values.names as string[]) ?? [];
+  const organizations = (values.organizations as string[]) ?? [];
   const spaces = (values.spaces as string[]) ?? [];
+  const names = (values.names as string[]) ?? [];
 
   return (
     <DescriptionList isHorizontal isCompact id={id}>
       <DescriptionListGroup>
-        <DescriptionListTerm>Names</DescriptionListTerm>
+        <DescriptionListTerm>Organizations</DescriptionListTerm>
         <DescriptionListDescription>
-          {names.length === 0 ? (
-            <EmptyTextMessage message="No names specified" />
+          {organizations.length === 0 ? (
+            <EmptyTextMessage message="No organizations specified" />
           ) : (
             <List isPlain>
-              {names.map((name) => (
-                <ListItem key={name}>{name}</ListItem>
+              {organizations.map((organization) => (
+                <ListItem key={organization}>{organization}</ListItem>
               ))}
             </List>
           )}
@@ -55,6 +56,21 @@ export const ReviewInputCloudFoundry: React.FC<
             <List isPlain>
               {spaces.map((space) => (
                 <ListItem key={space}>{space}</ListItem>
+              ))}
+            </List>
+          )}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+
+      <DescriptionListGroup>
+        <DescriptionListTerm>Names</DescriptionListTerm>
+        <DescriptionListDescription>
+          {names.length === 0 ? (
+            <EmptyTextMessage message="No names specified" />
+          ) : (
+            <List isPlain>
+              {names.map((name) => (
+                <ListItem key={name}>{name}</ListItem>
               ))}
             </List>
           )}
