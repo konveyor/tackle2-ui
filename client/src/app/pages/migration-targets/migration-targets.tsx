@@ -50,7 +50,7 @@ export const MigrationTargets: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const { targets, refetch: refetchTargets } = useFetchTargets();
+  const { targetsInOrder } = useFetchTargets();
 
   const targetOrderSetting = useSetting("ui.target.order");
   const targetOrderSettingMutation = useSettingMutation("ui.target.order");
@@ -94,7 +94,7 @@ export const MigrationTargets: React.FC = () => {
     onDeleteTargetError
   );
 
-  const onCustomTargetModalSaved = (response: AxiosResponse<Target>) => {
+  const onCustomTargetModalSaved = async (response: AxiosResponse<Target>) => {
     if (targetToUpdate) {
       pushNotification({
         title: t("toastr.success.saveWhat", {
@@ -121,18 +121,6 @@ export const MigrationTargets: React.FC = () => {
         ),
       });
 
-      // update target order
-      if (
-        targetOrderSetting.isSuccess &&
-        response.data.id &&
-        targetOrderSetting.data
-      ) {
-        targetOrderSettingMutation.mutate([
-          ...targetOrderSetting.data,
-          response.data.id,
-        ]);
-      }
-
       // Make sure the new target's provider is part of the providers filter so it can be seen
       if (filterState.filterValues["provider"]) {
         const targetProvider = response.data.provider;
@@ -149,8 +137,8 @@ export const MigrationTargets: React.FC = () => {
         });
       }
     }
+
     setCreateUpdateModalState(null);
-    refetchTargets();
   };
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
@@ -180,13 +168,15 @@ export const MigrationTargets: React.FC = () => {
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const activeId = active.id as number;
-    const activeTarget = targets.find((target) => target.id === activeId);
+    const activeTarget = targetsInOrder.find(
+      (target) => target.id === activeId
+    );
     setActiveTarget(activeTarget ?? null);
   };
 
   const tableControls = useLocalTableControls({
     tableName: "target-cards",
-    items: targets,
+    items: targetsInOrder,
     idProperty: "name",
     initialFilterValues: { provider: [DEFAULT_PROVIDER] },
     columnNames: {
@@ -200,7 +190,7 @@ export const MigrationTargets: React.FC = () => {
     filterCategories: [
       {
         selectOptions: unique(
-          targets.map((target) => target.provider).filter(Boolean)
+          targetsInOrder.map((target) => target.provider).filter(Boolean)
         ).map((target) => ({ value: target })),
         placeholderText: "Filter by language...",
         categoryKey: "provider",
@@ -230,9 +220,19 @@ export const MigrationTargets: React.FC = () => {
       return [];
     }
 
-    return targetOrderSetting.data
+    // Get targets in the order specified by the setting
+    const orderedTargets = targetOrderSetting.data
       .map((id) => filteredTargets.find((target) => target.id === id))
       .filter(Boolean);
+
+    // Find targets that are in filteredTargets but not in the ordered list
+    const orderedTargetIds = new Set(orderedTargets.map((target) => target.id));
+    const unorderedTargets = filteredTargets.filter(
+      (target) => !orderedTargetIds.has(target.id)
+    );
+
+    // Combine ordered targets with unordered ones at the end
+    return [...orderedTargets, ...unorderedTargets];
   }, [filteredTargets, targetOrderSetting.data, targetOrderSetting.isSuccess]);
 
   return (
@@ -315,6 +315,7 @@ export const MigrationTargets: React.FC = () => {
       >
         <CustomTargetForm
           target={targetToUpdate}
+          targetOrder={targetOrderSetting.data ?? []}
           onSaved={onCustomTargetModalSaved}
           onCancel={() => setCreateUpdateModalState(null)}
         />
