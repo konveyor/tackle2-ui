@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
 
@@ -11,20 +12,53 @@ import {
   updateTarget,
 } from "@app/api/rest";
 
+import { useSetting } from "./settings";
+
 export const TargetsQueryKey = "targets";
 
 export const useFetchTargets = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
-  const { data, isLoading, isSuccess, error, refetch } = useQuery<Target[]>({
+  const {
+    data: targets,
+    isLoading,
+    isSuccess,
+    error,
+    refetch,
+  } = useQuery<Target[]>({
     queryKey: [TargetsQueryKey],
     queryFn: async () => await getTargets(),
     onError: (err) => console.log(err),
     refetchInterval,
   });
 
+  const { data: targetOrder = [] } = useSetting("ui.target.order");
+
+  const targetsInOrder = useMemo(
+    () =>
+      !targets
+        ? []
+        : targets
+            .map((target, targetIndex) => {
+              const index = targetOrder.findIndex((id) => id === target.id);
+              return {
+                target,
+                order: index === -1 ? targets.length + targetIndex : index,
+              };
+            })
+            .sort((a, b) => a.order - b.order)
+            .map(({ target }) => target),
+    [targets, targetOrder]
+  );
+
   return {
-    targets: data || [],
+    /** Targets in their original order */
+    targets: targets || [],
+    /**
+     * Targets in the order specified by the setting "ui.target.order" including targets
+     * that are not in the setting at the end of the list.
+     */
+    targetsInOrder,
     isFetching: isLoading,
     isSuccess,
     fetchError: error,
@@ -83,7 +117,7 @@ export const useCreateTargetMutation = (
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isPending, mutate, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createTarget,
     onSuccess: (res) => {
       onSuccess(res);
@@ -95,6 +129,7 @@ export const useCreateTargetMutation = (
   });
   return {
     mutate,
+    mutateAsync,
     isPending,
     error,
   };
