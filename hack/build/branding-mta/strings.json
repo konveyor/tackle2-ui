@@ -1,0 +1,23 @@
+{
+  "application": {
+    "title": "Migration Toolkit for Applications",
+    "name": "MTA UI",
+    "description": "MTA UI"
+  },
+  "about": {
+    "displayName": "Migration Toolkit for Applications",
+    "imageSrc": "<%= brandingRoot %>/images/redhat-logo.svg"
+  },
+  "masthead": {
+    "leftTitle": {
+      "text": "Migration Toolkit for Applications",
+      "heading": "h1",
+      "size": "2xl"
+    },
+    "rightBrand": {
+      "src": "<%= brandingRoot %>/images/redhat-logo.svg",
+      "alt": "Red Hat Logo",
+      "height": "30px"
+    }
+  }
+}
