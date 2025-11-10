@@ -20,7 +20,6 @@ import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { StateError } from "@app/components/StateError";
 import { TargetCard } from "@app/components/target-card/target-card";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useSetting } from "@app/queries/settings";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
@@ -43,8 +42,6 @@ const useEnhancedTargets = (applications: Application[]) => {
   } = useFetchTargets();
   const { tagCategories, isFetching: isTagCategoriesLoading } =
     useFetchTagCategories();
-  const { data: targetOrder = [], isLoading: isTargetOrderLoading } =
-    useSetting("ui.target.order");
 
   const languageProviders = useMemo(
     () => unique(targets.map(({ provider }) => provider).filter(Boolean)),
@@ -73,8 +70,7 @@ const useEnhancedTargets = (applications: Application[]) => {
   return {
     // true if some queries are still fetching data for the first time (initial load)
     // note that the default re-try count (3) is used
-    isLoading:
-      isTagCategoriesLoading || isTargetsLoading || isTargetOrderLoading,
+    isLoading: isTagCategoriesLoading || isTargetsLoading,
     // missing targets are the only blocker
     isError: !!isTargetsError,
     targets: targetsInOrder,
