@@ -15,27 +15,28 @@ const SUPPORTED_SCHEMA: JsonSchemaObject = {
   properties: {
     organizations: {
       description: "Organization names.",
-      items: {
-        minLength: 1,
-        type: "string",
-      },
       type: "array",
+      minItems: 1,
+      items: {
+        type: "string",
+        minLength: 1,
+      },
     },
     spaces: {
       description: "Space names.",
-      items: {
-        minLength: 1,
-        type: "string",
-      },
       type: "array",
+      items: {
+        type: "string",
+        minLength: 1,
+      },
     },
     names: {
       description: "Application names. Each may be a glob expression.",
-      items: {
-        minLength: 1,
-        type: "string",
-      },
       type: "array",
+      items: {
+        type: "string",
+        minLength: 1,
+      },
     },
   },
   type: "object",
