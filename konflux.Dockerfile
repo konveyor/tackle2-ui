@@ -1,7 +1,8 @@
 FROM registry.redhat.io/ubi9/nodejs-20:latest AS builder
+RUN pwd && ls -la
 COPY --chown=1001:0 . /workspace
-RUN pwd && ls -la /workspace
 WORKDIR /workspace
+RUN pwd && ls -la /workspace
 RUN ls -la hack/build/branding-mta/
 
 # Setup downstream branding (before https://github.com/konveyor/tackle2-ui/pull/1664)
