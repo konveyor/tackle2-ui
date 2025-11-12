@@ -89,14 +89,17 @@ export const FilterInputCloudFoundry: React.FC<
   FilterInputCloudFoundryProps
 > = ({ id, values, onDocumentChanged }) => {
   const validationSchema = yup.object().shape({
-    organizations: yup.array().of(
-      yup.object().shape({
-        value: yup
-          .string()
-          .min(1, "Organization name must be at least 1 character")
-          .trim(),
-      })
-    ),
+    organizations: yup
+      .array()
+      .min(1, "At least one organization is required")
+      .of(
+        yup.object().shape({
+          value: yup
+            .string()
+            .min(1, "Organization name must be at least 1 character")
+            .trim(),
+        })
+      ),
     spaces: yup.array().of(
       yup.object().shape({
         value: yup.string().min(1, "Space must be at least 1 character").trim(),
@@ -146,8 +149,8 @@ export const FilterInputCloudFoundry: React.FC<
           fieldName="organizations"
           addLabel="Add an organization"
           removeLabel="Remove this organization"
-          emptyMessage="No organizations specified"
-          isRequired={false}
+          emptyMessage="No organizations specified, at least one is required"
+          isRequired
         />
       </StackItem>
 
@@ -160,7 +163,6 @@ export const FilterInputCloudFoundry: React.FC<
           addLabel="Add a space"
           removeLabel="Remove this space"
           emptyMessage="No spaces specified"
-          isRequired={false}
         />
       </StackItem>
 
@@ -173,7 +175,6 @@ export const FilterInputCloudFoundry: React.FC<
           addLabel="Add a name"
           removeLabel="Remove this name"
           emptyMessage="No application names specified"
-          isRequired={false}
         />
       </StackItem>
     </Stack>

@@ -20,6 +20,7 @@ const SUPPORTED_SCHEMA: JsonSchemaObject = {
         type: "string",
       },
       type: "array",
+      minItems: 1,
     },
     spaces: {
       description: "Space names.",
