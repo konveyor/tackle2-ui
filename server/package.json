@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
-    "format": "prettier --ignore-unknown --write .",
-    "format:check": "prettier --ignore-unknown --check .",
+    "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
+    "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "build": "NODE_ENV=production rollup -c",

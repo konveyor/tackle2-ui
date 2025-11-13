@@ -12,8 +12,8 @@
     "e2e:open:local": "dotenvx run -- cypress open --e2e",
     "e2e:run:minikube": "npm run e2e:run:local -- --config baseUrl=http://`minikube ip`",
     "e2e:open:minikube": "npm run e2e:open:local -- --config baseUrl=http://`minikube ip`",
-    "format": "prettier --ignore-unknown --write .",
-    "format:check": "prettier --ignore-unknown --check .",
+    "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
+    "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
