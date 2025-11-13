@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -37,8 +37,10 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useDeleteGeneratorMutation } from "@app/queries/generators";
-import { useFetchGenerators } from "@app/queries/generators";
+import {
+  useDeleteGeneratorMutation,
+  useFetchGenerators,
+} from "@app/queries/generators";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import GeneratorDetailDrawer from "./components/generator-detail-drawer";
@@ -56,7 +58,7 @@ const NO_DATA_EMPTY_STATE = (
   </EmptyState>
 );
 
-const AssetGenerators: React.FC = () => {
+const AssetGenerators: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { pushNotification } = useNotifications();

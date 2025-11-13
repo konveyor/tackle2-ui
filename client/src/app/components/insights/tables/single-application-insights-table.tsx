@@ -19,9 +19,9 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import {
   Application,
+  HubRequestParams,
   UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
-import { HubRequestParams } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { FilterToolbar } from "@app/components/FilterToolbar";

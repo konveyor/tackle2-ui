@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   DescriptionListDescription,
@@ -11,8 +11,7 @@ import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
 import { Application, Archetype, Review } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchReviewById } from "@app/queries/reviews";
-import { useFetchReviews } from "@app/queries/reviews";
+import { useFetchReviewById, useFetchReviews } from "@app/queries/reviews";
 
 import { ReviewLabel } from "./review-label";
 
