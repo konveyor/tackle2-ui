@@ -1,5 +1,4 @@
 import * as React from "react";
-import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
@@ -12,6 +11,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 
 import { AnalysisIncident } from "@app/api/models";
+import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 
 import "./incident-code-snip-viewer.css";
 
