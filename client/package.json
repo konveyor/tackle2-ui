@@ -1,6 +1,7 @@
 {
   "name": "@konveyor-ui/client",
   "version": "0.1.0",
+  "type": "commonjs",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
@@ -11,12 +12,11 @@
     "build:dev": "NODE_ENV=development webpack --config ./config/webpack.dev.ts",
     "start:dev": "NODE_ENV=development webpack serve --config ./config/webpack.dev.ts",
     "test": "NODE_ENV=test TZ=UTC jest --rootDir=. --config=./config/jest.config.ts",
+    "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
+    "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "tsc": "tsc -p ./tsconfig.json"
-  },
-  "lint-staged": {
-    "*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}": "eslint --fix",
-    "*.{css,json,md,yaml,yml}": "prettier --write"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

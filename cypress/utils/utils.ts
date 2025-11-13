@@ -26,7 +26,7 @@ import Chainable = Cypress.Chainable;
 
 const fullUrl = Cypress.config("baseUrl") + "/applications";
 
-export function inputText(fieldId: string, text: any, log = false): void {
+export function inputText(fieldId: string, text: string, log = false): void {
   if (!log) {
     cy.log(`Type ${text} in ${fieldId}`);
   }
@@ -86,7 +86,7 @@ export function clickWithFocus(
 
 export function clickJs(
   fieldId: string,
-  isForced = true,
+  _isForced = true,
   log = false,
   number = 0
 ): void {

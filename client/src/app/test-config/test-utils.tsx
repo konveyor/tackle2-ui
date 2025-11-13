@@ -1,5 +1,5 @@
-import React, { FC, ReactElement } from "react";
-import { createContext, useContext } from "react";
+/* eslint-disable import-x/export */
+import { FC, ReactElement, ReactNode, createContext, useContext } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RenderHookOptions,
@@ -13,7 +13,7 @@ import { Application, Archetype, Assessment } from "@app/api/models";
 const QueryClientContext = createContext<QueryClient | undefined>(undefined);
 
 const AllTheProviders: FC<{
-  children: React.ReactNode;
+  children: ReactNode;
   queryClient?: QueryClient;
 }> = ({ children, queryClient }) => {
   const internalQueryClient =
@@ -55,11 +55,11 @@ const customRenderHook = <TProps, TResult>(
   }
 ) => {
   const { queryClient, ...rest } = options || {};
-  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  const Wrapper: FC<{ children: ReactNode }> = ({ children }) => (
     <AllTheProviders queryClient={queryClient}>{children}</AllTheProviders>
   );
 
-  return renderHook(callback, { wrapper: Wrapper as React.FC, ...rest });
+  return renderHook(callback, { wrapper: Wrapper as FC, ...rest });
 };
 
 export * from "@testing-library/react";
