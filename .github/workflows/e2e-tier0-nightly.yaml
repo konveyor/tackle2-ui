@@ -1,4 +1,4 @@
-name: Test nightly tier0
+name: e2e - run tier0 tests nightly
 
 on:
   workflow_dispatch:

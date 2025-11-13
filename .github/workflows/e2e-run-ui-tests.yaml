@@ -1,4 +1,4 @@
-name: run UI tests on minikube
+name: e2e - run UI tests on minikube
 
 on:
   workflow_call: # call from another workflow
@@ -127,6 +127,4 @@ jobs:
         with:
           name: test-reports-${{ env.AUTH_KIND }}-${{ env.TEST_KIND }}
           path: |
-            tackle2-ui/cypress/reports
-            tackle2-ui/cypress/screenshots
-            tackle2-ui/cypress/videos
+            tackle2-ui/cypress/run

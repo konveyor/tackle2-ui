@@ -1,4 +1,4 @@
-name: Test push to main tier0
+name: e2e - run tier0 tests for cypress test changes on push to main
 
 on:
   push:
