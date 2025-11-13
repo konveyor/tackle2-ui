@@ -8,9 +8,6 @@
     "type": "git",
     "url": "https://github.com/konveyor/tackle2-ui.git"
   },
-  "bin": {
-    "prettier-wrapper": "./scripts/prettier_wrapper.js"
-  },
   "scripts": {
     "clean": "rimraf ./dist && npm run clean -ws --if-present",
     "clean:all": "npm run clean && rimraf ./node_modules ./**/node_modules/",

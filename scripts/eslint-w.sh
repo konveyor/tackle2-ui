@@ -1,8 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-function npx() {
-  xargs -a /dev/null -t npx "$@"
-}
 
 # Build ignore list from workspaces
 IGNORE_ESLINT=()
@@ -11,4 +8,4 @@ for ws in $WORKSPACES; do
   IGNORE_ESLINT+=(--ignore-pattern "${ws}/**")
 done
 
-npx eslint "${IGNORE_ESLINT[@]}" "$@"
+(set -x; npx eslint "${IGNORE_ESLINT[@]}" "$@")

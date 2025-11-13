@@ -5,7 +5,7 @@
 
   Example:
     $ cd cypress
-    $ ../hack/prettier_config.js
+    $ ../hack/prettier_config_check.js
     ...
     Found 100 files (respecting .gitignore)
     ...

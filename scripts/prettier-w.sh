@@ -1,8 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-function npx() {
-  xargs -a /dev/null -t npx "$@"
-}
 
 # Build ignore list from workspaces
 IGNORE_PRETTIER=()
@@ -11,4 +8,4 @@ for ws in $WORKSPACES; do
   IGNORE_PRETTIER+=("!${ws}/**")
 done
 
-npx prettier "$@" "${IGNORE_PRETTIER[@]}"
+(set -x; npx prettier "$@" "${IGNORE_PRETTIER[@]}")
