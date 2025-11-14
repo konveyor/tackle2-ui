@@ -110,17 +110,147 @@ Run multiple tags at once:
 CYPRESS_INCLUDE_TAGS=@tier1,@tier2 npx cypress run
 ```
 
-## Tags and Tiers in Konveyor UI Tests
+### Tag Overview
 
-| Tag        | Purpose                                                | Typical Run               | Example Tests                                                          |
-| ---------- | ------------------------------------------------------ | ------------------------- | ---------------------------------------------------------------------- |
-| `@interOp` | Interoperability tests on ROSA, ARO, ROSA-STS clusters | InterOp team              | Source credentials CRUD, Migration Targets, Binary analysis, Wave CRUD |
-| `@ci`      | Minimal CI sanity run                                  | GitHub Actions / Minikube | CRUD, assessment and review                                            |
-| `@tier0`   | Basic sanity suite (stage/prod/nightly)                | Konveyor CI               | Credentials CRUD, Source analysis, Business service CRUD               |
-| `@tier1`   | Extended analysis tests                                | Nightly CI                | Binary and source analysis with credentials                            |
-| `@tier2`   | Full CRUD coverage                                     | Automation / CI           | Entity CRUD operations                                                 |
-| `@tier3`   | Sorting/filtering validation                           | Automation                | Filter/sort tests                                                      |
-| `@tier4`   | Load and performance tests                             | Automation                | Load tests                                                             |
+Tests are tagged for selective execution based on purpose, stability, and resource requirements.
+
+### Finding and Running Tests by Tag
+
+Use the `findTierFiles.js` utility to locate and run tests with specific tags:
+
+```bash
+# Find all tier0 tests
+node cypress/scripts/findTierFiles.js tier0
+
+# Run tests for a specific tier
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
+
+# Run tests for multiple tiers
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+```
+
+### Tag Definitions
+
+#### `@ci` - Continuous Integration Tests
+
+- **Purpose**: Runs on minikube for PR validation via [Konveyor CI](https://github.com/konveyor/ci)
+- **Constraints**:
+  - Limited resources (minikube environment)
+  - Cannot use tests requiring external credentials
+  - Time-constrained (must complete reasonably quickly)
+- **Tests Include**:
+  - Login and navigation validation
+  - Business service CRUD
+  - Job function CRUD
+  - Stakeholder, stakeholder group, tag, and archetype CRUD operations
+  - Application assessment, review, and analysis with effort and issues validation
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js ci)"
+```
+
+#### `@tier0` - Basic Sanity Tests
+
+- **Purpose**: Core smoke tests for critical functionality
+- **Runs on**: Stage, production, and nightly on [Konveyor CI](https://github.com/konveyor/ci)
+- **Tests Include**:
+  - Custom migration targets CRUD and validation
+  - Source analysis on bookserver app (without credentials)
+  - Source + dependency analysis validation
+  - Migration waves CRUD and application association
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
+```
+
+#### `@tier1` - Analysis Tests with Credentials
+
+- **Purpose**: Comprehensive analysis tests requiring external credentials
+- **Runs on**: Nightly on [Konveyor CI](https://github.com/konveyor/ci)
+- **Tests Include**:
+  - Binary analysis with Git credentials
+  - Source code analysis with credentials
+  - Node.js application analysis
+  - Python application analysis
+  - Upload binary analysis
+
+**Required Config**: Tests need `git_user` and `git_password` configured in `cypress.config.ts`
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier1)"
+```
+
+#### `@tier2` - Comprehensive CRUD Tests
+
+- **Purpose**: Full CRUD coverage for all features
+- **Test Areas**: Administration (credentials, repositories, questionnaires), application inventory, controls, custom metrics, migration waves, task manager, RBAC, and analysis features
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier2)"
+```
+
+#### `@tier3` - Sorting and Filtering Tests
+
+- **Purpose**: Validate sorting, filtering, and UI interactions
+- **Tests Include**:
+  - Job function filters
+  - Tag filters on application details
+  - Manual package selection for analysis
+  - Analysis with proxy configuration
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier3)"
+```
+
+#### `@tier4` - Load and Performance Tests
+
+- **Purpose**: Load testing and performance validation
+- **Tests Include**:
+  - Bulk analysis operations
+  - Large dataset handling
+  - Performance benchmarks
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier4)"
+```
+
+#### `@interop` - Interoperability Tests
+
+- **Purpose**: Used by interOp team for testing on ROSA, ROSA-STS, and ARO clusters
+- **Tests Include**:
+  - Source control credentials CRUD
+  - Custom migration targets CRUD
+  - Stakeholder CRUD operations
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js interop)"
+```
+
+### Running Multiple Tags
+
+To run tests from multiple tiers in a single execution:
+
+```bash
+# Run tier0 and tier1 together
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,tier1)"
+
+# Run interop and tier0 tests
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+```
 
 ## License Header Management
 

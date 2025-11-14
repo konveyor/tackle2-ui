@@ -25,7 +25,7 @@ import { Analysis } from "../../../../models/migration/applicationinventory/anal
 import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
 const applicationsList: Analysis[] = [];
-describe(["@tier2"], "Upload Binary Analysis", () => {
+describe(["@tier1"], "Upload Binary Analysis", () => {
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
       this.appData = appData;
@@ -37,25 +37,21 @@ describe(["@tier2"], "Upload Binary Analysis", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
   });
 
-  it(
-    ["@interop", "@tier1"],
-    "Analysis for acmeair app upload binary",
-    function () {
-      const application = new Analysis(
-        getRandomApplicationData("acmeair_app"),
-        getRandomAnalysisData(
-          this.analysisData["uploadbinary_analysis_on_acmeair"]
-        )
-      );
-      application.create();
-      applicationsList.push(application);
-      cy.wait("@getApplication");
-      application.analyze();
-      application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    }
-  );
+  it("Analysis for acmeair app upload binary", function () {
+    const application = new Analysis(
+      getRandomApplicationData("acmeair_app"),
+      getRandomAnalysisData(
+        this.analysisData["uploadbinary_analysis_on_acmeair"]
+      )
+    );
+    application.create();
+    applicationsList.push(application);
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+  });
 
-  it(["@tier1"], "Custom rules with custom targets", function () {
+  it("Custom rules with custom targets", function () {
     // Automated https://issues.redhat.com/browse/TACKLE-561
     const application = new Analysis(
       getRandomApplicationData("customRule_customTarget"),
