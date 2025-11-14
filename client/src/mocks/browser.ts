@@ -1,6 +1,6 @@
 import { type RestHandler, rest, setupWorker } from "msw";
 
-import config from "./config";
+import { config } from "./config";
 import stubNewWork from "./stub-new-work";
 
 /**

@@ -110,7 +110,10 @@ jobs:
           npm clean-install --ignore-scripts
 
       - name: Lint sources
-        run: npm run lint
+        run: |
+          npm run postinstall
+          npm run format:check
+          npm run lint
 
       - name: Build
         run: npm run build

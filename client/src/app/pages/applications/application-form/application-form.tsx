@@ -45,6 +45,22 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = (props) => {
   );
 };
 
+const hasSourceRepository = (application: DecoratedApplication | null) => {
+  return !!application?.repository?.kind && !!application?.repository?.url;
+};
+
+const hasBinary = (application: DecoratedApplication | null) => {
+  return !!application?.binary?.startsWith("mvn://");
+};
+
+const hasSourcePlatform = (application: DecoratedApplication | null) => {
+  return !!application?.platform?.name;
+};
+
+const hasAssetRepository = (application: DecoratedApplication | null) => {
+  return !!application?.assets?.kind && !!application?.assets?.url;
+};
+
 export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   form,
   data: {
@@ -58,32 +74,26 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   },
   application,
 }) => {
-  const { control, getValues, setValue } = form;
+  const { control, setValue } = form;
   const { t } = useTranslation();
   const watchSourcePlatform = useWatch({ control, name: "sourcePlatform" });
-  const values = getValues();
 
   const [isBasicExpanded, setBasicExpanded] = React.useState(true);
 
   const [isSourceCodeExpanded, setSourceCodeExpanded] = React.useState(
-    application === null || (!!values.source.kind && !!values.source.url)
+    hasSourceRepository(application)
   );
 
   const [isBinaryExpanded, setBinaryExpanded] = React.useState(
-    application !== null &&
-      !!values.group &&
-      !!values.artifact &&
-      !!values.version
+    hasBinary(application)
   );
 
   const [isSourcePlatformExpanded, setSourcePlatformExpanded] = React.useState(
-    application !== null && !!values.sourcePlatform
+    hasSourcePlatform(application)
   );
 
   const [isAssetRepositoryExpanded, setAssetRepositoryExpanded] =
-    React.useState(
-      application !== null && !!values.assets.kind && !!values.assets.url
-    );
+    React.useState(hasAssetRepository(application));
 
   return (
     <Form>

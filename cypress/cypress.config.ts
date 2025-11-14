@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
+
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";

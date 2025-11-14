@@ -1,4 +1,3 @@
-/* eslint-env node */
 /** @import { Logger, Options, OnProxyEvent } from "http-proxy-middleware/dist/types.js" */
 import * as cookie from "cookie";
 
