@@ -1,6 +1,4 @@
-import React from "react";
 import "@testing-library/jest-dom";
-import { server } from "@mocks/server";
 import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 
@@ -10,6 +8,7 @@ import {
   screen,
   waitFor,
 } from "@app/test-config/test-utils";
+import { server } from "@mocks/server";
 
 import { Proxies } from "../proxies";
 

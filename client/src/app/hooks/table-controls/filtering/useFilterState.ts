@@ -6,8 +6,10 @@ import { DiscriminatedArgs } from "@app/utils/type-utils";
 
 import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 
-import { serializeFilterUrlParams } from "./helpers";
-import { deserializeFilterUrlParams } from "./helpers";
+import {
+  deserializeFilterUrlParams,
+  serializeFilterUrlParams,
+} from "./helpers";
 
 /**
  * The "source of truth" state for the filter feature.

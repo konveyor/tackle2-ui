@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import * as React from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
 import { unique } from "radash";
@@ -29,15 +30,14 @@ import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSettingMutation } from "@app/queries/settings";
 import {
+  useCreateFileMutation,
   useCreateTargetMutation,
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { useCreateFileMutation } from "@app/queries/targets";
 import { toOptionLike, toRef } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 import {
   DEFAULT_PROVIDER,
