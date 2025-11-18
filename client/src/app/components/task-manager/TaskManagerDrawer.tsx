@@ -1,4 +1,5 @@
-import React, { forwardRef, useCallback, useMemo, useState } from "react";
+import * as React from "react";
+import { forwardRef, useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 import {
@@ -52,7 +53,6 @@ interface TaskManagerTask {
   priority: number;
   applicationName?: string;
   platformName?: string;
-  preemptEnabled: boolean;
 
   // full object to be used with library functions
   _: Task<unknown>;
@@ -271,13 +271,11 @@ const useTaskManagerData = () => {
               priority: task.priority ?? 0,
               applicationName: task.application?.name,
               platformName: task.platform?.name,
-              preemptEnabled: task?.policy?.preemptEnabled ?? false,
 
               _: task,
 
               // TODO: Add any checks that could be needed later...
               //  - isCancelable (does the current user own the task? other things to check?)
-              //  - isPreemptionToggleAllowed
             }) as TaskManagerTask
         ) ?? [],
     [data]

@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { type FC, type ReactNode } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
@@ -62,7 +62,7 @@ export const taskStateToLabel: Record<TaskState, string> = {
   SucceededWithErrors: "taskState.SucceededWithErrors",
 };
 
-export const TasksPage: React.FC = () => {
+export const TasksPage: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
@@ -84,7 +84,6 @@ export const TasksPage: React.FC = () => {
       state: t("terms.status"),
       kind: t("terms.kind"),
       priority: t("terms.priority"),
-      preemption: t("terms.preemption"),
       createUser: t("terms.createdBy"),
       pod: t("terms.pod"),
       started: t("terms.started"),
@@ -206,7 +205,6 @@ export const TasksPage: React.FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {
     priority: { tooltip: t("tooltip.priority") },
-    preemption: { tooltip: t("tooltip.preemption") },
   };
 
   const clearFilters = () => {
@@ -224,7 +222,6 @@ export const TasksPage: React.FC = () => {
     addon,
     state,
     priority = 0,
-    policy,
     createUser,
     pod,
     started,
@@ -248,7 +245,6 @@ export const TasksPage: React.FC = () => {
       />
     ),
     priority,
-    preemption: String(!!policy?.preemptEnabled),
     createUser,
     pod,
     started: started ? dayjs(started).format("YYYY-MM-DD HH:mm:ss") : "",
