@@ -115,7 +115,11 @@ jobs:
       - name: Run login tests using default credentials from `cypress.config.ts`
         uses: cypress-io/github-action@v6
         env:
-          CYPRESS_baseUrl: "${{ env.UI_URL }}"
+          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
+          CYPRESS_USER: admin
+          CYPRESS_PASSWORD: Dog8code
+          CYPRESS_INITIAL_PASSWORD: Passw0rd!
+          CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
         with:
           working-directory: ./tackle2-ui
           project: ./cypress
@@ -125,10 +129,11 @@ jobs:
         uses: cypress-io/github-action@v6
         env:
           CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-          CYPRESS_baseUrl: "${{ env.UI_URL }}"
-          CYPRESS_git_user: "fakeuser"
-          CYPRESS_git_password: "${{ secrets.GITHUB_TOKEN }}"
-          CYPRESS_git_key: "${{ secrets.GITHUB_TOKEN }}"
+          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
+          CYPRESS_USER: admin
+          CYPRESS_PASSWORD: Dog8code
+          CYPRESS_GIT_USER: "fakeuser"
+          CYPRESS_GIT_PASSWORD: "${{ secrets.GITHUB_TOKEN }}"
         with:
           working-directory: ./tackle2-ui
           project: ./cypress
