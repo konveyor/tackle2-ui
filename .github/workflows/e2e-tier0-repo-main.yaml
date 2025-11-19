@@ -1,4 +1,4 @@
-name: e2e - run tier0 tests for cypress test changes on push to main
+name: e2e - run tier0 tests for cypress test PRs/pushes targeting main
 
 on:
   push:
@@ -7,8 +7,14 @@ on:
     paths:
       - "cypress/**"
 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "cypress/**"
+
 concurrency:
-  group: tier0-push-main-${{ github.ref }}
+  group: e2e-tier0-repo-main-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
