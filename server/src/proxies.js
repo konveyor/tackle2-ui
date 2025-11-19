@@ -104,7 +104,6 @@ export default {
       proxyRes: redirectIfUnauthorized,
     },
   },
-
   kai: {
     pathFilter: "/kai",
     target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
@@ -113,6 +112,21 @@ export default {
     changeOrigin: true,
     pathRewrite: {
       "^/kai": "/services/kai",
+    },
+
+    on: {
+      proxyReq: addBearerTokenIfNeeded,
+      proxyRes: redirectIfUnauthorized,
+    },
+  },
+  kaiLLMProxy: {
+    pathFilter: "/llm-proxy",
+    target: KONVEYOR_ENV.KAI_LLM_PROXY_URL || "http://localhost:9003",
+    logger,
+
+    changeOrigin: true,
+    pathRewrite: {
+      "^/llm-proxy": "",
     },
 
     on: {

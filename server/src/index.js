@@ -31,6 +31,7 @@ app.set("x-powered-by", false);
 app.use(createProxyMiddleware(proxies.auth));
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
+app.use(createProxyMiddleware(proxies.kaiLLMProxy));
 
 // In development, proxy to the dev server, otherwise serve the client/dist content
 if (developmentMode) {
