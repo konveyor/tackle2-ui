@@ -1,0 +1,141 @@
+name: PR Related Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "client/src/app/pages/**"
+      - "cypress/e2e/**"
+      - ".github/test-mapping.json"
+      - ".github/scripts/get-related-tests.js"
+
+concurrency:
+  group: pr-related-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      test_patterns: ${{ steps.get-tests.outputs.test_patterns }}
+      should_run_tests: ${{ steps.get-tests.outputs.should_run_tests }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+
+      - name: Detect related tests
+        id: get-tests
+        run: |
+          node .github/scripts/get-related-tests.js origin/${{ github.base_ref }} HEAD > output.txt
+          cat output.txt
+
+          # Extract the TEST_PATTERNS line
+          TEST_PATTERNS=$(grep "^TEST_PATTERNS=" output.txt | sed 's/^TEST_PATTERNS=//')
+
+          echo "test_patterns=${TEST_PATTERNS}" >> $GITHUB_OUTPUT
+
+          # Check if we should run tests
+          if [ -n "$TEST_PATTERNS" ]; then
+            echo "should_run_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run_tests=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "Tests to run: ${TEST_PATTERNS}"
+
+      - name: Upload test patterns
+        if: steps.get-tests.outputs.should_run_tests == 'true'
+        run: |
+          echo "${{ steps.get-tests.outputs.test_patterns }}" > test-patterns.txt
+          cat test-patterns.txt
+
+  run-related-tests:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run_tests == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # This will be populated dynamically based on test patterns
+        # For now, we'll run all detected tests in a single job
+        test_group: [related]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build UI
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm run start:dev &
+          # Wait for application to be ready
+          timeout 300 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
+        env:
+          CI: true
+
+      - name: Run Cypress tests
+        run: |
+          # Convert test patterns to cypress spec parameter
+          TEST_PATTERNS="${{ needs.detect-changes.outputs.test_patterns }}"
+
+          if [ -n "$TEST_PATTERNS" ]; then
+            # Run cypress with specific spec patterns
+            npx cypress run --spec "$TEST_PATTERNS"
+          else
+            echo "No test patterns specified, skipping tests"
+          fi
+        env:
+          CYPRESS_BASE_URL: http://localhost:3000
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-results-${{ matrix.test_group }}
+          path: |
+            cypress/screenshots
+            cypress/videos
+            cypress/results
+          retention-days: 7
+
+  test-summary:
+    needs: [detect-changes, run-related-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Should run tests:** ${{ needs.detect-changes.outputs.should_run_tests }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test patterns detected:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.detect-changes.outputs.test_patterns }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.run-related-tests.result }}" == "success" ]; then
+            echo "✅ All related tests passed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.run-related-tests.result }}" == "failure" ]; then
+            echo "❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.run-related-tests.result }}" == "skipped" ]; then
+            echo "⏭️ No related tests to run" >> $GITHUB_STEP_SUMMARY
+          fi
