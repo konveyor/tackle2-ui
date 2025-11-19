@@ -1,7 +1,7 @@
-import React from "react";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -11,7 +11,7 @@ import {
   Form,
   Popover,
 } from "@patternfly/react-core";
-import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import type { New, SourcePlatform } from "@app/api/models";
@@ -22,8 +22,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { SimpleSelect } from "@app/components/SimpleSelect";
-import { OptionWithValue } from "@app/components/SimpleSelect";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
@@ -117,7 +116,6 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-    watch,
   } = useForm<PlatformFormValues>({
     defaultValues: !platform
       ? {
@@ -138,7 +136,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     mode: "all",
   });
 
-  const selectedKind = watch("kind");
+  const selectedKind = useWatch({ name: "kind" });
 
   const getIdentity = (identityName: string | undefined) => {
     const temp = identities.find((identity) => identity.name === identityName);

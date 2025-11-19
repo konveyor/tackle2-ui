@@ -1,10 +1,9 @@
-import React, { useMemo } from "react";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { mixed, object, string } from "yup";
-import { number } from "yup";
+import { mixed, number, object, string } from "yup";
 import {
   ActionGroup,
   Button,
@@ -59,14 +58,14 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const isArchetype = useIsArchetype();
 
-  const actionOptions: OptionWithValue<ProposedAction>[] = useMemo(() => {
+  const actionOptions: OptionWithValue<ProposedAction>[] = React.useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
       value: key as ProposedAction,
       toString: () => t(value.i18Key),
     }));
   }, [t]);
 
-  const effortOptions: OptionWithValue<EffortEstimate>[] = useMemo(() => {
+  const effortOptions: OptionWithValue<EffortEstimate>[] = React.useMemo(() => {
     return Object.entries(EFFORT_ESTIMATE_LIST).map(([key, value]) => ({
       value: key as EffortEstimate,
       toString: () => t(value.i18Key),

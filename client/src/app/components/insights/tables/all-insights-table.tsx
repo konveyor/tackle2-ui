@@ -12,8 +12,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import { Paths } from "@app/Paths";
-import { UiAnalysisReportInsight } from "@app/api/models";
-import { HubRequestParams } from "@app/api/models";
+import { HubRequestParams, UiAnalysisReportInsight } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { FilterToolbar } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
