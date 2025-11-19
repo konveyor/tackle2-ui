@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+import fs from 'node:fs';
+import path from 'node:path';
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Script to determine which Cypress tests should run based on changed files in a PR
@@ -33,7 +37,7 @@ function getChangedFiles(baseBranch, currentBranch) {
     console.error('Error getting changed files:', error.message);
     // If git diff fails (e.g., in PR from fork), try getting changed files from PR
     try {
-      const cmd = `git diff --name-only origin/${baseBranch}...HEAD`;
+      const cmd = `git diff --name-only ${baseBranch}...HEAD`;
       const output = execSync(cmd, { encoding: 'utf8' });
       return output.trim().split('\n').filter(Boolean);
     } catch (fallbackError) {

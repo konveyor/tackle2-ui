@@ -96,8 +96,9 @@ jobs:
           TEST_PATTERNS="${{ needs.detect-changes.outputs.test_patterns }}"
 
           if [ -n "$TEST_PATTERNS" ]; then
-            # Run cypress with specific spec patterns
-            npx cypress run --spec "$TEST_PATTERNS"
+            # Cypress expects comma-separated list for --spec
+            SPECS="$(echo "$TEST_PATTERNS" | tr ' ' ',')"
+            cd cypress && npx cypress run --spec "$SPECS"
           else
             echo "No test patterns specified, skipping tests"
           fi
