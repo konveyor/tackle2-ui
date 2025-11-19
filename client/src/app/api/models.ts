@@ -417,8 +417,6 @@ export interface TaskDashboard {
 
 export interface TaskPolicy {
   isolated?: boolean;
-  preemptEnabled?: boolean;
-  preemptExempt?: boolean;
 }
 
 export interface TTL {

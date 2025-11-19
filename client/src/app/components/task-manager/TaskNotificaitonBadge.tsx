@@ -1,9 +1,9 @@
-import React from "react";
+import { type FC } from "react";
 import { NotificationBadge } from "@patternfly/react-core";
 
 import { useTaskManagerContext } from "./TaskManagerContext";
 
-export const TaskNotificationBadge: React.FC = () => {
+export const TaskNotificationBadge: FC = () => {
   const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
 
   const badgeClick = () => {
