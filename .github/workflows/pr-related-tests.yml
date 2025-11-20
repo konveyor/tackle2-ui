@@ -6,7 +6,9 @@ on:
     paths:
       - "client/src/app/pages/**"
       - "cypress/e2e/**"
-      - ".github/test-mapping.json"
+      - "package.json"
+      - "package-lock.json"
+      - "cypress/test-mapping.json"
       - ".github/scripts/get-related-tests.js"
 
 concurrency:
@@ -19,6 +21,7 @@ jobs:
     outputs:
       test_patterns: ${{ steps.get-tests.outputs.test_patterns }}
       should_run_tests: ${{ steps.get-tests.outputs.should_run_tests }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,15 +35,16 @@ jobs:
       - name: Detect related tests
         id: get-tests
         run: |
-          node .github/scripts/get-related-tests.js origin/${{ github.base_ref }} HEAD > output.txt
+          echo "Running related tests detector..."
+
+          # IMPORTANT fix: use ... syntax + add --expand
+          node .github/scripts/get-related-tests.js origin/${{ github.base_ref }} HEAD --expand > output.txt
           cat output.txt
 
-          # Extract the TEST_PATTERNS line
           TEST_PATTERNS=$(grep "^TEST_PATTERNS=" output.txt | sed 's/^TEST_PATTERNS=//')
 
           echo "test_patterns=${TEST_PATTERNS}" >> $GITHUB_OUTPUT
 
-          # Check if we should run tests
           if [ -n "$TEST_PATTERNS" ]; then
             echo "should_run_tests=true" >> $GITHUB_OUTPUT
           else
@@ -49,7 +53,7 @@ jobs:
 
           echo "Tests to run: ${TEST_PATTERNS}"
 
-      - name: Upload test patterns
+      - name: Upload test patterns (debug)
         if: steps.get-tests.outputs.should_run_tests == 'true'
         run: |
           echo "${{ steps.get-tests.outputs.test_patterns }}" > test-patterns.txt
@@ -59,11 +63,10 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.should_run_tests == 'true'
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        # This will be populated dynamically based on test patterns
-        # For now, we'll run all detected tests in a single job
         test_group: [related]
 
     steps:
@@ -75,11 +78,15 @@ jobs:
         with:
           node-version: "20.12.2"
           cache: "npm"
-          cache-dependency-path: "cypress/package-lock.json"
 
       - name: Upgrade npm
         run: npm install -g npm@10.5.2
 
+      # Install monorepo dependencies (root)
+      - name: Install root dependencies
+        run: npm ci
+
+      # Install Cypress dependencies (workspace)
       - name: Install Cypress dependencies
         working-directory: cypress
         run: npm ci
@@ -87,15 +94,14 @@ jobs:
       - name: Run Cypress tests
         working-directory: cypress
         run: |
-          # Convert test patterns to cypress spec parameter
           TEST_PATTERNS="${{ needs.detect-changes.outputs.test_patterns }}"
 
           if [ -n "$TEST_PATTERNS" ]; then
-            # Cypress expects comma-separated list for --spec
             SPECS="$(echo "$TEST_PATTERNS" | tr ' ' ',')"
+            echo "Running specs: $SPECS"
             npx cypress run --spec "$SPECS"
           else
-            echo "No test patterns specified, skipping tests"
+            echo "No test patterns specified, skipping tests."
           fi
         env:
           CYPRESS_BASE_URL: http://localhost:3000
