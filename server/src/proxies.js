@@ -121,7 +121,7 @@ export default {
   },
   kaiLLMProxy: {
     pathFilter: "/llm-proxy",
-    target: KONVEYOR_ENV.KAI_LLM_PROXY_URL || "http://localhost:9003",
+    target: KONVEYOR_ENV.KAI_LLM_PROXY_URL || "http://localhost:9004",
     logger,
 
     changeOrigin: true,
@@ -131,7 +131,6 @@ export default {
 
     on: {
       proxyReq: addBearerTokenIfNeeded,
-      proxyRes: redirectIfUnauthorized,
     },
   },
 };
