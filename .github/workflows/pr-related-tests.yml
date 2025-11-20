@@ -21,7 +21,6 @@ jobs:
     outputs:
       test_patterns: ${{ steps.get-tests.outputs.test_patterns }}
       should_run_tests: ${{ steps.get-tests.outputs.should_run_tests }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,20 +28,16 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch base branch
-        run: |
-          git fetch origin ${{ github.base_ref }}
+        run: git fetch origin ${{ github.base_ref }}
 
       - name: Detect related tests
         id: get-tests
         run: |
           echo "Running related tests detector..."
-
-          # IMPORTANT fix: use ... syntax + add --expand
           node .github/scripts/get-related-tests.js origin/${{ github.base_ref }} HEAD --expand > output.txt
           cat output.txt
 
           TEST_PATTERNS=$(grep "^TEST_PATTERNS=" output.txt | sed 's/^TEST_PATTERNS=//')
-
           echo "test_patterns=${TEST_PATTERNS}" >> $GITHUB_OUTPUT
 
           if [ -n "$TEST_PATTERNS" ]; then
@@ -63,7 +58,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.should_run_tests == 'true'
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
@@ -82,33 +76,39 @@ jobs:
       - name: Upgrade npm
         run: npm install -g npm@10.5.2
 
-      # Install monorepo dependencies (root)
+      # Install root dependencies
       - name: Install root dependencies
         run: npm ci --ignore-scripts
 
-      # Build common workspace (needed for cypress)
+      # Build common workspace
       - name: Build common workspace
         run: npm run build -w common
 
-      # Install Cypress binary (skipped by --ignore-scripts)
+      # Install Cypress binary
       - name: Install Cypress binary
         run: npx cypress install
 
-      # Build the UI application
+      # Build UI
       - name: Build UI
         run: npm run build
 
-      # Start application server in background (just the server, already built)
-      - name: Start application server
+      # Start backend and frontend and wait for both
+      - name: Start backend & frontend
         run: |
+          # Start backend server (port 8080)
           npm run start -w server &
-          npx wait-on http://localhost:3000 --timeout 120000
+          # Start frontend server (port 3000)
+          npm run start:dev &
+          # Wait for both servers to be ready
+          npx wait-on http://localhost:8080 http://localhost:3000 --timeout 180000
+        env:
+          CI: true
 
+      # Run Cypress tests
       - name: Run Cypress tests
         working-directory: cypress
         run: |
           TEST_PATTERNS="${{ needs.detect-changes.outputs.test_patterns }}"
-
           if [ -n "$TEST_PATTERNS" ]; then
             SPECS="$(echo "$TEST_PATTERNS" | tr ' ' ',')"
             echo "Running specs: $SPECS"
@@ -119,6 +119,7 @@ jobs:
         env:
           CYPRESS_BASE_URL: http://localhost:3000
 
+      # Upload test results
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
