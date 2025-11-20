@@ -75,22 +75,14 @@ jobs:
         with:
           node-version: "20.12.2"
           cache: "npm"
+          cache-dependency-path: "cypress/package-lock.json"
 
-      - name: Install dependencies
+      - name: Install Cypress dependencies
+        working-directory: cypress
         run: npm ci
 
-      - name: Build UI
-        run: npm run build
-
-      - name: Start application
-        run: |
-          npm run start:dev &
-          # Wait for application to be ready
-          timeout 300 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 2; done'
-        env:
-          CI: true
-
       - name: Run Cypress tests
+        working-directory: cypress
         run: |
           # Convert test patterns to cypress spec parameter
           TEST_PATTERNS="${{ needs.detect-changes.outputs.test_patterns }}"
@@ -98,7 +90,7 @@ jobs:
           if [ -n "$TEST_PATTERNS" ]; then
             # Cypress expects comma-separated list for --spec
             SPECS="$(echo "$TEST_PATTERNS" | tr ' ' ',')"
-            cd cypress && npx cypress run --spec "$SPECS"
+            npx cypress run --spec "$SPECS"
           else
             echo "No test patterns specified, skipping tests"
           fi
