@@ -98,11 +98,11 @@ jobs:
       - name: Build UI
         run: npm run build
 
-      # Start application server in background
+      # Start application server in background (just the server, already built)
       - name: Start application server
         run: |
-          npm run start &
-          npx wait-on http://localhost:3000 --timeout 60000
+          npm run start -w server &
+          npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run Cypress tests
         working-directory: cypress
