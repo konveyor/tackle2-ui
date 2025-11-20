@@ -90,6 +90,10 @@ jobs:
       - name: Build common workspace
         run: npm run build -w common
 
+      # Install Cypress binary (skipped by --ignore-scripts)
+      - name: Install Cypress binary
+        run: npx cypress install
+
       - name: Run Cypress tests
         working-directory: cypress
         run: |
