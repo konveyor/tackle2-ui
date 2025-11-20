@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
  * Output: Space-separated list of test file patterns
  */
 
-const MAPPING_FILE = path.join(__dirname, '..', 'test-mapping.json');
+const MAPPING_FILE = path.join(__dirname, '..', '..', 'cypress', 'test-mapping.json');
 
 function loadMapping() {
   try {
