@@ -84,12 +84,11 @@ jobs:
 
       # Install monorepo dependencies (root)
       - name: Install root dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
-      # Install Cypress dependencies (workspace)
-      - name: Install Cypress dependencies
-        working-directory: cypress
-        run: npm ci
+      # Build common workspace (needed for cypress)
+      - name: Build common workspace
+        run: npm run build -w common
 
       - name: Run Cypress tests
         working-directory: cypress
