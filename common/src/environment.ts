@@ -43,6 +43,9 @@ export type KonveyorEnvType = {
   /** Target URL for the UI server's `/hub` proxy */
   TACKLE_HUB_URL?: string;
 
+  /** Target URL for the UI server's `/llm-proxy` proxy */
+  KAI_LLM_PROXY_URL?: string;
+
   /** Location of branding files (relative paths computed from the project source root) */
   BRANDING?: string;
 };
@@ -55,6 +58,7 @@ export const SERVER_ENV_KEYS = [
   "PORT",
   "KEYCLOAK_SERVER_URL",
   "TACKLE_HUB_URL",
+  "KAI_LLM_PROXY_URL",
   "BRANDING",
 ];
 
@@ -76,6 +80,7 @@ export const buildKonveyorEnv = ({
   UI_INGRESS_PROXY_BODY_SIZE = "500m",
   RWX_SUPPORTED = "true",
   TACKLE_HUB_URL,
+  KAI_LLM_PROXY_URL,
   BRANDING,
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
@@ -92,6 +97,7 @@ export const buildKonveyorEnv = ({
   UI_INGRESS_PROXY_BODY_SIZE,
   RWX_SUPPORTED,
   TACKLE_HUB_URL,
+  KAI_LLM_PROXY_URL,
   BRANDING,
 });
 
