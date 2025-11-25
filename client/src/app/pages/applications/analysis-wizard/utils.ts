@@ -3,37 +3,26 @@ import { toggle, unique } from "radash";
 
 import { Application, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel } from "@app/utils/rules-utils";
+import { isNotEmptyString } from "@app/utils/utils";
 
 import { ANALYSIS_MODES, AnalysisMode } from "./schema";
 
-export const isApplicationBinaryEnabled = (
-  application: Application
-): boolean => {
-  if (application.binary !== "::" && application.binary?.match(/.+:.+:.+/))
-    return true;
-  return false;
-};
+export const isModeSupported = (application: Application, mode?: string) => {
+  switch (mode) {
+    case "binary-upload":
+      return true;
 
-export const isApplicationSourceCodeEnabled = (
-  application: Application
-): boolean => {
-  if (application.repository && application.repository.url !== "") return true;
-  return false;
-};
+    case "binary":
+      return /.+:.+:.+/.test(application?.binary ?? "");
 
-export const isApplicationSourceCodeDepsEnabled = (
-  application: Application
-): boolean => {
-  if (application.repository && application.repository.url !== "") return true;
-  return false;
-};
+    case "source-code-deps":
+      return isNotEmptyString(application?.repository?.url);
 
-export const isModeSupported = (application: Application, mode: string) => {
-  if (mode === "binary-upload") return true;
-  if (mode === "binary") return isApplicationBinaryEnabled(application);
-  else if (mode === "source-code-deps")
-    return isApplicationSourceCodeDepsEnabled(application);
-  else return isApplicationSourceCodeEnabled(application);
+    case "source-code":
+      return isNotEmptyString(application?.repository?.url);
+  }
+
+  return false;
 };
 
 const filterAnalyzableApplications = (

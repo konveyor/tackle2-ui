@@ -1,7 +1,4 @@
 import * as React from "react";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useIsMutating } from "@tanstack/react-query";
-import { FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
@@ -21,28 +18,19 @@ import {
   Taskgroup,
   TaskgroupTask,
 } from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useAsyncYupValidation } from "@app/hooks/useAsyncYupValidation";
 import { useFetchIdentities } from "@app/queries/identities";
-import {
-  useCreateTaskgroupMutation,
-  useDeleteTaskgroupMutation,
-  useSubmitTaskgroupMutation,
-} from "@app/queries/taskgroups";
 import { getParsedLabel } from "@app/utils/rules-utils";
+import { isNotEmptyString } from "@app/utils/utils";
 
-import { useTaskGroup } from "./components/TaskGroupContext";
-import { CustomRules } from "./custom-rules";
-import { Review } from "./review";
-import {
-  AnalysisWizardFormValues,
-  useAnalysisWizardFormValidationSchema,
-} from "./schema";
-import { SetMode } from "./set-mode";
-import { SetOptions } from "./set-options";
-import { SetScope } from "./set-scope";
-import { SetTargets } from "./set-targets";
-import { isModeSupported, useAnalyzableApplications } from "./utils";
+import { AdvancedOptions } from "./steps/advanced-options";
+import { AnalysisMode } from "./steps/analysis-mode";
+import { AnalysisScope } from "./steps/analysis-scope";
+import { CustomRules } from "./steps/custom-rules";
+import { Review } from "./steps/review";
+import { SetTargets } from "./steps/set-targets";
+import { useTaskGroupManager } from "./useTaskGroupManager";
+import { useWizardReducer } from "./useWizardReducer";
+import { useAnalyzableApplications } from "./utils";
 
 import "./wizard.css";
 
@@ -84,11 +72,20 @@ export const defaultTaskgroup: New<Taskgroup> = {
 
 const initTask = (application: Application): TaskgroupTask => {
   return {
-    name: `${application.name}.${application.id}.windup`,
+    name: `${application.name}.${application.id}.analyzer`,
     data: {},
     application: { id: application.id as number, name: application.name },
   };
 };
+
+enum StepId {
+  AnalysisMode = 1,
+  SetTargets,
+  Scope,
+  CustomRules,
+  Options,
+  Review,
+}
 
 export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   applications,
@@ -99,200 +96,102 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { identities } = useFetchIdentities();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const {
+    state,
+    setMode,
+    setTargets,
+    setScope,
+    setCustomRules,
+    setOptions,
+    reset,
+  } = useWizardReducer();
 
-  const { taskGroup, updateTaskGroup } = useTaskGroup();
+  const {
+    taskGroup,
+    createTaskGroup,
+    submitTaskGroup,
+    deleteTaskGroup,
+    updateTaskGroup,
+  } = useTaskGroupManager();
 
   const [stepIdReached, setStepIdReached] = React.useState(1);
-  const isMutating = useIsMutating();
 
-  const onCreateTaskgroupSuccess = (data: Taskgroup) => {
-    updateTaskGroup(data);
-  };
-
-  const onCreateTaskgroupError = (_error: Error | unknown) => {
-    pushNotification({
-      title: "Taskgroup creation failed",
-      variant: "danger",
-    });
-    onClose();
-  };
-
-  const { mutate: createTaskgroup } = useCreateTaskgroupMutation(
-    onCreateTaskgroupSuccess,
-    onCreateTaskgroupError
-  );
-
-  const onSubmitTaskgroupSuccess = (_data: Taskgroup) =>
-    pushNotification({
-      title: "Applications",
-      message: "Submitted for analysis",
-      variant: "info",
-    });
-
-  const onSubmitTaskgroupError = (_error: Error | unknown) =>
-    pushNotification({
-      title: "Taskgroup submit failed",
-      variant: "danger",
-    });
-
-  const { mutate: submitTaskgroup } = useSubmitTaskgroupMutation(
-    onSubmitTaskgroupSuccess,
-    onSubmitTaskgroupError
-  );
-
-  const onDeleteTaskgroupSuccess = () => {
-    updateTaskGroup(null);
-  };
-
-  const onDeleteTaskgroupError = (_error: Error | unknown) => {
-    pushNotification({
-      title: "Taskgroup: delete failed",
-      variant: "danger",
-    });
-  };
-
-  const { mutate: deleteTaskgroup } = useDeleteTaskgroupMutation(
-    onDeleteTaskgroupSuccess,
-    onDeleteTaskgroupError
-  );
-
-  const { schemas, allFieldsSchema } = useAnalysisWizardFormValidationSchema({
-    applications,
-  });
-
-  const methods = useForm<AnalysisWizardFormValues>({
-    defaultValues: {
-      artifact: null,
-      mode: "source-code-deps",
-      selectedTargetLabels: [],
-      selectedTargets: [],
-      // defaults will be passed as initialFilterValues to the table hook
-      targetFilters: undefined,
-      selectedSourceLabels: [],
-      withKnownLibs: "app",
-      includedPackages: [],
-      excludedPackages: [],
-      customRulesFiles: [],
-      excludedRulesTags: [],
-      hasExcludedPackages: false,
-      associatedCredentials: "",
-      rulesKind: "manual",
-      repositoryType: undefined,
-      sourceRepository: "",
-      branch: "",
-      rootPath: "",
-      autoTaggingEnabled: true,
-      advancedAnalysisEnabled: false,
-    },
-    resolver: yupResolver(allFieldsSchema),
-    mode: "all",
-  });
-
-  const { handleSubmit, watch, reset } = methods;
-  const values = watch();
-
-  enum StepId {
-    AnalysisMode = 1,
-    SetTargets,
-    Scope,
-    CustomRules,
-    Options,
-    Review,
-  }
-
-  const isStepValid: Record<StepId, boolean> = {
-    [StepId.AnalysisMode]: useAsyncYupValidation(values, schemas.modeStep),
-    [StepId.SetTargets]: useAsyncYupValidation(values, schemas.targetsStep),
-    [StepId.Scope]: useAsyncYupValidation(values, schemas.scopeStep),
-    [StepId.CustomRules]: useAsyncYupValidation(
-      values,
-      schemas.customRulesStep
-    ),
-    [StepId.Options]: useAsyncYupValidation(values, schemas.optionsStep),
-    [StepId.Review]: true,
-  };
-
-  const firstInvalidStep: StepId | null =
-    (
-      Object.values(StepId).filter((val) => typeof val === "number") as StepId[]
-    ).find((stepId) => !isStepValid[stepId]) || null;
-
-  const { mode, withKnownLibs, hasExcludedPackages } = values;
-  const hasIncludedPackages = withKnownLibs.includes("select");
-
+  // TODO: Consider moving this to the useTaskGroupManager hook as part of submitTaskGroup
   const setupTaskgroup = (
     currentTaskgroup: Taskgroup,
-    fieldValues: AnalysisWizardFormValues
+    wizardState: typeof state
   ): Taskgroup => {
     const matchingSourceCredential = identities.find(
-      (identity) => identity.name === fieldValues.associatedCredentials
+      (identity) =>
+        identity.name === wizardState.customRules.associatedCredentials // TODO: double check this
     );
 
-    const ruleSetRefsFromSelectedTargets: Ref[] = fieldValues.selectedTargets
-      .map(({ ruleset }) => ruleset)
-      .filter(Boolean)
-      .map<Ref>(({ id, name }) => ({ id: id ?? 0, name: name ?? "" }));
-    // TODO: Type `Ruleset` has the id and name as optional/undefined to support
-    //       object creation. At runtime, id and name will always be defined on
-    //       existing objects.  In future, update the Ruleset creation code to use
-    //       New<Ruleset> or similar to avoid these issues.
+    const ruleSetRefsFromSelectedTargets: Ref[] =
+      wizardState.targets.selectedTargets
+        .map(({ ruleset }) => ruleset)
+        .filter(Boolean)
+        .map<Ref>(({ id, name }) => ({ id: id ?? 0, name: name ?? "" }));
 
     return {
       ...currentTaskgroup,
       tasks: analyzableApplications.map((app: Application) => initTask(app)),
       data: {
         ...defaultTaskData,
-        verbosity: fieldValues.advancedAnalysisEnabled ? 1 : 0,
+        verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
         tagger: {
-          enabled: fieldValues.autoTaggingEnabled,
+          enabled: wizardState.options.autoTaggingEnabled,
         },
         mode: {
-          binary: mode.includes("binary"),
-          withDeps: mode === "source-code-deps",
-          artifact: fieldValues.artifact?.name
-            ? `/binary/${fieldValues.artifact.name}`
+          binary: wizardState.mode.mode.includes("binary"),
+          withDeps: wizardState.mode.mode === "source-code-deps",
+          artifact: wizardState.mode.artifact?.name
+            ? `/binary/${wizardState.mode.artifact.name}`
             : "",
         },
         scope: {
-          withKnownLibs: fieldValues.withKnownLibs.includes("oss")
+          withKnownLibs: wizardState.scope.withKnownLibs.includes("oss")
             ? true
             : false,
           packages: {
-            included: hasIncludedPackages ? fieldValues.includedPackages : [],
-            excluded: hasExcludedPackages ? fieldValues.excludedPackages : [],
+            included: wizardState.scope.withKnownLibs.includes("select") // TODO: double check this, doesn't seem correct
+              ? wizardState.scope.includedPackages
+              : [],
+            excluded: wizardState.scope.hasExcludedPackages
+              ? wizardState.scope.excludedPackages
+              : [],
           },
         },
         rules: {
           labels: {
             included: Array.from(
               new Set<string>([
-                ...fieldValues.selectedTargetLabels
+                ...wizardState.targets.selectedTargetLabels
                   .filter(
                     (label) =>
                       getParsedLabel(label.label).labelType !== "source"
                   )
                   .map((label) => label.label)
                   .filter(Boolean),
-                ...fieldValues.selectedSourceLabels
+                ...wizardState.options.selectedSourceLabels
                   .map((label) => label.label)
                   .filter(Boolean),
               ])
             ),
-            excluded: fieldValues.excludedRulesTags,
+            excluded: wizardState.options.excludedLabels,
           },
-          path: fieldValues.customRulesFiles.length > 0 ? "/rules" : "",
-          ...(fieldValues.rulesKind === "repository" && {
+          path:
+            wizardState.customRules.customRulesFiles.length > 0 ? "/rules" : "",
+          ...(wizardState.customRules.rulesKind === "repository" && {
             repository: {
-              kind: fieldValues?.repositoryType,
-              url: fieldValues?.sourceRepository?.trim(),
-              branch: fieldValues?.branch?.trim(),
-              path: fieldValues?.rootPath?.trim(),
+              kind: wizardState.customRules?.repositoryType,
+              url: wizardState.customRules?.sourceRepository?.trim(),
+              branch: wizardState.customRules?.branch?.trim(),
+              path: wizardState.customRules?.rootPath?.trim(),
             },
           }),
-          ...(fieldValues.associatedCredentials &&
+          ...(wizardState.customRules.associatedCredentials &&
             matchingSourceCredential &&
-            fieldValues.rulesKind === "repository" && {
+            wizardState.customRules.rulesKind === "repository" && {
               identity: {
                 id: matchingSourceCredential.id,
                 name: matchingSourceCredential.name,
@@ -306,21 +205,19 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     };
   };
 
-  const isModeValid = applications.every((app) => isModeSupported(app, mode));
-
   const handleCancel = () => {
     if (taskGroup && taskGroup.id) {
-      deleteTaskgroup(taskGroup.id);
+      deleteTaskGroup(taskGroup.id);
     }
     updateTaskGroup(null);
     reset();
     onClose();
   };
 
-  const onSubmit = (fieldValues: AnalysisWizardFormValues) => {
+  const onSubmit = () => {
     if (taskGroup) {
-      const taskgroup = setupTaskgroup(taskGroup, fieldValues);
-      submitTaskgroup(taskgroup);
+      const taskgroup = setupTaskgroup(taskGroup, state);
+      submitTaskGroup(taskgroup);
     }
     updateTaskGroup(null);
     reset();
@@ -332,134 +229,191 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
     if (id === StepId.SetTargets) {
       if (!taskGroup) {
-        createTaskgroup(defaultTaskgroup);
+        createTaskGroup();
       }
     }
   };
 
-  const analyzableApplications = useAnalyzableApplications(applications, mode);
+  const analyzableApplications = useAnalyzableApplications(
+    applications,
+    state.mode.mode
+  );
 
   const isStepEnabled = (stepId: StepId) => {
-    return (
-      stepIdReached + 1 >= stepId &&
-      (firstInvalidStep === null || firstInvalidStep >= stepId)
-    );
+    return stepIdReached + 1 >= stepId;
   };
 
-  const steps = [
-    <WizardStep
-      key="wizard-configureAnalysis"
-      id="wizard-configureAnalysis"
-      name={t("wizard.terms.configureAnalysis")}
-      steps={[
-        <WizardStep
-          key={StepId.AnalysisMode}
-          id={StepId.AnalysisMode}
-          name={t("wizard.terms.analysisMode")}
-          footer={{
-            isNextDisabled:
-              !!isMutating || !isStepEnabled(StepId.AnalysisMode + 1),
-          }}
-        >
-          <>
-            <SetMode
-              isSingleApp={applications.length === 1 ? true : false}
-              isModeValid={isModeValid}
-            />
-          </>
-        </WizardStep>,
-        <WizardStep
-          key={StepId.SetTargets}
-          id={StepId.SetTargets}
-          name={t("wizard.terms.setTargets")}
-          isDisabled={!isStepEnabled(StepId.SetTargets)}
-          footer={{ isNextDisabled: !isStepEnabled(StepId.SetTargets + 1) }}
-        >
-          <SetTargets applications={applications} />
-        </WizardStep>,
-        <WizardStep
-          key={StepId.Scope}
-          id={StepId.Scope}
-          name={t("wizard.terms.scope")}
-          isDisabled={!isStepEnabled(StepId.Scope)}
-          footer={{ isNextDisabled: !isStepEnabled(StepId.Scope + 1) }}
-        >
-          <SetScope />
-        </WizardStep>,
-      ]}
-    ></WizardStep>,
-    <WizardStep
-      key="wizard-advanced"
-      id="wizard-advanced"
-      name={t("wizard.terms.advanced")}
-      steps={[
-        <WizardStep
-          key={StepId.CustomRules}
-          id={StepId.CustomRules}
-          name={t("wizard.terms.customRules")}
-          isDisabled={!isStepEnabled(StepId.CustomRules)}
-          footer={{ isNextDisabled: !isStepEnabled(StepId.CustomRules + 1) }}
-        >
-          <CustomRules />
-        </WizardStep>,
-        <WizardStep
-          key={StepId.Options}
-          id={StepId.Options}
-          name={t("wizard.terms.options")}
-          isDisabled={!isStepEnabled(StepId.Options)}
-          footer={{ isNextDisabled: !isStepEnabled(StepId.Options + 1) }}
-        >
-          <SetOptions />
-        </WizardStep>,
-      ]}
-    ></WizardStep>,
-    <WizardStep
-      key={StepId.Review}
-      id={StepId.Review}
-      name={t("wizard.terms.review")}
-      isDisabled={!isStepEnabled(StepId.Review)}
-      footer={{ nextButtonText: "Run" }}
-    >
-      <Review applications={applications} mode={mode} />
-    </WizardStep>,
-  ];
+  // For custom rules and options steps, we need additional state management
+  const [
+    selectedTargetLabelsForCustomRules,
+    setSelectedTargetLabelsForCustomRules,
+  ] = React.useState(state.targets.selectedTargetLabels);
+
+  const handleTargetsChanged = (newTargetsState: typeof state.targets) => {
+    setTargets(newTargetsState);
+    setSelectedTargetLabelsForCustomRules(newTargetsState.selectedTargetLabels);
+  };
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
-    <>
-      {isOpen && (
-        <FormProvider {...methods}>
-          <Modal
-            isOpen={isOpen}
-            showClose={false}
-            aria-label="Application analysis wizard modal"
-            hasNoBodyWrapper
-            onEscapePress={handleCancel}
-            variant={ModalVariant.large}
-          >
-            <Wizard
-              data-testid="analysis-wizard"
-              onClose={handleCancel}
-              onSave={handleSubmit(onSubmit)}
-              onStepChange={(_event, currentStep: WizardStepType) =>
-                onMove(currentStep)
-              }
-              header={
-                <WizardHeader
-                  onClose={handleCancel}
-                  title="Application analysis"
-                  description={
-                    <Truncate
-                      content={applications.map((app) => app.name).join(", ")}
-                    />
-                  }
-                />
-              }
+    <Modal
+      isOpen={isOpen}
+      showClose={false}
+      aria-label="Application analysis wizard modal"
+      hasNoBodyWrapper
+      onEscapePress={handleCancel}
+      variant={ModalVariant.large}
+    >
+      <Wizard
+        data-testid="analysis-wizard"
+        onClose={handleCancel}
+        onSave={onSubmit}
+        onStepChange={(_event, currentStep: WizardStepType) =>
+          onMove(currentStep)
+        }
+        header={
+          <WizardHeader
+            onClose={handleCancel}
+            title="Application analysis"
+            description={
+              <Truncate
+                content={applications.map((app) => app.name).join(", ")}
+              />
+            }
+          />
+        }
+      >
+        <WizardStep
+          key="wizard-configureAnalysis"
+          id="wizard-configureAnalysis"
+          name={t("wizard.terms.configureAnalysis")}
+          steps={[
+            <WizardStep
+              key={StepId.AnalysisMode}
+              id={StepId.AnalysisMode}
+              name={t("wizard.terms.analysisMode")}
+              footer={{
+                isNextDisabled:
+                  !isStepEnabled(StepId.AnalysisMode + 1) ||
+                  !state.mode.isValid,
+              }}
             >
-              {steps}
-            </Wizard>
-          </Modal>
-        </FormProvider>
-      )}
-    </>
+              <AnalysisMode
+                applications={applications}
+                taskGroup={taskGroup}
+                createTaskGroup={createTaskGroup}
+                onStateChanged={setMode}
+                initialState={state.mode}
+              />
+            </WizardStep>,
+            <WizardStep
+              key={StepId.SetTargets}
+              id={StepId.SetTargets}
+              name={t("wizard.terms.setTargets")}
+              isDisabled={!isStepEnabled(StepId.SetTargets)}
+              footer={{
+                isNextDisabled:
+                  !isStepEnabled(StepId.SetTargets + 1) ||
+                  !state.targets.isValid,
+              }}
+            >
+              <SetTargets
+                applications={applications}
+                areCustomRulesEnabled={
+                  state.customRules.customRulesFiles.length > 0 ||
+                  isNotEmptyString(state.customRules.sourceRepository)
+                }
+                onStateChanged={handleTargetsChanged}
+                initialState={state.targets}
+              />
+            </WizardStep>,
+            <WizardStep
+              key={StepId.Scope}
+              id={StepId.Scope}
+              name={t("wizard.terms.scope")}
+              isDisabled={!isStepEnabled(StepId.Scope)}
+              footer={{
+                isNextDisabled:
+                  !isStepEnabled(StepId.Scope + 1) || !state.scope.isValid,
+              }}
+            >
+              <AnalysisScope
+                onStateChanged={setScope}
+                initialState={state.scope}
+              />
+            </WizardStep>,
+          ]}
+        />
+
+        <WizardStep
+          key="wizard-advanced"
+          id="wizard-advanced"
+          name={t("wizard.terms.advanced")}
+          steps={[
+            <WizardStep
+              key={StepId.CustomRules}
+              id={StepId.CustomRules}
+              name={t("wizard.terms.customRules")}
+              isDisabled={!isStepEnabled(StepId.CustomRules)}
+              footer={{
+                isNextDisabled:
+                  !isStepEnabled(StepId.CustomRules + 1) ||
+                  !state.customRules.isValid,
+              }}
+            >
+              <CustomRules
+                taskGroup={taskGroup}
+                selectedTargets={state.targets.selectedTargets}
+                selectedTargetLabels={selectedTargetLabelsForCustomRules}
+                onSelectedTargetLabelsChanged={
+                  setSelectedTargetLabelsForCustomRules
+                }
+                onStateChanged={setCustomRules}
+                initialState={state.customRules}
+              />
+            </WizardStep>,
+            <WizardStep
+              key={StepId.Options}
+              id={StepId.Options}
+              name={t("wizard.terms.options")}
+              isDisabled={!isStepEnabled(StepId.Options)}
+              footer={{
+                isNextDisabled:
+                  !isStepEnabled(StepId.Options + 1) || !state.options.isValid,
+              }}
+            >
+              <AdvancedOptions
+                selectedTargets={state.targets.selectedTargets}
+                onSelectedTargetsChanged={(targets) => {
+                  setTargets({ ...state.targets, selectedTargets: targets });
+                }}
+                onStateChanged={setOptions}
+                initialState={state.options}
+              />
+            </WizardStep>,
+          ]}
+        />
+
+        <WizardStep
+          key={StepId.Review}
+          id={StepId.Review}
+          name={t("wizard.terms.review")}
+          isDisabled={!isStepEnabled(StepId.Review)}
+          footer={{ nextButtonText: "Run", isNextDisabled: !state.isReady }}
+        >
+          <Review
+            applications={applications}
+            mode={state.mode.mode}
+            targets={state.targets}
+            scope={state.scope}
+            customRules={state.customRules}
+            options={state.options}
+          />
+        </WizardStep>
+      </Wizard>
+    </Modal>
   );
 };
