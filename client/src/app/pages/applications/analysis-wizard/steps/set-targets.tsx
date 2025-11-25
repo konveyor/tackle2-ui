@@ -1,6 +1,7 @@
-import React, { useMemo } from "react";
+import { type FC, useMemo } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
-import { useFormContext } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -16,30 +17,35 @@ import {
 
 import { Application, Target } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import {
+  FilterSelectOptionProps,
+  FilterToolbar,
+  FilterType,
+} from "@app/components/FilterToolbar";
 import { StateError } from "@app/components/StateError";
 import { TargetCard } from "@app/components/target-card/target-card";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-import { AnalysisWizardFormValues } from "./schema";
-import { toggleSelectedTargets, updateSelectedTargetLabels } from "./utils";
+import {
+  SetTargetsState,
+  SetTargetsValues,
+  useSetTargetsSchema,
+} from "../schema";
+import { toggleSelectedTargets, updateSelectedTargetLabels } from "../utils";
 
-interface SetTargetsProps {
-  applications: Application[];
-  initialFilters?: string[];
-}
-
-const useEnhancedTargets = (applications: Application[]) => {
+const useTargetsData = (applications: Application[]) => {
   const {
     targets,
     targetsInOrder,
     isFetching: isTargetsLoading,
     fetchError: isTargetsError,
   } = useFetchTargets();
+
   const { tagCategories, isFetching: isTagCategoriesLoading } =
     useFetchTagCategories();
 
@@ -67,42 +73,89 @@ const useEnhancedTargets = (applications: Application[]) => {
     [applications, languageTags, languageProviders]
   );
 
+  const targetLabelsOptions: FilterSelectOptionProps[] = useMemo(
+    () =>
+      unique(
+        targets
+          .flatMap(({ labels }) => labels ?? [])
+          .map(({ name, label }) => {
+            const labelValue = toLabelValue(label);
+            return {
+              label: name,
+              value: labelValue,
+              chipLabel: labelValue,
+            };
+          }),
+        ({ label }) => label
+      ).sort((a, b) => universalComparator(a.label, b.label)),
+    [targets]
+  );
+
   return {
-    // true if some queries are still fetching data for the first time (initial load)
-    // note that the default re-try count (3) is used
     isLoading: isTagCategoriesLoading || isTargetsLoading,
-    // missing targets are the only blocker
     isError: !!isTargetsError,
     targets: targetsInOrder,
     applicationProviders,
     languageProviders,
+    targetLabelsOptions,
   };
 };
 
-interface SetTargetsInternalProps {
-  targets: Target[];
-  isLoading: boolean;
-  isError: boolean;
-  languageProviders: string[];
-  applicationProviders: string[];
+interface SetTargetsProps {
+  applications: Application[];
+  onStateChanged: (state: SetTargetsState) => void;
+  initialState: SetTargetsState;
+  areCustomRulesEnabled: boolean;
 }
 
-const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
-  targets,
-  isLoading,
-  isError,
-  languageProviders,
-  applicationProviders = [],
+// TODO: Need to make sure label changes in advanced options are propagated back
+//       to this form as expected. (e.g. Add a target's label should select the target)
+export const SetTargets: FC<SetTargetsProps> = ({
+  applications,
+  onStateChanged,
+  initialState,
+  areCustomRulesEnabled,
 }) => {
   const { t } = useTranslation();
 
-  const { watch, setValue, getValues } =
-    useFormContext<AnalysisWizardFormValues>();
+  const {
+    isLoading,
+    isError,
+    targets,
+    targetLabelsOptions,
+    applicationProviders,
+    languageProviders,
+  } = useTargetsData(applications);
 
-  const values = getValues();
-  const selectedTargetLabels = watch("selectedTargetLabels");
-  const selectedTargets = watch("selectedTargets");
+  const schema = useSetTargetsSchema();
+  const form = useForm<SetTargetsValues>({
+    defaultValues: {
+      selectedTargets: initialState.selectedTargets,
+      selectedTargetLabels: initialState.selectedTargetLabels,
+      targetFilters: initialState.targetFilters,
+    },
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
 
+  useFormChangeHandler({
+    form,
+    onStateChanged,
+    watchFields: ["selectedTargetLabels", "selectedTargets"] as const,
+    mapValuesToState: ([selectedTargetLabels, selectedTargets], isValid) => ({
+      selectedTargetLabels,
+      selectedTargets,
+      isValid,
+    }),
+  });
+
+  const { setValue } = form;
+  const [selectedTargetLabels, selectedTargets] = useWatch({
+    control: form.control,
+    name: ["selectedTargetLabels", "selectedTargets"],
+  });
+
+  /** Handle when a target's dropdown selection changes */
   const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
     const otherSelectedLabels = selectedTargetLabels?.filter((formLabel) => {
       return formLabel.name !== selectedLabelName;
@@ -127,18 +180,21 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     const isNewLabel = !selectedTargetLabels
       .map((label) => label.name)
       .includes(selectedLabelName);
+
     if (isNewLabel) {
       const filterConflictingLabels = otherSelectedLabels.filter(
         (label) => !matchingOtherLabelNames.includes(label.name)
       );
-      matchingLabel &&
+      if (matchingLabel) {
         setValue("selectedTargetLabels", [
           ...filterConflictingLabels,
           matchingLabel,
         ]);
+      }
     }
   };
 
+  /** Handle when a target card is clicked */
   const handleOnCardClick = (
     isSelecting: boolean,
     selectedLabelName: string,
@@ -176,22 +232,22 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     persistTo: {
       filter: {
         write(value) {
-          setValue("targetFilters", value as Record<string, string[]>);
+          form.setValue("targetFilters", value as Record<string, string[]>);
         },
         read() {
-          return getValues().targetFilters;
+          return form.getValues("targetFilters");
         },
       },
     },
     filterCategories: [
       {
-        selectOptions: languageProviders?.map((language) => ({
-          value: language,
-        })),
         placeholderText: "Filter by language...",
         categoryKey: "provider",
         title: "Languages",
         type: FilterType.multiselect,
+        selectOptions: languageProviders?.map((language) => ({
+          value: language,
+        })),
         matcher: (filter, target) => !!target.provider?.includes(filter),
       },
       {
@@ -214,26 +270,11 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         matcher: (filter, target) => String(!!target.custom) === filter,
       },
       {
-        selectOptions: unique(
-          targets
-            .flatMap(({ labels }) => labels ?? [])
-            .map(({ name, label }) => ({
-              name,
-              label: toLabelValue(label),
-            })),
-          ({ label }) => label
-        )
-          .map(({ label, name }) => ({
-            value: label,
-            label: name,
-            chipLabel: label,
-          }))
-          .sort((a, b) => universalComparator(a.label, b.label)),
-
         placeholderText: "Filter by labels...",
         categoryKey: "labels",
         title: "Labels",
         type: FilterType.multiselect,
+        selectOptions: targetLabelsOptions,
         matcher: (filter, target) =>
           (target.labels ?? [])
             .map(({ label }) => toLabelValue(label))
@@ -246,6 +287,14 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
     currentPageItems,
     propHelpers: { toolbarProps, filterToolbarProps },
   } = tableControls;
+
+  if (isLoading) {
+    return (
+      <div style={{ marginTop: "100px" }}>
+        <AppPlaceholder />
+      </div>
+    );
+  }
 
   return (
     <Form
@@ -268,15 +317,13 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         </ToolbarContent>
       </Toolbar>
 
-      {values.selectedTargets.length === 0 &&
-        values.customRulesFiles.length === 0 &&
-        !values.sourceRepository && (
-          <Alert
-            variant="warning"
-            isInline
-            title={t("wizard.label.skipTargets")}
-          />
-        )}
+      {selectedTargets.length === 0 && !areCustomRulesEnabled && (
+        <Alert
+          variant="warning"
+          isInline
+          title={t("wizard.label.skipTargets")}
+        />
+      )}
 
       {isError && <StateError />}
       {!isError && (
@@ -302,35 +349,5 @@ const SetTargetsInternal: React.FC<SetTargetsInternalProps> = ({
         </Gallery>
       )}
     </Form>
-  );
-};
-
-export const SetTargets: React.FC<SetTargetsProps> = ({ applications }) => {
-  // wait for the initial load but leave error handling to the real page
-  const {
-    isLoading,
-    targets,
-    isError,
-    applicationProviders,
-    languageProviders,
-  } = useEnhancedTargets(applications);
-  if (isLoading) {
-    return (
-      <div style={{ marginTop: "100px" }}>
-        <AppPlaceholder />
-      </div>
-    );
-  }
-
-  return (
-    <SetTargetsInternal
-      {...{
-        applicationProviders,
-        targets,
-        isError,
-        isLoading,
-        languageProviders,
-      }}
-    />
   );
 };
