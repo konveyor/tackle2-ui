@@ -1,5 +1,4 @@
-import React from "react";
-import { useFormContext } from "react-hook-form";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
@@ -16,14 +15,22 @@ import {
 import { Application } from "@app/api/models";
 import { getParsedLabel } from "@app/utils/rules-utils";
 
-import { AnalysisWizardFormValues } from "./schema";
+import {
+  AdvancedOptionsValues,
+  AnalysisMode,
+  AnalysisScopeValues,
+  CustomRulesStepValues,
+  SetTargetsValues,
+} from "../schema";
 
-interface IReview {
+interface ReviewProps {
   applications: Application[];
-  mode: string;
+  mode: AnalysisMode;
+  targets: SetTargetsValues;
+  scope: AnalysisScopeValues;
+  customRules: CustomRulesStepValues;
+  options: AdvancedOptionsValues;
 }
-
-// TODO translations for strings in defaultMode and defaultScopes
 
 const defaultMode: Map<string, string> = new Map([
   ["binary", "Binary"],
@@ -38,24 +45,17 @@ const defaultScopes: Map<string, string> = new Map([
   ["select", "List of packages to be analyzed manually"],
 ]);
 
-export const Review: React.FC<IReview> = ({ applications, mode }) => {
+export const Review: React.FC<ReviewProps> = ({
+  applications,
+  mode,
+  targets,
+  scope,
+  customRules,
+  options,
+}) => {
   const { t } = useTranslation();
 
-  const { watch } = useFormContext<AnalysisWizardFormValues>();
-  const {
-    selectedTargetLabels,
-    selectedSourceLabels,
-    withKnownLibs,
-    includedPackages,
-    hasExcludedPackages,
-    excludedPackages,
-    customRulesFiles,
-    excludedRulesTags,
-    autoTaggingEnabled,
-    advancedAnalysisEnabled,
-  } = watch();
-
-  const hasIncludedPackages = withKnownLibs.includes("select");
+  const hasIncludedPackages = scope.withKnownLibs.includes("select");
 
   return (
     <>
@@ -65,6 +65,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </Title>
         <Text>{t("wizard.label.reviewDetails")}</Text>
       </TextContent>
+
       <DescriptionList isHorizontal>
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
@@ -84,11 +85,13 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {t("wizard.terms.target", { count: selectedTargetLabels.length })}
+            {t("wizard.terms.target", {
+              count: targets.selectedTargetLabels.length,
+            })}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {selectedTargetLabels.map((label, index) => {
+              {targets.selectedTargetLabels.map((label, index) => {
                 const parsedLabel = getParsedLabel(label?.label);
                 if (parsedLabel.labelType === "target") {
                   return (
@@ -101,11 +104,13 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {t("wizard.terms.source", { count: selectedSourceLabels.length })}
+            {t("wizard.terms.source", {
+              count: options.selectedSourceLabels.length,
+            })}
           </DescriptionListTerm>
           <DescriptionListDescription id="sources">
             <List isPlain>
-              {selectedSourceLabels.map((label, index) => {
+              {options.selectedSourceLabels.map((label, index) => {
                 const parsedLabel = getParsedLabel(label?.label);
                 if (parsedLabel.labelType === "source") {
                   return (
@@ -120,8 +125,8 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListTerm>{t("wizard.terms.scope")}</DescriptionListTerm>
           <DescriptionListDescription id="scope">
             <List isPlain>
-              {withKnownLibs.split(",").map((scope, index) => (
-                <ListItem key={index}>{defaultScopes.get(scope)}</ListItem>
+              {scope.withKnownLibs.split(",").map((scopePart, index) => (
+                <ListItem key={index}>{defaultScopes.get(scopePart)}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -135,7 +140,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           <DescriptionListDescription id="included-packages">
             <List isPlain>
               {hasIncludedPackages
-                ? includedPackages.map((pkg, index) => (
+                ? scope.includedPackages.map((pkg, index) => (
                     <ListItem key={index}>{pkg}</ListItem>
                   ))
                 : null}
@@ -144,17 +149,14 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {
-              // t("wizard.terms.packages")
-              t("wizard.composed.excluded", {
-                what: t("wizard.terms.packages").toLowerCase(),
-              })
-            }
+            {t("wizard.composed.excluded", {
+              what: t("wizard.terms.packages").toLowerCase(),
+            })}
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-packages">
             <List isPlain>
-              {hasExcludedPackages
-                ? excludedPackages.map((pkg, index) => (
+              {scope.hasExcludedPackages
+                ? scope.excludedPackages.map((pkg, index) => (
                     <ListItem key={index}>{pkg}</ListItem>
                   ))
                 : null}
@@ -167,7 +169,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
           </DescriptionListTerm>
           <DescriptionListDescription id="rules">
             <List isPlain>
-              {customRulesFiles.map((rule, index) => (
+              {customRules.customRulesFiles.map((rule, index) => (
                 <ListItem key={index}>{rule.fileName}</ListItem>
               ))}
             </List>
@@ -175,16 +177,13 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {
-              // t("wizard.terms.rulesTags")
-              t("wizard.composed.excluded", {
-                what: t("wizard.terms.rulesTags").toLowerCase(),
-              })
-            }
+            {t("wizard.composed.excluded", {
+              what: t("wizard.terms.rulesTags").toLowerCase(),
+            })}
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-rules-tags">
             <List isPlain>
-              {excludedRulesTags.map((tag, index) => (
+              {options.excludedLabels.map((tag, index) => (
                 <ListItem key={index}>{tag}</ListItem>
               ))}
             </List>
@@ -195,7 +194,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
             {t("wizard.terms.autoTagging")}
           </DescriptionListTerm>
           <DescriptionListDescription id="autoTagging">
-            {autoTaggingEnabled
+            {options.autoTaggingEnabled
               ? t("wizard.terms.enabled")
               : t("wizard.terms.disabled")}
           </DescriptionListDescription>
@@ -205,7 +204,7 @@ export const Review: React.FC<IReview> = ({ applications, mode }) => {
             {t("wizard.terms.advancedAnalysisDetails")}
           </DescriptionListTerm>
           <DescriptionListDescription id="advanced-analysis-details">
-            {advancedAnalysisEnabled
+            {options.advancedAnalysisEnabled
               ? t("wizard.terms.enabled")
               : t("wizard.terms.disabled")}
           </DescriptionListDescription>

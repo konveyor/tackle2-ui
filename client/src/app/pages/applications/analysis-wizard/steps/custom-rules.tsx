@@ -1,12 +1,12 @@
 import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
-import { useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
   Form,
-  Modal,
   Tab,
   TabTitleText,
   Tabs,
@@ -19,8 +19,8 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { ICell, IRow, TableText, cellWidth } from "@patternfly/react-table";
 import {
@@ -29,8 +29,7 @@ import {
   TableHeader,
 } from "@patternfly/react-table/deprecated";
 
-import { TargetLabel, UploadFile } from "@app/api/models";
-import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import { Target, TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -42,15 +41,18 @@ import {
 } from "@app/components/HookFormPFFields";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 
-import { useTaskGroup } from "./components/TaskGroupContext";
-import { AnalysisWizardFormValues } from "./schema";
-
-import "./wizard.css";
+import { UploadNewRulesFiles } from "../components/upload-new-rules-files";
+import {
+  CustomRulesStepState,
+  CustomRulesStepValues,
+  useCustomRulesSchema,
+} from "../schema";
 
 const buildSetOfTargetLabelsFromUploadFiles = (
   ruleFiles: UploadFile[],
@@ -78,22 +80,84 @@ const buildSetOfTargetLabelsFromUploadFiles = (
   return targetLabels;
 };
 
-export const CustomRules: React.FC = () => {
+interface CustomRulesProps {
+  taskGroup: Taskgroup | null;
+  selectedTargets: Target[];
+  selectedTargetLabels: TargetLabel[];
+  onSelectedTargetLabelsChanged: (labels: TargetLabel[]) => void;
+  onStateChanged: (state: CustomRulesStepState) => void;
+  initialState: CustomRulesStepState;
+}
+
+export const CustomRules: React.FC<CustomRulesProps> = ({
+  taskGroup,
+  selectedTargets,
+  selectedTargetLabels,
+  onSelectedTargetLabelsChanged,
+  onStateChanged,
+  initialState,
+}) => {
   const { t } = useTranslation();
   const [showUploadFiles, setShowUploadFiles] = React.useState(false);
 
-  const { watch, setValue, control, trigger, getValues } =
-    useFormContext<AnalysisWizardFormValues>();
+  const schema = useCustomRulesSchema();
+  const form = useForm<CustomRulesStepValues>({
+    defaultValues: {
+      customRulesFiles: initialState.customRulesFiles,
+      rulesKind: initialState.rulesKind,
+      repositoryType: initialState.repositoryType,
+      sourceRepository: initialState.sourceRepository,
+      branch: initialState.branch,
+      rootPath: initialState.rootPath,
+      associatedCredentials: initialState.associatedCredentials,
+    },
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+  const { setValue, control, trigger } = form;
 
-  const values = getValues();
+  const [customRulesFiles, rulesKind, sourceRepository] = useWatch({
+    control,
+    name: ["customRulesFiles", "rulesKind", "sourceRepository"],
+  });
 
-  const { selectedTargetLabels, customRulesFiles, rulesKind } = watch();
+  useFormChangeHandler({
+    form,
+    onStateChanged,
+    watchFields: [
+      "rulesKind",
+      "customRulesFiles",
+      "repositoryType",
+      "sourceRepository",
+      "branch",
+      "rootPath",
+      "associatedCredentials",
+    ] as const,
+    mapValuesToState: (
+      [
+        rulesKind,
+        customRulesFiles,
+        repositoryType,
+        sourceRepository,
+        branch,
+        rootPath,
+        associatedCredentials,
+      ],
+      isValid
+    ) => ({
+      rulesKind,
+      customRulesFiles,
+      repositoryType,
+      sourceRepository,
+      branch,
+      rootPath,
+      associatedCredentials,
+      isValid,
+    }),
+  });
 
-  const initialActiveTabKeyValue = (value: string): number =>
-    value === "manual" ? 0 : value === "repository" ? 1 : 0;
-
-  const [activeTabKey, setActiveTabKey] = React.useState(
-    initialActiveTabKeyValue(rulesKind)
+  const [activeTabKey, setActiveTabKey] = React.useState(() =>
+    rulesKind === "manual" ? 0 : rulesKind === "repository" ? 1 : 0
   );
 
   const onAddRulesFiles = (ruleFiles: UploadFile[]) => {
@@ -102,17 +166,14 @@ export const CustomRules: React.FC = () => {
       ...customRulesFiles,
       ...ruleFiles.filter((file) => file.status === "uploaded"),
     ];
-    setValue("customRulesFiles", newCustomRulesFiles, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setValue("customRulesFiles", newCustomRulesFiles);
 
     // Find all labels in the new rule files and push them to `selectedTargetLabels`
     const uniqueNewTargetLabels = buildSetOfTargetLabelsFromUploadFiles(
       ruleFiles,
       selectedTargetLabels
     );
-    setValue("selectedTargetLabels", uniqueNewTargetLabels);
+    onSelectedTargetLabelsChanged(uniqueNewTargetLabels);
   };
 
   const onRemoveRuleFile = (ruleFile: UploadFile) => {
@@ -120,10 +181,7 @@ export const CustomRules: React.FC = () => {
     const newCustomRulesFiles = customRulesFiles.filter(
       (file) => file.fileName !== ruleFile.fileName
     );
-    setValue("customRulesFiles", newCustomRulesFiles, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    setValue("customRulesFiles", newCustomRulesFiles);
 
     // Update the labels ... remove the labels uniquely from the removed files
     const removedLabels = buildSetOfTargetLabelsFromUploadFiles([ruleFile]);
@@ -135,7 +193,7 @@ export const CustomRules: React.FC = () => {
         !currentFileLabels.find((c) => c.label === l.label)
     );
 
-    setValue("selectedTargetLabels", [...nonFileLabels, ...currentFileLabels]);
+    onSelectedTargetLabelsChanged([...nonFileLabels, ...currentFileLabels]);
   };
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
@@ -149,16 +207,13 @@ export const CustomRules: React.FC = () => {
     },
   ];
 
-  const { identities } = useFetchIdentities();
-
-  const sourceIdentityOptions = identities
-    .filter((identity) => identity.kind === "source")
-    .map((sourceIdentity) => {
-      return {
-        value: sourceIdentity.name,
-        toString: () => sourceIdentity.name,
-      };
-    });
+  const { identitiesByKind } = useFetchIdentities();
+  const sourceIdentityOptions = (identitiesByKind.source ?? []).map(
+    (identity) => ({
+      value: identity.name as string,
+      toString: () => identity.name,
+    })
+  );
 
   const filterCategories: FilterCategory<UploadFile, "name">[] = [
     {
@@ -175,6 +230,7 @@ export const CustomRules: React.FC = () => {
     },
   ];
 
+  // TODO: Replace with the current table and filter state -- set-targets has a similar implementation
   const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
     customRulesFiles,
     filterCategories
@@ -207,7 +263,6 @@ export const CustomRules: React.FC = () => {
   filteredItems?.forEach((item) => {
     const { source, target, total } = parseRules(item);
 
-    // TODO: See issue https://github.com/konveyor/tackle2-ui/issues/2249
     const sources = getParsedLabel(source).labelValue || t("wizard.terms.none");
     const targets = getParsedLabel(target).labelValue || t("wizard.terms.none");
     const sourceTargetLabel = `${sources} / ${targets}`;
@@ -252,9 +307,9 @@ export const CustomRules: React.FC = () => {
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      {values.selectedTargets.length === 0 &&
-        values.customRulesFiles.length === 0 &&
-        !values.sourceRepository && (
+      {selectedTargets.length === 0 &&
+        customRulesFiles.length === 0 &&
+        !sourceRepository && (
           <Alert
             variant="warning"
             isInline
@@ -268,6 +323,7 @@ export const CustomRules: React.FC = () => {
         fieldId="type-select"
         renderInput={({ field: { onChange } }) => (
           <Tabs
+            // TODO: Use mountOnEnter/unmountOnExit instead of activeKey for tab body rendering
             className={spacing.mtSm}
             activeKey={activeTabKey}
             onSelect={(_event, tabIndex) => {
@@ -419,103 +475,11 @@ export const CustomRules: React.FC = () => {
       <UploadNewRulesFiles
         key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
+        taskGroup={taskGroup}
         existingFiles={customRulesFiles}
         onAddFiles={onAddRulesFiles}
         onClose={() => setShowUploadFiles(false)}
       />
     </>
-  );
-};
-
-const UploadNewRulesFiles: React.FC<{
-  show: boolean;
-  existingFiles: UploadFile[];
-  onAddFiles: (newFiles: UploadFile[]) => void;
-  onClose: () => void;
-}> = ({ show, existingFiles, onAddFiles, onClose }) => {
-  const { taskGroup } = useTaskGroup();
-  const doesFileAlreadyExist = React.useCallback(
-    (fileName: string) => {
-      return existingFiles.some((existing) => existing.fileName === fileName);
-    },
-    [existingFiles]
-  );
-
-  const { control } = useForm({
-    defaultValues: {
-      uploadedFiles: [] as UploadFile[],
-    },
-  });
-
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: "uploadedFiles",
-  });
-
-  const filesToFieldsIndex = (files: UploadFile[]) => {
-    const indexes: number[] = [];
-    if (files && files.length > 0) {
-      fields.forEach(({ fileName }, index) => {
-        if (files.some((f) => fileName === f.fileName)) {
-          indexes.push(index);
-        }
-      });
-    }
-    return indexes;
-  };
-
-  const onCloseCancel = () => {
-    // TODO: Consider any uploaded files and delete them from hub if necessary
-    onClose();
-  };
-
-  const onAdd = () => {
-    onAddFiles(fields);
-    onClose();
-  };
-
-  const isAddDisabled = !fields.every(({ status }) => status === "uploaded");
-
-  return (
-    <Modal
-      isOpen={show}
-      variant="medium"
-      title="Add rules"
-      onClose={onCloseCancel}
-      actions={[
-        <Button
-          key="add"
-          variant="primary"
-          isDisabled={isAddDisabled}
-          onClick={onAdd}
-        >
-          Add
-        </Button>,
-        <Button key="cancel" variant="link" onClick={onCloseCancel}>
-          Cancel
-        </Button>,
-      ]}
-    >
-      <CustomRuleFilesUpload
-        taskgroupId={taskGroup?.id}
-        fileExists={doesFileAlreadyExist}
-        ruleFiles={fields}
-        onAddRuleFiles={(ruleFiles) => {
-          append(ruleFiles);
-        }}
-        onRemoveRuleFiles={(ruleFiles) => {
-          const indexesToRemove = filesToFieldsIndex(ruleFiles);
-          if (indexesToRemove.length > 0) {
-            remove(indexesToRemove);
-          }
-        }}
-        onChangeRuleFile={(ruleFile) => {
-          const index = fields.findIndex(
-            (f) => f.fileName === ruleFile.fileName
-          );
-          update(index, ruleFile);
-        }}
-      />
-    </Modal>
   );
 };
