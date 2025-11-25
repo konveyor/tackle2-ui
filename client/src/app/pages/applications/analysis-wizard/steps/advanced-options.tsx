@@ -1,6 +1,7 @@
 import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { toggle } from "radash";
-import { useFormContext } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -22,31 +23,79 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { Target, TargetLabel } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
+import { defaultTargets } from "@app/data/targets";
+import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTargets } from "@app/queries/targets";
 import { getParsedLabel } from "@app/utils/rules-utils";
 import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
 
-import { defaultTargets } from "../../../data/targets";
+import {
+  AdvancedOptionsState,
+  AdvancedOptionsValues,
+  useAdvancedOptionsSchema,
+} from "../schema";
+import defaultSources from "../sources";
+import { updateSelectedTargetsBasedOnLabels } from "../utils";
 
-import { AnalysisWizardFormValues } from "./schema";
-import defaultSources from "./sources";
-import { updateSelectedTargetsBasedOnLabels } from "./utils";
+interface AdvancedOptionsProps {
+  selectedTargets: Target[];
+  onSelectedTargetsChanged: (targets: Target[]) => void;
+  onStateChanged: (state: AdvancedOptionsState) => void;
+  initialState: AdvancedOptionsState;
+}
 
-export const SetOptions: React.FC = () => {
+export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
+  selectedTargets,
+  onSelectedTargetsChanged,
+  onStateChanged,
+  initialState,
+}) => {
   const { t } = useTranslation();
 
-  const { watch, control, setValue } =
-    useFormContext<AnalysisWizardFormValues>();
+  const schema = useAdvancedOptionsSchema();
+  const form = useForm<AdvancedOptionsValues>({
+    defaultValues: {
+      selectedSourceLabels: initialState.selectedSourceLabels,
+      excludedLabels: initialState.excludedLabels,
+      autoTaggingEnabled: initialState.autoTaggingEnabled,
+      advancedAnalysisEnabled: initialState.advancedAnalysisEnabled,
+    },
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+  const { control, setValue } = form;
 
-  const {
-    selectedTargetLabels,
-    excludedRulesTags,
-    autoTaggingEnabled,
-    advancedAnalysisEnabled,
-    selectedTargets,
-  } = watch();
+  const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
+    useWatch({ control });
+
+  useFormChangeHandler({
+    form,
+    onStateChanged,
+    watchFields: [
+      "selectedSourceLabels",
+      "excludedLabels",
+      "autoTaggingEnabled",
+      "advancedAnalysisEnabled",
+    ] as const,
+    mapValuesToState: (
+      [
+        selectedSourceLabels,
+        excludedLabels,
+        autoTaggingEnabled,
+        advancedAnalysisEnabled,
+      ],
+      isValid
+    ) => ({
+      selectedSourceLabels,
+      excludedLabels,
+      autoTaggingEnabled,
+      advancedAnalysisEnabled,
+      isValid,
+    }),
+  });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
@@ -83,6 +132,11 @@ export const SetOptions: React.FC = () => {
     ).values()
   ).sort((t1, t2) => universalComparator(t1.label, t2.label));
 
+  // Track selected target labels internally for this step
+  const [selectedTargetLabels, setSelectedTargetLabels] = React.useState<
+    TargetLabel[]
+  >([]);
+
   return (
     <Form
       isHorizontal
@@ -96,9 +150,10 @@ export const SetOptions: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.advancedOptions")}</Text>
       </TextContent>
+
       <HookFormPFGroupController
         control={control}
-        name="selectedTargetLabels"
+        name="selectedSourceLabels"
         label={t("wizard.terms.target", { count: 2 })}
         fieldId="target-labels"
         renderInput={({
@@ -134,7 +189,7 @@ export const SetOptions: React.FC = () => {
                       matchingLabel,
                       (tl) => tl.label
                     );
-                onChange(updatedFormLabels);
+                setSelectedTargetLabels(updatedFormLabels);
 
                 const updatedSelectedTargets =
                   updateSelectedTargetsBasedOnLabels(
@@ -142,7 +197,7 @@ export const SetOptions: React.FC = () => {
                     selectedTargets,
                     targets
                   );
-                setValue("selectedTargets", updatedSelectedTargets);
+                onSelectedTargetsChanged(updatedSelectedTargets);
 
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
@@ -151,7 +206,7 @@ export const SetOptions: React.FC = () => {
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
               onClear={() => {
-                onChange([]);
+                setSelectedTargetLabels([]);
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
@@ -238,9 +293,10 @@ export const SetOptions: React.FC = () => {
           );
         }}
       />
+
       <StringListField
-        listItems={excludedRulesTags}
-        setListItems={(items) => setValue("excludedRulesTags", items)}
+        listItems={excludedLabels ?? []}
+        setListItems={(items) => setValue("excludedLabels", items)}
         itemToAddSchema={yup
           .string()
           .min(2, t("validation.minLength", { length: 2 }))
@@ -249,11 +305,12 @@ export const SetOptions: React.FC = () => {
         itemToAddLabel={t("wizard.composed.excluded", {
           what: t("wizard.terms.rulesTags"),
         })}
-        itemToAddAriaLabel="Add a rule tag to exclude" // TODO translation here
-        itemNotUniqueMessage="This rule tag is already excluded" // TODO translation here
+        itemToAddAriaLabel="Add a rule tag to exclude"
+        itemNotUniqueMessage="This rule tag is already excluded"
         removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
         className={spacing.mtMd}
       />
+
       <Checkbox
         className={spacing.mtMd}
         label={t("wizard.composed.enable", {
@@ -264,6 +321,7 @@ export const SetOptions: React.FC = () => {
         id="enable-auto-tagging-checkbox"
         name="autoTaggingEnabled"
       />
+
       <Flex>
         <FlexItem>
           <Checkbox

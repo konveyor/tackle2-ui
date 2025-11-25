@@ -1,0 +1,155 @@
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import {
+  Alert,
+  Form,
+  SelectOptionProps,
+  TextContent,
+  Title,
+} from "@patternfly/react-core";
+
+import { Application, Taskgroup } from "@app/api/models";
+import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
+import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
+
+import { UploadBinary } from "../components/upload-binary";
+import {
+  AnalysisModeState,
+  AnalysisModeValues,
+  useAnalysisModeSchema,
+} from "../schema";
+import { isModeSupported } from "../utils";
+
+interface AnalysisModeProps {
+  applications: Application[];
+  taskGroup: Taskgroup | null;
+  createTaskGroup: () => Promise<Taskgroup>;
+  onStateChanged: (state: AnalysisModeState) => void;
+  initialState: AnalysisModeState;
+}
+
+export const AnalysisMode: React.FC<AnalysisModeProps> = ({
+  applications,
+  taskGroup,
+  createTaskGroup,
+  onStateChanged,
+  initialState,
+}) => {
+  const { t } = useTranslation();
+
+  const schema = useAnalysisModeSchema({
+    applications,
+    messageNotCompatible:
+      "Selected mode is not supported for the selected applications",
+  });
+  const form = useForm<AnalysisModeValues>({
+    defaultValues: {
+      mode: initialState.mode,
+      artifact: initialState.artifact,
+    },
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+
+  useFormChangeHandler({
+    form,
+    onStateChanged,
+    watchFields: ["mode", "artifact"] as const,
+    mapValuesToState: ([mode, artifact], isValid) => ({
+      mode,
+      artifact,
+      isValid,
+    }),
+  });
+
+  const [mode, artifact] = useWatch({
+    control: form.control,
+    name: ["mode", "artifact"],
+  });
+
+  const isModeValid = applications.every((app) => isModeSupported(app, mode));
+  const isSingleApp = applications.length === 1;
+
+  const analysisOptions: SelectOptionProps[] = [
+    {
+      value: "source-code-deps",
+      children: "Source code + dependencies",
+    },
+    {
+      value: "source-code",
+      children: "Source code",
+    },
+    {
+      value: "binary",
+      children: "Binary",
+    },
+    isSingleApp && {
+      value: "binary-upload",
+      children: "Upload a local binary",
+    },
+  ].filter(Boolean);
+
+  return (
+    <Form
+      onSubmit={(event) => {
+        event.preventDefault();
+      }}
+    >
+      <TextContent>
+        <Title headingLevel="h3" size="xl">
+          {t("wizard.terms.analysisMode")}
+        </Title>
+      </TextContent>
+      <HookFormPFGroupController
+        control={form.control}
+        name="mode"
+        label={t("wizard.label.analysisSource")}
+        fieldId="analysis-mode"
+        isRequired
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelectBasic
+            selectId="analysis-mode"
+            toggleId="analysis-mode-toggle"
+            toggleAriaLabel="Analysis mode dropdown toggle"
+            aria-label={name}
+            value={value}
+            onChange={onChange}
+            options={analysisOptions}
+          />
+        )}
+      />
+
+      {!isModeValid && (
+        <Alert
+          variant="warning"
+          isInline
+          title={t("wizard.label.notAllAnalyzable")}
+        >
+          <p>{t("wizard.label.notAllAnalyzableDetails")}</p>
+        </Alert>
+      )}
+
+      {mode === "source-code" && (
+        <Alert
+          variant="info"
+          isInline
+          title={t("wizard.alert.sourceMode.title")}
+        >
+          <p>{t("wizard.alert.sourceMode.description")}</p>
+        </Alert>
+      )}
+
+      {mode === "binary-upload" && (
+        <UploadBinary
+          taskGroup={taskGroup}
+          createTaskGroup={createTaskGroup}
+          artifact={artifact}
+          onArtifactChange={(artifact) => form.setValue("artifact", artifact)}
+        />
+      )}
+    </Form>
+  );
+};

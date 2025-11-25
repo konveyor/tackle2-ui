@@ -1,6 +1,5 @@
 import * as React from "react";
 import { AxiosError } from "axios";
-import { useFormContext } from "react-hook-form";
 import {
   Alert,
   DropEvent,
@@ -8,20 +7,17 @@ import {
   MultipleFileUploadMain,
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { UploadIcon } from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { uploadLimit } from "@app/Constants";
+import { Taskgroup } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useRemoveTaskgroupFileMutation,
   useUploadTaskgroupFileMutation,
 } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
-import { AnalysisWizardFormValues } from "../schema";
-
-import { useTaskGroup } from "./TaskGroupContext";
 
 const readFile = (file: File, onProgress: (percent: number) => void) => {
   return new Promise<string | null>((resolve, reject) => {
@@ -37,12 +33,20 @@ const readFile = (file: File, onProgress: (percent: number) => void) => {
   });
 };
 
-export const UploadBinary: React.FC = () => {
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const { taskGroup, createTaskGroup } = useTaskGroup();
+interface UploadBinaryProps {
+  taskGroup: Taskgroup | null;
+  createTaskGroup: () => Promise<Taskgroup>;
+  artifact: File | null | undefined;
+  onArtifactChange: (artifact: File | null) => void;
+}
 
-  const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
-  const artifact = watch("artifact");
+export const UploadBinary: React.FC<UploadBinaryProps> = ({
+  taskGroup,
+  createTaskGroup,
+  artifact,
+  onArtifactChange,
+}) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [errorMessage, setErrorMessage] = React.useState<string>();
 
@@ -93,7 +97,7 @@ export const UploadBinary: React.FC = () => {
     setErrorMessage(undefined);
     setFileUploadProgress(0);
     setFileUploadStatus(undefined);
-    setValue("artifact", null);
+    onArtifactChange(null);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -123,7 +127,7 @@ export const UploadBinary: React.FC = () => {
     setErrorMessage(undefined);
     setFileUploadProgress(0);
     setFileUploadStatus(undefined);
-    setValue("artifact", droppedFile);
+    onArtifactChange(droppedFile);
   };
 
   const readAndUploadFile = async (file: File) => {
