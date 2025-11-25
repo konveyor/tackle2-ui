@@ -250,3 +250,15 @@ export enum TaskFilter {
   kind = "Kind",
   createdBy = "Created By",
 }
+
+export enum appInventoryKebab {
+  manageImports = "Manage application imports",
+  import = "Import applications from CSV",
+  manageCredentials = "Manage credentials",
+  delete = "Delete",
+}
+
+export enum DefaultCredentialFilter {
+  default = "Default",
+  notDefault = "Not Default",
+}

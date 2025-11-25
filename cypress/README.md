@@ -1,216 +1,266 @@
-## End-to-end Cypress tests for Konveyor UI
+## End-to-End Cypress Tests for Konveyor UI
 
 ## Getting Started
 
 ### Requirements
 
-1. Operating system (typically Fedora or macOS)
-2. Install Node.js 20 or above (OS native packages, or [nodejs](https://nodejs.org/en/download), or [nvm](https://github.com/nvm-sh/nvm) managed installs are all ok)
+Operating System — Fedora or macOS recommended
 
-### Install and run automation
+Node.js — Version 20 or above
 
-1. Clone automation repository and setup
+You can install using native OS packages, Node.js downloads
 
-   ```sh
-   git clone https://github.com/konveyor/tackle2-ui.git
-   cd tackle2-ui
-   npm clean-install
-   ```
+### Install and Run Automation
 
-2. Setup your cypress environment
-   Copy the sample `cypress/.env.example` to `cypress/.env` and update for your environment. The variables
-   in this file will not override and existing exported environment variables.
+1. Clone the repository and install dependencies
 
-   ```sh
-   cp cypress/.env.example cypress/.env
-   ```
+```sh
+git clone https://github.com/konveyor/tackle2-ui.git
+cd tackle2-ui
+npm clean-install
+```
 
-3. Open Cypress and run test cases
-   ```sh
-   cd cypress
-   npx cypress open
-   ```
+2. Set up the Cypress environment
 
-## Required Parameters for Tests
+Copy the sample environment file:
 
-Some tests require certain configuration parameters to be correctly defined in the `cypress.config.ts` file. Below is a list of tests and the parameters they require.
+```sh
+cp cypress/.env.example cypress/.env
+```
 
-- `export_to_jira_datacenter.test.ts`
-  - `jira_stage_datacenter_project_id`
-  - `jira_stage_bearer_token`
-  - `jira_stage_datacenter_url`
+Update cypress/.env with your configuration:
 
-- `export_to_jira_cloud.test.ts`
-  - `jira_atlassian_cloud_project`
-  - `jira_atlassian_cloud_email`
-  - `jira_atlassian_cloud_token`
-  - `jira_atlassian_cloud_url`
+CYPRESS_baseUrl → URL of your Konveyor instance
 
-- `source_analysis.test.ts` and `binary_analysis.test.ts`
-  - `git_user`
-  - `git_password`
+Credentials such as git_user, git_password (if required)
 
-## Code formatting using Prettier tool
+📝 Note:
+.env holds local or secret configurations.
+cypress.config.ts defines shared test settings across all environments.
 
-Husky and lint-staged are used to format staged files when committing.
+3. Run the tests
 
-To manually check the code formatting: `npm run lint`
+All tests should be executed from the cypress directory:
 
-To manually format the cypress code: `npm run lint:fix`
+```sh
+cd cypress
+npx cypress open
+# OR
+npx cypress run --spec e2e/tests/<test_name>.test.ts
+```
 
-## Pull request testing
+### Required Parameters for Tests
 
-1. Update Pull request with upstream main branch
-2. Pull requests will be tested against environment before merging to main codebase
-3. Pull request's owner must add **RFR** label once pull request is ready to test against environment
-4. After adding **RFR** label, the PR owner should force push the pull request to trigger GitHub action
-5. In some cases, the reviewer wants to trigger the PR test GH action but they can't force push to the PR branch. Hence added feature of triggering GH action manually. Steps to trigger GH action for PR testing manually:
-   - Go to Actions tab
-   - Click on GH action(Pull request test)
-   - Click on run workflow dropdown
-   - select PR branch
-   - Click on button Run workflow
+Some tests depend on specific configuration values in cypress.config.ts.
+Below is a summary of parameters per test type:
 
-## Tag based test execution
+| Test File                                            | Required Parameters                                                                                                    |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `export_to_jira_datacenter.test.ts`                  | `jira_stage_datacenter_project_id`, `jira_stage_bearer_token`, `jira_stage_datacenter_url`                             |
+| `export_to_jira_cloud.test.ts`                       | `jira_atlassian_cloud_project`, `jira_atlassian_cloud_email`, `jira_atlassian_cloud_token`, `jira_atlassian_cloud_url` |
+| `source_analysis.test.ts`, `binary_analysis.test.ts` | `git_user`, `git_password`                                                                                             |
 
-This repository uses the package [cypress-tags](https://www.npmjs.com/package/cypress-tags) to slice up test runs.
+### Code Formatting Using Prettier
 
-1. To run tests based on tags, use below command
+Husky and lint-staged automatically format staged files on commit.
 
-   ```sh
-   CYPRESS_INCLUDE_TAGS=@tagName npx cypress run
-   ```
+Check formatting manually:
 
-2. To run multiple tags(tiers) in a single run, provide tag names separated by commas
-   ```sh
-   CYPRESS_INCLUDE_TAGS=@tier1,@tier2 npx cypress run
-   ```
+```sh
+npm run lint
+```
 
-## Running tests locally with Konveyor operator installed to minikube
+Fix formatting manually:
 
-1. Install minikube on your local machine by referring to [docs](https://minikube.sigs.k8s.io/docs/start/)
+```sh
+npm run lint:fix
+```
 
-1. Setup recommended minikube configurations and start minikube with the ingress addon
+### Pull Request Testing
 
-   ```sh
-   minikube config set memory 10240
-   minikube config set cpus 4
-   minikube start --addons=ingress
-   ```
+Sync your PR with the upstream main branch.
 
-1. Install kubectl if needed, or substitute `minikube kubectl --` for all `kubectl` commands.
+PRs are tested against the environment before merging.
 
-1. Install [OLM manually](https://github.com/operator-framework/operator-lifecycle-manager/releases)
+When ready, add the RFR label to mark the PR as “Ready for Review”.
 
-   ```sh
-   curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.28.0/install.sh -o install.sh
-   chmod +x install.sh
-   ./install.sh v0.28.0
-   ```
+After adding RFR, force-push the branch to trigger GitHub Actions.
 
-1. Install the Konveyor operator ([operator install](https://github.com/konveyor/operator?tab=readme-ov-file#konveyor-operator-installation-on-k8s)) to the default namespace **konveyor-tackle**
+If a reviewer needs to trigger the workflow manually:
 
-   ```sh
-   kubectl apply -f https://raw.githubusercontent.com/konveyor/operator/main/tackle-k8s.yaml
-   ```
+Go to the Actions tab
 
-1. Create a Tackle CR (setting the spec values as needed)
+Select Pull request test workflow
 
-   ```sh
-   cat << EOF | kubectl apply -f -
-   kind: Tackle
-   apiVersion: tackle.konveyor.io/v1alpha1
-   metadata:
-     name: tackle
-     namespace: konveyor-tackle
-   spec:
-     feature_auth_required: false
-   EOF
-   ```
+Click Run workflow
 
-1. Wait for the tackle ingress to become available
+Select the PR branch → Run workflow
 
-   ```sh
-   kubectl wait -n konveyor-tackle ingress/tackle --for=jsonpath='{.status.loadBalancer.ingress[0]}' --timeout=600s
-   ```
+## Tag-Based Test Execution
 
-1. Once the Konveyor UI ingress is running, tests can be run against this local instance, with video captures of the tests turned on, using the command
-   ```sh
-   CYPRESS_baseUrl=https://$(minikube ip) npx cypress run --config video=true
-   ```
+This repository uses cypress-tags
 
-## Tags and Tiers in Konveyor UI tests
+```sh
+CYPRESS_INCLUDE_TAGS=@tagName npx cypress run
+```
 
-### Tags
+Run multiple tags at once:
 
-### `@interOp` tag: (Used by interOp team, rosa, rosa-sts, aro clusters)
+```sh
+CYPRESS_INCLUDE_TAGS=@tier1,@tier2 npx cypress run
+```
 
-Tests include:
+### Tag Overview
 
-- “Creating source control credentials with username/password”
-- “Custom Migration Targets CRUD operations”
-- “Analysis for acmeair app upload binary”
-- “Test inheritance after discarding application assessment and review”
-- “Business service CRUD operations”
-- “Stakeholder CRUD operations”
-- “Migration Waves CRUD operations”
+Tests are tagged for selective execution based on purpose, stability, and resource requirements.
 
-### `@ci` tag:
+### Finding and Running Tests by Tag
 
-- Runs on minikube for CI testing https://github.com/konveyor/ci
-- Running tests on GitHub Actions on minikube has some constraints like
-  1. Limited resources
-  2. Cannot run tests with credentials
-  3. Time taken to run CI tests
+Use the `findTierFiles.js` utility to locate and run tests with specific tags:
 
-Considering the above factors, we are including tests that are most necessary to test functionality of MTA while merging a PR. More tests will be added here once they're stabilized.
+```bash
+# Find all tier0 tests
+node cypress/scripts/findTierFiles.js tier0
 
-Tests include:
+# Run tests for a specific tier
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
 
-- “Business service CRUD”
-- "Jobfunction CRUD"
-- "Stakeholder , Stakeholder Group , Tag and Archetype CRUD operations"
-- "Application assessment, review, analyze and validate efforts and issues"
+# Run tests for multiple tiers
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+```
 
-### `@tier0` tag:
+### Tag Definitions
 
-Basic sanity tests. Runs on stage and production and nightly runs on [Konveyor CI](https://github.com/konveyor/ci).
+#### `@ci` - Continuous Integration Tests
 
-Tests include:
+- **Purpose**: Runs on minikube for PR validation via [Konveyor CI](https://github.com/konveyor/ci)
+- **Constraints**:
+  - Limited resources (minikube environment)
+  - Cannot use tests requiring external credentials
+  - Time-constrained (must complete reasonably quickly)
+- **Tests Include**:
+  - Login and navigation validation
+  - Business service CRUD
+  - Job function CRUD
+  - Stakeholder, stakeholder group, tag, and archetype CRUD operations
+  - Application assessment, review, and analysis with effort and issues validation
 
-- “Creating source control credentials with username/password
-- ”Custom Migration Targets CRUD operations
-- “Source Analysis on bookserver app and its issues validation”
-- “Source analysis on bookserver app with EAP8 target”
-- “Test inheritance after discarding application assessment and review”
-- “Business service CRUD operations”
-- “Migration Waves CRUD operations”
+**Usage**:
 
-### `@tier1` tag:
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js ci)"
+```
 
-Includes analysis tests like binary and source+dependencies with credentials, runs on nightly [Konveyor CI](https://github.com/konveyor/ci).
+#### `@tier0` - Basic Sanity Tests
 
-### `@tier2` tag:
+- **Purpose**: Core smoke tests for critical functionality
+- **Runs on**: Stage, production, and nightly on [Konveyor CI](https://github.com/konveyor/ci)
+- **Tests Include**:
+  - Custom migration targets CRUD and validation
+  - Source analysis on bookserver app (without credentials)
+  - Source + dependency analysis validation
+  - Migration waves CRUD and application association
 
-CRUD tests for all functionality
+**Usage**:
 
-### `@tier3` tag:
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
+```
 
-Sorting/filtering for all functionality
+#### `@tier1` - Analysis Tests with Credentials
 
-### `@tier4` tag:
+- **Purpose**: Comprehensive analysis tests requiring external credentials
+- **Runs on**: Nightly on [Konveyor CI](https://github.com/konveyor/ci)
+- **Tests Include**:
+  - Binary analysis with Git credentials
+  - Source code analysis with credentials
+  - Node.js application analysis
+  - Python application analysis
+  - Upload binary analysis
 
-Load and performance tests.
+**Required Config**: Tests need `git_user` and `git_password` configured in `cypress.config.ts`
 
-## License's header management
+**Usage**:
 
-To check if the license's header is available in all eligible files, execute:
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier1)"
+```
+
+#### `@tier2` - Comprehensive CRUD Tests
+
+- **Purpose**: Full CRUD coverage for all features
+- **Test Areas**: Administration (credentials, repositories, questionnaires), application inventory, controls, custom metrics, migration waves, task manager, RBAC, and analysis features
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier2)"
+```
+
+#### `@tier3` - Sorting and Filtering Tests
+
+- **Purpose**: Validate sorting, filtering, and UI interactions
+- **Tests Include**:
+  - Job function filters
+  - Tag filters on application details
+  - Manual package selection for analysis
+  - Analysis with proxy configuration
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier3)"
+```
+
+#### `@tier4` - Load and Performance Tests
+
+- **Purpose**: Load testing and performance validation
+- **Tests Include**:
+  - Bulk analysis operations
+  - Large dataset handling
+  - Performance benchmarks
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier4)"
+```
+
+#### `@interop` - Interoperability Tests
+
+- **Purpose**: Used by interOp team for testing on ROSA, ROSA-STS, and ARO clusters
+- **Tests Include**:
+  - Source control credentials CRUD
+  - Custom migration targets CRUD
+  - Stakeholder CRUD operations
+
+**Usage**:
+
+```bash
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js interop)"
+```
+
+### Running Multiple Tags
+
+To run tests from multiple tiers in a single execution:
+
+```bash
+# Run tier0 and tier1 together
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,tier1)"
+
+# Run interop and tier0 tests
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+```
+
+## License Header Management
+
+Check license headers:
 
 ```shell
 yarn license-check-and-add check
 ```
 
-To add the license's header to all eligible files, execute:
+Add license headers:
 
 ```shell
 yarn license-check-and-add add
@@ -218,4 +268,13 @@ yarn license-check-and-add add
 
 ## Code of Conduct
 
-Refer to Konveyor's Code of Conduct [here](https://github.com/konveyor/community/blob/main/CODE_OF_CONDUCT.md).
+Refer to Konveyor's Code of Conduct
+
+## Git Branch Mapping
+
+| Branch      | Mapping                     |
+| ----------- | --------------------------- |
+| release-0.6 | MTA 7.2.1                   |
+| release-0.7 | MTA 7.3.0                   |
+| release-0.8 | MTA 8.0.0                   |
+| main        | Upstream development branch |
