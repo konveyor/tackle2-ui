@@ -423,5 +423,151 @@ describe("useWizardReducer", () => {
       expect(result.current.state.results).toEqual(mockResults);
       expect(result.current.state.isReady).toBe(true);
     });
+
+    it("preserves filters and results when changing platforms", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const secondPlatform: SourcePlatform = {
+        ...mockPlatform,
+        id: 2,
+        name: "Second Platform",
+      };
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+        result.current.setFilters(mockValidFilters);
+        result.current.setResults(mockResults);
+      });
+
+      act(() => {
+        result.current.setPlatform(secondPlatform);
+      });
+
+      expect(result.current.state.platform).toEqual(secondPlatform);
+      expect(result.current.state.filters).toEqual(mockValidFilters);
+      expect(result.current.state.results).toEqual(mockResults);
+      expect(result.current.state.isReady).toBe(true);
+    });
+
+    it("handles filters with filterRequired set to false", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const optionalFilters: FilterState = {
+        filterRequired: false,
+        isValid: true,
+      };
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+        result.current.setFilters(optionalFilters);
+      });
+
+      expect(result.current.state.filters).toEqual(optionalFilters);
+      expect(result.current.state.isReady).toBe(true);
+    });
+
+    it("correctly handles invalid filters when filterRequired is false", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const optionalInvalidFilters: FilterState = {
+        filterRequired: false,
+        isValid: false,
+      };
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+        result.current.setFilters(optionalInvalidFilters);
+      });
+
+      expect(result.current.state.filters).toEqual(optionalInvalidFilters);
+      // isReady depends on isValid, not filterRequired
+      expect(result.current.state.isReady).toBe(false);
+    });
+  });
+
+  describe("state immutability", () => {
+    it("returns new state references on updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const initialState = result.current.state;
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+      });
+
+      expect(result.current.state).not.toBe(initialState);
+    });
+
+    it("maintains immutability across multiple updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const states: WizardState[] = [];
+
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+      });
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setFilters(mockValidFilters);
+      });
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setResults(mockResults);
+      });
+      states.push(result.current.state);
+
+      // Verify all states are different references
+      const uniqueStates = new Set(states);
+      expect(uniqueStates.size).toBe(states.length);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("handles multiple consecutive resets", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const expectedInitialState: WizardState = {
+        platform: null,
+        filters: {
+          filterRequired: true,
+          isValid: false,
+        },
+        isReady: false,
+        results: null,
+      };
+
+      // Modify state
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+        result.current.setFilters(mockValidFilters);
+      });
+
+      // Multiple resets
+      act(() => {
+        result.current.reset();
+        result.current.reset();
+        result.current.reset();
+      });
+
+      expect(result.current.state).toEqual(expectedInitialState);
+    });
+
+    it("handles reset between state updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      act(() => {
+        result.current.setPlatform(mockPlatform);
+        result.current.reset();
+        result.current.setFilters(mockValidFilters);
+      });
+
+      expect(result.current.state.platform).toBeNull();
+      expect(result.current.state.filters).toEqual(mockValidFilters);
+      expect(result.current.state.isReady).toBe(false);
+    });
   });
 });

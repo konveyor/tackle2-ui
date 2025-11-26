@@ -579,5 +579,189 @@ describe("useWizardReducer (generate-assets-wizard)", () => {
 
       expect(result.current.state.isReady).toBe(true);
     });
+
+    it("preserves parameters, advancedOptions, and results when changing profiles", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const secondProfile: TargetProfile = {
+        ...mockTargetProfile,
+        id: 2,
+        name: "Second Target Profile",
+        generators: [{ id: 4, name: "Generator 4" }],
+      };
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+        result.current.setParameters(mockValidParameters);
+        result.current.setAdvancedOptions(mockValidAdvancedOptions);
+        result.current.setResults(mockResults);
+      });
+
+      act(() => {
+        result.current.setProfile(secondProfile);
+      });
+
+      expect(result.current.state.profile).toEqual(secondProfile);
+      expect(result.current.state.parameters).toEqual(mockValidParameters);
+      expect(result.current.state.advancedOptions).toEqual(
+        mockValidAdvancedOptions
+      );
+      expect(result.current.state.results).toEqual(mockResults);
+      expect(result.current.state.isReady).toBe(true);
+    });
+
+    it("handles parameters with parametersRequired set to false", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const optionalParameters: ParameterState = {
+        isValid: true,
+        parametersRequired: false,
+        parameters: {},
+      };
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+        result.current.setParameters(optionalParameters);
+      });
+
+      expect(result.current.state.parameters).toEqual(optionalParameters);
+      expect(result.current.state.isReady).toBe(true);
+    });
+
+    it("correctly handles invalid parameters when parametersRequired is false", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const optionalInvalidParameters: ParameterState = {
+        isValid: false,
+        parametersRequired: false,
+        parameters: {},
+      };
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+        result.current.setParameters(optionalInvalidParameters);
+      });
+
+      expect(result.current.state.parameters).toEqual(
+        optionalInvalidParameters
+      );
+      // isReady depends on isValid, not parametersRequired
+      expect(result.current.state.isReady).toBe(false);
+    });
+  });
+
+  describe("state immutability", () => {
+    it("returns new state references on updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const initialState = result.current.state;
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+      });
+
+      expect(result.current.state).not.toBe(initialState);
+    });
+
+    it("maintains immutability across multiple updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const states: WizardState[] = [];
+
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+      });
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setParameters(mockValidParameters);
+      });
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setAdvancedOptions(mockValidAdvancedOptions);
+      });
+      states.push(result.current.state);
+
+      act(() => {
+        result.current.setResults(mockResults);
+      });
+      states.push(result.current.state);
+
+      // Verify all states are different references
+      const uniqueStates = new Set(states);
+      expect(uniqueStates.size).toBe(states.length);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("handles multiple consecutive resets", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      const expectedInitialState: WizardState = {
+        profile: undefined,
+        parameters: {
+          isValid: true,
+          parametersRequired: false,
+        },
+        advancedOptions: {
+          isValid: true,
+          renderTemplates: true,
+        },
+        isReady: false,
+        results: null,
+      };
+
+      // Modify state
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+        result.current.setParameters(mockValidParameters);
+        result.current.setAdvancedOptions(mockValidAdvancedOptions);
+      });
+
+      // Multiple resets
+      act(() => {
+        result.current.reset();
+        result.current.reset();
+        result.current.reset();
+      });
+
+      expect(result.current.state).toEqual(expectedInitialState);
+    });
+
+    it("handles reset between state updates", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+        result.current.reset();
+        result.current.setParameters(mockValidParameters);
+      });
+
+      expect(result.current.state.profile).toBeUndefined();
+      expect(result.current.state.parameters).toEqual(mockValidParameters);
+      expect(result.current.state.isReady).toBe(false);
+    });
+
+    it("verifies profile is undefined after reset", () => {
+      const { result } = renderHook(() => useWizardReducer());
+
+      // Set a profile
+      act(() => {
+        result.current.setProfile(mockTargetProfile);
+      });
+
+      expect(result.current.state.profile).toEqual(mockTargetProfile);
+
+      // Reset to clear profile
+      act(() => {
+        result.current.reset();
+      });
+
+      expect(result.current.state.profile).toBeUndefined();
+      expect(result.current.state.isReady).toBe(false);
+    });
   });
 });
