@@ -13,17 +13,45 @@ on:
     paths:
       - "cypress/**"
       - ".github/workflows/e2e*.yaml"
+      - ".github/actions/**"
 
 concurrency:
   group: e2e-repo-main-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  extract-test-tags:
+    runs-on: ubuntu-latest
+    outputs:
+      test_tags: ${{ steps.extract.outputs.test_tags }}
+    steps:
+      - name: Extract test tags from PR body
+        id: extract
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          DEFAULT_TAGS: "@ci,@tier0"
+        run: |
+          if [[ -n "$PR_BODY" ]]; then
+            # Look for pattern "ci test tags: @tag1,@tag2,..." in PR body
+            EXTRACTED=$(echo "$PR_BODY" | grep -oP '^ci test tags: \K@.+(,@.+)*$' || true)
+            if [[ -n "$EXTRACTED" ]]; then
+              echo "Found test tags in PR body: $EXTRACTED"
+              echo "test_tags=$EXTRACTED" >> "$GITHUB_OUTPUT"
+            else
+              echo "No test tags pattern found in PR body, using default: $DEFAULT_TAGS"
+              echo "test_tags=$DEFAULT_TAGS" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "No PR body available (not a pull request or body is empty), using default: $DEFAULT_TAGS"
+            echo "test_tags=$DEFAULT_TAGS" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e-tests:
+    needs: extract-test-tags
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      test_tags: "@ci,@tier0"
-      feature_auth_required: false
+      test_tags: ${{ needs.extract-test-tags.outputs.test_tags }}
+      feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      install_konveyor_version: ${{ github.base_ref || github.ref_name }}
+      install_konveyor_version: main
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
