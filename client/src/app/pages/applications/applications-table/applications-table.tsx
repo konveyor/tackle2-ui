@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { type FC, useContext, useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
@@ -96,7 +96,6 @@ import {
 } from "@app/utils/utils";
 
 import { AnalysisWizard } from "../analysis-wizard/analysis-wizard";
-import { TaskGroupProvider } from "../analysis-wizard/components/TaskGroupContext";
 import { ApplicationDetailDrawer } from "../application-detail-drawer/application-detail-drawer";
 import { ApplicationFormModal } from "../application-form";
 import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
@@ -117,9 +116,9 @@ import { ColumnAssessmentStatus } from "./components/column-assessment-status";
 import { ColumnReviewStatus } from "./components/column-review-status";
 import { ManageColumnsToolbar } from "./components/manage-columns-toolbar";
 
-export const ApplicationsTable: React.FC = () => {
+export const ApplicationsTable: FC = () => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
 
   const history = useHistory();
   const token = keycloak.tokenParsed;
@@ -845,23 +844,24 @@ export const ApplicationsTable: React.FC = () => {
   );
 
   const handleNavToAssessment = (application: DecoratedApplication) => {
-    application?.id &&
+    if (application?.id) {
       history.push(
         formatPath(Paths.applicationAssessmentActions, {
           applicationId: application?.id,
         })
       );
+    }
   };
 
   const handleNavToViewArchetypes = (application: DecoratedApplication) => {
-    application?.id &&
-      archetypeRefsToOverride?.length &&
+    if (application?.id && archetypeRefsToOverride?.length) {
       history.push(
         formatPath(Paths.viewArchetypes, {
           applicationId: application?.id,
           archetypeId: archetypeRefsToOverride[0].id,
         })
       );
+    }
   };
 
   const handleCancelBulkAnalysis = () => {
@@ -1321,15 +1321,13 @@ export const ApplicationsTable: React.FC = () => {
         />
       </div>
 
-      <TaskGroupProvider>
-        <AnalysisWizard
-          applications={selectedRows}
-          isOpen={isAnalyzeModalOpen}
-          onClose={() => {
-            setAnalyzeModalOpen(false);
-          }}
-        />
-      </TaskGroupProvider>
+      <AnalysisWizard
+        applications={selectedRows}
+        isOpen={isAnalyzeModalOpen}
+        onClose={() => {
+          setAnalyzeModalOpen(false);
+        }}
+      />
       <RetrieveConfigWizard
         key={
           retrieveConfigApplications
@@ -1579,12 +1577,13 @@ export const ApplicationsTable: React.FC = () => {
         onCancel={() => setArchetypeRefsToOverrideReview(null)}
         onClose={() => setArchetypeRefsToOverrideReview(null)}
         onConfirm={() => {
-          applicationToReview &&
+          if (applicationToReview) {
             history.push(
               formatPath(Paths.applicationsReview, {
-                applicationId: applicationToReview?.id,
+                applicationId: applicationToReview.id,
               })
             );
+          }
           setArchetypeRefsToOverride(null);
         }}
       />
@@ -1609,11 +1608,15 @@ export const ApplicationsTable: React.FC = () => {
         onCancel={() => setArchetypeRefsToOverride(null)}
         onClose={() => setArchetypeRefsToOverride(null)}
         onCustomAction={() => {
-          applicationToAssess && handleNavToViewArchetypes(applicationToAssess);
+          if (applicationToAssess) {
+            handleNavToViewArchetypes(applicationToAssess);
+          }
         }}
         onConfirm={() => {
           setArchetypeRefsToOverride(null);
-          applicationToAssess && handleNavToAssessment(applicationToAssess);
+          if (applicationToAssess) {
+            handleNavToAssessment(applicationToAssess);
+          }
         }}
       />
 
