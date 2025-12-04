@@ -5,14 +5,11 @@ import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
 import { tagify } from "cypress-tags";
 import decompress from "decompress";
-import * as dotenv from "dotenv";
 
 const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
 const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
-
-dotenv.config();
 
 export default defineConfig({
   // Cypress.env() values
@@ -27,7 +24,7 @@ export default defineConfig({
     jira_atlassian_cloud_project: "Test",
     jira_stage_datacenter_project_id: 12335626,
     rwx_enabled: true,
-    logLevel: "VERBOSE",
+    logLevel: "INFO",
     mtaVersion: "",
     FAIL_FAST_PLUGIN: true,
     FAIL_FAST_ENABLED: false,

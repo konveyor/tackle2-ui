@@ -1,4 +1,4 @@
-FROM docker.io/cypress/included:13.13.3
+FROM cypress/included:15.7.0
 
 # point Cypress at the /tmp/cache no matter what user account is used
 # see https://on.cypress.io/caching
@@ -19,7 +19,6 @@ RUN mkdir /tmp/tackle-ui-tests
 WORKDIR /tmp/tackle-ui-tests
 COPY . .
 RUN npm install .
-RUN cypress install
 
 # Set required permissions for OpenShift usage
 RUN chgrp -R 0 /tmp && \
