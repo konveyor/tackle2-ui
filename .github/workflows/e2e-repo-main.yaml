@@ -12,9 +12,10 @@ on:
       - main
     paths:
       - "cypress/**"
+      - ".github/workflows/e2e*.yaml"
 
 concurrency:
-  group: e2e-tier0-repo-main-${{ github.ref }}
+  group: e2e-repo-main-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,4 +53,4 @@ jobs:
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
-      test_ref: main
+      test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
