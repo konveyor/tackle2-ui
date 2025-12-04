@@ -69,7 +69,7 @@ jobs:
           ref: ${{ inputs.install_konveyor_version }}
           path: konveyor-operator
 
-      - name: Install konveyor using ${{ inputs.install_konveyor_version }}
+      - name: "Install konveyor using ${{ inputs.install_konveyor_version }}"
         uses: ./konveyor-operator/.github/actions/install-konveyor
         with:
           bundle_image: ${{ inputs.bundle_image }}
@@ -125,7 +125,7 @@ jobs:
           project: ./cypress
           spec: "**/e2e/tests/login.test.ts"
 
-      - name: Run UI tests (${{ inputs.test_tags }}) using default credentials from `cypress.config.ts`
+      - name: "Run UI tests (${{ inputs.test_tags }}) using default credentials from `cypress.config.ts`"
         uses: cypress-io/github-action@v6
         env:
           CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
