@@ -119,12 +119,12 @@ describe(
       applicationList[0].perform_assessment("low", stakeholderList);
       Application.open(true);
       applicationList[0].deleteAssessments();
-      applicationList[0].verifyButtonEnabled("Take");
       checkSuccessAlert(
         successAlertMessage,
         `Success! Assessment discarded for ${applicationList[0].name}.`,
         true
       );
+      applicationList[0].verifyButtonEnabled("Take");
       applicationList[0].validateAssessmentField("Unassessed");
       archetypeList[0].perform_assessment("low", stakeholderList);
     });
@@ -195,8 +195,6 @@ describe(
         .find(ArchivedQuestionnairesTableDataCell)
         .last()
         .should("not.have.text", cloudNative);
-      // todo: uncomment when the bug is fixed
-      // AssessmentQuestionnaire.delete(cloudNative);
     });
 
     it("Test inheritance after discarding application assessment and review", function () {
@@ -321,8 +319,8 @@ describe(
 
     it("Validates auto tagging of applications and archetypes based on assessment answers", function () {
       //automates polarion MTA-387 and MTA-502
-      const archetypeTag = ["3rd party", "Apache Aries"];
-      const assessmentTag = ["Runtime", "Spring Boot"];
+      const archetypeTag = ["3rd party", "Apache Aries"] as [string, string];
+      const assessmentTag = ["Runtime", "Spring Boot"] as [string, string];
       const appdata = { name: data.getAppName(), tags: ["Language / Java"] };
       const application = new Application(appdata);
       application.create();

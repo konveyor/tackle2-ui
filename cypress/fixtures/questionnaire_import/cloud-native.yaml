@@ -14,7 +14,7 @@ sections:
             risk: unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
-          - order: 0
+          - order: 1
             text: Quarkus
             risk: green
             rationale: ""
@@ -25,7 +25,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Quarkus
-          - order: 0
+          - order: 2
             text: Spring Boot
             risk: green
             rationale: ""
@@ -36,7 +36,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Spring Boot
-          - order: 0
+          - order: 3
             text: Java EE
             risk: yellow
             rationale: This might not be the most cloud friendly technology.
@@ -47,7 +47,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Java EE
-          - order: 0
+          - order: 4
             text: J2EE
             risk: red
             rationale: This is obsolete.
@@ -58,7 +58,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: J2EE
-      - order: 0
+      - order: 1
         text: What version of Java EE does the application use?
         explanation: What version of the Java EE specification is your application using?
         includeFor:
@@ -70,17 +70,17 @@ sections:
             risk: red
             rationale: This technology stack is obsolete.
             mitigation: Consider migrating to at least Java EE 7.
-          - order: 0
+          - order: 1
             text: 5 or 6
             risk: yellow
             rationale: This is a mostly outdated stack.
             mitigation: Consider migrating to at least Java EE 7.
-          - order: 0
+          - order: 2
             text: "7"
             risk: green
             rationale: ""
             mitigation: ""
-      - order: 0
+      - order: 2
         text: Does your application use any caching mechanism?
         explanation: ""
         answers:
@@ -98,17 +98,17 @@ sections:
                 tag: eXtreme Scale
               - category: Caching
                 tag: Coherence
-          - order: 0
+          - order: 1
             text: "No"
             risk: green
             rationale: ""
             mitigation: ""
-          - order: 0
+          - order: 2
             text: Unknown
             risk: unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
-      - order: 0
+      - order: 3
         text: What implementation of JAX-WS does your application use?
         explanation: ""
         excludeFor:
@@ -122,12 +122,12 @@ sections:
             risk: red
             rationale: This version is obsolete
             mitigation: Consider migrating to Apache CXF
-          - order: 0
+          - order: 1
             text: Apache CXF
             risk: green
             rationale: ""
             mitigation: ""
-          - order: 0
+          - order: 2
             text: Unknown
             risk: unknown
             rationale: This is a problem because of the uncertainty.
@@ -144,7 +144,7 @@ sections:
             risk: unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
-          - order: 0
+          - order: 1
             text: Quarkus
             risk: green
             rationale: ""
@@ -155,7 +155,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Quarkus
-          - order: 0
+          - order: 2
             text: Spring Boot
             risk: green
             rationale: ""
@@ -166,7 +166,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Spring Boot
-          - order: 0
+          - order: 3
             text: Java EE
             risk: yellow
             rationale: This might not be the most cloud friendly technology.
@@ -177,7 +177,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: Java EE
-          - order: 0
+          - order: 4
             text: J2EE
             risk: red
             rationale: This is obsolete.
@@ -188,7 +188,7 @@ sections:
             autoAnswerFor:
               - category: Runtime
                 tag: J2EE
-      - order: 0
+      - order: 1
         text: What version of Java EE does the application use?
         explanation: What version of the Java EE specification is your application using?
         includeFor:
@@ -200,17 +200,17 @@ sections:
             risk: red
             rationale: This technology stack is obsolete.
             mitigation: Consider migrating to at least Java EE 7.
-          - order: 0
+          - order: 1
             text: 5 or 6
             risk: yellow
             rationale: This is a mostly outdated stack.
             mitigation: Consider migrating to at least Java EE 7.
-          - order: 0
+          - order: 2
             text: "7"
             risk: green
             rationale: ""
             mitigation: ""
-      - order: 0
+      - order: 2
         text: Does your application use any caching mechanism?
         explanation: ""
         answers:
@@ -228,17 +228,17 @@ sections:
                 tag: eXtreme Scale
               - category: Caching
                 tag: Coherence
-          - order: 0
+          - order: 1
             text: "No"
             risk: green
             rationale: ""
             mitigation: ""
-          - order: 0
+          - order: 2
             text: Unknown
             risk: unknown
             rationale: This is a problem because of the uncertainty.
             mitigation: Gathering more information about this is required.
-      - order: 0
+      - order: 3
         text: What implementation of JAX-WS does your application use?
         explanation: ""
         excludeFor:
@@ -252,12 +252,12 @@ sections:
             risk: red
             rationale: This version is obsolete
             mitigation: Consider migrating to Apache CXF
-          - order: 0
+          - order: 1
             text: Apache CXF
             risk: green
             rationale: ""
             mitigation: ""
-          - order: 0
+          - order: 2
             text: Unknown
             risk: unknown
             rationale: This is a problem because of the uncertainty.

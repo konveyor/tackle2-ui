@@ -147,20 +147,25 @@ import Chainable = Cypress.Chainable;
  * @param useInvoke - Set to true for faster text entry via .invoke("val") when
  *                    keyboard events are not needed (default: false uses .type())
  */
-export function inputText(fieldId: string, text: any, log = false, useInvoke = false): void {
-    if (!log) {
-        cy.log(`Type ${text} in ${fieldId}`);
-    }
+export function inputText(
+  fieldId: string,
+  text: any,
+  log = false,
+  useInvoke = false
+): void {
+  if (!log) {
+    cy.log(`Type ${text} in ${fieldId}`);
+  }
 
-    if (useInvoke) {
-        cy.get(fieldId, { log, timeout: 2 * SEC })
-            .clear({ log, timeout: 30 * SEC })
-            .invoke("val", text);
-    } else {
-        cy.get(fieldId, { log, timeout: 2 * SEC })
-            .clear({ log, timeout: 30 * SEC })
-            .type(text, { log });
-    }
+  if (useInvoke) {
+    cy.get(fieldId, { log, timeout: 2 * SEC })
+      .clear({ log, timeout: 30 * SEC })
+      .invoke("val", text);
+  } else {
+    cy.get(fieldId, { log, timeout: 2 * SEC })
+      .clear({ log, timeout: 30 * SEC })
+      .type(text, { log });
+  }
 }
 
 export function clearInput(fieldID: string): void {
@@ -2057,10 +2062,10 @@ export function seedAnalysisData(applicationId: number): void {
     failOnNonZeroExit: false,
   }).then((result) => {
     console.log("Command result:", result);
-    cy.log(`Exit code: ${result.code}`);
+    cy.log(`Exit code: ${result.exitCode}`);
     cy.log(`stdout: ${result.stdout}`);
     cy.log(`stderr: ${result.stderr}`);
-    expect(result.code).to.eq(0);
+    expect(result.exitCode).to.eq(0);
     expect(result.stderr, "No error output").to.eq("");
     expect(result.stdout, "Expected script output").to.include(
       "Analysis: created."

@@ -105,6 +105,7 @@ export const analyzeAppButton = "#analyze-application";
 export const duplicateMigrationWaveError =
   "Danger alert:The migration wave could not be created due to a conflict with an existing wave. Make sure the name and start/end dates are unique and try again.";
 export const MustbeAValidRepositoryURL = "Must be a valid repository URL.";
+export const defaultGenerator = "CloudFoundry-Openshift";
 
 // Error helper messages general to all views
 export const duplicateErrMsg =
