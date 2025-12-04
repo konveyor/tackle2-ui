@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useState } from "react";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
 
@@ -107,15 +107,13 @@ export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 const useImmerInitialState = (
   initialRecipe?: InitialStateRecipe
 ): WizardState => {
-  const initialRef = useRef<WizardState | null>(null);
-  if (initialRef.current === null) {
-    initialRef.current = produce(INITIAL_WIZARD_STATE, (draft) => {
+  const [initialState] = useState(() =>
+    produce(INITIAL_WIZARD_STATE, (draft) => {
       initialRecipe?.(draft);
       wizardReducer(draft);
-    });
-  }
-
-  return initialRef.current;
+    })
+  );
+  return initialState;
 };
 
 export const useWizardReducer = (init?: InitialStateRecipe) => {
