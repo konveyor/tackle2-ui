@@ -12,7 +12,7 @@ Types recognized:
 - Patch fix: :bug: (`:bug:`)
 - Docs: :book: (`:book:`)
 - Infra/Tests/Other: :seedling: (`:seedling:`)
-- Integration/E2E tests: :test_tube: (`:test_tube`)
+- Integration/E2E tests: :test_tube: (`:test_tube:`)
 - No release note: :ghost: (`:ghost:`)
 
 For example, a pull request containing breaking changes might look like
