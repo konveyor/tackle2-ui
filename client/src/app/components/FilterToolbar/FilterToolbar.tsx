@@ -70,13 +70,17 @@ export interface IMultiselectFilterCategory<
   logicOperator?: "AND" | "OR";
 }
 
-export interface ISelectFilterCategory<TItem, TFilterCategoryKey extends string>
-  extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
+export interface ISelectFilterCategory<
+  TItem,
+  TFilterCategoryKey extends string,
+> extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
   selectOptions: FilterSelectOptionProps[];
 }
 
-export interface ISearchFilterCategory<TItem, TFilterCategoryKey extends string>
-  extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
+export interface ISearchFilterCategory<
+  TItem,
+  TFilterCategoryKey extends string,
+> extends IBasicFilterCategory<TItem, TFilterCategoryKey> {
   placeholderText: string;
 }
 

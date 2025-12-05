@@ -21,8 +21,10 @@ import { useFetchInsight } from "@app/queries/analysis";
 import { getInsightTitle } from "./helpers";
 import { InsightAffectedFilesTable } from "./insight-affected-files-table";
 
-export interface IInsightDetailDrawerProps
-  extends Pick<IPageDrawerContentProps, "onCloseClick"> {
+export interface IInsightDetailDrawerProps extends Pick<
+  IPageDrawerContentProps,
+  "onCloseClick"
+> {
   insightId: number | null;
 }
 

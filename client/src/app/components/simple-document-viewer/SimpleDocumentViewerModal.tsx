@@ -8,8 +8,7 @@ import {
 } from "./SimpleDocumentViewer";
 import "./SimpleDocumentViewer.css";
 
-export interface ISimpleDocumentViewerModalProps
-  extends ISimpleDocumentViewerProps {
+export interface ISimpleDocumentViewerModalProps extends ISimpleDocumentViewerProps {
   /** Simple text content of the modal header. */
   title?: string;
 

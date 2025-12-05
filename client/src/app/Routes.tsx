@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { ComponentType, Suspense, lazy } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Redirect, Switch, useLocation } from "react-router-dom";
 
@@ -22,9 +22,7 @@ import { adminRoles, devRoles } from "./rbac";
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
   () =>
-    import(
-      "./pages/assessment-management/assessment-settings/assessment-settings-page"
-    )
+    import("./pages/assessment-management/assessment-settings/assessment-settings-page")
 );
 const Applications = lazy(() => import("./pages/applications"));
 const ManageImports = lazy(() => import("./pages/applications/manage-imports"));
@@ -62,9 +60,7 @@ const ViewArchetypes = lazy(
 );
 const AssessmentActions = lazy(
   () =>
-    import(
-      "./pages/assessment/components/assessment-actions/assessment-actions-page"
-    )
+    import("./pages/assessment/components/assessment-actions/assessment-actions-page")
 );
 const Archetypes = lazy(() => import("./pages/archetypes/archetypes-page"));
 const TargetProfilesPage = lazy(
@@ -73,9 +69,7 @@ const TargetProfilesPage = lazy(
 
 const AssessmentSummary = lazy(
   () =>
-    import(
-      "./pages/assessment/components/assessment-summary/assessment-summary-page"
-    )
+    import("./pages/assessment/components/assessment-summary/assessment-summary-page")
 );
 
 const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
@@ -90,7 +84,7 @@ const AssetGenerators = lazy(
 
 export interface IRoute<T> {
   path: T;
-  comp: React.ComponentType;
+  comp: ComponentType;
   exact?: boolean;
 }
 

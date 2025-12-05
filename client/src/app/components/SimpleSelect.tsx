@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { FC, useState } from "react";
 import {
   Select,
   SelectOption,
@@ -14,11 +14,10 @@ export interface OptionWithValue<T = string> extends SelectOptionObject {
 
 type OptionLike = string | SelectOptionObject | OptionWithValue;
 
-export interface ISimpleSelectProps
-  extends Omit<
-    SelectProps,
-    "onChange" | "isOpen" | "onToggle" | "onSelect" | "selections" | "value"
-  > {
+export interface ISimpleSelectProps extends Omit<
+  SelectProps,
+  "onChange" | "isOpen" | "onToggle" | "onSelect" | "selections" | "value"
+> {
   "aria-label": string;
   onChange: (selection: OptionLike) => void;
   options: OptionLike[];
@@ -27,7 +26,7 @@ export interface ISimpleSelectProps
 
 // TODO we can probably add a type param here so we can render e.g. <SimpleSelect<AnalysisMode> ... /> and infer OptionWithValue<AnalysisMode>
 
-export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
+export const SimpleSelect: FC<ISimpleSelectProps> = ({
   onChange,
   options,
   value,

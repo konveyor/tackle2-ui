@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 import {
   Application,
@@ -25,8 +25,10 @@ export const isIModelEqual = (a: IModel, b: IModel) => a.id === b.id;
 
 // Business service dropdown
 
-export interface IBusinessServiceDropdown
-  extends Pick<BusinessService, "id" | "name"> {}
+export interface IBusinessServiceDropdown extends Pick<
+  BusinessService,
+  "id" | "name"
+> {}
 
 export const toIBusinessServiceDropdown = (
   value: BusinessService
@@ -59,8 +61,10 @@ export const toIdentityDropdownOptionWithValue = (
 
 // Stakeholder dropdown
 
-export interface IStakeholderDropdown
-  extends Pick<Stakeholder, "id" | "name" | "email"> {}
+export interface IStakeholderDropdown extends Pick<
+  Stakeholder,
+  "id" | "name" | "email"
+> {}
 
 export const toIStakeholderDropdown = (
   value: Stakeholder | undefined
@@ -82,8 +86,10 @@ export const toIStakeholderDropdownOptionWithValue = (
 
 // Stakeholder group dropdown
 
-export interface IStakeholderGroupDropdown
-  extends Pick<StakeholderGroup, "id" | "name"> {}
+export interface IStakeholderGroupDropdown extends Pick<
+  StakeholderGroup,
+  "id" | "name"
+> {}
 
 export const toIStakeholderGroupDropdown = (
   value: StakeholderGroup
@@ -101,8 +107,10 @@ export const toIStakeholderGroupDropdownOptionWithValue = (
 
 // Job function dropdown
 
-export interface IJobFunctionDropdown
-  extends Pick<JobFunction, "id" | "name"> {}
+export interface IJobFunctionDropdown extends Pick<
+  JobFunction,
+  "id" | "name"
+> {}
 
 export const toIJobFunctionDropdown = (
   value: JobFunction
@@ -120,8 +128,10 @@ export const toIJobFunctionDropdownOptionWithValue = (
 
 // TagCategory
 
-export interface ITagCategoryDropdown
-  extends Pick<TagCategory, "id" | "name"> {}
+export interface ITagCategoryDropdown extends Pick<
+  TagCategory,
+  "id" | "name"
+> {}
 
 export const toITagCategoryDropdown = (
   value: TagCategory

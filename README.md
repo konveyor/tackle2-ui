@@ -100,7 +100,6 @@ The React and Patternfly based UI is composed of web pages served by an http ser
 
 - The server proxies [server/src/proxies.js](server/src/proxies.js) use the environment
   variables `TACKLE_HUB_URL` and `SSO_SERVER_URL` to define the proxy endpoints:
-
   - `/hub` &rarr; `TACKLE_HUB_URL` defines the location of the HUB REST endpoint. If it
     is not defined, the URL `http://localhost:9002` is used by default.
 
