@@ -617,7 +617,10 @@
       "deletedAll": "{{type}} {{what}} were successfully deleted.",
       "fileSavedToBeProcessed": "Success! file saved to be processed.",
       "reviewDiscarded": "Success! Review discarded for {{application}}.",
-      "discoverApplications": "Success! Applications discovered on platform {{platformName}}."
+      "discoverApplications": "Success! Applications discovered on platform {{platformName}}.",
+      "targetProfileCreated": "Target profile was successfully created.",
+      "targetProfileUpdated": "Target profile was successfully updated.",
+      "targetProfileDeleted": "Target profile was successfully deleted."
     },
     "fail": {
       "applicationsUpdated_one": "Application {{firstName}} failed to update.",
