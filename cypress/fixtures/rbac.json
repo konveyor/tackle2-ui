@@ -1,0 +1,48 @@
+{
+  "architect": {
+    "Create new": true,
+    "Analyze": true,
+    "Upload binary": true,
+    "Top action menu": {
+      "Not available": false,
+      "Discover applications": true,
+      "Import": true,
+      "Manage application imports": true,
+      "Manage credentials": true,
+      "Delete": true
+    },
+    "Application actions": {
+      "Assess": true,
+      "Review": true,
+      "Discard assessment": true,
+      "Discard review": true,
+      "Delete": true,
+      "Manage dependencies": true,
+      "Manage credentials": true,
+      "Analysis details": true
+    }
+  },
+  "migrator": {
+    "Create new": false,
+    "Analyze": true,
+    "Upload binary": true,
+    "Top action menu": {
+      "Not available": true,
+      "Discover applications": false,
+      "Import": false,
+      "Manage application imports": false,
+      "Manage credentials": false,
+      "Delete": false
+    },
+    "Application actions": {
+      "Assess": false,
+      "Review": false,
+      "Discard assessment": false,
+      "Discard review": false,
+      "Delete": false,
+      "Manage dependencies": true,
+      "Manage credentials": false,
+      "Analysis details": false
+    }
+  }
+}

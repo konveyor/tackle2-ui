@@ -8,21 +8,22 @@
   "scripts": {
     "clean": "rimraf run/",
     "test:e2e": "npm run e2e:run:local --",
-    "e2e:run:local": "dotenvx run -- cypress run --e2e",
-    "e2e:open:local": "dotenvx run -- cypress open --e2e",
+    "e2e:run:local": "npx dotenvx run -- npx cypress run --e2e",
+    "e2e:open:local": "npx dotenvx run -- npx cypress open --e2e",
     "e2e:run:minikube": "npm run e2e:run:local -- --config baseUrl=http://`minikube ip`",
     "e2e:open:minikube": "npm run e2e:open:local -- --config baseUrl=http://`minikube ip`",
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "tsc": "tsc -p ./tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
-    "@dotenvx/dotenvx": "^1.51.0",
-    "@testing-library/cypress": "^10.0.1",
+    "@dotenvx/dotenvx": "^1.51.1",
+    "@testing-library/cypress": "^10.1.0",
     "cy-verify-downloads": "^0.1.13",
-    "cypress": "^14.5.3",
+    "cypress": "^15.7.0",
     "cypress-downloadfile": "^1.2.4",
     "cypress-fail-fast": "^7.1.1",
     "cypress-file-upload": "^5.0.8",
@@ -31,14 +32,17 @@
     "cypress-mochawesome-reporter": "^3.8.4",
     "cypress-multi-reporters": "^2.0.5",
     "cypress-react-selector": "^3.0.0",
-    "cypress-real-events": "^1.14.0",
+    "cypress-real-events": "^1.15.0",
     "cypress-tags": "^1.2.2",
     "decompress": "^4.2.1",
     "esbuild": "^0.25.11",
     "faker": "^5.5.3",
+    "glob": "^10.3.0",
     "js-yaml": "^4.1.0",
     "license-check-and-add": "^4.0.5",
     "mocha": "^11.7.4",
-    "mocha-junit-reporter": "^2.2.1"
+    "mocha-junit-reporter": "^2.2.1",
+    "mochawesome-merge": "^4.4.1",
+    "table": "^6.9.0"
   }
 }
