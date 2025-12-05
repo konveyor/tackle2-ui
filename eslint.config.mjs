@@ -198,11 +198,13 @@ export default defineConfig([
   {
     name: "project/workspace/cypress overrides",
     files: ["cypress/**/*.{ts,js}"],
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
     rules: {
       "@typescript-eslint/no-namespace": "warn",
       "@typescript-eslint/no-require-imports": "warn",
       "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-var-requires": "warn",
     },
   },
 
