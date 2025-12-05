@@ -36,8 +36,7 @@ import { Application } from "../../../models/migration/applicationinventory/appl
 import { BusinessServices } from "../../../models/migration/controls/businessservices";
 import { Stakeholders } from "../../../models/migration/controls/stakeholders";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
-import { SortType, endDate, startDate } from "../../../types/constants";
-import { name } from "../../../types/constants";
+import { SortType, endDate, name, startDate } from "../../../types/constants";
 import { MigrationWaveView } from "../../../views/migration-wave.view";
 
 let migrationWavesList: MigrationWave[] = [];

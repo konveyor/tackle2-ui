@@ -19,9 +19,10 @@ import {
 import { Credentials } from "./credentials";
 
 export class JiraCredentials extends Credentials {
-  name: string;
-  description: string;
-  type: string;
+  // These properties are inherited from the Credentials class
+  // name: string;
+  // description: string;
+  // type: string;
   token: string;
   email?: string;
 

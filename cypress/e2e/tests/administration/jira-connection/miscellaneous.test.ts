@@ -40,7 +40,7 @@ describe(["@tier3"], "Bug MTA-2549: Jira connection negative tests", () => {
   let jiraBearerCredentialInvalid: JiraCredentials;
   let jiraStageConnectionDataIncorrect: JiraConnectionData;
   let jiraCloudConnectionDataIncorrect: JiraConnectionData;
-  let jiraCloudConnection: Jira;
+  let _jiraCloudConnection: Jira;
   let jiraCloudConnectionIncorrect: Jira;
   let jiraStageConnectionIncorrect: Jira;
   let applicationList: Array<Application> = [];

@@ -149,7 +149,7 @@ import Chainable = Cypress.Chainable;
  */
 export function inputText(
   fieldId: string,
-  text: any,
+  text: string | string[],
   log = false,
   useInvoke = false
 ): void {
@@ -164,7 +164,7 @@ export function inputText(
   } else {
     cy.get(fieldId, { log, timeout: 2 * SEC })
       .clear({ log, timeout: 30 * SEC })
-      .type(text, { log });
+      .type(Array.isArray(text) ? text.join(" ") : text, { log });
   }
 }
 
@@ -678,10 +678,13 @@ export function getTableColumnData(columnName: string): Array<string> {
   return itemList;
 }
 
-export function verifySortAsc(listToVerify: any[], unsortedList: any[]): void {
+export function verifySortAsc(
+  listToVerify: unknown[],
+  unsortedList: unknown[]
+): void {
   cy.wrap(listToVerify).then((capturedList) => {
     const sortedList = unsortedList.slice().sort((a, b) =>
-      a.toString().localeCompare(b, "en-us", {
+      a.toString().localeCompare(b.toString(), "en-us", {
         numeric: !unsortedList.some(isNaN),
       })
     );
@@ -689,10 +692,13 @@ export function verifySortAsc(listToVerify: any[], unsortedList: any[]): void {
   });
 }
 
-export function verifySortDesc(listToVerify: any[], unsortedList: any[]): void {
+export function verifySortDesc(
+  listToVerify: unknown[],
+  unsortedList: unknown[]
+): void {
   cy.wrap(listToVerify).then((capturedList) => {
     const reverseSortedList = unsortedList.sort((a, b) =>
-      b.toString().localeCompare(a, "en-us", {
+      b.toString().localeCompare(a.toString(), "en-us", {
         numeric: !unsortedList.some(isNaN),
       })
     );
@@ -1441,7 +1447,7 @@ export function deleteAllBusinessServices() {
   deleteAllRows();
 }
 
-export function deleteAllStakeholderGroups(cancel = false): void {
+export function deleteAllStakeholderGroups(_cancel = false): void {
   Stakeholdergroups.openList();
   deleteAllRows();
 }
@@ -2100,7 +2106,7 @@ export function validateTackleCr(): void {
   getCommandOutput(command).then((result) => {
     try {
       tackleCr = JSON.parse(result.stdout);
-    } catch (error) {
+    } catch {
       throw new Error("Failed to parse Tackle CR");
     }
     const condition = tackleCr["items"][0]["status"]["conditions"][1];
@@ -2218,7 +2224,7 @@ export function selectLogView(logName: string): void {
  */
 export function getUniqueNamesMap<T extends { name: string }>(
   instanceArrays: T[][]
-): {} {
+) {
   const instanceMap = {};
 
   instanceArrays.forEach((instanceArray) => {

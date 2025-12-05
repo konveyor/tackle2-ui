@@ -1,5 +1,5 @@
 import "cypress-fs";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 
 import {
   checkSuccessAlert,
@@ -34,7 +34,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
       try {
         yaml.load(fileContent);
         // Parsing successful, file is in YAML format
-      } catch (error) {
+      } catch {
         // Parsing failed, file is not in YAML format
         throw new Error(`File is not in YAML format: ${filePath}`);
       }

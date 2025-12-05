@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process */
 import { merge } from "mochawesome-merge";
 import { table } from "table";
 
