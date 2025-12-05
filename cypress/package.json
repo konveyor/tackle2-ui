@@ -15,7 +15,8 @@
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-path .gitignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-path .gitignore --ignore-unknown --check .",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "tsc": "tsc -p ./tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
