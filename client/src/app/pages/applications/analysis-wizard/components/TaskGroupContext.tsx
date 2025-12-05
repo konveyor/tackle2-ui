@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import * as React from "react";
 
 import { Taskgroup } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -6,30 +6,30 @@ import { useCreateTaskgroupMutation } from "@app/queries/taskgroups";
 
 import { defaultTaskgroup } from "../analysis-wizard";
 
-interface TaskGroupContext {
+interface ITaskGroupContext {
   createTaskGroup: () => Promise<Taskgroup>;
   updateTaskGroup: (taskGroup: Taskgroup | null) => void;
   taskGroup: Taskgroup | null;
 }
 
-const TaskGroupContext = createContext<TaskGroupContext>({
+const TaskGroupContext = React.createContext<ITaskGroupContext>({
   createTaskGroup: () => Promise.resolve({ ...defaultTaskgroup, id: -1 }),
   updateTaskGroup: () => {},
   taskGroup: null,
 });
 
-export const useTaskGroup = () => useContext(TaskGroupContext);
+export const useTaskGroup = () => React.useContext(TaskGroupContext);
 
-interface TaskGroupProvider {
+interface ITaskGroupProvider {
   children: React.ReactNode;
 }
 
-export const TaskGroupProvider: React.FunctionComponent<TaskGroupProvider> = ({
+export const TaskGroupProvider: React.FunctionComponent<ITaskGroupProvider> = ({
   children,
 }) => {
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [taskGroup, setTaskGroup] = useState<Taskgroup | null>(null);
+  const [taskGroup, setTaskGroup] = React.useState<Taskgroup | null>(null);
 
   const updateTaskGroup = (newTaskGroup: Taskgroup | null) => {
     setTaskGroup(newTaskGroup);

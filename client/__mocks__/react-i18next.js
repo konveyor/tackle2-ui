@@ -1,7 +1,7 @@
-/* eslint-env node */
+/* global module */
 
 // Adapted from https://github.com/i18next/react-i18next/blob/master/example/test-jest/src/__mocks__/react-i18next.js
-import React from "react";
+import * as React from "react";
 import * as reactI18next from "react-i18next";
 
 const hasChildren = (node) =>

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Label } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -15,7 +15,7 @@ export const ReviewLabel = ({ item, labelText }: ReviewLabelProps) => {
       <span>
         {item.isArchetype
           ? `Archetype - ${item.name}`
-          : `Application - ${item.name}` || "Unknown"}
+          : `Application - ${item.name || "Unknown"}`}
       </span>
       <span className={spacing.mSm}>-</span>
       {labelText && <span>{labelText}</span>}
