@@ -19,8 +19,10 @@ import { StateNoData } from "@app/components/StateNoData";
 
 import { DependencyAppsTable } from "./dependency-apps-table";
 
-export interface IDependencyAppsDetailDrawerProps
-  extends Pick<IPageDrawerContentProps, "onCloseClick"> {
+export interface IDependencyAppsDetailDrawerProps extends Pick<
+  IPageDrawerContentProps,
+  "onCloseClick"
+> {
   dependency: AnalysisDependency | null;
 }
 

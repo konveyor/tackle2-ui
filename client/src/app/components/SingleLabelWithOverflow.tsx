@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Label, LabelGroup, LabelProps, Popover } from "@patternfly/react-core";
 
-export interface ISingleLabelWithOverflowProps
-  extends Omit<LabelProps, "children"> {
+export interface ISingleLabelWithOverflowProps extends Omit<
+  LabelProps,
+  "children"
+> {
   labels: string[];
   popoverAriaLabel: string;
 }

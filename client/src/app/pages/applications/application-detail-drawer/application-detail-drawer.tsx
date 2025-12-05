@@ -29,8 +29,10 @@ import { TabReportsContent } from "./tab-reports-contents";
 import { TabTagsContent } from "./tab-tags-content";
 import { TabTasksContent } from "./tab-tasks-content";
 
-export interface IApplicationDetailDrawerProps
-  extends Pick<IPageDrawerContentProps, "onCloseClick"> {
+export interface IApplicationDetailDrawerProps extends Pick<
+  IPageDrawerContentProps,
+  "onCloseClick"
+> {
   application: DecoratedApplication | null;
   onEditClick: () => void;
 }

@@ -20,8 +20,10 @@ import { useFetchInsight } from "@app/queries/analysis";
 import { getIssueTitle } from "./helpers";
 import { IssueAffectedFilesTable } from "./issue-affected-files-table";
 
-export interface IIssueDetailDrawerProps
-  extends Pick<IPageDrawerContentProps, "onCloseClick"> {
+export interface IIssueDetailDrawerProps extends Pick<
+  IPageDrawerContentProps,
+  "onCloseClick"
+> {
   issueId: number | null;
 }
 
