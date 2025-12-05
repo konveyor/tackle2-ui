@@ -1,0 +1,75 @@
+{
+  "comment": "Maps dev page directories to their related Cypress test directories",
+  "mappings": {
+    "client/src/app/pages/applications": [
+      "cypress/e2e/tests/migration/applicationinventory/**/*.test.ts"
+    ],
+    "client/src/app/pages/controls/business-services": [
+      "cypress/e2e/tests/migration/controls/**/businessservices*.test.ts"
+    ],
+    "client/src/app/pages/controls/job-functions": [
+      "cypress/e2e/tests/migration/controls/**/jobfunction*.test.ts"
+    ],
+    "client/src/app/pages/controls/stakeholder-groups": [
+      "cypress/e2e/tests/migration/controls/**/stakeholdergroup*.test.ts"
+    ],
+    "client/src/app/pages/controls/stakeholders": [
+      "cypress/e2e/tests/migration/controls/**/stakeholder*.test.ts"
+    ],
+    "client/src/app/pages/controls/tags": [
+      "cypress/e2e/tests/migration/controls/**/tags*.test.ts"
+    ],
+    "client/src/app/pages/controls": [
+      "cypress/e2e/tests/migration/controls/**/*.test.ts"
+    ],
+    "client/src/app/pages/identities": [
+      "cypress/e2e/tests/administration/credentials/**/*.test.ts"
+    ],
+    "client/src/app/pages/proxies": [
+      "cypress/e2e/tests/administration/proxy/**/*.test.ts"
+    ],
+    "client/src/app/pages/repositories": [
+      "cypress/e2e/tests/administration/repository/**/*.test.ts"
+    ],
+    "client/src/app/pages/migration-targets": [
+      "cypress/e2e/tests/administration/custom-migration-targets/**/*.test.ts"
+    ],
+    "client/src/app/pages/external/jira": [
+      "cypress/e2e/tests/administration/jira-connection/**/*.test.ts"
+    ],
+    "client/src/app/pages/issues": [
+      "cypress/e2e/tests/migration/dynamic-report/issues/**/*.test.ts"
+    ],
+    "client/src/app/pages/dependencies": [
+      "cypress/e2e/tests/migration/dynamic-report/dependencies/**/*.test.ts"
+    ],
+    "client/src/app/pages/migration-waves": [
+      "cypress/e2e/tests/migration/migration-waves/**/*.test.ts"
+    ],
+    "client/src/app/pages/assessment-management": [
+      "cypress/e2e/tests/administration/questionnaires/**/*.test.ts"
+    ],
+    "client/src/app/pages/archetypes": [
+      "cypress/e2e/tests/migration/archetypes/**/*.test.ts"
+    ],
+    "client/src/app/pages/assessment": [
+      "cypress/e2e/tests/migration/applicationinventory/assessment/**/*.test.ts"
+    ],
+    "client/src/app/pages/review": [
+      "cypress/e2e/tests/migration/applicationinventory/assessment/review/**/*.test.ts"
+    ],
+    "client/src/app/pages/tasks": [
+      "cypress/e2e/tests/migration/task-manager/**/*.test.ts"
+    ],
+    "client/src/app/pages/reports": [
+      "cypress/e2e/tests/migration/reports-tab/**/*.test.ts"
+    ],
+    "client/src/app/pages/general": [
+      "cypress/e2e/tests/custom-metrics/**/*.test.ts"
+    ]
+  },
+  "defaultTests": [
+    "cypress/e2e/tests/ci.test.ts",
+    "cypress/e2e/tests/login.test.ts"
+  ]
+}
