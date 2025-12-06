@@ -71,31 +71,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
     useWatch({ control });
 
-  useFormChangeHandler({
-    form,
-    onStateChanged,
-    watchFields: [
-      "selectedSourceLabels",
-      "excludedLabels",
-      "autoTaggingEnabled",
-      "advancedAnalysisEnabled",
-    ] as const,
-    mapValuesToState: (
-      [
-        selectedSourceLabels,
-        excludedLabels,
-        autoTaggingEnabled,
-        advancedAnalysisEnabled,
-      ],
-      isValid
-    ) => ({
-      selectedSourceLabels,
-      excludedLabels,
-      autoTaggingEnabled,
-      advancedAnalysisEnabled,
-      isValid,
-    }),
-  });
+  useFormChangeHandler({ form, onStateChanged });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);

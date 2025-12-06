@@ -43,26 +43,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
     mode: "all",
   });
 
-  useFormChangeHandler({
-    form,
-    onStateChanged,
-    watchFields: [
-      "withKnownLibs",
-      "includedPackages",
-      "hasExcludedPackages",
-      "excludedPackages",
-    ] as const,
-    mapValuesToState: (
-      [withKnownLibs, includedPackages, hasExcludedPackages, excludedPackages],
-      isValid
-    ) => ({
-      withKnownLibs,
-      includedPackages,
-      hasExcludedPackages,
-      excludedPackages,
-      isValid,
-    }),
-  });
+  useFormChangeHandler({ form, onStateChanged });
 
   const {
     withKnownLibs,

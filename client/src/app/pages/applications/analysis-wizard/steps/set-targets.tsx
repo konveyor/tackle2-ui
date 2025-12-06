@@ -138,16 +138,7 @@ export const SetTargets: FC<SetTargetsProps> = ({
     resolver: yupResolver(schema),
   });
 
-  useFormChangeHandler({
-    form,
-    onStateChanged,
-    watchFields: ["selectedTargetLabels", "selectedTargets"] as const,
-    mapValuesToState: ([selectedTargetLabels, selectedTargets], isValid) => ({
-      selectedTargetLabels,
-      selectedTargets,
-      isValid,
-    }),
-  });
+  useFormChangeHandler({ form, onStateChanged });
 
   const { setValue } = form;
   const [selectedTargetLabels, selectedTargets] = useWatch({
