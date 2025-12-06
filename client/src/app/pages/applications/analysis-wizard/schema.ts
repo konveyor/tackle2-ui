@@ -112,8 +112,9 @@ export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
 
 // Custom rules step
 export interface CustomRulesStepValues {
-  rulesKind: string;
+  rulesKind: "manual" | "repository";
   customRulesFiles: UploadFile[];
+  customLabels: TargetLabel[];
   repositoryType?: string;
   sourceRepository?: string;
   branch?: string;
@@ -139,9 +140,13 @@ export const UploadFileSchema: yup.SchemaOf<UploadFile> = yup.object({
   responseID: yup.number().optional(),
 });
 
-export const useCustomRulesSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
+export const useCustomRulesSchema = ({
+  isCustomRuleRequired,
+}: {
+  isCustomRuleRequired: boolean;
+}): yup.SchemaOf<CustomRulesStepValues> => {
   return yup.object({
-    rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
+    rulesKind: yup.mixed<"manual" | "repository">().required(),
 
     // manual tab fields
     customRulesFiles: yup
@@ -149,19 +154,18 @@ export const useCustomRulesSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       .of(UploadFileSchema)
       .when("rulesKind", {
         is: "manual",
-        then: yup.array().of(UploadFileSchema),
+        then: (schema) =>
+          isCustomRuleRequired
+            ? schema.min(1, "At least 1 Rule File is required")
+            : schema,
         otherwise: (schema) => schema,
-      })
-      .when(["selectedTargetLabels", "rulesKind", "selectedTargets"], {
-        // TODO: Rewrite this when clause, input the fields via hook params
-        is: (
-          labels: TargetLabel[],
-          rulesKind: string,
-          selectedTargets: number
-        ) =>
-          labels.length === 0 && rulesKind === "manual" && selectedTargets <= 0,
-        then: (schema) => schema.min(1, "At least 1 Rule File is required"),
       }),
+    customLabels: yup.array().of(
+      yup.object().shape({
+        name: yup.string().defined(),
+        label: yup.string().defined(),
+      })
+    ),
 
     // repository tab fields
     repositoryType: yup.string().when("rulesKind", {
@@ -172,18 +176,9 @@ export const useCustomRulesSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       is: "repository",
       then: (schema) => schema.repositoryUrl("repositoryType").required(),
     }),
-    branch: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
-    rootPath: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
-    associatedCredentials: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
+    branch: yup.string(),
+    rootPath: yup.string(),
+    associatedCredentials: yup.string(),
   });
 };
 

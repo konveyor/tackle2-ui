@@ -39,13 +39,9 @@ const INITIAL_WIZARD_STATE: WizardState = {
     isValid: true,
   },
   customRules: {
-    customRulesFiles: [],
     rulesKind: "manual",
-    repositoryType: undefined,
-    sourceRepository: "",
-    branch: "",
-    rootPath: "",
-    associatedCredentials: "",
+    customRulesFiles: [],
+    customLabels: [],
     isValid: true, // Custom rules are optional
   },
   options: {
