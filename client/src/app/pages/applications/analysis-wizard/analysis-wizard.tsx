@@ -162,6 +162,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
           },
         },
         rules: {
+          // TODO: Review how the included and excluded labels are created
           labels: {
             included: Array.from(
               new Set<string>([
@@ -179,8 +180,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             ),
             excluded: wizardState.options.excludedLabels,
           },
+
           path:
             wizardState.customRules.customRulesFiles.length > 0 ? "/rules" : "",
+
           ...(wizardState.customRules.rulesKind === "repository" && {
             repository: {
               kind: wizardState.customRules?.repositoryType,
@@ -189,9 +192,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
               path: wizardState.customRules?.rootPath?.trim(),
             },
           }),
-          ...(wizardState.customRules.associatedCredentials &&
-            matchingSourceCredential &&
-            wizardState.customRules.rulesKind === "repository" && {
+          ...(wizardState.customRules.rulesKind === "repository" &&
+            matchingSourceCredential && {
               identity: {
                 id: matchingSourceCredential.id,
                 name: matchingSourceCredential.name,
@@ -206,6 +208,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   };
 
   const handleCancel = () => {
+    // TODO: Move the taskgroup handling to the useTaskGroupManager hook
     if (taskGroup && taskGroup.id) {
       deleteTaskGroup(taskGroup.id);
     }
@@ -215,6 +218,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   };
 
   const onSubmit = () => {
+    // TODO: Move the taskgroup handling to the useTaskGroupManager hook
     if (taskGroup) {
       const taskgroup = setupTaskgroup(taskGroup, state);
       submitTaskGroup(taskgroup);
@@ -228,6 +232,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     const id = current.id;
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
     if (id === StepId.SetTargets) {
+      // TODO: Move the taskgroup handling to the useTaskGroupManager hook
       if (!taskGroup) {
         createTaskGroup();
       }
@@ -241,17 +246,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const isStepEnabled = (stepId: StepId) => {
     return stepIdReached + 1 >= stepId;
-  };
-
-  // For custom rules and options steps, we need additional state management
-  const [
-    selectedTargetLabelsForCustomRules,
-    setSelectedTargetLabelsForCustomRules,
-  ] = React.useState(state.targets.selectedTargetLabels);
-
-  const handleTargetsChanged = (newTargetsState: typeof state.targets) => {
-    setTargets(newTargetsState);
-    setSelectedTargetLabelsForCustomRules(newTargetsState.selectedTargetLabels);
   };
 
   if (!isOpen) {
@@ -326,7 +320,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                   state.customRules.customRulesFiles.length > 0 ||
                   isNotEmptyString(state.customRules.sourceRepository)
                 }
-                onStateChanged={handleTargetsChanged}
+                onStateChanged={setTargets}
                 initialState={state.targets}
               />
             </WizardStep>,
@@ -366,10 +360,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             >
               <CustomRules
                 taskGroup={taskGroup}
-                selectedTargets={state.targets.selectedTargets}
-                selectedTargetLabels={selectedTargetLabelsForCustomRules}
-                onSelectedTargetLabelsChanged={
-                  setSelectedTargetLabelsForCustomRules
+                isCustomRuleRequired={
+                  state.targets.selectedTargets.length === 0
                 }
                 onStateChanged={setCustomRules}
                 initialState={state.customRules}
@@ -385,6 +377,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                   !isStepEnabled(StepId.Options + 1) || !state.options.isValid,
               }}
             >
+              {/* TODO: Explicitly handle target, custom and manual TargetLabels */}
               <AdvancedOptions
                 selectedTargets={state.targets.selectedTargets}
                 onSelectedTargetsChanged={(targets) => {

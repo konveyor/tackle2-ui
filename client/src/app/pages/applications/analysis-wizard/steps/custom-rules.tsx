@@ -1,7 +1,8 @@
 import * as React from "react";
+import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
-import { useForm, useWatch } from "react-hook-form";
+import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -29,7 +30,7 @@ import {
   TableHeader,
 } from "@patternfly/react-table/deprecated";
 
-import { Target, TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
+import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -82,29 +83,26 @@ const buildSetOfTargetLabelsFromUploadFiles = (
 
 interface CustomRulesProps {
   taskGroup: Taskgroup | null;
-  selectedTargets: Target[];
-  selectedTargetLabels: TargetLabel[];
-  onSelectedTargetLabelsChanged: (labels: TargetLabel[]) => void;
+  isCustomRuleRequired: boolean;
   onStateChanged: (state: CustomRulesStepState) => void;
   initialState: CustomRulesStepState;
 }
 
 export const CustomRules: React.FC<CustomRulesProps> = ({
   taskGroup,
-  selectedTargets,
-  selectedTargetLabels,
-  onSelectedTargetLabelsChanged,
+  isCustomRuleRequired,
   onStateChanged,
   initialState,
 }) => {
   const { t } = useTranslation();
   const [showUploadFiles, setShowUploadFiles] = React.useState(false);
 
-  const schema = useCustomRulesSchema();
+  const schema = useCustomRulesSchema({ isCustomRuleRequired });
   const form = useForm<CustomRulesStepValues>({
     defaultValues: {
-      customRulesFiles: initialState.customRulesFiles,
       rulesKind: initialState.rulesKind,
+      customRulesFiles: initialState.customRulesFiles,
+      customLabels: initialState.customLabels,
       repositoryType: initialState.repositoryType,
       sourceRepository: initialState.sourceRepository,
       branch: initialState.branch,
@@ -114,50 +112,26 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     mode: "all",
     resolver: yupResolver(schema),
   });
-  const { setValue, control, trigger } = form;
+  const { control, trigger } = form;
+  const setValue: UseFormSetValue<CustomRulesStepValues> = useCallback(
+    (name, value) => {
+      form.setValue(name, value, { shouldValidate: true });
+    },
+    [form]
+  );
 
-  const [customRulesFiles, rulesKind, sourceRepository] = useWatch({
+  const [customRulesFiles, customLabels, sourceRepository] = useWatch({
     control,
-    name: ["customRulesFiles", "rulesKind", "sourceRepository"],
+    name: ["customRulesFiles", "customLabels", "sourceRepository"],
   });
 
-  useFormChangeHandler({
-    form,
-    onStateChanged,
-    watchFields: [
-      "rulesKind",
-      "customRulesFiles",
-      "repositoryType",
-      "sourceRepository",
-      "branch",
-      "rootPath",
-      "associatedCredentials",
-    ] as const,
-    mapValuesToState: (
-      [
-        rulesKind,
-        customRulesFiles,
-        repositoryType,
-        sourceRepository,
-        branch,
-        rootPath,
-        associatedCredentials,
-      ],
-      isValid
-    ) => ({
-      rulesKind,
-      customRulesFiles,
-      repositoryType,
-      sourceRepository,
-      branch,
-      rootPath,
-      associatedCredentials,
-      isValid,
-    }),
-  });
+  const isCustomRuleRequiredAlertVisible =
+    isCustomRuleRequired && customRulesFiles.length === 0 && !sourceRepository;
+
+  useFormChangeHandler({ form, onStateChanged });
 
   const [activeTabKey, setActiveTabKey] = React.useState(() =>
-    rulesKind === "manual" ? 0 : rulesKind === "repository" ? 1 : 0
+    initialState.rulesKind === "repository" ? 1 : 0
   );
 
   const onAddRulesFiles = (ruleFiles: UploadFile[]) => {
@@ -168,12 +142,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     ];
     setValue("customRulesFiles", newCustomRulesFiles);
 
-    // Find all labels in the new rule files and push them to `selectedTargetLabels`
+    // Find all labels in the new rule files and push them to `customLabels`
     const uniqueNewTargetLabels = buildSetOfTargetLabelsFromUploadFiles(
       ruleFiles,
-      selectedTargetLabels
+      customLabels
     );
-    onSelectedTargetLabelsChanged(uniqueNewTargetLabels);
+    setValue("customLabels", uniqueNewTargetLabels);
   };
 
   const onRemoveRuleFile = (ruleFile: UploadFile) => {
@@ -183,17 +157,10 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     );
     setValue("customRulesFiles", newCustomRulesFiles);
 
-    // Update the labels ... remove the labels uniquely from the removed files
-    const removedLabels = buildSetOfTargetLabelsFromUploadFiles([ruleFile]);
+    // Rebuild the labels from the remaining rule files
     const currentFileLabels =
       buildSetOfTargetLabelsFromUploadFiles(newCustomRulesFiles);
-    const nonFileLabels = selectedTargetLabels.filter(
-      (l) =>
-        !removedLabels.find((r) => r.label === l.label) &&
-        !currentFileLabels.find((c) => c.label === l.label)
-    );
-
-    onSelectedTargetLabelsChanged([...nonFileLabels, ...currentFileLabels]);
+    setValue("customLabels", currentFileLabels);
   };
 
   const repositoryTypeOptions: OptionWithValue<string>[] = [
@@ -307,15 +274,13 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
         </Title>
         <Text> {t("wizard.label.customRules")}</Text>
       </TextContent>
-      {selectedTargets.length === 0 &&
-        customRulesFiles.length === 0 &&
-        !sourceRepository && (
-          <Alert
-            variant="warning"
-            isInline
-            title={t("wizard.label.ruleFileRequiredDetails")}
-          />
-        )}
+      {isCustomRuleRequiredAlertVisible && (
+        <Alert
+          variant="warning"
+          isInline
+          title={t("wizard.label.ruleFileRequiredDetails")}
+        />
+      )}
 
       <HookFormPFGroupController
         control={control}
