@@ -18,7 +18,8 @@
     "skipLibCheck": true,
     "allowJs": true,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "noEmit": true
   },
   "include": [
     "**/*.ts",
