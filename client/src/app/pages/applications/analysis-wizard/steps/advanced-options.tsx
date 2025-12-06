@@ -1,7 +1,8 @@
 import * as React from "react";
+import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toggle } from "radash";
-import { useForm, useWatch } from "react-hook-form";
+import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -26,18 +27,18 @@ import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Target, TargetLabel } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
-import { defaultTargets } from "@app/data/targets";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTargets } from "@app/queries/targets";
 import { getParsedLabel } from "@app/utils/rules-utils";
-import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 
 import {
   AdvancedOptionsState,
   AdvancedOptionsValues,
   useAdvancedOptionsSchema,
 } from "../schema";
-import defaultSources from "../sources";
+import { useSourceLabels } from "../useSourceLabels";
+import { useTargetLabels } from "../useTargetLabels";
 import { updateSelectedTargetsBasedOnLabels } from "../utils";
 
 interface AdvancedOptionsProps {
@@ -66,7 +67,13 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
     mode: "all",
     resolver: yupResolver(schema),
   });
-  const { control, setValue } = form;
+  const setValue: UseFormSetValue<AdvancedOptionsValues> = useCallback(
+    (name, value) => {
+      form.setValue(name, value, { shouldValidate: true });
+    },
+    [form]
+  );
+  const { control } = form;
 
   const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
     useWatch({ control });
@@ -77,36 +84,9 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
 
-  const allLabelsFromTargets = targets
-    .map((target) => target?.labels ?? [])
-    .filter(Boolean)
-    .flat()
-    // Remove duplicates from array of objects based on label value (label.label)
-    .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i);
-
-  const allTargetLabelsFromTargets = allLabelsFromTargets.filter(
-    (label) => getParsedLabel(label?.label).labelType === "target"
-  );
-
-  const allSourceLabelsFromTargets = allLabelsFromTargets.filter(
-    (label) => getParsedLabel(label?.label).labelType === "source"
-  );
-
-  const defaultTargetsAndTargetsLabels = Array.from(
-    new Map(
-      defaultTargets
-        .concat(allTargetLabelsFromTargets)
-        .map((item) => [item.label, item])
-    ).values()
-  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
-
-  const defaultSourcesAndSourcesLabels = Array.from(
-    new Map(
-      defaultSources
-        .concat(allSourceLabelsFromTargets)
-        .map((item) => [item.label, item])
-    ).values()
-  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
+  // TODO: Need include labels parsed from uploaded manual custom rule files
+  const availableTargetLabels = useTargetLabels();
+  const availableSourceLabels = useSourceLabels();
 
   // Track selected target labels internally for this step
   const [selectedTargetLabels, setSelectedTargetLabels] = React.useState<
@@ -130,7 +110,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
       <HookFormPFGroupController
         control={control}
         name="selectedSourceLabels"
-        label={t("wizard.terms.target", { count: 2 })}
+        label="Target labels" //{t("wizard.terms.target", { count: 2 })}
         fieldId="target-labels"
         renderInput={({
           field: { onChange, onBlur },
@@ -155,7 +135,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
                 const selectionLabel = `konveyor.io/target=${selection}`;
-                const matchingLabel = defaultTargetsAndTargetsLabels.find(
+                const matchingLabel = availableTargetLabels.find(
                   (label) => label.label === selectionLabel
                 );
                 const updatedFormLabels = !matchingLabel
@@ -186,7 +166,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {defaultTargetsAndTargetsLabels.map((targetLabel, index) => (
+              {availableTargetLabels.map((targetLabel, index) => (
                 <SelectOption
                   key={index}
                   component="button"
@@ -200,7 +180,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
       <HookFormPFGroupController
         control={control}
         name="selectedSourceLabels"
-        label={t("wizard.terms.source", { count: 2 })}
+        label="Source labels" //{t("wizard.terms.source", { count: 2 })}
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
@@ -227,7 +207,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               onSelect={(_, selection) => {
                 const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
                 const matchingLabel =
-                  defaultSourcesAndSourcesLabels?.find(
+                  availableSourceLabels?.find(
                     (label) => label.label === selectionWithLabelSelector
                   ) || "";
 
@@ -258,7 +238,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {defaultSourcesAndSourcesLabels.map((targetLabel, index) => (
+              {availableSourceLabels.map((targetLabel, index) => (
                 <SelectOption
                   key={index}
                   component="button"
