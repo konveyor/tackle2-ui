@@ -1,33 +1,32 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
-  FieldPathValues,
+  DeepPartialSkipArrayKey,
   FieldValues,
-  Path,
   UseFormReturn,
   useWatch,
 } from "react-hook-form";
 
+/** Default state type when no custom mapFormToState is provided */
+export type DefaultFormState<TFormValues extends FieldValues> =
+  DeepPartialSkipArrayKey<TFormValues> & { isValid: boolean };
+
 /**
- * Generic form change handler that watches specific form fields and calls a state change callback.
+ * Generic form change handler that watches form fields and calls a state change callback.
  * @template TFormValues - The type of the form values
- * @template TState - The type of the state object
- * @template TWatchFields - The tuple type of field paths being watched
+ * @template TState - The type of the state object (defaults to form values + isValid)
  */
 export const useFormChangeHandler = <
   TFormValues extends FieldValues,
-  TState,
-  TWatchFields extends Path<TFormValues>[],
+  TState = DefaultFormState<TFormValues>,
 >({
   form,
   onStateChanged,
-  watchFields,
-  mapValuesToState,
+  mapFormToState,
 }: {
   form: UseFormReturn<TFormValues>;
   onStateChanged: (state: TState) => void;
-  watchFields: TWatchFields;
-  mapValuesToState: (
-    values: FieldPathValues<TFormValues, TWatchFields>,
+  mapFormToState?: (
+    values: DeepPartialSkipArrayKey<TFormValues>,
     isFormValid: boolean
   ) => TState;
 }) => {
@@ -36,14 +35,22 @@ export const useFormChangeHandler = <
     formState: { isValid },
   } = form;
 
-  const watchedValues = useWatch<TFormValues>({
+  const watchedValues: DeepPartialSkipArrayKey<TFormValues> = useWatch({
     control,
-    name: [...watchFields] as Path<TFormValues>[],
-  }) as FieldPathValues<TFormValues, TWatchFields>;
+  });
 
-  const state = useMemo((): TState => {
-    return mapValuesToState(watchedValues, isValid);
-  }, [mapValuesToState, watchedValues, isValid]);
+  const defaultMapper = useCallback(
+    (values: DeepPartialSkipArrayKey<TFormValues>, isFormValid: boolean) =>
+      ({ ...values, isValid: isFormValid }) as TState,
+    []
+  );
+
+  const mapper = mapFormToState ?? defaultMapper;
+
+  const state = useMemo(
+    (): TState => mapper(watchedValues, isValid),
+    [mapper, watchedValues, isValid]
+  );
 
   useEffect(() => {
     onStateChanged(state);

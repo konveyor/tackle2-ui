@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, useWatch } from "react-hook-form";
+import { UseFormReturn, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -54,16 +54,7 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
     resolver: yupResolver(schema),
   });
 
-  useFormChangeHandler({
-    form,
-    onStateChanged,
-    watchFields: ["mode", "artifact"] as const,
-    mapValuesToState: ([mode, artifact], isValid) => ({
-      mode,
-      artifact,
-      isValid,
-    }),
-  });
+  useFormChangeHandler({ form, onStateChanged });
 
   const [mode, artifact] = useWatch({
     control: form.control,
