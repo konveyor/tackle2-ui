@@ -1,14 +1,154 @@
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 
-import { New, Taskgroup } from "@app/api/models";
+import {
+  AnalysisTaskData,
+  Application,
+  Identity,
+  New,
+  Ref,
+  Taskgroup,
+  TaskgroupTask,
+} from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
   useCreateTaskgroupMutation,
   useDeleteTaskgroupMutation,
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
-import { defaultTaskgroup } from "./analysis-wizard";
+import { WizardState } from "./useWizardReducer";
+
+const defaultTaskData: AnalysisTaskData = {
+  tagger: {
+    enabled: true,
+  },
+  verbosity: 0,
+  mode: {
+    binary: false,
+    withDeps: false,
+    artifact: "",
+  },
+  targets: [],
+  sources: [],
+  scope: {
+    withKnownLibs: false,
+    packages: {
+      included: [],
+      excluded: [],
+    },
+  },
+};
+
+export const defaultTaskgroup: New<Taskgroup> = {
+  name: `taskgroup.analyzer`,
+  kind: "analyzer",
+  data: {
+    ...defaultTaskData,
+  },
+  tasks: [],
+};
+
+const initTask = (application: Application): TaskgroupTask => {
+  return {
+    name: `${application.name}.${application.id}.analyzer`,
+    data: {},
+    application: { id: application.id as number, name: application.name },
+  };
+};
+
+/**
+ * Build the taskgroup data from wizard state
+ */
+const buildTaskgroupData = (
+  currentTaskgroup: Taskgroup,
+  wizardState: WizardState,
+  analyzableApplications: Application[],
+  identities: Identity[]
+): Taskgroup => {
+  const matchingSourceCredential = identities.find(
+    (identity) =>
+      identity.name === wizardState.customRules.associatedCredentials
+  );
+
+  const ruleSetRefsFromSelectedTargets: Ref[] =
+    wizardState.targets.selectedTargets
+      .map(({ ruleset }) => ruleset)
+      .filter(Boolean)
+      .map<Ref>(({ id, name }) => ({ id: id ?? 0, name: name ?? "" }));
+
+  return {
+    ...currentTaskgroup,
+    tasks: analyzableApplications.map((app: Application) => initTask(app)),
+    data: {
+      ...defaultTaskData,
+      verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
+      tagger: {
+        enabled: wizardState.options.autoTaggingEnabled,
+      },
+      mode: {
+        binary: wizardState.mode.mode.includes("binary"),
+        withDeps: wizardState.mode.mode === "source-code-deps",
+        artifact: wizardState.mode.artifact?.name
+          ? `/binary/${wizardState.mode.artifact.name}`
+          : "",
+      },
+      scope: {
+        withKnownLibs: wizardState.scope.withKnownLibs.includes("oss")
+          ? true
+          : false,
+        packages: {
+          included: wizardState.scope.withKnownLibs.includes("select")
+            ? wizardState.scope.includedPackages
+            : [],
+          excluded: wizardState.scope.hasExcludedPackages
+            ? wizardState.scope.excludedPackages
+            : [],
+        },
+      },
+      rules: {
+        labels: {
+          included: Array.from(
+            new Set<string>([
+              ...wizardState.targets.selectedTargetLabels
+                .filter(
+                  (label) => getParsedLabel(label.label).labelType !== "source"
+                )
+                .map((label) => label.label)
+                .filter(Boolean),
+              ...wizardState.options.selectedSourceLabels
+                .map((label) => label.label)
+                .filter(Boolean),
+            ])
+          ),
+          excluded: wizardState.options.excludedLabels,
+        },
+
+        path:
+          wizardState.customRules.customRulesFiles.length > 0 ? "/rules" : "",
+
+        ...(wizardState.customRules.rulesKind === "repository" && {
+          repository: {
+            kind: wizardState.customRules?.repositoryType,
+            url: wizardState.customRules?.sourceRepository?.trim(),
+            branch: wizardState.customRules?.branch?.trim(),
+            path: wizardState.customRules?.rootPath?.trim(),
+          },
+        }),
+        ...(wizardState.customRules.rulesKind === "repository" &&
+          matchingSourceCredential && {
+            identity: {
+              id: matchingSourceCredential.id,
+              name: matchingSourceCredential.name,
+            },
+          }),
+        ...(ruleSetRefsFromSelectedTargets.length > 0 && {
+          ruleSets: ruleSetRefsFromSelectedTargets,
+        }),
+      },
+    },
+  };
+};
 
 export const useTaskGroupManager = () => {
   const { pushNotification } = useContext(NotificationsContext);
@@ -59,50 +199,78 @@ export const useTaskGroupManager = () => {
   );
 
   /**
-   * Creates a new taskgroup if one doesn't already exist
-   * @returns The created or existing taskgroup
+   * Ensures a taskgroup exists, creating one if needed.
+   * Returns the existing or newly created taskgroup.
    */
-  const createTaskGroup = async (
-    taskgroupData?: New<Taskgroup>
-  ): Promise<Taskgroup> => {
-    if (!taskGroup) {
+  const ensureTaskGroup = useCallback(
+    async (taskgroupData?: New<Taskgroup>): Promise<Taskgroup> => {
+      if (taskGroup) {
+        return taskGroup;
+      }
       const newTaskGroup = await createTaskgroupAsync(
         taskgroupData || defaultTaskgroup
       );
       return newTaskGroup;
+    },
+    [taskGroup, createTaskgroupAsync]
+  );
+
+  /**
+   * Prepares the taskgroup with wizard state data and submits it for analysis.
+   * Handles all the data transformation internally.
+   */
+  const submitAnalysis = useCallback(
+    (
+      wizardState: WizardState,
+      analyzableApplications: Application[],
+      identities: Identity[]
+    ) => {
+      if (!taskGroup) {
+        console.error("Cannot submit analysis: no taskgroup exists");
+        pushNotification({
+          title: "Cannot submit analysis",
+          message: "No taskgroup has been created",
+          variant: "danger",
+        });
+        return;
+      }
+
+      const preparedTaskgroup = buildTaskgroupData(
+        taskGroup,
+        wizardState,
+        analyzableApplications,
+        identities
+      );
+      submitTaskgroupMutate(preparedTaskgroup);
+      setTaskGroup(null);
+    },
+    [taskGroup, submitTaskgroupMutate, pushNotification]
+  );
+
+  /**
+   * Cancels the current taskgroup, deleting it from the server if it exists.
+   * Cleans up the local state.
+   */
+  const cancelAnalysis = useCallback(() => {
+    if (taskGroup?.id) {
+      deleteTaskgroupMutate(taskGroup.id);
     }
-    return taskGroup;
-  };
+    setTaskGroup(null);
+  }, [taskGroup, deleteTaskgroupMutate]);
 
   /**
-   * Submits the taskgroup for analysis
-   * @param taskgroup The taskgroup to submit
+   * Gets the current taskgroup ID if one exists.
+   * Useful for file upload operations that need the taskgroup ID.
    */
-  const submitTaskGroup = (taskgroup: Taskgroup) => {
-    submitTaskgroupMutate(taskgroup);
-  };
-
-  /**
-   * Deletes a taskgroup by ID
-   * @param id The taskgroup ID to delete
-   */
-  const deleteTaskGroup = (id: number) => {
-    deleteTaskgroupMutate(id);
-  };
-
-  /**
-   * Updates the taskgroup state directly
-   * @param newTaskGroup The new taskgroup state (or null to clear)
-   */
-  const updateTaskGroup = (newTaskGroup: Taskgroup | null) => {
-    setTaskGroup(newTaskGroup);
-  };
+  const getTaskGroupId = useCallback((): number | undefined => {
+    return taskGroup?.id;
+  }, [taskGroup]);
 
   return {
     taskGroup,
-    createTaskGroup,
-    submitTaskGroup,
-    deleteTaskGroup,
-    updateTaskGroup,
+    ensureTaskGroup,
+    submitAnalysis,
+    cancelAnalysis,
+    getTaskGroupId,
   };
 };
