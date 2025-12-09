@@ -2,12 +2,12 @@ import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button, Modal } from "@patternfly/react-core";
 
-import { Taskgroup, UploadFile } from "@app/api/models";
+import { UploadFile } from "@app/api/models";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 
 export interface UploadNewRulesFilesProps {
   show: boolean;
-  taskGroup: Taskgroup | null;
+  taskGroupId: number | undefined;
   existingFiles: UploadFile[];
   onAddFiles: (newFiles: UploadFile[]) => void;
   onClose: () => void;
@@ -15,7 +15,7 @@ export interface UploadNewRulesFilesProps {
 
 export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
   show,
-  taskGroup,
+  taskGroupId,
   existingFiles,
   onAddFiles,
   onClose,
@@ -83,7 +83,7 @@ export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
       ]}
     >
       <CustomRuleFilesUpload
-        taskgroupId={taskGroup?.id}
+        taskgroupId={taskGroupId}
         fileExists={doesFileAlreadyExist}
         ruleFiles={fields}
         onAddRuleFiles={(ruleFiles) => {

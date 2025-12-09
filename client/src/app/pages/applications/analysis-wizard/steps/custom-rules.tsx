@@ -30,7 +30,7 @@ import {
   TableHeader,
 } from "@patternfly/react-table/deprecated";
 
-import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
+import { TargetLabel, UploadFile } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -82,14 +82,14 @@ const buildSetOfTargetLabelsFromUploadFiles = (
 };
 
 interface CustomRulesProps {
-  taskGroup: Taskgroup | null;
+  taskGroupId: number | undefined;
   isCustomRuleRequired: boolean;
   onStateChanged: (state: CustomRulesStepState) => void;
   initialState: CustomRulesStepState;
 }
 
 export const CustomRules: React.FC<CustomRulesProps> = ({
-  taskGroup,
+  taskGroupId,
   isCustomRuleRequired,
   onStateChanged,
   initialState,
@@ -440,7 +440,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
       <UploadNewRulesFiles
         key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
-        taskGroup={taskGroup}
+        taskGroupId={taskGroupId}
         existingFiles={customRulesFiles}
         onAddFiles={onAddRulesFiles}
         onClose={() => setShowUploadFiles(false)}

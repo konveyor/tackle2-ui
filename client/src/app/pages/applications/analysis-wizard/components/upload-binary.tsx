@@ -34,15 +34,15 @@ const readFile = (file: File, onProgress: (percent: number) => void) => {
 };
 
 interface UploadBinaryProps {
-  taskGroup: Taskgroup | null;
-  createTaskGroup: () => Promise<Taskgroup>;
+  ensureTaskGroup: () => Promise<Taskgroup>;
+  taskGroupId: number | undefined;
   artifact: File | null | undefined;
   onArtifactChange: (artifact: File | null) => void;
 }
 
 export const UploadBinary: React.FC<UploadBinaryProps> = ({
-  taskGroup,
-  createTaskGroup,
+  ensureTaskGroup,
+  taskGroupId,
   artifact,
   onArtifactChange,
 }) => {
@@ -137,13 +137,12 @@ export const UploadBinary: React.FC<UploadBinaryProps> = ({
         (percent) => setFileUploadProgress(Math.round(20 * percent)) // first 20% is reading the file
       );
 
-      const taskGroupId = taskGroup
-        ? taskGroup.id
-        : (await createTaskGroup()).id;
+      // Ensure taskgroup exists and get its ID
+      const taskgroup = await ensureTaskGroup();
 
       // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
       uploadFile({
-        id: taskGroupId,
+        id: taskgroup.id,
         path: `binary/${file.name}`,
         file,
       }); // remaining 80% is uploading the file
@@ -155,9 +154,9 @@ export const UploadBinary: React.FC<UploadBinaryProps> = ({
   };
 
   const removeUploadedFile = (file: File) => {
-    if (taskGroup) {
+    if (taskGroupId) {
       removeFile({
-        id: taskGroup.id,
+        id: taskGroupId,
         path: `binary/${file.name}`,
       });
     }

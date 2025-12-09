@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { UseFormReturn, useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -25,20 +25,21 @@ import { isModeSupported } from "../utils";
 
 interface AnalysisModeProps {
   applications: Application[];
-  taskGroup: Taskgroup | null;
-  createTaskGroup: () => Promise<Taskgroup>;
+  ensureTaskGroup: () => Promise<Taskgroup>;
   onStateChanged: (state: AnalysisModeState) => void;
   initialState: AnalysisModeState;
 }
 
 export const AnalysisMode: React.FC<AnalysisModeProps> = ({
   applications,
-  taskGroup,
-  createTaskGroup,
+  ensureTaskGroup,
   onStateChanged,
   initialState,
 }) => {
   const { t } = useTranslation();
+
+  // Track the current taskgroup ID for file removal operations
+  const [taskGroupId, setTaskGroupId] = React.useState<number | undefined>();
 
   const schema = useAnalysisModeSchema({
     applications,
@@ -82,6 +83,13 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
       children: "Upload a local binary",
     },
   ].filter(Boolean);
+
+  // Wrapper to capture the taskgroup ID when ensuring it exists
+  const handleEnsureTaskGroup = async (): Promise<Taskgroup> => {
+    const taskgroup = await ensureTaskGroup();
+    setTaskGroupId(taskgroup.id);
+    return taskgroup;
+  };
 
   return (
     <Form
@@ -135,8 +143,8 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
 
       {mode === "binary-upload" && (
         <UploadBinary
-          taskGroup={taskGroup}
-          createTaskGroup={createTaskGroup}
+          ensureTaskGroup={handleEnsureTaskGroup}
+          taskGroupId={taskGroupId}
           artifact={artifact}
           onArtifactChange={(artifact) => form.setValue("artifact", artifact)}
         />
