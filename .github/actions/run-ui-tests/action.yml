@@ -14,14 +14,6 @@ inputs:
     description: The base URL for the UI to test
     required: true
 
-  git_user:
-    description: Username for git operations
-    default: "fakeuser"
-
-  git_password:
-    description: Password for git operations
-    default: "token"
-
 runs:
   using: "composite"
   steps:
