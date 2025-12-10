@@ -94,56 +94,15 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
-      - name: "Checkout the tests (ref: ${{ inputs.test_ref }})"
+      - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: "Run UI tests"
+        uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          node-version-file: "tackle2-ui/package.json"
-          cache: "npm"
-          cache-dependency-path: "tackle2-ui/package-lock.json"
-
-      - name: Install dependencies
-        run: |
-          cd tackle2-ui
-          npm clean-install --ignore-scripts --no-audit
-
-      - name: Run login tests using default credentials from `cypress.config.ts`
-        uses: cypress-io/github-action@v6
-        env:
-          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
-          CYPRESS_USER: admin
-          CYPRESS_PASSWORD: Dog8code
-          CYPRESS_INITIAL_PASSWORD: Passw0rd!
-          CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
-        with:
-          working-directory: ./tackle2-ui
-          project: ./cypress
-          spec: "**/e2e/tests/login.test.ts"
-
-      - name: "Run UI tests (${{ inputs.test_tags }}) using default credentials from `cypress.config.ts`"
-        uses: cypress-io/github-action@v6
-        env:
-          CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
-          CYPRESS_USER: admin
-          CYPRESS_PASSWORD: Dog8code
-          CYPRESS_GIT_USER: "fakeuser"
-          CYPRESS_GIT_PASSWORD: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          working-directory: ./tackle2-ui
-          project: ./cypress
-
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        env:
-          AUTH_KIND: ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}
-          TEST_KIND: ${{ inputs.test_ref }}
-        with:
-          name: test-reports-${{ env.AUTH_KIND }}-${{ env.TEST_KIND }}
-          path: |
-            tackle2-ui/cypress/run
+          test_tags: ${{ inputs.test_tags }}
+          tests_ref: ${{ inputs.test_ref }}
+          base_url: ${{ env.UI_URL }}
