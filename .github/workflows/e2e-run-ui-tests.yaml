@@ -106,5 +106,3 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
-          git_user: "fakeuser"
-          git_password: ${{ secrets.GITHUB_TOKEN }}

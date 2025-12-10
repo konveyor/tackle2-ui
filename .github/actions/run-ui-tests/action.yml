@@ -25,7 +25,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Checkout the tests (ref: ${{ inputs.test_ref }})"
+    - name: "Checkout the tests (ref: ${{ inputs.tests_ref }})"
       uses: actions/checkout@v4
       with:
         ref: "${{ inputs.tests_ref }}"
@@ -64,11 +64,15 @@ runs:
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
+        # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
-        CYPRESS_GIT_USER: "${{ inputs.git_user }}"
-        CYPRESS_GIT_PASSWORD: "${{ inputs.git_password }}"
+        CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
+        CYPRESS_GIT_USER: gituser
+        CYPRESS_GIT_PASSWORD: gitpass123
+        CYPRESS_SVN_USER: svnuser
+        CYPRESS_SVN_PASSWORD: svnpass123
       with:
         install: false
         working-directory: ./ui-tests
