@@ -53,11 +53,26 @@ jobs:
           docker build . -t ${IMG_NAME}
           docker push ${IMG_NAME}
 
+  determine-ui-tests-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      ui_tests_ref: ${{ steps.determine-ref.outputs.ui_tests_ref }}
+    steps:
+      - name: Determine what git ref to use for the UI tests
+        id: determine-ref
+        run: |
+          echo "For push events: uses branch ref (refs/heads/BRANCH)"
+          echo "For PR events: uses PR merge ref (refs/pull/NUMBER/merge)"
+          echo "ui_tests_ref=${{ github.ref }}"
+          echo "ui_tests_ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
+          echo "Using \`ui_tests_ref=${{ github.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
+
   run-global-ci:
-    needs: build-and-upload-for-global-ci
+    needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
       ui_test_tags: "@ci"
+      ui_tests_ref: ${{ needs.determine-ui-tests-ref.outputs.ui_tests_ref }}
