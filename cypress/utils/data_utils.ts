@@ -15,7 +15,6 @@ limitations under the License.
 */
 import * as faker from "faker";
 
-import { Repository } from "../../client/src/app/api/models";
 import { JiraCredentials } from "../e2e/models/administration/credentials/JiraCredentials";
 import {
   CredentialType,
@@ -28,6 +27,7 @@ import {
   AssetGeneratorData,
   CredentialsData,
   CredentialsJiraData,
+  GeneratorRepository,
   JiraConnectionData,
   ProxyData,
   RulesManualFields,
@@ -371,7 +371,7 @@ export function getRulesData(
 }
 
 export function getRandomAssetGeneratorData(
-  repository: Repository,
+  repository: GeneratorRepository,
   kind: GeneratorType = GeneratorType.Helm
 ): AssetGeneratorData {
   return {

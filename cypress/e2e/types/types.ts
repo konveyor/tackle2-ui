@@ -224,9 +224,12 @@ export type AppDependency = {
   tags?: string[];
 };
 
+export type GeneratorRepository = Required<Pick<Repository, "kind" | "url">> &
+  Pick<Repository, "branch" | "path">;
+
 export type AssetGeneratorData = {
   name: string;
   description?: string;
   kind: GeneratorType;
-  repository: Repository;
+  repository: GeneratorRepository;
 };

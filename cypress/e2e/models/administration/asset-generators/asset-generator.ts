@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { Generator } from "../../../../../client/src/app/api/models";
 import {
-  Generator,
-  Repository,
-} from "../../../../../client/src/app/api/models";
-import { AssetGeneratorData } from "../../../../e2e/types/types";
+  AssetGeneratorData,
+  GeneratorRepository,
+} from "../../../../e2e/types/types";
 import {
   cancelForm,
   click,
@@ -41,7 +41,7 @@ export class AssetGenerator implements Omit<Generator, "id"> {
   name: string;
   kind: string;
   description?: string;
-  repository?: Repository;
+  repository: GeneratorRepository;
 
   constructor(assetGeneratorData: AssetGeneratorData) {
     this.name = assetGeneratorData.name;
@@ -83,7 +83,7 @@ export class AssetGenerator implements Omit<Generator, "id"> {
     selectFormItems(GeneratorView.generatorTypeSelect, kind);
   }
 
-  protected fillRepository(repository: Repository): void {
+  protected fillRepository(repository: GeneratorRepository): void {
     selectFormItems(GeneratorView.repositoryTypeButton, repository.kind);
     inputText(GeneratorView.repositoryUrlInput, repository.url);
 
