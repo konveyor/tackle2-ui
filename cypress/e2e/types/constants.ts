@@ -263,3 +263,7 @@ export enum DefaultCredentialFilter {
   default = "Default",
   notDefault = "Not Default",
 }
+
+export enum GeneratorType {
+  Helm = "Helm",
+}

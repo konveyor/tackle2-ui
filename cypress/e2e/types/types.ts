@@ -1,7 +1,13 @@
+import { Repository } from "../../../client/src/app/api/models";
 import { JiraCredentials } from "../models/administration/credentials/JiraCredentials";
 import { CredentialsSourceControl } from "../models/administration/credentials/credentialsSourceControl";
 
-import { CustomRuleType, Languages, RepositoryType } from "./constants";
+import {
+  CustomRuleType,
+  GeneratorType,
+  Languages,
+  RepositoryType,
+} from "./constants";
 
 export type CredentialsSourceControlData = {
   type: string;
@@ -216,4 +222,11 @@ export type AppDependency = {
   language: string;
   labels: string[];
   tags?: string[];
+};
+
+export type AssetGeneratorData = {
+  name: string;
+  description?: string;
+  kind: GeneratorType;
+  repository: Repository;
 };

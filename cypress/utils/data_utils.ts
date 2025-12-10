@@ -15,14 +15,17 @@ limitations under the License.
 */
 import * as faker from "faker";
 
+import { Repository } from "../../client/src/app/api/models";
 import { JiraCredentials } from "../e2e/models/administration/credentials/JiraCredentials";
 import {
   CredentialType,
   CustomRuleType,
+  GeneratorType,
   JiraType,
   UserCredentials,
 } from "../e2e/types/constants";
 import {
+  AssetGeneratorData,
   CredentialsData,
   CredentialsJiraData,
   JiraConnectionData,
@@ -364,5 +367,17 @@ export function getRulesData(
   return {
     type: CustomRuleType.Manual,
     rulesetPaths: targetData.rulesFiles,
+  };
+}
+
+export function getRandomAssetGeneratorData(
+  repository: Repository,
+  kind: GeneratorType = GeneratorType.Helm
+): AssetGeneratorData {
+  return {
+    name: `Generator-${getRandomNumber()}`,
+    kind: kind,
+    repository: repository,
+    description: getDescription(),
   };
 }
