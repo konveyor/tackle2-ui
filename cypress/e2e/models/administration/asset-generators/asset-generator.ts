@@ -132,8 +132,6 @@ export class AssetGenerator implements Omit<Generator, "id"> {
 
     this.applyFormValues(updatedValues);
     Object.assign(this, updatedValues);
-    if (Object.keys(updatedValues).length > 0) {
-      submitForm();
-    }
+    submitForm();
   }
 }
