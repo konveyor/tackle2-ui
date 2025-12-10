@@ -11,7 +11,7 @@ import {
 import {
   SEC,
   button,
-  issueFilter,
+  dynamicReportFilter,
   migration,
   singleApplication,
 } from "../../../types/constants";
@@ -62,7 +62,7 @@ export abstract class DynamicReports {
   }
 
   public static applyFilter(
-    filterType: issueFilter,
+    filterType: dynamicReportFilter,
     filterValue: string,
     isSingle = false
   ): void {
@@ -72,9 +72,9 @@ export abstract class DynamicReports {
 
     selectFilter(filterType);
     const isApplicableFilter =
-      filterType === issueFilter.category ||
-      filterType === issueFilter.source ||
-      filterType === issueFilter.target;
+      filterType === dynamicReportFilter.category ||
+      filterType === dynamicReportFilter.source ||
+      filterType === dynamicReportFilter.target;
 
     if (isApplicableFilter) {
       inputText(searchInput, filterValue);
@@ -87,7 +87,7 @@ export abstract class DynamicReports {
   }
 
   public static applyMultiFilter(
-    filterType: issueFilter,
+    filterType: dynamicReportFilter,
     filterValues: string[]
   ): void {
     this.openList();

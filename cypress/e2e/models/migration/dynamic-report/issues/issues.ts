@@ -7,7 +7,12 @@ import {
   validateNumberPresence,
   validateTextPresence,
 } from "../../../../../utils/utils";
-import { button, issueFilter, tdTag, trTag } from "../../../../types/constants";
+import {
+  button,
+  dynamicReportFilter,
+  tdTag,
+  trTag,
+} from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
 import { div, liTag, span } from "../../../../views/common.view";
 import {
@@ -23,9 +28,9 @@ export class Issues extends DynamicReports {
   static menuName = "Issues";
 
   public static applyAndValidateFilter(
-    filterType: issueFilter,
+    filterType: dynamicReportFilter,
     filterValues: string[],
-    issuesExpected: AppIssue[],
+    issuesExpected: AppIssue[] = [],
     issuesNotExpected?: AppIssue[],
     isSingle = false
   ) {

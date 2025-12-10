@@ -4,7 +4,7 @@ import {
   validateAnyNumberPresence,
   validateTextPresence,
 } from "../../../../../utils/utils";
-import { issueFilter, trTag } from "../../../../types/constants";
+import { dynamicReportFilter, trTag } from "../../../../types/constants";
 import { AppInsight } from "../../../../types/types";
 import { liTag, span } from "../../../../views/common.view";
 import { insightColumns } from "../../../../views/insights.view";
@@ -16,7 +16,7 @@ export class Insights extends DynamicReports {
   static menuName = "Insights";
 
   public static applyAndValidateFilter(
-    filterType: issueFilter,
+    filterType: dynamicReportFilter,
     filterValues: string[],
     insightsExpected: AppInsight[],
     insightsNotExpected: AppInsight[] = [],
@@ -46,6 +46,7 @@ export class Insights extends DynamicReports {
 
     cy.contains(insight.name)
       .closest(trTag)
+      .should("have.length", 1)
       .within(() => {
         validateTextPresence(insightColumns.insight, insight.name);
         validateTextPresence(insightColumns.category, insight.category);

@@ -45,7 +45,7 @@ import { Issues } from "../../../../models/migration/dynamic-report/issues/issue
 import {
   AnalysisStatuses,
   SEC,
-  issueFilter,
+  dynamicReportFilter,
   tdTag,
   trTag,
 } from "../../../../types/constants";
@@ -157,7 +157,7 @@ describe(
 
       Issues.openList(100, true);
       Issues.applyAndValidateFilter(
-        issueFilter.applicationName,
+        dynamicReportFilter.applicationName,
         [bookServerApp.name],
         bookServerIssues,
         coolstoreIssues
@@ -165,7 +165,7 @@ describe(
       clearAllFilters();
 
       Issues.applyAndValidateFilter(
-        issueFilter.applicationName,
+        dynamicReportFilter.applicationName,
         [coolstoreApp.name],
         coolstoreIssues,
         bookServerIssues
@@ -181,7 +181,7 @@ describe(
       const coolstoreIssues =
         this.analysisData["source+dep_on_coolStore_app"]["issues"];
 
-      Issues.applyMultiFilter(issueFilter.applicationName, [
+      Issues.applyMultiFilter(dynamicReportFilter.applicationName, [
         bookServerApp.name,
         coolstoreApp.name,
       ]);
@@ -192,7 +192,7 @@ describe(
     });
 
     it("All issues - Filtering issues by Archetype", function () {
-      Issues.applyFilter(issueFilter.archetype, archetype.name);
+      Issues.applyFilter(dynamicReportFilter.archetype, archetype.name);
       this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
         (issue: AppIssue) => {
           Issues.validateFilter(issue);
@@ -202,7 +202,7 @@ describe(
     });
 
     it("All issues - Filtering issues by BS", function () {
-      Issues.applyFilter(issueFilter.bs, businessServiceList[0].name);
+      Issues.applyFilter(dynamicReportFilter.bs, businessServiceList[0].name);
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           Issues.validateFilter(issue);
@@ -213,7 +213,7 @@ describe(
 
     it("All issues - Filtering issues by tags", function () {
       tagNames.forEach((currentTag: string) => {
-        Issues.applyFilter(issueFilter.tags, currentTag);
+        Issues.applyFilter(dynamicReportFilter.tags, currentTag);
         this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
           (issue: AppIssue) => {
             Issues.validateFilter(issue);
@@ -226,14 +226,14 @@ describe(
     it("All issues - Filtering issues by category", function () {
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
-          Issues.applyFilter(issueFilter.category, issue.category);
+          Issues.applyFilter(dynamicReportFilter.category, issue.category);
           Issues.validateFilter(issue);
           clearAllFilters();
         }
       );
 
       // Negative test, filtering by not existing data
-      Issues.applyFilter(issueFilter.category, randomWordGenerator(6));
+      Issues.applyFilter(dynamicReportFilter.category, randomWordGenerator(6));
       cy.get("tr").should("contain", "No data available");
       clearAllFilters();
     });
@@ -242,7 +242,7 @@ describe(
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           issue.sources.forEach((source) => {
-            Issues.applyFilter(issueFilter.source, source);
+            Issues.applyFilter(dynamicReportFilter.source, source);
             Issues.validateFilter(issue);
             clearAllFilters();
           });
@@ -250,7 +250,7 @@ describe(
       );
 
       // Negative test, filtering by not existing data
-      Issues.applyFilter(issueFilter.source, randomWordGenerator(6));
+      Issues.applyFilter(dynamicReportFilter.source, randomWordGenerator(6));
       cy.get("tr").should("contain", "No data available");
       clearAllFilters();
     });
@@ -260,14 +260,14 @@ describe(
         this.analysisData["source_analysis_on_bookserverapp"]["issues"];
       issues.forEach((issue: AppIssue) => {
         issue.targets.forEach((target: string) => {
-          Issues.applyFilter(issueFilter.target, target);
+          Issues.applyFilter(dynamicReportFilter.target, target);
           Issues.validateFilter(issue);
           clearAllFilters();
         });
       });
 
       // Negative test, filtering by not existing data
-      Issues.applyFilter(issueFilter.target, randomWordGenerator(6));
+      Issues.applyFilter(dynamicReportFilter.target, randomWordGenerator(6));
       cy.get(trTag).should("contain", "No data available");
       clearAllFilters();
     });
@@ -329,7 +329,11 @@ describe(
       selectItemsPerPage(100);
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
-          Issues.applyFilter(issueFilter.category, issue.category, true);
+          Issues.applyFilter(
+            dynamicReportFilter.category,
+            issue.category,
+            true
+          );
           Issues.validateFilter(issue, true);
           clearAllFilters();
         }
@@ -342,7 +346,7 @@ describe(
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           issue.sources.forEach((source) => {
-            Issues.applyFilter(issueFilter.source, source, true);
+            Issues.applyFilter(dynamicReportFilter.source, source, true);
             Issues.validateFilter(issue, true);
             clearAllFilters();
           });
@@ -357,7 +361,7 @@ describe(
         this.analysisData["source_analysis_on_bookserverapp"]["issues"];
       issues.forEach((issue: AppIssue) => {
         issue.targets.forEach((target: string) => {
-          Issues.applyFilter(issueFilter.target, target, true);
+          Issues.applyFilter(dynamicReportFilter.target, target, true);
           Issues.validateFilter(issue, true);
           clearAllFilters();
         });
