@@ -60,7 +60,8 @@ export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
     onClose();
   };
 
-  const isAddDisabled = !fields.every(({ status }) => status === "uploaded");
+  const isAddDisabled =
+    fields.length === 0 || !fields.every(({ status }) => status === "uploaded");
 
   return (
     <Modal
@@ -99,7 +100,9 @@ export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
           const index = fields.findIndex(
             (f) => f.fileName === ruleFile.fileName
           );
-          update(index, ruleFile);
+          if (index >= 0) {
+            update(index, ruleFile);
+          }
         }}
       />
     </Modal>
