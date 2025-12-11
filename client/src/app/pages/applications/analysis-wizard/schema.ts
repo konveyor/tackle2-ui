@@ -11,6 +11,7 @@ import {
 
 import { useAnalyzableApplicationsByMode } from "./utils";
 
+// Analysis mode
 export const ANALYSIS_MODES = [
   "binary",
   "source-code",
@@ -19,35 +20,34 @@ export const ANALYSIS_MODES = [
 ] as const;
 export type AnalysisMode = (typeof ANALYSIS_MODES)[number];
 
-export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
-
-export interface ModeStepValues {
+export interface AnalysisModeValues {
   mode: AnalysisMode;
   artifact: File | undefined | null;
 }
 
-const useModeStepSchema = ({
+export interface AnalysisModeState extends AnalysisModeValues {
+  isValid: boolean;
+}
+
+export const useAnalysisModeSchema = ({
   applications,
+  messageNotCompatible,
 }: {
   applications: Application[];
-}): yup.SchemaOf<ModeStepValues> => {
+  messageNotCompatible: string;
+}): yup.SchemaOf<AnalysisModeValues> => {
   const { t } = useTranslation();
   const analyzableAppsByMode = useAnalyzableApplicationsByMode(applications);
   return yup.object({
     mode: yup
       .mixed<AnalysisMode>()
       .required(t("validation.required"))
-      .test(
-        "isModeCompatible",
-        "Selected mode not supported for selected applications", // Message not exposed to the user
-        (mode) => {
-          const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
-          if (mode === "binary-upload") {
-            return analyzableApplications.length === 1;
-          }
-          return analyzableApplications.length > 0;
-        }
-      ),
+      .test("isModeCompatible", messageNotCompatible, (mode) => {
+        const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
+        return mode === "binary-upload"
+          ? analyzableApplications.length === 1
+          : analyzableApplications.length > 0;
+      }),
     artifact: yup.mixed<File>().when("mode", {
       is: "binary-upload",
       then: (schema) => schema.required(),
@@ -55,28 +55,32 @@ const useModeStepSchema = ({
   });
 };
 
-export interface TargetsStepValues {
+// Set targets step
+export interface SetTargetsValues {
   selectedTargets: Target[];
   selectedTargetLabels: TargetLabel[];
   targetFilters?: Record<string, string[]>;
 }
 
-const useTargetsStepSchema = (): yup.SchemaOf<TargetsStepValues> => {
-  return yup.object({
-    selectedTargetLabels: yup.array(),
-    selectedTargets: yup.array(),
-    targetFilters: yup.object(),
-  });
-};
+export interface SetTargetsState extends SetTargetsValues {
+  isValid: boolean;
+}
 
-export interface ScopeStepValues {
+// Scope step
+export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
+
+export interface AnalysisScopeValues {
   withKnownLibs: AnalysisScope;
   includedPackages: string[];
   hasExcludedPackages: boolean;
   excludedPackages: string[];
 }
 
-const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
+export interface AnalysisScopeState extends AnalysisScopeValues {
+  isValid: boolean;
+}
+
+export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
   const { t } = useTranslation();
   return yup.object({
     withKnownLibs: yup
@@ -86,7 +90,7 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
       .array()
       .of(yup.string().defined())
       .when("withKnownLibs", (withKnownLibs, schema) =>
-        withKnownLibs.includes("select") ? schema.min(1) : schema
+        withKnownLibs?.includes("select") ? schema.min(1) : schema
       ),
     hasExcludedPackages: yup.bool().defined(),
     excludedPackages: yup
@@ -98,14 +102,20 @@ const useScopeStepSchema = (): yup.SchemaOf<ScopeStepValues> => {
   });
 };
 
+// Custom rules step
 export interface CustomRulesStepValues {
+  rulesKind: "manual" | "repository";
   customRulesFiles: UploadFile[];
-  rulesKind: string;
+  customLabels: TargetLabel[];
   repositoryType?: string;
   sourceRepository?: string;
   branch?: string;
   rootPath?: string;
   associatedCredentials?: string;
+}
+
+export interface CustomRulesStepState extends CustomRulesStepValues {
+  isValid: boolean;
 }
 
 export const UploadFileSchema: yup.SchemaOf<UploadFile> = yup.object({
@@ -122,9 +132,13 @@ export const UploadFileSchema: yup.SchemaOf<UploadFile> = yup.object({
   responseID: yup.number().optional(),
 });
 
-const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
+export const useCustomRulesSchema = ({
+  isCustomRuleRequired,
+}: {
+  isCustomRuleRequired: boolean;
+}): yup.SchemaOf<CustomRulesStepValues> => {
   return yup.object({
-    rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
+    rulesKind: yup.mixed<"manual" | "repository">().required(),
 
     // manual tab fields
     customRulesFiles: yup
@@ -132,18 +146,18 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       .of(UploadFileSchema)
       .when("rulesKind", {
         is: "manual",
-        then: yup.array().of(UploadFileSchema),
+        then: (schema) =>
+          isCustomRuleRequired
+            ? schema.min(1, "At least 1 Rule File is required")
+            : schema,
         otherwise: (schema) => schema,
-      })
-      .when(["selectedTargetLabels", "rulesKind", "selectedTargets"], {
-        is: (
-          labels: TargetLabel[],
-          rulesKind: string,
-          selectedTargets: number
-        ) =>
-          labels.length === 0 && rulesKind === "manual" && selectedTargets <= 0,
-        then: (schema) => schema.min(1, "At least 1 Rule File is required"),
       }),
+    customLabels: yup.array().of(
+      yup.object().shape({
+        name: yup.string().defined(),
+        label: yup.string().defined(),
+      })
+    ),
 
     // repository tab fields
     repositoryType: yup.string().when("rulesKind", {
@@ -154,79 +168,35 @@ const useCustomRulesStepSchema = (): yup.SchemaOf<CustomRulesStepValues> => {
       is: "repository",
       then: (schema) => schema.repositoryUrl("repositoryType").required(),
     }),
-    branch: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
-    rootPath: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
-    associatedCredentials: yup.string().when("rulesKind", {
-      is: "repository",
-      then: yup.string(),
-    }),
+    branch: yup.string(),
+    rootPath: yup.string(),
+    associatedCredentials: yup.string(),
   });
 };
 
-export interface OptionsStepValues {
-  excludedRulesTags: string[];
+// Advanced options step
+export interface AdvancedOptionsValues {
+  selectedSourceLabels: TargetLabel[];
+  excludedLabels: string[];
   autoTaggingEnabled: boolean;
   advancedAnalysisEnabled: boolean;
-  selectedSourceLabels: TargetLabel[];
 }
 
-const useOptionsStepSchema = (): yup.SchemaOf<OptionsStepValues> => {
-  return yup.object({
-    excludedRulesTags: yup.array().of(yup.string().defined()),
-    autoTaggingEnabled: yup.bool().defined(),
-    advancedAnalysisEnabled: yup.bool().defined(),
-    selectedSourceLabels: yup.array().of(
-      yup.object().shape({
-        name: yup.string().defined(),
-        label: yup.string().defined(),
-      })
-    ),
-  });
-};
-
-export type AnalysisWizardFormValues = ModeStepValues &
-  TargetsStepValues &
-  ScopeStepValues &
-  CustomRulesStepValues &
-  OptionsStepValues;
-
-export interface AnalysisWizardFormValidationSchema {
-  schemas: {
-    modeStep: yup.SchemaOf<ModeStepValues>;
-    targetsStep: yup.SchemaOf<TargetsStepValues>;
-    scopeStep: yup.SchemaOf<ScopeStepValues>;
-    customRulesStep: yup.SchemaOf<CustomRulesStepValues>;
-    optionsStep: yup.SchemaOf<OptionsStepValues>;
-  };
-  allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues>;
+export interface AdvancedOptionsState extends AdvancedOptionsValues {
+  isValid: boolean;
 }
 
-export const useAnalysisWizardFormValidationSchema = ({
-  applications,
-}: {
-  applications: Application[];
-}): AnalysisWizardFormValidationSchema => {
-  const schemas = {
-    modeStep: useModeStepSchema({ applications }),
-    targetsStep: useTargetsStepSchema(),
-    scopeStep: useScopeStepSchema(),
-    customRulesStep: useCustomRulesStepSchema(),
-    optionsStep: useOptionsStepSchema(),
+export const useAdvancedOptionsSchema =
+  (): yup.SchemaOf<AdvancedOptionsValues> => {
+    return yup.object({
+      selectedSourceLabels: yup.array().of(
+        yup.object().shape({
+          name: yup.string().defined(),
+          label: yup.string().defined(),
+        })
+      ),
+      excludedLabels: yup.array().of(yup.string().defined()),
+      autoTaggingEnabled: yup.bool().defined(),
+      advancedAnalysisEnabled: yup.bool().defined(),
+    });
   };
-  const allFieldsSchema: yup.SchemaOf<AnalysisWizardFormValues> =
-    schemas.modeStep
-      .concat(schemas.targetsStep)
-      .concat(schemas.scopeStep)
-      .concat(schemas.customRulesStep)
-      .concat(schemas.optionsStep);
-  return {
-    schemas,
-    allFieldsSchema,
-  };
-};

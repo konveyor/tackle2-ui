@@ -1,6 +1,8 @@
 import * as React from "react";
+import { useCallback } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { toggle } from "radash";
-import { useFormContext } from "react-hook-form";
+import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -22,66 +24,74 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import { Target, TargetLabel } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
+import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTargets } from "@app/queries/targets";
 import { getParsedLabel } from "@app/utils/rules-utils";
-import { getValidatedFromErrors, universalComparator } from "@app/utils/utils";
+import { getValidatedFromErrors } from "@app/utils/utils";
 
-import { defaultTargets } from "../../../data/targets";
+import {
+  AdvancedOptionsState,
+  AdvancedOptionsValues,
+  useAdvancedOptionsSchema,
+} from "../schema";
+import { useSourceLabels } from "../useSourceLabels";
+import { useTargetLabels } from "../useTargetLabels";
+import { updateSelectedTargetsBasedOnLabels } from "../utils";
 
-import { AnalysisWizardFormValues } from "./schema";
-import defaultSources from "./sources";
-import { updateSelectedTargetsBasedOnLabels } from "./utils";
+interface AdvancedOptionsProps {
+  selectedTargets: Target[];
+  onSelectedTargetsChanged: (targets: Target[]) => void;
+  onStateChanged: (state: AdvancedOptionsState) => void;
+  initialState: AdvancedOptionsState;
+}
 
-export const SetOptions: React.FC = () => {
+export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
+  selectedTargets,
+  onSelectedTargetsChanged,
+  onStateChanged,
+  initialState,
+}) => {
   const { t } = useTranslation();
 
-  const { watch, control, setValue } =
-    useFormContext<AnalysisWizardFormValues>();
+  const schema = useAdvancedOptionsSchema();
+  const form = useForm<AdvancedOptionsValues>({
+    defaultValues: {
+      selectedSourceLabels: initialState.selectedSourceLabels,
+      excludedLabels: initialState.excludedLabels,
+      autoTaggingEnabled: initialState.autoTaggingEnabled,
+      advancedAnalysisEnabled: initialState.advancedAnalysisEnabled,
+    },
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+  const setValue: UseFormSetValue<AdvancedOptionsValues> = useCallback(
+    (name, value) => {
+      form.setValue(name, value, { shouldValidate: true });
+    },
+    [form]
+  );
+  const { control } = form;
 
-  const {
-    selectedTargetLabels,
-    excludedRulesTags,
-    autoTaggingEnabled,
-    advancedAnalysisEnabled,
-    selectedTargets,
-  } = watch();
+  const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
+    useWatch({ control });
+
+  useFormChangeHandler({ form, onStateChanged });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
 
-  const allLabelsFromTargets = targets
-    .map((target) => target?.labels ?? [])
-    .filter(Boolean)
-    .flat()
-    // Remove duplicates from array of objects based on label value (label.label)
-    .filter((v, i, a) => a.findIndex((v2) => v2.label === v.label) === i);
+  // TODO: Need include labels parsed from uploaded manual custom rule files
+  const availableTargetLabels = useTargetLabels();
+  const availableSourceLabels = useSourceLabels();
 
-  const allTargetLabelsFromTargets = allLabelsFromTargets.filter(
-    (label) => getParsedLabel(label?.label).labelType === "target"
-  );
-
-  const allSourceLabelsFromTargets = allLabelsFromTargets.filter(
-    (label) => getParsedLabel(label?.label).labelType === "source"
-  );
-
-  const defaultTargetsAndTargetsLabels = Array.from(
-    new Map(
-      defaultTargets
-        .concat(allTargetLabelsFromTargets)
-        .map((item) => [item.label, item])
-    ).values()
-  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
-
-  const defaultSourcesAndSourcesLabels = Array.from(
-    new Map(
-      defaultSources
-        .concat(allSourceLabelsFromTargets)
-        .map((item) => [item.label, item])
-    ).values()
-  ).sort((t1, t2) => universalComparator(t1.label, t2.label));
+  // Track selected target labels internally for this step
+  const [selectedTargetLabels, setSelectedTargetLabels] = React.useState<
+    TargetLabel[]
+  >([]);
 
   return (
     <Form
@@ -96,10 +106,11 @@ export const SetOptions: React.FC = () => {
         </Title>
         <Text>{t("wizard.label.advancedOptions")}</Text>
       </TextContent>
+
       <HookFormPFGroupController
         control={control}
-        name="selectedTargetLabels"
-        label={t("wizard.terms.target", { count: 2 })}
+        name="selectedSourceLabels"
+        label="Target labels" //{t("wizard.terms.target", { count: 2 })}
         fieldId="target-labels"
         renderInput={({
           field: { onChange, onBlur },
@@ -124,7 +135,7 @@ export const SetOptions: React.FC = () => {
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
                 const selectionLabel = `konveyor.io/target=${selection}`;
-                const matchingLabel = defaultTargetsAndTargetsLabels.find(
+                const matchingLabel = availableTargetLabels.find(
                   (label) => label.label === selectionLabel
                 );
                 const updatedFormLabels = !matchingLabel
@@ -134,7 +145,7 @@ export const SetOptions: React.FC = () => {
                       matchingLabel,
                       (tl) => tl.label
                     );
-                onChange(updatedFormLabels);
+                setSelectedTargetLabels(updatedFormLabels);
 
                 const updatedSelectedTargets =
                   updateSelectedTargetsBasedOnLabels(
@@ -142,7 +153,7 @@ export const SetOptions: React.FC = () => {
                     selectedTargets,
                     targets
                   );
-                setValue("selectedTargets", updatedSelectedTargets);
+                onSelectedTargetsChanged(updatedSelectedTargets);
 
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
@@ -151,11 +162,11 @@ export const SetOptions: React.FC = () => {
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
               onClear={() => {
-                onChange([]);
+                setSelectedTargetLabels([]);
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {defaultTargetsAndTargetsLabels.map((targetLabel, index) => (
+              {availableTargetLabels.map((targetLabel, index) => (
                 <SelectOption
                   key={index}
                   component="button"
@@ -169,7 +180,7 @@ export const SetOptions: React.FC = () => {
       <HookFormPFGroupController
         control={control}
         name="selectedSourceLabels"
-        label={t("wizard.terms.source", { count: 2 })}
+        label="Source labels" //{t("wizard.terms.source", { count: 2 })}
         fieldId="sources"
         renderInput={({
           field: { onChange, onBlur, value },
@@ -196,7 +207,7 @@ export const SetOptions: React.FC = () => {
               onSelect={(_, selection) => {
                 const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
                 const matchingLabel =
-                  defaultSourcesAndSourcesLabels?.find(
+                  availableSourceLabels?.find(
                     (label) => label.label === selectionWithLabelSelector
                   ) || "";
 
@@ -227,7 +238,7 @@ export const SetOptions: React.FC = () => {
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {defaultSourcesAndSourcesLabels.map((targetLabel, index) => (
+              {availableSourceLabels.map((targetLabel, index) => (
                 <SelectOption
                   key={index}
                   component="button"
@@ -238,9 +249,10 @@ export const SetOptions: React.FC = () => {
           );
         }}
       />
+
       <StringListField
-        listItems={excludedRulesTags}
-        setListItems={(items) => setValue("excludedRulesTags", items)}
+        listItems={excludedLabels ?? []}
+        setListItems={(items) => setValue("excludedLabels", items)}
         itemToAddSchema={yup
           .string()
           .min(2, t("validation.minLength", { length: 2 }))
@@ -249,11 +261,12 @@ export const SetOptions: React.FC = () => {
         itemToAddLabel={t("wizard.composed.excluded", {
           what: t("wizard.terms.rulesTags"),
         })}
-        itemToAddAriaLabel="Add a rule tag to exclude" // TODO translation here
-        itemNotUniqueMessage="This rule tag is already excluded" // TODO translation here
+        itemToAddAriaLabel="Add a rule tag to exclude"
+        itemNotUniqueMessage="This rule tag is already excluded"
         removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
         className={spacing.mtMd}
       />
+
       <Checkbox
         className={spacing.mtMd}
         label={t("wizard.composed.enable", {
@@ -264,6 +277,7 @@ export const SetOptions: React.FC = () => {
         id="enable-auto-tagging-checkbox"
         name="autoTaggingEnabled"
       />
+
       <Flex>
         <FlexItem>
           <Checkbox
