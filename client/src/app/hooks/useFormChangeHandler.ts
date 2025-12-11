@@ -25,6 +25,12 @@ export const useFormChangeHandler = <
 }: {
   form: UseFormReturn<TFormValues>;
   onStateChanged: (state: TState) => void;
+  /**
+   * Optional function to map form values to state. Defaults to a function that adds the
+   * isValid field to the form values.
+   * @remarks This callback must be stable (e.g. wrapped in useCallback) to prevent
+   *          an infinite re-render loop.
+   */
   mapFormToState?: (
     values: DeepPartialSkipArrayKey<TFormValues>,
     isFormValid: boolean
