@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { type FC, useContext, useRef } from "react";
 import { AxiosError } from "axios";
 import { counting } from "radash";
 import {
@@ -9,7 +9,7 @@ import {
   MultipleFileUploadStatus,
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { UploadIcon } from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { HubFile, UploadFile } from "@app/api/models";
@@ -19,6 +19,28 @@ import { checkRuleFileType, validateYamlFile } from "@app/utils/rules-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { NotificationsContext } from "./NotificationsContext";
+
+const readFile = (
+  file: File,
+  onProgress: (status: "reading" | "read", percent: number) => void
+) => {
+  return new Promise<string>((resolve, reject) => {
+    onProgress("reading", 0);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      onProgress("read", 1.0);
+      resolve(reader.result as string);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.onprogress = (progressEvent) => {
+      if (progressEvent.lengthComputable) {
+        onProgress("reading", progressEvent.loaded / progressEvent.total);
+      }
+    };
+    reader.readAsText(file);
+  });
+};
 
 export interface CustomRuleFilesUploadProps {
   /** Set of rule files that have already been uploaded. */
@@ -49,7 +71,7 @@ export interface CustomRuleFilesUploadProps {
   taskgroupId?: number;
 }
 
-export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
+export const CustomRuleFilesUpload: FC<CustomRuleFilesUploadProps> = ({
   ruleFiles,
   onAddRuleFiles,
   onRemoveRuleFiles,
@@ -58,9 +80,32 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
   taskgroupId,
 }) => {
   const { pushNotification } = useContext(NotificationsContext);
-  const ruleFileByName = (fn: string) =>
-    ruleFiles.find((r) => r.fileName === fn);
 
+  const { uploadFile } = useFileUploader(
+    (file, hubFile, ruleFileContext) => {
+      if (ruleFileContext) {
+        onChangeRuleFile({
+          ...ruleFileContext,
+          fileId: hubFile?.id,
+          uploadProgress: 100,
+          status: "uploaded",
+        });
+      }
+    },
+    (error, file, ruleFileContext) => {
+      const msg = getAxiosErrorMessage(error);
+
+      if (ruleFileContext) {
+        onChangeRuleFile({
+          ...ruleFileContext,
+          loadError: msg,
+          status: "failed",
+        });
+      }
+
+      pushNotification({ title: msg, variant: "danger" });
+    }
+  );
   // -----> upload file handling
   const setupFilesToUpload = (_event: DropEvent, incomingFiles: File[]) => {
     // identify what, if any, files are re-uploads of already uploaded files
@@ -88,25 +133,6 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
       });
   };
 
-  const readFile = (ruleFile: UploadFile, file: File) => {
-    return new Promise<string>((resolve, reject) => {
-      onChangeRuleFile({ ...ruleFile, status: "reading" });
-
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.onprogress = (progressEvent) => {
-        if (progressEvent.lengthComputable) {
-          onChangeRuleFile({
-            ...ruleFile,
-            uploadProgress: (progressEvent.loaded / progressEvent.total) * 10,
-          });
-        }
-      };
-      reader.readAsText(file);
-    });
-  };
-
   const readVerifyAndUploadFile = async (ruleFile: UploadFile, file: File) => {
     if (["exists", "uploaded", "failed"].includes(ruleFile.status)) {
       return;
@@ -117,8 +143,13 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
         throw new Error(`File "${file.name}" is already uploaded`);
       }
 
-      const fileContents = await readFile(ruleFile, file);
-      onChangeRuleFile({ ...ruleFile, uploadProgress: 10, status: "read" });
+      const fileContents = await readFile(file, (status, readPercent) => {
+        onChangeRuleFile({
+          ...ruleFile,
+          status,
+          uploadProgress: Math.round(10 * readPercent), // first 10% is reading the file
+        });
+      });
 
       // Verify/lint the contents of a YAML file
       if (checkRuleFileType(file.name) === "YAML") {
@@ -129,15 +160,15 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
           );
         }
       }
-      // Upload the file to hub!
-      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
       const updatedRuleFile: UploadFile = {
         ...ruleFile,
-        uploadProgress: 20,
+        uploadProgress: 20, // second 10% is validating the file
         status: "validated",
         contents: fileContents,
       };
       onChangeRuleFile(updatedRuleFile);
+
+      // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
       uploadFile(file, taskgroupId, updatedRuleFile);
     } catch (error) {
       onChangeRuleFile({
@@ -148,36 +179,11 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
     }
   };
 
-  const { uploadFile } = useFileUploader(
-    (file, hubFile, ruleFileContext) => {
-      if (ruleFileContext) {
-        onChangeRuleFile({
-          ...ruleFileContext,
-          fileId: hubFile?.id,
-          uploadProgress: 100,
-          status: "uploaded",
-        });
-      }
-    },
-    (error, file, ruleFileContext) => {
-      const msg = getAxiosErrorMessage(error);
-
-      if (ruleFileContext) {
-        onChangeRuleFile({
-          ...ruleFileContext,
-          loadError: msg,
-          status: "failed",
-        });
-      }
-
-      pushNotification({ title: msg, variant: "danger" });
-    }
-  );
-  // <---- upload file handling
-
-  const removeFile = (toRemove: UploadFile) => {
+  const removeUploadedFile = (toRemove: UploadFile) => {
     onRemoveRuleFiles([toRemove]);
+    // TODO: Remove the file from hub
   };
+  // <---- upload file handling
 
   const showStatus = ruleFiles.length > 0;
   const filesInError = ruleFiles.filter((file) => !!file.loadError);
@@ -235,7 +241,7 @@ export const CustomRuleFilesUpload: React.FC<CustomRuleFilesUploadProps> = ({
                 customFileHandler={(file) =>
                   readVerifyAndUploadFile(ruleFile, file)
                 }
-                onClearClick={() => removeFile(ruleFile)}
+                onClearClick={() => removeUploadedFile(ruleFile)}
                 progressValue={ruleFile.uploadProgress}
                 progressVariant={progressVariant(ruleFile)}
               />
@@ -256,7 +262,7 @@ function useFileUploader(
   onError: (e: AxiosError, file: File, ruleFileContext?: UploadFile) => void
 ) {
   // Store file context to pass to callbacks
-  const fileContextRef = React.useRef(new Map<string, UploadFile>());
+  const fileContextRef = useRef(new Map<string, UploadFile>());
 
   const { mutate: createRuleFile } = useCreateFileMutation(
     (hubFile, file) => {

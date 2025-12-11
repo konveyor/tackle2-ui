@@ -30,7 +30,7 @@ import {
   TableHeader,
 } from "@patternfly/react-table/deprecated";
 
-import { TargetLabel, UploadFile } from "@app/api/models";
+import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import {
   FilterCategory,
   FilterToolbar,
@@ -82,20 +82,30 @@ const buildSetOfTargetLabelsFromUploadFiles = (
 };
 
 interface CustomRulesProps {
-  taskGroupId: number | undefined;
+  ensureTaskGroup: () => Promise<Taskgroup>;
   isCustomRuleRequired: boolean;
   onStateChanged: (state: CustomRulesStepState) => void;
   initialState: CustomRulesStepState;
 }
 
 export const CustomRules: React.FC<CustomRulesProps> = ({
-  taskGroupId,
+  ensureTaskGroup,
   isCustomRuleRequired,
   onStateChanged,
   initialState,
 }) => {
   const { t } = useTranslation();
   const [showUploadFiles, setShowUploadFiles] = React.useState(false);
+  const [taskgroupId, setTaskgroupId] = React.useState<number | undefined>(
+    undefined
+  );
+  const onShowUploadFiles = async (show: boolean) => {
+    if (show && taskgroupId === undefined) {
+      const taskgroupId = await ensureTaskGroup();
+      setTaskgroupId(taskgroupId.id);
+    }
+    setShowUploadFiles(show);
+  };
 
   const schema = useCustomRulesSchema({ isCustomRuleRequired });
   const form = useForm<CustomRulesStepValues>({
@@ -327,7 +337,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
                       type="button"
                       aria-label="add rules"
                       variant="primary"
-                      onClick={() => setShowUploadFiles(true)}
+                      onClick={() => onShowUploadFiles(true)}
                     >
                       {t("composed.add", {
                         what: t("wizard.terms.rules").toLowerCase(),
@@ -440,10 +450,10 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
       <UploadNewRulesFiles
         key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
-        taskGroupId={taskGroupId}
+        taskgroupId={taskgroupId}
         existingFiles={customRulesFiles}
         onAddFiles={onAddRulesFiles}
-        onClose={() => setShowUploadFiles(false)}
+        onClose={() => onShowUploadFiles(false)}
       />
     </>
   );

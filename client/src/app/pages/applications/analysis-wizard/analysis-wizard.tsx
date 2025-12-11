@@ -60,7 +60,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     reset,
   } = useWizardReducer();
 
-  const { taskGroup, ensureTaskGroup, submitAnalysis, cancelAnalysis } =
+  const { ensureTaskGroup, submitAnalysis, cancelAnalysis } =
     useTaskGroupManager();
 
   const [stepIdReached, setStepIdReached] = React.useState(1);
@@ -206,7 +206,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
               }}
             >
               <CustomRules
-                taskGroupId={taskGroup?.id}
+                ensureTaskGroup={ensureTaskGroup}
                 isCustomRuleRequired={
                   state.targets.selectedTargets.length === 0
                 }

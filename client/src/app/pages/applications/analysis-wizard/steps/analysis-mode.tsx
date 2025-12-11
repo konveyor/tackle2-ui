@@ -15,7 +15,7 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 
-import { UploadBinary } from "../components/upload-binary";
+import { UploadApplicationBinary } from "../components/upload-application-binary";
 import {
   AnalysisModeState,
   AnalysisModeValues,
@@ -37,9 +37,6 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
   initialState,
 }) => {
   const { t } = useTranslation();
-
-  // Track the current taskgroup ID for file removal operations
-  const [taskGroupId, setTaskGroupId] = React.useState<number | undefined>();
 
   const schema = useAnalysisModeSchema({
     applications,
@@ -83,13 +80,6 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
       children: "Upload a local binary",
     },
   ].filter(Boolean);
-
-  // Wrapper to capture the taskgroup ID when ensuring it exists
-  const handleEnsureTaskGroup = async (): Promise<Taskgroup> => {
-    const taskgroup = await ensureTaskGroup();
-    setTaskGroupId(taskgroup.id);
-    return taskgroup;
-  };
 
   return (
     <Form
@@ -142,11 +132,12 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
       )}
 
       {mode === "binary-upload" && (
-        <UploadBinary
-          ensureTaskGroup={handleEnsureTaskGroup}
-          taskGroupId={taskGroupId}
+        <UploadApplicationBinary
+          requestTaskgroupId={async () => (await ensureTaskGroup()).id}
           artifact={artifact}
-          onArtifactChange={(artifact) => form.setValue("artifact", artifact)}
+          onArtifactChange={(artifact) =>
+            form.setValue("artifact", artifact, { shouldValidate: true })
+          }
         />
       )}
     </Form>
