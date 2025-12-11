@@ -16,7 +16,7 @@ export type CredentialsSourceControlPrivateKeyData = {
   type: string;
   name?: string;
   description?: string;
-  key?: string;
+  key?: any;
   passphrase?: string;
 };
 
@@ -32,7 +32,7 @@ export type CredentialsMavenData = {
   type: string;
   name?: string;
   description?: string;
-  settingFile?: unknown;
+  settingFile?: any;
   isDefault?: boolean;
 };
 
@@ -202,6 +202,19 @@ export type AppIssue = {
   targets: string[];
   effort: number;
   totalEffort?: number;
+  incidents: number;
+  affectedFiles: number;
+  tags?: string[];
+  ruleSet?: string;
+  rule?: string;
+  labels?: string[];
+};
+
+export type AppInsight = {
+  name: string;
+  category: string;
+  sources: string[];
+  targets: string[];
   incidents: number;
   affectedFiles: number;
   tags?: string[];

@@ -44,8 +44,8 @@ import {
   button,
   confidence,
   criticality,
+  dynamicReportFilter,
   groupCount,
-  issueFilter,
   memberCount,
   migration,
   priority,
@@ -495,16 +495,16 @@ export function clearAllFilters(): void {
 }
 
 export function filterIssueBy(
-  filterType: issueFilter,
+  filterType: dynamicReportFilter,
   filterValue: string | string[]
 ): void {
   let selector = "";
   selectFilter(filterType);
   const isApplicableFilter =
-    filterType === issueFilter.applicationName ||
-    filterType === issueFilter.category ||
-    filterType === issueFilter.source ||
-    filterType === issueFilter.target;
+    filterType === dynamicReportFilter.applicationName ||
+    filterType === dynamicReportFilter.category ||
+    filterType === dynamicReportFilter.source ||
+    filterType === dynamicReportFilter.target;
 
   if (isApplicableFilter) {
     if (Array.isArray(filterValue)) {
@@ -517,9 +517,9 @@ export function filterIssueBy(
       click(searchButton);
     }
   } else {
-    if (filterType == issueFilter.bs) {
+    if (filterType == dynamicReportFilter.bs) {
       selector = bsFilterName;
-    } else if (filterType == issueFilter.tags) {
+    } else if (filterType == dynamicReportFilter.tags) {
       selector = tagFilterName;
     }
     click(selector);
@@ -2062,20 +2062,42 @@ export function seedAnalysisData(applicationId: number): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
+  cy.log(
+    `seedAnalysisData: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
+  );
+
   const command = `cd fixtures && chmod +x analysis.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./analysis.sh ${applicationId}`;
   cy.exec(command, {
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
-    console.log("Command result:", result);
-    cy.log(`Exit code: ${result.exitCode}`);
-    cy.log(`stdout: ${result.stdout}`);
-    cy.log(`stderr: ${result.stderr}`);
-    expect(result.exitCode).to.eq(0);
-    expect(result.stderr, "No error output").to.eq("");
-    expect(result.stdout, "Expected script output").to.include(
-      "Analysis: created."
-    );
+    // Log full details for debugging
+    cy.log(`Exit code: ${result.exitCode ?? "n/a"}`);
+    cy.log(`stderr: ${result.stderr ?? "n/a"}`);
+    cy.log(`stdout: ${result.stdout ?? "n/a"}`);
+
+    // Check for success first - the script outputs "Analysis: created." on success
+    const isSuccess = result.stdout.includes("Analysis: created.");
+    if (!isSuccess || result.exitCode !== 0) {
+      // Provide detailed error context for debugging
+      const errorContext = [
+        `seedAnalysisData failed for applicationId: ${applicationId}`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+        `hostname: ${hostname}`,
+        `username: ${username}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "analysis.sh should exit with code 0").to.eq(0);
+    expect(result.stderr, "analysis.sh should not output any errors").to.eq("");
+    expect(
+      result.stdout,
+      "analysis.sh should output 'Analysis: created.'"
+    ).to.include("Analysis: created.");
   });
 }
 

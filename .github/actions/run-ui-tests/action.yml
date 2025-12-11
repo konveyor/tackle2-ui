@@ -52,6 +52,16 @@ runs:
         spec: "**/e2e/tests/login.test.ts"
         summary-title: "Login tests"
 
+    - name: Build test spec from test tags
+      id: build-test-spec
+      shell: bash
+      env:
+        TEST_TAGS: ${{ inputs.test_tags }}
+      run: |
+        cd ui-tests/cypress
+        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+        echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
@@ -69,12 +79,23 @@ runs:
         install: false
         working-directory: ./ui-tests
         project: ./cypress
+        spec: "${{ env.test_spec }}"
         summary-title: "UI tests (${{ inputs.test_tags }})"
+
+    - name: Sanitize ref name for artifact
+      id: sanitize
+      shell: bash
+      run: |
+        sanitized="${{ inputs.tests_ref }}"
+        sanitized="${sanitized//\//_}"
+        sanitized="${sanitized//:/_}"
+        sanitized="${sanitized//\\/_}"
+        echo "ref=$sanitized" >> $GITHUB_OUTPUT
 
     - name: Upload cypress report data as artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-reports-${{ inputs.tests_ref }}
+        name: test-reports-${{ steps.sanitize.outputs.ref }}
         path: |
           ./ui-tests/cypress/run

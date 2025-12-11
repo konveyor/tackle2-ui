@@ -14,7 +14,7 @@ if (!tierArg) {
 }
 
 // Split multiple tiers
-const tierTags = tierArg.split(",").map((t) => t.trim());
+const tierTags = tierArg.split(",").map((t) => t.trim().replace(/^@/, ""));
 
 const rootDir = resolve("e2e/tests");
 
