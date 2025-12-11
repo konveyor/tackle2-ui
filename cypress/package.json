@@ -16,7 +16,8 @@
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-path .gitignore --ignore-unknown --check .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "tsc": "tsc -p ./tsconfig.json --noEmit"
+    "tsc": "tsc -p ./tsconfig.json --noEmit",
+    "mergereports": "npx jrm ./run/report/junitreport.xml ./run/report/junit/*.xml"
   },
   "devDependencies": {
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.6",
@@ -27,7 +28,7 @@
     "cypress-downloadfile": "^1.2.4",
     "cypress-fail-fast": "^7.1.1",
     "cypress-file-upload": "^5.0.8",
-    "cypress-fs": "^0.2.6",
+    "cypress-fs": "^0.2.8",
     "cypress-log-filter": "^1.0.5",
     "cypress-mochawesome-reporter": "^3.8.4",
     "cypress-multi-reporters": "^2.0.5",
@@ -43,6 +44,7 @@
     "mocha": "^11.7.4",
     "mocha-junit-reporter": "^2.2.1",
     "mochawesome-merge": "^4.4.1",
-    "table": "^6.9.0"
+    "table": "^6.9.0",
+    "junit-report-merger": "^3.0.2"
   }
 }

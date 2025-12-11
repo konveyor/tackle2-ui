@@ -201,7 +201,7 @@ export enum SortType {
   descending = "descending",
 }
 
-export enum issueFilter {
+export enum dynamicReportFilter {
   applicationName = "Application name",
   archetype = "Archetype",
   bs = "Business service",
