@@ -85,7 +85,14 @@ export default defineConfig({
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
       // Plugins
-      on("file:preprocessor", createBundler());
+      // Esbuild bundler configured with sourcemaps for better stack traces
+      on(
+        "file:preprocessor",
+        createBundler({
+          sourcemap: true,
+          sourcesContent: true,
+        })
+      );
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);

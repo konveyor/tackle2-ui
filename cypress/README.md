@@ -116,17 +116,17 @@ Tests are tagged for selective execution based on purpose, stability, and resour
 
 ### Finding and Running Tests by Tag
 
-Use the `findTierFiles.js` utility to locate and run tests with specific tags:
+Use the `findTierFiles.mjs` utility to locate and run tests with specific tags:
 
 ```bash
 # Find all tier0 tests
-node cypress/scripts/findTierFiles.js tier0
+node cypress/scripts/findTierFiles.mjs tier0
 
 # Run tests for a specific tier
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
 
 # Run tests for multiple tiers
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0,interop)"
 ```
 
 ### Tag Definitions
@@ -148,7 +148,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js ci)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
 ```
 
 #### `@tier0` - Basic Sanity Tests
@@ -164,7 +164,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js ci)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
 ```
 
 #### `@tier1` - Analysis Tests with Credentials
@@ -183,7 +183,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier1)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier1)"
 ```
 
 #### `@tier2` - Comprehensive CRUD Tests
@@ -194,7 +194,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier1)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier2)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier2)"
 ```
 
 #### `@tier3` - Sorting and Filtering Tests
@@ -209,7 +209,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier2)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier3)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier3)"
 ```
 
 #### `@tier4` - Load and Performance Tests
@@ -223,7 +223,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier3)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier4)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier4)"
 ```
 
 #### `@interop` - Interoperability Tests
@@ -237,7 +237,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier4)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js interop)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs interop)"
 ```
 
 ### Running Multiple Tags
@@ -246,10 +246,10 @@ To run tests from multiple tiers in a single execution:
 
 ```bash
 # Run tier0 and tier1 together
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,tier1)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0,tier1)"
 
 # Run interop and tier0 tests
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.js tier0,interop)"
+npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0,interop)"
 ```
 
 ## License Header Management
