@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
@@ -99,12 +99,24 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   const [taskgroupId, setTaskgroupId] = React.useState<number | undefined>(
     undefined
   );
+  const isEnsuringTaskGroup = useRef(false);
+
   const onShowUploadFiles = async (show: boolean) => {
     if (show && taskgroupId === undefined) {
-      const taskgroupId = await ensureTaskGroup();
-      setTaskgroupId(taskgroupId.id);
+      if (isEnsuringTaskGroup.current) {
+        return;
+      }
+      isEnsuringTaskGroup.current = true;
+      try {
+        const taskgroup = await ensureTaskGroup();
+        setTaskgroupId(taskgroup.id);
+        setShowUploadFiles(show);
+      } finally {
+        isEnsuringTaskGroup.current = false;
+      }
+    } else {
+      setShowUploadFiles(show);
     }
-    setShowUploadFiles(show);
   };
 
   const schema = useCustomRulesSchema({ isCustomRuleRequired });
@@ -130,10 +142,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     [form]
   );
 
-  const [customRulesFiles, customLabels, sourceRepository] = useWatch({
-    control,
-    name: ["customRulesFiles", "customLabels", "sourceRepository"],
-  });
+  const [customRulesFiles = [], customLabels = [], sourceRepository] = useWatch(
+    {
+      control,
+      name: ["customRulesFiles", "customLabels", "sourceRepository"],
+    }
+  );
 
   const isCustomRuleRequiredAlertVisible =
     isCustomRuleRequired && customRulesFiles.length === 0 && !sourceRepository;
@@ -298,7 +312,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
         fieldId="type-select"
         renderInput={({ field: { onChange } }) => (
           <Tabs
-            // TODO: Use mountOnEnter/unmountOnExit instead of activeKey for tab body rendering
+            // TODO: Use mountOnEnter/unmountOnExit instead of activeKey for tab body rendering?
             className={spacing.mtSm}
             activeKey={activeTabKey}
             onSelect={(_event, tabIndex) => {
