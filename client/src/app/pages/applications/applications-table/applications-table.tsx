@@ -713,7 +713,7 @@ export const ApplicationsTable: React.FC = () => {
             {t("actions.manageApplicationImports")}
           </DropdownItem>
         ),
-        tasksWriteAccess && (
+        importWriteAccess && tasksWriteAccess && (
           <DropdownItem
             key="discover-import-applications"
             onClick={() => setIsDiscoverImportWizardOpen(true)}
