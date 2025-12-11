@@ -21,6 +21,9 @@ const TARGET_A: Target = {
   id: 1,
   name: "target A",
   ruleset: {
+    id: 1,
+    name: "ruleset 1",
+    description: "ruleset 1 description",
     rules: [
       {
         name: "ruleset 1",
@@ -34,6 +37,9 @@ const TARGET_B: Target = {
   id: 1,
   name: "target B",
   ruleset: {
+    id: 1,
+    name: "ruleset 1",
+    description: "ruleset 1 description",
     rules: [
       {
         name: "ruleset 1",

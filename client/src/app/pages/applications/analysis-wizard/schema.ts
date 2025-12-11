@@ -66,14 +66,6 @@ export interface SetTargetsState extends SetTargetsValues {
   isValid: boolean;
 }
 
-export const useSetTargetsSchema = (): yup.SchemaOf<SetTargetsValues> => {
-  return yup.object({
-    selectedTargetLabels: yup.array(),
-    selectedTargets: yup.array(),
-    targetFilters: yup.object(),
-  });
-};
-
 // Scope step
 export type AnalysisScope = "app" | "app,oss" | "app,oss,select";
 

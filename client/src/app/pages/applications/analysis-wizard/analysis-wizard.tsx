@@ -76,8 +76,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     state.mode.mode
   );
 
-  const onSubmit = () => {
-    submitAnalysis(state, analyzableApplications, identities);
+  const onSubmit = async () => {
+    await submitAnalysis(state, analyzableApplications, identities);
     reset();
     onClose();
   };
@@ -85,11 +85,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const onMove = (current: WizardStepType) => {
     const id = current.id;
     if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
-    if (id === StepId.SetTargets) {
-      // Ensure taskgroup exists when entering the SetTargets step
-      // This allows subsequent file uploads to have a taskgroup ID
-      ensureTaskGroup();
-    }
   };
 
   const isStepEnabled = (stepId: StepId) => {

@@ -1,5 +1,4 @@
 import { type FC, useMemo } from "react";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -31,11 +30,7 @@ import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-import {
-  SetTargetsState,
-  SetTargetsValues,
-  useSetTargetsSchema,
-} from "../schema";
+import { SetTargetsState, SetTargetsValues } from "../schema";
 import { toggleSelectedTargets, updateSelectedTargetLabels } from "../utils";
 
 const useTargetsData = (applications: Application[]) => {
@@ -127,7 +122,6 @@ export const SetTargets: FC<SetTargetsProps> = ({
     languageProviders,
   } = useTargetsData(applications);
 
-  const schema = useSetTargetsSchema();
   const form = useForm<SetTargetsValues>({
     defaultValues: {
       selectedTargets: initialState.selectedTargets,
@@ -135,7 +129,6 @@ export const SetTargets: FC<SetTargetsProps> = ({
       targetFilters: initialState.targetFilters,
     },
     mode: "all",
-    resolver: yupResolver(schema),
   });
 
   useFormChangeHandler({ form, onStateChanged });
