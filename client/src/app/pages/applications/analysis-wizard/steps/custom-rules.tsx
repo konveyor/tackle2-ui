@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { unique } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
@@ -99,24 +99,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   const [taskgroupId, setTaskgroupId] = React.useState<number | undefined>(
     undefined
   );
-  const isEnsuringTaskGroup = useRef(false);
-
   const onShowUploadFiles = async (show: boolean) => {
     if (show && taskgroupId === undefined) {
-      if (isEnsuringTaskGroup.current) {
-        return;
-      }
-      isEnsuringTaskGroup.current = true;
-      try {
-        const taskgroup = await ensureTaskGroup();
-        setTaskgroupId(taskgroup.id);
-        setShowUploadFiles(show);
-      } finally {
-        isEnsuringTaskGroup.current = false;
-      }
-    } else {
-      setShowUploadFiles(show);
+      const taskgroup = await ensureTaskGroup();
+      setTaskgroupId(taskgroup.id);
     }
+    setShowUploadFiles(show);
   };
 
   const schema = useCustomRulesSchema({ isCustomRuleRequired });
