@@ -44,8 +44,8 @@ import {
   button,
   confidence,
   criticality,
+  dynamicReportFilter,
   groupCount,
-  issueFilter,
   memberCount,
   migration,
   priority,
@@ -495,16 +495,16 @@ export function clearAllFilters(): void {
 }
 
 export function filterIssueBy(
-  filterType: issueFilter,
+  filterType: dynamicReportFilter,
   filterValue: string | string[]
 ): void {
   let selector = "";
   selectFilter(filterType);
   const isApplicableFilter =
-    filterType === issueFilter.applicationName ||
-    filterType === issueFilter.category ||
-    filterType === issueFilter.source ||
-    filterType === issueFilter.target;
+    filterType === dynamicReportFilter.applicationName ||
+    filterType === dynamicReportFilter.category ||
+    filterType === dynamicReportFilter.source ||
+    filterType === dynamicReportFilter.target;
 
   if (isApplicableFilter) {
     if (Array.isArray(filterValue)) {
@@ -517,9 +517,9 @@ export function filterIssueBy(
       click(searchButton);
     }
   } else {
-    if (filterType == issueFilter.bs) {
+    if (filterType == dynamicReportFilter.bs) {
       selector = bsFilterName;
-    } else if (filterType == issueFilter.tags) {
+    } else if (filterType == dynamicReportFilter.tags) {
       selector = tagFilterName;
     }
     click(selector);
