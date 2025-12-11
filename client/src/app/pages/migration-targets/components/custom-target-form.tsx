@@ -375,7 +375,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       custom: true,
       labels: labels.length ? labels : [],
       ruleset: {
-        id: target?.custom ? target.ruleset.id : undefined,
+        id: target?.custom ? target.ruleset.id : 0,
         name: formValues.name.trim(),
         rules: rules,
         ...(formValues.rulesKind === "repository" && {

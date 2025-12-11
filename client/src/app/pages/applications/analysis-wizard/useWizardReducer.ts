@@ -42,13 +42,13 @@ const INITIAL_WIZARD_STATE: WizardState = {
     rulesKind: "manual",
     customRulesFiles: [],
     customLabels: [],
-    isValid: true, // Custom rules are optional
+    isValid: true, // Custom rules are initially optional
   },
   options: {
+    selectedSourceLabels: [],
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,
-    selectedSourceLabels: [],
     isValid: true,
   },
   isReady: false,
