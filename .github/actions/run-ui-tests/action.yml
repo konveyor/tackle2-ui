@@ -82,10 +82,20 @@ runs:
         spec: "${{ env.test_spec }}"
         summary-title: "UI tests (${{ inputs.test_tags }})"
 
+    - name: Sanitize ref name for artifact
+      id: sanitize
+      shell: bash
+      run: |
+        sanitized="${{ inputs.tests_ref }}"
+        sanitized="${sanitized//\//_}"
+        sanitized="${sanitized/:/_}"
+        sanitized="${sanitized//\\/_}"
+        echo "ref=$sanitized" >> $GITHUB_OUTPUT
+
     - name: Upload cypress report data as artifact
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-reports-${{ inputs.tests_ref }}
+        name: test-reports-${{ steps.sanitize.outputs.ref }}
         path: |
           ./ui-tests/cypress/run
