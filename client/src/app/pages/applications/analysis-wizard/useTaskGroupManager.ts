@@ -19,7 +19,7 @@ import { getParsedLabel } from "@app/utils/rules-utils";
 
 import { WizardState } from "./useWizardReducer";
 
-const defaultTaskData: AnalysisTaskData = {
+const DEFAULT_TASK_DATA: AnalysisTaskData = {
   tagger: {
     enabled: true,
   },
@@ -40,11 +40,11 @@ const defaultTaskData: AnalysisTaskData = {
   },
 };
 
-export const defaultTaskgroup: New<Taskgroup> = {
+const DEFAULT_TASKGROUP: New<Taskgroup> = {
   name: `taskgroup.analyzer`,
   kind: "analyzer",
   data: {
-    ...defaultTaskData,
+    ...DEFAULT_TASK_DATA,
   },
   tasks: [],
 };
@@ -81,7 +81,7 @@ const buildTaskgroupData = (
     ...currentTaskgroup,
     tasks: analyzableApplications.map((app: Application) => initTask(app)),
     data: {
-      ...defaultTaskData,
+      ...DEFAULT_TASK_DATA,
       verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
       tagger: {
         enabled: wizardState.options.autoTaggingEnabled,
@@ -208,7 +208,7 @@ export const useTaskGroupManager = () => {
         return taskGroup;
       }
       const newTaskGroup = await createTaskgroupAsync(
-        taskgroupData || defaultTaskgroup
+        taskgroupData || DEFAULT_TASKGROUP
       );
       return newTaskGroup;
     },
@@ -267,7 +267,6 @@ export const useTaskGroupManager = () => {
   }, [taskGroup]);
 
   return {
-    taskGroup,
     ensureTaskGroup,
     submitAnalysis,
     cancelAnalysis,

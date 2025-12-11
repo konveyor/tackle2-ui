@@ -7,7 +7,7 @@ import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 
 export interface UploadNewRulesFilesProps {
   show: boolean;
-  taskGroupId: number | undefined;
+  taskgroupId: number | undefined;
   existingFiles: UploadFile[];
   onAddFiles: (newFiles: UploadFile[]) => void;
   onClose: () => void;
@@ -15,7 +15,7 @@ export interface UploadNewRulesFilesProps {
 
 export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
   show,
-  taskGroupId,
+  taskgroupId,
   existingFiles,
   onAddFiles,
   onClose,
@@ -83,7 +83,7 @@ export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
       ]}
     >
       <CustomRuleFilesUpload
-        taskgroupId={taskGroupId}
+        taskgroupId={taskgroupId}
         fileExists={doesFileAlreadyExist}
         ruleFiles={fields}
         onAddRuleFiles={(ruleFiles) => {
