@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 /* global process */
-import { merge } from "mochawesome-merge";
+import { readFile, writeFile } from "fs/promises";
+
 import { table } from "table";
 
 const bugPattern = /Bug\s+([A-Z]+-\d+)/i;
-const fileArg = process.argv[2] || "cypress/run/report/.jsons/*.json";
+const fileArg = process.argv[2] || "run/report/index.json";
+const outputFile = "run/report/bug-summary.json";
 
 const red = (text) => `\x1b[31m${text}\x1b[0m`;
 const green = (text) => `\x1b[32m${text}\x1b[0m`;
@@ -12,7 +14,8 @@ const SPEC_COL_WIDTH = 35;
 
 let json;
 try {
-  json = await merge({ files: [fileArg] });
+  const fileContent = await readFile(fileArg, "utf-8");
+  json = JSON.parse(fileContent);
 } catch {
   json = { results: [] };
 }
@@ -48,7 +51,7 @@ const processSuite = (suite, specName) => {
 
 json.results.forEach((result) => {
   let specName = result.file ?? "unknown";
-  specName = specName.replace(/^cypress\/e2e\/tests\//, "");
+  specName = specName.replace(/^e2e\/tests\//, "");
   specs[specName] ||= {
     total: 0,
     passing: 0,
@@ -131,3 +134,39 @@ console.log(
     drawHorizontalLine: () => true,
   })
 );
+
+// Prepare JSON output with bug summary
+const specsArray = Object.keys(specs)
+  .sort()
+  .map((specName) => ({
+    spec: specName,
+    tests: specs[specName].total,
+    passing: specs[specName].passing,
+    failing: specs[specName].failing,
+    pending: specs[specName].pending,
+    skipped: specs[specName].skipped,
+    bugCount: specs[specName].bugs.length,
+    bugIds: specs[specName].bugs,
+  }));
+
+const summaryOutput = {
+  summary: {
+    totalTests: totals.total,
+    passing: totals.passing,
+    failing: totals.failing,
+    pending: totals.pending,
+    skipped: totals.skipped,
+    totalBugs: totals.bugs,
+    percentFailed: percentFailed,
+  },
+  specs: specsArray,
+  generatedAt: new Date().toISOString(),
+};
+
+// Save to JSON file
+try {
+  await writeFile(outputFile, JSON.stringify(summaryOutput, null, 2), "utf-8");
+  console.log(`\nBug summary saved to: ${outputFile}`);
+} catch (error) {
+  console.error(`\nFailed to save bug summary: ${error.message}`);
+}
