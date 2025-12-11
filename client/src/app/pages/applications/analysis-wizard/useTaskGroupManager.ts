@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useRef } from "react";
 
 import {
   AnalysisTaskData,
@@ -161,13 +161,12 @@ const buildTaskgroupData = (
 
 export const useTaskGroupManager = () => {
   const { pushNotification } = useContext(NotificationsContext);
-  const [taskGroup, setTaskGroup] = useState<Taskgroup | null>(null);
+  const taskGroupRef = useRef<Taskgroup | null>(null);
+  const creationPromiseRef = useRef<Promise<Taskgroup> | null>(null);
 
   // Create taskgroup mutation
   const { mutateAsync: createTaskgroupAsync } = useCreateTaskgroupMutation(
-    (data: Taskgroup) => {
-      setTaskGroup(data);
-    },
+    undefined,
     (error: Error | unknown) => {
       console.error("Taskgroup creation failed: ", error);
       pushNotification({
@@ -185,7 +184,7 @@ export const useTaskGroupManager = () => {
         message: "Submitted for analysis",
         variant: "info",
       });
-      setTaskGroup(null);
+      taskGroupRef.current = null;
     },
     (_error: Error | unknown) => {
       pushNotification({
@@ -198,7 +197,7 @@ export const useTaskGroupManager = () => {
   // Delete taskgroup mutation
   const { mutate: deleteTaskgroupMutate } = useDeleteTaskgroupMutation(
     () => {
-      setTaskGroup(null);
+      taskGroupRef.current = null;
     },
     (_error: Error | unknown) => {
       pushNotification({
@@ -211,18 +210,34 @@ export const useTaskGroupManager = () => {
   /**
    * Ensures a taskgroup exists, creating one if needed.
    * Returns the existing or newly created taskgroup.
+   * Uses refs to prevent race conditions from concurrent calls.
    */
   const ensureTaskGroup = useCallback(
     async (taskgroupData?: New<Taskgroup>): Promise<Taskgroup> => {
-      if (taskGroup !== null) {
-        return taskGroup;
+      // Return existing taskgroup if available (ref avoids stale closure)
+      if (taskGroupRef.current !== null) {
+        return taskGroupRef.current;
       }
-      const newTaskGroup = await createTaskgroupAsync(
+
+      // If creation is in progress, wait for the same promise
+      if (creationPromiseRef.current !== null) {
+        return creationPromiseRef.current;
+      }
+
+      // Start creation and store the promise for concurrent callers
+      creationPromiseRef.current = createTaskgroupAsync(
         taskgroupData || DEFAULT_TASKGROUP
       );
-      return newTaskGroup;
+
+      try {
+        const newTaskGroup = await creationPromiseRef.current;
+        taskGroupRef.current = newTaskGroup;
+        return newTaskGroup;
+      } finally {
+        creationPromiseRef.current = null;
+      }
     },
-    [taskGroup, createTaskgroupAsync]
+    [createTaskgroupAsync]
   );
 
   /**
@@ -235,18 +250,16 @@ export const useTaskGroupManager = () => {
       analyzableApplications: Application[],
       identities: Identity[]
     ) => {
-      const baseTaskgroup = taskGroup ?? (await ensureTaskGroup());
-
-      const preparedTaskgroup = buildTaskgroupData(
+      const baseTaskgroup = taskGroupRef.current ?? (await ensureTaskGroup());
+      const builtTaskgroup = buildTaskgroupData(
         baseTaskgroup,
         wizardState,
         analyzableApplications,
         identities
       );
-      submitTaskgroupMutate(preparedTaskgroup);
-      setTaskGroup(null);
+      submitTaskgroupMutate(builtTaskgroup);
     },
-    [taskGroup, ensureTaskGroup, submitTaskgroupMutate]
+    [ensureTaskGroup, submitTaskgroupMutate]
   );
 
   /**
@@ -254,11 +267,10 @@ export const useTaskGroupManager = () => {
    * Cleans up the local state.
    */
   const cancelAnalysis = useCallback(() => {
-    if (taskGroup !== null) {
-      deleteTaskgroupMutate(taskGroup.id);
-      setTaskGroup(null);
+    if (taskGroupRef.current !== null) {
+      deleteTaskgroupMutate(taskGroupRef.current.id);
     }
-  }, [taskGroup, deleteTaskgroupMutate]);
+  }, [deleteTaskgroupMutate]);
 
   return {
     ensureTaskGroup,
