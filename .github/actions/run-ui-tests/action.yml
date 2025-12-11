@@ -60,11 +60,7 @@ runs:
       run: |
         cd ui-tests/cypress
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-        {
-          echo "test_spec<<EOF"
-          echo "${SPEC/,/\\n}"
-          echo "EOF"
-        } >> "$GITHUB_ENV"
+        echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
 
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
