@@ -88,7 +88,7 @@ runs:
       run: |
         sanitized="${{ inputs.tests_ref }}"
         sanitized="${sanitized//\//_}"
-        sanitized="${sanitized/:/_}"
+        sanitized="${sanitized//:/_}"
         sanitized="${sanitized//\\/_}"
         echo "ref=$sanitized" >> $GITHUB_OUTPUT
 
