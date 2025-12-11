@@ -90,7 +90,7 @@ export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
       .array()
       .of(yup.string().defined())
       .when("withKnownLibs", (withKnownLibs, schema) =>
-        withKnownLibs.includes("select") ? schema.min(1) : schema
+        withKnownLibs?.includes("select") ? schema.min(1) : schema
       ),
     hasExcludedPackages: yup.bool().defined(),
     excludedPackages: yup
