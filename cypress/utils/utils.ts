@@ -2073,8 +2073,8 @@ export function seedAnalysisData(applicationId: number): void {
   }).then((result) => {
     // Log full details for debugging
     cy.log(`Exit code: ${result.exitCode ?? "n/a"}`);
-    cy.log(`stdout: ${result.stdout ?? "n/a"}`);
     cy.log(`stderr: ${result.stderr ?? "n/a"}`);
+    cy.log(`stdout: ${result.stdout ?? "n/a"}`);
 
     // Check for success first - the script outputs "Analysis: created." on success
     const isSuccess = result.stdout.includes("Analysis: created.");

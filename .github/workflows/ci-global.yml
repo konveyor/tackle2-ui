@@ -61,8 +61,6 @@ jobs:
       - name: Determine what git ref to use for the UI tests
         id: determine-ref
         run: |
-          echo "For push events: uses branch ref (refs/heads/BRANCH)"
-          echo "For PR events: uses PR merge ref (refs/pull/NUMBER/merge)"
           echo "ui_tests_ref=${{ github.ref }}"
           echo "ui_tests_ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
           echo "Using \`ui_tests_ref=${{ github.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
