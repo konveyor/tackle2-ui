@@ -17,13 +17,13 @@ import { closeModal } from "../../../views/assessment.view";
 import { downloadYamlTemplate } from "../../../views/assessmentquestionnaire.view";
 import { alertTitle } from "../../../views/common.view";
 
-const filePath = "downloads/questionnaire-template.yaml";
+const filePath = `${Cypress.config("downloadsFolder")}/questionnaire-template.yaml`;
 const yamlFile = "questionnaire_import/questionnaire-template-sample.yaml";
 const invalidYamlFile =
   "questionnaire_import/invalid-questionnaire-template.yaml";
 const cloudNativePath = "questionnaire_import/cloud-native.yaml";
 
-const cloudNativeDownloadPath = "downloads/";
+const cloudNativeDownloadPath = `${Cypress.config("downloadsFolder")}/`;
 
 describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
   it("Download YAML template", function () {

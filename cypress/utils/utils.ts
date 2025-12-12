@@ -1940,9 +1940,11 @@ export function clickTab(name: string): void {
 
 export function cleanupDownloads(): void {
   // This will eliminate content of `downloads` folder
-  cy.exec("cd downloads; rm -rf ./*").then((result) => {
-    cy.log(result.stdout);
-  });
+  cy.exec(`cd ${Cypress.config("downloadsFolder")}; rm -rf ./*`).then(
+    (result) => {
+      cy.log(result.stdout);
+    }
+  );
 }
 
 export function selectAssessmentApplications(apps: string): void {
@@ -2271,7 +2273,7 @@ export function downloadTaskDetails(format = downloadFormatDetails.yaml) {
   cy.url().should("include", "tasks");
   cy.url().then((url) => {
     const taskId = url.split("/").pop();
-    const filePath = `downloads/log-${taskId}.${format.key}`;
+    const filePath = `${Cypress.config("downloadsFolder")}/log-${taskId}.${format.key}`;
     cy.get(format.button).click();
     cy.get(downloadTaskButton).click();
     if (format === downloadFormatDetails.json) {
