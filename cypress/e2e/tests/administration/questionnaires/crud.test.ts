@@ -56,7 +56,7 @@ describe(["@tier2"], "Questionnaire CRUD operations", () => {
       `${Cypress.config("downloadsFolder")}/questionnaire-1.yaml`
     ).should("contain", legacyQuestionnaire);
     cy.exec(
-      `cp ${Cypress.config("downloadsFolder")}/questionnaire-1.yaml fixtures/questionnaire_import/questionnaire-1.yaml`
+      `cp "${Cypress.config("downloadsFolder")}/questionnaire-1.yaml" "fixtures/questionnaire_import/questionnaire-1.yaml"`
     ).then((result) => {
       cy.log(result.stdout);
     });

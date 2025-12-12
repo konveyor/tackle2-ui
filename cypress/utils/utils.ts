@@ -1940,11 +1940,13 @@ export function clickTab(name: string): void {
 
 export function cleanupDownloads(): void {
   // This will eliminate content of `downloads` folder
-  cy.exec(`cd ${Cypress.config("downloadsFolder")}; rm -rf ./*`).then(
-    (result) => {
-      cy.log(result.stdout);
+  const downloadsFolder = Cypress.config("downloadsFolder");
+  cy.exec(
+    `bash -lc 'set -euo pipefail; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
+    {
+      env: { DOWNLOADS_FOLDER: String(downloadsFolder) },
     }
-  );
+  ).then((result) => cy.log(result.stdout));
 }
 
 export function selectAssessmentApplications(apps: string): void {
