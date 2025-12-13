@@ -1,0 +1,8 @@
+{
+  "cf-k8s-helm-chart": {
+    "kind": "Git",
+    "url": "https://github.com/konveyor/cf-k8s-helm-chart",
+    "branch": "v0.1.0",
+    "path": "java-backend"
+  }
+}
