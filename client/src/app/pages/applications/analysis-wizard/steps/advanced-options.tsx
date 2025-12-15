@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { group, toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
@@ -32,7 +32,6 @@ import { Target, TargetLabel } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-import { useFetchTargets } from "@app/queries/targets";
 import {
   ParsedTargetLabel,
   getParsedLabel,
@@ -48,7 +47,6 @@ import {
 } from "../schema";
 import { useSourceLabels } from "../useSourceLabels";
 import { useTargetLabels } from "../useTargetLabels";
-import { updateSelectedTargetsBasedOnLabels } from "../utils";
 
 interface AdvancedOptionsProps {
   selectedTargets: [Target, TargetLabel | null][];
@@ -104,7 +102,6 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-  const { targets } = useFetchTargets();
 
   // TODO: Include labels parsed from uploaded manual custom rule files?
   const availableTargetLabels = parseLabels(useTargetLabels());
