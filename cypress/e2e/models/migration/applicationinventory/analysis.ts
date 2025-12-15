@@ -496,7 +496,7 @@ export class Analysis extends Application {
 
   extractHTMLReport() {
     cy.task("unzip", {
-      path: "downloads/",
+      path: `${Cypress.config("downloadsFolder")}/`,
       file: `analysis-report-app-${this.name}.tar`,
     });
     cy.verifyDownload(`analysis-report-app-${this.name}/index.html`);
