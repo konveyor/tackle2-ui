@@ -11,10 +11,17 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Application } from "@app/api/models";
-import { getParsedLabel } from "@app/utils/rules-utils";
+import {
+  getParsedLabel,
+  parseAndGroupLabels,
+  parseLabel,
+  parseLabels,
+} from "@app/utils/rules-utils";
 
+import { GroupOfLabels } from "../components/group-of-labels";
 import {
   AdvancedOptionsValues,
   AnalysisMode,
@@ -56,17 +63,21 @@ export const Review: React.FC<ReviewProps> = ({
   const { t } = useTranslation();
 
   const hasIncludedPackages = scope.withKnownLibs.includes("select");
+  const targetParsedLabels = targets.selectedTargets.map(([target, label]) => ({
+    target,
+    labels: parseAndGroupLabels(label ? [label] : (target.labels ?? [])),
+  }));
 
   return (
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.title.review")}
+          {t("analysisWizard.review.title")}
         </Title>
-        <Text>{t("wizard.label.reviewDetails")}</Text>
+        <Text>{t("analysisWizard.review.description")}</Text>
       </TextContent>
 
-      <DescriptionList isHorizontal>
+      <DescriptionList isHorizontal className={spacing.mtMd}>
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
           <DescriptionListDescription id="applications">
@@ -77,50 +88,66 @@ export const Review: React.FC<ReviewProps> = ({
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
+
+        {/* Mode */}
         <DescriptionListGroup>
           <DescriptionListTerm>{t("wizard.terms.mode")}</DescriptionListTerm>
           <DescriptionListDescription id="mode">
             {defaultMode.get(mode)}
           </DescriptionListDescription>
         </DescriptionListGroup>
+
+        {/* Targets */}
         <DescriptionListGroup>
           <DescriptionListTerm>
-            {t("wizard.terms.target", {
-              count: targets.selectedTargetLabels.length,
+            {t("analysisWizard.review.targets", {
+              count: targets.selectedTargets.length,
             })}
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {targets.selectedTargetLabels.map((label, index) => {
-                const parsedLabel = getParsedLabel(label?.label);
-                if (parsedLabel.labelType === "target") {
-                  return (
-                    <ListItem key={index}>{parsedLabel.labelValue}</ListItem>
-                  );
-                }
-              })}
+              {targetParsedLabels.map(({ target }) => (
+                <ListItem key={target.id}>{target.name}</ListItem>
+              ))}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.terms.source", {
-              count: options.selectedSourceLabels.length,
-            })}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="sources">
+          <DescriptionListTerm>Target rule labels</DescriptionListTerm>
+          <DescriptionListDescription id="target-target-labels">
             <List isPlain>
-              {options.selectedSourceLabels.map((label, index) => {
-                const parsedLabel = getParsedLabel(label?.label);
-                if (parsedLabel.labelType === "source") {
-                  return (
-                    <ListItem key={index}>{parsedLabel.labelValue}</ListItem>
-                  );
-                }
-              })}
+              {targetParsedLabels
+                .filter(({ labels }) => labels.target.length > 0)
+                .map(({ target, labels }) => (
+                  <ListItem key={target.id}>
+                    <GroupOfLabels
+                      groupName={target.name}
+                      items={labels.target}
+                    />
+                  </ListItem>
+                ))}
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>Source rule labels</DescriptionListTerm>
+          <DescriptionListDescription id="target-source-labels">
+            <List isPlain>
+              {targetParsedLabels
+                .filter(({ labels }) => labels.source.length > 0)
+                .map(({ target, labels }) => (
+                  <ListItem key={target.id}>
+                    <GroupOfLabels
+                      groupName={target.name}
+                      items={labels.source}
+                    />
+                  </ListItem>
+                ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        {/* Scope */}
         <DescriptionListGroup>
           <DescriptionListTerm>{t("wizard.terms.scope")}</DescriptionListTerm>
           <DescriptionListDescription id="scope">
@@ -163,14 +190,38 @@ export const Review: React.FC<ReviewProps> = ({
             </List>
           </DescriptionListDescription>
         </DescriptionListGroup>
+
+        {/* Custom rules */}
         <DescriptionListGroup>
           <DescriptionListTerm>
             {t("wizard.terms.customRules")}
           </DescriptionListTerm>
           <DescriptionListDescription id="rules">
+            <ReviewCustomRules customRules={customRules} />
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        {/* Advanced options */}
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            Additional target rule labels
+          </DescriptionListTerm>
+          <DescriptionListDescription id="additional-target-labels">
             <List isPlain>
-              {customRules.customRulesFiles.map((rule, index) => (
-                <ListItem key={index}>{rule.fileName}</ListItem>
+              {options.additionalTargetLabels.map((label, index) => (
+                <ListItem key={index}>{parseLabel(label).name}</ListItem>
+              ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            Additional source rule labels
+          </DescriptionListTerm>
+          <DescriptionListDescription id="additional-source-labels">
+            <List isPlain>
+              {options.additionalSourceLabels.map((label, index) => (
+                <ListItem key={index}>{parseLabel(label).name}</ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -211,5 +262,47 @@ export const Review: React.FC<ReviewProps> = ({
         </DescriptionListGroup>
       </DescriptionList>
     </>
+  );
+};
+
+const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepValues }> = ({
+  customRules,
+}) => {
+  if (customRules.rulesKind === "manual") {
+    return (
+      <List isPlain>
+        {customRules.customRulesFiles.map((rule, index) => (
+          <ListItem key={index}>{rule.fileName}</ListItem>
+        ))}
+      </List>
+    );
+  }
+  return (
+    <DescriptionList isHorizontal>
+      <DescriptionListGroup>
+        <DescriptionListTerm>Source repository</DescriptionListTerm>
+        <DescriptionListDescription id="source-repository">
+          {customRules.sourceRepository}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+      <DescriptionListGroup>
+        <DescriptionListTerm>Branch</DescriptionListTerm>
+        <DescriptionListDescription id="branch">
+          {customRules.branch}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+      <DescriptionListGroup>
+        <DescriptionListTerm>Root path</DescriptionListTerm>
+        <DescriptionListDescription id="root-path">
+          {customRules.rootPath}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+      <DescriptionListGroup>
+        <DescriptionListTerm>Associated credentials</DescriptionListTerm>
+        <DescriptionListDescription id="associated-credentials">
+          {customRules.associatedCredentials}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+    </DescriptionList>
   );
 };

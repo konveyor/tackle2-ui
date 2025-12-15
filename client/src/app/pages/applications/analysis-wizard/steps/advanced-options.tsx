@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { group, toggle } from "radash";
+import { toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -11,9 +11,6 @@ import {
   FlexItem,
   Form,
   FormGroup,
-  Label,
-  LabelGroup,
-  LabelProps,
   Text,
   TextContent,
   Title,
@@ -33,12 +30,13 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import {
-  ParsedTargetLabel,
   getParsedLabel,
+  parseAndGroupLabels,
   parseLabels,
 } from "@app/utils/rules-utils";
 import { getValidatedFromErrors } from "@app/utils/utils";
 
+import { GroupOfLabels } from "../components/group-of-labels";
 import {
   AdvancedOptionsState,
   AdvancedOptionsValues,
@@ -54,18 +52,6 @@ interface AdvancedOptionsProps {
   onStateChanged: (state: AdvancedOptionsState) => void;
   initialState: AdvancedOptionsState;
 }
-
-const processTargetLabels = (
-  labels: TargetLabel[]
-): Record<ParsedTargetLabel["type"], ParsedTargetLabel[]> => {
-  const parsedLabels = parseLabels(labels);
-  return {
-    source: [],
-    target: [],
-    other: [],
-    ...group(parsedLabels, ({ type }) => type),
-  };
-};
 
 export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   selectedTargets,
@@ -110,13 +96,13 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   const targetLabels = selectedTargets.reduce(
     (acc, [target, targetLabel]) => {
       const labels = targetLabel === null ? target.labels : [targetLabel];
-      acc[target.name] = processTargetLabels(labels ?? []);
+      acc[target.name] = parseAndGroupLabels(labels ?? []);
       return acc;
     },
-    {} as Record<string, Record<ParsedTargetLabel["type"], ParsedTargetLabel[]>>
+    {} as Record<string, ReturnType<typeof parseAndGroupLabels>>
   );
 
-  const customLabels = processTargetLabels(customRules.customLabels);
+  const customLabels = parseAndGroupLabels(customRules.customLabels);
 
   return (
     <Form
@@ -351,29 +337,5 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         </FlexItem>
       </Flex>
     </Form>
-  );
-};
-
-const GroupOfLabels = ({
-  groupName,
-  items,
-  labelColor = "grey",
-}: {
-  groupName: string;
-  items: ParsedTargetLabel[];
-  labelColor?: LabelProps["color"];
-}) => {
-  return (
-    <LabelGroup
-      key={`${groupName}-${items.length}`}
-      categoryName={groupName}
-      numLabels={5}
-    >
-      {items.map((item) => (
-        <Label key={item.label} color={labelColor}>
-          {item.value}
-        </Label>
-      ))}
-    </LabelGroup>
   );
 };
