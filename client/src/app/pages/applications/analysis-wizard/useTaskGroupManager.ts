@@ -88,7 +88,8 @@ const buildTaskgroupData = (
 
       ...wizardState.customRules.customLabels.map(({ label }) => label),
 
-      // TODO: Labels from advanced options "additional labels" inputs
+      ...wizardState.options.additionalTargetLabels.map(({ label }) => label),
+      ...wizardState.options.additionalSourceLabels.map(({ label }) => label),
     ])
   );
 
