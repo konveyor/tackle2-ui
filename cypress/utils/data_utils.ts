@@ -19,12 +19,15 @@ import { JiraCredentials } from "../e2e/models/administration/credentials/JiraCr
 import {
   CredentialType,
   CustomRuleType,
+  GeneratorType,
   JiraType,
   UserCredentials,
 } from "../e2e/types/constants";
 import {
+  AssetGeneratorData,
   CredentialsData,
   CredentialsJiraData,
+  GeneratorRepository,
   JiraConnectionData,
   ProxyData,
   RulesManualFields,
@@ -364,5 +367,17 @@ export function getRulesData(
   return {
     type: CustomRuleType.Manual,
     rulesetPaths: targetData.rulesFiles,
+  };
+}
+
+export function getRandomAssetGeneratorData(
+  repository: GeneratorRepository,
+  kind: GeneratorType = GeneratorType.Helm
+): AssetGeneratorData {
+  return {
+    name: `Generator-${getRandomNumber()}`,
+    kind: kind,
+    repository: repository,
+    description: getDescription(),
   };
 }

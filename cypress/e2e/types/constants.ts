@@ -201,7 +201,7 @@ export enum SortType {
   descending = "descending",
 }
 
-export enum issueFilter {
+export enum dynamicReportFilter {
   applicationName = "Application name",
   archetype = "Archetype",
   bs = "Business service",
@@ -262,4 +262,8 @@ export enum appInventoryKebab {
 export enum DefaultCredentialFilter {
   default = "Default",
   notDefault = "Not Default",
+}
+
+export enum GeneratorType {
+  Helm = "Helm",
 }
