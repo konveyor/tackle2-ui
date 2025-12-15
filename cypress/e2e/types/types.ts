@@ -1,7 +1,13 @@
+import { Repository } from "../../../client/src/app/api/models";
 import { JiraCredentials } from "../models/administration/credentials/JiraCredentials";
 import { CredentialsSourceControl } from "../models/administration/credentials/credentialsSourceControl";
 
-import { CustomRuleType, Languages, RepositoryType } from "./constants";
+import {
+  CustomRuleType,
+  GeneratorType,
+  Languages,
+  RepositoryType,
+} from "./constants";
 
 export type CredentialsSourceControlData = {
   type: string;
@@ -16,7 +22,7 @@ export type CredentialsSourceControlPrivateKeyData = {
   type: string;
   name?: string;
   description?: string;
-  key?: string;
+  key?: any;
   passphrase?: string;
 };
 
@@ -32,7 +38,7 @@ export type CredentialsMavenData = {
   type: string;
   name?: string;
   description?: string;
-  settingFile?: unknown;
+  settingFile?: any;
   isDefault?: boolean;
 };
 
@@ -210,10 +216,33 @@ export type AppIssue = {
   labels?: string[];
 };
 
+export type AppInsight = {
+  name: string;
+  category: string;
+  sources: string[];
+  targets: string[];
+  incidents: number;
+  affectedFiles: number;
+  tags?: string[];
+  ruleSet?: string;
+  rule?: string;
+  labels?: string[];
+};
+
 export type AppDependency = {
   name: string;
   foundIn?: number;
   language: string;
   labels: string[];
   tags?: string[];
+};
+
+export type GeneratorRepository = Required<Pick<Repository, "kind" | "url">> &
+  Pick<Repository, "branch" | "path">;
+
+export type AssetGeneratorData = {
+  name: string;
+  description?: string;
+  kind: GeneratorType;
+  repository: GeneratorRepository;
 };

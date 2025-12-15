@@ -872,7 +872,8 @@
   "platformKind": {
     "cloudfoundry": {
       "label": "Cloud Foundry",
-      "urlTooltip": "API URL to Cloud Foundry"
+      "urlTooltip": "API URL to Cloud Foundry",
+      "credentialTooltip": "Use credential of type source control"
     }
   }
 }
