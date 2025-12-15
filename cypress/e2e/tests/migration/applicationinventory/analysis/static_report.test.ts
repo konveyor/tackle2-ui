@@ -93,8 +93,10 @@ describe(["@tier2"], "Test Static Report UI", { baseUrl: null }, function () {
     technology: "EJB XML",
   };
 
-  beforeEach("Load data", function () {
-    cy.visit(`/downloads/analysis-report-app-${appName}/index.html`);
+  beforeEach("Open static report", function () {
+    // Visit file by using the relative path from rootDir
+    // https://github.com/cypress-io/cypress/issues/4450#issuecomment-778110994
+    cy.visit(`./run/downloads/analysis-report-app-${appName}/index.html`);
   });
 
   it("Validate Application Menu", function () {
