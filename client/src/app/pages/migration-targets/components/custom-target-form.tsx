@@ -19,6 +19,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
+import { UploadFileSchema } from "@app/api/schemas";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 import {
   HookFormPFGroupController,
@@ -26,7 +27,6 @@ import {
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSettingMutation } from "@app/queries/settings";
 import {
