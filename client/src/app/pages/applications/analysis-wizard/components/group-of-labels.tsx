@@ -7,16 +7,12 @@ export const GroupOfLabels = ({
   items,
   labelColor = "grey",
 }: {
-  groupName: string;
+  groupName?: string;
   items: ParsedTargetLabel[];
   labelColor?: LabelProps["color"];
 }) => {
   return (
-    <LabelGroup
-      key={`${groupName}-${items.length}`}
-      categoryName={groupName}
-      numLabels={5}
-    >
+    <LabelGroup categoryName={groupName} numLabels={5}>
       {items.map((item) => (
         <Label key={item.label} color={labelColor}>
           {item.value}

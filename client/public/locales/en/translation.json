@@ -723,6 +723,8 @@
   },
   "analysisWizard": {
     "review": {
+      "title": "Review analysis details",
+      "description": "Review the information below, then run the analysis.",
       "targets_one": "Target",
       "targets_other": "Targets",
       "scope": "Scope",

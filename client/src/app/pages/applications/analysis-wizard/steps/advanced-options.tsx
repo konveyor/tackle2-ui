@@ -137,7 +137,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               </FlexItem>
             ))}
           {customLabels.target.length > 0 && (
-            <FlexItem>
+            <FlexItem key={`manual-custom-rules-${customLabels.target.length}`}>
               <GroupOfLabels
                 labelColor={"grey"}
                 groupName="Manual custom rules"
@@ -309,7 +309,6 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         isChecked={autoTaggingEnabled}
         onChange={() => setValue("autoTaggingEnabled", !autoTaggingEnabled)}
         id="enable-auto-tagging-checkbox"
-        name="autoTaggingEnabled"
       />
 
       <Flex>
@@ -324,7 +323,6 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               setValue("advancedAnalysisEnabled", !advancedAnalysisEnabled)
             }
             id="enable-advanced-analysis-details-checkbox"
-            name="advancedAnalysisDetailsEnabled"
           />
         </FlexItem>
         <FlexItem>

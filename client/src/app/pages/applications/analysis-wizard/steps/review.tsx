@@ -207,21 +207,17 @@ export const Review: React.FC<ReviewProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>Additional target labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-target-labels">
-            <LabelGroup numLabels={5}>
-              {options.additionalTargetLabels.map(parseLabel).map((label) => (
-                <Label key={label.label}>{label.value}</Label>
-              ))}
-            </LabelGroup>
+            <GroupOfLabels
+              items={options.additionalTargetLabels.map(parseLabel)}
+            />
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>Additional source labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-source-labels">
-            <LabelGroup numLabels={5}>
-              {options.additionalSourceLabels.map(parseLabel).map((label) => (
-                <Label key={label.label}>{label.value}</Label>
-              ))}
-            </LabelGroup>
+            <GroupOfLabels
+              items={options.additionalSourceLabels.map(parseLabel)}
+            />
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
