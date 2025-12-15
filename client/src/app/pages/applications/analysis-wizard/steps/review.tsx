@@ -5,6 +5,8 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Label,
+  LabelGroup,
   List,
   ListItem,
   Text,
@@ -203,27 +205,23 @@ export const Review: React.FC<ReviewProps> = ({
 
         {/* Advanced options */}
         <DescriptionListGroup>
-          <DescriptionListTerm>
-            Additional target rule labels
-          </DescriptionListTerm>
+          <DescriptionListTerm>Additional target labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-target-labels">
-            <List isPlain>
-              {options.additionalTargetLabels.map((label, index) => (
-                <ListItem key={index}>{parseLabel(label).name}</ListItem>
+            <LabelGroup numLabels={5}>
+              {options.additionalTargetLabels.map(parseLabel).map((label) => (
+                <Label key={label.label}>{label.value}</Label>
               ))}
-            </List>
+            </LabelGroup>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>
-            Additional source rule labels
-          </DescriptionListTerm>
+          <DescriptionListTerm>Additional source labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-source-labels">
-            <List isPlain>
-              {options.additionalSourceLabels.map((label, index) => (
-                <ListItem key={index}>{parseLabel(label).name}</ListItem>
+            <LabelGroup numLabels={5}>
+              {options.additionalSourceLabels.map(parseLabel).map((label) => (
+                <Label key={label.label}>{label.value}</Label>
               ))}
-            </List>
+            </LabelGroup>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
@@ -233,11 +231,11 @@ export const Review: React.FC<ReviewProps> = ({
             })}
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-rules-tags">
-            <List isPlain>
-              {options.excludedLabels.map((tag, index) => (
-                <ListItem key={index}>{tag}</ListItem>
+            <LabelGroup numLabels={5}>
+              {options.excludedLabels.map((tag) => (
+                <Label key={tag}>{tag}</Label>
               ))}
-            </List>
+            </LabelGroup>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
