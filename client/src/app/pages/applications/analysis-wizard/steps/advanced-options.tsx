@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toggle } from "radash";
+import { group, toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -10,6 +10,10 @@ import {
   Flex,
   FlexItem,
   Form,
+  FormGroup,
+  Label,
+  LabelGroup,
+  LabelProps,
   Text,
   TextContent,
   Title,
@@ -29,12 +33,17 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTargets } from "@app/queries/targets";
-import { getParsedLabel } from "@app/utils/rules-utils";
+import {
+  ParsedTargetLabel,
+  getParsedLabel,
+  parseLabels,
+} from "@app/utils/rules-utils";
 import { getValidatedFromErrors } from "@app/utils/utils";
 
 import {
   AdvancedOptionsState,
   AdvancedOptionsValues,
+  CustomRulesStepState,
   useAdvancedOptionsSchema,
 } from "../schema";
 import { useSourceLabels } from "../useSourceLabels";
@@ -42,15 +51,27 @@ import { useTargetLabels } from "../useTargetLabels";
 import { updateSelectedTargetsBasedOnLabels } from "../utils";
 
 interface AdvancedOptionsProps {
-  selectedTargets: Target[];
-  onSelectedTargetsChanged: (targets: Target[]) => void;
+  selectedTargets: [Target, TargetLabel | null][];
+  customRules: CustomRulesStepState;
   onStateChanged: (state: AdvancedOptionsState) => void;
   initialState: AdvancedOptionsState;
 }
 
+const processTargetLabels = (
+  labels: TargetLabel[]
+): Record<ParsedTargetLabel["type"], ParsedTargetLabel[]> => {
+  const parsedLabels = parseLabels(labels);
+  return {
+    source: [],
+    target: [],
+    other: [],
+    ...group(parsedLabels, ({ type }) => type),
+  };
+};
+
 export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   selectedTargets,
-  onSelectedTargetsChanged,
+  customRules,
   onStateChanged,
   initialState,
 }) => {
@@ -59,7 +80,8 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   const schema = useAdvancedOptionsSchema();
   const form = useForm<AdvancedOptionsValues>({
     defaultValues: {
-      selectedSourceLabels: initialState.selectedSourceLabels,
+      additionalTargetLabels: initialState.additionalTargetLabels,
+      additionalSourceLabels: initialState.additionalSourceLabels,
       excludedLabels: initialState.excludedLabels,
       autoTaggingEnabled: initialState.autoTaggingEnabled,
       advancedAnalysisEnabled: initialState.advancedAnalysisEnabled,
@@ -84,14 +106,20 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
   const { targets } = useFetchTargets();
 
-  // TODO: Need include labels parsed from uploaded manual custom rule files
-  const availableTargetLabels = useTargetLabels();
-  const availableSourceLabels = useSourceLabels();
+  // TODO: Include labels parsed from uploaded manual custom rule files?
+  const availableTargetLabels = parseLabels(useTargetLabels());
+  const availableSourceLabels = parseLabels(useSourceLabels());
 
-  // Track selected target labels internally for this step
-  const [selectedTargetLabels, setSelectedTargetLabels] = React.useState<
-    TargetLabel[]
-  >([]);
+  const targetLabels = selectedTargets.reduce(
+    (acc, [target, targetLabel]) => {
+      const labels = targetLabel === null ? target.labels : [targetLabel];
+      acc[target.name] = processTargetLabels(labels ?? []);
+      return acc;
+    },
+    {} as Record<string, Record<ParsedTargetLabel["type"], ParsedTargetLabel[]>>
+  );
+
+  const customLabels = processTargetLabels(customRules.customLabels);
 
   return (
     <Form
@@ -107,54 +135,68 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         <Text>{t("wizard.label.advancedOptions")}</Text>
       </TextContent>
 
+      {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
+      <FormGroup
+        label={"Assigned target labels"}
+        fieldId="assigned-target-labels"
+      >
+        <Flex direction={{ default: "row" }}>
+          {Object.entries(targetLabels)
+            .filter(([_, { target }]) => target.length > 0)
+            .map(([targetName, { target }]) => (
+              <FlexItem key={targetName}>
+                <GroupOfLabels
+                  key={targetName}
+                  labelColor={"grey"}
+                  groupName={targetName}
+                  items={target}
+                />
+              </FlexItem>
+            ))}
+          {customLabels.target.length > 0 && (
+            <FlexItem>
+              <GroupOfLabels
+                labelColor={"grey"}
+                groupName="Manual custom rules"
+                items={customLabels.target}
+              />
+            </FlexItem>
+          )}
+        </Flex>
+      </FormGroup>
+
       <HookFormPFGroupController
         control={control}
-        name="selectedSourceLabels"
-        label="Target labels" //{t("wizard.terms.target", { count: 2 })}
-        fieldId="target-labels"
+        label="Additional target labels"
+        name="additionalTargetLabels"
+        fieldId="additional-target-labels"
         renderInput={({
-          field: { onChange, onBlur },
+          field: { onChange, onBlur, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
-          const targetSelections = selectedTargetLabels
-            .map((formLabel) => {
-              const parsedLabel = getParsedLabel(formLabel?.label);
-              if (parsedLabel.labelType === "target") {
-                return parsedLabel.labelValue;
-              }
-            })
-            .filter(Boolean);
+          const selections = parseLabels(value).map((label) => label.value);
           return (
             <Select
-              id="targets"
-              toggleId="targets-toggle"
+              id="additional-target-labels"
+              toggleId="additional-target-labels-toggle"
               variant={SelectVariant.typeaheadMulti}
               maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               aria-label="Select targets"
-              selections={targetSelections}
+              selections={selections}
               isOpen={isSelectTargetsOpen}
               onSelect={(_, selection) => {
-                const selectionLabel = `konveyor.io/target=${selection}`;
-                const matchingLabel = availableTargetLabels.find(
-                  (label) => label.label === selectionLabel
+                const selectedLabel = availableTargetLabels.find(
+                  (label) => label.value === selection
                 );
-                const updatedFormLabels = !matchingLabel
-                  ? selectedTargetLabels
-                  : toggle(
-                      selectedTargetLabels,
-                      matchingLabel,
-                      (tl) => tl.label
-                    );
-                setSelectedTargetLabels(updatedFormLabels);
-
-                const updatedSelectedTargets =
-                  updateSelectedTargetsBasedOnLabels(
-                    updatedFormLabels,
-                    selectedTargets,
-                    targets
+                if (selectedLabel) {
+                  onChange(
+                    toggle(
+                      value,
+                      selectedLabel.targetLabel,
+                      (label) => label.label
+                    )
                   );
-                onSelectedTargetsChanged(updatedSelectedTargets);
-
+                }
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
@@ -162,68 +204,77 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
               onClear={() => {
-                setSelectedTargetLabels([]);
+                onChange([]);
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {availableTargetLabels.map((targetLabel, index) => (
-                <SelectOption
-                  key={index}
-                  component="button"
-                  value={getParsedLabel(targetLabel.label).labelValue}
-                />
+              {availableTargetLabels.map(({ value }, index) => (
+                <SelectOption key={index} component="button" value={value} />
               ))}
             </Select>
           );
         }}
       />
+
+      {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
+      <FormGroup
+        label={"Assigned source labels"}
+        fieldId="assigned-source-labels"
+      >
+        <Flex direction={{ default: "row" }}>
+          {Object.entries(targetLabels)
+            .filter(([_, { source }]) => source.length > 0)
+            .map(([targetName, { source }]) => (
+              <FlexItem key={targetName}>
+                <GroupOfLabels
+                  key={targetName}
+                  labelColor={"grey"}
+                  groupName={targetName}
+                  items={source}
+                />
+              </FlexItem>
+            ))}
+          {customLabels.source.length > 0 && (
+            <FlexItem>
+              <GroupOfLabels
+                labelColor={"grey"}
+                groupName="Manual custom rules"
+                items={customLabels.source}
+              />
+            </FlexItem>
+          )}
+        </Flex>
+      </FormGroup>
+
       <HookFormPFGroupController
         control={control}
-        name="selectedSourceLabels"
-        label="Source labels" //{t("wizard.terms.source", { count: 2 })}
-        fieldId="sources"
+        label="Additional source labels"
+        name="additionalSourceLabels"
+        fieldId="additional-source-labels"
         renderInput={({
           field: { onChange, onBlur, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
-          const sourceSelections = value
-            .map((formLabel) => {
-              const parsedLabel = getParsedLabel(formLabel?.label);
-              if (parsedLabel.labelType === "source") {
-                return parsedLabel.labelValue;
-              }
-            })
-            .filter(Boolean);
-
+          const selections = parseLabels(value).map((label) => label.value);
           return (
             <Select
-              id="formSources-id"
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              toggleId="sources-toggle"
+              id="additional-source-labels"
+              toggleId="additional-source-labels-toggle"
               variant={SelectVariant.typeaheadMulti}
+              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               aria-label="Select sources"
-              selections={sourceSelections}
+              selections={selections}
               isOpen={isSelectSourcesOpen}
               onSelect={(_, selection) => {
-                const selectionWithLabelSelector = `konveyor.io/source=${selection}`;
-                const matchingLabel =
-                  availableSourceLabels?.find(
-                    (label) => label.label === selectionWithLabelSelector
-                  ) || "";
-
-                const formLabelLabels = value.map(
-                  (formLabel) => formLabel.label
+                const selectedLabel = availableSourceLabels.find(
+                  (label) => label.value === selection
                 );
-                if (
-                  matchingLabel &&
-                  !formLabelLabels.includes(matchingLabel.label)
-                ) {
-                  onChange([...value, matchingLabel]);
-                } else {
+                if (selectedLabel) {
                   onChange(
-                    value.filter(
-                      (formLabel) =>
-                        formLabel.label !== selectionWithLabelSelector
+                    toggle(
+                      value,
+                      selectedLabel.targetLabel,
+                      (label) => label.label
                     )
                   );
                 }
@@ -303,5 +354,29 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         </FlexItem>
       </Flex>
     </Form>
+  );
+};
+
+const GroupOfLabels = ({
+  groupName,
+  items,
+  labelColor = "grey",
+}: {
+  groupName: string;
+  items: ParsedTargetLabel[];
+  labelColor?: LabelProps["color"];
+}) => {
+  return (
+    <LabelGroup
+      key={`${groupName}-${items.length}`}
+      categoryName={groupName}
+      numLabels={5}
+    >
+      {items.map((item) => (
+        <Label key={item.label} color={labelColor}>
+          {item.value}
+        </Label>
+      ))}
+    </LabelGroup>
   );
 };

@@ -221,9 +221,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             >
               <AdvancedOptions
                 selectedTargets={state.targets.selectedTargets}
-                onSelectedTargetsChanged={(targets) => {
-                  setTargets({ ...state.targets, selectedTargets: targets });
-                }}
+                customRules={state.customRules}
                 onStateChanged={setOptions}
                 initialState={state.options}
               />

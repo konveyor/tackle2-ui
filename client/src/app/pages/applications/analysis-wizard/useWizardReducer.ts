@@ -27,7 +27,6 @@ const INITIAL_WIZARD_STATE: WizardState = {
   },
   targets: {
     selectedTargets: [],
-    selectedTargetLabels: [],
     targetFilters: undefined,
     isValid: true, // Targets are optional
   },
@@ -42,10 +41,11 @@ const INITIAL_WIZARD_STATE: WizardState = {
     rulesKind: "manual",
     customRulesFiles: [],
     customLabels: [],
-    isValid: true, // Custom rules are initially optional
+    isValid: false, // Custom rules are initially required since no targets are initially selected
   },
   options: {
-    selectedSourceLabels: [],
+    additionalTargetLabels: [],
+    additionalSourceLabels: [],
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,

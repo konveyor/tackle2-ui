@@ -1,4 +1,5 @@
 import { useCallback, useContext, useRef } from "react";
+import { sift, unique } from "radash";
 
 import {
   AnalysisTaskData,
@@ -15,7 +16,6 @@ import {
   useSubmitTaskgroupMutation,
 } from "@app/queries/taskgroups";
 import { toRef, toRefs } from "@app/utils/model-utils";
-import { getParsedLabel } from "@app/utils/rules-utils";
 
 import { WizardState } from "./useWizardReducer";
 
@@ -76,19 +76,19 @@ const buildTaskgroupData = (
     );
 
   const targetRuleSetRefs = toRefs(
-    wizardState.targets.selectedTargets.map(({ ruleset }) => ruleset)
+    wizardState.targets.selectedTargets.map(([target]) => target.ruleset)
   );
 
   // TODO: Review this logic for included labels for all potential sources of labels
-  const uniqIncludedLabels = Array.from(
-    new Set<string>([
-      ...wizardState.targets.selectedTargetLabels
-        .filter((label) => getParsedLabel(label.label).labelType !== "source")
-        .map((label) => label.label)
-        .filter(Boolean),
-      ...wizardState.options.selectedSourceLabels
-        .map((label) => label.label)
-        .filter(Boolean),
+  const allLabels = unique(
+    sift([
+      ...wizardState.targets.selectedTargets
+        .flatMap(([target, targetLabel]) => targetLabel || target.labels)
+        .map((targetLabel) => targetLabel?.label),
+
+      ...wizardState.customRules.customLabels.map(({ label }) => label),
+
+      // TODO: Labels from advanced options "additional labels" inputs
     ])
   );
 
@@ -142,9 +142,9 @@ const buildTaskgroupData = (
           identity: customRulesIdentity,
         }),
 
-        // labels from seeded targets, custom targets, options, and custom rules
+        // labels from seeded targets, custom targets, custom rules, and advanced options
         labels: {
-          included: uniqIncludedLabels,
+          included: allLabels,
           excluded: wizardState.options.excludedLabels,
         },
 

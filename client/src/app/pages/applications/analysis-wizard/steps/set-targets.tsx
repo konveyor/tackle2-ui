@@ -1,6 +1,5 @@
 import { type FC, useMemo } from "react";
 import { unique } from "radash";
-import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -14,7 +13,7 @@ import {
   ToolbarContent,
 } from "@patternfly/react-core";
 
-import { Application, Target } from "@app/api/models";
+import { Application, Target, TargetLabel } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import {
   FilterSelectOptionProps,
@@ -24,14 +23,12 @@ import {
 import { StateError } from "@app/components/StateError";
 import { TargetCard } from "@app/components/target-card/target-card";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchTagCategories } from "@app/queries/tags";
 import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-import { SetTargetsState, SetTargetsValues } from "../schema";
-import { toggleSelectedTargets, updateSelectedTargetLabels } from "../utils";
+import { SetTargetsState } from "../schema";
 
 const useTargetsData = (applications: Application[]) => {
   const {
@@ -103,16 +100,14 @@ interface SetTargetsProps {
   areCustomRulesEnabled: boolean;
 }
 
-// TODO: Need to make sure label changes in advanced options are propagated back
-//       to this form as expected. (e.g. Add a target's label should select the target)
 export const SetTargets: FC<SetTargetsProps> = ({
   applications,
   onStateChanged,
   initialState,
   areCustomRulesEnabled,
 }) => {
+  const { selectedTargets, targetFilters } = initialState;
   const { t } = useTranslation();
-
   const {
     isLoading,
     isError,
@@ -122,81 +117,36 @@ export const SetTargets: FC<SetTargetsProps> = ({
     languageProviders,
   } = useTargetsData(applications);
 
-  const form = useForm<SetTargetsValues>({
-    defaultValues: {
-      selectedTargets: initialState.selectedTargets,
-      selectedTargetLabels: initialState.selectedTargetLabels,
-      targetFilters: initialState.targetFilters,
-    },
-    mode: "all",
-  });
-
-  useFormChangeHandler({ form, onStateChanged });
-
-  const { setValue } = form;
-  const [selectedTargetLabels, selectedTargets] = useWatch({
-    control: form.control,
-    name: ["selectedTargetLabels", "selectedTargets"],
-  });
-
-  /** Handle when a target's dropdown selection changes */
-  const handleOnSelectedCardTargetChange = (selectedLabelName: string) => {
-    const otherSelectedLabels = selectedTargetLabels?.filter((formLabel) => {
-      return formLabel.name !== selectedLabelName;
-    });
-    const matchingLabel =
-      targets
-        ?.find((target) => {
-          const labelNames = target?.labels?.map((label) => label.name);
-          return labelNames?.includes(selectedLabelName);
-        })
-        ?.labels?.find((label) => label.name === selectedLabelName) || "";
-
-    const matchingOtherLabelNames =
-      targets
-        ?.find((target) => {
-          const labelNames = target?.labels?.map((label) => label.name);
-          return labelNames?.includes(selectedLabelName);
-        })
-        ?.labels?.filter((label) => label.name !== selectedLabelName)
-        .map((label) => label.name) || "";
-
-    const isNewLabel = !selectedTargetLabels
-      .map((label) => label.name)
-      .includes(selectedLabelName);
-
-    if (isNewLabel) {
-      const filterConflictingLabels = otherSelectedLabels.filter(
-        (label) => !matchingOtherLabelNames.includes(label.name)
-      );
-      if (matchingLabel) {
-        setValue("selectedTargetLabels", [
-          ...filterConflictingLabels,
-          matchingLabel,
-        ]);
-      }
-    }
+  const isTargetSelected = (target: Target) => {
+    return selectedTargets.some(
+      ([selectedTarget, _]) => selectedTarget.id === target.id
+    );
   };
 
-  /** Handle when a target card is clicked */
-  const handleOnCardClick = (
+  const getSelectedTargetLabel = (target: Target) => {
+    const [_, selectedLabel] =
+      selectedTargets.find(([{ id }, _]) => id === target.id) ?? [];
+    return selectedLabel ?? null;
+  };
+
+  /** Handle when a target card is changed (toggle selection or change the selected label) */
+  const handleOnCardChange = (
     isSelecting: boolean,
-    selectedLabelName: string,
+    selectedLabel: TargetLabel | null,
     target: Target
   ) => {
-    const updatedSelectedTargets = toggleSelectedTargets(
-      target,
-      selectedTargets
-    );
-    setValue("selectedTargets", updatedSelectedTargets);
-
-    const updatedSelectedTargetLabels = updateSelectedTargetLabels(
-      isSelecting,
-      selectedLabelName,
-      target,
-      selectedTargetLabels
-    );
-    setValue("selectedTargetLabels", updatedSelectedTargetLabels);
+    const nextSelectedTargets = [...selectedTargets];
+    const index = nextSelectedTargets.findIndex(([t]) => t.id === target.id);
+    if (isSelecting && index === -1) {
+      nextSelectedTargets.push([target, selectedLabel]); // add
+    }
+    if (isSelecting && index > -1) {
+      nextSelectedTargets.splice(index, 1, [target, selectedLabel]); // update
+    }
+    if (!isSelecting && index > -1) {
+      nextSelectedTargets.splice(index, 1); // remove
+    }
+    onStateChanged({ ...initialState, selectedTargets: nextSelectedTargets });
   };
 
   const tableControls = useLocalTableControls({
@@ -216,10 +166,13 @@ export const SetTargets: FC<SetTargetsProps> = ({
     persistTo: {
       filter: {
         write(value) {
-          form.setValue("targetFilters", value as Record<string, string[]>);
+          onStateChanged({
+            ...initialState,
+            targetFilters: value as Record<string, string[]>,
+          });
         },
         read() {
-          return form.getValues("targetFilters");
+          return targetFilters;
         },
       },
     },
@@ -317,16 +270,9 @@ export const SetTargets: FC<SetTargetsProps> = ({
               <TargetCard
                 readOnly
                 item={target}
-                cardSelected={selectedTargets.some(
-                  ({ id }) => id === target.id
-                )}
-                onSelectedCardTargetChange={(selectedTarget) => {
-                  handleOnSelectedCardTargetChange(selectedTarget);
-                }}
-                onCardClick={(isSelecting, selectedLabelName, target) => {
-                  handleOnCardClick(isSelecting, selectedLabelName, target);
-                }}
-                selectedTargetLabels={selectedTargetLabels}
+                isCardSelected={isTargetSelected(target)}
+                selectedLabel={getSelectedTargetLabel(target)}
+                onChange={handleOnCardChange}
               />
             </GalleryItem>
           ))}

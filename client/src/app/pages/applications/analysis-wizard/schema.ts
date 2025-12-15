@@ -57,8 +57,7 @@ export const useAnalysisModeSchema = ({
 
 // Set targets step
 export interface SetTargetsValues {
-  selectedTargets: Target[];
-  selectedTargetLabels: TargetLabel[];
+  selectedTargets: [Target, TargetLabel | null][];
   targetFilters?: Record<string, string[]>;
 }
 
@@ -176,7 +175,9 @@ export const useCustomRulesSchema = ({
 
 // Advanced options step
 export interface AdvancedOptionsValues {
-  selectedSourceLabels: TargetLabel[];
+  additionalTargetLabels: TargetLabel[];
+  additionalSourceLabels: TargetLabel[];
+
   excludedLabels: string[];
   autoTaggingEnabled: boolean;
   advancedAnalysisEnabled: boolean;

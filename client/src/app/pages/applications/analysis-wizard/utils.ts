@@ -56,6 +56,7 @@ export const useAnalyzableApplicationsByMode = (
 
 /**
  * Toggle the existence of a target within the array and return the array
+ * @deprecated
  */
 export const toggleSelectedTargets = (
   target: Target,
@@ -64,6 +65,9 @@ export const toggleSelectedTargets = (
   return toggle(selectedTargets, target, (t) => t.id);
 };
 
+/**
+ * @deprecated
+ */
 export const updateSelectedTargetLabels = (
   isSelecting: boolean,
   selectedLabelName: string,
@@ -94,6 +98,7 @@ export const updateSelectedTargetLabels = (
 /**
  * Match a target to a set of target type labels based on if the target supports
  * label choice.
+ * @deprecated
  */
 const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
   if (!target.labels?.length) {
@@ -116,6 +121,7 @@ const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
 /**
  * Given a set of selected labels, return a set of targets where (1) the target's labels
  * properly match the select labels or (2) the target is selected but has no labels.
+ * @deprecated
  */
 export const updateSelectedTargetsBasedOnLabels = (
   currentFormLabels: TargetLabel[],

@@ -1,6 +1,6 @@
 import yaml from "js-yaml";
 
-import { ParsedRule, UploadFile } from "@app/api/models";
+import { ParsedRule, TargetLabel, UploadFile } from "@app/api/models";
 
 type RuleFileType = "YAML" | null;
 
@@ -124,3 +124,38 @@ export const getLabels = (labels: string[]) =>
     },
     { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
   );
+
+export const parseLabels = (labels: TargetLabel[]) => {
+  return labels.map(parseLabel);
+};
+
+export type ParsedTargetLabel = {
+  /** The full object this object was parsed from */
+  targetLabel: TargetLabel;
+  /** Full label string, e.g. "konveyor.io/target=my-target" */
+  label: string;
+  /** Type of label, e.g. "source" or "target" */
+  type: "source" | "target" | "other";
+  /** Value of label, e.g. "my-target" */
+  value: string;
+};
+
+export const parseLabel = (label: TargetLabel): ParsedTargetLabel => {
+  const regex = /^konveyor\.io\/([a-zA-Z]+)=(.+)$/;
+  const match = label.label.match(regex);
+  if (match) {
+    const [, type, value] = match;
+    return {
+      targetLabel: label,
+      label: label.label,
+      type: type === "source" || type === "target" ? type : "other",
+      value,
+    };
+  }
+  return {
+    targetLabel: label,
+    label: label.label,
+    type: "other",
+    value: label.label,
+  };
+};
