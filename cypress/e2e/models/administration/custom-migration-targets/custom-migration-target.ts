@@ -248,7 +248,8 @@ export class CustomMigrationTarget {
   }
 
   validateSourceTechnology(sources: string[]): void {
-    click(sourcesToggle);
-    cy.get(sourcesList).should("contain", sources);
+    sources.forEach((source) => {
+      cy.get("span.pf-v5-c-label__text").should("contain.text", source);
+    });
   }
 }
