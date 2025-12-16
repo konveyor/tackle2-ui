@@ -934,6 +934,7 @@ export interface TargetProfile {
   id: number;
   name: string;
   generators: Ref[];
+  analysisProfile?: Ref;
 }
 
 export interface Archetype {

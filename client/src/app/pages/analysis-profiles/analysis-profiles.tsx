@@ -31,7 +31,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { AnalysisProfile } from "@app/api/models";
+import { AnalysisProfile, Archetype } from "@app/api/models";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -46,9 +46,30 @@ import {
   useDeleteAnalysisProfileMutation,
   useFetchAnalysisProfiles,
 } from "@app/queries/analysis-profiles";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import AnalysisProfileDetailDrawer from "./components/analysis-profile-detail-drawer";
+
+/**
+ * Hook to find archetypes that reference a given analysis profile
+ * via their target profiles.
+ */
+const useArchetypesUsingAnalysisProfile = (
+  analysisProfile: AnalysisProfile | null
+): Archetype[] => {
+  const { archetypes } = useFetchArchetypes();
+
+  return React.useMemo(() => {
+    if (!analysisProfile) return [];
+    return archetypes.filter((archetype) =>
+      archetype.profiles?.some(
+        (targetProfile) =>
+          targetProfile.analysisProfile?.id === analysisProfile.id
+      )
+    );
+  }, [archetypes, analysisProfile]);
+};
 
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
@@ -61,6 +82,8 @@ export const AnalysisProfiles: React.FC = () => {
     React.useState<AnalysisProfile | null>(null);
 
   const { analysisProfiles, isFetching, error } = useFetchAnalysisProfiles();
+  const archetypesUsingProfileToDelete =
+    useArchetypesUsingAnalysisProfile(profileToDelete);
 
   const onDeleteSuccess = (profile: AnalysisProfile) => {
     pushNotification({
@@ -293,8 +316,19 @@ export const AnalysisProfiles: React.FC = () => {
           name: profileToDelete?.name,
         })}
         isOpen={!!profileToDelete}
-        titleIconVariant="warning"
-        message={t("dialog.message.delete")}
+        titleIconVariant={
+          archetypesUsingProfileToDelete.length > 0 ? "danger" : "warning"
+        }
+        message={
+          archetypesUsingProfileToDelete.length > 0
+            ? t("message.analysisProfileInUseWarning", {
+                count: archetypesUsingProfileToDelete.length,
+                archetypes: archetypesUsingProfileToDelete
+                  .map((a) => a.name)
+                  .join(", "),
+              })
+            : t("dialog.message.delete")
+        }
         confirmBtnVariant={ButtonVariant.danger}
         confirmBtnLabel={t("actions.delete")}
         cancelBtnLabel={t("actions.cancel")}
