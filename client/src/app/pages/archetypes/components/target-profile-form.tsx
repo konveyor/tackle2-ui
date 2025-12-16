@@ -185,6 +185,7 @@ const TargetProfileForm: React.FC<TargetProfileFormProps> = ({
         <ActionGroup>
           <Button
             type="button"
+            id="submit"
             variant="primary"
             isDisabled={!isValid}
             onClick={handleSubmit(submitToOnSave)}
