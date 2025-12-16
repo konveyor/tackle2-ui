@@ -310,6 +310,7 @@
   },
   "sidebar": {
     "administrator": "Administration",
+    "analysisProfiles": "Analysis Profiles",
     "applicationInventory": "Application inventory",
     "archetypes": "Archetypes",
     "controls": "Controls",
@@ -337,6 +338,9 @@
   },
   "terms": {
     "accepted": "Accepted",
+    "analysisProfile": "Analysis profile",
+    "analysisProfiles": "Analysis profiles",
+    "analysisProfilesDescription": "Create and manage analysis profiles. Analysis profiles allow you to save and reuse analysis configurations across multiple applications.",
     "acceptedAppsAndDeps": "Accepted applications and dependencies",
     "associatedApplications": "Associated applications",
     "associatedArchetypes": "Associated archetypes",
@@ -590,6 +594,7 @@
     "ok": "OK"
   },
   "titles": {
+    "analysisProfiles": "Analysis Profiles",
     "archetypeDrawer": "Archetype details",
     "archetypeTargetProfiles": "Target profiles for {{archetypeName}}",
     "generatorDrawer": "Generator details",

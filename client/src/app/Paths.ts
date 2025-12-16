@@ -1,5 +1,6 @@
 export const DevPaths = {
   // Developer perspective
+  analysisProfiles: "/analysis-profiles",
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
