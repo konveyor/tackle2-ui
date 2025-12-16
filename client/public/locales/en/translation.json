@@ -313,6 +313,7 @@
     "applicationInventory": "Application inventory",
     "archetypes": "Archetypes",
     "controls": "Controls",
+    "customMigrationTargets": "Custom migration targets",
     "developer": "Migration",
     "reports": "Reports",
     "migrationWaves": "Migration waves",

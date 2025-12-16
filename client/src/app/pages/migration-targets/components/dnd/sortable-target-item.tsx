@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -9,6 +9,7 @@ import { TargetItem } from "./target-item";
 interface SortableTargetItemProps {
   style?: React.CSSProperties;
   target: Target;
+  readOnly?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -16,6 +17,7 @@ interface SortableTargetItemProps {
 export const SortableTargetItem: React.FC<SortableTargetItemProps> = ({
   style,
   target,
+  readOnly = false,
   onEdit,
   onDelete,
 }) => {
@@ -38,12 +40,14 @@ export const SortableTargetItem: React.FC<SortableTargetItemProps> = ({
     <TargetItem
       ref={setNodeRef}
       style={itemStyles}
+      isSelectable={false}
+      readOnly={readOnly}
       onEdit={onEdit}
       onDelete={onDelete}
       target={target}
-      activatorNodeRef={setActivatorNodeRef}
-      {...attributes}
-      {...listeners}
+      activatorNodeRef={readOnly ? undefined : setActivatorNodeRef}
+      {...(readOnly ? {} : attributes)}
+      {...(readOnly ? {} : listeners)}
     />
   );
 };
