@@ -29,11 +29,7 @@ import { Target, TargetLabel } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-import {
-  getParsedLabel,
-  parseAndGroupLabels,
-  parseLabels,
-} from "@app/utils/rules-utils";
+import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import { getValidatedFromErrors } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
@@ -272,12 +268,8 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               }}
               validated={getValidatedFromErrors(error, isDirty, isTouched)}
             >
-              {availableSourceLabels.map((targetLabel, index) => (
-                <SelectOption
-                  key={index}
-                  component="button"
-                  value={getParsedLabel(targetLabel.label).labelValue}
-                />
+              {availableSourceLabels.map(({ value }, index) => (
+                <SelectOption key={index} component="button" value={value} />
               ))}
             </Select>
           );
