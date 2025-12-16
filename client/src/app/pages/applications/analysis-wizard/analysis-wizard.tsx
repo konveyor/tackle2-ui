@@ -77,9 +77,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   );
 
   const onSubmit = async () => {
-    await submitAnalysis(state, analyzableApplications, identities);
-    reset();
-    onClose();
+    try {
+      await submitAnalysis(state, analyzableApplications, identities);
+    } finally {
+      reset();
+      onClose();
+    }
   };
 
   const onMove = (current: WizardStepType) => {
