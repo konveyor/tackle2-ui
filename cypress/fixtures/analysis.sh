@@ -8,9 +8,14 @@ if [[ "$rawHost" == *"/hub"* ]]; then
 else
   host="${rawHost}/hub"
 fi
-  
+
+if [[ ! "$host" =~ ^https?:// ]]; then
+  host="https://${host}"
+fi
+
+
 export TOKEN=$(curl -kSs -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
-  https://${host}/auth/login | jq -r ".token")
+  ${host}/auth/login | jq -r ".token")
 
 appId="${1:-0}"
 nRuleSet="${2:-10}"
@@ -93,13 +98,13 @@ description: |
   This is a test ${r}/${i} violation.
     This is a **description** of the insight in markdown*.
     Here's how to fix the insight.
-    
+
     For example:
-    
+
         This is some bad code.
-    
+
     Should become:
-    
+
         This is some good code.
 category: warning
 effort: 10
@@ -121,15 +126,15 @@ f=$(($n%3))
 echo -n "- file: /thing.com/file/${i}${f}.java
   message: |
     This is a **description** of the insight on line ${n} *in markdown*. Here's how to fix the insight.
-    
+
     For example:
-    
+
         This is some bad code.
-    
+
     Should become:
-    
+
         This is some good code.
-    
+
     Some documentation links will go here.
   facts:
     factA: ${i}-${n}.A
@@ -140,20 +145,20 @@ if ((${n} < 6)); then echo -n "  codesnip: |2
      97  public class SwapNumbers {
      98      public static void main(String[] args) {
      99          float first = 1.20f, second = 2.45f;
-    100 
+    100
     101          System.out.println(\"--Before swap--\");
     102          System.out.println(\"First number = \" + first);
     103          System.out.println(\"Second number = \" + second);
-    104 
+    104
     105          // Value of first is assigned to temporary
     106          float temporary = first;
-    107 
+    107
     108          // Value of second is assigned to first
     109          first = second;
-    110 
+    110
     111          // Value of temporary assigned to second
     112          second = temporary;
-    113 
+    113
     114          System.out.println(\"--After swap--\");
     115          System.out.println(\"First number = \" + first);
     116          System.out.println(\"Second number = \" + second);
@@ -217,7 +222,7 @@ code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
   -H "Authorization: Bearer ${TOKEN}" \
   -F "file=@${file};type=application/x-yaml" \
   -H 'Accept:application/x-yaml' \
-  https://${host}/applications/${appId}/analyses)
+  ${host}/applications/${appId}/analyses)
 if [ ! $? -eq 0 ]
 then
   exit $?

@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { Button, ButtonVariant } from "@patternfly/react-core";
 import { GripVerticalIcon } from "@patternfly/react-icons";
 

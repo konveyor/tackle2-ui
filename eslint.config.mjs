@@ -131,6 +131,7 @@ export default defineConfig([
           },
         },
       ],
+      "import-x/default": "warn",
     },
   },
 

@@ -1,6 +1,36 @@
-import { TargetLabel } from "@app/api/models";
+import { useMemo } from "react";
+import { unique } from "radash";
 
-const defaultSources: TargetLabel[] = [
+import { TargetLabel } from "@app/api/models";
+import { useFetchTargets } from "@app/queries/targets";
+import { getParsedLabel } from "@app/utils/rules-utils";
+import { universalComparator } from "@app/utils/utils";
+
+export const useSourceLabels = () => {
+  const { targets } = useFetchTargets();
+
+  const combinedSourceLabels = useMemo(() => {
+    const sourceLabelsFromTargets = unique(
+      targets
+        .map((target) => target?.labels ?? [])
+        .filter(Boolean)
+        .flat()
+        .filter((label) => getParsedLabel(label?.label).labelType === "source"),
+      ({ label }) => label
+    );
+
+    const combined = unique(
+      [...STATIC_SOURCE_LABELS, ...sourceLabelsFromTargets],
+      ({ label }) => label
+    ).sort((t1, t2) => universalComparator(t1.label, t2.label));
+
+    return combined;
+  }, [targets]);
+
+  return combinedSourceLabels;
+};
+
+const STATIC_SOURCE_LABELS: TargetLabel[] = [
   { name: "agroal", label: "konveyor.io/source=agroal" },
   { name: "amazon", label: "konveyor.io/source=amazon" },
   { name: "apicurio", label: "konveyor.io/source=apicurio" },
@@ -56,5 +86,3 @@ const defaultSources: TargetLabel[] = [
   { name: "weblogic", label: "konveyor.io/source=weblogic" },
   { name: "websphere", label: "konveyor.io/source=websphere" },
 ];
-
-export default defaultSources;
