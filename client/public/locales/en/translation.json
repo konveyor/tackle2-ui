@@ -264,6 +264,8 @@
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
     "noAnalysisProfileSelected": "No analysis profile selected",
+    "analysisProfileInUseWarning_one": "This analysis profile is referenced by archetype {{archetypes}}. Deleting it will remove the reference from this archetype.",
+    "analysisProfileInUseWarning_other": "This analysis profile is referenced by {{count}} archetypes: {{archetypes}}. Deleting it will remove the reference from these archetypes.",
     "noTagsAvailable": "No tags available",
     "noTargetProfilesTitle": "No target profiles have been created",
     "noTargetProfilesDescription": "Manage target profiles on the archetype to get started.",
