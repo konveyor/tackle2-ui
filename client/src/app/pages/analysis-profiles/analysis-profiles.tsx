@@ -20,6 +20,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { AnalysisProfile } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -28,43 +29,21 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-
-// TODO: Replace with actual AnalysisProfile type from API models
-interface AnalysisProfile {
-  id: number;
-  name: string;
-  description?: string;
-  createdBy?: string;
-  createTime?: string;
-}
-
-// TODO: Replace with actual API hook
-const useFetchAnalysisProfiles = () => {
-  // Placeholder data for initial development
-  const profiles: AnalysisProfile[] = [];
-
-  return {
-    profiles,
-    isFetching: false,
-    fetchError: null,
-    refetch: () => {},
-  };
-};
+import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
 
-  const { profiles, isFetching, fetchError } = useFetchAnalysisProfiles();
+  const { analysisProfiles, isFetching, error } = useFetchAnalysisProfiles();
 
   const tableControls = useLocalTableControls({
     tableName: "analysis-profiles",
     idProperty: "id",
     dataNameProperty: "name",
-    items: profiles,
+    items: analysisProfiles,
     columnNames: {
       name: t("terms.name"),
       description: t("terms.description"),
-      createdBy: t("terms.createdBy"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -79,14 +58,13 @@ export const AnalysisProfiles: React.FC = () => {
           t("actions.filterBy", {
             what: t("terms.name").toLowerCase(),
           }) + "...",
-        getItemValue: (profile) => profile?.name ?? "",
+        getItemValue: (profile: AnalysisProfile) => profile?.name ?? "",
       },
     ],
-    sortableColumns: ["name", "description", "createdBy"],
-    getSortValues: (profile) => ({
+    sortableColumns: ["name", "description"],
+    getSortValues: (profile: AnalysisProfile) => ({
       name: profile.name ?? "",
       description: profile.description ?? "",
-      createdBy: profile.createdBy ?? "",
     }),
     initialSort: { columnKey: "name", direction: "asc" },
     isLoading: isFetching,
@@ -163,13 +141,12 @@ export const AnalysisProfiles: React.FC = () => {
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} />
                   <Th {...getThProps({ columnKey: "description" })} />
-                  <Th {...getThProps({ columnKey: "createdBy" })} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
             <ConditionalTableBody
               isLoading={isFetching}
-              isError={!!fetchError}
+              isError={!!error}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
@@ -218,12 +195,6 @@ export const AnalysisProfiles: React.FC = () => {
                         {...getTdProps({ columnKey: "description" })}
                       >
                         {profile.description || "-"}
-                      </Td>
-                      <Td
-                        width={25}
-                        {...getTdProps({ columnKey: "createdBy" })}
-                      >
-                        {profile.createdBy || "-"}
                       </Td>
                     </TableRowContentWithControls>
                   </Tr>
