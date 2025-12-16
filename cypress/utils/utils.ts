@@ -2062,7 +2062,7 @@ export function isRwxEnabled(): Cypress.Chainable<boolean> {
 
 export function seedAnalysisData(applicationId: number): void {
   const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).hostname;
+  const hostname = new URL(baseUrl).origin;
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
