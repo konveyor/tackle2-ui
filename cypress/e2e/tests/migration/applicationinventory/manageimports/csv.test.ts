@@ -33,10 +33,9 @@ describe(["@tier3"], "Manage imports tests", function () {
     openManageImportsPage();
     cy.get(manageImportsActionsButton).click();
     cy.get(kebabMenuItem).contains("Download CSV template").click();
-    cy.readFile("downloads/template_application_import.csv").should(
-      "contain",
-      "Customers"
-    );
+    cy.readFile(
+      `${Cypress.config("downloadsFolder")}/template_application_import.csv`
+    ).should("contain", "Customers");
   });
 
   after("Cleaning up", function () {
