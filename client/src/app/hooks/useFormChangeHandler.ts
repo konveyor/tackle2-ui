@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   DeepPartialSkipArrayKey,
   FieldValues,
@@ -24,6 +30,11 @@ export const useFormChangeHandler = <
   mapFormToState,
 }: {
   form: UseFormReturn<TFormValues>;
+  /**
+   * Callback invoked whenever the mapped form state changes.
+   * @remarks This callback is stored in a ref internally, so callers do not need
+   *          to memoize it with useCallback to avoid infinite re-renders.
+   */
   onStateChanged: (state: TState) => void;
   /**
    * Optional function to map form values to state. Defaults to a function that adds the
@@ -58,7 +69,14 @@ export const useFormChangeHandler = <
     [mapper, watchedValues, isValid]
   );
 
+  // Store onStateChanged in a ref so the effect depends only on `state`.
+  // This avoids infinite re-renders when callers pass an unstable callback.
+  const onStateChangedRef = useRef(onStateChanged);
+  useLayoutEffect(() => {
+    onStateChangedRef.current = onStateChanged;
+  });
+
   useEffect(() => {
-    onStateChanged(state);
-  }, [onStateChanged, state]);
+    onStateChangedRef.current(state);
+  }, [state]);
 };
