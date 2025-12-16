@@ -14,6 +14,8 @@ import {
   dynamicReportFilter,
   migration,
   singleApplication,
+  tdTag,
+  trTag,
 } from "../../../types/constants";
 import { searchButton, searchInput, span } from "../../../views/common.view";
 import { searchMenuToggle, singleAppDropList } from "../../../views/issue.view";
@@ -95,5 +97,30 @@ export abstract class DynamicReports {
     click(searchMenuToggle);
     filterValues.forEach((filterValue) => clickByText(span, filterValue));
     click(searchMenuToggle);
+  }
+
+  public static validateSection(
+    name: string,
+    title: string | RegExp,
+    contentSelector: string,
+    content: string | string[] | RegExp
+  ): void {
+    if (content === undefined || content === null) {
+      throw new Error(
+        `Content is undefined for section "${title}" in "${name}"`
+      );
+    }
+    cy.contains(tdTag, name)
+      .parent(trTag)
+      .next()
+      .contains("h4", title)
+      .next()
+      .within(() => {
+        if (Array.isArray(content)) {
+          content.forEach((item) => cy.contains(contentSelector, item));
+        } else {
+          cy.contains(contentSelector, content);
+        }
+      });
   }
 }
