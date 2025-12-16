@@ -163,7 +163,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                   isNotEmptyString(state.customRules.sourceRepository)
                 }
                 onStateChanged={setTargets}
-                initialState={state.targets}
+                state={state.targets}
               />
             </WizardStep>,
             <WizardStep

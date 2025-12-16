@@ -96,17 +96,17 @@ const useTargetsData = (applications: Application[]) => {
 interface SetTargetsProps {
   applications: Application[];
   onStateChanged: (state: SetTargetsState) => void;
-  initialState: SetTargetsState;
+  state: SetTargetsState;
   areCustomRulesEnabled: boolean;
 }
 
 export const SetTargets: FC<SetTargetsProps> = ({
   applications,
   onStateChanged,
-  initialState,
+  state,
   areCustomRulesEnabled,
 }) => {
-  const { selectedTargets, targetFilters } = initialState;
+  const { selectedTargets, targetStatus, targetFilters } = state;
   const { t } = useTranslation();
   const {
     isLoading,
@@ -117,36 +117,29 @@ export const SetTargets: FC<SetTargetsProps> = ({
     languageProviders,
   } = useTargetsData(applications);
 
-  const isTargetSelected = (target: Target) => {
-    return selectedTargets.some(
-      ([selectedTarget, _]) => selectedTarget.id === target.id
-    );
-  };
-
-  const getSelectedTargetLabel = (target: Target) => {
-    const [_, selectedLabel] =
-      selectedTargets.find(([{ id }, _]) => id === target.id) ?? [];
-    return selectedLabel ?? null;
-  };
-
   /** Handle when a target card is changed (toggle selection or change the selected label) */
   const handleOnCardChange = (
     isSelecting: boolean,
     selectedLabel: TargetLabel | null,
     target: Target
   ) => {
-    const nextSelectedTargets = [...selectedTargets];
-    const index = nextSelectedTargets.findIndex(([t]) => t.id === target.id);
-    if (isSelecting && index === -1) {
-      nextSelectedTargets.push([target, selectedLabel]); // add
-    }
-    if (isSelecting && index > -1) {
-      nextSelectedTargets.splice(index, 1, [target, selectedLabel]); // update
-    }
-    if (!isSelecting && index > -1) {
-      nextSelectedTargets.splice(index, 1); // remove
-    }
-    onStateChanged({ ...initialState, selectedTargets: nextSelectedTargets });
+    const nextTargetStatus = {
+      ...targetStatus,
+      [target.id]: {
+        ...(targetStatus[target.id] ?? {}),
+        target,
+        isSelected: isSelecting,
+        choiceTargetLabel: selectedLabel ?? undefined,
+      },
+    };
+
+    onStateChanged({
+      ...state,
+      targetStatus: nextTargetStatus,
+      selectedTargets: Object.values(nextTargetStatus)
+        .filter((status) => status.isSelected)
+        .map((status) => [status.target, status.choiceTargetLabel ?? null]),
+    });
   };
 
   const tableControls = useLocalTableControls({
@@ -167,7 +160,7 @@ export const SetTargets: FC<SetTargetsProps> = ({
       filter: {
         write(value) {
           onStateChanged({
-            ...initialState,
+            ...state,
             targetFilters: value as Record<string, string[]>,
           });
         },
@@ -270,8 +263,10 @@ export const SetTargets: FC<SetTargetsProps> = ({
               <TargetCard
                 readOnly
                 item={target}
-                isCardSelected={isTargetSelected(target)}
-                selectedLabel={getSelectedTargetLabel(target)}
+                isCardSelected={targetStatus[target.id]?.isSelected ?? false}
+                selectedLabel={
+                  targetStatus[target.id]?.choiceTargetLabel ?? null
+                }
                 onChange={handleOnCardChange}
               />
             </GalleryItem>

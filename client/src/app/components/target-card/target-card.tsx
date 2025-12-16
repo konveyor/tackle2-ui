@@ -22,7 +22,6 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target, TargetLabel } from "@app/api/models";
 import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
-import { localeNumericCompare } from "@app/utils/utils";
 
 import { KebabDropdown } from "../KebabDropdown";
 import { SimpleSelectBasic } from "../SimpleSelectBasic";
@@ -92,11 +91,11 @@ export const TargetCard: React.FC<TargetCardProps> = ({
   );
 
   const { labelChoices, labelOptions } = React.useMemo(() => {
-    let labelChoices: TargetLabel[] = [];
-    if (target.choice || forceSelect.includes(target.name)) {
-      labelChoices = target?.labels ?? [];
-      labelChoices.sort((a, b) => localeNumericCompare(b.label, a.label));
-    }
+    const labelChoices: TargetLabel[] =
+      target.choice || forceSelect.includes(target.name)
+        ? (target.labels ?? [])
+        : [];
+
     const labelOptions = labelChoices.map((label) => ({
       children: label.name,
       value: label.name,
@@ -179,7 +178,9 @@ export const TargetCard: React.FC<TargetCardProps> = ({
                 toggleId={`${target.name}-toggle`}
                 toggleAriaLabel="Select label dropdown target"
                 aria-label="Select Label"
-                value={selectedLabel?.name}
+                value={
+                  selectedLabel ? selectedLabel.name : labelChoices[0].name
+                }
                 options={labelOptions}
                 onChange={handleLabelChange}
               />

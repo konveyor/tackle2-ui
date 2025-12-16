@@ -52,6 +52,14 @@ export const useAnalysisModeSchema = ({
 
 // Set targets step
 export interface SetTargetsValues {
+  targetStatus: Record<
+    number,
+    {
+      target: Target;
+      isSelected: boolean;
+      choiceTargetLabel?: TargetLabel;
+    }
+  >;
   selectedTargets: [Target, TargetLabel | null][];
   targetFilters?: Record<string, string[]>;
 }

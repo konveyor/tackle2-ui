@@ -27,7 +27,7 @@ const INITIAL_WIZARD_STATE: WizardState = {
   },
   targets: {
     selectedTargets: [],
-    targetFilters: undefined,
+    targetStatus: {},
     isValid: true, // Targets are optional
   },
   scope: {
