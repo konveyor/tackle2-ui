@@ -1,7 +1,9 @@
 import * as React from "react";
+import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  ButtonVariant,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
@@ -16,12 +18,23 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
-import { CubesIcon } from "@patternfly/react-icons";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+import {
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 
 import { AnalysisProfile } from "@app/api/models";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
@@ -29,12 +42,45 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
+import {
+  useDeleteAnalysisProfileMutation,
+  useFetchAnalysisProfiles,
+} from "@app/queries/analysis-profiles";
+import { getAxiosErrorMessage } from "@app/utils/utils";
 
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
+  const { pushNotification } = React.useContext(NotificationsContext);
+
+  // TODO: Use profileToEdit when edit modal is implemented
+  const [_profileToEdit, setProfileToEdit] =
+    React.useState<AnalysisProfile | null>(null);
+  const [profileToDelete, setProfileToDelete] =
+    React.useState<AnalysisProfile | null>(null);
 
   const { analysisProfiles, isFetching, error } = useFetchAnalysisProfiles();
+
+  const onDeleteSuccess = (profile: AnalysisProfile) => {
+    pushNotification({
+      title: t("toastr.success.deletedWhat", {
+        what: profile.name,
+        type: t("terms.analysisProfile"),
+      }),
+      variant: "success",
+    });
+  };
+
+  const onDeleteError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+  };
+
+  const { mutate: deleteProfile } = useDeleteAnalysisProfileMutation(
+    onDeleteSuccess,
+    onDeleteError
+  );
 
   const tableControls = useLocalTableControls({
     tableName: "analysis-profiles",
@@ -196,6 +242,26 @@ export const AnalysisProfiles: React.FC = () => {
                       >
                         {profile.description || "-"}
                       </Td>
+                      <Td isActionCell id="pencil-action">
+                        <Tooltip content={t("actions.edit")}>
+                          <Button
+                            variant="plain"
+                            icon={<PencilAltIcon />}
+                            onClick={() => setProfileToEdit(profile)}
+                          />
+                        </Tooltip>
+                      </Td>
+                      <Td isActionCell id="row-actions">
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.delete"),
+                              onClick: () => setProfileToDelete(profile),
+                              isDanger: true,
+                            },
+                          ]}
+                        />
+                      </Td>
                     </TableRowContentWithControls>
                   </Tr>
                 ))}
@@ -209,6 +275,28 @@ export const AnalysisProfiles: React.FC = () => {
           />
         </div>
       </PageSection>
+
+      {/* Confirm delete analysis profile modal */}
+      <ConfirmDialog
+        title={t("dialog.title.deleteWithName", {
+          what: t("terms.analysisProfile").toLowerCase(),
+          name: profileToDelete?.name,
+        })}
+        isOpen={!!profileToDelete}
+        titleIconVariant="warning"
+        message={t("dialog.message.delete")}
+        confirmBtnVariant={ButtonVariant.danger}
+        confirmBtnLabel={t("actions.delete")}
+        cancelBtnLabel={t("actions.cancel")}
+        onCancel={() => setProfileToDelete(null)}
+        onClose={() => setProfileToDelete(null)}
+        onConfirm={() => {
+          if (profileToDelete) {
+            deleteProfile(profileToDelete);
+            setProfileToDelete(null);
+          }
+        }}
+      />
     </>
   );
 };
