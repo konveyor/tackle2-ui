@@ -48,6 +48,8 @@ import {
 } from "@app/queries/analysis-profiles";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
+import AnalysisProfileDetailDrawer from "./components/analysis-profile-detail-drawer";
+
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
@@ -94,6 +96,7 @@ export const AnalysisProfiles: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
+    isActiveItemEnabled: true,
     hasActionsColumn: true,
     filterCategories: [
       {
@@ -129,6 +132,7 @@ export const AnalysisProfiles: React.FC = () => {
       getTrProps,
       getTdProps,
     },
+    activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
   return (
@@ -275,6 +279,12 @@ export const AnalysisProfiles: React.FC = () => {
           />
         </div>
       </PageSection>
+
+      {/* Detail drawer */}
+      <AnalysisProfileDetailDrawer
+        analysisProfile={activeItem}
+        onCloseClick={clearActiveItem}
+      />
 
       {/* Confirm delete analysis profile modal */}
       <ConfirmDialog
