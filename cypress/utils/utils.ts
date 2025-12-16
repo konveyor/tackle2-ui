@@ -1964,8 +1964,14 @@ export function closeModalWindow(): void {
   click(closeModal, false, true);
 }
 
-export function next(): void {
-  clickByText(button, "Next");
+export function next(waitForEnabled = true): void {
+  if (waitForEnabled) {
+    cy.contains(button, "Next", { timeout: 10 * SEC })
+      .should("not.be.disabled")
+      .click();
+  } else {
+    clickByText(button, "Next");
+  }
 }
 
 export function performWithin(
