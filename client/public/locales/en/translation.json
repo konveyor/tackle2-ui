@@ -721,6 +721,18 @@
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
     }
   },
+  "analysisWizard": {
+    "review": {
+      "title": "Review analysis details",
+      "description": "Review the information below, then run the analysis.",
+      "targets_one": "Target",
+      "targets_other": "Targets",
+      "scope": "Scope",
+      "packages": "Packages",
+      "rules": "Rules",
+      "autoTagging": "Automated tagging"
+    }
+  },
   "retrieveConfigWizard": {
     "title": "Retrieve Configurations",
     "description": "Retrieve configurations from the selected applications.",
