@@ -301,6 +301,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         isChecked={autoTaggingEnabled}
         onChange={() => setValue("autoTaggingEnabled", !autoTaggingEnabled)}
         id="enable-auto-tagging-checkbox"
+        name="autoTaggingEnabled"
       />
 
       <Flex>
@@ -315,6 +316,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
               setValue("advancedAnalysisEnabled", !advancedAnalysisEnabled)
             }
             id="enable-advanced-analysis-details-checkbox"
+            name="advancedAnalysisEnabled"
           />
         </FlexItem>
         <FlexItem>
