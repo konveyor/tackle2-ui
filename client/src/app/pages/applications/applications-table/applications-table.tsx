@@ -1584,7 +1584,7 @@ export const ApplicationsTable: FC = () => {
               })
             );
           }
-          setArchetypeRefsToOverride(null);
+          setArchetypeRefsToOverrideReview(null);
         }}
       />
       <ConfirmDialog
