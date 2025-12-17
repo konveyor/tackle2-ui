@@ -81,7 +81,7 @@ export class CustomMigrationTarget {
 
     cy.url().then(($url) => {
       if ($url !== CustomMigrationTarget.fullUrl) {
-        selectUserPerspective("Administration");
+        selectUserPerspective("Migration");
         clickByText(navMenu, customMigrationTargets);
         waitForTargets();
       }

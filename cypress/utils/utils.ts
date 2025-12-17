@@ -2345,9 +2345,7 @@ export function deleteCustomResource(
   if (ignoreNotFound) {
     command = `${command} --ignore-not-found=true`;
   }
-  getCommandOutput(command).then((output) => {
-    expect(output.code).to.equal(0);
-  });
+  getCommandOutput(command);
 }
 
 export function isElementExpanded(

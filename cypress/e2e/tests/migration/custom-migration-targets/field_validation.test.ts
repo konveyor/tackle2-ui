@@ -22,7 +22,7 @@ import {
   validateTooLongInput,
   validateTooShortInput,
 } from "../../../../utils/utils";
-import { CustomMigrationTarget } from "../../../models/administration/custom-migration-targets/custom-migration-target";
+import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
 import {
   MustbeAValidRepositoryURL,
   RepositoryType,
