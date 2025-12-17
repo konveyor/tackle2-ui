@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { type FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -41,7 +41,7 @@ import { useFetchArchetypeById } from "@app/queries/archetypes";
 import TargetProfileForm from "./components/target-profile-form";
 import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
-const TargetProfilesPage: React.FC = () => {
+const TargetProfilesPage: FC = () => {
   const { t } = useTranslation();
   const { archetypeId } = useParams<ArchetypeTargetProfilesRoute>();
 
@@ -143,6 +143,7 @@ const TargetProfilesPage: React.FC = () => {
                 <Tr>
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.generators")}</Th>
+                  <Th>{t("terms.analysisProfile")}</Th>
                   <Th screenReaderText="Actions" />
                 </Tr>
               </Thead>
@@ -162,15 +163,16 @@ const TargetProfilesPage: React.FC = () => {
                     </EmptyStateBody>
                   </EmptyState>
                 }
-                numRenderedColumns={3}
+                numRenderedColumns={4}
               >
                 <Tbody>
                   {profiles.map((profile) => (
                     <Tr key={profile.id}>
-                      <Td width={40}>{profile.name}</Td>
-                      <Td width={60}>
+                      <Td width={25}>{profile.name}</Td>
+                      <Td width={35}>
                         <LabelsFromItems items={profile.generators} />
                       </Td>
+                      <Td width={25}>{profile.analysisProfile?.name ?? "-"}</Td>
                       <Td isActionCell>
                         <ActionsColumn
                           items={[
@@ -197,7 +199,7 @@ const TargetProfilesPage: React.FC = () => {
 
       {/* Create Modal */}
       <TargetProfileForm
-        key={openCreateModal ? 1 : 0}
+        key={openCreateModal ? "opened" : "closed"}
         isOpen={openCreateModal}
         archetype={archetype}
         onCancel={() => setOpenCreateModal(false)}
