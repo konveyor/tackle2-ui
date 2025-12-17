@@ -133,7 +133,7 @@ export const TabDetailsContent: React.FC<{
       </DrawerTabContentSection>
 
       {/* Mode */}
-      <DrawerTabContentSection label={t("terms.mode")}>
+      <DrawerTabContentSection label={t("analysisProfiles.sectionMode")}>
         <CompactDescriptionList>
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.withDeps")}</DescriptionListTerm>
@@ -145,7 +145,7 @@ export const TabDetailsContent: React.FC<{
       </DrawerTabContentSection>
 
       {/* Scope */}
-      <DrawerTabContentSection label={t("terms.scope")}>
+      <DrawerTabContentSection label={t("analysisProfiles.sectionScope")}>
         <CompactDescriptionList>
           <DescriptionListGroup>
             <DescriptionListTerm>
@@ -169,7 +169,7 @@ export const TabDetailsContent: React.FC<{
                   color="green"
                 />
               ) : (
-                <EmptyTextMessage message={t("terms.none")} />
+                <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -185,7 +185,7 @@ export const TabDetailsContent: React.FC<{
                   color="grey"
                 />
               ) : (
-                <EmptyTextMessage message={t("terms.none")} />
+                <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -193,7 +193,9 @@ export const TabDetailsContent: React.FC<{
       </DrawerTabContentSection>
 
       {/* Rules - Targets */}
-      <DrawerTabContentSection label={t("terms.targets")}>
+      <DrawerTabContentSection
+        label={t("analysisProfiles.sectionRulesTargets")}
+      >
         {analysisProfile.rules?.targets ? (
           <TargetsList targetRefs={analysisProfile.rules?.targets} />
         ) : (
@@ -202,25 +204,27 @@ export const TabDetailsContent: React.FC<{
       </DrawerTabContentSection>
 
       {/* Rules - Repository */}
-      <DrawerTabContentSection label="Custom rules repository">
+      <DrawerTabContentSection
+        label={t("analysisProfiles.sectionRulesRepository")}
+      >
         {analysisProfile.rules?.repository ? (
           <RepositoryDetails repository={analysisProfile.rules.repository} />
         ) : (
-          <EmptyTextMessage message={t("terms.none")} />
+          <EmptyTextMessage message={t("analysisProfiles.none")} />
         )}
       </DrawerTabContentSection>
 
       {/* Rules - Files */}
-      <DrawerTabContentSection label="Uploaded custom rules files">
+      <DrawerTabContentSection label={t("analysisProfiles.sectionRulesFiles")}>
         {analysisProfile.rules?.files ? (
           <FilesList fileRefs={analysisProfile.rules?.files} />
         ) : (
-          <EmptyTextMessage message={t("terms.none")} />
+          <EmptyTextMessage message={t("analysisProfiles.none")} />
         )}
       </DrawerTabContentSection>
 
       {/* Rules - Labels */}
-      <DrawerTabContentSection label="Rule labels">
+      <DrawerTabContentSection label={t("analysisProfiles.sectionRulesLabels")}>
         <CompactDescriptionList>
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.included")}</DescriptionListTerm>
@@ -231,7 +235,7 @@ export const TabDetailsContent: React.FC<{
                   color="green"
                 />
               ) : (
-                <EmptyTextMessage message={t("terms.none")} />
+                <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -244,7 +248,7 @@ export const TabDetailsContent: React.FC<{
                   color="grey"
                 />
               ) : (
-                <EmptyTextMessage message={t("terms.none")} />
+                <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>

@@ -77,6 +77,16 @@
     "changeSourcePlatform": "Change source platform",
     "generateAssets": "Generate assets"
   },
+  "analysisProfiles": {
+    "none": "None",
+    "sectionMode": "Mode",
+    "sectionScope": "Scope",
+    "sectionRulesTargets": "Targets",
+    "sectionRulesRepository": "Custom rules repository",
+    "sectionRulesFiles": "Uploaded custom rules files",
+    "sectionRulesLabels": "Rule labels",
+    "sectionReview": "Review"
+  },
   "colors": {
     "black": "Black",
     "blue": "Blue",
