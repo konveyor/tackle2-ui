@@ -334,7 +334,6 @@ export class Analysis extends Application {
     if (this.openSourceLibraries) {
       click("#oss");
     }
-    next();
   }
 
   protected tagsToExclude() {
@@ -343,6 +342,7 @@ export class Analysis extends Application {
   }
 
   analyze(cancel = false): void {
+    cy.log("Starting Analysis on application", this.name);
     Application.open();
     this.selectApplication();
     if (cancel) {
@@ -364,6 +364,7 @@ export class Analysis extends Application {
     this.selectTarget(this.target);
     next();
     this.scopeSelect();
+    next();
     if (this.customRule) {
       this.uploadCustomRule();
     }

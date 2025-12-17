@@ -32,6 +32,7 @@ import "./target-card.css";
 
 export interface TargetCardProps {
   item: Target;
+  isSelectable?: boolean;
   isCardSelected?: boolean;
   onChange?: (
     isSelected: boolean,
@@ -53,6 +54,7 @@ const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item: target,
+  isSelectable = true,
   readOnly = false,
   isCardSelected = false,
   selectedLabel,
@@ -113,7 +115,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       id={idCard}
       data-target-name={target.name}
       data-target-id={target.id}
-      isSelectable={readOnly}
+      isSelectable={isSelectable}
       isSelected={isCardSelected}
       isFullHeight
       isCompact

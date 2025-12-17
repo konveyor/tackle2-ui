@@ -256,6 +256,11 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     comp: TaskDetails,
     exact: false,
   },
+  {
+    path: Paths.migrationTargets,
+    comp: MigrationTargets,
+    exact: false,
+  },
 ];
 
 export const administrationRoutes: IRoute<AdminPathValues>[] = [
@@ -295,7 +300,6 @@ export const administrationRoutes: IRoute<AdminPathValues>[] = [
     exact: false,
   },
   { comp: Proxies, path: Paths.proxies, exact: false },
-  { comp: MigrationTargets, path: Paths.migrationTargets, exact: false },
   {
     comp: Jira,
     path: Paths.jira,
