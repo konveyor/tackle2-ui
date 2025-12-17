@@ -269,7 +269,7 @@ export const AnalysisProfiles: React.FC = () => {
                       >
                         {profile.description || "-"}
                       </Td>
-                      <Td isActionCell id="pencil-action">
+                      <Td isActionCell id={`pencil-action-${profile.id}`}>
                         <Tooltip content={t("actions.edit")}>
                           <Button
                             variant="plain"
@@ -278,7 +278,7 @@ export const AnalysisProfiles: React.FC = () => {
                           />
                         </Tooltip>
                       </Td>
-                      <Td isActionCell id="row-actions">
+                      <Td isActionCell id={`row-actions-${profile.id}`}>
                         <ActionsColumn
                           items={[
                             {

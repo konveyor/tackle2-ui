@@ -129,9 +129,7 @@ export const TabDetailsContent: React.FC<{
     <DrawerTabContent>
       {/* Description */}
       <DrawerTabContentSection label={t("terms.description")}>
-        <Text component="small">
-          {analysisProfile.description || <EmptyTextMessage />}
-        </Text>
+        <Text>{analysisProfile.description || <EmptyTextMessage />}</Text>
       </DrawerTabContentSection>
 
       {/* Mode */}
@@ -171,7 +169,7 @@ export const TabDetailsContent: React.FC<{
                   color="green"
                 />
               ) : (
-                <EmptyTextMessage message="None" />
+                <EmptyTextMessage message={t("terms.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -187,7 +185,7 @@ export const TabDetailsContent: React.FC<{
                   color="grey"
                 />
               ) : (
-                <EmptyTextMessage message="None" />
+                <EmptyTextMessage message={t("terms.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -208,7 +206,7 @@ export const TabDetailsContent: React.FC<{
         {analysisProfile.rules?.repository ? (
           <RepositoryDetails repository={analysisProfile.rules.repository} />
         ) : (
-          <EmptyTextMessage message="None" />
+          <EmptyTextMessage message={t("terms.none")} />
         )}
       </DrawerTabContentSection>
 
@@ -217,7 +215,7 @@ export const TabDetailsContent: React.FC<{
         {analysisProfile.rules?.files ? (
           <FilesList fileRefs={analysisProfile.rules?.files} />
         ) : (
-          <EmptyTextMessage message="None" />
+          <EmptyTextMessage message={t("terms.none")} />
         )}
       </DrawerTabContentSection>
 
@@ -233,7 +231,7 @@ export const TabDetailsContent: React.FC<{
                   color="green"
                 />
               ) : (
-                <EmptyTextMessage message="None" />
+                <EmptyTextMessage message={t("terms.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
@@ -246,7 +244,7 @@ export const TabDetailsContent: React.FC<{
                   color="grey"
                 />
               ) : (
-                <EmptyTextMessage message="None" />
+                <EmptyTextMessage message={t("terms.none")} />
               )}
             </DescriptionListDescription>
           </DescriptionListGroup>
