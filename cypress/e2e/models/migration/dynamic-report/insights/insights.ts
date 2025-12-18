@@ -4,9 +4,13 @@ import {
   validateAnyNumberPresence,
   validateTextPresence,
 } from "../../../../../utils/utils";
-import { dynamicReportFilter, trTag } from "../../../../types/constants";
-import { AppInsight } from "../../../../types/types";
-import { liTag, span } from "../../../../views/common.view";
+import {
+  button,
+  dynamicReportFilter,
+  trTag,
+} from "../../../../types/constants";
+import { AppInsight, AppIssue } from "../../../../types/types";
+import { div, liTag, span } from "../../../../views/common.view";
 import { insightColumns } from "../../../../views/insights.view";
 import { singleApplicationColumns } from "../../../../views/issue.view";
 import { DynamicReports } from "../dynamic-report";
@@ -70,5 +74,50 @@ export class Insights extends DynamicReports {
           validateAnyNumberPresence(singleApplicationColumns.files);
         }
       });
+  }
+  public static validateAllFields(insight: AppInsight): void {
+    const sections = {
+      totalAffectedApps: "Total affected",
+      targetTechnologies: "Target technologies",
+      sourceTechnologies: "Source technologies",
+      ruleSet: "Rule set",
+      rule: /^Rule$/,
+      labels: "Labels",
+    };
+
+    Insights.unfold(insight.name);
+    Insights.validateSection(
+      insight.name,
+      sections.totalAffectedApps,
+      button,
+      /\d - View affected /
+    );
+    Insights.validateSection(
+      insight.name,
+      sections.targetTechnologies,
+      div,
+      insight.targets
+    );
+    Insights.validateSection(
+      insight.name,
+      sections.sourceTechnologies,
+      div,
+      insight.sources
+    );
+    if (insight.ruleSet) {
+      Insights.validateSection(
+        insight.name,
+        sections.ruleSet,
+        div,
+        insight.ruleSet
+      );
+    }
+    Insights.validateSection(insight.name, sections.rule, div, insight.rule);
+    Insights.validateSection(
+      insight.name,
+      sections.labels,
+      div,
+      insight.labels
+    );
   }
 }
