@@ -1,14 +1,18 @@
+import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
   clearAllFilters,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
 } from "../../../../../utils/utils";
+import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Insights } from "../../../../models/migration/dynamic-report/insights/insights";
 import { Issues } from "../../../../models/migration/dynamic-report/issues/issues";
 import {
   AnalysisStatuses,
+  CredentialType,
+  UserCredentials,
   dynamicReportFilter,
 } from "../../../../types/constants";
 import { AppInsight, AppIssue } from "../../../../types/types";
@@ -17,6 +21,7 @@ describe(["@tier3"], "Custom rules in Insights", function () {
   let analysisData: any;
   let applicationData: any;
   let tackleTestApp: Analysis;
+  let defaultScCredsUsername: CredentialsSourceControlUsername;
 
   before("Login and load data", () => {
     Cypress.session.clearAllSavedSessions();
@@ -29,6 +34,17 @@ describe(["@tier3"], "Custom rules in Insights", function () {
     cy.fixture("analysis").then((data) => {
       analysisData = data;
     });
+
+    defaultScCredsUsername = new CredentialsSourceControlUsername(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword,
+        true,
+        undefined,
+        true
+      )
+    );
+    defaultScCredsUsername.create();
 
     cy.then(() => {
       tackleTestApp = new Analysis(
@@ -82,5 +98,6 @@ describe(["@tier3"], "Custom rules in Insights", function () {
 
   after("Cleanup", () => {
     tackleTestApp.delete();
+    defaultScCredsUsername.delete();
   });
 });
