@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Panel, PanelMain, Title } from "@patternfly/react-core";
 import "./drawer-tabs-container.css";
 
