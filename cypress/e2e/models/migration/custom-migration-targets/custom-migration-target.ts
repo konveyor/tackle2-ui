@@ -22,11 +22,7 @@ import {
 } from "../../../types/constants";
 import { RulesManualFields, RulesRepositoryFields } from "../../../types/types";
 import { submitButton } from "../../../views/common.view";
-import {
-  CustomMigrationTargetView,
-  sourcesList,
-  sourcesToggle,
-} from "../../../views/custom-migration-target.view";
+import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
 import { navMenu } from "../../../views/menu.view";
 
 export class CustomMigrationTarget {
@@ -81,7 +77,7 @@ export class CustomMigrationTarget {
 
     cy.url().then(($url) => {
       if ($url !== CustomMigrationTarget.fullUrl) {
-        selectUserPerspective("Administration");
+        selectUserPerspective("Migration");
         clickByText(navMenu, customMigrationTargets);
         waitForTargets();
       }
@@ -248,7 +244,8 @@ export class CustomMigrationTarget {
   }
 
   validateSourceTechnology(sources: string[]): void {
-    click(sourcesToggle);
-    cy.get(sourcesList).should("contain", sources);
+    sources.forEach((source) => {
+      cy.get("span.pf-v5-c-label__text").should("contain.text", source);
+    });
   }
 }

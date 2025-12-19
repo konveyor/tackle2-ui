@@ -212,8 +212,8 @@ export type AppIssue = {
   affectedFiles: number;
   tags?: string[];
   ruleSet?: string;
-  rule?: string;
-  labels?: string[];
+  rule: string;
+  labels: string[];
 };
 
 export type AppInsight = {
@@ -225,8 +225,8 @@ export type AppInsight = {
   affectedFiles: number;
   tags?: string[];
   ruleSet?: string;
-  rule?: string;
-  labels?: string[];
+  rule: string;
+  labels: string[];
 };
 
 export type AppDependency = {

@@ -30,8 +30,8 @@ import {
   selectItemsPerPage,
 } from "../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
-import { CustomMigrationTarget } from "../../../models/administration/custom-migration-targets/custom-migration-target";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
 import {
   CredentialType,
   Languages,

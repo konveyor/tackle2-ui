@@ -9,6 +9,7 @@
     "target": ["Containerization", "Linux", "Quarkus"],
     "appName": "bookserver-app",
     "tags": ["EJB XML", "Java EE Batch", "EJB XML"],
+    "customRule": [],
     "issues": [
       {
         "name": "Add Maven profile to run the Quarkus native build",
@@ -2116,6 +2117,73 @@
         "ruleSet": "ruleSet-1",
         "rule": "rule-1",
         "labels": ["RULE-1", "RULESET-1"]
+      }
+    ]
+  },
+  "source_analysis_tackle_testapp_custom_rule": {
+    "source": "Source code",
+    "target": [],
+    "appName": "tackle-testapp",
+    "effort": 547,
+    "openSourceLibraries": true,
+    "customRule": ["custom_rule_insights.yaml"],
+    "issues": [
+      {
+        "name": "Properties file (Insights TC3)",
+        "category": "potential",
+        "sources": ["None"],
+        "targets": ["custom-rule-tc3"],
+        "effort": 1,
+        "totalEffort": 1,
+        "incidents": 1,
+        "affectedFiles": 1,
+        "ruleSet": "files",
+        "rule": "discover-properties-file-TC3",
+        "labels": [
+          "konveyor.io/include=always",
+          "tag=Properties File (Insights TC3)"
+        ]
+      }
+    ],
+    "insights": [
+      {
+        "name": "Properties file (Insights TC0)",
+        "category": "",
+        "sources": ["None"],
+        "targets": ["custom-rule-tc0"],
+        "incidents": 1,
+        "affectedFiles": 1,
+        "ruleSet": "files",
+        "rule": "discover-properties-file-TC0",
+        "labels": [
+          "konveyor.io/include=always",
+          "tag=Properties File (Insights TC0)"
+        ]
+      },
+      {
+        "name": "Properties file (Insights TC1)",
+        "category": "",
+        "sources": ["None"],
+        "targets": ["custom-rule-tc1"],
+        "incidents": 1,
+        "affectedFiles": 1,
+        "ruleSet": "files",
+        "rule": "discover-properties-file-TC1",
+        "labels": [
+          "konveyor.io/include=always",
+          "tag=Properties File (Insights TC1)"
+        ]
+      },
+      {
+        "name": "Properties file (Insights TC2)",
+        "category": "",
+        "sources": ["None"],
+        "targets": ["custom-rule-tc2"],
+        "incidents": 1,
+        "affectedFiles": 1,
+        "ruleSet": "files",
+        "rule": "discover-properties-file-TC2",
+        "labels": ["konveyor.io/include=always"]
       }
     ]
   }

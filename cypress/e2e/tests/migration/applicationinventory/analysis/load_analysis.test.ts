@@ -25,9 +25,9 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../../../utils/utils";
-import { CustomMigrationTarget } from "../../../../models/administration/custom-migration-targets/custom-migration-target";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
+import { CustomMigrationTarget } from "../../../../models/migration/custom-migration-targets/custom-migration-target";
 import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
 const applications: Analysis[] = [];

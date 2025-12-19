@@ -24,11 +24,11 @@ import {
   resetURL,
   selectItemsPerPage,
 } from "../../../utils/utils";
-import { CustomMigrationTarget } from "../../models/administration/custom-migration-targets/custom-migration-target";
 import { User } from "../../models/keycloak/users/user";
 import { UserArchitect } from "../../models/keycloak/users/userArchitect";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
+import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
 import {
   AnalysisStatuses,
   CustomRuleType,

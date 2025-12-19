@@ -23,8 +23,8 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../../utils/utils";
-import { CustomMigrationTarget } from "../../../models/administration/custom-migration-targets/custom-migration-target";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
 import { AnalysisStatuses, Languages } from "../../../types/constants";
 import { RulesRepositoryFields } from "../../../types/types";
 

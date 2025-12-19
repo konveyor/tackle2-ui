@@ -31,7 +31,7 @@ export class Issues extends DynamicReports {
     filterType: dynamicReportFilter,
     filterValues: string[],
     issuesExpected: AppIssue[] = [],
-    issuesNotExpected?: AppIssue[],
+    issuesNotExpected: AppIssue[] = [],
     isSingle = false
   ) {
     filterValues.forEach((value) => {
@@ -158,25 +158,5 @@ export class Issues extends DynamicReports {
     }
     Issues.validateSection(issue.name, sections.rule, div, issue.rule);
     Issues.validateSection(issue.name, sections.labels, div, issue.labels);
-  }
-
-  private static validateSection(
-    name: string,
-    title: string | RegExp,
-    contentSelector: string,
-    content: string | string[] | RegExp
-  ): void {
-    cy.contains(tdTag, name)
-      .parent(trTag)
-      .next()
-      .contains("h4", title)
-      .next()
-      .within(() => {
-        if (Array.isArray(content)) {
-          content.forEach((item) => cy.contains(contentSelector, item));
-        } else {
-          cy.contains(contentSelector, content);
-        }
-      });
   }
 }
