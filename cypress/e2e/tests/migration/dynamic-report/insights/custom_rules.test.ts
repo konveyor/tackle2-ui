@@ -18,6 +18,7 @@ import {
 import { AppInsight, AppIssue } from "../../../../types/types";
 
 describe(["@tier3"], "Custom rules in Insights", function () {
+  //TODO: Add validation of message in insights when bug https://issues.redhat.com/browse/MTA-3449 will be fixed
   let analysisData: any;
   let applicationData: any;
   let tackleTestApp: Analysis;
@@ -61,6 +62,7 @@ describe(["@tier3"], "Custom rules in Insights", function () {
       tackleTestApp.verifyAnalysisStatus(AnalysisStatuses.completed);
     });
   });
+
   it("Generate and validate Insights with effort 0 in custom rules", () => {
     const tackleTestAppInsights =
       analysisData["source_analysis_tackle_testapp_custom_rule"]["insights"];
