@@ -36,7 +36,7 @@ pipeline{
                 script{
                     tackle.deployKonveyorOnMinikube(params.TEST_BRANCH)
                     echo "Applying tackle CR"
-                    tackle.applyTackleCR()
+                    tackle.createKaiSecrets('konveyor-tackle','https://api.openai.com/v1',"$OPENAI_API_KEY")
                 }
             }
         }
@@ -53,14 +53,17 @@ pipeline{
                     ocp.pollRouteUntilReady(env.TACKLE_URL,15,30)
                     sh "sleep 40s" //Grace period after the application is serving correctly.
                     sh(
-                        script: "npm install",
+                        script: "npm ci",
                         label: "Install dependencies..."
                     )
                     tackle.exposeMetricsRouteMinikube()
-                    //Run the tests.
+                    sh'kubectl get pods -n konveyor-tackle'
+                    dir('cypress/'){
+                        //Run the tests.
                         sh """ 
-                        CYPRESS_INCLUDE_TAGS=@tier1 npx cypress run --spec **/*.test.ts --config baseUrl=$TACKLE_URL --env user=$username,initialPassword='Passw0rd!',pass=$password,git_user=$TACKLE_GIT_CREDS_USR,git_password=$TACKLE_GIT_CREDS_PSW,git_key='$TACKLE_GIT_KEY',metricsUrl=$METRICS_URL
+                        CYPRESS_INCLUDE_TAGS=@tier0,@tier1,@tier2,@tier3 npx cypress run --spec **/*.test.ts --config baseUrl=$TACKLE_URL --env user=$username,initialPassword='Passw0rd!',pass=$password,git_user=$TACKLE_GIT_CREDS_USR,git_password=$TACKLE_GIT_CREDS_PSW,git_key='$TACKLE_GIT_KEY',metricsUrl=$METRICS_URL
                         """ 
+                    }   
                 }
             }
         }
@@ -74,14 +77,16 @@ pipeline{
         success{
             script{
                 if(params.TEST_BRANCH=="main"){
-                    tackle.writeBuildStatus(passed=true,pipeline="ui-tier1-nightly")
+                    // tackle.writeBuildStatus(passed=true,pipeline="ui-tier1-nightly")
+                    echo "Skip temp"
                 }
             }
         }
         failure{
             script{
                 if(params.TEST_BRANCH=="main"){
-                    tackle.writeBuildStatus(passed=false,pipeline="ui-tier1-nightly")       
+                    // tackle.writeBuildStatus(passed=false,pipeline="ui-tier1-nightly")    
+                    echo "skip temp"   
                 }
             }
         }  
