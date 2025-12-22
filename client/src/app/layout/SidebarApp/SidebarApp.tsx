@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import {
@@ -169,6 +169,14 @@ export const MigrationSidebar = () => {
             activeClassName="pf-m-current"
           >
             {t("sidebar.customMigrationTargets")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            to={DevPaths.analysisProfiles}
+            activeClassName="pf-m-current"
+          >
+            {t("sidebar.analysisProfiles")}
           </NavLink>
         </NavItem>
       </NavList>
