@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import * as React from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
 import { unique } from "radash";
@@ -18,6 +19,7 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
+import { UploadFileSchema } from "@app/api/schemas";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 import {
   HookFormPFGroupController,
@@ -25,18 +27,17 @@ import {
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { UploadFileSchema } from "@app/pages/applications/analysis-wizard/schema";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useSettingMutation } from "@app/queries/settings";
 import {
+  useCreateFileMutation,
   useCreateTargetMutation,
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { useCreateFileMutation } from "@app/queries/targets";
 import { toOptionLike, toRef } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
-import { duplicateNameCheck } from "@app/utils/utils";
-import { getAxiosErrorMessage } from "@app/utils/utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 import {
   DEFAULT_PROVIDER,
@@ -47,6 +48,7 @@ import defaultImage from "./default.png";
 
 export interface CustomTargetFormProps {
   target?: Target | null;
+  targetOrder: number[];
   onSaved: (response: AxiosResponse<Target>) => void;
   onCancel: () => void;
 }
@@ -77,12 +79,58 @@ const targetRulesetsToReadFiles = (target?: Target) =>
     };
   }) || [];
 
+const useTargetQueryHooks = (
+  onSaved: (response: AxiosResponse<Target>) => void,
+  reset: () => void
+) => {
+  const { pushNotification } = useContext(NotificationsContext);
+
+  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
+
+  const { mutateAsync: createTargetAsync } = useCreateTargetMutation(
+    (response: AxiosResponse<Target>) => {
+      // TODO: Consider any removed files and delete them from hub if necessary
+      onSaved(response);
+      reset();
+    },
+    (error: AxiosError) => {
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
+  );
+
+  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
+    // TODO: Consider any removed files and delete them from hub if necessary
+    onSaved(response);
+    reset();
+  };
+
+  const onUpdateTargetFailure = (_error: AxiosError) => {};
+
+  const { mutate: updateTarget } = useUpdateTargetMutation(
+    onUpdateTargetSuccess,
+    onUpdateTargetFailure
+  );
+
+  const { mutateAsync: targetOrderMutateAsync } =
+    useSettingMutation("ui.target.order");
+
+  return {
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  };
+};
+
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target: initialTarget,
+  targetOrder,
   onSaved,
   onCancel,
 }) => {
-  const { pushNotification } = useContext(NotificationsContext);
   const baseProviderList = useMigrationProviderList();
   const providerList = useMemo(
     () =>
@@ -261,6 +309,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const values = getValues();
 
+  const {
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  } = useTargetQueryHooks(onSaved, reset);
+
   const onSubmit = async (formValues: CustomTargetFormValues) => {
     const rules: Rule[] = formValues.customRulesFiles
       .map((file) => {
@@ -320,7 +375,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       custom: true,
       labels: labels.length ? labels : [],
       ruleset: {
-        id: target?.custom ? target.ruleset.id : undefined,
+        id: target?.custom ? target.ruleset.id : 0,
         name: formValues.name.trim(),
         rules: rules,
         ...(formValues.rulesKind === "repository" && {
@@ -339,7 +394,22 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     if (target) {
       updateTarget({ id: target.id, ...payload });
     } else {
-      createTarget(payload);
+      let newTargetId: number | undefined;
+      try {
+        const response = await createTargetAsync(payload);
+        newTargetId = response.data.id;
+      } catch {
+        /* ignore */
+      }
+
+      // Add the new target to the target order and wait for it to complete before continuing.
+      if (newTargetId !== undefined) {
+        try {
+          await targetOrderMutateAsync([...targetOrder, newTargetId]);
+        } catch {
+          /* ignore */
+        }
+      }
     }
   };
 
@@ -347,39 +417,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     // TODO: Consider any uploaded files and delete them from hub if necessary
     onCancel();
   };
-
-  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
-
-  const onCreateTargetSuccess = (response: AxiosResponse<Target>) => {
-    // TODO: Consider any removed files and delete them from hub if necessary
-    onSaved(response);
-    reset();
-  };
-
-  const onCreateTargetFailure = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: createTarget } = useCreateTargetMutation(
-    onCreateTargetSuccess,
-    onCreateTargetFailure
-  );
-
-  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
-    // TODO: Consider any removed files and delete them from hub if necessary
-    onSaved(response);
-    reset();
-  };
-
-  const onUpdateTargetFailure = (_error: AxiosError) => {};
-
-  const { mutate: updateTarget } = useUpdateTargetMutation(
-    onUpdateTargetSuccess,
-    onUpdateTargetFailure
-  );
 
   const handleImageFileUpload = async (file: File) => {
     setImageFilename(file.name);

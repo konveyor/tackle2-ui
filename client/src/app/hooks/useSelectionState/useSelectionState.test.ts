@@ -1,5 +1,4 @@
-import { act } from "@testing-library/react";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 
 import { useSelectionState } from "./useSelectionState";
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
@@ -22,7 +24,7 @@ export default defineConfig({
     jira_atlassian_cloud_project: "Test",
     jira_stage_datacenter_project_id: 12335626,
     rwx_enabled: true,
-    logLevel: "VERBOSE",
+    logLevel: "INFO",
     mtaVersion: "",
     FAIL_FAST_PLUGIN: true,
     FAIL_FAST_ENABLED: false,
@@ -83,7 +85,14 @@ export default defineConfig({
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
       // Plugins
-      on("file:preprocessor", createBundler());
+      // Esbuild bundler configured with sourcemaps for better stack traces
+      on(
+        "file:preprocessor",
+        createBundler({
+          sourcemap: true,
+          sourcesContent: true,
+        })
+      );
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);

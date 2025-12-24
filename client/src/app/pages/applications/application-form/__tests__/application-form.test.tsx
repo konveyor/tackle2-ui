@@ -1,5 +1,3 @@
-import React from "react";
-import { server } from "@mocks/server";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { rest } from "msw";
@@ -10,6 +8,7 @@ import {
   screen,
   waitFor,
 } from "@app/test-config/test-utils";
+import { server } from "@mocks/server";
 
 import { ApplicationFormModal } from "../application-form-modal";
 

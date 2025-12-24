@@ -7,13 +7,14 @@ export const DEFAULT_KIND = "cloudfoundry";
 
 export const KIND_MAP: Map<
   string,
-  { labelKey: string; urlTooltipKey: string }
+  { labelKey: string; urlTooltipKey: string; credentialTooltipKey: string }
 > = new Map([
   [
     "cloudfoundry",
     {
       labelKey: "platformKind.cloudfoundry.label",
       urlTooltipKey: "platformKind.cloudfoundry.urlTooltip",
+      credentialTooltipKey: "platformKind.cloudfoundry.credentialTooltip",
     },
   ],
 ]);
@@ -50,5 +51,15 @@ export const usePlatformKindList = () => {
     [t]
   );
 
-  return { kinds, getDisplayLabel, getUrlTooltip };
+  const getCredentialTooltip = useCallback(
+    (kind: string | undefined | null): string => {
+      if (kind && KIND_MAP.has(kind)) {
+        return t(KIND_MAP.get(kind)!.credentialTooltipKey);
+      }
+      return "";
+    },
+    [t]
+  );
+
+  return { kinds, getDisplayLabel, getUrlTooltip, getCredentialTooltip };
 };

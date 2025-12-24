@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import { type FC, useContext, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragOverEvent,
@@ -37,8 +37,11 @@ import { Target } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import keycloak from "@app/keycloak";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
+import { targetsWriteScopes } from "@app/rbac";
+import { checkAccess } from "@app/utils/rbac-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CustomTargetForm } from "./components/custom-target-form";
@@ -46,17 +49,22 @@ import { SortableTargetItem } from "./components/dnd/sortable-target-item";
 import { TargetItem } from "./components/dnd/target-item";
 import { DEFAULT_PROVIDER } from "./useMigrationProviderList";
 
-export const MigrationTargets: React.FC = () => {
+export const MigrationTargets: FC = () => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
 
-  const { targets, refetch: refetchTargets } = useFetchTargets();
+  // RBAC access check for write operations (architect users)
+  const token = keycloak.tokenParsed || undefined;
+  const userScopes: string[] = token?.scope?.split(" ") || [];
+  const targetsWriteAccess = checkAccess(userScopes, targetsWriteScopes);
+
+  const { targetsInOrder } = useFetchTargets();
 
   const targetOrderSetting = useSetting("ui.target.order");
   const targetOrderSettingMutation = useSettingMutation("ui.target.order");
 
   // Create and update modal
-  const [createUpdateModalState, setCreateUpdateModalState] = React.useState<
+  const [createUpdateModalState, setCreateUpdateModalState] = useState<
     "create" | Target | null
   >(null);
   const isCreateUpdateModalOpen = createUpdateModalState !== null;
@@ -94,7 +102,7 @@ export const MigrationTargets: React.FC = () => {
     onDeleteTargetError
   );
 
-  const onCustomTargetModalSaved = (response: AxiosResponse<Target>) => {
+  const onCustomTargetModalSaved = async (response: AxiosResponse<Target>) => {
     if (targetToUpdate) {
       pushNotification({
         title: t("toastr.success.saveWhat", {
@@ -121,18 +129,6 @@ export const MigrationTargets: React.FC = () => {
         ),
       });
 
-      // update target order
-      if (
-        targetOrderSetting.isSuccess &&
-        response.data.id &&
-        targetOrderSetting.data
-      ) {
-        targetOrderSettingMutation.mutate([
-          ...targetOrderSetting.data,
-          response.data.id,
-        ]);
-      }
-
       // Make sure the new target's provider is part of the providers filter so it can be seen
       if (filterState.filterValues["provider"]) {
         const targetProvider = response.data.provider;
@@ -149,8 +145,8 @@ export const MigrationTargets: React.FC = () => {
         });
       }
     }
+
     setCreateUpdateModalState(null);
-    refetchTargets();
   };
 
   const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
@@ -180,13 +176,15 @@ export const MigrationTargets: React.FC = () => {
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     const activeId = active.id as number;
-    const activeTarget = targets.find((target) => target.id === activeId);
+    const activeTarget = targetsInOrder.find(
+      (target) => target.id === activeId
+    );
     setActiveTarget(activeTarget ?? null);
   };
 
   const tableControls = useLocalTableControls({
     tableName: "target-cards",
-    items: targets,
+    items: targetsInOrder,
     idProperty: "name",
     initialFilterValues: { provider: [DEFAULT_PROVIDER] },
     columnNames: {
@@ -200,7 +198,7 @@ export const MigrationTargets: React.FC = () => {
     filterCategories: [
       {
         selectOptions: unique(
-          targets.map((target) => target.provider).filter(Boolean)
+          targetsInOrder.map((target) => target.provider).filter(Boolean)
         ).map((target) => ({ value: target })),
         placeholderText: "Filter by language...",
         categoryKey: "provider",
@@ -230,9 +228,19 @@ export const MigrationTargets: React.FC = () => {
       return [];
     }
 
-    return targetOrderSetting.data
+    // Get targets in the order specified by the setting
+    const orderedTargets = targetOrderSetting.data
       .map((id) => filteredTargets.find((target) => target.id === id))
       .filter(Boolean);
+
+    // Find targets that are in filteredTargets but not in the ordered list
+    const orderedTargetIds = new Set(orderedTargets.map((target) => target.id));
+    const unorderedTargets = filteredTargets.filter(
+      (target) => !orderedTargetIds.has(target.id)
+    );
+
+    // Combine ordered targets with unordered ones at the end
+    return [...orderedTargets, ...unorderedTargets];
   }, [filteredTargets, targetOrderSetting.data, targetOrderSetting.isSuccess]);
 
   return (
@@ -253,18 +261,20 @@ export const MigrationTargets: React.FC = () => {
         >
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} breakpoint="md" />
-            <ToolbarGroup variant="button-group">
-              <ToolbarItem>
-                <Button
-                  id="create-target"
-                  isInline
-                  className={spacing.mlMd}
-                  onClick={() => setCreateUpdateModalState("create")}
-                >
-                  Create new
-                </Button>
-              </ToolbarItem>
-            </ToolbarGroup>
+            {targetsWriteAccess && (
+              <ToolbarGroup variant="button-group">
+                <ToolbarItem>
+                  <Button
+                    id="create-target"
+                    isInline
+                    className={spacing.mlMd}
+                    onClick={() => setCreateUpdateModalState("create")}
+                  >
+                    Create new
+                  </Button>
+                </ToolbarItem>
+              </ToolbarGroup>
+            )}
           </ToolbarContent>
         </Toolbar>
       </PageSection>
@@ -286,19 +296,33 @@ export const MigrationTargets: React.FC = () => {
                   key={target.id}
                   target={target}
                   style={{ height: "410px" }}
-                  onEdit={() => {
-                    setCreateUpdateModalState(target);
-                  }}
-                  onDelete={() => {
-                    // TODO: Add a delete confirmation modal.
-                    deleteTarget(target.id);
-                  }}
+                  readOnly={!targetsWriteAccess}
+                  onEdit={
+                    targetsWriteAccess
+                      ? () => {
+                          setCreateUpdateModalState(target);
+                        }
+                      : undefined
+                  }
+                  onDelete={
+                    targetsWriteAccess
+                      ? () => {
+                          // TODO: Add a delete confirmation modal.
+                          deleteTarget(target.id);
+                        }
+                      : undefined
+                  }
                 />
               ))}
               <div ref={targetsEndRef} />
             </Gallery>
             <DragOverlay>
-              {activeTarget ? <TargetItem target={activeTarget} /> : null}
+              {activeTarget ? (
+                <TargetItem
+                  target={activeTarget}
+                  readOnly={!targetsWriteAccess}
+                />
+              ) : null}
             </DragOverlay>
           </SortableContext>
         </DndContext>
@@ -315,6 +339,7 @@ export const MigrationTargets: React.FC = () => {
       >
         <CustomTargetForm
           target={targetToUpdate}
+          targetOrder={targetOrderSetting.data ?? []}
           onSaved={onCustomTargetModalSaved}
           onCancel={() => setCreateUpdateModalState(null)}
         />

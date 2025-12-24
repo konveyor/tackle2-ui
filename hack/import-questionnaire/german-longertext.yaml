@@ -1,0 +1,182 @@
+# cSpell:disable
+name: Debaka Cloud - ist Deine Anwendung bereit als Container zu laufen?
+description: In Diesem Fragebogen werden die Anforderungen von abgefragt.
+required: true
+sections:
+  - order: 1
+    name: Zustandslosigkeit & Datenspeicherung
+    questions:
+      - order: 1
+        text: Wie lange braucht die Applikation im schnitt um zu starten?
+        explanation: Ermittelt ob die Applikation in Bezug auf Startzeit bereit ist für den Cloudbetrieb.
+        answers:
+          - order: 1
+            text: < 30s
+            risk: green
+            rationale: Ausreichend kurze Startzeit.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 2
+            text: < 5m
+            risk: yellow
+            rationale: Die Startzeit ist schon relativ lang.
+            mitigation: Versuche die Startup Zeit zu verkürzen.
+            applyTags:
+              - category: Mitigation
+                tag: Startzeit verkürzen
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 3
+            text: ">= 5m"
+            risk: red
+            rationale: Die Startzeit ist zu lang für einen Cloudbetrieb
+            mitigation: Versuche die Startup Zeit zu verkürzen - oder deploye die Apllikation auf einer VM.
+            applyTags:
+              - category: Mitigation
+                tag: Startzeit verkürzen
+              - category: Empfohlene Zielplatform
+                tag: Virtuelle Maschine
+          - order: 4
+            text: Unbekannt
+            risk: unknown
+            rationale: So lässt sich nicht vorhersagen ob die Applikation für den Cloudbetrieb geeignet ist.
+            mitigation: Startzeit ermitteln
+            applyTags:
+              - category: Mitigation
+                tag: Startzeit ermitteln
+      - order: 2
+        text: Kann die Anwendung jederzeit gestoppt und neu gestartet werden, ohne Datenverlust?
+        explanation: Ermittelt ob die Applikation in Bezug auf Neustartverhalten bereit ist für den Cloudbetrieb.
+        answers:
+          - order: 1
+            text: Ja
+            risk: green
+            rationale: Gut geeignet für den Cloudbetrieb.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 2
+            text: Nein
+            risk: red
+            rationale: Nicht gut geeignet für den Cloudbetrieb.
+            mitigation: Applikation auf VM deployen.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Virtuelle Maschine
+          - order: 3
+            text: Unbekannt
+            risk: unknown
+            rationale: So lässt sich nicht vorhersagen ob die Applikation für den Cloudbetrieb geeignet ist.
+            mitigation: Neustartfähigkeit ermitteln
+            applyTags:
+              - category: Mitigation
+                tag: Neustartfähigkeit ermitteln
+      - order: 3
+        text: Ist ein Wiederanlauf für lang laufende Prozesse möglich, z.B. wenn die Applikation während der Verarbeitung gestoppt wurde?
+        explanation: Ermittelt ob die Applikation in Bezug auf lang laufende Prozesse bereit ist für den Cloudbetrieb.
+        answers:
+          - order: 1
+            text: Ja
+            risk: green
+            rationale: Gut geeignet für den Cloudbetrieb.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 2
+            text: Nein
+            risk: red
+            rationale: Nicht gut geeignet für den Cloudbetrieb.
+            mitigation: Applikation auf VM deployen.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Virtuelle Maschine
+          - order: 3
+            text: Unbekannt
+            risk: unknown
+            rationale: So lässt sich nicht vorhersagen ob die Applikation für den Cloudbetrieb geeignet ist.
+            mitigation: Wiederanlauffähigkeit ermitteln
+            applyTags:
+              - category: Mitigation
+                tag: Wiederanlauffähigkeit ermitteln
+      - order: 4
+        text: Wo speichert die Applikation Daten, die über einen Request hinaus erhalten bleiben sollen und nicht automatisch wiederhergestellt werden können (z.B. Cache)?
+        explanation: Ermittelt ob die Applikation in Bezug auf Zustandsbehaftung / Datenhaltung bereit ist für den Cloudbetrieb.
+        answers:
+          - order: 1
+            text: Es werden keine entsprechenden Daten gespeichert.
+            risk: green
+            rationale: Gibt in dieser Hinsicht keine Probleme beim Cloudbetrieb.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 2
+            text: Ausschließlich in Diensten außerhalb der Applikation, wie z.B. eine Datenbank.
+            risk: green
+            rationale: Gibt in dieser Hinsicht keine Probleme beim Cloudbetrieb.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 3
+            text: Es werden enstsprechende Daten im Dateisystem oder Arbeitsspeicher gehalten.
+            risk: red
+            rationale: So ist es nicht möglich einen Container neu zu starten und / oder auf einen anderen Node zu verschieben.
+            mitigation: Datenhaltung in einen externen Dienst auslagern, oder ein PVC verwenden (falls passend) - siehe auch https://wiki.services.debeka.de/spaces/CLOUD/pages/1944987024/Storage+in+OpenShift
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: VM
+              - category: Mitigation
+                tag: Datenhaltung auslagern
+          - order: 4
+            text: Unbekannt
+            risk: unknown
+            rationale: So lässt sich nicht vorhersagen ob die Applikation für den Cloudbetrieb geeignet ist.
+            mitigation: Datenhaltung ermitteln
+            applyTags:
+              - category: Mitigation
+                tag: Datenhaltung ermitteln
+  - order: 2
+    name: Konfigurierbarkeit
+    questions:
+      - order: 1
+        text: Ist die Applikation  über Umgebungsvariablen, Secrets oder Config Maps konfigurierbar?
+        explanation: Ermittelt ob die Applikation in Bezug auf Konfiguration bereit ist für den Cloudbetrieb.
+        answers:
+          - order: 1
+            text: Ja
+            risk: green
+            rationale: Gut geeignet für den Cloudbetrieb.
+            mitigation: Keine Mitigation benötigt.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Container
+          - order: 2
+            text: Nein
+            risk: yellow
+            rationale: Nicht gut geeignet für den Cloudbetrieb.
+            mitigation: Applikation auf VM deployen.
+            applyTags:
+              - category: Empfohlene Zielplatform
+                tag: Virtuelle Maschine
+          - order: 3
+            text: Unbekannt
+            risk: unknown
+            rationale: So lässt sich nicht vorhersagen ob die Applikation für den Cloudbetrieb geeignet ist.
+            mitigation: Konfigurierbarkeit ermitteln
+            applyTags:
+              - category: Mitigation
+                tag: Konfigurierbarkeit ermitteln
+thresholds:
+  red: 1
+  yellow: 30
+  unknown: 15
+riskMessages:
+  red: Requires deep changes in architecture or lifecycle
+  yellow: Cloud friendly but needs minor changes
+  green: Cloud Native
+  unknown: More information needed

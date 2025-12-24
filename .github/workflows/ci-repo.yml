@@ -25,6 +25,7 @@ jobs:
     outputs:
       builder-image: ${{ steps.grepBuilder.outputs.builder }}
       should-test: ${{ steps.check-changes.outputs.should-test }}
+      should-build: ${{ steps.check-changes.outputs.should-build }}
 
     steps:
       - uses: actions/checkout@v4
@@ -37,24 +38,41 @@ jobs:
           builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
 
-      - name: Did cypress, docs and hacks change?
-        id: cypress-docs-and-hacks
+      - name: Did only docs and hacks change?
+        id: docs-and-hacks-only
         uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
         with:
           files: |
             docs/**
             hack/**
             *.md
+
+      - name: Did only cypress change?
+        id: cypress-only
+        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
+        with:
+          files: |
             cypress/**
 
-      - name: Check if only cypress, docs and hacks changes have been made in a PR
+      - name: Check what types of changes have been made in a PR
         id: check-changes
         env:
           IS_PR: ${{ !!github.event.pull_request }}
-          ONLY_DOCS: ${{ steps.cypress-docs-and-hacks.outputs.only_modified }}
+          ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
+          ONLY_CYPRESS: ${{ steps.cypress-only.outputs.only_modified }}
         run: |
+          # should-test: Skip unit-tests if changes are exclusively to docs/hacks
           SHOULD_TEST=$(
-            if [[ $IS_PR == true ]] && [[ $ONLY_DOCS == true ]]; then
+            if [[ $IS_PR == true ]] && [[ $ONLY_DOCS_HACKS == true ]]; then
+              echo "false"
+            else
+              echo "true"
+            fi
+          )
+
+          # should-build: Skip build and unit tests if changes are only to cypress (no application source changes)
+          SHOULD_BUILD=$(
+            if [[ $IS_PR == true ]] && [[ $ONLY_CYPRESS == true ]]; then
               echo "false"
             else
               echo "true"
@@ -62,13 +80,17 @@ jobs:
           )
 
           echo "is-pr=$IS_PR" >> "$GITHUB_OUTPUT"
-          echo "changes_only_docs=${ONLY_DOCS:-false}" >> "$GITHUB_OUTPUT"
+          echo "changes_only_docs_hacks=${ONLY_DOCS_HACKS:-false}" >> "$GITHUB_OUTPUT"
+          echo "changes_only_cypress=${ONLY_CYPRESS:-false}" >> "$GITHUB_OUTPUT"
           echo "should-test=$SHOULD_TEST" >> "$GITHUB_OUTPUT"
+          echo "should-build=$SHOULD_BUILD" >> "$GITHUB_OUTPUT"
 
       - name: Summarize findings
         env:
-          ONLY_DOCS: ${{ steps.cypress-docs-and-hacks.outputs.only_modified }}
-          MODIFIED_FILES: ${{ steps.cypress-docs-and-hacks.outputs.all_modified_files }}
+          ONLY_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.only_modified }}
+          ONLY_CYPRESS: ${{ steps.cypress-only.outputs.only_modified }}
+          MODIFIED_DOCS_HACKS: ${{ steps.docs-and-hacks-only.outputs.all_modified_files }}
+          MODIFIED_CYPRESS: ${{ steps.cypress-only.outputs.all_modified_files }}
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Build container
@@ -76,13 +98,22 @@ jobs:
 
           ## Findings
             - The action is PR triggered? \`${{ steps.check-changes.outputs.is-pr }}\`
-            - Changes are only to docs and hacks? \`${{ steps.check-changes.outputs.changes_only_docs }}\`
-            - Should the unit test run? \`${{ steps.check-changes.outputs.should-test }}\`
+            - Changes are only to docs and hacks? \`${{ steps.check-changes.outputs.changes_only_docs_hacks }}\`
+            - Changes are only to cypress? \`${{ steps.check-changes.outputs.changes_only_cypress }}\`
+            - Should the unit test job run? \`${{ steps.check-changes.outputs.should-test }}\`
+            - Should the build and test steps run? \`${{ steps.check-changes.outputs.should-build }}\`
           EOF
 
-          if [[ $ONLY_DOCS == true ]] && [[ -n "$MODIFIED_FILES" ]]; then
-            echo "## Modified docs and hacks files that do not impact the build" >> "$GITHUB_STEP_SUMMARY"
-            for file in ${MODIFIED_FILES}; do
+          if [[ $ONLY_DOCS_HACKS == true ]] && [[ -n "$MODIFIED_DOCS_HACKS" ]]; then
+            echo "## Modified files that do not impact the unit-test" >> "$GITHUB_STEP_SUMMARY"
+            for file in ${MODIFIED_DOCS_HACKS}; do
+              echo "  - \`$file\`" >> "$GITHUB_STEP_SUMMARY"
+            done
+          fi
+
+          if [[ $ONLY_CYPRESS == true ]] && [[ -n "$MODIFIED_CYPRESS" ]]; then
+            echo "## Modified files that do not impact the unit-test build and test" >> "$GITHUB_STEP_SUMMARY"
+            for file in ${MODIFIED_CYPRESS}; do
               echo "  - \`$file\`" >> "$GITHUB_STEP_SUMMARY"
             done
           fi
@@ -110,10 +141,15 @@ jobs:
           npm clean-install --ignore-scripts
 
       - name: Lint sources
-        run: npm run lint
+        run: |
+          npm run postinstall
+          npm run format:check
+          npm run lint
 
       - name: Build
+        if: ${{ needs.unit-test-lookup.outputs.should-build == 'true' }}
         run: npm run build
 
       - name: Test
+        if: ${{ needs.unit-test-lookup.outputs.should-build == 'true' }}
         run: npm run test -- --coverage --watchAll=false
