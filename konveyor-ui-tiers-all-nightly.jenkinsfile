@@ -27,7 +27,7 @@ pipeline{
             steps{
                 script{
                     checkout scm
-                    sh"git checkout $TEST_BRANCH"
+                    sh"git checkout ${params.TEST_BRANCH}"
                 }
             }
         }
@@ -63,6 +63,9 @@ pipeline{
                         sh """ 
                         CYPRESS_INCLUDE_TAGS=@tier0,@tier1,@tier2,@tier3 npx cypress run --spec **/*.test.ts --config baseUrl=$TACKLE_URL --env user=$username,initialPassword='Passw0rd!',pass=$password,git_user=$TACKLE_GIT_CREDS_USR,git_password=$TACKLE_GIT_CREDS_PSW,git_key='$TACKLE_GIT_KEY',metricsUrl=$METRICS_URL
                         """ 
+                        sh """ npm run mergereports
+                               node scripts/bug_summary.mjs    
+                         """
                     }   
                 }
             }
@@ -77,16 +80,14 @@ pipeline{
         success{
             script{
                 if(params.TEST_BRANCH=="main"){
-                    // tackle.writeBuildStatus(passed=true,pipeline="ui-tier1-nightly")
-                    echo "Skip temp"
+                    tackle.writeBuildStatus(passed=true,pipeline="ui-tier-all-nightly")
                 }
             }
         }
         failure{
             script{
                 if(params.TEST_BRANCH=="main"){
-                    // tackle.writeBuildStatus(passed=false,pipeline="ui-tier1-nightly")    
-                    echo "skip temp"   
+                    tackle.writeBuildStatus(passed=false,pipeline="ui-tier-all-nightly")    
                 }
             }
         }  
