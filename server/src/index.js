@@ -1,9 +1,8 @@
-/* eslint-env node */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import ejs from "ejs";
-import express from "express";
+import * as ejs from "ejs";
+import { default as express } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { createHttpTerminator } from "http-terminator";
 
@@ -32,6 +31,7 @@ app.set("x-powered-by", false);
 app.use(createProxyMiddleware(proxies.auth));
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
+app.use(createProxyMiddleware(proxies.kaiLLMProxy));
 
 // In development, proxy to the dev server, otherwise serve the client/dist content
 if (developmentMode) {

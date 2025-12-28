@@ -1,13 +1,18 @@
-<!--
 ## PR Title Prefix
 
 Every **PR Title** should be prefixed with :text: to indicate its type.
+
+<details>
+<summary>PR Title emoji</summary>
+
+Types recognized:
 
 - Breaking change: :warning: (`:warning:`)
 - Non-breaking feature: :sparkles: (`:sparkles:`)
 - Patch fix: :bug: (`:bug:`)
 - Docs: :book: (`:book:`)
 - Infra/Tests/Other: :seedling: (`:seedling:`)
+- Integration/E2E tests: :test_tube: (`:test_tube:`)
 - No release note: :ghost: (`:ghost:`)
 
 For example, a pull request containing breaking changes might look like
@@ -20,6 +25,6 @@ directly because GitHub didn't render the alias. Given that `:warning:` is
 easy enough to read as text, easy to parse in release tooling, and rendered in
 GitHub well, we prefer to standardize on the alias.
 
-For more information, please see the Konveyor
-[Versioning Doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md).
--->
+</details>
+
+For more information, please see the Konveyor [Versioning Doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md).

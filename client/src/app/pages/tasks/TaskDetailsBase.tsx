@@ -1,4 +1,4 @@
-import React from "react";
+import { type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useLocation } from "react-router-dom";
 import { PageSection } from "@patternfly/react-core";
@@ -11,7 +11,7 @@ import {
 import { useFetchTaskByID } from "@app/queries/tasks";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 
-export const TaskDetailsBase: React.FC<{
+export const TaskDetailsBase: FC<{
   breadcrumbs: PageHeaderProps["breadcrumbs"];
   formatTitle: (taskName: string) => string;
   detailsPath: string;

@@ -417,8 +417,6 @@ export interface TaskDashboard {
 
 export interface TaskPolicy {
   isolated?: boolean;
-  preemptEnabled?: boolean;
-  preemptExempt?: boolean;
 }
 
 export interface TTL {
@@ -494,7 +492,7 @@ export interface AssetGenerationTaskData {
 
 export interface TaskgroupTask {
   name: string;
-  data: unknown;
+  data?: unknown;
   application: Ref;
 }
 
@@ -503,7 +501,11 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: AnalysisTaskData;
+  state?: TaskState;
+  priority?: number;
+  policy?: TaskPolicy;
+  data: AnalysisTaskData; // TODO: Make generic if Taskgroup for other task kinds is needed in the future
+  bucket?: Ref;
   tasks: TaskgroupTask[];
 }
 
@@ -542,9 +544,9 @@ export enum RulesetKind {
 }
 
 export interface Ruleset {
-  id?: number;
+  id: number;
   kind?: RulesetKind;
-  name?: string;
+  name: string;
   description?: string;
   rules: Rule[];
   repository?: Repository;

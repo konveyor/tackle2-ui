@@ -1,6 +1,4 @@
-import React from "react";
 import "@testing-library/jest-dom";
-import { server } from "@mocks/server";
 import { rest } from "msw";
 
 import {
@@ -9,6 +7,7 @@ import {
   screen,
   waitFor,
 } from "@app/test-config/test-utils";
+import { server } from "@mocks/server";
 
 import { IdentityForm } from "..";
 

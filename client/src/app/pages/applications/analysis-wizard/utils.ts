@@ -3,37 +3,26 @@ import { toggle, unique } from "radash";
 
 import { Application, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel } from "@app/utils/rules-utils";
+import { isNotEmptyString } from "@app/utils/utils";
 
 import { ANALYSIS_MODES, AnalysisMode } from "./schema";
 
-export const isApplicationBinaryEnabled = (
-  application: Application
-): boolean => {
-  if (application.binary !== "::" && application.binary?.match(/.+:.+:.+/))
-    return true;
-  return false;
-};
+export const isModeSupported = (application: Application, mode?: string) => {
+  switch (mode) {
+    case "binary-upload":
+      return true;
 
-export const isApplicationSourceCodeEnabled = (
-  application: Application
-): boolean => {
-  if (application.repository && application.repository.url !== "") return true;
-  return false;
-};
+    case "binary":
+      return /.+:.+:.+/.test(application?.binary ?? "");
 
-export const isApplicationSourceCodeDepsEnabled = (
-  application: Application
-): boolean => {
-  if (application.repository && application.repository.url !== "") return true;
-  return false;
-};
+    case "source-code-deps":
+      return isNotEmptyString(application?.repository?.url);
 
-export const isModeSupported = (application: Application, mode: string) => {
-  if (mode === "binary-upload") return true;
-  if (mode === "binary") return isApplicationBinaryEnabled(application);
-  else if (mode === "source-code-deps")
-    return isApplicationSourceCodeDepsEnabled(application);
-  else return isApplicationSourceCodeEnabled(application);
+    case "source-code":
+      return isNotEmptyString(application?.repository?.url);
+  }
+
+  return false;
 };
 
 const filterAnalyzableApplications = (
@@ -67,6 +56,7 @@ export const useAnalyzableApplicationsByMode = (
 
 /**
  * Toggle the existence of a target within the array and return the array
+ * @deprecated
  */
 export const toggleSelectedTargets = (
   target: Target,
@@ -75,6 +65,9 @@ export const toggleSelectedTargets = (
   return toggle(selectedTargets, target, (t) => t.id);
 };
 
+/**
+ * @deprecated
+ */
 export const updateSelectedTargetLabels = (
   isSelecting: boolean,
   selectedLabelName: string,
@@ -105,6 +98,7 @@ export const updateSelectedTargetLabels = (
 /**
  * Match a target to a set of target type labels based on if the target supports
  * label choice.
+ * @deprecated
  */
 const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
   if (!target.labels?.length) {
@@ -127,6 +121,7 @@ const matchTargetToLabels = (target: Target, labels: TargetLabel[]) => {
 /**
  * Given a set of selected labels, return a set of targets where (1) the target's labels
  * properly match the select labels or (2) the target is selected but has no labels.
+ * @deprecated
  */
 export const updateSelectedTargetsBasedOnLabels = (
   currentFormLabels: TargetLabel[],

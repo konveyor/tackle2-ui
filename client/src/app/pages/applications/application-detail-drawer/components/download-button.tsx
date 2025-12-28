@@ -1,6 +1,5 @@
-import React from "react";
-import { Button } from "@patternfly/react-core";
-import { Alert, Spinner } from "@patternfly/react-core";
+import * as React from "react";
+import { Alert, Button, Spinner } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Application, MimeType } from "@app/api/models";

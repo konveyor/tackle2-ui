@@ -1,21 +1,15 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
 import { Paths } from "@app/Paths";
 import { Task, TaskState } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  useCancelTaskMutation,
-  useUpdateTaskMutation,
-} from "@app/queries/tasks";
+import { useCancelTaskMutation } from "@app/queries/tasks";
 import { formatPath } from "@app/utils/utils";
 
 const canCancel = (state: TaskState = "No task") =>
   !["Succeeded", "Failed", "Canceled"].includes(state);
-
-const canTogglePreemption = (state: TaskState = "No task") =>
-  !["Succeeded", "Failed", "Canceled", "Running"].includes(state);
 
 const useAsyncTaskActions = () => {
   const { t } = useTranslation();
@@ -36,34 +30,11 @@ const useAsyncTaskActions = () => {
       })
   );
 
-  const { mutate: updateTask } = useUpdateTaskMutation(
-    () =>
-      pushNotification({
-        title: t("titles.task"),
-        message: t("message.updateRequestSubmitted"),
-        variant: "info",
-      }),
-    () =>
-      pushNotification({
-        title: t("titles.task"),
-        message: t("message.updateFailed"),
-        variant: "danger",
-      })
-  );
-
-  const togglePreemption = (task: Task<unknown>) =>
-    updateTask({
-      id: task.id,
-      policy: {
-        preemptEnabled: !task.policy?.preemptEnabled,
-      },
-    });
-
-  return { cancelTask, togglePreemption };
+  return { cancelTask };
 };
 
 export const useTaskActions = (task: Task<unknown>) => {
-  const { cancelTask, togglePreemption } = useAsyncTaskActions();
+  const { cancelTask } = useAsyncTaskActions();
   const { t } = useTranslation();
   const history = useHistory();
 
@@ -77,20 +48,6 @@ export const useTaskActions = (task: Task<unknown>) => {
           : "",
       },
       onClick: () => cancelTask(task.id),
-    },
-    {
-      title: task.policy?.preemptEnabled
-        ? t("actions.disablePreemption")
-        : t("actions.enablePreemption"),
-      isAriaDisabled: !canTogglePreemption(task.state),
-      onClick: () => togglePreemption(task),
-      tooltipProps: {
-        content: !canTogglePreemption(task.state)
-          ? t("message.togglePreemptionNotAvailable", {
-              statusName: task.state,
-            })
-          : "",
-      },
     },
     {
       title: t("actions.taskDetails"),

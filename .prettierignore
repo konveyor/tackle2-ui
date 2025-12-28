@@ -1,18 +1,1 @@
-# Library, IDE and build locations
-**/node_modules/
-**/coverage/
-**/dist/
 .vscode/
-.idea/
-.eslintcache/
-
-#
-# Ignore anything that eslint will look at since eslint also applies prettier.
-#
-**/*.js
-**/*.jsx
-**/*.cjs
-**/*.mjs
-
-**/*.ts
-**/*.tsx

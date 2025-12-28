@@ -1,6 +1,7 @@
 import yaml from "js-yaml";
+import { group } from "radash";
 
-import { ParsedRule, UploadFile } from "@app/api/models";
+import { ParsedRule, TargetLabel, UploadFile } from "@app/api/models";
 
 type RuleFileType = "YAML" | null;
 
@@ -124,3 +125,54 @@ export const getLabels = (labels: string[]) =>
     },
     { sourceLabel: "", targetLabel: "", otherLabels: [], allLabels: [] }
   );
+
+export type ParsedTargetLabel = {
+  /** The full object this object was parsed from */
+  targetLabel: TargetLabel;
+  /** Given name of the label, e.g. "my-target" (does not need to match the `value`) */
+  name: string;
+  /** Full label string, e.g. "konveyor.io/target=my-target" */
+  label: string;
+  /** Type of label, e.g. "source" or "target" */
+  type: "source" | "target" | "other";
+  /** Value of label, e.g. "my-target" */
+  value: string;
+};
+
+export const parseLabel = (label: TargetLabel): ParsedTargetLabel => {
+  const regex = /^konveyor\.io\/([a-zA-Z]+)=(.+)$/;
+  const match = label.label.match(regex);
+  if (match) {
+    const [, type, value] = match;
+    return {
+      targetLabel: label,
+      name: label.name,
+      label: label.label,
+      type: type === "source" || type === "target" ? type : "other",
+      value,
+    };
+  }
+  return {
+    targetLabel: label,
+    name: label.name,
+    label: label.label,
+    type: "other",
+    value: label.label,
+  };
+};
+
+export const parseLabels = (labels: TargetLabel[]) => {
+  return labels.map(parseLabel);
+};
+
+export const parseAndGroupLabels = (
+  labels: TargetLabel[]
+): Record<ParsedTargetLabel["type"], ParsedTargetLabel[]> => {
+  const parsedLabels = parseLabels(labels);
+  return {
+    source: [],
+    target: [],
+    other: [],
+    ...group(parsedLabels, ({ type }) => type),
+  };
+};

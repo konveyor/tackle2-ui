@@ -16,6 +16,7 @@ import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 
 import { FilterState } from "./filter-input";
 import { ReviewInputCloudFoundry } from "./review-input-cloudfoundry";
+import { useCloudFoundryCheck } from "./validate-cloudfoundry-schema";
 
 export const Review: React.FC<{
   platform: SourcePlatform;
@@ -26,6 +27,11 @@ export const Review: React.FC<{
 
   const showFilters =
     filters.filterRequired && filters.schema && filters.document;
+
+  const shouldUseCloudFoundryReview = useCloudFoundryCheck(
+    platform,
+    filters.schema
+  );
 
   return (
     <div>
@@ -82,7 +88,7 @@ export const Review: React.FC<{
                   padding: "16px",
                 }}
               >
-                {platform.kind === "cloudfoundry" ? (
+                {shouldUseCloudFoundryReview ? (
                   <ReviewInputCloudFoundry
                     id="platform-discovery-filters-review"
                     values={filters.document}

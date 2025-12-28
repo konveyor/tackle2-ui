@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 import { isAuthRequired } from "./Constants";
 import keycloak from "./keycloak";
 import { checkAccess } from "./utils/rbac-utils";
-interface IRBACProps {
+
+interface RBACProps {
   allowedPermissions: string[];
-  children: any;
+  children: ReactNode;
   rbacType: RBAC_TYPE;
 }
 
@@ -12,11 +15,7 @@ export enum RBAC_TYPE {
   Scope,
 }
 
-export const RBAC = ({
-  allowedPermissions,
-  rbacType,
-  children,
-}: IRBACProps) => {
+export const RBAC = ({ allowedPermissions, rbacType, children }: RBACProps) => {
   if (isAuthRequired) {
     const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {
@@ -161,3 +160,10 @@ export const reviewsWriteScopes = [
   "reviews:delete",
 ];
 export const reviewsReadScopes = ["reviews:get"];
+
+export const targetsWriteScopes = [
+  "targets:put",
+  "targets:post",
+  "targets:delete",
+];
+export const targetsReadScopes = ["targets:get"];

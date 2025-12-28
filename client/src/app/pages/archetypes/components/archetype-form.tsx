@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -14,10 +14,10 @@ import type { Archetype, New, Ref, TagRef } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import {
+  HookFormAutocomplete,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { HookFormAutocomplete } from "@app/components/HookFormPFFields";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
@@ -83,11 +83,11 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
     onActionSuccess: onClose,
   });
 
-  const manualTagRefs: TagRef[] = useMemo(() => {
+  const manualTagRefs: TagRef[] = React.useMemo(() => {
     return archetype?.tags?.filter((t) => !t?.source) ?? [];
   }, [archetype?.tags]);
 
-  const assessmentTagRefs: TagRef[] = useMemo(() => {
+  const assessmentTagRefs: TagRef[] = React.useMemo(() => {
     return archetype?.tags?.filter((t) => t?.source === "assessment") ?? [];
   }, [archetype?.tags]);
 

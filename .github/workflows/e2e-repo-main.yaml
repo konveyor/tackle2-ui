@@ -1,0 +1,29 @@
+name: e2e - run cypress tests for PRs/pushes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cypress/**"
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "cypress/**"
+      - ".github/workflows/e2e*.yaml"
+
+concurrency:
+  group: e2e-repo-main-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-tests:
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: "@ci,@tier0"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      install_konveyor_version: ${{ github.base_ref || github.ref_name }}
+      test_ref: ${{ github.event.pull_request.head.sha || github.sha }}

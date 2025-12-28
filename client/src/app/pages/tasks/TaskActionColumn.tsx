@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { type FC } from "react";
 import { ActionsColumn } from "@patternfly/react-table";
 
 import { Task } from "@app/api/models";

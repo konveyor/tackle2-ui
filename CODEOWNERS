@@ -6,3 +6,6 @@
 # The list (or group membership) should match up with the `OWNERS.md` file.
 #
 * @ibolton336 @sjd78 @rszwajko
+
+# Cypress tests
+/cypress/ @sshveta @abrugaro

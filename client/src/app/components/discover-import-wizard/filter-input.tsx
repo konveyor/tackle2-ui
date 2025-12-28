@@ -14,6 +14,7 @@ import { useFetchPlatformDiscoveryFilterSchema } from "@app/queries/schemas";
 import { wrapAsEvent } from "@app/utils/utils";
 
 import { FilterInputCloudFoundry } from "./filter-input-cloudfoundry";
+import { useCloudFoundryCheck } from "./validate-cloudfoundry-schema";
 
 interface FiltersFormValues {
   filterRequired: boolean;
@@ -106,6 +107,11 @@ export const FilterInput: React.FC<{
 
   useFilterStateChangeHandler(form, onFiltersChanged);
 
+  const shouldUseCloudFoundryInput = useCloudFoundryCheck(
+    platform,
+    filtersSchema
+  );
+
   return (
     <div>
       <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
@@ -140,7 +146,7 @@ export const FilterInput: React.FC<{
             })}
             fieldId="document"
             renderInput={({ field: { value, name, onChange } }) =>
-              platform.kind === "cloudfoundry" ? (
+              shouldUseCloudFoundryInput ? (
                 <FilterInputCloudFoundry
                   key={platform.kind}
                   id={name}
