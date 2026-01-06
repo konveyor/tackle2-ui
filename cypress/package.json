@@ -38,7 +38,7 @@
     "decompress": "^4.2.1",
     "esbuild": "^0.27.1",
     "faker": "^5.5.3",
-    "glob": "^10.3.0",
+    "glob": "^13.0.0",
     "js-yaml": "^4.1.0",
     "license-check-and-add": "^4.0.5",
     "mocha": "^11.7.5",
