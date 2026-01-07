@@ -53,6 +53,49 @@ jobs:
           docker build . -t ${IMG_NAME}
           docker push ${IMG_NAME}
 
+  parse-test-selection:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      test_spec: ${{ steps.parse-paths.outputs.test_spec }}
+      use_custom_paths: ${{ steps.parse-paths.outputs.use_custom_paths }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: "package.json"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: |
+          cd cypress
+          npm clean-install --no-audit
+
+      - name: Parse PR description for test paths
+        id: parse-paths
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          cd cypress
+          SPEC=$(node scripts/parseTestPaths.mjs "$PR_BODY")
+
+          if [ -n "$SPEC" ]; then
+            echo "test_spec=${SPEC}" >> "$GITHUB_OUTPUT"
+            echo "use_custom_paths=true" >> "$GITHUB_OUTPUT"
+            echo "Found test-paths in PR description" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Tests to run:" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$SPEC" | tr ',' '\n' >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "use_custom_paths=false" >> "$GITHUB_OUTPUT"
+            echo "No test-paths marker found - using default @ci tags" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
   determine-ui-tests-ref:
     runs-on: ubuntu-latest
     outputs:
@@ -66,11 +109,18 @@ jobs:
           echo "Using \`ui_tests_ref=${{ github.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
 
   run-global-ci:
-    needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
+    needs:
+      [
+        build-and-upload-for-global-ci,
+        determine-ui-tests-ref,
+        parse-test-selection,
+      ]
+    if: always() && !cancelled() && !failure()
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
-      ui_test_tags: "@ci"
+      ui_test_tags: ${{ needs.parse-test-selection.outputs.use_custom_paths == 'true' && '' || '@ci' }}
+      ui_test_spec: ${{ needs.parse-test-selection.outputs.test_spec || '' }}
       ui_tests_ref: ${{ needs.determine-ui-tests-ref.outputs.ui_tests_ref }}

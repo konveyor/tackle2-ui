@@ -7,6 +7,11 @@ on:
         type: string
         default: "@ci,@tier0"
 
+      test_spec:
+        type: string
+        default: ""
+        description: "Comma separated test file paths (overrides test_tags)"
+
       feature_auth_required:
         type: boolean
         default: false
@@ -30,6 +35,11 @@ on:
         type: string
         default: "@ci,@tier0"
 
+      test_spec:
+        description: Comma separated test file paths (overrides test_tags)
+        type: string
+        default: ""
+
       feature_auth_required:
         description: Enable authentication?
         type: boolean
@@ -52,7 +62,7 @@ on:
 
 jobs:
   run-test:
-    name: "Run tests - ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}, test: ${{ inputs.test_ref }}, tags: ${{ inputs.test_tags }}"
+    name: "Run tests - ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}, test: ${{ inputs.test_ref }}, ${{ inputs.test_spec != '' && 'spec: custom paths' || format('tags: {0}', inputs.test_tags) }}"
     runs-on: ubuntu-latest
 
     steps:
@@ -104,5 +114,6 @@ jobs:
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
           test_tags: ${{ inputs.test_tags }}
+          test_spec: ${{ inputs.test_spec }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
