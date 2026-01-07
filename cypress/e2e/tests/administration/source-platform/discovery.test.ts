@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
+  deleteAllMigrationWaves,
   deleteApplicationTableRows,
   exists,
   login,
@@ -41,6 +42,7 @@ describe(["@tier1"], "Cloud Foundry discovery", () => {
     }
     login();
     cy.visit("/");
+    deleteAllMigrationWaves();
     deleteApplicationTableRows();
     cfCreds = new CredentialsSourceControlUsername(
       data.getRandomCredentialsData(
