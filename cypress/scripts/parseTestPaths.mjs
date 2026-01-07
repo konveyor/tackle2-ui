@@ -24,10 +24,6 @@ import { globSync } from "glob";
 const prBody = process.argv[2] || "";
 
 const TEST_ROOT = resolve("e2e/tests");
-
-/**
- * Extract test paths from PR description
- */
 function extractTestPaths(prDescription) {
   if (!prDescription) {
     return [];
@@ -43,25 +39,18 @@ function extractTestPaths(prDescription) {
 
   // Get content after the marker
   const afterMarker = prDescription.slice(match.index + match[0].length);
-
-  // Extract lines until next markdown header (# or ##) or end of text
   const lines = afterMarker.split("\n");
   const paths = [];
 
   for (const line of lines) {
     const trimmed = line.trim();
 
-    // Stop at markdown headers
     if (trimmed.startsWith("#")) {
       break;
     }
-
-    // Skip empty lines and comments
     if (!trimmed || trimmed.startsWith("<!--")) {
       continue;
     }
-
-    // Skip markdown list markers, checkboxes, etc.
     const cleanPath = trimmed.replace(/^[-*]\s*(\[[ x]\]\s*)?/, "").trim();
 
     if (cleanPath) {
@@ -72,25 +61,15 @@ function extractTestPaths(prDescription) {
   return paths;
 }
 
-/**
- * Resolve a path pattern to actual test files
- */
 function resolvePathToFiles(pathPattern) {
-  // Clean up the path
   const cleanPath = pathPattern.replace(/^\/+|\/+$/g, "");
-
-  // Build glob pattern relative to TEST_ROOT
   let globPattern;
 
   if (cleanPath.includes("*")) {
-    // Already has glob pattern
     globPattern = resolve(TEST_ROOT, cleanPath);
   } else if (cleanPath.endsWith(".test.ts") || cleanPath.endsWith(".test.js")) {
-    // Specific file
     globPattern = resolve(TEST_ROOT, cleanPath);
   } else {
-    // Directory - match all test files in it (non-recursive by default)
-    // User should use **/*.test.ts for recursive
     globPattern = resolve(TEST_ROOT, cleanPath, "*.test.{ts,js}");
   }
 
@@ -106,20 +85,14 @@ function resolvePathToFiles(pathPattern) {
   }
 }
 
-/**
- * Main function
- */
 function main() {
-  // Extract paths from PR description
   const testPaths = extractTestPaths(prBody);
 
   if (testPaths.length === 0) {
-    // No test-paths marker found - signal fallback to tag-based selection
     console.log("");
     process.exit(0);
   }
 
-  // Resolve all paths to actual files
   const allFiles = new Set();
 
   for (const pathPattern of testPaths) {
