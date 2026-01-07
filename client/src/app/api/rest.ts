@@ -91,6 +91,7 @@ export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
 };
 
 export * from "./rest/analysis";
+export * from "./rest/analysis-profiles";
 export * from "./rest/application-dependencies";
 export * from "./rest/applications";
 export * from "./rest/archetypes";

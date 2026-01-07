@@ -77,6 +77,16 @@
     "changeSourcePlatform": "Change source platform",
     "generateAssets": "Generate assets"
   },
+  "analysisProfiles": {
+    "none": "None",
+    "sectionMode": "Mode",
+    "sectionScope": "Scope",
+    "sectionRulesTargets": "Targets",
+    "sectionRulesRepository": "Custom rules repository",
+    "sectionRulesFiles": "Uploaded custom rules files",
+    "sectionRulesLabels": "Rule labels",
+    "sectionReview": "Review"
+  },
   "colors": {
     "black": "Black",
     "blue": "Blue",
@@ -263,6 +273,9 @@
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
+    "noAnalysisProfileSelected": "No analysis profile selected",
+    "analysisProfileInUseWarning_one": "This analysis profile is referenced by archetype {{archetypes}}. Deleting it will remove the reference from this archetype.",
+    "analysisProfileInUseWarning_other": "This analysis profile is referenced by {{count}} archetypes: {{archetypes}}. Deleting it will remove the reference from these archetypes.",
     "noTagsAvailable": "No tags available",
     "noTargetProfilesTitle": "No target profiles have been created",
     "noTargetProfilesDescription": "Manage target profiles on the archetype to get started.",
@@ -310,6 +323,7 @@
   },
   "sidebar": {
     "administrator": "Administration",
+    "analysisProfiles": "Analysis Profiles",
     "applicationInventory": "Application inventory",
     "archetypes": "Archetypes",
     "controls": "Controls",
@@ -337,6 +351,9 @@
   },
   "terms": {
     "accepted": "Accepted",
+    "analysisProfile": "Analysis profile",
+    "analysisProfiles": "Analysis profiles",
+    "analysisProfilesDescription": "Create and manage analysis profiles. Analysis profiles allow you to save and reuse analysis configurations across multiple applications.",
     "acceptedAppsAndDeps": "Accepted applications and dependencies",
     "associatedApplications": "Associated applications",
     "associatedArchetypes": "Associated archetypes",
@@ -421,6 +438,7 @@
     "errorReport": "Error report",
     "explanation": "Explanation",
     "exclude": "Exclude",
+    "excluded": "Excluded",
     "exportToIssue": "Export to Issue Manager",
     "facts": "Facts",
     "failed": "Failed",
@@ -444,6 +462,7 @@
     "image": "Image",
     "imports": "Imports",
     "include": "Include",
+    "included": "Included",
     "importSummary": "Import summary",
     "importSummaryDeleted": "Import summary deleted",
     "inadvisable": "Inadvisable",
@@ -587,9 +606,20 @@
     "version": "Version",
     "workPriority": "Work priority",
     "YAMLTemplate": "YAML template",
-    "ok": "OK"
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "mode": "Mode",
+    "scope": "Scope",
+    "withDeps": "With dependencies",
+    "withKnownLibs": "With known libraries",
+    "packagesIncluded": "Packages included",
+    "packagesExcluded": "Packages excluded",
+    "files": "Files"
   },
   "titles": {
+    "analysisProfiles": "Analysis Profiles",
+    "analysisProfileDrawer": "Analysis profile details",
     "archetypeDrawer": "Archetype details",
     "archetypeTargetProfiles": "Target profiles for {{archetypeName}}",
     "generatorDrawer": "Generator details",
