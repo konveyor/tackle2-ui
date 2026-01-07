@@ -78,8 +78,7 @@ function resolvePathToFiles(pathPattern) {
     return files;
   } catch (error) {
     console.error(
-      `Warning: Failed to resolve pattern "${pathPattern}": ${error.message}`,
-      { file: process.stderr }
+      `Warning: Failed to resolve pattern "${pathPattern}": ${error.message}`
     );
     return [];
   }
@@ -99,9 +98,7 @@ function main() {
     const files = resolvePathToFiles(pathPattern);
 
     if (files.length === 0) {
-      console.error(`Warning: No files matched pattern "${pathPattern}"`, {
-        file: process.stderr,
-      });
+      console.error(`Warning: No files matched pattern "${pathPattern}"`);
     }
 
     files.forEach((f) => allFiles.add(f));
@@ -109,8 +106,7 @@ function main() {
 
   if (allFiles.size === 0) {
     console.error(
-      "Warning: No test files found for any specified paths - falling back to tag-based selection",
-      { file: process.stderr }
+      "Warning: No test files found for any specified paths - falling back to tag-based selection"
     );
     console.log("");
     process.exit(0);
