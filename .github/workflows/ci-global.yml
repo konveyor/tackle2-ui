@@ -76,9 +76,11 @@ jobs:
 
       - name: Parse PR description for test paths
         id: parse-paths
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           cd cypress
-          SPEC=$(node scripts/parseTestPaths.mjs "${{ github.event.pull_request.body }}")
+          SPEC=$(node scripts/parseTestPaths.mjs "$PR_BODY")
 
           if [ -n "$SPEC" ]; then
             echo "test_spec=${SPEC}" >> "$GITHUB_OUTPUT"
