@@ -263,3 +263,7 @@ export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
     },
   };
 }
+
+export function isNotEmptyString(value: string | undefined | null): boolean {
+  return value !== undefined && value !== null && value.trim() !== "";
+}

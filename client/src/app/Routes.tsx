@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { type ComponentType, Suspense, lazy } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Redirect, Switch, useLocation } from "react-router-dom";
 
@@ -80,6 +80,7 @@ const AssessmentSummary = lazy(
 
 const TaskManager = lazy(() => import("./pages/tasks/tasks-page"));
 const TaskDetails = lazy(() => import("./pages/tasks/TaskDetails"));
+const AnalysisProfiles = lazy(() => import("./pages/analysis-profiles"));
 const SourcePlatforms = lazy(
   () => import("./pages/source-platforms/source-platforms")
 );
@@ -90,7 +91,7 @@ const AssetGenerators = lazy(
 
 export interface IRoute<T> {
   path: T;
-  comp: React.ComponentType;
+  comp: ComponentType;
   exact?: boolean;
 }
 
@@ -256,6 +257,16 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     comp: TaskDetails,
     exact: false,
   },
+  {
+    path: Paths.migrationTargets,
+    comp: MigrationTargets,
+    exact: false,
+  },
+  {
+    path: Paths.analysisProfiles,
+    comp: AnalysisProfiles,
+    exact: false,
+  },
 ];
 
 export const administrationRoutes: IRoute<AdminPathValues>[] = [
@@ -295,7 +306,6 @@ export const administrationRoutes: IRoute<AdminPathValues>[] = [
     exact: false,
   },
   { comp: Proxies, path: Paths.proxies, exact: false },
-  { comp: MigrationTargets, path: Paths.migrationTargets, exact: false },
   {
     comp: Jira,
     path: Paths.jira,

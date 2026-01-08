@@ -492,7 +492,7 @@ export interface AssetGenerationTaskData {
 
 export interface TaskgroupTask {
   name: string;
-  data: unknown;
+  data?: unknown;
   application: Ref;
 }
 
@@ -501,7 +501,11 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: AnalysisTaskData;
+  state?: TaskState;
+  priority?: number;
+  policy?: TaskPolicy;
+  data: AnalysisTaskData; // TODO: Make generic if Taskgroup for other task kinds is needed in the future
+  bucket?: Ref;
   tasks: TaskgroupTask[];
 }
 
@@ -540,9 +544,9 @@ export enum RulesetKind {
 }
 
 export interface Ruleset {
-  id?: number;
+  id: number;
   kind?: RulesetKind;
-  name?: string;
+  name: string;
   description?: string;
   rules: Rule[];
   repository?: Repository;
@@ -930,6 +934,7 @@ export interface TargetProfile {
   id: number;
   name: string;
   generators: Ref[];
+  analysisProfile?: Ref;
 }
 
 export interface Archetype {
@@ -1060,4 +1065,43 @@ export interface Schema {
 export interface TargetedSchema {
   name: string;
   definition: JsonSchemaObject;
+}
+
+// Analysis Profiles
+// Based on: https://github.com/konveyor/tackle2-hub/blob/main/api/profile.go
+
+export interface AnalysisProfileMode {
+  withDeps: boolean;
+}
+
+export interface AnalysisProfilePackages {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileScope {
+  withKnownLibs: boolean;
+  packages: AnalysisProfilePackages;
+}
+
+export interface AnalysisProfileLabels {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileRules {
+  labels: AnalysisProfileLabels;
+  repository?: Repository;
+  // TODO: Add field for Identity/Credential for the repository?
+  targets?: Ref[];
+  files?: Ref[];
+}
+
+export interface AnalysisProfile {
+  id: number;
+  name: string;
+  description?: string;
+  mode: AnalysisProfileMode;
+  scope: AnalysisProfileScope;
+  rules: AnalysisProfileRules;
 }

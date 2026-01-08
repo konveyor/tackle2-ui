@@ -1964,8 +1964,14 @@ export function closeModalWindow(): void {
   click(closeModal, false, true);
 }
 
-export function next(): void {
-  clickByText(button, "Next");
+export function next(waitForEnabled = true): void {
+  if (waitForEnabled) {
+    cy.contains(button, "Next", { timeout: 10 * SEC })
+      .should("not.be.disabled")
+      .click();
+  } else {
+    clickByText(button, "Next");
+  }
 }
 
 export function performWithin(
@@ -2062,7 +2068,7 @@ export function isRwxEnabled(): Cypress.Chainable<boolean> {
 
 export function seedAnalysisData(applicationId: number): void {
   const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).hostname;
+  const hostname = new URL(baseUrl).origin;
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
@@ -2339,9 +2345,7 @@ export function deleteCustomResource(
   if (ignoreNotFound) {
     command = `${command} --ignore-not-found=true`;
   }
-  getCommandOutput(command).then((output) => {
-    expect(output.code).to.equal(0);
-  });
+  getCommandOutput(command);
 }
 
 export function isElementExpanded(

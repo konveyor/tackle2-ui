@@ -7,7 +7,6 @@ import {
   isValidSvnUrl,
 } from "@app/utils/utils";
 
-export {};
 declare module "yup" {
   interface StringSchema {
     /**

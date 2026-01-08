@@ -1,5 +1,6 @@
 export const DevPaths = {
   // Developer perspective
+  analysisProfiles: "/analysis-profiles",
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
@@ -53,6 +54,7 @@ export const DevPaths = {
   tasks: "/tasks",
   taskDetails: "/tasks/:taskId",
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
+  migrationTargets: "/migration-targets",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
@@ -66,7 +68,6 @@ export const AdminPaths = {
   repositoriesSvn: "/repositories/svn",
   repositoriesMvn: "/repositories/maven",
   proxies: "/proxies",
-  migrationTargets: "/migration-targets",
   assessment: "/assessment",
   questionnaire: "/questionnaire/:questionnaireId",
   jira: "/jira",

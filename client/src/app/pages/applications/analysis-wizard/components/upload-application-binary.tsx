@@ -1,6 +1,5 @@
 import * as React from "react";
 import { AxiosError } from "axios";
-import { useFormContext } from "react-hook-form";
 import {
   Alert,
   DropEvent,
@@ -8,7 +7,7 @@ import {
   MultipleFileUploadMain,
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { UploadIcon } from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { uploadLimit } from "@app/Constants";
@@ -19,30 +18,35 @@ import {
 } from "@app/queries/taskgroups";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
-import { AnalysisWizardFormValues } from "../schema";
-
-import { useTaskGroup } from "./TaskGroupContext";
-
 const readFile = (file: File, onProgress: (percent: number) => void) => {
   return new Promise<string | null>((resolve, reject) => {
+    onProgress(0);
+
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = () => {
+      onProgress(1.0);
+      resolve(reader.result as string);
+    };
     reader.onerror = () => reject(reader.error);
     reader.onprogress = (data) => {
       if (data.lengthComputable) {
-        onProgress((data.loaded / data.total) * 100);
+        onProgress(data.loaded / data.total);
       }
     };
     reader.readAsDataURL(file);
   });
 };
 
-export const UploadBinary: React.FC = () => {
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const { taskGroup, createTaskGroup } = useTaskGroup();
+interface UploadApplicationBinaryProps {
+  requestTaskgroupId: () => Promise<number>;
+  artifact: File | null | undefined;
+  onArtifactChange: (artifact: File | null) => void;
+}
 
-  const { setValue, watch } = useFormContext<AnalysisWizardFormValues>();
-  const artifact = watch("artifact");
+export const UploadApplicationBinary: React.FC<
+  UploadApplicationBinaryProps
+> = ({ requestTaskgroupId, artifact, onArtifactChange }) => {
+  const { pushNotification } = React.useContext(NotificationsContext);
 
   const [errorMessage, setErrorMessage] = React.useState<string>();
 
@@ -79,7 +83,7 @@ export const UploadBinary: React.FC = () => {
     setFileUploadStatus("danger");
   };
 
-  const { mutate: uploadFile } = useUploadTaskgroupFileMutation(
+  const { mutate: uploadFileToTaskgroup } = useUploadTaskgroupFileMutation(
     completedUpload,
     failedUpload
   );
@@ -93,7 +97,7 @@ export const UploadBinary: React.FC = () => {
     setErrorMessage(undefined);
     setFileUploadProgress(0);
     setFileUploadStatus(undefined);
-    setValue("artifact", null);
+    onArtifactChange(null);
   };
 
   const failedRemove = (error: AxiosError) => {
@@ -108,10 +112,8 @@ export const UploadBinary: React.FC = () => {
     setFileUploadProgress(0);
   };
 
-  const { mutate: removeFile } = useRemoveTaskgroupFileMutation(
-    completedRemove,
-    failedRemove
-  );
+  const { mutateAsync: removeFileFromTaskgroup } =
+    useRemoveTaskgroupFileMutation(completedRemove, failedRemove);
 
   // -----> upload file handling (drop -> handleFile -> read -> upload)
   const handleFileDrop = (_: DropEvent, droppedFiles: File[]) => {
@@ -123,26 +125,28 @@ export const UploadBinary: React.FC = () => {
     setErrorMessage(undefined);
     setFileUploadProgress(0);
     setFileUploadStatus(undefined);
-    setValue("artifact", droppedFile);
+    onArtifactChange(droppedFile);
   };
 
   const readAndUploadFile = async (file: File) => {
+    if (artifact === file && fileUploadStatus !== undefined) {
+      return;
+    }
+
     try {
       await readFile(
         file,
         (percent) => setFileUploadProgress(Math.round(20 * percent)) // first 20% is reading the file
       );
 
-      const taskGroupId = taskGroup
-        ? taskGroup.id
-        : (await createTaskGroup()).id;
+      const taskgroupId = await requestTaskgroupId();
 
       // TODO: Provide an onUploadProgress handler so the actual upload can be tracked from 20% to 100%
-      uploadFile({
-        id: taskGroupId,
+      uploadFileToTaskgroup({
+        id: taskgroupId,
         path: `binary/${file.name}`,
         file,
-      }); // remaining 80% is uploading the file
+      });
     } catch (e) {
       setErrorMessage((e as Error).message);
       setFileUploadProgress(0);
@@ -150,10 +154,11 @@ export const UploadBinary: React.FC = () => {
     }
   };
 
-  const removeUploadedFile = (file: File) => {
-    if (taskGroup) {
-      removeFile({
-        id: taskGroup.id,
+  const removeUploadedFile = async (file: File) => {
+    const taskgroupId = await requestTaskgroupId();
+    if (taskgroupId) {
+      removeFileFromTaskgroup({
+        id: taskgroupId,
         path: `binary/${file.name}`,
       });
     }
