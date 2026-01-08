@@ -8,18 +8,8 @@ pipeline{
     }
     environment{
         REQUESTS_CA_BUNDLE="/etc/pki/tls/certs/ca-bundle.crt"
-        username="admin"
-        password="Dog8code"
         TACKLE_GIT_CREDS = credentials('tackle_git_pass')
         TACKLE_GIT_KEY = credentials('tackle_git_gpg_key')
-        cypress_jira_atlassian_cloud_url="https://mta-qe-testing.atlassian.net/"
-        cypress_jira_atlassian_cloud_email="mta.qe.testing@gmail.com"
-        cypress_jira_stage_datacenter_url="https://issues.stage.redhat.com"
-        cypress_jira_stage_bearer_token= credentials('mta_jira_stage_token')
-        cypress_jira_atlassian_cloud_token= credentials('mta_jira_cloud_token')
-        cypress_jira_stage_basic_login="mta-qe"
-        cypress_jira_stage_basic_password="Mta.qe.testing"
-        cypress_jira_atlassian_cloud_project="mta_integration"
         OPENAI_API_KEY=credentials('mta-openai-api-key') 
     }
     stages{
@@ -33,7 +23,8 @@ pipeline{
         }
         stage('Install & run minikube'){   
             steps{
-                script{
+                script{   
+                    tackle.setUiTestsEnvVars()
                     tackle.deployKonveyorOnMinikube(params.TEST_BRANCH)
                     echo "Applying tackle CR"
                     tackle.createKaiSecrets('konveyor-tackle','https://api.openai.com/v1',"$OPENAI_API_KEY")
