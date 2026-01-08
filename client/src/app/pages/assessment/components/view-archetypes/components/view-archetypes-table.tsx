@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 import { Ref } from "@app/api/models";
 import { useFetchArchetypeById } from "@app/queries/archetypes";

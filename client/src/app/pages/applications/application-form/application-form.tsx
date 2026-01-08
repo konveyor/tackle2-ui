@@ -1,5 +1,5 @@
 import "./application-form.css";
-import React from "react";
+import * as React from "react";
 import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {

@@ -1,4 +1,3 @@
-import React from "react";
 import { Label } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

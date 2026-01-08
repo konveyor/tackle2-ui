@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 
@@ -13,7 +13,7 @@ const canCancel = (state: TaskState = "No task") =>
 
 const useAsyncTaskActions = () => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
 
   const { mutate: cancelTask } = useCancelTaskMutation(
     () =>

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Alert, AlertProps, Icon } from "@patternfly/react-core";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";

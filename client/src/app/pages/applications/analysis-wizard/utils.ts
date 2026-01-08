@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useMemo } from "react";
 import { toggle, unique } from "radash";
 
 import { Application, Target, TargetLabel } from "@app/api/models";
@@ -34,7 +34,7 @@ export const useAnalyzableApplications = (
   applications: Application[],
   mode: AnalysisMode
 ) =>
-  React.useMemo(
+  useMemo(
     () => filterAnalyzableApplications(applications, mode),
     [applications, mode]
   );
@@ -42,7 +42,7 @@ export const useAnalyzableApplications = (
 export const useAnalyzableApplicationsByMode = (
   applications: Application[]
 ): Record<AnalysisMode, Application[]> =>
-  React.useMemo(
+  useMemo(
     () =>
       ANALYSIS_MODES.reduce(
         (record, mode) => ({

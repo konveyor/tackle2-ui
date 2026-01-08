@@ -1,4 +1,5 @@
-import React, { useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
+import * as React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Application, Review } from "@app/api/models"; // Add the necessary model imports

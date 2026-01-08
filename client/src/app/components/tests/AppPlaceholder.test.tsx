@@ -1,5 +1,3 @@
-import React from "react";
-
 import { render } from "@app/test-config/test-utils";
 
 import { AppPlaceholder } from "../AppPlaceholder";

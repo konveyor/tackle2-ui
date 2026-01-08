@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useMemo } from "react";
 
 import {
   JsonSchemaObject,
@@ -52,7 +52,7 @@ export const useCloudFoundryCheck = (
   platform: SourcePlatform,
   schema?: TargetedSchema
 ) => {
-  return React.useMemo(() => {
+  return useMemo(() => {
     return (
       platform.kind === "cloudfoundry" &&
       schema &&
