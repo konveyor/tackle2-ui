@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { fork } from "radash";
 import { useForm } from "react-hook-form";

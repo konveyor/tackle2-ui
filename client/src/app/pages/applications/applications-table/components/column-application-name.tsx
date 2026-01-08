@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
 import { Icon, Popover, PopoverProps, Tooltip } from "@patternfly/react-core";

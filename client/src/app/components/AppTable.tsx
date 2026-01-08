@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Bullseye, Skeleton, Spinner } from "@patternfly/react-core";
 import { IRow } from "@patternfly/react-table";
 import {

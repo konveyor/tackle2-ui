@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import * as React from "react";
 import ReactJsonView from "@microlink/react-json-view";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {

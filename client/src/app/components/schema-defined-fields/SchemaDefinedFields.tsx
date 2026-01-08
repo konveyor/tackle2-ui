@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useMemo, useState } from "react";
 import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
@@ -25,7 +25,7 @@ export const SchemaDefinedField = ({
   onDocumentChanged,
   isReadOnly = false,
 }: ISchemaDefinedFieldProps) => {
-  const [isJsonView, setIsJsonView] = React.useState<boolean>(
+  const [isJsonView, setIsJsonView] = useState<boolean>(
     !jsonSchema || isComplexSchema(jsonSchema)
   );
 
@@ -33,7 +33,7 @@ export const SchemaDefinedField = ({
     onDocumentChanged?.(newJsonDocument);
   };
 
-  const isComplex = React.useMemo(() => {
+  const isComplex = useMemo(() => {
     const isComplex = jsonSchema && isComplexSchema(jsonSchema);
     // console.log("jsonSchema", jsonSchema, "isComplex?", isComplex);
     return isComplex;

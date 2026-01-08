@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export interface ISelectionStateArgs<T> {
   items: T[];
@@ -30,16 +30,16 @@ export const useSelectionState = <T>({
   initialSelected = [],
   isEqual = (a, b) => a === b,
 }: ISelectionStateArgs<T>): ISelectionState<T> => {
-  const [selectedSet, setSelectedSet] = React.useState<T[]>(
+  const [selectedSet, setSelectedSet] = useState<T[]>(
     doSelect(isEqual, items, initialSelected)
   );
 
-  const isItemSelected = React.useCallback(
+  const isItemSelected = useCallback(
     (item: T) => selectedSet.some((i) => isEqual(item, i)),
     [isEqual, selectedSet]
   );
 
-  const selectItems = React.useCallback(
+  const selectItems = useCallback(
     (itemsSubset: T[], isSelecting: boolean) => {
       const verifiedItemsSubset = doSelect(isEqual, items, itemsSubset);
       const selectedNotInItemsSubset = selectedSet.filter(
@@ -55,7 +55,7 @@ export const useSelectionState = <T>({
     [isEqual, items, selectedSet]
   );
 
-  const selectOnly = React.useCallback(
+  const selectOnly = useCallback(
     (toSelect: T[]) => {
       const filtered = doSelect(isEqual, items, toSelect);
       setSelectedSet(filtered);
@@ -63,19 +63,19 @@ export const useSelectionState = <T>({
     [isEqual, items]
   );
 
-  const selectAll = React.useCallback(
+  const selectAll = useCallback(
     (isSelecting: boolean) => setSelectedSet(isSelecting ? items : []),
     [items]
   );
 
-  const areAllSelected = React.useMemo(() => {
+  const areAllSelected = useMemo(() => {
     return (
       selectedSet.length === items.length &&
       selectedSet.every((si) => items.some((i) => isEqual(si, i)))
     );
   }, [selectedSet, items, isEqual]);
 
-  const selectedItems = React.useMemo(() => {
+  const selectedItems = useMemo(() => {
     if (selectedSet.length === 0) {
       return [];
     }
