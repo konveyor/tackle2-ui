@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { FormFieldGroupExpandableProps } from "@patternfly/react-core";
 import { InternalFormFieldGroup } from "@patternfly/react-core/dist/esm/components/Form/InternalFormFieldGroup";
 

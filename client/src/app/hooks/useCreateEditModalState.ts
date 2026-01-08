@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 type ModalState<T> =
   | { mode: "create"; resource: null }
@@ -7,7 +7,7 @@ type ModalState<T> =
   | null;
 
 export default function useCreateEditModalState<T>() {
-  const [modalState, setModalState] = React.useState<ModalState<T>>(null);
+  const [modalState, setModalState] = useState<ModalState<T>>(null);
   const isModalOpen = modalState !== null;
 
   return {

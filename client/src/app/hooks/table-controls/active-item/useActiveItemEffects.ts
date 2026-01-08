@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 
 import { IActiveItemDerivedState } from "./getActiveItemDerivedState";
 import { IActiveItemState } from "./useActiveItemState";
@@ -34,7 +34,7 @@ export const useActiveItemEffects = <TItem>({
   activeItemState: { activeItemId },
   activeItemDerivedState: { activeItem, clearActiveItem },
 }: IUseActiveItemEffectsArgs<TItem>) => {
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isLoading && activeItemId && !activeItem) {
       clearActiveItem();
     }

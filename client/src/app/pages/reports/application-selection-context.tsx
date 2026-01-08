@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import * as React from "react";
 
 import { Application } from "@app/api/models";
 import { ISelectionState, useSelectionState } from "@app/hooks/selection";
