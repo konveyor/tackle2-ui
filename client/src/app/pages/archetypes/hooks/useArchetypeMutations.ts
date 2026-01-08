@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,7 @@ export const useArchetypeMutations = ({
   onActionFail = () => {},
 }: UseArchetypeMutationsOptions = {}) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
   const queryClient = useQueryClient();
 
   // Common error handler
