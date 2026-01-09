@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { AxiosError } from "axios";
 import { objectify } from "radash";
 import { Trans, useTranslation } from "react-i18next";

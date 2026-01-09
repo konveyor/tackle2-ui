@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Flex, FlexItem } from "@patternfly/react-core";
 import { Td } from "@patternfly/react-table";
