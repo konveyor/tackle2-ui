@@ -14,6 +14,10 @@ inputs:
     description: The base URL for the UI to test
     required: true
 
+  report_artifact_name:
+    description: The name of the artifact to upload.
+    default: "ui-test-reports"
+
 runs:
   using: "composite"
   steps:
@@ -82,20 +86,11 @@ runs:
         spec: "${{ env.test_spec }}"
         summary-title: "UI tests (${{ inputs.test_tags }})"
 
-    - name: Sanitize ref name for artifact
-      id: sanitize
-      shell: bash
-      run: |
-        sanitized="${{ inputs.tests_ref }}"
-        sanitized="${sanitized//\//_}"
-        sanitized="${sanitized//:/_}"
-        sanitized="${sanitized//\\/_}"
-        echo "ref=$sanitized" >> $GITHUB_OUTPUT
-
     - name: Upload cypress report data as artifact
       uses: actions/upload-artifact@v4
-      if: always()
+      if: always() && inputs.report_artifact_name != ''
       with:
-        name: test-reports-${{ steps.sanitize.outputs.ref }}
+        overwrite: true
+        name: ${{ inputs.report_artifact_name }}
         path: |
           ./ui-tests/cypress/run
