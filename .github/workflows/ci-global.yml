@@ -121,6 +121,6 @@ jobs:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
-      ui_test_tags: ${{ (github.event_name == 'pull_request' && needs.parse-test-selection.outputs.use_custom_paths == 'true') && '' || '@ci' }}
-      ui_test_spec: ${{ github.event_name == 'pull_request' && needs.parse-test-selection.outputs.test_spec || '' }}
+      ui_test_tags: ${{ !(github.event_name == 'pull_request' && needs.parse-test-selection.outputs.use_custom_paths == 'true') && '@ci' || '' }}
+      ui_test_spec: ${{ (github.event_name == 'pull_request' && needs.parse-test-selection.outputs.test_spec) || '' }}
       ui_tests_ref: ${{ needs.determine-ui-tests-ref.outputs.ui_tests_ref }}
