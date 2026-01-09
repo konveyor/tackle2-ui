@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
+import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button, FormFieldGroupHeader, Label } from "@patternfly/react-core";

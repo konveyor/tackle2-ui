@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Badge, TabTitleText } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

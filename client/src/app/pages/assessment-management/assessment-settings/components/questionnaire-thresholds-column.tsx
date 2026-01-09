@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { ListItem } from "@patternfly/react-core";
 
 import { Questionnaire, Thresholds } from "@app/api/models";

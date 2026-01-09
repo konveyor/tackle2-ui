@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import { DateRangeFilter } from "./DateRangeFilter";
 import {
   FilterCategory,

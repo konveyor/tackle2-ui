@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { Modal, ModalVariant } from "@patternfly/react-core";
 
 import { AssessmentWithSectionOrder } from "@app/api/models";

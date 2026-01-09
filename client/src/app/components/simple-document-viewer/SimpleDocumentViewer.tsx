@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
@@ -101,7 +101,7 @@ export const SimpleDocumentViewer = ({
   height = "450px",
   onDocumentChange,
 }: ISimpleDocumentViewerProps) => {
-  const configuredDocuments: Document[] = React.useMemo(
+  const configuredDocuments: Document[] = useMemo(
     () => [
       {
         id: "LOG_VIEW",
@@ -132,7 +132,7 @@ export const SimpleDocumentViewer = ({
     [attachments, taskId]
   );
 
-  const [selectedDocument, setSelectedDocument] = React.useState<Document>(
+  const [selectedDocument, setSelectedDocument] = useState<Document>(
     configuredDocuments.find(({ id }) => id === documentId) ??
       configuredDocuments[0]
   );
@@ -140,11 +140,11 @@ export const SimpleDocumentViewer = ({
     ({ id }) => id === selectedDocument.id
   )?.languages ?? [Language.yaml, Language.json];
 
-  const [currentLanguage, setCurrentLanguage] = React.useState(
+  const [currentLanguage, setCurrentLanguage] = useState(
     supportedLanguages[0] ?? Language.plaintext
   );
 
-  const editorRef = React.useRef<ControlledEditor>();
+  const editorRef = useRef<ControlledEditor>();
 
   const { code, refetch } = useDocuments({
     taskId,
@@ -153,8 +153,8 @@ export const SimpleDocumentViewer = ({
   });
 
   // move focus on first code change AFTER a new document was selected
-  const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
-  React.useEffect(() => {
+  const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
+  useEffect(() => {
     if (code && !focusMovedOnSelectedDocumentChange.current) {
       focusAndHomePosition();
       focusMovedOnSelectedDocumentChange.current = true;

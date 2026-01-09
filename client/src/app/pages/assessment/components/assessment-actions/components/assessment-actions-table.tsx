@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 import { Application, Archetype } from "@app/api/models";
 import { useFetchAssessmentsByItemId } from "@app/queries/assessments";

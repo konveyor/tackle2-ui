@@ -1,4 +1,5 @@
-import React, { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Redirect,

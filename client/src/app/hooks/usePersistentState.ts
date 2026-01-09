@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 import {
   UseStorageTypeOptions,
@@ -81,7 +81,7 @@ export const usePersistentState = <
     persistenceKeyPrefix ? `${persistenceKeyPrefix}:${key}` : key;
 
   const persistence = {
-    state: React.useState(defaultValue),
+    state: useState(defaultValue),
     urlParams: useUrlParams(
       isUrlParamsOptions(options)
         ? options

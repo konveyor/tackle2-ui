@@ -1,4 +1,3 @@
-import React from "react";
 import { Label } from "@patternfly/react-core";
 import { ICell, IRow, sortable } from "@patternfly/react-table";
 

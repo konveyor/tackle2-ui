@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Spinner } from "@patternfly/react-core";
 
 import { IconedStatus, IconedStatusPreset } from "@app/components/Icons";

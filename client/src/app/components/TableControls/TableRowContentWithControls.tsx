@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Td } from "@patternfly/react-table";
 
 import { BulkSelectionValues } from "@app/hooks/selection/useBulkSelection";

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Curve } from "victory-line";
 import { global_palette_black_800 as black } from "@patternfly/react-tokens";
 

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Icon, Tooltip } from "@patternfly/react-core";
 import StarIcon from "@patternfly/react-icons/dist/esm/icons/star-icon";

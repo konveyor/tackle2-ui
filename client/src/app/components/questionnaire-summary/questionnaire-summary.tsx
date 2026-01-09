@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import * as React from "react";
 import { AxiosError } from "axios";
 import { Link } from "react-router-dom";
 import {

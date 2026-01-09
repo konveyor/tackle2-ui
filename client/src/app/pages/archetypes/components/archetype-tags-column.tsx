@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { LabelGroup } from "@patternfly/react-core";
 
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";

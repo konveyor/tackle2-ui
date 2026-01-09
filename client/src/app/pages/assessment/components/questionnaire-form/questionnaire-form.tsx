@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {

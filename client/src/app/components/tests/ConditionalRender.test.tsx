@@ -1,5 +1,3 @@
-import React from "react";
-
 import { render, screen } from "@app/test-config/test-utils";
 
 import { ConditionalRender } from "../ConditionalRender";

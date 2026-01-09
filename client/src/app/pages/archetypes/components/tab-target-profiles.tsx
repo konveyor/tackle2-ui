@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
@@ -53,15 +53,17 @@ export const TabTargetProfiles: React.FC<TabTargetProfilesProps> = ({
           <Tr>
             <Th>{t("terms.name")}</Th>
             <Th>{t("terms.generators")}</Th>
+            <Th>{t("terms.analysisProfile")}</Th>
           </Tr>
         </Thead>
         <Tbody>
           {profiles.map((profile) => (
             <Tr key={profile.id}>
-              <Td width={40}>{profile.name}</Td>
-              <Td width={60}>
+              <Td width={25}>{profile.name}</Td>
+              <Td width={40}>
                 <LabelsFromItems items={profile.generators} />
               </Td>
+              <Td width={35}>{profile.analysisProfile?.name ?? "-"}</Td>
             </Tr>
           ))}
         </Tbody>

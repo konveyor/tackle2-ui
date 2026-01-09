@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode } from "react";
+import { FC, ReactElement, ReactNode } from "react";
 import { Flex, FlexItem } from "@patternfly/react-core";
 
 import { OptionalTooltip } from "./OptionalTooltip";

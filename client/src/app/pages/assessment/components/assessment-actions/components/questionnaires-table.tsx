@@ -1,5 +1,6 @@
 import "./questionnaires-table.css";
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import {

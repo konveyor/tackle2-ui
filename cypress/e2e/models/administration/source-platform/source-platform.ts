@@ -19,13 +19,14 @@ import {
   clickByText,
   clickItemInKebabMenu,
   inputText,
+  next,
   performRowActionByIcon,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
 } from "../../../../utils/utils";
-import { SEC, administration } from "../../../types/constants";
+import { SEC, administration, button, trTag } from "../../../types/constants";
 import * as commonView from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import * as sourcePlatform from "../../../views/source-platform.view";
@@ -148,5 +149,35 @@ export class SourcePlatform {
     if (Object.keys(updatedValues).length > 0) {
       submitForm();
     }
+  }
+
+  discover(org: string, appName: string, space: string, cancel = false): void {
+    SourcePlatform.open();
+    clickItemInKebabMenu(this.name, "Discover applications");
+    if (cancel) {
+      cancelForm();
+      return;
+    }
+
+    clickByText(button, "Add an organization");
+    inputText(`input[name="organizations.0.value"]`, org);
+
+    clickByText(button, "Add a name");
+    inputText(`input[name="names.0.value"]`, appName);
+
+    clickByText(button, "Add a space");
+    inputText(`input[name="spaces.0.value"]`, space);
+    next();
+
+    clickByText(button, "Discover applications");
+    clickByText(button, "Close");
+
+    // Page reload is required here
+    SourcePlatform.open();
+    cy.contains(this.name)
+      .closest(trTag)
+      .within(() => {
+        cy.get(commonView.successIcon, { timeout: 60000 });
+      });
   }
 }

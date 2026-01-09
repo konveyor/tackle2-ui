@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
@@ -43,15 +42,15 @@ export const SchemaAsCodeEditor = ({
   isReadOnly = false,
   height = "600px",
 }: ISchemaAsCodeEditorProps) => {
-  const editorRef = React.useRef<ControlledEditor>();
+  const editorRef = useRef<ControlledEditor>();
 
-  const [currentCode, setCurrentCode] = React.useState(
+  const [currentCode, setCurrentCode] = useState(
     JSON.stringify(jsonDocument, null, 2)
   );
   // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
-  const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
-  React.useEffect(() => {
+  const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
+  useEffect(() => {
     if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
       focusAndHomePosition();
       focusMovedOnSelectedDocumentChange.current = true;

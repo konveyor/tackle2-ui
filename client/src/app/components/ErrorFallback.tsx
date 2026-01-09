@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -33,7 +33,7 @@ export const ErrorFallback = ({
   const { t } = useTranslation();
 
   const history = useHistory();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
   const prevError = usePrevious(error);
 
   if (error.message !== prevError?.message) {

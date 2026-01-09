@@ -1,4 +1,3 @@
-import React from "react";
 import { ButtonVariant } from "@patternfly/react-core";
 
 import { fireEvent, render, screen } from "@app/test-config/test-utils";

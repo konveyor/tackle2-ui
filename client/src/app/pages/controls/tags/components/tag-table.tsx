@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 

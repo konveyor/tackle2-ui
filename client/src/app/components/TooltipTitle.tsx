@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Flex, FlexItem, Tooltip } from "@patternfly/react-core";
 import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
 

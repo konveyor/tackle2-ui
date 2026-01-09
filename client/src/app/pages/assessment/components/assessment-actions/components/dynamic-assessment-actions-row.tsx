@@ -1,4 +1,10 @@
-import React, { FunctionComponent } from "react";
+import {
+  FunctionComponent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   useIsFetching,
   useIsMutating,
@@ -62,7 +68,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
 
   const onSuccessHandler = () => {};
   const onErrorHandler = () => {};
@@ -100,7 +106,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
 
-  const determineAction = React.useCallback(() => {
+  const determineAction = useCallback(() => {
     if (!assessment) {
       return AssessmentAction.Take;
     } else if (assessment.status === "started") {
@@ -110,9 +116,9 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     }
   }, [assessment]);
 
-  const [action, setAction] = React.useState(determineAction());
+  const [action, setAction] = useState(determineAction());
 
-  React.useEffect(() => {
+  useEffect(() => {
     setAction(determineAction());
   }, [determineAction, assessment]);
 

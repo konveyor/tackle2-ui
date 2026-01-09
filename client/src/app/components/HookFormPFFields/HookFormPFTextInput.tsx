@@ -1,4 +1,3 @@
-import * as React from "react";
 import { FieldValues, Path, PathValue } from "react-hook-form";
 import { TextInput, TextInputProps } from "@patternfly/react-core";
 

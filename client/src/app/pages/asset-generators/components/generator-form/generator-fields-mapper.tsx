@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment, forwardRef, useImperativeHandle } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import {
   Bullseye,
@@ -18,7 +18,7 @@ interface KeyValueFieldsProps {
   name: string;
 }
 
-export const KeyValueFields = React.forwardRef<
+export const KeyValueFields = forwardRef<
   { addField: () => void },
   KeyValueFieldsProps
 >(({ noValuesMessage, removeLabel, name }, ref) => {
@@ -36,7 +36,7 @@ export const KeyValueFields = React.forwardRef<
     append({ key: "", value: "" });
   };
 
-  React.useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     addField: handleAddField,
   }));
 
@@ -49,7 +49,7 @@ export const KeyValueFields = React.forwardRef<
           </GridItem>
         )}
         {fields.map((field, index) => (
-          <React.Fragment key={`${name}-${field.id}`}>
+          <Fragment key={`${name}-${field.id}`}>
             <GridItem span={5}>
               <InputField
                 control={control}
@@ -74,7 +74,7 @@ export const KeyValueFields = React.forwardRef<
                 onRemove={() => handleRemoveField(index)}
               />
             </GridItem>
-          </React.Fragment>
+          </Fragment>
         ))}
       </Grid>
     </Grid>

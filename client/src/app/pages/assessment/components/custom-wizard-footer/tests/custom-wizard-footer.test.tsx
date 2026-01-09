@@ -1,5 +1,3 @@
-import React from "react";
-
 import { fireEvent, render, screen } from "@app/test-config/test-utils";
 
 import { CustomWizardFooter } from "../custom-wizard-footer";

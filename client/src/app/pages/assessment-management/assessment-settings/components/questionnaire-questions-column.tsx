@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Text } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";

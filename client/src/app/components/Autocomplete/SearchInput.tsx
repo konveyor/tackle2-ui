@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { SearchInput } from "@patternfly/react-core";
 
 import { getString } from "@app/utils/utils";

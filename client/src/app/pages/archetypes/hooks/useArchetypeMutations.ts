@@ -1,4 +1,4 @@
-import React from "react";
+import { useContext } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,7 @@ export const useArchetypeMutations = ({
   onActionFail = () => {},
 }: UseArchetypeMutationsOptions = {}) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
   const queryClient = useQueryClient();
 
   // Common error handler
@@ -162,12 +162,53 @@ export const useArchetypeMutations = ({
       });
   };
 
+  // Target profile success handlers
+  const onAddTargetProfileSuccess = (_updatedArchetype: Archetype) => {
+    pushNotification({
+      title: t("toastr.success.targetProfileCreated"),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onUpdateTargetProfileSuccess = (_updatedArchetype: Archetype) => {
+    pushNotification({
+      title: t("toastr.success.targetProfileUpdated"),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  const onDeleteTargetProfileSuccess = (_updatedArchetype: Archetype) => {
+    pushNotification({
+      title: t("toastr.success.targetProfileDeleted"),
+      variant: "success",
+    });
+    onActionSuccess();
+  };
+
+  // Target profile mutations with custom success handlers
+  const { mutate: addTargetProfileMutation } = useUpdateArchetypeMutation(
+    onAddTargetProfileSuccess,
+    onError
+  );
+
+  const { mutate: updateTargetProfileMutation } = useUpdateArchetypeMutation(
+    onUpdateTargetProfileSuccess,
+    onError
+  );
+
+  const { mutate: deleteTargetProfileMutation } = useUpdateArchetypeMutation(
+    onDeleteTargetProfileSuccess,
+    onError
+  );
+
   // Target profile function
   const addTargetProfile = (archetype: Archetype, profile: TargetProfile) => {
     const updatedProfiles = archetype.profiles
       ? [...archetype.profiles, profile]
       : [profile];
-    updateArchetype({ ...archetype, profiles: updatedProfiles });
+    addTargetProfileMutation({ ...archetype, profiles: updatedProfiles });
   };
 
   const updateTargetProfile = (
@@ -177,7 +218,7 @@ export const useArchetypeMutations = ({
     const updatedProfiles = archetype.profiles?.map((p) =>
       p.id === profile.id ? profile : p
     );
-    updateArchetype({ ...archetype, profiles: updatedProfiles });
+    updateTargetProfileMutation({ ...archetype, profiles: updatedProfiles });
   };
 
   const deleteTargetProfile = (
@@ -187,7 +228,7 @@ export const useArchetypeMutations = ({
     const updatedProfiles = archetype.profiles?.filter(
       (p) => p.id !== profile.id
     );
-    updateArchetype({ ...archetype, profiles: updatedProfiles });
+    deleteTargetProfileMutation({ ...archetype, profiles: updatedProfiles });
   };
 
   return {
