@@ -106,4 +106,4 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
-          report_artifact_name: "ui-test-reports-${{ github.run_id }}"
+          report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
