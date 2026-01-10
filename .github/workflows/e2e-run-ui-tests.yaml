@@ -88,11 +88,11 @@ jobs:
             -n konveyor-tackle \
             ingress/tackle \
             --timeout=600s \
-            --for=jsonpath='{.status.loadBalancer.ingress[0]}'
+            --for=jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
-          minikube_ip=$(minikube ip)
-          echo "ingress is ready at: ${minikube_ip}"
-          echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
+          ingress_ip=$(kubectl get ingress/tackle -n konveyor-tackle -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "ingress is ready at: ${ingress_ip}"
+          echo "UI_URL=https://${ingress_ip}" >>$GITHUB_ENV
 
       - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v4
