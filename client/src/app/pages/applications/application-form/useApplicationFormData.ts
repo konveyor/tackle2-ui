@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
@@ -33,7 +33,7 @@ export const useApplicationFormData = ({
   onActionFail?: () => void;
 } = {}) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
 
   // Fetch data
   const { tags, tagItems, isSuccess: is1 } = useFetchTagsWithTagItems();

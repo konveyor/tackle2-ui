@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
 import { useKeycloak } from "@react-keycloak/web";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";

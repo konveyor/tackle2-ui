@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 
 import { IPaginationState } from "./usePaginationState";
 
@@ -28,7 +28,7 @@ export const usePaginationEffects = ({
 }: IUsePaginationEffectsArgs) => {
   // When items are removed, make sure the current page still exists
   const lastPageNumber = Math.max(Math.ceil(totalItemCount / itemsPerPage), 1);
-  React.useEffect(() => {
+  useEffect(() => {
     if (isPaginationEnabled && pageNumber > lastPageNumber && !isLoading) {
       setPageNumber(lastPageNumber);
     }

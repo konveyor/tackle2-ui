@@ -1,7 +1,7 @@
 /* global module */
 
 // Adapted from https://github.com/i18next/react-i18next/blob/master/example/test-jest/src/__mocks__/react-i18next.js
-import React from "react";
+import { cloneElement, isValidElement } from "react";
 import * as reactI18next from "react-i18next";
 
 const hasChildren = (node) =>
@@ -17,14 +17,14 @@ const renderNodes = (reactNodes) => {
 
   return Object.keys(reactNodes).map((key, i) => {
     const child = reactNodes[key];
-    const isElement = React.isValidElement(child);
+    const isElement = isValidElement(child);
 
     if (typeof child === "string") {
       return child;
     }
     if (hasChildren(child)) {
       const inner = renderNodes(getChildren(child));
-      return React.cloneElement(child, { ...child.props, key: i }, inner);
+      return cloneElement(child, { ...child.props, key: i }, inner);
     }
     if (typeof child === "object" && !isElement) {
       return Object.keys(child).reduce(

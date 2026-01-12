@@ -1,4 +1,5 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
+import * as React from "react";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
 
 import { initInterceptors } from "@app/axios-config";
