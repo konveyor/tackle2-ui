@@ -7,7 +7,6 @@ import {
   Wizard,
   WizardHeader,
   WizardStep,
-  WizardStepType,
 } from "@patternfly/react-core";
 
 import { Application } from "@app/api/models";
@@ -34,17 +33,6 @@ interface IAnalysisWizard {
   isOpen: boolean;
 }
 
-enum StepId {
-  WizardMode = 1,
-  AnalysisSource,
-  SetTargets,
-  Scope,
-  CustomRules,
-  Options,
-  OptionsProfile,
-  Review,
-}
-
 export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   applications,
   onClose,
@@ -68,8 +56,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { ensureTaskGroup, submitAnalysis, cancelAnalysis } =
     useTaskGroupManager();
 
-  const [stepIdReached, setStepIdReached] = React.useState(1);
-
   const handleCancel = () => {
     cancelAnalysis();
     reset();
@@ -90,15 +76,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     }
   };
 
-  const onMove = (current: WizardStepType) => {
-    const id = current.id;
-    if (id && stepIdReached < (id as number)) setStepIdReached(id as number);
-  };
-
-  const isStepEnabled = (stepId: StepId) => {
-    return stepIdReached + 1 >= stepId;
-  };
-
   const isManualMode = state.flowMode.flowMode === "manual";
   const isProfileMode = state.flowMode.flowMode === "profile";
 
@@ -109,7 +86,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   return (
     <Modal
       isOpen={isOpen}
-      showClose={false}
       aria-label="Application analysis wizard modal"
       hasNoBodyWrapper
       onEscapePress={handleCancel}
@@ -118,10 +94,6 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
       <Wizard
         data-testid="analysis-wizard"
         onClose={handleCancel}
-        onSave={onSubmit}
-        onStepChange={(_event, currentStep: WizardStepType) =>
-          onMove(currentStep)
-        }
         header={
           <WizardHeader
             onClose={handleCancel}
@@ -133,15 +105,16 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             }
           />
         }
+        isVisitRequired
       >
         {/* Mode Selection Step - Always visible */}
         <WizardStep
-          key={StepId.WizardMode}
-          id={StepId.WizardMode}
+          key="step-mode"
+          id="step-mode"
           name={t("wizard.terms.wizardMode")}
           footer={{
-            isNextDisabled:
-              !isStepEnabled(StepId.WizardMode + 1) || !state.flowMode.isValid,
+            isBackHidden: true,
+            isNextDisabled: !state.flowMode.isValid,
           }}
         >
           <WizardMode
@@ -153,20 +126,17 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
         {/* Manual Mode Steps - Configure Analysis */}
         <WizardStep
-          key="wizard-configureAnalysis"
-          id="wizard-configureAnalysis"
+          key="step-analysis"
+          id="step-analysis"
           name={t("wizard.terms.configureAnalysis")}
           isHidden={isProfileMode}
           steps={[
             <WizardStep
-              key={StepId.AnalysisSource}
-              id={StepId.AnalysisSource}
+              key="step-analysis-source"
+              id="step-analysis-source"
               name={t("wizard.terms.analysisSource")}
-              isDisabled={!isStepEnabled(StepId.AnalysisSource)}
               footer={{
-                isNextDisabled:
-                  !isStepEnabled(StepId.AnalysisSource + 1) ||
-                  !state.mode.isValid,
+                isNextDisabled: !state.mode.isValid,
               }}
             >
               <AnalysisSource
@@ -177,14 +147,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
               />
             </WizardStep>,
             <WizardStep
-              key={StepId.SetTargets}
-              id={StepId.SetTargets}
+              key="step-analysis-targets"
+              id="step-analysis-targets"
               name={t("wizard.terms.setTargets")}
-              isDisabled={!isStepEnabled(StepId.SetTargets)}
               footer={{
-                isNextDisabled:
-                  !isStepEnabled(StepId.SetTargets + 1) ||
-                  !state.targets.isValid,
+                isNextDisabled: !state.targets.isValid,
               }}
             >
               <SetTargets
@@ -198,13 +165,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
               />
             </WizardStep>,
             <WizardStep
-              key={StepId.Scope}
-              id={StepId.Scope}
+              key="step-analysis-scope"
+              id="step-analysis-scope"
               name={t("wizard.terms.scope")}
-              isDisabled={!isStepEnabled(StepId.Scope)}
               footer={{
-                isNextDisabled:
-                  !isStepEnabled(StepId.Scope + 1) || !state.scope.isValid,
+                isNextDisabled: !state.scope.isValid,
               }}
             >
               <AnalysisScope
@@ -217,20 +182,17 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
         {/* Manual Mode Steps - Advanced */}
         <WizardStep
-          key="wizard-advanced"
-          id="wizard-advanced"
+          key="step-advanced"
+          id="step-advanced"
           name={t("wizard.terms.advanced")}
           isHidden={isProfileMode}
           steps={[
             <WizardStep
-              key={StepId.CustomRules}
-              id={StepId.CustomRules}
+              key="step-advanced-custom-rules"
+              id="step-advanced-custom-rules"
               name={t("wizard.terms.customRules")}
-              isDisabled={!isStepEnabled(StepId.CustomRules)}
               footer={{
-                isNextDisabled:
-                  !isStepEnabled(StepId.CustomRules + 1) ||
-                  !state.customRules.isValid,
+                isNextDisabled: !state.customRules.isValid,
               }}
             >
               <CustomRules
@@ -243,13 +205,11 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
               />
             </WizardStep>,
             <WizardStep
-              key={StepId.Options}
-              id={StepId.Options}
+              key="step-advanced-options"
+              id="step-advanced-options"
               name={t("wizard.terms.options")}
-              isDisabled={!isStepEnabled(StepId.Options)}
               footer={{
-                isNextDisabled:
-                  !isStepEnabled(StepId.Options + 1) || !state.options.isValid,
+                isNextDisabled: !state.options.isValid,
               }}
             >
               <AdvancedOptions
@@ -264,15 +224,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
         {/* Profile Mode - Simplified Options Step */}
         <WizardStep
-          key={StepId.OptionsProfile}
-          id={StepId.OptionsProfile}
+          key="step-profile-options"
+          id="step-profile-options"
           name={t("wizard.terms.options")}
           isHidden={isManualMode}
-          isDisabled={!isStepEnabled(StepId.OptionsProfile)}
           footer={{
-            isNextDisabled:
-              !isStepEnabled(StepId.OptionsProfile + 1) ||
-              !state.options.isValid,
+            isNextDisabled: !state.options.isValid,
           }}
         >
           <OptionsProfile
@@ -283,11 +240,14 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
         {/* Review Step - Always visible */}
         <WizardStep
-          key={StepId.Review}
-          id={StepId.Review}
+          key="step-review"
+          id="step-review"
           name={t("wizard.terms.review")}
-          isDisabled={!isStepEnabled(StepId.Review)}
-          footer={{ nextButtonText: "Run", isNextDisabled: !state.isReady }}
+          footer={{
+            nextButtonText: t("actions.run"),
+            isNextDisabled: !state.isReady,
+            onNext: onSubmit,
+          }}
         >
           <Review
             applications={applications}
