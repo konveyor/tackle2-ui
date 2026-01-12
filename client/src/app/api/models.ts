@@ -450,7 +450,12 @@ export interface AnalysisTaskData {
     enabled: boolean;
   };
   verbosity: number;
-  mode: {
+
+  // Profile-based analysis (mutually exclusive with mode/scope/rules)
+  profile?: number;
+
+  // Manual analysis fields (optional when using profile)
+  mode?: {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
@@ -458,7 +463,7 @@ export interface AnalysisTaskData {
   };
   targets?: string[];
   sources?: string[];
-  scope: {
+  scope?: {
     withKnownLibs: boolean;
     packages: {
       included: string[];

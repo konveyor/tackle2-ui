@@ -15,13 +15,8 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { Application } from "@app/api/models";
-import {
-  getParsedLabel,
-  parseAndGroupLabels,
-  parseLabel,
-  parseLabels,
-} from "@app/utils/rules-utils";
+import { AnalysisProfile, Application } from "@app/api/models";
+import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
 import {
@@ -30,10 +25,13 @@ import {
   AnalysisScopeValues,
   CustomRulesStepValues,
   SetTargetsValues,
+  WizardFlowMode,
 } from "../schema";
 
 interface ReviewProps {
   applications: Application[];
+  flowMode: WizardFlowMode;
+  selectedProfile: AnalysisProfile | null;
   mode: AnalysisMode;
   targets: SetTargetsValues;
   scope: AnalysisScopeValues;
@@ -55,6 +53,129 @@ const defaultScopes: Map<string, string> = new Map([
 ]);
 
 export const Review: React.FC<ReviewProps> = ({
+  applications,
+  flowMode,
+  selectedProfile,
+  mode,
+  targets,
+  scope,
+  customRules,
+  options,
+}) => {
+  const { t } = useTranslation();
+
+  // Profile mode review
+  if (flowMode === "profile") {
+    return (
+      <ReviewProfile
+        applications={applications}
+        selectedProfile={selectedProfile}
+        options={options}
+      />
+    );
+  }
+
+  // Manual mode review
+  return (
+    <ReviewManual
+      applications={applications}
+      mode={mode}
+      targets={targets}
+      scope={scope}
+      customRules={customRules}
+      options={options}
+    />
+  );
+};
+
+interface ReviewProfileProps {
+  applications: Application[];
+  selectedProfile: AnalysisProfile | null;
+  options: AdvancedOptionsValues;
+}
+
+const ReviewProfile: React.FC<ReviewProfileProps> = ({
+  applications,
+  selectedProfile,
+  options,
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <TextContent>
+        <Title headingLevel="h3" size="xl">
+          {t("analysisWizard.review.title")}
+        </Title>
+        <Text>{t("analysisWizard.review.profileDescription")}</Text>
+      </TextContent>
+
+      <DescriptionList isHorizontal className={spacing.mtMd}>
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
+          <DescriptionListDescription id="applications">
+            <List isPlain>
+              {applications.map((app) => (
+                <ListItem key={app.id}>{app.name}</ListItem>
+              ))}
+            </List>
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.label.analysisProfile")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="analysis-profile">
+            {selectedProfile?.name ?? t("analysisProfiles.none")}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        {selectedProfile?.description && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
+            <DescriptionListDescription id="profile-description">
+              {selectedProfile.description}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
+
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.terms.autoTagging")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="autoTagging">
+            {options.autoTaggingEnabled
+              ? t("wizard.terms.enabled")
+              : t("wizard.terms.disabled")}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+
+        <DescriptionListGroup>
+          <DescriptionListTerm>
+            {t("wizard.terms.advancedAnalysisDetails")}
+          </DescriptionListTerm>
+          <DescriptionListDescription id="advanced-analysis-details">
+            {options.advancedAnalysisEnabled
+              ? t("wizard.terms.enabled")
+              : t("wizard.terms.disabled")}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      </DescriptionList>
+    </>
+  );
+};
+
+interface ReviewManualProps {
+  applications: Application[];
+  mode: AnalysisMode;
+  targets: SetTargetsValues;
+  scope: AnalysisScopeValues;
+  customRules: CustomRulesStepValues;
+  options: AdvancedOptionsValues;
+}
+
+const ReviewManual: React.FC<ReviewManualProps> = ({
   applications,
   mode,
   targets,

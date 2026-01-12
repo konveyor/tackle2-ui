@@ -23,14 +23,14 @@ import {
 } from "../schema";
 import { isModeSupported } from "../utils";
 
-interface AnalysisModeProps {
+interface AnalysisSourceProps {
   applications: Application[];
   ensureTaskGroup: () => Promise<Taskgroup>;
   onStateChanged: (state: AnalysisModeState) => void;
   initialState: AnalysisModeState;
 }
 
-export const AnalysisMode: React.FC<AnalysisModeProps> = ({
+export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   applications,
   ensureTaskGroup,
   onStateChanged,
@@ -89,20 +89,20 @@ export const AnalysisMode: React.FC<AnalysisModeProps> = ({
     >
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.terms.analysisMode")}
+          {t("wizard.terms.analysisSource")}
         </Title>
       </TextContent>
       <HookFormPFGroupController
         control={form.control}
         name="mode"
         label={t("wizard.label.analysisSource")}
-        fieldId="analysis-mode"
+        fieldId="analysis-source"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelectBasic
-            selectId="analysis-mode"
-            toggleId="analysis-mode-toggle"
-            toggleAriaLabel="Analysis mode dropdown toggle"
+            selectId="analysis-source"
+            toggleId="analysis-source-toggle"
+            toggleAriaLabel="Analysis source dropdown toggle"
             aria-label={name}
             value={value}
             onChange={onChange}

@@ -1,12 +1,30 @@
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { Application, Target, TargetLabel, UploadFile } from "@app/api/models";
+import {
+  AnalysisProfile,
+  Application,
+  Target,
+  TargetLabel,
+  UploadFile,
+} from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
 
 import { useAnalyzableApplicationsByMode } from "./utils";
 
-// Analysis mode
+// Wizard flow mode - Manual vs Analysis Profile
+export type WizardFlowMode = "manual" | "profile";
+
+export interface WizardFlowModeValues {
+  flowMode: WizardFlowMode;
+  selectedProfile: AnalysisProfile | null;
+}
+
+export interface WizardFlowModeState extends WizardFlowModeValues {
+  isValid: boolean;
+}
+
+// Analysis mode (source)
 export const ANALYSIS_MODES = [
   "binary",
   "source-code",
