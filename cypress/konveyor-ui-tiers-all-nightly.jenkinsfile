@@ -1,4 +1,4 @@
-@Library('migrationqe-automation-lib@konveyor-ui-nightly') _
+@Library('migrationqe-automation-lib') _
 pipeline{
     agent {
         label 'minikube-node' 
