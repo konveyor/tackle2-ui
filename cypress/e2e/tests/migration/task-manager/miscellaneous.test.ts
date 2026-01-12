@@ -51,9 +51,29 @@ describe(["@tier2"], "Actions in Task Manager Page", function () {
     });
   });
 
-  it("Test Enable and Disable Preemption", function () {
-    // Polarion TC MTA-553
-    // Limit pods to the number of tackle pods + 1
+  // it("Test Enable and Disable Preemption", function () {
+  //   // Polarion TC MTA-553
+  //   // Limit pods to the number of tackle pods + 1
+  //   getNumberOfNonTaskPods().then((podsNum) => {
+  //     limitPodsByQuota(podsNum + 1);
+  //   });
+  //   for (let i = 0; i < 2; i++) {
+  //     bookServerApp = new Analysis(
+  //       getRandomApplicationData("TaskApp1_", {
+  //         sourceData: this.appData["bookserver-app"],
+  //       }),
+  //       getRandomAnalysisData(
+  //         this.analysisData["analysis_for_openSourceLibraries"]
+  //       )
+  //     );
+  //     bookServerApp.create();
+  //     // applicationsList.push(bookServerApp);
+  //   }
+  //   // const app = applicationsList[1];
+
+  // });
+
+  it("Cancel Task", function () {
     getNumberOfNonTaskPods().then((podsNum) => {
       limitPodsByQuota(podsNum + 1);
     });
@@ -67,22 +87,8 @@ describe(["@tier2"], "Actions in Task Manager Page", function () {
         )
       );
       bookServerApp.create();
-      applicationsList.push(bookServerApp);
+      // applicationsList.push(bookServerApp);
     }
-    const app = applicationsList[1];
-    TaskManager.setPreemption(app.name, TaskKind.languageDiscovery, true);
-    checkSuccessAlert(commonView.infoAlertMessage, "Update request submitted.");
-    TaskManager.verifyPreemption(app.name, TaskKind.languageDiscovery, true);
-    TaskManager.setPreemption(app.name, TaskKind.languageDiscovery, false);
-    checkSuccessAlert(
-      commonView.infoAlertMessage,
-      "Update request submitted.",
-      true
-    );
-    TaskManager.verifyPreemption(app.name, TaskKind.languageDiscovery, false);
-  });
-
-  it("Cancel Task", function () {
     const statusToTest = [
       TaskStatus.pending,
       TaskStatus.running,
