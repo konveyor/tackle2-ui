@@ -1,6 +1,6 @@
 import { Application, Target, TargetLabel } from "@app/api/models";
 
-import { isModeSupported, updateSelectedTargetLabels } from "../utils";
+import { isModeSupported, updateSelectedTargetLabels } from "./utils";
 
 const TARGET_LABELS: TargetLabel[] = [
   {
