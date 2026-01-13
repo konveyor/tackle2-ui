@@ -452,7 +452,7 @@ export interface AnalysisTaskData {
   verbosity: number;
 
   // Profile-based analysis (mutually exclusive with mode/scope/rules)
-  profile?: number;
+  profile?: Ref | IdRef;
 
   // Manual analysis fields (optional when using profile)
   mode?: {

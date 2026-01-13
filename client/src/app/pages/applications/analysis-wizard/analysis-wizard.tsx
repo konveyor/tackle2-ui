@@ -86,6 +86,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   return (
     <Modal
       isOpen={isOpen}
+      showClose={false}
       aria-label="Application analysis wizard modal"
       hasNoBodyWrapper
       onEscapePress={handleCancel}

@@ -66,9 +66,7 @@ const buildProfileTaskgroupData = (
   wizardState: WizardState,
   analyzableApplications: Application[]
 ): Taskgroup => {
-  const profileId = wizardState.flowMode.selectedProfile?.id;
-
-  if (!profileId) {
+  if (!wizardState.flowMode.selectedProfile) {
     throw new Error("Profile mode requires a selected profile");
   }
 
@@ -80,7 +78,7 @@ const buildProfileTaskgroupData = (
         enabled: wizardState.options.autoTaggingEnabled,
       },
       verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
-      profile: profileId,
+      profile: toRef(wizardState.flowMode.selectedProfile),
       // mode, scope, and rules are NOT included - the hub uses the profile's settings
     },
   };
