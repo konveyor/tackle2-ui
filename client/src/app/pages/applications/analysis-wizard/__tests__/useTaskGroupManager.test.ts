@@ -1,10 +1,12 @@
-import { FC, ReactNode, createElement } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { rest } from "msw";
 
-import { AnalysisProfile, Application, Taskgroup } from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { AnalysisProfile, Taskgroup } from "@app/api/models";
+import {
+  createMockApplication,
+  createMockNotifications,
+  renderHook,
+} from "@app/test-config/test-utils";
 import { server } from "@mocks/server";
 
 import { useTaskGroupManager } from "../useTaskGroupManager";
@@ -18,19 +20,17 @@ let capturedTaskgroupDeleteId: number | null = null;
 /**
  * Mock applications for testing
  */
-const mockApplications: Application[] = [
-  {
+const mockApplications = [
+  createMockApplication({
     id: 1,
     name: "App1",
-    migrationWave: null,
     repository: { url: "https://github.com/test/app1" },
-  },
-  {
+  }),
+  createMockApplication({
     id: 2,
     name: "App2",
-    migrationWave: null,
     binary: "io.test:app2:1.0.0:war",
-  },
+  }),
 ];
 
 /**
@@ -138,40 +138,6 @@ const createProfileWizardState = (
   ...overrides,
 });
 
-/**
- * Create a test wrapper with QueryClient and NotificationsContext
- */
-const createTestWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  const pushNotification = jest.fn();
-  const dismissNotification = jest.fn();
-
-  const wrapper: FC<{ children: ReactNode }> = ({ children }) =>
-    createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(
-        NotificationsContext.Provider,
-        {
-          value: {
-            pushNotification,
-            dismissNotification,
-            notifications: [],
-          },
-        },
-        children
-      )
-    );
-
-  return { wrapper, pushNotification, queryClient };
-};
-
 describe("useTaskGroupManager", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -210,8 +176,7 @@ describe("useTaskGroupManager", () => {
 
   describe("ensureTaskGroup", () => {
     it("creates a taskgroup when none exists", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
+      const { result } = renderHook(() => useTaskGroupManager());
 
       let taskgroup: Taskgroup | undefined;
       await act(async () => {
@@ -224,8 +189,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("returns existing taskgroup on subsequent calls", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
+      const { result } = renderHook(() => useTaskGroupManager());
 
       let taskgroup1: Taskgroup | undefined;
       let taskgroup2: Taskgroup | undefined;
@@ -242,9 +206,7 @@ describe("useTaskGroupManager", () => {
 
   describe("submitAnalysis - Manual mode", () => {
     it("sends correct taskgroup data shape for manual mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState();
 
       await act(async () => {
@@ -269,9 +231,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("sets withDeps true for source-code-deps mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         mode: { mode: "source-code-deps", artifact: null, isValid: true },
       });
@@ -290,9 +250,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("sets binary true for binary mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         mode: { mode: "binary", artifact: null, isValid: true },
       });
@@ -311,9 +269,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("sets scope with known libs when oss is selected", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         scope: {
           withKnownLibs: "app,oss",
@@ -337,9 +293,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("includes excluded packages when hasExcludedPackages is true", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         scope: {
           withKnownLibs: "app",
@@ -365,9 +319,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("sets tagger enabled based on autoTaggingEnabled option", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         options: {
           additionalTargetLabels: [],
@@ -392,9 +344,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("sets verbosity to 1 when advancedAnalysisEnabled is true", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState({
         options: {
           additionalTargetLabels: [],
@@ -419,9 +369,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("creates tasks for each application", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createManualWizardState();
 
       await act(async () => {
@@ -443,9 +391,7 @@ describe("useTaskGroupManager", () => {
 
   describe("submitAnalysis - Profile mode", () => {
     it("sends correct taskgroup data shape for profile mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createProfileWizardState(mockAnalysisProfile);
 
       await act(async () => {
@@ -470,9 +416,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("includes the selected profile ID", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createProfileWizardState(mockAnalysisProfile);
 
       await act(async () => {
@@ -488,9 +432,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("respects autoTaggingEnabled setting in profile mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createProfileWizardState(mockAnalysisProfile, {
         options: {
           additionalTargetLabels: [],
@@ -515,9 +457,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("respects advancedAnalysisEnabled setting in profile mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createProfileWizardState(mockAnalysisProfile, {
         options: {
           additionalTargetLabels: [],
@@ -542,9 +482,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("creates tasks for each application in profile mode", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const { result } = renderHook(() => useTaskGroupManager());
       const wizardState = createProfileWizardState(mockAnalysisProfile);
 
       await act(async () => {
@@ -562,8 +500,7 @@ describe("useTaskGroupManager", () => {
 
   describe("cancelAnalysis", () => {
     it("deletes the taskgroup when one exists", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
+      const { result } = renderHook(() => useTaskGroupManager());
 
       // First create a taskgroup
       await act(async () => {
@@ -581,8 +518,7 @@ describe("useTaskGroupManager", () => {
     });
 
     it("does nothing when no taskgroup exists", async () => {
-      const { wrapper } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
+      const { result } = renderHook(() => useTaskGroupManager());
 
       // Cancel without creating a taskgroup
       act(() => {
@@ -596,9 +532,10 @@ describe("useTaskGroupManager", () => {
 
   describe("notifications", () => {
     it("shows success notification on submit", async () => {
-      const { wrapper, pushNotification } = createTestWrapper();
-      const { result } = renderHook(() => useTaskGroupManager(), { wrapper });
-
+      const notifications = createMockNotifications();
+      const { result } = renderHook(() => useTaskGroupManager(), {
+        notifications,
+      });
       const wizardState = createManualWizardState();
 
       await act(async () => {
@@ -606,7 +543,7 @@ describe("useTaskGroupManager", () => {
       });
 
       await waitFor(() => {
-        expect(pushNotification).toHaveBeenCalledWith(
+        expect(notifications.pushNotification).toHaveBeenCalledWith(
           expect.objectContaining({
             title: "Applications",
             message: "Submitted for analysis",
