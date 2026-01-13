@@ -48,37 +48,42 @@ describe(["@tier3"], "Filter tags on application details page", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
 
     cy.fixture("application").then((appData) => {
-      cy.fixture("analysis").then((analysisData) => {
-        techTags = analysisData["analysis_for_enableTagging"]["techTags"];
+      this.appData = appData;
+    });
 
-        source_credential = new CredentialsSourceControlUsername(
-          data.getRandomCredentialsData(
-            CredentialType.sourceControl,
-            UserCredentials.usernamePassword,
-            true
-          )
-        );
-        source_credential.create();
+    cy.fixture("analysis").then((analysisData) => {
+      this.analysisData = analysisData;
+      techTags = analysisData.analysis_for_enableTagging.techTags;
+    });
 
-        tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
-        tagCategory.create();
+    cy.then(() => {
+      source_credential = new CredentialsSourceControlUsername(
+        data.getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword,
+          true
+        )
+      );
+      source_credential.create();
 
-        tag = new Tag(data.getRandomWord(6), tagCategory.name);
-        tag.create();
+      tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+      tagCategory.create();
 
-        application = new Analysis(
-          getRandomApplicationData(
-            "tackleTestApp_Source_autoTagging",
-            {
-              sourceData: appData["tackle-testapp-git"],
-            },
-            [tag.name]
-          ),
-          getRandomAnalysisData(analysisData["analysis_for_enableTagging"])
-        );
+      tag = new Tag(data.getRandomWord(6), tagCategory.name);
+      tag.create();
 
-        analyzeAndVerifyEnableTaggingApplication(application);
-      });
+      application = new Analysis(
+        getRandomApplicationData(
+          "tackleTestApp_Source_autoTagging",
+          {
+            sourceData: this.appData["tackle-testapp-git"],
+          },
+          [tag.name]
+        ),
+        getRandomAnalysisData(this.analysisData.analysis_for_enableTagging)
+      );
+
+      analyzeAndVerifyEnableTaggingApplication(application);
     });
   });
 
@@ -100,10 +105,10 @@ describe(["@tier3"], "Filter tags on application details page", () => {
   it("Filter by manual tags", function () {
     // Automates Polarion MTA-310
     application.filterTags("Manual");
-    techTags.forEach(function (tag) {
+    techTags.forEach(function (techTag) {
       cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
         "not.contain",
-        tag[1]
+        techTag[1]
       );
     });
     cy.get(appDetailsView.applicationTag).should("contain", tag.name);
@@ -112,21 +117,21 @@ describe(["@tier3"], "Filter tags on application details page", () => {
   it("Filter tags by tag category", function () {
     // Automates Polarion MTA-311
     application.filterTags(tagCategory.name);
-    techTags.forEach(function (tag) {
+    techTags.forEach(function (techTag) {
       cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
         "not.contain",
-        tag[1]
+        techTag[1]
       );
     });
     cy.get(appDetailsView.applicationTag).should("contain", tag.name);
   });
 
-  after("Perform test data clean up", function () {
+  after(function () {
     Application.open(true);
-    application.delete();
-    tag.delete();
-    tagCategory.delete();
-    source_credential.delete();
+    application?.delete();
+    tag?.delete();
+    tagCategory?.delete();
+    source_credential?.delete();
   });
 
   const analyzeAndVerifyEnableTaggingApplication = (application: Analysis) => {
