@@ -613,6 +613,8 @@ export class Analysis extends Application {
     Application.open();
     this.selectApplication();
     cy.contains(button, analyzeButton).should("be.enabled").click();
+    this.selectManualAnalysisMode();
+    next();
     this.selectSourceofAnalysis(this.source);
     next();
     next();

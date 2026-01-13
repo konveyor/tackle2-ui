@@ -21,6 +21,7 @@ import {
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
+  next,
   resetURL,
   selectItemsPerPage,
 } from "../../../utils/utils";
@@ -134,6 +135,8 @@ describe(["tier3"], "Custom Migration Targets RBAC operations", function () {
       .should("be.enabled")
       .click();
 
+    existingAnalysis.selectManualAnalysisMode();
+    next();
     existingAnalysis.selectSourceofAnalysis(analysis.source);
     cy.contains("button", "Next", { timeout: 200 }).click();
 
