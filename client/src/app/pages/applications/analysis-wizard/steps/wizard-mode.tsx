@@ -11,7 +11,7 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AnalysisProfile, Application, Archetype } from "@app/api/models";
+import { AnalysisProfile, Application } from "@app/api/models";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useAvailableAnalysisProfiles } from "@app/hooks/useAvailableAnalysisProfiles";

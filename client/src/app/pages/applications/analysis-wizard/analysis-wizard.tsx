@@ -13,10 +13,10 @@ import { Application } from "@app/api/models";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isNotEmptyString } from "@app/utils/utils";
 
-import { AdvancedOptions } from "./steps/advanced-options";
 import { AnalysisScope } from "./steps/analysis-scope";
 import { AnalysisSource } from "./steps/analysis-source";
 import { CustomRules } from "./steps/custom-rules";
+import { OptionsManual } from "./steps/options-manual";
 import { OptionsProfile } from "./steps/options-profile";
 import { Review } from "./steps/review";
 import { SetTargets } from "./steps/set-targets";
@@ -212,7 +212,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 isNextDisabled: !state.options.isValid,
               }}
             >
-              <AdvancedOptions
+              <OptionsManual
                 selectedTargets={state.targets.selectedTargets}
                 customRules={state.customRules}
                 onStateChanged={setOptions}

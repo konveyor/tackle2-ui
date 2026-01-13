@@ -42,14 +42,14 @@ import {
 import { useSourceLabels } from "../useSourceLabels";
 import { useTargetLabels } from "../useTargetLabels";
 
-interface AdvancedOptionsProps {
+interface OptionsManualProps {
   selectedTargets: [Target, TargetLabel | null][];
   customRules: CustomRulesStepState;
   onStateChanged: (state: AdvancedOptionsState) => void;
   initialState: AdvancedOptionsState;
 }
 
-export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
+export const OptionsManual: React.FC<OptionsManualProps> = ({
   selectedTargets,
   customRules,
   onStateChanged,
