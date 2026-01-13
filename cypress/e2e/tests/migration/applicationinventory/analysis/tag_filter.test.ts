@@ -17,7 +17,6 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  deleteByList,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -38,56 +37,59 @@ import { appDetailsView } from "../../../../views/applicationinventory.view";
 let source_credential: CredentialsSourceControlUsername;
 let tagCategory: TagCategory;
 let tag: Tag;
-const applications: Application[] = [];
+let application: Analysis;
+let techTags: any[];
 
 describe(["@tier3"], "Filter tags on application details page", () => {
-  before("Login", function () {
+  before("Setup data and analyze application", function () {
     login();
     cy.visit("/");
-    source_credential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        true
-      )
-    );
-    source_credential.create();
 
-    tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
-    tagCategory.create();
+    cy.intercept("GET", "/hub/application*").as("getApplication");
 
-    tag = new Tag(data.getRandomWord(6), tagCategory.name);
-    tag.create();
-  });
-
-  beforeEach("Load data", function () {
-    cy.fixture("application").then(function (appData) {
+    cy.fixture("application").then((appData) => {
       this.appData = appData;
     });
-    cy.fixture("analysis").then(function (analysisData) {
+
+    cy.fixture("analysis").then((analysisData) => {
       this.analysisData = analysisData;
-      this.techTags = analysisData["analysis_for_enableTagging"]["techTags"];
+      techTags = analysisData.analysis_for_enableTagging.techTags;
     });
-    cy.intercept("GET", "/hub/application*").as("getApplication");
-    Application.open(true);
+
+    cy.then(() => {
+      source_credential = new CredentialsSourceControlUsername(
+        data.getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword,
+          true
+        )
+      );
+      source_credential.create();
+
+      tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+      tagCategory.create();
+
+      tag = new Tag(data.getRandomWord(6), tagCategory.name);
+      tag.create();
+
+      application = new Analysis(
+        getRandomApplicationData(
+          "tackleTestApp_Source_autoTagging",
+          {
+            sourceData: this.appData["tackle-testapp-git"],
+          },
+          [tag.name]
+        ),
+        getRandomAnalysisData(this.analysisData.analysis_for_enableTagging)
+      );
+
+      analyzeAndVerifyEnableTaggingApplication(application);
+    });
   });
 
   it("Filter by automated tags generated after analysis", function () {
-    // Automates Polarion MTA-310
-    const application = new Analysis(
-      getRandomApplicationData(
-        "tackleTestApp_Source_autoTagging",
-        {
-          sourceData: this.appData["tackle-testapp-git"],
-        },
-        [tag.name]
-      ),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    analyzeAndVerifyEnableTaggingApplication(application);
-
     application.filterTags("Analysis");
-    application.tagAndCategoryExists(this.techTags);
+    application.tagAndCategoryExists(techTags);
     cy.get(appDetailsView.applicationTag).should("not.contain", tag.name);
     application.closeApplicationDetails();
 
@@ -102,23 +104,11 @@ describe(["@tier3"], "Filter tags on application details page", () => {
 
   it("Filter by manual tags", function () {
     // Automates Polarion MTA-310
-    const application = new Analysis(
-      getRandomApplicationData(
-        "tackleTestApp_Source_autoTagging",
-        {
-          sourceData: this.appData["tackle-testapp-git"],
-        },
-        [tag.name]
-      ),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    analyzeAndVerifyEnableTaggingApplication(application);
-
     application.filterTags("Manual");
-    this.techTags.forEach(function (tag) {
+    techTags.forEach(function (techTag) {
       cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
         "not.contain",
-        tag[1]
+        techTag[1]
       );
     });
     cy.get(appDetailsView.applicationTag).should("contain", tag.name);
@@ -126,38 +116,25 @@ describe(["@tier3"], "Filter tags on application details page", () => {
 
   it("Filter tags by tag category", function () {
     // Automates Polarion MTA-311
-    const application = new Analysis(
-      getRandomApplicationData(
-        "tackleTestApp_Source_autoTagging",
-        {
-          sourceData: this.appData["tackle-testapp-git"],
-        },
-        [tag.name]
-      ),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    analyzeAndVerifyEnableTaggingApplication(application);
-
     application.filterTags(tagCategory.name);
-    this.techTags.forEach(function (tag) {
+    techTags.forEach(function (techTag) {
       cy.get(appDetailsView.applicationTag, { timeout: 10 * SEC }).should(
         "not.contain",
-        tag[1]
+        techTag[1]
       );
     });
     cy.get(appDetailsView.applicationTag).should("contain", tag.name);
   });
 
-  after("Perform test data clean up", function () {
+  after(function () {
     Application.open(true);
-    deleteByList(applications);
-    tag.delete();
-    tagCategory.delete();
-    source_credential.delete();
+    application?.delete();
+    tag?.delete();
+    tagCategory?.delete();
+    source_credential?.delete();
   });
 
   const analyzeAndVerifyEnableTaggingApplication = (application: Analysis) => {
-    applications.push(application);
     application.create();
     cy.wait("@getApplication");
     application.manageCredentials(source_credential.name, null);
