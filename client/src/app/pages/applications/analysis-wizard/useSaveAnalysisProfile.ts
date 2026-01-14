@@ -8,9 +8,16 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateAnalysisProfileMutation } from "@app/queries/analysis-profiles";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toRef, toRefs } from "@app/utils/model-utils";
-import { getAxiosErrorMessage, isEmptyString } from "@app/utils/utils";
+import { getAxiosErrorMessage, isNotEmptyString } from "@app/utils/utils";
 
 import { WizardState } from "./useWizardReducer";
+
+const isSaveAsProfile = (wizardState: WizardState) => {
+  return (
+    wizardState.options.saveAsProfile &&
+    isNotEmptyString(wizardState.options.profileName)
+  );
+};
 
 const buildAnalysisProfile = (
   wizardState: WizardState,
@@ -90,7 +97,7 @@ export const useSaveAnalysisProfile = () => {
   const { pushNotification } = useContext(NotificationsContext);
   const { identities } = useFetchIdentities();
 
-  const { mutateAsync } = useCreateAnalysisProfileMutation(
+  const { mutate, mutateAsync } = useCreateAnalysisProfileMutation(
     (profile: AnalysisProfile) => {
       pushNotification({
         title: t("terms.analysisProfiles"),
@@ -100,20 +107,39 @@ export const useSaveAnalysisProfile = () => {
         variant: "success",
       });
     },
-    (error: AxiosError) => {
-      pushNotification({
-        title: getAxiosErrorMessage(error),
-        variant: "danger",
-      });
+    (error: AxiosError, errorPayload: New<AnalysisProfile>) => {
+      if (error.response?.status === 409) {
+        pushNotification({
+          title: t("terms.analysisProfiles"),
+          message: t("toastr.fail.duplicateAnalysisProfileName", {
+            name: errorPayload.name,
+          }),
+          variant: "danger",
+        });
+      } else {
+        pushNotification({
+          title: getAxiosErrorMessage(error),
+          variant: "danger",
+        });
+      }
     }
   );
 
   const createAnalysisProfile = useCallback(
+    (wizardState: WizardState) => {
+      if (!isSaveAsProfile(wizardState)) {
+        return;
+      }
+
+      const newProfile = buildAnalysisProfile(wizardState, identities);
+      mutate(newProfile);
+    },
+    [mutate, identities]
+  );
+
+  const createAnalysisProfileAsync = useCallback(
     async (wizardState: WizardState) => {
-      if (
-        !wizardState.options.saveAsProfile ||
-        isEmptyString(wizardState.options.profileName)
-      ) {
+      if (!isSaveAsProfile(wizardState)) {
         return;
       }
 
@@ -123,5 +149,5 @@ export const useSaveAnalysisProfile = () => {
     [mutateAsync, identities]
   );
 
-  return { createAnalysisProfile };
+  return { createAnalysisProfile, createAnalysisProfileAsync };
 };
