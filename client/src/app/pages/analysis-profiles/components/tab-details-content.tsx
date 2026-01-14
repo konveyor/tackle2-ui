@@ -11,7 +11,7 @@ import {
   Text,
 } from "@patternfly/react-core";
 
-import { AnalysisProfile, Ref } from "@app/api/models";
+import { AnalysisProfile, AnalysisProfileTarget, Ref } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import {
   DrawerTabContent,
@@ -19,6 +19,7 @@ import {
   RepositoryDetails,
 } from "@app/components/detail-drawer";
 import { useFetchTargets } from "@app/queries/targets";
+import { getParsedLabel } from "@app/utils/rules-utils";
 
 /** Helper to display a list of string labels */
 const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
@@ -43,9 +44,8 @@ const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
 
 /** Display targets with their resolved names */
 // TODO: Better display of targets and with their labels
-// TODO: Handling for choice targets
 const TargetsList: React.FC<{
-  targetRefs?: Ref[];
+  targetRefs?: AnalysisProfileTarget[];
 }> = ({ targetRefs }) => {
   const { t } = useTranslation();
   const { targets } = useFetchTargets();
@@ -61,6 +61,10 @@ const TargetsList: React.FC<{
         name: fullTarget?.name ?? ref.name,
         description: fullTarget?.description,
         provider: fullTarget?.provider,
+        selection:
+          fullTarget?.choice && ref.selection
+            ? getParsedLabel(ref.selection).labelValue
+            : undefined,
       };
     });
   }, [targetRefs, targets]);
@@ -75,6 +79,7 @@ const TargetsList: React.FC<{
         <Label key={target.id} color="blue">
           {target.name}
           {target.provider && ` (${target.provider})`}
+          {target.selection && ` (${target.selection})`}
         </Label>
       ))}
     </LabelGroup>

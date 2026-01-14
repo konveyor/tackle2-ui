@@ -1094,11 +1094,17 @@ export interface AnalysisProfileLabels {
   excluded?: string[];
 }
 
+export interface AnalysisProfileTarget {
+  id: number;
+  name: string;
+  selection?: string;
+}
+
 export interface AnalysisProfileRules {
   labels: AnalysisProfileLabels;
   repository?: Repository;
   identity?: Ref;
-  targets?: Ref[];
+  targets?: AnalysisProfileTarget[];
   files?: Ref[];
 }
 

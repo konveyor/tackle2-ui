@@ -3,10 +3,11 @@ import { AxiosError } from "axios";
 import { sift, unique } from "radash";
 import { useTranslation } from "react-i18next";
 
-import { AnalysisProfile, Identity, New } from "@app/api/models";
+import { AnalysisProfile, HubFile, Identity, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useCreateAnalysisProfileMutation } from "@app/queries/analysis-profiles";
 import { useFetchIdentities } from "@app/queries/identities";
+import { useCreateFileMutation } from "@app/queries/targets";
 import { toRef, toRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage, isNotEmptyString } from "@app/utils/utils";
 
@@ -21,6 +22,7 @@ const isSaveAsProfile = (wizardState: WizardState) => {
 
 const buildAnalysisProfile = (
   wizardState: WizardState,
+  hubFiles: HubFile[] = [],
   identities: Identity[]
 ) => {
   const customRulesIdentity =
@@ -33,9 +35,9 @@ const buildAnalysisProfile = (
         )
       : undefined;
 
-  const ruleLabels = unique(
+  const nonTargetRuleLabels = unique(
     sift([
-      // TODO: Do the uploaded custom rule file labels need to be included here?
+      ...wizardState.customRules.customLabels.map(({ label }) => label),
       ...wizardState.options.additionalTargetLabels.map(({ label }) => label),
       ...wizardState.options.additionalSourceLabels.map(({ label }) => label),
     ])
@@ -62,12 +64,17 @@ const buildAnalysisProfile = (
     rules: {
       // Manually added labels
       labels: {
-        included: ruleLabels,
+        included: nonTargetRuleLabels,
         excluded: wizardState.options.excludedLabels,
       },
 
-      // TODO: Need to be able to indicate the "choice" target label
-      targets: toRefs(wizardState.targets.selectedTargets.map(([t]) => t)),
+      targets: wizardState.targets.selectedTargets.map(
+        ([{ id, name }, selection]) => ({
+          id,
+          name,
+          ...(selection ? { selection: selection.label } : {}),
+        })
+      ),
 
       // Custom rules repository and associated identity
       repository:
@@ -82,10 +89,7 @@ const buildAnalysisProfile = (
       identity: customRulesIdentity,
 
       // Custom rules files
-      // TODO: Do I need to reupload the files in a bucket to "normal" files?
-      files: wizardState.customRules.customRulesFiles
-        .filter((file) => file.fileId !== undefined)
-        .map((file) => ({ id: file.fileId!, name: file.fileName })),
+      files: toRefs(hubFiles),
     },
   };
 
@@ -125,16 +129,58 @@ export const useSaveAnalysisProfile = () => {
     }
   );
 
+  const { mutateAsync: createRuleFile } = useCreateFileMutation();
+
+  const uploadCustomRulesFiles = useCallback(
+    async (wizardState: WizardState) => {
+      if (wizardState.customRules.customRulesFiles.length === 0) {
+        return;
+      }
+
+      const results = await Promise.allSettled(
+        wizardState.customRules.customRulesFiles.map(({ fullFile }) =>
+          createRuleFile({ file: fullFile })
+        )
+      );
+
+      const failed = results.filter((result) => result.status === "rejected");
+      if (failed.length > 0) {
+        throw new Error("Failed to upload custom rules files");
+      }
+
+      const successful = results
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => result.value);
+
+      successful.forEach((hubFile) => {
+        console.log(
+          "Uploaded custom rules file %d: %s",
+          hubFile.id,
+          hubFile.name
+        );
+      });
+
+      return successful;
+    },
+    [createRuleFile]
+  );
+
   const createAnalysisProfile = useCallback(
     (wizardState: WizardState) => {
       if (!isSaveAsProfile(wizardState)) {
         return;
       }
 
-      const newProfile = buildAnalysisProfile(wizardState, identities);
-      mutate(newProfile);
+      uploadCustomRulesFiles(wizardState).then((hubFiles) => {
+        const newProfile = buildAnalysisProfile(
+          wizardState,
+          hubFiles,
+          identities
+        );
+        mutate(newProfile);
+      });
     },
-    [mutate, identities]
+    [mutate, uploadCustomRulesFiles, identities]
   );
 
   const createAnalysisProfileAsync = useCallback(
@@ -143,10 +189,15 @@ export const useSaveAnalysisProfile = () => {
         return;
       }
 
-      const newProfile = buildAnalysisProfile(wizardState, identities);
+      const hubFiles = await uploadCustomRulesFiles(wizardState);
+      const newProfile = buildAnalysisProfile(
+        wizardState,
+        hubFiles,
+        identities
+      );
       return mutateAsync(newProfile);
     },
-    [mutateAsync, identities]
+    [mutateAsync, uploadCustomRulesFiles, identities]
   );
 
   return { createAnalysisProfile, createAnalysisProfileAsync };

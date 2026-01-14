@@ -79,7 +79,7 @@ const buildProfileTaskgroupData = (
       },
       verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
       profile: toRef(wizardState.flowMode.selectedProfile),
-      // mode, scope, and rules are NOT included - the hub uses the profile's settings
+      // mode, scope, and rules are NOT included - hub will use the profile's settings
     },
   };
 };
