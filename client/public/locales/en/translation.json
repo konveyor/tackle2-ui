@@ -365,6 +365,7 @@
     "adoptionCandidateDistribution": "Application confidence and risk",
     "affectedApplications": "Affected applications",
     "analysis": "Analysis",
+    "analysisProfileName": "Analysis profile name",
     "answer": "Answer",
     "application": "Application",
     "applicationReview": "Application review",
@@ -652,7 +653,8 @@
       "discoverApplications": "Success! Applications discovered on platform {{platformName}}.",
       "targetProfileCreated": "Target profile was successfully created.",
       "targetProfileUpdated": "Target profile was successfully updated.",
-      "targetProfileDeleted": "Target profile was successfully deleted."
+      "targetProfileDeleted": "Target profile was successfully deleted.",
+      "analysisProfileCreated": "Analysis profile {{name}} was successfully created."
     },
     "fail": {
       "applicationsUpdated_one": "Application {{firstName}} failed to update.",
@@ -679,6 +681,7 @@
     "duplicateName": "A {{type}} with this name already exists. Use a different name.",
     "duplicateArchetypeName": "An archetype with this name already exists. Use a different name.",
     "duplicateTargetProfileName": "A target profile with this name already exists.",
+    "duplicateAnalysisProfileName": "An analysis profile with this name already exists.",
     "invalidFormat": "Invalid format",
     "invalidQuestionnaireYAML": "Invalid questionnaire YAML",
     "invalidValue": "Invalid value",
@@ -723,6 +726,8 @@
       "profileOptionsDescription": "Configure additional options for the analysis.",
       "reviewDetails": "Review the information below, then run the analysis.",
       "ruleFileRequiredDetails": "At least one custom rule file is required if no targets are selected.",
+      "saveAsProfile": "Save analysis options as an analysis profile?",
+      "saveAsProfileReview": "Name of the analysis profile to save the analysis options as",
       "scope": "Select the scope of dependencies you want to include in the analysis.",
       "scopeAllDeps": "Application and all dependencies, including known Open Source libraries",
       "scopeInternalDeps": "Application and internal dependencies only",
@@ -744,6 +749,7 @@
       "disabled": "Disabled",
       "enabled": "Enabled",
       "mode": "Mode",
+      "no": "No",
       "none": "(none)",
       "numberOfRules": "Number of rules",
       "options": "Options",
@@ -758,7 +764,8 @@
       "target_one": "Target",
       "target_other": "Targets",
       "transactionReport": "Transaction Report",
-      "wizardMode": "Mode"
+      "wizardMode": "Mode",
+      "yes": "Yes"
     },
     "title": {
       "advancedOptions": "Advanced options",

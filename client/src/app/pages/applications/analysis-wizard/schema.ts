@@ -9,6 +9,7 @@ import {
   UploadFile,
 } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 import { useAnalyzableApplicationsByMode } from "./utils";
 
@@ -183,19 +184,36 @@ export interface AdvancedOptionsValues {
   excludedLabels: string[];
   autoTaggingEnabled: boolean;
   advancedAnalysisEnabled: boolean;
+
+  saveAsProfile: boolean;
+  profileName?: string;
 }
 
 export interface AdvancedOptionsState extends AdvancedOptionsValues {
   isValid: boolean;
 }
 
-export const useAdvancedOptionsSchema =
-  (): yup.SchemaOf<AdvancedOptionsValues> => {
-    return yup.object({
-      additionalTargetLabels: yup.array().of(TargetLabelSchema),
-      additionalSourceLabels: yup.array().of(TargetLabelSchema),
-      excludedLabels: yup.array().of(yup.string().defined()),
-      autoTaggingEnabled: yup.bool().defined(),
-      advancedAnalysisEnabled: yup.bool().defined(),
-    });
-  };
+export const useAdvancedOptionsSchema = (
+  existingProfiles: AnalysisProfile[] = []
+): yup.SchemaOf<AdvancedOptionsValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    additionalTargetLabels: yup.array().of(TargetLabelSchema),
+    additionalSourceLabels: yup.array().of(TargetLabelSchema),
+    excludedLabels: yup.array().of(yup.string().defined()),
+    autoTaggingEnabled: yup.bool().defined(),
+    advancedAnalysisEnabled: yup.bool().defined(),
+    saveAsProfile: yup.bool().defined(),
+    profileName: yup.string().when("saveAsProfile", {
+      is: true,
+      then: (schema) =>
+        schema
+          .required()
+          .test(
+            "unique-name",
+            t("validation.duplicateAnalysisProfileName"),
+            (value) => duplicateNameCheck(existingProfiles, null, value ?? "")
+          ),
+    }),
+  });
+};

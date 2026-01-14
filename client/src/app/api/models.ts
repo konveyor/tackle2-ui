@@ -1097,7 +1097,7 @@ export interface AnalysisProfileLabels {
 export interface AnalysisProfileRules {
   labels: AnalysisProfileLabels;
   repository?: Repository;
-  // TODO: Add field for Identity/Credential for the repository?
+  identity?: Ref;
   targets?: Ref[];
   files?: Ref[];
 }

@@ -355,6 +355,18 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
             </LabelGroup>
           </DescriptionListDescription>
         </DescriptionListGroup>
+
+        {options.saveAsProfile && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>
+              {t("wizard.label.saveAsProfileReview")}
+            </DescriptionListTerm>
+            <DescriptionListDescription id="analysis-profile-name">
+              {options.profileName}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
+
         <DescriptionListGroup>
           <DescriptionListTerm>
             {t("wizard.terms.autoTagging")}

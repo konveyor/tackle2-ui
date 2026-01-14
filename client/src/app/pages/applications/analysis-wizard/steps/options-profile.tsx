@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
@@ -39,12 +39,10 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
   );
 
   // Notify parent of state changes
-  const notifyStateChange = useCallback(() => {
+  useEffect(() => {
     onStateChanged({
       // Keep existing values for unused fields
-      additionalTargetLabels: initialState.additionalTargetLabels,
-      additionalSourceLabels: initialState.additionalSourceLabels,
-      excludedLabels: initialState.excludedLabels,
+      ...initialState,
       // Update the changeable values
       autoTaggingEnabled,
       advancedAnalysisEnabled,
@@ -52,17 +50,11 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
       isValid: true,
     });
   }, [
+    initialState,
     autoTaggingEnabled,
     advancedAnalysisEnabled,
-    initialState.additionalTargetLabels,
-    initialState.additionalSourceLabels,
-    initialState.excludedLabels,
     onStateChanged,
   ]);
-
-  useEffect(() => {
-    notifyStateChange();
-  }, [notifyStateChange]);
 
   return (
     <Form

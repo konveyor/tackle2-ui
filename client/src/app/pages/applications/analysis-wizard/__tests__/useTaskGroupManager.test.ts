@@ -85,6 +85,8 @@ const createManualWizardState = (
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,
+    saveAsProfile: false,
+    profileName: undefined,
     isValid: true,
   },
   isReady: true,
@@ -132,6 +134,8 @@ const createProfileWizardState = (
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,
+    saveAsProfile: false,
+    profileName: undefined,
     isValid: true,
   },
   isReady: true,
@@ -327,6 +331,8 @@ describe("useTaskGroupManager", () => {
           excludedLabels: [],
           autoTaggingEnabled: false,
           advancedAnalysisEnabled: false,
+          saveAsProfile: false,
+          profileName: undefined,
           isValid: true,
         },
       });
@@ -352,6 +358,8 @@ describe("useTaskGroupManager", () => {
           excludedLabels: [],
           autoTaggingEnabled: true,
           advancedAnalysisEnabled: true,
+          saveAsProfile: false,
+          profileName: undefined,
           isValid: true,
         },
       });
@@ -440,6 +448,8 @@ describe("useTaskGroupManager", () => {
           excludedLabels: [],
           autoTaggingEnabled: false,
           advancedAnalysisEnabled: false,
+          saveAsProfile: false,
+          profileName: undefined,
           isValid: true,
         },
       });
@@ -465,6 +475,8 @@ describe("useTaskGroupManager", () => {
           excludedLabels: [],
           autoTaggingEnabled: true,
           advancedAnalysisEnabled: true,
+          saveAsProfile: false,
+          profileName: undefined,
           isValid: true,
         },
       });

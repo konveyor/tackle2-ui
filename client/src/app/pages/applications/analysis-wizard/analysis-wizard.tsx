@@ -21,6 +21,7 @@ import { OptionsProfile } from "./steps/options-profile";
 import { Review } from "./steps/review";
 import { SetTargets } from "./steps/set-targets";
 import { WizardMode } from "./steps/wizard-mode";
+import { useSaveAnalysisProfile } from "./useSaveAnalysisProfile";
 import { useTaskGroupManager } from "./useTaskGroupManager";
 import { useWizardReducer } from "./useWizardReducer";
 import { useAnalyzableApplications } from "./utils";
@@ -66,8 +67,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     applications,
     state.mode.mode
   );
+  const { createAnalysisProfile } = useSaveAnalysisProfile();
 
   const onSubmit = async () => {
+    createAnalysisProfile(state);
     try {
       await submitAnalysis(state, analyzableApplications, identities);
     } finally {

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
@@ -26,9 +25,14 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Target, TargetLabel } from "@app/api/models";
-import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
+import { useIsArchitect } from "@app/hooks/useIsArchitect";
+import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import { getValidatedFromErrors } from "@app/utils/utils";
 
@@ -56,8 +60,9 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
   initialState,
 }) => {
   const { t } = useTranslation();
+  const { analysisProfiles } = useFetchAnalysisProfiles();
 
-  const schema = useAdvancedOptionsSchema();
+  const schema = useAdvancedOptionsSchema(analysisProfiles);
   const form = useForm<AdvancedOptionsValues>({
     defaultValues: {
       additionalTargetLabels: initialState.additionalTargetLabels,
@@ -65,11 +70,13 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
       excludedLabels: initialState.excludedLabels,
       autoTaggingEnabled: initialState.autoTaggingEnabled,
       advancedAnalysisEnabled: initialState.advancedAnalysisEnabled,
+      saveAsProfile: initialState.saveAsProfile,
+      profileName: initialState.profileName,
     },
     mode: "all",
     resolver: yupResolver(schema),
   });
-  const setValue: UseFormSetValue<AdvancedOptionsValues> = useCallback(
+  const setValue: UseFormSetValue<AdvancedOptionsValues> = React.useCallback(
     (name, value) => {
       form.setValue(name, value, { shouldValidate: true });
     },
@@ -77,8 +84,12 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
   );
   const { control } = form;
 
-  const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
-    useWatch({ control });
+  const {
+    excludedLabels,
+    autoTaggingEnabled,
+    advancedAnalysisEnabled,
+    saveAsProfile,
+  } = useWatch({ control });
 
   useFormChangeHandler({ form, onStateChanged });
 
@@ -99,6 +110,7 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
   );
 
   const customLabels = parseAndGroupLabels(customRules.customLabels);
+  const canSaveAsProfile = useIsArchitect();
 
   return (
     <Form
@@ -292,6 +304,27 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
         removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
         className={spacing.mtMd}
       />
+
+      {canSaveAsProfile && (
+        <>
+          <Checkbox
+            className={spacing.mtMd}
+            label={t("wizard.label.saveAsProfile")}
+            isChecked={saveAsProfile}
+            onChange={() => setValue("saveAsProfile", !saveAsProfile)}
+            id="save-as-profile-checkbox"
+            name="saveAsProfile"
+          />
+          <HookFormPFTextInput
+            control={control}
+            name="profileName"
+            label={t("terms.name")}
+            fieldId="analysis-profile-name"
+            isDisabled={!saveAsProfile}
+            isRequired={saveAsProfile}
+          />
+        </>
+      )}
 
       <Checkbox
         className={spacing.mtMd}

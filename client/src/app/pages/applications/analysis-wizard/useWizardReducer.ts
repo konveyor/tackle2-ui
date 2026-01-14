@@ -56,6 +56,7 @@ const INITIAL_WIZARD_STATE: WizardState = {
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,
+    saveAsProfile: false,
     isValid: true,
   },
   isReady: false,
