@@ -436,7 +436,7 @@ describe("useTaskGroupManager", () => {
       });
 
       const submittedData = capturedTaskgroupSubmit as Taskgroup;
-      expect(submittedData.data?.profile).toBe(42);
+      expect(submittedData.data?.profile).toMatchObject({ id: 42 });
     });
 
     it("respects autoTaggingEnabled setting in profile mode", async () => {
