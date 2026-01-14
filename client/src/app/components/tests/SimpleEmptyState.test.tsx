@@ -1,4 +1,3 @@
-import React from "react";
 import AdIcon from "@patternfly/react-icons/dist/esm/icons/ad-icon";
 
 import { render } from "@app/test-config/test-utils";

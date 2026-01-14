@@ -21,7 +21,6 @@ export enum TaskManagerColumns {
   status = 'td[data-label="Status"]',
   kind = 'td[data-label="Kind"]',
   priority = 'td[data-label="Priority"]',
-  preemption = 'td[data-label="Preemption"]',
   createdBy = 'td[data-label="Created By"]',
 }
 export const tasksTable = "table[aria-label='Tasks table']";
@@ -31,7 +30,6 @@ export enum TaskManagerTableHeaders {
   status = "Status",
   kind = "Kind",
   priority = "Priority",
-  preemption = "Preemption",
   createdBy = "Created By",
   pod = "Pod",
   started = "Started",

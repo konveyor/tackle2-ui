@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Section } from "@app/api/models";
 import { render } from "@app/test-config/test-utils";
 

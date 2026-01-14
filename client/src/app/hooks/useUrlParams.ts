@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
 import { DisallowCharacters } from "@app/utils/type-utils";
@@ -114,7 +114,7 @@ export const useUrlParams = <
     params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (allParamsEmpty) setParams(defaultValue);
     // Leaving this rule enabled results in a cascade of unnecessary useCallbacks:
     // eslint-disable-next-line react-hooks/exhaustive-deps

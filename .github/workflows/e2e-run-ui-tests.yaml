@@ -15,6 +15,10 @@ on:
         type: string
         default: quay.io/konveyor/tackle2-operator-bundle:latest
 
+      ui_image:
+        type: string
+        default: quay.io/konveyor/tackle2-ui:latest
+
       install_konveyor_version:
         type: string
         default: main
@@ -39,6 +43,11 @@ on:
         description: Operator bundle image to use
         type: string
         default: quay.io/konveyor/tackle2-operator-bundle:latest
+
+      ui_image:
+        description: UI image to use when installing Konveyor
+        type: string
+        default: quay.io/konveyor/tackle2-ui:latest
 
       install_konveyor_version:
         description: Ref in operator repo to use for the install-konveyor action
@@ -81,6 +90,7 @@ jobs:
             spec:
               image_pull_policy: IfNotPresent
               feature_auth_required: ${{ inputs.feature_auth_required }}
+              ui_image_fqin: ${{ inputs.ui_image }}
 
       - name: Wait for Ingress
         run: |
@@ -106,3 +116,4 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
+          report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"

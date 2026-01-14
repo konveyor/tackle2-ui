@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
+import * as React from "react";
 import { Page, SkipToContent } from "@patternfly/react-core";
 
 import { Notifications } from "@app/components/Notifications";

@@ -934,6 +934,7 @@ export interface TargetProfile {
   id: number;
   name: string;
   generators: Ref[];
+  analysisProfile?: Ref;
 }
 
 export interface Archetype {
@@ -1064,4 +1065,43 @@ export interface Schema {
 export interface TargetedSchema {
   name: string;
   definition: JsonSchemaObject;
+}
+
+// Analysis Profiles
+// Based on: https://github.com/konveyor/tackle2-hub/blob/main/api/profile.go
+
+export interface AnalysisProfileMode {
+  withDeps: boolean;
+}
+
+export interface AnalysisProfilePackages {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileScope {
+  withKnownLibs: boolean;
+  packages: AnalysisProfilePackages;
+}
+
+export interface AnalysisProfileLabels {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileRules {
+  labels: AnalysisProfileLabels;
+  repository?: Repository;
+  // TODO: Add field for Identity/Credential for the repository?
+  targets?: Ref[];
+  files?: Ref[];
+}
+
+export interface AnalysisProfile {
+  id: number;
+  name: string;
+  description?: string;
+  mode: AnalysisProfileMode;
+  scope: AnalysisProfileScope;
+  rules: AnalysisProfileRules;
 }

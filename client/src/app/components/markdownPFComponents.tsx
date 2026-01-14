@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Components } from "react-markdown";
 import { CodeBlock, CodeBlockCode, Text } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

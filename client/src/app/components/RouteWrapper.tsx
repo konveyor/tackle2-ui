@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Redirect, Route } from "react-router-dom";
 
 import { isAuthRequired } from "@app/Constants";

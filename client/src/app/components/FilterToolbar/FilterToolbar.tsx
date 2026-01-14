@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import {
   Dropdown,
   DropdownGroup,
@@ -123,10 +123,10 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   isDisabled = false,
   breakpoint = "2xl",
 }: IFilterToolbarProps<TItem, TFilterCategoryKey>): JSX.Element | null => {
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
-    React.useState(false);
-  const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =
-    React.useState(filterCategories[0].categoryKey);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [currentFilterCategoryKey, setCurrentFilterCategoryKey] = useState(
+    filterCategories[0].categoryKey
+  );
 
   const onCategorySelect = (
     category: FilterCategory<TItem, TFilterCategoryKey>

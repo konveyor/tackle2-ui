@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import { FormProvider, useForm } from "react-hook-form";
@@ -259,8 +259,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             schema
               .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
-              .max(120, t("validation.maxLength", { length: 120 }))
-              .email("Username must be a valid email"),
+              .max(120, t("validation.maxLength", { length: 120 })),
         })
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>

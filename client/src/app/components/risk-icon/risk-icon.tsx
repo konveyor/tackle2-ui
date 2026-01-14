@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { TimesCircleIcon, WarningTriangleIcon } from "@patternfly/react-icons";
 
 import { IconedStatus } from "@app/components/Icons";
