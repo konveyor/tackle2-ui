@@ -137,7 +137,7 @@ describe(["tier3"], "Custom Migration Targets RBAC operations", function () {
 
     existingAnalysis.selectManualAnalysisMode();
     next();
-    existingAnalysis.selectSourceofAnalysis(analysis.source);
+    existingAnalysis.selectSourceofAnalysis(existingAnalysis.source);
     cy.contains("button", "Next", { timeout: 200 }).click();
 
     // Ensures that the latest custom migration target created is the last one in the list
