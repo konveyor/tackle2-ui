@@ -98,28 +98,6 @@ export class TaskManager {
     cy.wait(2 * SEC);
   }
 
-  public static setPreemption(
-    applicationName: string,
-    kind: TaskKind,
-    preemption: boolean
-  ): void {
-    const setPreemption =
-      preemption === true ? "Enable preemption" : "Disable preemption";
-    TaskManager.open();
-    TaskManager.getTaskRow(applicationName, kind).find(sideKebabMenu).click();
-    cy.get(actionMenuItem).contains(setPreemption).click();
-  }
-
-  public static verifyPreemption(
-    applicationName: string,
-    kind: TaskKind,
-    preemption: boolean
-  ): void {
-    TaskManager.getTaskRow(applicationName, kind)
-      .find(TaskManagerColumns.preemption, { timeout: 10 * MIN })
-      .should("contain.text", preemption);
-  }
-
   public static cancelTask(status: string): void {
     cy.contains(status)
       .closest(trTag)
@@ -163,6 +141,8 @@ export class TaskManager {
     TaskManager.verifyTaskStatus(appName, taskKind, taskStatus);
     TaskManager.getTaskRow(appName, taskKind)
       .find(TaskManagerColumns.status)
+      .find("a")
+      .should("be.visible")
       .click();
     taskDetailsSanity(appName, taskKind, taskStatus);
   }

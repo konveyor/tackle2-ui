@@ -1470,6 +1470,48 @@ export function deleteApplicationTableRows(): void {
   selectItemsPerPage(100);
   deleteAllItems();
 }
+
+export function deleteBulkApplicationsByApi(appIds: number[]): void {
+  cy.uiEnvironmentConfig().then((env) => {
+    if (env["AUTH_REQUIRED"] === "true") {
+      // Get token via login API
+      cy.request({
+        method: "POST",
+        url: `${getUrl()}/hub/auth/login`,
+        body: {
+          user: Cypress.env("user"),
+          password: Cypress.env("pass"),
+        },
+      }).then((loginResponse) => {
+        const token = loginResponse.body.token;
+        cy.request({
+          method: "DELETE",
+          url: `${getUrl()}/hub/applications`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: appIds,
+          failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.eq(204);
+        });
+      });
+    } else {
+      // Auth disabled
+      cy.request({
+        method: "DELETE",
+        url: `${getUrl()}/hub/applications`,
+        headers: { "Content-Type": "application/json" },
+        body: appIds,
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(204);
+      });
+    }
+  });
+}
+
 export function validatePageTitle(pageTitle: string) {
   return cy.get("h1").then((h1) => {
     return h1.text().includes(pageTitle);
