@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import { objectify } from "radash";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
-import { AnalysisProfile } from "@app/api/models";
+import { AnalysisProfile, New } from "@app/api/models";
 import {
   createAnalysisProfile,
   deleteAnalysisProfile,
@@ -64,16 +64,18 @@ export const useFetchAnalysisProfileById = (
 
 export const useCreateAnalysisProfileMutation = (
   onSuccess: (profile: AnalysisProfile) => void,
-  onError: (err: AxiosError) => void
+  onError: (err: AxiosError, errorPayload: New<AnalysisProfile>) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createAnalysisProfile,
-    onSuccess: (profile) => {
-      queryClient.invalidateQueries({
-        queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
-      });
+    onSuccess: async (profile) => {
+      await Promise.allSettled([
+        queryClient.invalidateQueries({
+          queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
+        }),
+      ]);
       onSuccess(profile);
     },
     onError: onError,
@@ -88,13 +90,15 @@ export const useUpdateAnalysisProfileMutation = (
 
   return useMutation({
     mutationFn: updateAnalysisProfile,
-    onSuccess: (_, updatedProfile) => {
-      queryClient.invalidateQueries({
-        queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(updatedProfile.id)],
-      });
+    onSuccess: async (_, updatedProfile) => {
+      await Promise.allSettled([
+        queryClient.invalidateQueries({
+          queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(updatedProfile.id)],
+        }),
+      ]);
       onSuccess(updatedProfile);
     },
     onError: onError,
@@ -109,13 +113,15 @@ export const useDeleteAnalysisProfileMutation = (
 
   return useMutation({
     mutationFn: (profile: AnalysisProfile) => deleteAnalysisProfile(profile.id),
-    onSuccess: (_, profile) => {
-      queryClient.invalidateQueries({
-        queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(profile.id)],
-      });
+    onSuccess: async (_, profile) => {
+      await Promise.allSettled([
+        queryClient.invalidateQueries({
+          queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(profile.id)],
+        }),
+      ]);
       onSuccess(profile);
     },
     onError: onError,

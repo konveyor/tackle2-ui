@@ -1,12 +1,31 @@
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
-import { Application, Target, TargetLabel, UploadFile } from "@app/api/models";
+import {
+  AnalysisProfile,
+  Application,
+  Target,
+  TargetLabel,
+  UploadFile,
+} from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 import { useAnalyzableApplicationsByMode } from "./utils";
 
-// Analysis mode
+// Wizard flow mode - Manual vs Analysis Profile
+export type WizardFlowMode = "manual" | "profile";
+
+export interface WizardFlowModeValues {
+  flowMode: WizardFlowMode;
+  selectedProfile: AnalysisProfile | null;
+}
+
+export interface WizardFlowModeState extends WizardFlowModeValues {
+  isValid: boolean;
+}
+
+// Analysis mode (source)
 export const ANALYSIS_MODES = [
   "binary",
   "source-code",
@@ -165,19 +184,36 @@ export interface AdvancedOptionsValues {
   excludedLabels: string[];
   autoTaggingEnabled: boolean;
   advancedAnalysisEnabled: boolean;
+
+  saveAsProfile: boolean;
+  profileName?: string;
 }
 
 export interface AdvancedOptionsState extends AdvancedOptionsValues {
   isValid: boolean;
 }
 
-export const useAdvancedOptionsSchema =
-  (): yup.SchemaOf<AdvancedOptionsValues> => {
-    return yup.object({
-      additionalTargetLabels: yup.array().of(TargetLabelSchema),
-      additionalSourceLabels: yup.array().of(TargetLabelSchema),
-      excludedLabels: yup.array().of(yup.string().defined()),
-      autoTaggingEnabled: yup.bool().defined(),
-      advancedAnalysisEnabled: yup.bool().defined(),
-    });
-  };
+export const useAdvancedOptionsSchema = (
+  existingProfiles: AnalysisProfile[] = []
+): yup.SchemaOf<AdvancedOptionsValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    additionalTargetLabels: yup.array().of(TargetLabelSchema),
+    additionalSourceLabels: yup.array().of(TargetLabelSchema),
+    excludedLabels: yup.array().of(yup.string().defined()),
+    autoTaggingEnabled: yup.bool().defined(),
+    advancedAnalysisEnabled: yup.bool().defined(),
+    saveAsProfile: yup.bool().defined(),
+    profileName: yup.string().when("saveAsProfile", {
+      is: true,
+      then: (schema) =>
+        schema
+          .required()
+          .test(
+            "unique-name",
+            t("validation.duplicateAnalysisProfileName"),
+            (value) => duplicateNameCheck(existingProfiles, null, value ?? "")
+          ),
+    }),
+  });
+};

@@ -246,6 +246,8 @@ describe(
             .should("be.enabled")
             .click();
 
+          application.selectManualAnalysisMode();
+          next();
           application.selectSourceofAnalysis(application.source);
           cy.contains(button, "Next", { timeout: 200 }).click();
 
@@ -296,6 +298,8 @@ describe(
             .should("be.enabled")
             .click();
 
+          application.selectManualAnalysisMode();
+          next();
           application.selectSourceofAnalysis(application.source);
           cy.contains(button, "Next", { timeout: 200 }).click();
 

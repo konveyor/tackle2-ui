@@ -172,6 +172,11 @@ export class Analysis extends Application {
     if (ruleFileToQuantity) this.ruleFileToQuantity = ruleFileToQuantity;
   }
 
+  public selectManualAnalysisMode() {
+    cy.get("#wizard-mode-manual").check();
+    cy.get("#wizard-mode-manual").should("be.checked");
+  }
+
   public selectSourceofAnalysis(source: string): void {
     selectAnalysisMode(sourceDropdown, source);
   }
@@ -355,6 +360,10 @@ export class Analysis extends Application {
 
   private startAnalysis() {
     cy.contains(button, analyzeButton).should("be.enabled").click();
+
+    this.selectManualAnalysisMode();
+    next();
+
     this.selectSourceofAnalysis(this.source);
     if (this.binary) this.uploadBinary();
     this.isNextEnabled();
@@ -604,6 +613,8 @@ export class Analysis extends Application {
     Application.open();
     this.selectApplication();
     cy.contains(button, analyzeButton).should("be.enabled").click();
+    this.selectManualAnalysisMode();
+    next();
     this.selectSourceofAnalysis(this.source);
     next();
     next();
