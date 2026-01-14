@@ -236,10 +236,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             isNextDisabled: !state.options.isValid,
           }}
         >
-          <OptionsProfile
-            onStateChanged={setOptions}
-            initialState={state.options}
-          />
+          <OptionsProfile onStateChanged={setOptions} state={state.options} />
         </WizardStep>
 
         {/* Review Step - Always visible */}

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
@@ -18,7 +17,7 @@ import { AdvancedOptionsState } from "../schema";
 
 interface OptionsProfileProps {
   onStateChanged: (state: AdvancedOptionsState) => void;
-  initialState: AdvancedOptionsState;
+  state: AdvancedOptionsState;
 }
 
 /**
@@ -27,34 +26,25 @@ interface OptionsProfileProps {
  */
 export const OptionsProfile: React.FC<OptionsProfileProps> = ({
   onStateChanged,
-  initialState,
+  state,
 }) => {
   const { t } = useTranslation();
 
-  const [autoTaggingEnabled, setAutoTaggingEnabled] = React.useState(
-    initialState.autoTaggingEnabled
-  );
-  const [advancedAnalysisEnabled, setAdvancedAnalysisEnabled] = React.useState(
-    initialState.advancedAnalysisEnabled
-  );
-
-  // Notify parent of state changes
-  useEffect(() => {
+  const setAutoTaggingEnabled = (value: boolean) => {
     onStateChanged({
-      // Keep existing values for unused fields
-      ...initialState,
-      // Update the changeable values
-      autoTaggingEnabled,
-      advancedAnalysisEnabled,
-      // Always valid for this simplified step
+      ...state,
+      autoTaggingEnabled: value,
       isValid: true,
     });
-  }, [
-    initialState,
-    autoTaggingEnabled,
-    advancedAnalysisEnabled,
-    onStateChanged,
-  ]);
+  };
+
+  const setAdvancedAnalysisEnabled = (value: boolean) => {
+    onStateChanged({
+      ...state,
+      advancedAnalysisEnabled: value,
+      isValid: true,
+    });
+  };
 
   return (
     <Form
@@ -74,8 +64,8 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
         label={t("wizard.composed.enable", {
           what: t("wizard.terms.autoTagging").toLowerCase(),
         })}
-        isChecked={autoTaggingEnabled}
-        onChange={() => setAutoTaggingEnabled(!autoTaggingEnabled)}
+        isChecked={state.autoTaggingEnabled}
+        onChange={() => setAutoTaggingEnabled(!state.autoTaggingEnabled)}
         id="enable-auto-tagging-checkbox"
         name="autoTaggingEnabled"
       />
@@ -87,9 +77,9 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
             label={t("wizard.composed.enable", {
               what: t("wizard.terms.advancedAnalysisDetails").toLowerCase(),
             })}
-            isChecked={advancedAnalysisEnabled}
+            isChecked={state.advancedAnalysisEnabled}
             onChange={() =>
-              setAdvancedAnalysisEnabled(!advancedAnalysisEnabled)
+              setAdvancedAnalysisEnabled(!state.advancedAnalysisEnabled)
             }
             id="enable-advanced-analysis-details-checkbox"
             name="advancedAnalysisEnabled"
