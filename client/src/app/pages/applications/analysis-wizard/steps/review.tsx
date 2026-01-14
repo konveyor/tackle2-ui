@@ -5,6 +5,8 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
+  Flex,
+  FlexItem,
   Label,
   LabelGroup,
   List,
@@ -238,35 +240,51 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>Target rule labels</DescriptionListTerm>
           <DescriptionListDescription id="target-target-labels">
-            <List isPlain>
+            <Flex direction={{ default: "row" }}>
               {targetParsedLabels
                 .filter(({ labels }) => labels.target.length > 0)
                 .map(({ target, labels }) => (
-                  <ListItem key={target.id}>
+                  <FlexItem key={target.id}>
                     <GroupOfLabels
                       groupName={target.name}
                       items={labels.target}
                     />
-                  </ListItem>
+                  </FlexItem>
                 ))}
-            </List>
+              {customRules.customLabels.length > 0 && (
+                <FlexItem key="custom-target-labels">
+                  <GroupOfLabels
+                    groupName="Manual custom rules"
+                    items={parseAndGroupLabels(customRules.customLabels).target}
+                  />
+                </FlexItem>
+              )}
+            </Flex>
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>Source rule labels</DescriptionListTerm>
           <DescriptionListDescription id="target-source-labels">
-            <List isPlain>
+            <Flex direction={{ default: "row" }}>
               {targetParsedLabels
                 .filter(({ labels }) => labels.source.length > 0)
                 .map(({ target, labels }) => (
-                  <ListItem key={target.id}>
+                  <FlexItem key={target.id}>
                     <GroupOfLabels
                       groupName={target.name}
                       items={labels.source}
                     />
-                  </ListItem>
+                  </FlexItem>
                 ))}
-            </List>
+              {customRules.customLabels.length > 0 && (
+                <FlexItem key="custom-source-labels">
+                  <GroupOfLabels
+                    groupName="Manual custom rules"
+                    items={parseAndGroupLabels(customRules.customLabels).source}
+                  />
+                </FlexItem>
+              )}
+            </Flex>
           </DescriptionListDescription>
         </DescriptionListGroup>
 

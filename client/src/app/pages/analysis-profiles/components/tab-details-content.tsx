@@ -130,6 +130,14 @@ export const TabDetailsContent: React.FC<{
 
   // Fetch all targets to cross-reference with the profile's target refs
 
+  const ruleLabelsIncluded =
+    analysisProfile.rules?.labels?.included?.slice(0) ?? [];
+  ruleLabelsIncluded.sort();
+
+  const ruleLabelsExcluded =
+    analysisProfile.rules?.labels?.excluded?.slice(0) ?? [];
+  ruleLabelsExcluded.sort();
+
   return (
     <DrawerTabContent>
       {/* Description */}
@@ -234,11 +242,8 @@ export const TabDetailsContent: React.FC<{
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.included")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {(analysisProfile.rules?.labels?.included?.length ?? 0) > 0 ? (
-                <StringLabels
-                  items={analysisProfile.rules?.labels?.included}
-                  color="green"
-                />
+              {ruleLabelsIncluded.length > 0 ? (
+                <StringLabels items={ruleLabelsIncluded} color="green" />
               ) : (
                 <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
@@ -247,11 +252,8 @@ export const TabDetailsContent: React.FC<{
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.excluded")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {(analysisProfile.rules?.labels?.excluded?.length ?? 0) > 0 ? (
-                <StringLabels
-                  items={analysisProfile.rules?.labels?.excluded}
-                  color="grey"
-                />
+              {ruleLabelsExcluded.length > 0 ? (
+                <StringLabels items={ruleLabelsExcluded} color="grey" />
               ) : (
                 <EmptyTextMessage message={t("analysisProfiles.none")} />
               )}
