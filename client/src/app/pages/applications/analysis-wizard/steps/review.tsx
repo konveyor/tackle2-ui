@@ -18,15 +18,14 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Application } from "@app/api/models";
+import { GroupOfLabels } from "@app/components/analysis/components/group-of-labels";
+import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
+import { AnalysisMode } from "@app/components/analysis/steps/analysis-source";
+import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
+import { AdvancedOptionsState } from "@app/components/analysis/steps/options-advanced";
+import { SetTargetsState } from "@app/components/analysis/steps/set-targets";
 import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
-import { GroupOfLabels } from "../components/group-of-labels";
-
-import { AnalysisScopeState } from "./analysis-scope";
-import { AnalysisMode } from "./analysis-source";
-import { CustomRulesStepState } from "./custom-rules";
-import { AdvancedOptionsState } from "./options-manual";
-import { SetTargetsState } from "./set-targets";
 import { WizardFlowMode } from "./wizard-mode";
 
 interface ReviewProps {

@@ -50,7 +50,7 @@ import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 
-import { UploadNewRulesFiles } from "../components/upload-new-rules-files";
+import { UploadRulesFiles } from "../components/upload-rules-files";
 
 export interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";
@@ -131,7 +131,12 @@ const buildSetOfTargetLabelsFromUploadFiles = (
 };
 
 interface CustomRulesProps {
-  ensureTaskGroup: () => Promise<Taskgroup>;
+  /**
+   * Optional function to ensure a taskgroup exists for file uploads.
+   * When provided (analysis wizard), files are uploaded to the taskgroup.
+   * When omitted (profile wizard), files are uploaded as standard hub files.
+   */
+  ensureTaskGroup?: () => Promise<Taskgroup>;
   isCustomRuleRequired: boolean;
   onStateChanged: (state: CustomRulesStepState) => void;
   initialState: CustomRulesStepState;
@@ -148,8 +153,10 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   const [taskgroupId, setTaskgroupId] = React.useState<number | undefined>(
     undefined
   );
+
   const onShowUploadFiles = async (show: boolean) => {
-    if (show && taskgroupId === undefined) {
+    // Only request a taskgroup if ensureTaskGroup is provided and we don't have one yet
+    if (show && ensureTaskGroup && taskgroupId === undefined) {
       const taskgroup = await ensureTaskGroup();
       setTaskgroupId(taskgroup.id);
     }
@@ -498,7 +505,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
         </>
       )}
 
-      <UploadNewRulesFiles
+      <UploadRulesFiles
         key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
         taskgroupId={taskgroupId}

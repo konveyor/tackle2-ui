@@ -2,19 +2,11 @@ import { useCallback, useState } from "react";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
 
-// import {
-//   AdvancedOptionsState,
-//   AnalysisModeState,
-//   AnalysisScopeState,
-//   CustomRulesStepState,
-//   SetTargetsState,
-// } from "./schema";
-
-type AdvancedOptionsState = { isValid: boolean };
-type AnalysisModeState = { isValid: boolean };
-type AnalysisScopeState = { isValid: boolean };
-type CustomRulesStepState = { isValid: boolean };
-type SetTargetsState = { isValid: boolean };
+import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
+import { AnalysisModeState } from "@app/components/analysis/steps/analysis-source";
+import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
+import { AdvancedOptionsState } from "@app/components/analysis/steps/options-advanced";
+import { SetTargetsState } from "@app/components/analysis/steps/set-targets";
 
 export interface WizardState {
   mode: AnalysisModeState;
@@ -27,35 +19,38 @@ export interface WizardState {
 
 const INITIAL_WIZARD_STATE: WizardState = {
   mode: {
-    // mode: "source-code-deps",
-    // artifact: null,
-    isValid: false,
+    mode: "source-code-deps",
+    artifact: null,
+    isValid: true, // For profile wizard, mode is always valid (no application validation)
   },
   targets: {
-    // selectedTargets: [],
-    // targetStatus: {},
+    selectedTargets: [],
+    targetStatus: {},
     isValid: true, // Targets are optional
   },
   scope: {
-    // withKnownLibs: "app",
-    // includedPackages: [],
-    // hasExcludedPackages: false,
-    // excludedPackages: [],
+    withKnownLibs: "app",
+    includedPackages: [],
+    hasExcludedPackages: false,
+    excludedPackages: [],
     isValid: true,
   },
   customRules: {
-    // rulesKind: "manual",
-    // customRulesFiles: [],
-    // customLabels: [],
-    isValid: false, // Custom rules are initially required since no targets are initially selected
+    rulesKind: "manual",
+    customRulesFiles: [],
+    customLabels: [],
+    isValid: true, // Custom rules are optional for profiles
   },
   options: {
-    // additionalTargetLabels: [],
-    // additionalSourceLabels: [],
-    // excludedLabels: [],
+    additionalTargetLabels: [],
+    additionalSourceLabels: [],
+    excludedLabels: [],
+    autoTaggingEnabled: true,
+    advancedAnalysisEnabled: false,
+    saveAsProfile: false, // Not used in profile wizard
     isValid: true,
   },
-  isValid: false,
+  isValid: true, // Start as valid since profile can be empty
 };
 
 type WizardAction =
@@ -92,7 +87,7 @@ const wizardReducer = (
     }
   }
 
-  // Validate and update isReady state after any change
+  // Validate and update isValid state after any change
   draft.isValid =
     draft.mode.isValid &&
     draft.targets.isValid &&

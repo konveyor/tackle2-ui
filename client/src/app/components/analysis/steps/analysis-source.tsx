@@ -15,9 +15,7 @@ import { Application, Taskgroup } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-
-import { UploadApplicationBinary } from "../components/upload-application-binary";
-import { isModeSupported, useAnalyzableApplicationsByMode } from "../utils";
+import { isNotEmptyString } from "@app/utils/utils";
 
 // Analysis mode (source)
 export const ANALYSIS_MODES = [
@@ -38,20 +36,75 @@ export interface AnalysisModeState extends AnalysisModeValues {
   isValid: boolean;
 }
 
+/**
+ * Check if an application supports a given analysis mode
+ */
+export const isModeSupported = (application: Application, mode?: string) => {
+  switch (mode) {
+    case "binary-upload":
+      return true;
+
+    case "binary":
+      return /.+:.+:.+/.test(application?.binary ?? "");
+
+    case "source-code-deps":
+      return isNotEmptyString(application?.repository?.url);
+
+    case "source-code":
+      return isNotEmptyString(application?.repository?.url);
+  }
+
+  return false;
+};
+
+/**
+ * Filter applications by analysis mode
+ */
+const filterAnalyzableApplications = (
+  applications: Application[],
+  mode: AnalysisMode
+) => applications.filter((application) => isModeSupported(application, mode));
+
+/**
+ * Get analyzable applications grouped by mode
+ */
+export const useAnalyzableApplicationsByMode = (
+  applications: Application[]
+): Record<AnalysisMode, Application[]> =>
+  React.useMemo(
+    () =>
+      ANALYSIS_MODES.reduce(
+        (record, mode) => ({
+          ...record,
+          [mode]: filterAnalyzableApplications(applications, mode),
+        }),
+        {} as Record<AnalysisMode, Application[]>
+      ),
+    [applications]
+  );
+
 export const useAnalysisModeSchema = ({
   applications,
   messageNotCompatible,
 }: {
-  applications: Application[];
+  applications?: Application[];
   messageNotCompatible: string;
 }): yup.SchemaOf<AnalysisModeValues> => {
   const { t } = useTranslation();
-  const analyzableAppsByMode = useAnalyzableApplicationsByMode(applications);
+  const analyzableAppsByMode = useAnalyzableApplicationsByMode(
+    applications ?? []
+  );
+
   return yup.object({
     mode: yup
       .mixed<AnalysisMode>()
       .required(t("validation.required"))
       .test("isModeCompatible", messageNotCompatible, (mode) => {
+        // When no applications are provided (profile wizard), all modes are valid
+        if (!applications || applications.length === 0) {
+          return true;
+        }
+
         const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
         return mode === "binary-upload"
           ? analyzableApplications.length === 1
@@ -65,17 +118,38 @@ export const useAnalysisModeSchema = ({
 };
 
 interface AnalysisSourceProps {
-  applications: Application[];
-  ensureTaskGroup: () => Promise<Taskgroup>;
+  /**
+   * Optional applications for context-aware mode validation.
+   * When provided (analysis wizard), validates mode compatibility with applications.
+   * When omitted (profile wizard), all modes are valid and binary-upload is hidden.
+   */
+  applications?: Application[];
+
+  /**
+   * Optional function to ensure a taskgroup exists for binary upload.
+   * Required when binary-upload mode should be available.
+   */
+  ensureTaskGroup?: () => Promise<Taskgroup>;
+
   onStateChanged: (state: AnalysisModeState) => void;
   initialState: AnalysisModeState;
+
+  /**
+   * Optional render prop for binary upload UI.
+   * When provided and mode is "binary-upload", this component is rendered.
+   * This allows the parent to inject the binary upload component with taskgroup context.
+   */
+  renderBinaryUpload?: (props: {
+    artifact: File | undefined | null;
+    onArtifactChange: (artifact: File | null) => void;
+  }) => React.ReactNode;
 }
 
 export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   applications,
-  ensureTaskGroup,
   onStateChanged,
   initialState,
+  renderBinaryUpload,
 }) => {
   const { t } = useTranslation();
 
@@ -100,8 +174,15 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
     name: ["mode", "artifact"],
   });
 
-  const isModeValid = applications.every((app) => isModeSupported(app, mode));
-  const isSingleApp = applications.length === 1;
+  // When applications are provided, check mode validity
+  const isModeValid =
+    !applications ||
+    applications.length === 0 ||
+    applications.every((app) => isModeSupported(app, mode));
+
+  // Binary upload only available when applications are provided and there's exactly one
+  const isSingleApp = applications && applications.length === 1;
+  const showBinaryUpload = isSingleApp && !!renderBinaryUpload;
 
   const analysisOptions: SelectOptionProps[] = [
     {
@@ -116,7 +197,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
       value: "binary",
       children: "Binary",
     },
-    isSingleApp && {
+    showBinaryUpload && {
       value: "binary-upload",
       children: "Upload a local binary",
     },
@@ -172,15 +253,13 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         </Alert>
       )}
 
-      {mode === "binary-upload" && (
-        <UploadApplicationBinary
-          requestTaskgroupId={async () => (await ensureTaskGroup()).id}
-          artifact={artifact}
-          onArtifactChange={(artifact) =>
-            form.setValue("artifact", artifact, { shouldValidate: true })
-          }
-        />
-      )}
+      {mode === "binary-upload" &&
+        renderBinaryUpload &&
+        renderBinaryUpload({
+          artifact,
+          onArtifactChange: (artifact) =>
+            form.setValue("artifact", artifact, { shouldValidate: true }),
+        })}
     </Form>
   );
 };

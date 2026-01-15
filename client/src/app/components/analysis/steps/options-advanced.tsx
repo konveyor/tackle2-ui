@@ -38,8 +38,8 @@ import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import { duplicateNameCheck, getValidatedFromErrors } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
-import { useSourceLabels } from "../useSourceLabels";
-import { useTargetLabels } from "../useTargetLabels";
+import { useSourceLabels } from "../hooks/useSourceLabels";
+import { useTargetLabels } from "../hooks/useTargetLabels";
 
 import { CustomRulesStepState } from "./custom-rules";
 
@@ -59,9 +59,13 @@ export interface AdvancedOptionsState extends AdvancedOptionsValues {
   isValid: boolean;
 }
 
-export const useAdvancedOptionsSchema = (
-  existingProfiles: AnalysisProfile[] = []
-): yup.SchemaOf<AdvancedOptionsValues> => {
+export const useAdvancedOptionsSchema = ({
+  existingProfiles = [],
+  showSaveAsProfile = true,
+}: {
+  existingProfiles?: AnalysisProfile[];
+  showSaveAsProfile?: boolean;
+}): yup.SchemaOf<AdvancedOptionsValues> => {
   const { t } = useTranslation();
   return yup.object({
     additionalTargetLabels: yup.array().of(TargetLabelSchema),
@@ -73,34 +77,48 @@ export const useAdvancedOptionsSchema = (
     profileName: yup.string().when("saveAsProfile", {
       is: true,
       then: (schema) =>
-        schema
-          .required()
-          .test(
-            "unique-name",
-            t("validation.duplicateAnalysisProfileName"),
-            (value) => duplicateNameCheck(existingProfiles, null, value ?? "")
-          ),
+        showSaveAsProfile
+          ? schema
+              .required()
+              .test(
+                "unique-name",
+                t("validation.duplicateAnalysisProfileName"),
+                (value) =>
+                  duplicateNameCheck(existingProfiles, null, value ?? "")
+              )
+          : schema, // When not showing save as profile, no validation needed
     }),
   });
 };
 
-interface OptionsManualProps {
+interface OptionsAdvancedProps {
   selectedTargets: [Target, TargetLabel | null][];
   customRules: CustomRulesStepState;
   onStateChanged: (state: AdvancedOptionsState) => void;
   initialState: AdvancedOptionsState;
+
+  /**
+   * Whether to show the "Save as profile" section.
+   * Defaults to true (analysis wizard behavior).
+   * Set to false for profile wizard where the profile is being directly edited.
+   */
+  showSaveAsProfile?: boolean;
 }
 
-export const OptionsManual: React.FC<OptionsManualProps> = ({
+export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   selectedTargets,
   customRules,
   onStateChanged,
   initialState,
+  showSaveAsProfile = true,
 }) => {
   const { t } = useTranslation();
   const { analysisProfiles } = useFetchAnalysisProfiles();
 
-  const schema = useAdvancedOptionsSchema(analysisProfiles);
+  const schema = useAdvancedOptionsSchema({
+    existingProfiles: analysisProfiles,
+    showSaveAsProfile,
+  });
   const form = useForm<AdvancedOptionsValues>({
     defaultValues: {
       additionalTargetLabels: initialState.additionalTargetLabels,
@@ -343,7 +361,7 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
         className={spacing.mtMd}
       />
 
-      {canSaveAsProfile && (
+      {showSaveAsProfile && canSaveAsProfile && (
         <>
           <Checkbox
             className={spacing.mtMd}
@@ -402,3 +420,6 @@ export const OptionsManual: React.FC<OptionsManualProps> = ({
     </Form>
   );
 };
+
+// Re-export with original name for backward compatibility
+export { OptionsAdvanced as OptionsManual };

@@ -10,16 +10,17 @@ import {
 } from "@patternfly/react-core";
 
 import { Application } from "@app/api/models";
+import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
+import { AnalysisSource } from "@app/components/analysis/steps/analysis-source";
+import { CustomRules } from "@app/components/analysis/steps/custom-rules";
+import { OptionsManual } from "@app/components/analysis/steps/options-advanced";
+import { SetTargets } from "@app/components/analysis/steps/set-targets";
 import { useFetchIdentities } from "@app/queries/identities";
 import { isNotEmptyString } from "@app/utils/utils";
 
-import { AnalysisScope } from "./steps/analysis-scope";
-import { AnalysisSource } from "./steps/analysis-source";
-import { CustomRules } from "./steps/custom-rules";
-import { OptionsManual } from "./steps/options-manual";
+import { UploadApplicationBinary } from "./components/upload-application-binary";
 import { OptionsProfile } from "./steps/options-profile";
 import { Review } from "./steps/review";
-import { SetTargets } from "./steps/set-targets";
 import { WizardMode } from "./steps/wizard-mode";
 import { useSaveAnalysisProfile } from "./useSaveAnalysisProfile";
 import { useTaskGroupManager } from "./useTaskGroupManager";
@@ -148,6 +149,15 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 ensureTaskGroup={ensureTaskGroup}
                 onStateChanged={setMode}
                 initialState={state.mode}
+                renderBinaryUpload={({ artifact, onArtifactChange }) => (
+                  <UploadApplicationBinary
+                    requestTaskgroupId={async () =>
+                      (await ensureTaskGroup()).id
+                    }
+                    artifact={artifact}
+                    onArtifactChange={onArtifactChange}
+                  />
+                )}
               />
             </WizardStep>,
             <WizardStep
