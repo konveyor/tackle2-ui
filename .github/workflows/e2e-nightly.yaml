@@ -16,6 +16,7 @@ jobs:
       max-parallel: 1
       matrix:
         test_tags:
+          - "@ci"
           - "@tier0"
           - "@tier2"
           - "@tier3"
