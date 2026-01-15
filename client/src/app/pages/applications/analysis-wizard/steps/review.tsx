@@ -229,8 +229,11 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {targetParsedLabels.map(({ target }) => (
-                <ListItem key={target.id}>{target.name}</ListItem>
+              {targets.selectedTargets.map(([target, label]) => (
+                <ListItem key={target.id}>
+                  {target.name}
+                  {target.choice && label && ` (${label.name})`}
+                </ListItem>
               ))}
             </List>
           </DescriptionListDescription>
