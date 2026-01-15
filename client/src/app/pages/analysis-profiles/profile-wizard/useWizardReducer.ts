@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
 
-import { AnalysisProfile } from "@app/api/models";
 import { AnalysisLabelsState } from "@app/components/analysis/steps/analysis-labels";
 import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
 import { AnalysisModeState } from "@app/components/analysis/steps/analysis-source";
@@ -59,56 +58,6 @@ const INITIAL_WIZARD_STATE: WizardState = {
   isValid: true, // Start as valid since profile can be empty
 };
 
-const initialFromAnalysisProfile = (
-  analysisProfile: AnalysisProfile | null | undefined
-): InitialStateRecipe | undefined => {
-  if (!analysisProfile) {
-    return undefined;
-  }
-
-  const recipe: InitialStateRecipe = (draft) => {
-    // profile details
-    draft.profileDetails.name = analysisProfile.name;
-    draft.profileDetails.description = analysisProfile.description;
-
-    // mode
-    draft.mode.mode = analysisProfile.mode.withDeps
-      ? "source-code-deps"
-      : "source-code";
-
-    // targets
-    if (analysisProfile.rules?.targets) {
-      draft.targets.targetStatus = analysisProfile.rules.targets.reduce(
-        (acc, target) => ({
-          ...acc,
-          [target.id]: {
-            target,
-            isSelected: true,
-            // TODO: This isn't quite right, a target's label does not have to have a name
-            //       that maps to the label itself. The name is a display name. We store and
-            //       send the label, but show the name to the user.
-            choiceTargetLabel: target.selection
-              ? { name: target.selection, label: target.selection }
-              : null,
-          },
-        }),
-        {}
-      );
-
-      draft.targets.selectedTargets = Object.values(draft.targets.targetStatus)
-        .filter((status) => status.isSelected)
-        .map((status) => [status.target, status.choiceTargetLabel ?? null]);
-    }
-
-    // scope
-
-    // custom rules
-
-    // labels
-  };
-  return recipe;
-};
-
 type WizardAction =
   | { type: "SET_PROFILE_DETAILS"; payload: ProfileDetailsState }
   | { type: "SET_MODE"; payload: AnalysisModeState }
@@ -124,6 +73,9 @@ const wizardReducer = (
 ): WizardState | void => {
   if (action) {
     switch (action.type) {
+      case "SET_PROFILE_DETAILS":
+        draft.profileDetails = action.payload;
+        break;
       case "SET_MODE":
         draft.mode = action.payload;
         break;
@@ -146,6 +98,7 @@ const wizardReducer = (
 
   // Validate and update isValid state after any change
   draft.isValid =
+    draft.profileDetails.isValid &&
     draft.mode.isValid &&
     draft.targets.isValid &&
     draft.scope.isValid &&
@@ -155,17 +108,11 @@ const wizardReducer = (
 
 export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 
-const useImmerInitialState = (
-  init?: InitialStateRecipe | AnalysisProfile
-): WizardState => {
+const useImmerInitialState = (init?: InitialStateRecipe): WizardState => {
   const [initialState] = useState(() =>
     produce(INITIAL_WIZARD_STATE, (draft) => {
-      if (init) {
-        if (init instanceof Function) {
-          init(draft);
-        } else {
-          initialFromAnalysisProfile(init)?.(draft);
-        }
+      if (init && typeof init === "function") {
+        init(draft);
       }
       wizardReducer(draft);
     })
@@ -173,11 +120,8 @@ const useImmerInitialState = (
   return initialState;
 };
 
-export const useWizardReducer = (
-  init?: InitialStateRecipe | AnalysisProfile
-) => {
+export const useWizardReducer = (init?: InitialStateRecipe) => {
   const firstInitialState = useImmerInitialState(init);
-
   const [state, dispatch] = useImmerReducer(wizardReducer, firstInitialState);
 
   // Create stable callbacks using useCallback

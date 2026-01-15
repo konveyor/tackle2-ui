@@ -17,19 +17,13 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AnalysisProfile } from "@app/api/models";
 import { GroupOfLabels } from "@app/components/analysis/components/group-of-labels";
-import { AnalysisLabelsState } from "@app/components/analysis/steps/analysis-labels";
-import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
-import { AnalysisModeState } from "@app/components/analysis/steps/analysis-source";
 import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
-import { SetTargetsState } from "@app/components/analysis/steps/set-targets";
 import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
 import { WizardState } from "../useWizardReducer";
 
 interface ReviewProps {
-  analysisProfile: AnalysisProfile | null;
   state: WizardState;
 }
 
@@ -47,40 +41,7 @@ const defaultScopes: Map<string, string> = new Map([
 ]);
 
 export const Review: React.FC<ReviewProps> = ({
-  analysisProfile,
-  state: { mode, targets, scope, customRules, labels },
-}) => {
-  const { t } = useTranslation();
-
-  // Manual mode review
-  return (
-    <ReviewManual
-      analysisProfile={analysisProfile}
-      mode={mode}
-      targets={targets}
-      scope={scope}
-      customRules={customRules}
-      labels={labels}
-    />
-  );
-};
-
-interface ReviewManualProps {
-  analysisProfile: AnalysisProfile | null;
-  mode: AnalysisModeState;
-  targets: SetTargetsState;
-  scope: AnalysisScopeState;
-  customRules: CustomRulesStepState;
-  labels: AnalysisLabelsState;
-}
-
-const ReviewManual: React.FC<ReviewManualProps> = ({
-  analysisProfile,
-  mode,
-  targets,
-  scope,
-  customRules,
-  labels,
+  state: { profileDetails, mode, targets, scope, customRules, labels },
 }) => {
   const { t } = useTranslation();
 
@@ -103,9 +64,18 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.name")}</DescriptionListTerm>
           <DescriptionListDescription id="name">
-            {analysisProfile?.name}
+            {profileDetails.name}
           </DescriptionListDescription>
         </DescriptionListGroup>
+
+        {profileDetails.description && (
+          <DescriptionListGroup>
+            <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
+            <DescriptionListDescription id="description">
+              {profileDetails.description}
+            </DescriptionListDescription>
+          </DescriptionListGroup>
+        )}
 
         {/* Mode */}
         <DescriptionListGroup>
@@ -124,8 +94,11 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListTerm>
           <DescriptionListDescription id="targets">
             <List isPlain>
-              {targetParsedLabels.map(({ target }) => (
-                <ListItem key={target.id}>{target.name}</ListItem>
+              {targets.selectedTargets.map(([target, label]) => (
+                <ListItem key={target.id}>
+                  {target.name}
+                  {target.choice && label && ` (${label.name})`}
+                </ListItem>
               ))}
             </List>
           </DescriptionListDescription>
@@ -258,7 +231,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
               what: t("wizard.terms.rulesTags").toLowerCase(),
             })}
           </DescriptionListTerm>
-          <DescriptionListDescription id="excluded-rules-tags">
+          <DescriptionListDescription id="excluded-rules-labels">
             <LabelGroup numLabels={5}>
               {labels.excludedLabels.map((tag) => (
                 <Label key={tag}>{tag}</Label>

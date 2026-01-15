@@ -19,7 +19,6 @@ import {
   RepositoryDetails,
 } from "@app/components/detail-drawer";
 import { useFetchTargets } from "@app/queries/targets";
-import { getParsedLabel } from "@app/utils/rules-utils";
 
 /** Helper to display a list of string labels */
 const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
@@ -63,7 +62,7 @@ const TargetsList: React.FC<{
         provider: fullTarget?.provider,
         selection:
           fullTarget?.choice && ref.selection
-            ? getParsedLabel(ref.selection).labelValue
+            ? fullTarget?.labels?.find((l) => l.label === ref.selection)?.name
             : undefined,
       };
     });

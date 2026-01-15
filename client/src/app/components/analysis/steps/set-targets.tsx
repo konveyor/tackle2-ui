@@ -30,7 +30,7 @@ import { universalComparator } from "@app/utils/utils";
 
 export interface SetTargetsValues {
   targetStatus: Record<
-    number,
+    string,
     {
       target: Target;
       isSelected: boolean;
@@ -149,7 +149,7 @@ export const SetTargets: FC<SetTargetsProps> = ({
   ) => {
     const nextTargetStatus = {
       ...targetStatus,
-      [target.id]: {
+      [String(target.id)]: {
         ...(targetStatus[target.id] ?? {}),
         target,
         isSelected: isSelecting,

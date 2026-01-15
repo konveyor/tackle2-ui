@@ -22,8 +22,10 @@ export interface ProfileDetailsState extends ProfileDetailsValues {
 
 export const useProfileDetailsSchema = ({
   existingProfiles = [],
+  currentProfile = null,
 }: {
   existingProfiles?: AnalysisProfile[];
+  currentProfile?: AnalysisProfile | null;
 }): yup.SchemaOf<ProfileDetailsValues> => {
   const { t } = useTranslation();
 
@@ -34,7 +36,8 @@ export const useProfileDetailsSchema = ({
       .test(
         "unique-name",
         t("validation.duplicateAnalysisProfileName"),
-        (value) => duplicateNameCheck(existingProfiles, null, value ?? "")
+        (value) =>
+          duplicateNameCheck(existingProfiles, currentProfile, value ?? "")
       ),
     description: yup
       .string()
@@ -43,11 +46,13 @@ export const useProfileDetailsSchema = ({
 };
 
 interface ProfileDetailsProps {
+  analysisProfile: AnalysisProfile | null;
   onStateChanged: (state: ProfileDetailsState) => void;
   initialState: ProfileDetailsState;
 }
 
 export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
+  analysisProfile,
   onStateChanged,
   initialState,
 }) => {
@@ -55,6 +60,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   const { analysisProfiles } = useFetchAnalysisProfiles();
   const schema = useProfileDetailsSchema({
     existingProfiles: analysisProfiles,
+    currentProfile: analysisProfile,
   });
   const form = useForm<ProfileDetailsValues>({
     defaultValues: {

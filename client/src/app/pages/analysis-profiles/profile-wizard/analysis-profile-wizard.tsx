@@ -1,12 +1,14 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Icon,
   Modal,
   ModalVariant,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { AnalysisProfile } from "@app/api/models";
 import { AnalysisLabels } from "@app/components/analysis/steps/analysis-labels";
@@ -19,6 +21,7 @@ import { isNotEmptyString } from "@app/utils/utils";
 import { ProfileDetails } from "./steps/profile-details";
 import { Review } from "./steps/review";
 import { useWizardReducer } from "./useWizardReducer";
+import { useWizardStateBuilder } from "./useWizardStateBuilder";
 
 interface AnalysisProfileWizardProps {
   analysisProfile: AnalysisProfile | null;
@@ -26,12 +29,33 @@ interface AnalysisProfileWizardProps {
   isOpen: boolean;
 }
 
+const WithValidity = ({
+  children,
+  isValid,
+}: {
+  children: React.ReactNode;
+  isValid: boolean;
+}) => {
+  return (
+    <div>
+      {isValid ? undefined : (
+        <Icon status="danger">
+          <ExclamationCircleIcon />
+        </Icon>
+      )}{" "}
+      {children}
+    </div>
+  );
+};
+
 export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
   analysisProfile = null,
   onClose,
   isOpen,
 }) => {
   const { t } = useTranslation();
+
+  const initialState = useWizardStateBuilder(analysisProfile);
 
   const {
     state,
@@ -42,7 +66,7 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
     setCustomRules,
     setLabels,
     reset,
-  } = useWizardReducer(analysisProfile ?? undefined);
+  } = useWizardReducer(initialState);
 
   const handleCancel = () => {
     // TODO: remove newly uploaded files from hub if necessary
@@ -99,9 +123,17 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
         <WizardStep
           key="step-profile-details"
           id="step-profile-details"
-          name={t("analysisProfileWizard.steps.profileDetails.stepTitle")}
+          name={
+            <WithValidity isValid={state.profileDetails.isValid}>
+              {t("analysisProfileWizard.steps.profileDetails.stepTitle")}
+            </WithValidity>
+          }
+          footer={{
+            isNextDisabled: !state.profileDetails.isValid,
+          }}
         >
           <ProfileDetails
+            analysisProfile={analysisProfile}
             onStateChanged={setProfileDetails}
             initialState={state.profileDetails}
           />
@@ -116,7 +148,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             <WizardStep
               key="step-configure-analysis-source"
               id="step-configure-analysis-source"
-              name={t("analysisProfileWizard.steps.analysisSource.stepTitle")}
+              name={
+                <WithValidity isValid={state.mode.isValid}>
+                  {t("analysisProfileWizard.steps.analysisSource.stepTitle")}
+                </WithValidity>
+              }
               footer={{
                 isNextDisabled: !state.mode.isValid,
               }}
@@ -131,7 +167,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             <WizardStep
               key="step-configure-set-targets"
               id="step-configure-set-targets"
-              name={t("analysisProfileWizard.steps.setTargets.stepTitle")}
+              name={
+                <WithValidity isValid={state.targets.isValid}>
+                  {t("analysisProfileWizard.steps.setTargets.stepTitle")}
+                </WithValidity>
+              }
               footer={{
                 isNextDisabled: !state.targets.isValid,
               }}
@@ -149,7 +189,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             <WizardStep
               key="step-configure-scope"
               id="step-configure-scope"
-              name={t("analysisProfileWizard.steps.scope.stepTitle")}
+              name={
+                <WithValidity isValid={state.scope.isValid}>
+                  {t("analysisProfileWizard.steps.scope.stepTitle")}
+                </WithValidity>
+              }
               footer={{
                 isNextDisabled: !state.scope.isValid,
               }}
@@ -171,7 +215,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             <WizardStep
               key="step-advanced-custom-rules"
               id="step-advanced-custom-rules"
-              name={t("analysisProfileWizard.steps.customRules.stepTitle")}
+              name={
+                <WithValidity isValid={state.customRules.isValid}>
+                  {t("analysisProfileWizard.steps.customRules.stepTitle")}
+                </WithValidity>
+              }
               footer={{
                 isNextDisabled: !state.customRules.isValid,
               }}
@@ -188,7 +236,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             <WizardStep
               key="step-advanced-labels"
               id="step-advanced-labels"
-              name={t("analysisProfileWizard.steps.labels.stepTitle")}
+              name={
+                <WithValidity isValid={state.labels.isValid}>
+                  {t("analysisProfileWizard.steps.labels.stepTitle")}
+                </WithValidity>
+              }
               footer={{
                 isNextDisabled: !state.labels.isValid,
               }}
@@ -216,7 +268,7 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
             onNext: onSubmit,
           }}
         >
-          <Review analysisProfile={analysisProfile} state={state} />
+          <Review state={state} />
         </WizardStep>
       </Wizard>
     </Modal>
