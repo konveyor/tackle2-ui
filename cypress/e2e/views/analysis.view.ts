@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const sourceDropdown = "#analysis-mode-toggle";
+export const sourceDropdown = "#analysis-source-toggle";
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";

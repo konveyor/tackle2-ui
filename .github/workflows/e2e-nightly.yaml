@@ -1,4 +1,4 @@
-name: e2e - run tier0 tests nightly
+name: e2e - run all(but analysis) tests nightly
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: e2e-tier0-nightly-${{ github.ref }}
+  group: e2e-nightly-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -15,7 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         test_tags:
-          - "@ci,@tier0"
+          - "@ci"
+          - "@tier0"
+          - "@tier2"
+          - "@tier3"
         feature_auth_required:
           - true
           - false
@@ -24,7 +27,7 @@ jobs:
             install_konveyor_version: main
             test: main
 
-    name: "Nightly ${{ matrix.feature_auth_required && 'auth' || 'noauth' }}, @${{ matrix.refs.test }}, ${{ matrix.test_tags }}"
+    name: "Nightly ${{ matrix.feature_auth_required && 'auth' || 'noauth' }}, test ref: ${{ matrix.refs.test }}, ${{ matrix.test_tags }}"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}

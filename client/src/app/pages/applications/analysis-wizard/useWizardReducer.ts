@@ -8,9 +8,11 @@ import {
   AnalysisScopeState,
   CustomRulesStepState,
   SetTargetsState,
+  WizardFlowModeState,
 } from "./schema";
 
 export interface WizardState {
+  flowMode: WizardFlowModeState;
   mode: AnalysisModeState;
   targets: SetTargetsState;
   scope: AnalysisScopeState;
@@ -20,6 +22,11 @@ export interface WizardState {
 }
 
 const INITIAL_WIZARD_STATE: WizardState = {
+  flowMode: {
+    flowMode: "manual",
+    selectedProfile: null,
+    isValid: true, // Manual mode is valid by default
+  },
   mode: {
     mode: "source-code-deps",
     artifact: null,
@@ -49,12 +56,14 @@ const INITIAL_WIZARD_STATE: WizardState = {
     excludedLabels: [],
     autoTaggingEnabled: true,
     advancedAnalysisEnabled: false,
+    saveAsProfile: false,
     isValid: true,
   },
   isReady: false,
 };
 
 type WizardAction =
+  | { type: "SET_FLOW_MODE"; payload: WizardFlowModeState }
   | { type: "SET_MODE"; payload: AnalysisModeState }
   | { type: "SET_TARGETS"; payload: SetTargetsState }
   | { type: "SET_SCOPE"; payload: AnalysisScopeState }
@@ -68,6 +77,9 @@ const wizardReducer = (
 ): WizardState | void => {
   if (action) {
     switch (action.type) {
+      case "SET_FLOW_MODE":
+        draft.flowMode = action.payload;
+        break;
       case "SET_MODE":
         draft.mode = action.payload;
         break;
@@ -89,13 +101,19 @@ const wizardReducer = (
   }
 
   // Validate and update isReady state after any change
-  // At minimum, mode must be valid
-  draft.isReady =
-    draft.mode.isValid &&
-    draft.targets.isValid &&
-    draft.scope.isValid &&
-    draft.customRules.isValid &&
-    draft.options.isValid;
+  // Profile mode: only flowMode and options need to be valid
+  // Manual mode: all steps must be valid
+  if (draft.flowMode.flowMode === "profile") {
+    draft.isReady = draft.flowMode.isValid && draft.options.isValid;
+  } else {
+    draft.isReady =
+      draft.flowMode.isValid &&
+      draft.mode.isValid &&
+      draft.targets.isValid &&
+      draft.scope.isValid &&
+      draft.customRules.isValid &&
+      draft.options.isValid;
+  }
 };
 
 export type InitialStateRecipe = (draftInitialState: WizardState) => void;
@@ -121,6 +139,13 @@ export const useWizardReducer = (init?: InitialStateRecipe) => {
   const [state, dispatch] = useImmerReducer(wizardReducer, firstInitialState);
 
   // Create stable callbacks using useCallback
+  const setFlowMode = useCallback(
+    (flowMode: WizardFlowModeState) => {
+      dispatch({ type: "SET_FLOW_MODE", payload: flowMode });
+    },
+    [dispatch]
+  );
+
   const setMode = useCallback(
     (mode: AnalysisModeState) => {
       dispatch({ type: "SET_MODE", payload: mode });
@@ -162,6 +187,7 @@ export const useWizardReducer = (init?: InitialStateRecipe) => {
 
   return {
     state,
+    setFlowMode,
     setMode,
     setTargets,
     setScope,

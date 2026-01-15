@@ -58,9 +58,36 @@ const initTask = (application: Application): TaskgroupTask => {
 };
 
 /**
- * Build the taskgroup data from wizard state
+ * Build the taskgroup data from wizard state for profile-based analysis.
+ * Only includes the profile ID and tagger/verbosity settings.
  */
-const buildTaskgroupData = (
+const buildProfileTaskgroupData = (
+  currentTaskgroup: Taskgroup,
+  wizardState: WizardState,
+  analyzableApplications: Application[]
+): Taskgroup => {
+  if (!wizardState.flowMode.selectedProfile) {
+    throw new Error("Profile mode requires a selected profile");
+  }
+
+  return {
+    ...currentTaskgroup,
+    tasks: analyzableApplications.map(initTask),
+    data: {
+      tagger: {
+        enabled: wizardState.options.autoTaggingEnabled,
+      },
+      verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
+      profile: toRef(wizardState.flowMode.selectedProfile),
+      // mode, scope, and rules are NOT included - hub will use the profile's settings
+    },
+  };
+};
+
+/**
+ * Build the taskgroup data from wizard state for manual analysis.
+ */
+const buildManualTaskgroupData = (
   currentTaskgroup: Taskgroup,
   wizardState: WizardState,
   analyzableApplications: Application[],
@@ -104,6 +131,7 @@ const buildTaskgroupData = (
         enabled: wizardState.options.autoTaggingEnabled,
       },
       verbosity: wizardState.options.advancedAnalysisEnabled ? 1 : 0,
+
       mode: {
         withDeps: wizardState.mode.mode === "source-code-deps",
         binary: wizardState.mode.mode.includes("binary"),
@@ -111,8 +139,6 @@ const buildTaskgroupData = (
           ? `/binary/${wizardState.mode.artifact.name}`
           : "",
       },
-      // targets?
-      // sources?
       scope: {
         withKnownLibs: wizardState.scope.withKnownLibs.includes("oss"),
         packages: {
@@ -124,7 +150,6 @@ const buildTaskgroupData = (
             : [],
         },
       },
-
       rules: {
         // custom rules uploaded files
         path:
@@ -158,6 +183,32 @@ const buildTaskgroupData = (
       },
     },
   };
+};
+
+/**
+ * Build the taskgroup data from wizard state.
+ * Routes to profile or manual build function based on flowMode.
+ */
+const buildTaskgroupData = (
+  currentTaskgroup: Taskgroup,
+  wizardState: WizardState,
+  analyzableApplications: Application[],
+  identities: Identity[]
+): Taskgroup => {
+  if (wizardState.flowMode.flowMode === "profile") {
+    return buildProfileTaskgroupData(
+      currentTaskgroup,
+      wizardState,
+      analyzableApplications
+    );
+  }
+
+  return buildManualTaskgroupData(
+    currentTaskgroup,
+    wizardState,
+    analyzableApplications,
+    identities
+  );
 };
 
 export const useTaskGroupManager = () => {
