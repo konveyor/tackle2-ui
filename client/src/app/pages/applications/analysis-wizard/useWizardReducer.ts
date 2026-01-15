@@ -2,14 +2,12 @@ import { useCallback, useState } from "react";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
 
-import {
-  AdvancedOptionsState,
-  AnalysisModeState,
-  AnalysisScopeState,
-  CustomRulesStepState,
-  SetTargetsState,
-  WizardFlowModeState,
-} from "./schema";
+import { AnalysisScopeState } from "./steps/analysis-scope";
+import { AnalysisModeState } from "./steps/analysis-source";
+import { CustomRulesStepState } from "./steps/custom-rules";
+import { AdvancedOptionsState } from "./steps/options-manual";
+import { SetTargetsState } from "./steps/set-targets";
+import { WizardFlowModeState } from "./steps/wizard-mode";
 
 export interface WizardState {
   flowMode: WizardFlowModeState;

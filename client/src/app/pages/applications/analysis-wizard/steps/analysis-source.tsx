@@ -2,6 +2,7 @@ import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   Alert,
   Form,
@@ -16,12 +17,52 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 
 import { UploadApplicationBinary } from "../components/upload-application-binary";
-import {
-  AnalysisModeState,
-  AnalysisModeValues,
-  useAnalysisModeSchema,
-} from "../schema";
-import { isModeSupported } from "../utils";
+import { isModeSupported, useAnalyzableApplicationsByMode } from "../utils";
+
+// Analysis mode (source)
+export const ANALYSIS_MODES = [
+  "binary",
+  "source-code",
+  "source-code-deps",
+  "binary-upload",
+] as const;
+
+export type AnalysisMode = (typeof ANALYSIS_MODES)[number];
+
+export interface AnalysisModeValues {
+  mode: AnalysisMode;
+  artifact: File | undefined | null;
+}
+
+export interface AnalysisModeState extends AnalysisModeValues {
+  isValid: boolean;
+}
+
+export const useAnalysisModeSchema = ({
+  applications,
+  messageNotCompatible,
+}: {
+  applications: Application[];
+  messageNotCompatible: string;
+}): yup.SchemaOf<AnalysisModeValues> => {
+  const { t } = useTranslation();
+  const analyzableAppsByMode = useAnalyzableApplicationsByMode(applications);
+  return yup.object({
+    mode: yup
+      .mixed<AnalysisMode>()
+      .required(t("validation.required"))
+      .test("isModeCompatible", messageNotCompatible, (mode) => {
+        const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
+        return mode === "binary-upload"
+          ? analyzableApplications.length === 1
+          : analyzableApplications.length > 0;
+      }),
+    artifact: yup.mixed<File>().when("mode", {
+      is: "binary-upload",
+      then: (schema) => schema.required(),
+    }),
+  });
+};
 
 interface AnalysisSourceProps {
   applications: Application[];

@@ -24,7 +24,8 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { Target, TargetLabel } from "@app/api/models";
+import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
+import { TargetLabelSchema } from "@app/api/schemas";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -34,17 +35,54 @@ import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
-import { getValidatedFromErrors } from "@app/utils/utils";
+import { duplicateNameCheck, getValidatedFromErrors } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
-import {
-  AdvancedOptionsState,
-  AdvancedOptionsValues,
-  CustomRulesStepState,
-  useAdvancedOptionsSchema,
-} from "../schema";
 import { useSourceLabels } from "../useSourceLabels";
 import { useTargetLabels } from "../useTargetLabels";
+
+import { CustomRulesStepState } from "./custom-rules";
+
+export interface AdvancedOptionsValues {
+  additionalTargetLabels: TargetLabel[];
+  additionalSourceLabels: TargetLabel[];
+
+  excludedLabels: string[];
+  autoTaggingEnabled: boolean;
+  advancedAnalysisEnabled: boolean;
+
+  saveAsProfile: boolean;
+  profileName?: string;
+}
+
+export interface AdvancedOptionsState extends AdvancedOptionsValues {
+  isValid: boolean;
+}
+
+export const useAdvancedOptionsSchema = (
+  existingProfiles: AnalysisProfile[] = []
+): yup.SchemaOf<AdvancedOptionsValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    additionalTargetLabels: yup.array().of(TargetLabelSchema),
+    additionalSourceLabels: yup.array().of(TargetLabelSchema),
+    excludedLabels: yup.array().of(yup.string().defined()),
+    autoTaggingEnabled: yup.bool().defined(),
+    advancedAnalysisEnabled: yup.bool().defined(),
+    saveAsProfile: yup.bool().defined(),
+    profileName: yup.string().when("saveAsProfile", {
+      is: true,
+      then: (schema) =>
+        schema
+          .required()
+          .test(
+            "unique-name",
+            t("validation.duplicateAnalysisProfileName"),
+            (value) => duplicateNameCheck(existingProfiles, null, value ?? "")
+          ),
+    }),
+  });
+};
 
 interface OptionsManualProps {
   selectedTargets: [Target, TargetLabel | null][];

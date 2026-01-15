@@ -21,24 +21,23 @@ import { AnalysisProfile, Application } from "@app/api/models";
 import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
-import {
-  AdvancedOptionsValues,
-  AnalysisMode,
-  AnalysisScopeValues,
-  CustomRulesStepValues,
-  SetTargetsValues,
-  WizardFlowMode,
-} from "../schema";
+
+import { AnalysisScopeState } from "./analysis-scope";
+import { AnalysisMode } from "./analysis-source";
+import { CustomRulesStepState } from "./custom-rules";
+import { AdvancedOptionsState } from "./options-manual";
+import { SetTargetsState } from "./set-targets";
+import { WizardFlowMode } from "./wizard-mode";
 
 interface ReviewProps {
   applications: Application[];
   flowMode: WizardFlowMode;
   selectedProfile: AnalysisProfile | null;
   mode: AnalysisMode;
-  targets: SetTargetsValues;
-  scope: AnalysisScopeValues;
-  customRules: CustomRulesStepValues;
-  options: AdvancedOptionsValues;
+  targets: SetTargetsState;
+  scope: AnalysisScopeState;
+  customRules: CustomRulesStepState;
+  options: AdvancedOptionsState;
 }
 
 const defaultMode: Map<string, string> = new Map([
@@ -93,7 +92,7 @@ export const Review: React.FC<ReviewProps> = ({
 interface ReviewProfileProps {
   applications: Application[];
   selectedProfile: AnalysisProfile | null;
-  options: AdvancedOptionsValues;
+  options: AdvancedOptionsState;
 }
 
 const ReviewProfile: React.FC<ReviewProfileProps> = ({
@@ -171,10 +170,10 @@ const ReviewProfile: React.FC<ReviewProfileProps> = ({
 interface ReviewManualProps {
   applications: Application[];
   mode: AnalysisMode;
-  targets: SetTargetsValues;
-  scope: AnalysisScopeValues;
-  customRules: CustomRulesStepValues;
-  options: AdvancedOptionsValues;
+  targets: SetTargetsState;
+  scope: AnalysisScopeState;
+  customRules: CustomRulesStepState;
+  options: AdvancedOptionsState;
 }
 
 const ReviewManual: React.FC<ReviewManualProps> = ({
@@ -410,7 +409,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
   );
 };
 
-const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepValues }> = ({
+const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
   customRules,
 }) => {
   if (customRules.rulesKind === "manual") {

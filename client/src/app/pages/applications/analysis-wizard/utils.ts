@@ -5,7 +5,7 @@ import { Application, Target, TargetLabel } from "@app/api/models";
 import { getParsedLabel } from "@app/utils/rules-utils";
 import { isNotEmptyString } from "@app/utils/utils";
 
-import { ANALYSIS_MODES, AnalysisMode } from "./schema";
+import { ANALYSIS_MODES, AnalysisMode } from "./steps/analysis-source";
 
 export const isModeSupported = (application: Application, mode?: string) => {
   switch (mode) {

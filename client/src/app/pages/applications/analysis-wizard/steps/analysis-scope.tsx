@@ -9,11 +9,41 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 
-import {
-  AnalysisScopeState,
-  AnalysisScopeValues,
-  useAnalysisScopeSchema,
-} from "../schema";
+// Scope step
+export type AnalysisScopeType = "app" | "app,oss" | "app,oss,select";
+
+export interface AnalysisScopeValues {
+  withKnownLibs: AnalysisScopeType;
+  includedPackages: string[];
+  hasExcludedPackages: boolean;
+  excludedPackages: string[];
+}
+
+export interface AnalysisScopeState extends AnalysisScopeValues {
+  isValid: boolean;
+}
+
+export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    withKnownLibs: yup
+      .mixed<AnalysisScopeType>()
+      .required(t("validation.required")),
+    includedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("withKnownLibs", (withKnownLibs, schema) =>
+        withKnownLibs?.includes("select") ? schema.min(1) : schema
+      ),
+    hasExcludedPackages: yup.bool().defined(),
+    excludedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("hasExcludedPackages", (hasExcludedPackages, schema) =>
+        hasExcludedPackages ? schema.min(1) : schema
+      ),
+  });
+};
 
 interface AnalysisScopeProps {
   onStateChanged: (state: AnalysisScopeState) => void;

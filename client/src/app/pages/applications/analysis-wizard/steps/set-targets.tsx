@@ -28,7 +28,22 @@ import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-import { SetTargetsState } from "../schema";
+export interface SetTargetsValues {
+  targetStatus: Record<
+    number,
+    {
+      target: Target;
+      isSelected: boolean;
+      choiceTargetLabel?: TargetLabel;
+    }
+  >;
+  selectedTargets: [Target, TargetLabel | null][];
+  targetFilters?: Record<string, string[]>;
+}
+
+export interface SetTargetsState extends SetTargetsValues {
+  isValid: boolean;
+}
 
 const useTargetsData = (applications: Application[]) => {
   const {
