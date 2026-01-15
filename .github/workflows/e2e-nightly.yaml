@@ -13,7 +13,6 @@ jobs:
   nightly:
     strategy:
       fail-fast: false
-      max-parallel: 1
       matrix:
         test_tags:
           - "@ci"
