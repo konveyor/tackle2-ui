@@ -27,7 +27,7 @@ import { CredentialsSourceControlUsername } from "../../../../models/administrat
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { CredentialType, UserCredentials } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
-const applicationsList: Array<Analysis> = [];
+
 let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
 const applicationIds: number[] = [];
@@ -77,7 +77,6 @@ describe(["@tier1"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -105,7 +104,6 @@ describe(["@tier1"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -134,7 +132,6 @@ describe(["@tier1"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -166,7 +163,6 @@ describe(["@tier1"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);

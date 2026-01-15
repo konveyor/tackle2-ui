@@ -19,7 +19,6 @@ import * as data from "../../../../../utils/data_utils";
 import {
   deleteAllCredentials,
   deleteBulkApplicationsByApi,
-  deleteByList,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -39,7 +38,6 @@ import {
 let sourceCredential: CredentialsSourceControlUsername;
 let invalidSourceCredential: CredentialsSourceControlUsername;
 let mavenCredential: CredentialsMaven;
-const applicationsList: Array<Analysis> = [];
 const applicationIds: number[] = [];
 
 describe(["@tier1"], "Source Analysis", () => {
@@ -101,7 +99,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -141,7 +138,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -162,7 +158,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -181,7 +176,6 @@ describe(["@tier1"], "Source Analysis", () => {
       getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -207,7 +201,6 @@ describe(["@tier1"], "Source Analysis", () => {
       getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -228,7 +221,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -247,7 +239,6 @@ describe(["@tier1"], "Source Analysis", () => {
       getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -271,7 +262,6 @@ describe(["@tier1"], "Source Analysis", () => {
       getRandomAnalysisData(this.analysisData["analysis_for_disableTagging"])
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -294,7 +284,6 @@ describe(["@tier1"], "Source Analysis", () => {
       getRandomAnalysisData(this.analysisData["analysis_on_example-1-app"])
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -318,7 +307,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -338,7 +326,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -363,7 +350,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -384,7 +370,6 @@ describe(["@tier1"], "Source Analysis", () => {
     );
     application.create();
     application.manageCredentials(null, mavenCredential.name);
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
@@ -407,7 +392,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    applicationsList.push(application);
     application.analyze();
     application.verifyAnalysisStatus("Completed");
   });
@@ -436,7 +420,6 @@ describe(["@tier1"], "Source Analysis", () => {
 
     const appWithCredentials = createApplication();
     const appWithoutCredentials = createApplication();
-    applicationsList.push(appWithCredentials, appWithoutCredentials);
 
     analyzeApplication(appWithCredentials, mavenCredential);
     analyzeApplication(appWithoutCredentials, null);
@@ -454,7 +437,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed);
@@ -471,7 +453,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    applicationsList.push(application);
     cy.wait("@getApplication", { timeout: 2 * SEC });
     application.analyze();
     application.cancelAnalysis();
@@ -488,7 +469,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
