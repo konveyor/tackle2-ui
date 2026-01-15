@@ -32,7 +32,7 @@ import {
 let source_credential: CredentialsSourceControlUsername;
 let application: Analysis;
 
-describe(["@tier2"], "Exclude package Analysis", () => {
+describe(["@tier1"], "Exclude package Analysis", () => {
   before("Login", function () {
     login();
     cy.visit("/");

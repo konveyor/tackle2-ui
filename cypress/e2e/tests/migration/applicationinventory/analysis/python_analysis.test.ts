@@ -16,7 +16,7 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-  deleteByList,
+  deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
 } from "../../../../../utils/utils";
@@ -24,6 +24,8 @@ import { Analysis } from "../../../../models/migration/applicationinventory/anal
 import { Application } from "../../../../models/migration/applicationinventory/application";
 
 const applicationsList: Array<Analysis> = [];
+const applicationIds: number[] = [];
+
 describe(["@tier1"], "Python app analysis", () => {
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
@@ -37,6 +39,7 @@ describe(["@tier1"], "Python app analysis", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
     cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
   });
+
   it("Source analysis on python application", function () {
     const application = new Analysis(
       getRandomApplicationData("pythonApp_Source", {
@@ -47,6 +50,9 @@ describe(["@tier1"], "Python app analysis", () => {
     Application.open();
     application.create();
     applicationsList.push(application);
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus("Completed");
@@ -59,6 +65,6 @@ describe(["@tier1"], "Python app analysis", () => {
   });
 
   after("Perform test data clean up", () => {
-    deleteByList(applicationsList);
+    deleteBulkApplicationsByApi(applicationIds);
   });
 });

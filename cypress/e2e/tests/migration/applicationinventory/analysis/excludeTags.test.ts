@@ -29,7 +29,7 @@ import { CredentialType, UserCredentials } from "../../../../types/constants";
 let source_credential;
 let application: Analysis;
 
-describe.skip(["@tier2"], "Exclude Tags", () => {
+describe.skip(["@tier1"], "Exclude Tags", () => {
   before("Login", function () {
     login();
     cy.visit("/");

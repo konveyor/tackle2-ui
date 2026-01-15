@@ -17,7 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  deleteByList,
+  deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -25,14 +25,14 @@ import {
 import { CredentialsMaven } from "../../../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
-import { Application } from "../../../../models/migration/applicationinventory/application";
 import { CredentialType, UserCredentials } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
-const applicationsList: Array<Analysis> = [];
+
 let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
+const applicationIds: number[] = [];
 
-describe(["@tier2"], "Affected files validation", () => {
+describe(["@tier1"], "Affected files validation", () => {
   before("Login", function () {
     login();
     cy.visit("/");
@@ -77,8 +77,10 @@ describe(["@tier2"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     application.verifyAnalysisStatus("Completed");
     application.validateIssues(
@@ -102,8 +104,10 @@ describe(["@tier2"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.manageCredentials(source_credential.name);
     application.analyze();
     application.verifyAnalysisStatus("Completed");
@@ -128,8 +132,10 @@ describe(["@tier2"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.manageCredentials(
       source_credential.name,
       maven_credential.name
@@ -157,8 +163,10 @@ describe(["@tier2"], "Affected files validation", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     application.verifyAnalysisStatus("Completed");
     application.verifyEffort(
@@ -175,8 +183,8 @@ describe(["@tier2"], "Affected files validation", () => {
   });
 
   after("Perform test data clean up", function () {
-    Application.open(true);
-    deleteByList(applicationsList);
+    deleteBulkApplicationsByApi(applicationIds);
     source_credential.delete();
+    maven_credential.delete();
   });
 });

@@ -40,8 +40,8 @@ let tag: Tag;
 let application: Analysis;
 let techTags: any[];
 
-describe(["@tier3"], "Filter tags on application details page", () => {
-  before("Setup data and analyze application", function () {
+describe(["@tier1"], "Filter tags on application details page", () => {
+  before("Login", function () {
     login();
     cy.visit("/");
 
