@@ -1463,6 +1463,12 @@ export function deleteAllArchetypes() {
   deleteAllRows();
 }
 
+export function deleteAllCredentials() {
+  Credentials.openList();
+  selectItemsPerPage(100);
+  deleteAllRows();
+}
+
 export function deleteApplicationTableRows(): void {
   navigate_to_application_inventory();
   cy.intercept("GET", "/hub/application*").as("getApplication");
