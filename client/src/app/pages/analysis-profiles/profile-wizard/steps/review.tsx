@@ -17,26 +17,20 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AnalysisProfile, Application } from "@app/api/models";
+import { AnalysisProfile } from "@app/api/models";
 import { GroupOfLabels } from "@app/components/analysis/components/group-of-labels";
+import { AnalysisLabelsState } from "@app/components/analysis/steps/analysis-labels";
 import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
-import { AnalysisMode } from "@app/components/analysis/steps/analysis-source";
+import { AnalysisModeState } from "@app/components/analysis/steps/analysis-source";
 import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
-import { AdvancedOptionsState } from "@app/components/analysis/steps/options-advanced";
 import { SetTargetsState } from "@app/components/analysis/steps/set-targets";
 import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
-import { WizardFlowMode } from "./wizard-mode";
+import { WizardState } from "../useWizardReducer";
 
 interface ReviewProps {
-  applications: Application[];
-  flowMode: WizardFlowMode;
-  selectedProfile: AnalysisProfile | null;
-  mode: AnalysisMode;
-  targets: SetTargetsState;
-  scope: AnalysisScopeState;
-  customRules: CustomRulesStepState;
-  options: AdvancedOptionsState;
+  analysisProfile: AnalysisProfile | null;
+  state: WizardState;
 }
 
 const defaultMode: Map<string, string> = new Map([
@@ -53,135 +47,40 @@ const defaultScopes: Map<string, string> = new Map([
 ]);
 
 export const Review: React.FC<ReviewProps> = ({
-  applications,
-  flowMode,
-  selectedProfile,
-  mode,
-  targets,
-  scope,
-  customRules,
-  options,
+  analysisProfile,
+  state: { mode, targets, scope, customRules, labels },
 }) => {
   const { t } = useTranslation();
-
-  // Profile mode review
-  if (flowMode === "profile") {
-    return (
-      <ReviewProfile
-        applications={applications}
-        selectedProfile={selectedProfile}
-        options={options}
-      />
-    );
-  }
 
   // Manual mode review
   return (
     <ReviewManual
-      applications={applications}
+      analysisProfile={analysisProfile}
       mode={mode}
       targets={targets}
       scope={scope}
       customRules={customRules}
-      options={options}
+      labels={labels}
     />
   );
 };
 
-interface ReviewProfileProps {
-  applications: Application[];
-  selectedProfile: AnalysisProfile | null;
-  options: AdvancedOptionsState;
-}
-
-const ReviewProfile: React.FC<ReviewProfileProps> = ({
-  applications,
-  selectedProfile,
-  options,
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <>
-      <TextContent>
-        <Title headingLevel="h3" size="xl">
-          {t("analysisSteps.review.title")}
-        </Title>
-        <Text>{t("analysisSteps.review.analysisDescription")}</Text>
-      </TextContent>
-
-      <DescriptionList isHorizontal className={spacing.mtMd}>
-        <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
-          <DescriptionListDescription id="applications">
-            <List isPlain>
-              {applications.map((app) => (
-                <ListItem key={app.id}>{app.name}</ListItem>
-              ))}
-            </List>
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.label.analysisProfile")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="analysis-profile">
-            {selectedProfile?.name ?? t("analysisProfiles.none")}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        {selectedProfile?.description && (
-          <DescriptionListGroup>
-            <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
-            <DescriptionListDescription id="profile-description">
-              {selectedProfile.description}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        )}
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.terms.autoTagging")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="autoTagging">
-            {options.autoTaggingEnabled
-              ? t("wizard.terms.enabled")
-              : t("wizard.terms.disabled")}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.terms.advancedAnalysisDetails")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="advanced-analysis-details">
-            {options.advancedAnalysisEnabled
-              ? t("wizard.terms.enabled")
-              : t("wizard.terms.disabled")}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-      </DescriptionList>
-    </>
-  );
-};
-
 interface ReviewManualProps {
-  applications: Application[];
-  mode: AnalysisMode;
+  analysisProfile: AnalysisProfile | null;
+  mode: AnalysisModeState;
   targets: SetTargetsState;
   scope: AnalysisScopeState;
   customRules: CustomRulesStepState;
-  options: AdvancedOptionsState;
+  labels: AnalysisLabelsState;
 }
 
 const ReviewManual: React.FC<ReviewManualProps> = ({
-  applications,
+  analysisProfile,
   mode,
   targets,
   scope,
   customRules,
-  options,
+  labels,
 }) => {
   const { t } = useTranslation();
 
@@ -195,20 +94,16 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
     <>
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("analysisSteps.review.title")}
+          {t("analysisProfileWizard.steps.review.title")}
         </Title>
-        <Text>{t("analysisSteps.review.analysisDescription")}</Text>
+        <Text>{t("analysisProfileWizard.steps.review.description")}</Text>
       </TextContent>
 
       <DescriptionList isHorizontal className={spacing.mtMd}>
         <DescriptionListGroup>
-          <DescriptionListTerm>{t("terms.applications")}</DescriptionListTerm>
-          <DescriptionListDescription id="applications">
-            <List isPlain>
-              {applications.map((app) => (
-                <ListItem key={app.id}>{app.name}</ListItem>
-              ))}
-            </List>
+          <DescriptionListTerm>{t("terms.name")}</DescriptionListTerm>
+          <DescriptionListDescription id="name">
+            {analysisProfile?.name}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -216,7 +111,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
         <DescriptionListGroup>
           <DescriptionListTerm>{t("wizard.terms.mode")}</DescriptionListTerm>
           <DescriptionListDescription id="mode">
-            {defaultMode.get(mode)}
+            {defaultMode.get(mode.mode)}
           </DescriptionListDescription>
         </DescriptionListGroup>
 
@@ -345,7 +240,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           <DescriptionListTerm>Additional target labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-target-labels">
             <GroupOfLabels
-              items={options.additionalTargetLabels.map(parseLabel)}
+              items={labels.additionalTargetLabels.map(parseLabel)}
             />
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -353,7 +248,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           <DescriptionListTerm>Additional source labels</DescriptionListTerm>
           <DescriptionListDescription id="additional-source-labels">
             <GroupOfLabels
-              items={options.additionalSourceLabels.map(parseLabel)}
+              items={labels.additionalSourceLabels.map(parseLabel)}
             />
           </DescriptionListDescription>
         </DescriptionListGroup>
@@ -365,42 +260,10 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListTerm>
           <DescriptionListDescription id="excluded-rules-tags">
             <LabelGroup numLabels={5}>
-              {options.excludedLabels.map((tag) => (
+              {labels.excludedLabels.map((tag) => (
                 <Label key={tag}>{tag}</Label>
               ))}
             </LabelGroup>
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-
-        {options.saveAsProfile && (
-          <DescriptionListGroup>
-            <DescriptionListTerm>
-              {t("wizard.label.saveAsProfileReview")}
-            </DescriptionListTerm>
-            <DescriptionListDescription id="analysis-profile-name">
-              {options.profileName}
-            </DescriptionListDescription>
-          </DescriptionListGroup>
-        )}
-
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.terms.autoTagging")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="autoTagging">
-            {options.autoTaggingEnabled
-              ? t("wizard.terms.enabled")
-              : t("wizard.terms.disabled")}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTerm>
-            {t("wizard.terms.advancedAnalysisDetails")}
-          </DescriptionListTerm>
-          <DescriptionListDescription id="advanced-analysis-details">
-            {options.advancedAnalysisEnabled
-              ? t("wizard.terms.enabled")
-              : t("wizard.terms.disabled")}
           </DescriptionListDescription>
         </DescriptionListGroup>
       </DescriptionList>

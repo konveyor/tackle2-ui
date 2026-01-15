@@ -9,43 +9,24 @@ import {
 } from "@patternfly/react-core";
 
 import { AnalysisProfile } from "@app/api/models";
+import { AnalysisLabels } from "@app/components/analysis/steps/analysis-labels";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
 import { AnalysisSource } from "@app/components/analysis/steps/analysis-source";
 import { CustomRules } from "@app/components/analysis/steps/custom-rules";
-import { OptionsAdvanced } from "@app/components/analysis/steps/options-advanced";
 import { SetTargets } from "@app/components/analysis/steps/set-targets";
 import { isNotEmptyString } from "@app/utils/utils";
 
+import { ProfileDetails } from "./steps/profile-details";
+import { Review } from "./steps/review";
 import { useWizardReducer } from "./useWizardReducer";
 
-// Placeholder for profile-specific review component
-const Review: React.FC<{
-  analysisProfile: AnalysisProfile | null;
-  state: ReturnType<typeof useWizardReducer>["state"];
-}> = ({ analysisProfile, state }) => {
-  return (
-    <div>
-      <h3>{analysisProfile ? "Edit Profile" : "Create Profile"}</h3>
-      <p>
-        Mode: {state.mode.mode}
-        <br />
-        Targets: {state.targets.selectedTargets.length} selected
-        <br />
-        Scope: {state.scope.withKnownLibs}
-        <br />
-        Custom Rules: {state.customRules.customRulesFiles.length} files
-      </p>
-    </div>
-  );
-};
-
-interface ProfileWizardProps {
+interface AnalysisProfileWizardProps {
   analysisProfile: AnalysisProfile | null;
   onClose: () => void;
   isOpen: boolean;
 }
 
-export const ProfileWizard: React.FC<ProfileWizardProps> = ({
+export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
   analysisProfile = null,
   onClose,
   isOpen,
@@ -54,13 +35,14 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
 
   const {
     state,
+    setProfileDetails,
     setMode,
     setTargets,
     setScope,
     setCustomRules,
-    setOptions,
+    setLabels,
     reset,
-  } = useWizardReducer();
+  } = useWizardReducer(analysisProfile ?? undefined);
 
   const handleCancel = () => {
     // TODO: remove newly uploaded files from hub if necessary
@@ -80,8 +62,9 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
     //   reset();
     //   onClose();
     // }
-    reset();
-    onClose();
+    console.log("onSubmit", state);
+    // reset();
+    // onClose();
   };
 
   if (!isOpen) {
@@ -105,24 +88,35 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
             onClose={handleCancel}
             title={
               analysisProfile
-                ? t("wizard.title.editAnalysisProfile")
-                : t("wizard.title.createAnalysisProfile")
+                ? t("analysisProfileWizard.title.edit")
+                : t("analysisProfileWizard.title.create")
             }
             description={analysisProfile ? analysisProfile.name : undefined}
           />
         }
-        isVisitRequired
+        isVisitRequired={!analysisProfile}
       >
+        <WizardStep
+          key="step-profile-details"
+          id="step-profile-details"
+          name={t("analysisProfileWizard.steps.profileDetails.stepTitle")}
+        >
+          <ProfileDetails
+            onStateChanged={setProfileDetails}
+            initialState={state.profileDetails}
+          />
+        </WizardStep>
+
         {/* Configure Analysis Steps */}
         <WizardStep
           key="step-configure-analysis"
           id="step-configure-analysis"
-          name={t("wizard.terms.configureAnalysis")}
+          name={t("analysisProfileWizard.steps.configureAnalysis.stepTitle")}
           steps={[
             <WizardStep
               key="step-configure-analysis-source"
               id="step-configure-analysis-source"
-              name={t("wizard.terms.analysisSource")}
+              name={t("analysisProfileWizard.steps.analysisSource.stepTitle")}
               footer={{
                 isNextDisabled: !state.mode.isValid,
               }}
@@ -137,7 +131,7 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
             <WizardStep
               key="step-configure-set-targets"
               id="step-configure-set-targets"
-              name={t("wizard.terms.setTargets")}
+              name={t("analysisProfileWizard.steps.setTargets.stepTitle")}
               footer={{
                 isNextDisabled: !state.targets.isValid,
               }}
@@ -155,7 +149,7 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
             <WizardStep
               key="step-configure-scope"
               id="step-configure-scope"
-              name={t("wizard.terms.scope")}
+              name={t("analysisProfileWizard.steps.scope.stepTitle")}
               footer={{
                 isNextDisabled: !state.scope.isValid,
               }}
@@ -172,12 +166,12 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
         <WizardStep
           key="step-advanced"
           id="step-advanced"
-          name={t("wizard.terms.advanced")}
+          name={t("analysisProfileWizard.steps.advanced.stepTitle")}
           steps={[
             <WizardStep
               key="step-advanced-custom-rules"
               id="step-advanced-custom-rules"
-              name={t("wizard.terms.customRules")}
+              name={t("analysisProfileWizard.steps.customRules.stepTitle")}
               footer={{
                 isNextDisabled: !state.customRules.isValid,
               }}
@@ -192,19 +186,18 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
               />
             </WizardStep>,
             <WizardStep
-              key="step-advanced-options"
-              id="step-advanced-options"
-              name={t("wizard.terms.options")}
+              key="step-advanced-labels"
+              id="step-advanced-labels"
+              name={t("analysisProfileWizard.steps.labels.stepTitle")}
               footer={{
-                isNextDisabled: !state.options.isValid,
+                isNextDisabled: !state.labels.isValid,
               }}
             >
-              <OptionsAdvanced
+              <AnalysisLabels
                 selectedTargets={state.targets.selectedTargets}
                 customRules={state.customRules}
-                onStateChanged={setOptions}
-                initialState={state.options}
-                showSaveAsProfile={false} // Profile wizard doesn't need "save as profile"
+                onStateChanged={setLabels}
+                initialState={state.labels}
               />
             </WizardStep>,
           ]}
@@ -214,7 +207,7 @@ export const ProfileWizard: React.FC<ProfileWizardProps> = ({
         <WizardStep
           key="step-review"
           id="step-review"
-          name={t("wizard.terms.review")}
+          name={t("analysisProfileWizard.steps.review.stepTitle")}
           footer={{
             nextButtonText: analysisProfile
               ? t("actions.save")
