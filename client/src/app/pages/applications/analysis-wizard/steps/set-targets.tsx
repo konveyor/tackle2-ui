@@ -265,7 +265,8 @@ export const SetTargets: FC<SetTargetsProps> = ({
                 item={target}
                 isCardSelected={targetStatus[target.id]?.isSelected ?? false}
                 selectedLabel={
-                  targetStatus[target.id]?.choiceTargetLabel ?? null
+                  targetStatus[target.id]?.choiceTargetLabel ??
+                  (target.choice && target.labels ? target.labels[0] : null)
                 }
                 onChange={handleOnCardChange}
               />
