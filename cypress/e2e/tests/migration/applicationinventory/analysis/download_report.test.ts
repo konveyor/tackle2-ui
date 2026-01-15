@@ -28,7 +28,7 @@ import {
   ReportTypeSelectors,
 } from "../../../../types/constants";
 
-describe(["@tier2"], "Enable and Download HTML and YAML Reports", function () {
+describe(["@tier1"], "Enable and Download HTML and YAML Reports", function () {
   let sourceApplication: Analysis;
 
   before("Login", function () {

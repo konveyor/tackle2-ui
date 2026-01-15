@@ -34,7 +34,7 @@ import {
   UserCredentials,
 } from "../../../../types/constants";
 
-describe(["@tier2"], "Custom Rules in analyses", function () {
+describe(["@tier1"], "Custom Rules in analyses", function () {
   const applications: Analysis[] = [];
   let tackleTestapp: Analysis;
   let sourceCredential: CredentialsSourceControlUsername;

@@ -32,7 +32,7 @@ let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
 const applicationIds: number[] = [];
 
-describe(["@tier2"], "Affected files validation", () => {
+describe(["@tier1"], "Affected files validation", () => {
   before("Login", function () {
     login();
     cy.visit("/");

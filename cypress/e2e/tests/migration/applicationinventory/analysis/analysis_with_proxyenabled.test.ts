@@ -27,7 +27,7 @@ import { ProxyType } from "../../../../views/proxy.view";
 let application: Analysis;
 
 describe(
-  ["@tier3"],
+  ["@tier1"],
   "Running analysis with incorrect proxy configuration",
   () => {
     const httpsProxy = new Proxy(getRandomProxyData(), ProxyType.https);
