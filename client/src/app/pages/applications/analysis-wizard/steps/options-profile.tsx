@@ -13,7 +13,7 @@ import {
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { AdvancedOptionsState } from "./options-manual";
+import { AdvancedOptionsState } from "@app/components/analysis/steps/options-advanced";
 
 interface OptionsProfileProps {
   onStateChanged: (state: AdvancedOptionsState) => void;
