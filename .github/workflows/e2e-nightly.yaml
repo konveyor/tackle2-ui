@@ -1,4 +1,4 @@
-name: e2e - run all(but analysis) tier tests nightly
+name: e2e - run all(but analysis) tests nightly
 
 on:
   workflow_dispatch:
