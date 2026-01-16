@@ -111,7 +111,7 @@ export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 const useImmerInitialState = (init?: InitialStateRecipe): WizardState => {
   const [initialState] = useState(() =>
     produce(INITIAL_WIZARD_STATE, (draft) => {
-      if (init && typeof init === "function") {
+      if (typeof init === "function") {
         init(draft);
       }
       wizardReducer(draft);
