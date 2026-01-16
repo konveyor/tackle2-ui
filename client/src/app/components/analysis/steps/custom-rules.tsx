@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { unique } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -49,6 +48,7 @@ import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import { UploadRulesFiles } from "../components/upload-rules-files";
 
@@ -102,32 +102,6 @@ export const useCustomRulesSchema = ({
     rootPath: yup.string(),
     associatedCredentials: yup.string(),
   });
-};
-
-const buildSetOfTargetLabelsFromUploadFiles = (
-  ruleFiles: UploadFile[],
-  existingLabels: TargetLabel[] = []
-) => {
-  const targetLabels = unique(
-    ruleFiles.reduce(
-      (acc, file) => {
-        const { allLabels } = parseRules(file);
-        const fileTargetLabels =
-          allLabels?.map(
-            (label): TargetLabel => ({
-              name: getParsedLabel(label).labelValue,
-              label,
-            })
-          ) ?? [];
-        acc.push(...fileTargetLabels);
-        return acc;
-      },
-      [...existingLabels]
-    ),
-    ({ name }) => name
-  );
-
-  return targetLabels;
 };
 
 interface CustomRulesProps {
@@ -211,7 +185,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customRulesFiles", newCustomRulesFiles);
 
     // Find all labels in the new rule files and push them to `customLabels`
-    const uniqueNewTargetLabels = buildSetOfTargetLabelsFromUploadFiles(
+    const uniqueNewTargetLabels = buildSetOfTargetLabels(
       ruleFiles,
       customLabels
     );
@@ -226,8 +200,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customRulesFiles", newCustomRulesFiles);
 
     // Rebuild the labels from the remaining rule files
-    const currentFileLabels =
-      buildSetOfTargetLabelsFromUploadFiles(newCustomRulesFiles);
+    const currentFileLabels = buildSetOfTargetLabels(newCustomRulesFiles);
     setValue("customLabels", currentFileLabels);
   };
 
