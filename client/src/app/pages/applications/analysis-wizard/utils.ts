@@ -8,7 +8,6 @@ import {
 } from "@app/components/analysis/steps/analysis-source";
 import { getParsedLabel } from "@app/utils/rules-utils";
 
-
 const filterAnalyzableApplications = (
   applications: Application[],
   mode: AnalysisMode
