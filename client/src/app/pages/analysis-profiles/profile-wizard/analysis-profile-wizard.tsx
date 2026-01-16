@@ -20,6 +20,7 @@ import { isNotEmptyString } from "@app/utils/utils";
 
 import { ProfileDetails } from "./steps/profile-details";
 import { Review } from "./steps/review";
+import { useAnalysisProfileMutations } from "./useAnalysisProfileMutations";
 import { useWizardReducer } from "./useWizardReducer";
 import { useWizardStateBuilder } from "./useWizardStateBuilder";
 
@@ -68,6 +69,9 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
     reset,
   } = useWizardReducer(initialState);
 
+  const { createAnalysisProfile, updateAnalysisProfile } =
+    useAnalysisProfileMutations();
+
   const handleCancel = () => {
     // TODO: remove newly uploaded files from hub if necessary
     reset();
@@ -75,20 +79,17 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
   };
 
   const onSubmit = async () => {
-    // TODO: Implement profile save/update logic
-    // try {
-    //   if (analysisProfile) {
-    //     await updateAnalysisProfile(analysisProfile.id, state);
-    //   } else {
-    //     await createAnalysisProfile(state);
-    //   }
-    // } finally {
-    //   reset();
-    //   onClose();
-    // }
-    console.log("onSubmit", state);
-    // reset();
-    // onClose();
+    try {
+      // Let the mutation handle the success/error notifications
+      if (analysisProfile) {
+        await updateAnalysisProfile(analysisProfile, state);
+      } else {
+        await createAnalysisProfile(state);
+      }
+    } finally {
+      reset();
+      onClose();
+    }
   };
 
   if (!isOpen) {

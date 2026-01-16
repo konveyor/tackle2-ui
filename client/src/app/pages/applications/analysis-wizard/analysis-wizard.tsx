@@ -71,7 +71,10 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const { createAnalysisProfile } = useSaveAnalysisProfile();
 
   const onSubmit = async () => {
+    // fire and forget the profile creation
     createAnalysisProfile(state);
+
+    // submit the analysis
     try {
       await submitAnalysis(state, analyzableApplications, identities);
     } finally {

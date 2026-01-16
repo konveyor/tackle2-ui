@@ -654,14 +654,17 @@
       "targetProfileCreated": "Target profile was successfully created.",
       "targetProfileUpdated": "Target profile was successfully updated.",
       "targetProfileDeleted": "Target profile was successfully deleted.",
-      "analysisProfileCreated": "Analysis profile {{name}} was successfully created."
+      "analysisProfileCreated": "Analysis profile {{name}} was successfully created.",
+      "analysisProfileUpdated": "Analysis profile {{name}} was successfully updated."
     },
     "fail": {
       "applicationsUpdated_one": "Application {{firstName}} failed to update.",
       "applicationsUpdated_other": "{{count}} applications failed to update.",
       "create": "Failed to create {{type}}.",
       "save": "Failed to save {{type}}.",
-      "duplicateAnalysisProfileName": "An analysis profile with the name \"{{name}}\" already exists."
+      "duplicateAnalysisProfileName": "An analysis profile with the name \"{{name}}\" already exists.",
+      "createAnalysisProfile": "Failed to create an analysis profile.",
+      "updateAnalysisProfile": "Failed to update an analysis profile."
     }
   },
   "tooltip": {

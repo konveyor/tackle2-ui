@@ -63,8 +63,8 @@ export const useFetchAnalysisProfileById = (
 };
 
 export const useCreateAnalysisProfileMutation = (
-  onSuccess: (profile: AnalysisProfile) => void,
-  onError: (err: AxiosError, errorPayload: New<AnalysisProfile>) => void
+  onSuccess?: (profile: AnalysisProfile) => void,
+  onError?: (err: AxiosError, errorPayload: New<AnalysisProfile>) => void
 ) => {
   const queryClient = useQueryClient();
 
@@ -76,15 +76,15 @@ export const useCreateAnalysisProfileMutation = (
           queryKey: [ANALYSIS_PROFILES_QUERY_KEY],
         }),
       ]);
-      onSuccess(profile);
+      onSuccess?.(profile);
     },
     onError: onError,
   });
 };
 
 export const useUpdateAnalysisProfileMutation = (
-  onSuccess: (updatedProfile: AnalysisProfile) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (updatedProfile: AnalysisProfile) => void,
+  onError?: (err: AxiosError, errorPayload: AnalysisProfile) => void
 ) => {
   const queryClient = useQueryClient();
 
@@ -99,15 +99,15 @@ export const useUpdateAnalysisProfileMutation = (
           queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(updatedProfile.id)],
         }),
       ]);
-      onSuccess(updatedProfile);
+      onSuccess?.(updatedProfile);
     },
     onError: onError,
   });
 };
 
 export const useDeleteAnalysisProfileMutation = (
-  onSuccess: (profile: AnalysisProfile) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (profile: AnalysisProfile) => void,
+  onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
@@ -122,7 +122,7 @@ export const useDeleteAnalysisProfileMutation = (
           queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(profile.id)],
         }),
       ]);
-      onSuccess(profile);
+      onSuccess?.(profile);
     },
     onError: onError,
   });
