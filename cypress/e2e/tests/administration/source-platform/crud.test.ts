@@ -31,8 +31,12 @@ import * as selectors from "../../../views/source-platform.view";
 
 const cloudFoundryCreds: Array<CredentialsSourceControlUsername> = [];
 
-describe(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
-  before("Login", function () {
+const describeOrSkip = (Cypress.env("CI") === true || Cypress.env("CI") === "true" || Cypress.env("CI") === '1' )
+  ? describe.skip
+  : describe;
+
+describeOrSkip(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
+  before("Verify Cloud Foundry env variables are present", function () {
     if (
       !Cypress.env("cloudfoundry_user") ||
       !Cypress.env("cloudfoundry_password") ||
