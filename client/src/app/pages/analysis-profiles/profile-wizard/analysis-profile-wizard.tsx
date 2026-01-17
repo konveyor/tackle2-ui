@@ -22,7 +22,7 @@ import { isNotEmptyString } from "@app/utils/utils";
 import { ProfileDetails } from "./steps/profile-details";
 import { Review } from "./steps/review";
 import { useAnalysisProfileMutations } from "./useAnalysisProfileMutations";
-import { useWizardReducer } from "./useWizardReducer";
+import { InitialStateRecipe, useWizardReducer } from "./useWizardReducer";
 import { useWizardStateBuilder } from "./useWizardStateBuilder";
 
 interface AnalysisProfileWizardProps {
@@ -55,10 +55,45 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
   onClose,
   isOpen,
 }) => {
-  const { t } = useTranslation();
-
   const { recipe: initialState, isLoading: isLoadingInitialState } =
     useWizardStateBuilder(analysisProfile);
+
+  // When editing a profile, show loading spinner until initial state data loads
+  if (analysisProfile && isLoadingInitialState) {
+    return (
+      <Modal
+        isOpen={isOpen}
+        showClose={false}
+        aria-label="Analysis profile wizard modal"
+        onEscapePress={onClose}
+        variant={ModalVariant.large}
+      >
+        <AppPlaceholder />
+      </Modal>
+    );
+  }
+
+  return (
+    <AnalysisProfileWizardReady
+      analysisProfile={analysisProfile}
+      initialState={initialState}
+      onClose={onClose}
+      isOpen={isOpen}
+    />
+  );
+};
+
+interface AnalysisProfileWizardReadyProps extends AnalysisProfileWizardProps {
+  initialState: InitialStateRecipe;
+}
+
+const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
+  analysisProfile = null,
+  initialState,
+  onClose,
+  isOpen,
+}) => {
+  const { t } = useTranslation();
 
   const {
     state,
@@ -96,21 +131,6 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
 
   if (!isOpen) {
     return null;
-  }
-
-  // When editing a profile, show loading spinner while initial state data loads
-  if (analysisProfile && isLoadingInitialState) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        showClose={false}
-        aria-label="Analysis profile wizard modal"
-        onEscapePress={handleCancel}
-        variant={ModalVariant.large}
-      >
-        <AppPlaceholder />
-      </Modal>
-    );
   }
 
   return (
