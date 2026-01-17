@@ -28,9 +28,24 @@ import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-import { SetTargetsState } from "../schema";
+export interface SetTargetsValues {
+  targetStatus: Record<
+    string,
+    {
+      target: Target;
+      isSelected: boolean;
+      choiceTargetLabel?: TargetLabel;
+    }
+  >;
+  selectedTargets: [Target, TargetLabel | null][];
+  targetFilters?: Record<string, string[]>;
+}
 
-const useTargetsData = (applications: Application[]) => {
+export interface SetTargetsState extends SetTargetsValues {
+  isValid: boolean;
+}
+
+const useTargetsData = (applications?: Application[]) => {
   const {
     targets,
     targetsInOrder,
@@ -53,15 +68,19 @@ const useTargetsData = (applications: Application[]) => {
     [tagCategories]
   );
 
+  // When applications are provided, filter targets by application language tags
+  // When no applications (profile wizard), don't apply initial language filter
   const applicationProviders = useMemo(
     () =>
-      unique(
-        applications
-          .flatMap((app) => app.tags || [])
-          .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
-          .map((languageTag) => languageTag.name)
-          .filter((language) => languageProviders.includes(language))
-      ),
+      applications && applications.length > 0
+        ? unique(
+            applications
+              .flatMap((app) => app.tags || [])
+              .filter((tag) => languageTags.find((lt) => lt.id === tag.id))
+              .map((languageTag) => languageTag.name)
+              .filter((language) => languageProviders.includes(language))
+          )
+        : [], // No initial filter when no applications
     [applications, languageTags, languageProviders]
   );
 
@@ -94,7 +113,12 @@ const useTargetsData = (applications: Application[]) => {
 };
 
 interface SetTargetsProps {
-  applications: Application[];
+  /**
+   * Optional applications for context-aware filtering.
+   * When provided, targets are initially filtered by application language tags.
+   * When omitted (e.g., profile wizard), all targets are shown without initial filtering.
+   */
+  applications?: Application[];
   onStateChanged: (state: SetTargetsState) => void;
   state: SetTargetsState;
   areCustomRulesEnabled: boolean;
@@ -125,7 +149,7 @@ export const SetTargets: FC<SetTargetsProps> = ({
   ) => {
     const nextTargetStatus = {
       ...targetStatus,
-      [target.id]: {
+      [String(target.id)]: {
         ...(targetStatus[target.id] ?? {}),
         target,
         isSelected: isSelecting,
@@ -142,11 +166,17 @@ export const SetTargets: FC<SetTargetsProps> = ({
     });
   };
 
+  // Only apply initial language filter when applications are provided
+  const initialFilterValues =
+    applications && applications.length > 0
+      ? { provider: applicationProviders }
+      : {};
+
   const tableControls = useLocalTableControls({
     tableName: "target-cards",
     items: targets,
     idProperty: "name",
-    initialFilterValues: { provider: applicationProviders },
+    initialFilterValues,
     columnNames: {
       name: "name",
       provider: "provider",

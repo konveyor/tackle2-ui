@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { unique } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   Alert,
   Button,
@@ -31,6 +31,7 @@ import {
 } from "@patternfly/react-table/deprecated";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
+import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
 import {
   FilterCategory,
   FilterToolbar,
@@ -47,42 +48,69 @@ import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
-import { UploadNewRulesFiles } from "../components/upload-new-rules-files";
-import {
-  CustomRulesStepState,
-  CustomRulesStepValues,
-  useCustomRulesSchema,
-} from "../schema";
+import { UploadRulesFiles } from "../components/upload-rules-files";
 
-const buildSetOfTargetLabelsFromUploadFiles = (
-  ruleFiles: UploadFile[],
-  existingLabels: TargetLabel[] = []
-) => {
-  const targetLabels = unique(
-    ruleFiles.reduce(
-      (acc, file) => {
-        const { allLabels } = parseRules(file);
-        const fileTargetLabels =
-          allLabels?.map(
-            (label): TargetLabel => ({
-              name: getParsedLabel(label).labelValue,
-              label,
-            })
-          ) ?? [];
-        acc.push(...fileTargetLabels);
-        return acc;
-      },
-      [...existingLabels]
-    ),
-    ({ name }) => name
-  );
+export interface CustomRulesStepValues {
+  rulesKind: "manual" | "repository";
+  customRulesFiles: UploadFile[];
+  customLabels: TargetLabel[];
+  repositoryType?: string;
+  sourceRepository?: string;
+  branch?: string;
+  rootPath?: string;
+  associatedCredentials?: string;
+}
 
-  return targetLabels;
+export interface CustomRulesStepState extends CustomRulesStepValues {
+  isValid: boolean;
+}
+
+export const useCustomRulesSchema = ({
+  isCustomRuleRequired,
+}: {
+  isCustomRuleRequired: boolean;
+}): yup.SchemaOf<CustomRulesStepValues> => {
+  return yup.object({
+    rulesKind: yup.mixed<"manual" | "repository">().required(),
+
+    // manual tab fields
+    customRulesFiles: yup
+      .array()
+      .of(UploadFileSchema)
+      .when("rulesKind", {
+        is: "manual",
+        then: (schema) =>
+          isCustomRuleRequired
+            ? schema.min(1, "At least 1 Rule File is required")
+            : schema,
+        otherwise: (schema) => schema,
+      }),
+    customLabels: yup.array().of(TargetLabelSchema),
+
+    // repository tab fields
+    repositoryType: yup.string().when("rulesKind", {
+      is: "repository",
+      then: (schema) => schema.oneOf(["git", "svn"]).required(),
+    }),
+    sourceRepository: yup.string().when("rulesKind", {
+      is: "repository",
+      then: (schema) => schema.repositoryUrl("repositoryType").required(),
+    }),
+    branch: yup.string(),
+    rootPath: yup.string(),
+    associatedCredentials: yup.string(),
+  });
 };
 
 interface CustomRulesProps {
-  ensureTaskGroup: () => Promise<Taskgroup>;
+  /**
+   * Optional function to ensure a taskgroup exists for file uploads.
+   * When provided (analysis wizard), files are uploaded to the taskgroup.
+   * When omitted (profile wizard), files are uploaded as standard hub files.
+   */
+  ensureTaskGroup?: () => Promise<Taskgroup>;
   isCustomRuleRequired: boolean;
   onStateChanged: (state: CustomRulesStepState) => void;
   initialState: CustomRulesStepState;
@@ -99,8 +127,10 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   const [taskgroupId, setTaskgroupId] = React.useState<number | undefined>(
     undefined
   );
+
   const onShowUploadFiles = async (show: boolean) => {
-    if (show && taskgroupId === undefined) {
+    // Only request a taskgroup if ensureTaskGroup is provided and we don't have one yet
+    if (show && ensureTaskGroup && taskgroupId === undefined) {
       const taskgroup = await ensureTaskGroup();
       setTaskgroupId(taskgroup.id);
     }
@@ -155,7 +185,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customRulesFiles", newCustomRulesFiles);
 
     // Find all labels in the new rule files and push them to `customLabels`
-    const uniqueNewTargetLabels = buildSetOfTargetLabelsFromUploadFiles(
+    const uniqueNewTargetLabels = buildSetOfTargetLabels(
       ruleFiles,
       customLabels
     );
@@ -170,8 +200,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customRulesFiles", newCustomRulesFiles);
 
     // Rebuild the labels from the remaining rule files
-    const currentFileLabels =
-      buildSetOfTargetLabelsFromUploadFiles(newCustomRulesFiles);
+    const currentFileLabels = buildSetOfTargetLabels(newCustomRulesFiles);
     setValue("customLabels", currentFileLabels);
   };
 
@@ -449,7 +478,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
         </>
       )}
 
-      <UploadNewRulesFiles
+      <UploadRulesFiles
         key={showUploadFiles ? 1 : 2} // reset component state every modal open/close
         show={showUploadFiles}
         taskgroupId={taskgroupId}

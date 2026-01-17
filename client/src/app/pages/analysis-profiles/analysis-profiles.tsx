@@ -50,6 +50,7 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import AnalysisProfileDetailDrawer from "./components/analysis-profile-detail-drawer";
+import { AnalysisProfileWizard } from "./profile-wizard/analysis-profile-wizard";
 
 /**
  * Hook to find archetypes that reference a given analysis profile
@@ -75,8 +76,9 @@ export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  // TODO: Use profileToEdit when edit modal is implemented
-  const [_profileToEdit, setProfileToEdit] =
+  const [openCreateProfile, setOpenCreateProfile] =
+    React.useState<boolean>(false);
+  const [profileToEdit, setProfileToEdit] =
     React.useState<AnalysisProfile | null>(null);
   const [profileToDelete, setProfileToDelete] =
     React.useState<AnalysisProfile | null>(null);
@@ -187,7 +189,7 @@ export const AnalysisProfiles: React.FC = () => {
                     id="create-analysis-profile"
                     variant="primary"
                     onClick={() => {
-                      // TODO: Open create modal
+                      setOpenCreateProfile(true);
                     }}
                   >
                     {t("actions.createNew")}
@@ -241,7 +243,7 @@ export const AnalysisProfiles: React.FC = () => {
                       <Button
                         variant="primary"
                         onClick={() => {
-                          // TODO: Open create modal
+                          setOpenCreateProfile(true);
                         }}
                       >
                         {t("actions.createNew")}
@@ -340,6 +342,22 @@ export const AnalysisProfiles: React.FC = () => {
             setProfileToDelete(null);
           }
         }}
+      />
+
+      {/* Edit a profile */}
+      <AnalysisProfileWizard
+        key={profileToEdit?.id ?? -1}
+        analysisProfile={profileToEdit}
+        isOpen={!!profileToEdit}
+        onClose={() => setProfileToEdit(null)}
+      />
+
+      {/* Create a profile */}
+      <AnalysisProfileWizard
+        key={openCreateProfile ? "opened" : "closed"}
+        analysisProfile={null}
+        isOpen={openCreateProfile}
+        onClose={() => setOpenCreateProfile(false)}
       />
     </>
   );

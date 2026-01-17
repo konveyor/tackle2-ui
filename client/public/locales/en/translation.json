@@ -654,14 +654,17 @@
       "targetProfileCreated": "Target profile was successfully created.",
       "targetProfileUpdated": "Target profile was successfully updated.",
       "targetProfileDeleted": "Target profile was successfully deleted.",
-      "analysisProfileCreated": "Analysis profile {{name}} was successfully created."
+      "analysisProfileCreated": "Analysis profile {{name}} was successfully created.",
+      "analysisProfileUpdated": "Analysis profile {{name}} was successfully updated."
     },
     "fail": {
       "applicationsUpdated_one": "Application {{firstName}} failed to update.",
       "applicationsUpdated_other": "{{count}} applications failed to update.",
       "create": "Failed to create {{type}}.",
       "save": "Failed to save {{type}}.",
-      "duplicateAnalysisProfileName": "An analysis profile with the name \"{{name}}\" already exists."
+      "duplicateAnalysisProfileName": "An analysis profile with the name \"{{name}}\" already exists.",
+      "createAnalysisProfile": "Failed to create an analysis profile.",
+      "updateAnalysisProfile": "Failed to update an analysis profile."
     }
   },
   "tooltip": {
@@ -776,10 +779,14 @@
       "advancedAnalysisDetails": "Enable enhanced analysis details to get more information about the analysis."
     }
   },
-  "analysisWizard": {
+  "analysisSteps": {
+    "labels": {
+      "title": "Labels",
+      "description": "Review target labels, select additional labels, and add exclusions."
+    },
     "review": {
       "title": "Review analysis details",
-      "description": "Review the information below, then run the analysis.",
+      "analysisDescription": "Review the information below, then run the analysis.",
       "profileDescription": "Review the analysis profile configuration, then run the analysis.",
       "targets_one": "Target",
       "targets_other": "Targets",
@@ -787,6 +794,59 @@
       "packages": "Packages",
       "rules": "Rules",
       "autoTagging": "Automated tagging"
+    }
+  },
+  "analysisProfileWizard": {
+    "title": {
+      "create": "Create Analysis Profile",
+      "edit": "Edit Analysis Profile"
+    },
+    "toast": {
+      "create": "Analysis profile {{name}} was successfully created.",
+      "createFailed": "Failed to create analysis profile {{name}}.",
+      "edit": "Analysis profile {{name}} was successfully updated.",
+      "editFailed": "Failed to update analysis profile {{name}}."
+    },
+    "steps": {
+      "profileDetails": {
+        "stepTitle": "Profile Details",
+        "title": "Profile Details",
+        "description": "Enter the basic details for the analysis profile."
+      },
+      "configureAnalysis": {
+        "stepTitle": "Configure Analysis"
+      },
+      "analysisSource": {
+        "stepTitle": "Analysis Source",
+        "title": "Analysis Source",
+        "description": "Select the kind of source for the analysis."
+      },
+      "setTargets": {
+        "stepTitle": "Set Targets",
+        "title": "Set Targets",
+        "description": "Select one or more targets for the analysis."
+      },
+      "scope": {
+        "stepTitle": "Scope",
+        "title": "Scope",
+        "description": "Select the scope of dependencies you want to include in the analysis."
+      },
+      "advanced": {
+        "stepTitle": "Advanced"
+      },
+      "customRules": {
+        "stepTitle": "Custom Rules",
+        "title": "Custom Rules",
+        "description": "Include rules for the analysis by uploading or importing from a repository."
+      },
+      "labels": {
+        "stepTitle": "Labels"
+      },
+      "review": {
+        "stepTitle": "Review",
+        "title": "Review",
+        "description": "Review the analysis profile configuration, then run the analysis."
+      }
     }
   },
   "retrieveConfigWizard": {

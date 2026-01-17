@@ -1,4 +1,4 @@
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import { group } from "radash";
 
 import { ParsedRule, TargetLabel, UploadFile } from "@app/api/models";
