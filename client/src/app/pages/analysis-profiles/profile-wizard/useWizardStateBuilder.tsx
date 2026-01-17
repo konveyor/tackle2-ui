@@ -79,13 +79,12 @@ export const useWizardStateBuilder = (
     draft.scope.includedPackages = scope.packages.included ?? [];
     draft.scope.excludedPackages = scope.packages.excluded ?? [];
     draft.scope.hasExcludedPackages = draft.scope.excludedPackages.length > 0;
-    draft.scope.withKnownLibs = [
-      "app",
-      scope.withKnownLibs && "oss",
-      draft.scope.includedPackages.length > 0 && "select",
-    ]
-      .filter(Boolean)
-      .join(",") as AnalysisScopeType;
+    draft.scope.withKnownLibs =
+      draft.scope.includedPackages.length > 0
+        ? "app,oss,select"
+        : scope.withKnownLibs
+          ? "app,oss"
+          : "app";
 
     // custom rules
     draft.customRules.rulesKind = rules.repository ? "repository" : "manual";
