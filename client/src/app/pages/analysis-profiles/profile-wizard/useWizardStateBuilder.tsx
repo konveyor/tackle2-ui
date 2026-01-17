@@ -1,14 +1,28 @@
-import { AnalysisProfile } from "@app/api/models";
+import { useMemo } from "react";
+import { diff } from "radash";
+
+import { AnalysisProfile, TargetLabel } from "@app/api/models";
+import { useSourceLabels } from "@app/components/analysis/hooks/useSourceLabels";
+import { useTargetLabels } from "@app/components/analysis/hooks/useTargetLabels";
 import { AnalysisScopeType } from "@app/components/analysis/steps/analysis-scope";
+import { useFetchCustomRulesFiles } from "@app/queries/analysis-profiles";
 import { useFetchTargets } from "@app/queries/targets";
+import { parseAndGroupLabels } from "@app/utils/rules-utils";
+import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import { InitialStateRecipe } from "./useWizardReducer";
 
-// TODO: Finish implementing this
 export const useWizardStateBuilder = (
   analysisProfile: AnalysisProfile | null | undefined
 ): InitialStateRecipe => {
   const { targets } = useFetchTargets();
+  const sourceLabels = useSourceLabels();
+  const targetLabels = useTargetLabels();
+  const allLabels = useMemo(
+    () => [...targetLabels, ...sourceLabels],
+    [targetLabels, sourceLabels]
+  );
+  const { customRulesFiles } = useFetchCustomRulesFiles(analysisProfile);
 
   if (!analysisProfile) {
     return () => {};
@@ -68,7 +82,52 @@ export const useWizardStateBuilder = (
     // custom rules
     draft.customRules.rulesKind = rules.repository ? "repository" : "manual";
 
+    if (rules.repository) {
+      draft.customRules.repositoryType = rules.repository.kind;
+      draft.customRules.sourceRepository = rules.repository.url;
+      draft.customRules.branch = rules.repository.branch;
+      draft.customRules.rootPath = rules.repository.path;
+    }
+    if (rules.identity) {
+      draft.customRules.associatedCredentials = rules.identity.name;
+    }
+
+    draft.customRules.customRulesFiles = customRulesFiles;
+    draft.customRules.customLabels = buildSetOfTargetLabels(customRulesFiles);
+
     // labels
+    draft.labels.excludedLabels = rules.labels.excluded ?? [];
+
+    const groupedTargetLabels = labelsToGroupedTargetLabels(
+      rules.labels.included ?? [],
+      diff(allLabels, draft.customRules.customLabels)
+    );
+    draft.labels.additionalTargetLabels = groupedTargetLabels.target;
+    draft.labels.additionalSourceLabels = groupedTargetLabels.source;
   };
   return recipe;
+};
+
+const labelToTargetLabel = (label: string, availableLabels: TargetLabel[]) => {
+  const targetLabel = availableLabels.find((l) => l.label === label);
+  return targetLabel ?? { name: label, label };
+};
+
+const labelsToTargetLabels = (
+  strings: string[],
+  availableLabels: TargetLabel[]
+) => {
+  return strings.map((string) => labelToTargetLabel(string, availableLabels));
+};
+
+const labelsToGroupedTargetLabels = (
+  strings: string[],
+  availableLabels: TargetLabel[]
+) => {
+  const targetLabels = labelsToTargetLabels(strings, availableLabels);
+  const parsedLabels = parseAndGroupLabels(targetLabels);
+  return {
+    target: parsedLabels.target.map((l) => l.targetLabel),
+    source: parsedLabels.source.map((l) => l.targetLabel),
+  };
 };
