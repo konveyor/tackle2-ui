@@ -11,6 +11,7 @@ import {
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { AnalysisProfile } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { AnalysisLabels } from "@app/components/analysis/steps/analysis-labels";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
 import { AnalysisSource } from "@app/components/analysis/steps/analysis-source";
@@ -97,9 +98,19 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
     return null;
   }
 
-  // When editing a profile, wait for initial state data to load
+  // When editing a profile, show loading spinner while initial state data loads
   if (analysisProfile && isLoadingInitialState) {
-    return null;
+    return (
+      <Modal
+        isOpen={isOpen}
+        showClose={false}
+        aria-label="Analysis profile wizard modal"
+        onEscapePress={handleCancel}
+        variant={ModalVariant.large}
+      >
+        <AppPlaceholder />
+      </Modal>
+    );
   }
 
   return (
