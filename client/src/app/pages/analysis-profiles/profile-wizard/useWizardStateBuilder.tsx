@@ -12,20 +12,28 @@ import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
 import { InitialStateRecipe } from "./useWizardReducer";
 
+interface WizardStateBuilderResult {
+  recipe: InitialStateRecipe;
+  isLoading: boolean;
+}
+
 export const useWizardStateBuilder = (
   analysisProfile: AnalysisProfile | null | undefined
-): InitialStateRecipe => {
-  const { targets } = useFetchTargets();
+): WizardStateBuilderResult => {
+  const { targets, isFetching: isFetchingTargets } = useFetchTargets();
   const sourceLabels = useSourceLabels();
   const targetLabels = useTargetLabels();
   const allLabels = useMemo(
     () => [...targetLabels, ...sourceLabels],
     [targetLabels, sourceLabels]
   );
-  const { customRulesFiles } = useFetchCustomRulesFiles(analysisProfile);
+  const { customRulesFiles, isLoading: isLoadingFiles } =
+    useFetchCustomRulesFiles(analysisProfile);
+
+  const isLoading = isFetchingTargets || isLoadingFiles;
 
   if (!analysisProfile) {
-    return () => {};
+    return { recipe: () => {}, isLoading: false };
   }
 
   const { name, description, mode, rules, scope } = analysisProfile;
@@ -94,6 +102,7 @@ export const useWizardStateBuilder = (
 
     draft.customRules.customRulesFiles = customRulesFiles;
     draft.customRules.customLabels = buildSetOfTargetLabels(customRulesFiles);
+    draft.customRules.isValid = true;
 
     // labels
     draft.labels.excludedLabels = rules.labels.excluded ?? [];
@@ -104,8 +113,10 @@ export const useWizardStateBuilder = (
     );
     draft.labels.additionalTargetLabels = groupedTargetLabels.target;
     draft.labels.additionalSourceLabels = groupedTargetLabels.source;
+    draft.labels.isValid = true;
   };
-  return recipe;
+
+  return { recipe, isLoading };
 };
 
 const labelToTargetLabel = (label: string, availableLabels: TargetLabel[]) => {

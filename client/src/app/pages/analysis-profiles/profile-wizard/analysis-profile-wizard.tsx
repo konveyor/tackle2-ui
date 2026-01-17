@@ -56,7 +56,8 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const initialState = useWizardStateBuilder(analysisProfile);
+  const { recipe: initialState, isLoading: isLoadingInitialState } =
+    useWizardStateBuilder(analysisProfile);
 
   const {
     state,
@@ -93,6 +94,11 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
   };
 
   if (!isOpen) {
+    return null;
+  }
+
+  // When editing a profile, wait for initial state data to load
+  if (analysisProfile && isLoadingInitialState) {
     return null;
   }
 
