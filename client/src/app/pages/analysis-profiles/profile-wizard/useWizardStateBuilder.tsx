@@ -4,7 +4,6 @@ import { diff } from "radash";
 import { AnalysisProfile, TargetLabel } from "@app/api/models";
 import { useSourceLabels } from "@app/components/analysis/hooks/useSourceLabels";
 import { useTargetLabels } from "@app/components/analysis/hooks/useTargetLabels";
-import { AnalysisScopeType } from "@app/components/analysis/steps/analysis-scope";
 import { useFetchCustomRulesFiles } from "@app/queries/analysis-profiles";
 import { useFetchTargets } from "@app/queries/targets";
 import { parseAndGroupLabels } from "@app/utils/rules-utils";
@@ -108,7 +107,7 @@ export const useWizardStateBuilder = (
 
     const groupedTargetLabels = labelsToGroupedTargetLabels(
       rules.labels.included ?? [],
-      diff(allLabels, draft.customRules.customLabels)
+      diff(allLabels, draft.customRules.customLabels, (label) => label.label)
     );
     draft.labels.additionalTargetLabels = groupedTargetLabels.target;
     draft.labels.additionalSourceLabels = groupedTargetLabels.source;
