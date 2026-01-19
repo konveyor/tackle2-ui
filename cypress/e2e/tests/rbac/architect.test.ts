@@ -50,9 +50,6 @@ describe(
 
     before("Creating RBAC users, adding roles for them", function () {
       cy.clearLocalStorage();
-      User.loginKeycloakAdmin();
-      userArchitect.create();
-
       login();
       cy.visit("/");
       AssessmentQuestionnaire.enable(legacyPathfinder);
@@ -62,7 +59,8 @@ describe(
       application.create();
       application.perform_review("low");
       application.perform_assessment("low", stakeholders);
-      userArchitect.login();
+      User.loginKeycloakAdmin();
+      userArchitect.create();
     });
 
     beforeEach("Persist session", function () {
