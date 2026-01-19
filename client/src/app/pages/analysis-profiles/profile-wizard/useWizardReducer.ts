@@ -2,34 +2,34 @@ import { useCallback, useState } from "react";
 import { produce } from "immer";
 import { useImmerReducer } from "use-immer";
 
+import { AnalysisLabelsState } from "@app/components/analysis/steps/analysis-labels";
 import { AnalysisScopeState } from "@app/components/analysis/steps/analysis-scope";
 import { AnalysisModeState } from "@app/components/analysis/steps/analysis-source";
 import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
-import { AdvancedOptionsState } from "@app/components/analysis/steps/options-advanced";
 import { SetTargetsState } from "@app/components/analysis/steps/set-targets";
 
-import { WizardFlowModeState } from "./steps/wizard-mode";
+import { ProfileDetailsState } from "./steps/profile-details";
 
 export interface WizardState {
-  flowMode: WizardFlowModeState;
+  profileDetails: ProfileDetailsState;
   mode: AnalysisModeState;
   targets: SetTargetsState;
   scope: AnalysisScopeState;
   customRules: CustomRulesStepState;
-  options: AdvancedOptionsState;
-  isReady: boolean;
+  labels: AnalysisLabelsState;
+  isValid: boolean;
 }
 
 const INITIAL_WIZARD_STATE: WizardState = {
-  flowMode: {
-    flowMode: "manual",
-    selectedProfile: null,
-    isValid: true, // Manual mode is valid by default
+  profileDetails: {
+    name: "",
+    description: "",
+    isValid: false,
   },
   mode: {
     mode: "source-code-deps",
     artifact: null,
-    isValid: false,
+    isValid: true, // For profile wizard, mode is always valid (no application validation)
   },
   targets: {
     selectedTargets: [],
@@ -47,27 +47,24 @@ const INITIAL_WIZARD_STATE: WizardState = {
     rulesKind: "manual",
     customRulesFiles: [],
     customLabels: [],
-    isValid: false, // Custom rules are initially required since no targets are initially selected
+    isValid: true, // Custom rules are optional for profiles
   },
-  options: {
+  labels: {
     additionalTargetLabels: [],
     additionalSourceLabels: [],
     excludedLabels: [],
-    autoTaggingEnabled: true,
-    advancedAnalysisEnabled: false,
-    saveAsProfile: false,
     isValid: true,
   },
-  isReady: false,
+  isValid: true, // Start as valid since profile can be empty
 };
 
 type WizardAction =
-  | { type: "SET_FLOW_MODE"; payload: WizardFlowModeState }
+  | { type: "SET_PROFILE_DETAILS"; payload: ProfileDetailsState }
   | { type: "SET_MODE"; payload: AnalysisModeState }
   | { type: "SET_TARGETS"; payload: SetTargetsState }
   | { type: "SET_SCOPE"; payload: AnalysisScopeState }
   | { type: "SET_CUSTOM_RULES"; payload: CustomRulesStepState }
-  | { type: "SET_OPTIONS"; payload: AdvancedOptionsState }
+  | { type: "SET_LABELS"; payload: AnalysisLabelsState }
   | { type: "RESET"; payload: WizardState };
 
 const wizardReducer = (
@@ -76,8 +73,8 @@ const wizardReducer = (
 ): WizardState | void => {
   if (action) {
     switch (action.type) {
-      case "SET_FLOW_MODE":
-        draft.flowMode = action.payload;
+      case "SET_PROFILE_DETAILS":
+        draft.profileDetails = action.payload;
         break;
       case "SET_MODE":
         draft.mode = action.payload;
@@ -91,38 +88,32 @@ const wizardReducer = (
       case "SET_CUSTOM_RULES":
         draft.customRules = action.payload;
         break;
-      case "SET_OPTIONS":
-        draft.options = action.payload;
+      case "SET_LABELS":
+        draft.labels = action.payload;
         break;
       case "RESET":
         return action.payload;
     }
   }
 
-  // Validate and update isReady state after any change
-  // Profile mode: only flowMode and options need to be valid
-  // Manual mode: all steps must be valid
-  if (draft.flowMode.flowMode === "profile") {
-    draft.isReady = draft.flowMode.isValid && draft.options.isValid;
-  } else {
-    draft.isReady =
-      draft.flowMode.isValid &&
-      draft.mode.isValid &&
-      draft.targets.isValid &&
-      draft.scope.isValid &&
-      draft.customRules.isValid &&
-      draft.options.isValid;
-  }
+  // Validate and update isValid state after any change
+  draft.isValid =
+    draft.profileDetails.isValid &&
+    draft.mode.isValid &&
+    draft.targets.isValid &&
+    draft.scope.isValid &&
+    draft.customRules.isValid &&
+    draft.labels.isValid;
 };
 
 export type InitialStateRecipe = (draftInitialState: WizardState) => void;
 
-const useImmerInitialState = (
-  initialRecipe?: InitialStateRecipe
-): WizardState => {
+const useImmerInitialState = (init?: InitialStateRecipe): WizardState => {
   const [initialState] = useState(() =>
     produce(INITIAL_WIZARD_STATE, (draft) => {
-      initialRecipe?.(draft);
+      if (typeof init === "function") {
+        init(draft);
+      }
       wizardReducer(draft);
     })
   );
@@ -130,17 +121,13 @@ const useImmerInitialState = (
 };
 
 export const useWizardReducer = (init?: InitialStateRecipe) => {
-  // Ref: https://18.react.dev/reference/react/useReducer#avoiding-recreating-the-initial-state
-  // Allow RESET to have the same semantics as useReducer()'s initialState argument by just
-  // calculating the initial state once and storing it in a ref.
   const firstInitialState = useImmerInitialState(init);
-
   const [state, dispatch] = useImmerReducer(wizardReducer, firstInitialState);
 
   // Create stable callbacks using useCallback
-  const setFlowMode = useCallback(
-    (flowMode: WizardFlowModeState) => {
-      dispatch({ type: "SET_FLOW_MODE", payload: flowMode });
+  const setProfileDetails = useCallback(
+    (profileDetails: ProfileDetailsState) => {
+      dispatch({ type: "SET_PROFILE_DETAILS", payload: profileDetails });
     },
     [dispatch]
   );
@@ -173,9 +160,9 @@ export const useWizardReducer = (init?: InitialStateRecipe) => {
     [dispatch]
   );
 
-  const setOptions = useCallback(
-    (options: AdvancedOptionsState) => {
-      dispatch({ type: "SET_OPTIONS", payload: options });
+  const setLabels = useCallback(
+    (labels: AnalysisLabelsState) => {
+      dispatch({ type: "SET_LABELS", payload: labels });
     },
     [dispatch]
   );
@@ -186,12 +173,12 @@ export const useWizardReducer = (init?: InitialStateRecipe) => {
 
   return {
     state,
-    setFlowMode,
+    setProfileDetails,
     setMode,
     setTargets,
     setScope,
     setCustomRules,
-    setOptions,
+    setLabels,
     reset,
   };
 };

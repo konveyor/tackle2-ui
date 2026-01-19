@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, useWatch } from "react-hook-form";
+import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import { Form, Radio, Switch, Text, Title } from "@patternfly/react-core";
@@ -9,11 +9,42 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 
-import {
-  AnalysisScopeState,
-  AnalysisScopeValues,
-  useAnalysisScopeSchema,
-} from "../schema";
+// Scope step
+export type AnalysisScopeType = "app" | "app,oss" | "app,oss,select";
+
+export interface AnalysisScopeValues {
+  withKnownLibs: AnalysisScopeType;
+  includedPackages: string[];
+  hasExcludedPackages: boolean;
+  excludedPackages: string[];
+}
+
+export interface AnalysisScopeState extends AnalysisScopeValues {
+  isValid: boolean;
+}
+
+export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
+  const { t } = useTranslation();
+  return yup.object({
+    withKnownLibs: yup
+      .mixed<AnalysisScopeType>()
+      .oneOf(["app", "app,oss", "app,oss,select"])
+      .required(t("validation.required")),
+    includedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("withKnownLibs", (withKnownLibs, schema) =>
+        "app,oss,select" === withKnownLibs ? schema.min(1) : schema
+      ),
+    hasExcludedPackages: yup.bool().defined(),
+    excludedPackages: yup
+      .array()
+      .of(yup.string().defined())
+      .when("hasExcludedPackages", (hasExcludedPackages, schema) =>
+        hasExcludedPackages ? schema.min(1) : schema
+      ),
+  });
+};
 
 interface AnalysisScopeProps {
   onStateChanged: (state: AnalysisScopeState) => void;
@@ -44,6 +75,12 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
   });
 
   useFormChangeHandler({ form, onStateChanged });
+  const setValue: UseFormSetValue<AnalysisScopeValues> = React.useCallback(
+    (name, value) => {
+      form.setValue(name, value, { shouldValidate: true });
+    },
+    [form]
+  );
 
   const {
     withKnownLibs,
@@ -68,7 +105,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
         name="app"
         isChecked={withKnownLibs === "app"}
         onChange={() => {
-          form.setValue("withKnownLibs", "app");
+          setValue("withKnownLibs", "app");
         }}
         label={t("wizard.label.scopeInternalDeps")}
         className={spacing.mbXs}
@@ -78,7 +115,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
         name="oss"
         isChecked={withKnownLibs === "app,oss"}
         onChange={() => {
-          form.setValue("withKnownLibs", "app,oss");
+          setValue("withKnownLibs", "app,oss");
         }}
         label={t("wizard.label.scopeAllDeps")}
         className={spacing.mbXs}
@@ -88,7 +125,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
         name="select"
         isChecked={withKnownLibs === "app,oss,select"}
         onChange={() => {
-          form.setValue("withKnownLibs", "app,oss,select");
+          setValue("withKnownLibs", "app,oss,select");
         }}
         label={t("wizard.label.scopeSelectDeps")}
         className="scope-select-radio-button"
@@ -96,7 +133,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
           withKnownLibs?.includes("select") ? (
             <StringListField
               listItems={includedPackages ?? []}
-              setListItems={(items) => form.setValue("includedPackages", items)}
+              setListItems={(items) => setValue("includedPackages", items)}
               itemToAddSchema={packageNameSchema}
               itemToAddFieldId="packageToInclude"
               itemToAddAriaLabel={t("wizard.label.packageToInclude")}
@@ -115,14 +152,14 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
         label={t("wizard.label.excludePackages")}
         isChecked={hasExcludedPackages}
         onChange={(_event, checked) => {
-          form.setValue("hasExcludedPackages", checked);
+          setValue("hasExcludedPackages", checked);
         }}
         className={spacing.mtMd}
       />
       {hasExcludedPackages ? (
         <StringListField
           listItems={excludedPackages ?? []}
-          setListItems={(items) => form.setValue("excludedPackages", items)}
+          setListItems={(items) => setValue("excludedPackages", items)}
           itemToAddSchema={packageNameSchema}
           itemToAddFieldId="packageToExclude"
           itemToAddAriaLabel={t("wizard.label.packageToExclude")}

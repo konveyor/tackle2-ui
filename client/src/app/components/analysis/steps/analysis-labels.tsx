@@ -1,12 +1,10 @@
 import * as React from "react";
-import { useCallback } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
-  Checkbox,
   Flex,
   FlexItem,
   Form,
@@ -14,18 +12,17 @@ import {
   Text,
   TextContent,
   Title,
-  Tooltip,
 } from "@patternfly/react-core";
 import {
   Select,
   SelectOption,
   SelectVariant,
 } from "@patternfly/react-core/deprecated";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { Target, TargetLabel } from "@app/api/models";
+import { TargetLabelSchema } from "@app/api/schemas";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
@@ -33,23 +30,38 @@ import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import { getValidatedFromErrors } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
-import {
-  AdvancedOptionsState,
-  AdvancedOptionsValues,
-  CustomRulesStepState,
-  useAdvancedOptionsSchema,
-} from "../schema";
-import { useSourceLabels } from "../useSourceLabels";
-import { useTargetLabels } from "../useTargetLabels";
+import { useSourceLabels } from "../hooks/useSourceLabels";
+import { useTargetLabels } from "../hooks/useTargetLabels";
 
-interface AdvancedOptionsProps {
-  selectedTargets: [Target, TargetLabel | null][];
-  customRules: CustomRulesStepState;
-  onStateChanged: (state: AdvancedOptionsState) => void;
-  initialState: AdvancedOptionsState;
+import { CustomRulesStepState } from "./custom-rules";
+
+export interface AnalysisLabelsValues {
+  additionalTargetLabels: TargetLabel[];
+  additionalSourceLabels: TargetLabel[];
+  excludedLabels: string[];
 }
 
-export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
+export interface AnalysisLabelsState extends AnalysisLabelsValues {
+  isValid: boolean;
+}
+
+export const useAnalysisLabelsSchema =
+  (): yup.SchemaOf<AnalysisLabelsValues> => {
+    return yup.object({
+      additionalTargetLabels: yup.array().of(TargetLabelSchema),
+      additionalSourceLabels: yup.array().of(TargetLabelSchema),
+      excludedLabels: yup.array().of(yup.string().defined()),
+    });
+  };
+
+interface AnalysisLabelsProps {
+  selectedTargets: [Target, TargetLabel | null][];
+  customRules: CustomRulesStepState;
+  onStateChanged: (state: AnalysisLabelsState) => void;
+  initialState: AnalysisLabelsState;
+}
+
+export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
   selectedTargets,
   customRules,
   onStateChanged,
@@ -57,35 +69,30 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const schema = useAdvancedOptionsSchema();
-  const form = useForm<AdvancedOptionsValues>({
+  const schema = useAnalysisLabelsSchema();
+  const form = useForm<AnalysisLabelsValues>({
     defaultValues: {
       additionalTargetLabels: initialState.additionalTargetLabels,
       additionalSourceLabels: initialState.additionalSourceLabels,
       excludedLabels: initialState.excludedLabels,
-      autoTaggingEnabled: initialState.autoTaggingEnabled,
-      advancedAnalysisEnabled: initialState.advancedAnalysisEnabled,
     },
     mode: "all",
     resolver: yupResolver(schema),
   });
-  const setValue: UseFormSetValue<AdvancedOptionsValues> = useCallback(
+  const setValue: UseFormSetValue<AnalysisLabelsValues> = React.useCallback(
     (name, value) => {
       form.setValue(name, value, { shouldValidate: true });
     },
     [form]
   );
+
   const { control } = form;
-
-  const { excludedLabels, autoTaggingEnabled, advancedAnalysisEnabled } =
-    useWatch({ control });
-
+  const { excludedLabels } = useWatch({ control });
   useFormChangeHandler({ form, onStateChanged });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
 
-  // TODO: Include labels parsed from uploaded manual custom rule files?
   const availableTargetLabels = parseLabels(useTargetLabels());
   const availableSourceLabels = parseLabels(useSourceLabels());
 
@@ -109,9 +116,9 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
     >
       <TextContent>
         <Title headingLevel="h3" size="xl">
-          {t("wizard.title.advancedOptions")}
+          {t("analysisSteps.labels.title")}
         </Title>
-        <Text>{t("wizard.label.advancedOptions")}</Text>
+        <Text>{t("analysisSteps.labels.description")}</Text>
       </TextContent>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
@@ -292,42 +299,6 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({
         removeItemButtonId={(tag) => `remove-${tag}-from-excluded-rules-tags`}
         className={spacing.mtMd}
       />
-
-      <Checkbox
-        className={spacing.mtMd}
-        label={t("wizard.composed.enable", {
-          what: t("wizard.terms.autoTagging").toLowerCase(),
-        })}
-        isChecked={autoTaggingEnabled}
-        onChange={() => setValue("autoTaggingEnabled", !autoTaggingEnabled)}
-        id="enable-auto-tagging-checkbox"
-        name="autoTaggingEnabled"
-      />
-
-      <Flex>
-        <FlexItem>
-          <Checkbox
-            className={spacing.mtMd}
-            label={t("wizard.composed.enable", {
-              what: t("wizard.terms.advancedAnalysisDetails").toLowerCase(),
-            })}
-            isChecked={advancedAnalysisEnabled}
-            onChange={() =>
-              setValue("advancedAnalysisEnabled", !advancedAnalysisEnabled)
-            }
-            id="enable-advanced-analysis-details-checkbox"
-            name="advancedAnalysisEnabled"
-          />
-        </FlexItem>
-        <FlexItem>
-          <Tooltip
-            position="right"
-            content={t("wizard.tooltip.advancedAnalysisDetails")}
-          >
-            <QuestionCircleIcon className={spacing.mlSm} />
-          </Tooltip>
-        </FlexItem>
-      </Flex>
     </Form>
   );
 };

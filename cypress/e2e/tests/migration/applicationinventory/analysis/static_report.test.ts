@@ -55,7 +55,7 @@ import {
 
 const appName = "Downloaded-Report-Test-App";
 
-describe(["@tier2"], "Prepare Downloaded Report", function () {
+describe(["@tier1"], "Prepare Downloaded Report", function () {
   it("Download and extract report", function () {
     cy.fixture("application").then(function (appData) {
       cy.fixture("analysis").then(function (analysisData) {
@@ -84,7 +84,7 @@ describe(["@tier2"], "Prepare Downloaded Report", function () {
   });
 });
 
-describe(["@tier2"], "Test Static Report UI", { baseUrl: null }, function () {
+describe(["@tier1"], "Test Static Report UI", { baseUrl: null }, function () {
   const reportData = {
     name: "Adopt Maven Surefire plugin",
     category: "mandatory",
@@ -143,7 +143,7 @@ describe(["@tier2"], "Test Static Report UI", { baseUrl: null }, function () {
   });
 });
 
-describe(["@tier2"], "Delete Downloaded Report Data", function () {
+describe(["@tier1"], "Delete Downloaded Report Data", function () {
   it("Delete Downloaded Report Data", function () {
     login();
     cy.visit("/");

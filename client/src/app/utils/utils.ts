@@ -264,6 +264,10 @@ export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
   };
 }
 
+export function isEmptyString(value: string | undefined | null): boolean {
+  return value === undefined || value === null || value.trim() === "";
+}
+
 export function isNotEmptyString(value: string | undefined | null): boolean {
   return value !== undefined && value !== null && value.trim() !== "";
 }

@@ -2,28 +2,11 @@ import { useMemo } from "react";
 import { toggle, unique } from "radash";
 
 import { Application, Target, TargetLabel } from "@app/api/models";
+import {
+  AnalysisMode,
+  isModeSupported,
+} from "@app/components/analysis/steps/analysis-source";
 import { getParsedLabel } from "@app/utils/rules-utils";
-import { isNotEmptyString } from "@app/utils/utils";
-
-import { ANALYSIS_MODES, AnalysisMode } from "./schema";
-
-export const isModeSupported = (application: Application, mode?: string) => {
-  switch (mode) {
-    case "binary-upload":
-      return true;
-
-    case "binary":
-      return /.+:.+:.+/.test(application?.binary ?? "");
-
-    case "source-code-deps":
-      return isNotEmptyString(application?.repository?.url);
-
-    case "source-code":
-      return isNotEmptyString(application?.repository?.url);
-  }
-
-  return false;
-};
 
 const filterAnalyzableApplications = (
   applications: Application[],
@@ -37,21 +20,6 @@ export const useAnalyzableApplications = (
   useMemo(
     () => filterAnalyzableApplications(applications, mode),
     [applications, mode]
-  );
-
-export const useAnalyzableApplicationsByMode = (
-  applications: Application[]
-): Record<AnalysisMode, Application[]> =>
-  useMemo(
-    () =>
-      ANALYSIS_MODES.reduce(
-        (record, mode) => ({
-          ...record,
-          [mode]: filterAnalyzableApplications(applications, mode),
-        }),
-        {} as Record<AnalysisMode, Application[]>
-      ),
-    [applications]
   );
 
 /**

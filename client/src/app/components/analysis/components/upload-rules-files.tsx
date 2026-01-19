@@ -5,15 +5,15 @@ import { Button, Modal } from "@patternfly/react-core";
 import { UploadFile } from "@app/api/models";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
 
-export interface UploadNewRulesFilesProps {
+export interface UploadRulesFilesProps {
   show: boolean;
-  taskgroupId: number | undefined;
+  taskgroupId?: number;
   existingFiles: UploadFile[];
   onAddFiles: (newFiles: UploadFile[]) => void;
   onClose: () => void;
 }
 
-export const UploadNewRulesFiles: React.FC<UploadNewRulesFilesProps> = ({
+export const UploadRulesFiles: React.FC<UploadRulesFilesProps> = ({
   show,
   taskgroupId,
   existingFiles,

@@ -13,16 +13,17 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-  deleteByList,
+  deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
 } from "../../../../../utils/utils";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
-import { SEC } from "../../../../types/constants";
 import { AnalysisLogView } from "../../../../views/analysis.view";
 
 const applicationsList: Array<Analysis> = [];
+const applicationIds: number[] = [];
+
 describe(["@tier1"], "Nodejs Analysis", () => {
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
@@ -49,13 +50,14 @@ describe(["@tier1"], "Nodejs Analysis", () => {
     application.create();
     applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     application.verifyAnalysisStatus("Completed");
-    cy.wait(2 * SEC);
     application.verifyEffort(
       this.analysisData["source_analysis_on_nodejsApp"]["effort"]
     );
-    cy.wait(2 * SEC);
     application.validateIssues(
       this.analysisData["source_analysis_on_nodejsApp"]["issues"]
     );
@@ -67,6 +69,6 @@ describe(["@tier1"], "Nodejs Analysis", () => {
   });
 
   after("Perform test data clean up", () => {
-    deleteByList(applicationsList);
+    deleteBulkApplicationsByApi(applicationIds);
   });
 });

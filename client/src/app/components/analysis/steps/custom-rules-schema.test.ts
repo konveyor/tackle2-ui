@@ -1,7 +1,7 @@
 import "@app/yup"; // Import custom yup methods
 import { UploadFile } from "@app/api/models";
 
-import { CustomRulesStepValues, useCustomRulesSchema } from "./schema";
+import { CustomRulesStepValues, useCustomRulesSchema } from "./custom-rules";
 
 // Helper to create a valid UploadFile object for testing
 const createMockUploadFile = (

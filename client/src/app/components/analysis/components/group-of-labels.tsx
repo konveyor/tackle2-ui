@@ -12,7 +12,7 @@ export const GroupOfLabels = ({
   labelColor?: LabelProps["color"];
 }) => {
   return (
-    <LabelGroup categoryName={groupName} numLabels={5}>
+    <LabelGroup categoryName={groupName} numLabels={5} isCompact>
       {items.map((item) => (
         <Label key={item.label} color={labelColor}>
           {item.value}

@@ -1014,4 +1014,20 @@ export class Application {
         cy.get(icon, { timeout }).should("be.visible");
       });
   }
+
+  extractIDfromName(): Cypress.Chainable<number | null> {
+    this.selectApplicationRow();
+
+    return cy.url().then((currentUrl) => {
+      const urlObj = new URL(currentUrl);
+      const activeItem = urlObj.searchParams.get("activeItem");
+
+      if (!activeItem) {
+        return null;
+      }
+
+      const id = Number(activeItem);
+      return Number.isNaN(id) ? null : id;
+    });
+  }
 }

@@ -33,7 +33,7 @@ let source_credential: CredentialsSourceControlUsername;
 let application: Analysis;
 
 describe(
-  ["@tier3"],
+  ["@tier1"],
   "Select the list of packages to be analyzed manually",
   () => {
     before("Login", function () {

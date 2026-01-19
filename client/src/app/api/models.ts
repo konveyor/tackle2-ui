@@ -450,7 +450,12 @@ export interface AnalysisTaskData {
     enabled: boolean;
   };
   verbosity: number;
-  mode: {
+
+  // Profile-based analysis (mutually exclusive with mode/scope/rules)
+  profile?: Ref | IdRef;
+
+  // Manual analysis fields (optional when using profile)
+  mode?: {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
@@ -458,7 +463,7 @@ export interface AnalysisTaskData {
   };
   targets?: string[];
   sources?: string[];
-  scope: {
+  scope?: {
     withKnownLibs: boolean;
     packages: {
       included: string[];
@@ -1089,11 +1094,17 @@ export interface AnalysisProfileLabels {
   excluded?: string[];
 }
 
+export interface AnalysisProfileTarget {
+  id: number;
+  name: string;
+  selection?: string;
+}
+
 export interface AnalysisProfileRules {
   labels: AnalysisProfileLabels;
   repository?: Repository;
-  // TODO: Add field for Identity/Credential for the repository?
-  targets?: Ref[];
+  identity?: Ref;
+  targets?: AnalysisProfileTarget[];
   files?: Ref[];
 }
 
