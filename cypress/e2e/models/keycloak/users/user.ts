@@ -131,8 +131,8 @@ export class User {
   }
 
   protected inputPassword(password: string) {
-    inputText(passwordInput, password, false);
-    inputText(passwordConfirm, password, false);
+    inputText(passwordInput, password);
+    inputText(passwordConfirm, password);
   }
 
   create(): void {
