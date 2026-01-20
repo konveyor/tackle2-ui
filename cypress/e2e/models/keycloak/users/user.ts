@@ -130,9 +130,8 @@ export class User {
   }
 
   protected inputPassword(password: string) {
-    // TODO: Remove false, true after fix: https://github.com/keycloak/keycloak/issues/44278
-    inputText(passwordInput, password, false, true);
-    inputText(passwordConfirm, password, false, true);
+    inputText(passwordInput, password);
+    inputText(passwordConfirm, password);
   }
 
   create(): void {
