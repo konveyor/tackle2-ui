@@ -2013,6 +2013,7 @@ export function closeModalWindow(): void {
 }
 
 export function next(waitForEnabled = true): void {
+  cy.log("Click Next button");
   if (waitForEnabled) {
     cy.contains(button, "Next", { timeout: 10 * SEC })
       .should("not.be.disabled")
