@@ -10,6 +10,7 @@ const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
 const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
+require("dotenv").config();
 
 export default defineConfig({
   // Cypress.env() values
