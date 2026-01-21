@@ -312,7 +312,7 @@ CYPRESS_INCLUDE_TAGS=@tier0,@tier1 npm run e2e:run:local
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs ci)"
 ```
 
 #### `@tier0` - Basic Sanity Tests
@@ -328,7 +328,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier0)"
 ```
 
 #### `@tier1` - Analysis Tests with Credentials
@@ -347,7 +347,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier0)
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier1)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier1)"
 ```
 
 #### `@tier2` - Comprehensive CRUD Tests
@@ -358,7 +358,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier1)
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier2)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier2)"
 ```
 
 #### `@tier3` - Sorting and Filtering Tests
@@ -373,7 +373,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier2)
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier3)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier3)"
 ```
 
 #### `@tier4` - Load and Performance Tests
@@ -387,7 +387,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier3)
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier4)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier4)"
 ```
 
 #### `@interop` - Interoperability Tests
@@ -401,7 +401,7 @@ npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier4)
 **Usage**:
 
 ```bash
-npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs interop)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs interop)"
 ```
 
 ## Code Formatting
