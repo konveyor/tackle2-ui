@@ -531,6 +531,7 @@ export class Application {
     cy.contains("button", analyzeButton, { timeout: 20 * SEC })
       .should("be.enabled")
       .click();
+    clickByText(button, "Next");
     cy.get(sourceDropdown).click();
     doesExistText("Upload a local binary", rbacRules["Upload binary"]);
     clickByText(button, "Cancel");
