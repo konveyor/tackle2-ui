@@ -143,19 +143,19 @@ As a UI developer, you can use the e2e tests to validate your changes before sub
    npm run e2e:run:local -- --spec "e2e/tests/controls/stakeholder.test.ts"
 
    # Or use interactive mode to debug
-   npm run e2e:run:open
+   npm run e2e:open:local
    ```
 
 3. **Run the CI test suite** before submitting:
 
    ```sh
    # These are the tests that run in CI
-   npx cypress run --spec "$(node scripts/findTierFiles.mjs ci)"
+   npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs ci)"
    ```
 
 ### Tips for Developers
 
-- Use `npx cypress open` for interactive debugging with time-travel and DOM snapshots
+- Use `npx dotenvx run -- npx cypress open` for interactive debugging with time-travel and DOM snapshots
 - Focus on tests related to the area you're modifying
 - The `@ci` tagged tests are fast and don't require external credentials
 - Check the test output in `cypress/run/` for the summary report, screenshots and individual reports on failures
@@ -191,16 +191,16 @@ When developing or updating e2e tests:
 
 ```sh
 # Run all CI tests
-npx cypress run --spec "$(node scripts/findTierFiles.mjs ci)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs ci)"
 
 # Run tier0 tests (smoke tests)
-npx cypress run --spec "$(node scripts/findTierFiles.mjs tier0)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier0)"
 
 # Run tier1 tests (requires git credentials)
-npx cypress run --spec "$(node scripts/findTierFiles.mjs tier1)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier1)"
 
 # Run multiple tiers
-npx cypress run --spec "$(node scripts/findTierFiles.mjs tier0,tier1)"
+npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier0,tier1)"
 ```
 
 ### Pull Request Testing
@@ -312,7 +312,7 @@ CYPRESS_INCLUDE_TAGS=@tier0,@tier1 npm run e2e:run:local
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
 ```
 
 #### `@tier0` - Basic Sanity Tests
@@ -328,7 +328,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs ci)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
 ```
 
 #### `@tier1` - Analysis Tests with Credentials
@@ -347,7 +347,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier0)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier1)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier1)"
 ```
 
 #### `@tier2` - Comprehensive CRUD Tests
@@ -358,7 +358,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier1)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier2)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier2)"
 ```
 
 #### `@tier3` - Sorting and Filtering Tests
@@ -373,7 +373,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier2)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier3)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier3)"
 ```
 
 #### `@tier4` - Load and Performance Tests
@@ -387,7 +387,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier3)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier4)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs tier4)"
 ```
 
 #### `@interop` - Interoperability Tests
@@ -401,7 +401,7 @@ npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs tier4)"
 **Usage**:
 
 ```bash
-npx cypress run --spec "$(node cypress/scripts/findTierFiles.mjs interop)"
+npm run e2e:run:local -- --spec "$(node cypress/scripts/findTierFiles.mjs interop)"
 ```
 
 ## Code Formatting
