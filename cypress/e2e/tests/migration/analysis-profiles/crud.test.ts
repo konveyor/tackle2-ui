@@ -38,13 +38,12 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
 
     const analysisProfile = new AnalysisProfile(
       profileName,
-      getRandomAnalysisData(this.analysisData["tackle_test_app_custom_rules"]),
+      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
       profileDescription
     );
 
     analysisProfile.create();
 
-    // Verify create success alert
     checkSuccessAlert(
       commonView.successAlertMessage,
       `Analysis profile ${profileName} was successfully created.`,
@@ -63,7 +62,6 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
       false
     );
 
-    // Verify edit success alert
     checkSuccessAlert(
       commonView.successAlertMessage,
       `Analysis profile ${updatedProfileName} was successfully updated.`,
@@ -72,8 +70,6 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
     exists(updatedProfileName);
 
     analysisProfile.delete();
-
-    // Verify delete success alert
     checkSuccessAlert(
       commonView.successAlertMessage,
       `Analysis profile ${updatedProfileName} was successfully deleted.`,
