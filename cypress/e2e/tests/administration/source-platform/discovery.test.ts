@@ -30,11 +30,7 @@ import { CredentialType, UserCredentials } from "../../../types/constants";
 let cfCreds: CredentialsSourceControlUsername;
 let cfInstance: SourcePlatform;
 
-const describeOrSkip = (Cypress.env("CI") === true || Cypress.env("CI") === "true" || Cypress.env("CI") === '1')
-  ? describe.skip
-  : describe;
-
-describeOrSkip(["@tier1"], "Cloud Foundry discovery", () => {
+describe(["@tier1", "cf"], "Cloud Foundry discovery", () => {
   before("Verify Cloud Foundry env variables are present", function () {
     if (
       !Cypress.env("cloudfoundry_user") ||
