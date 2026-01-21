@@ -33,6 +33,7 @@ export const useProfileDetailsSchema = ({
     name: yup
       .string()
       .required()
+      .min(3, t("validation.minLength", { length: 3 }))
       .test(
         "unique-name",
         t("validation.duplicateAnalysisProfileName"),
