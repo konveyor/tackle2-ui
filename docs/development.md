@@ -64,5 +64,6 @@ export interface FormValues {
 
 For more info about working on the Tackle 2.x UI, check out these READMEs:
 
-- [tests.md](/docs/tests.md)
+- [tests.md](/docs/tests.md) - Unit testing with Jest
+- [cypress/README.md](/cypress/README.md) - End-to-end testing with Cypress
 - [internationalization.md](/INTERNATIONALIZATION.md)

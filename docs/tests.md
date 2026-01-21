@@ -1,6 +1,12 @@
-## Testing library
+# Testing
 
-- Jest will assume everything in directories names`__test__` will be related to tests.
+This document covers unit testing for the tackle2-ui client. For end-to-end (E2E) testing with Cypress, see [cypress/README.md](/cypress/README.md).
+
+## Unit Testing with Jest
+
+### Testing library
+
+- Jest will assume everything in directories named `__test__` will be related to tests.
 - Our thought process around test selectors is generally to decouple display logic from any testing logic. This involves following the `testing-library` recommendation for selecting elements based on role instead of creating test specific IDs where possible. [Docs on selector priority here](https://testing-library.com/docs/queries/about/#priority).
   - NOTE: the above applies to our testing methodology for our unit tests. For QE automation tests, we should be providing an `id` for each form field. Other than form fields, we are assuming that QE can use `Patternfly` provided `id` selectors where possible. We plan to handle any issues relating to a missing `id` on a case-by-case basis.
 
