@@ -31,7 +31,7 @@ import {
   Languages,
   RepositoryType,
   SEC,
-  analysisProfile,
+  analysisProfiles,
   button,
   clearAllFilters,
   migration,
@@ -42,7 +42,6 @@ import {
   cancelButton,
   checkboxInput,
   description as profileDescriptionInput,
-  fileInput,
   languageListbox,
   menuListItem,
   name as profileNameInput,
@@ -81,7 +80,6 @@ export class AnalysisProfile {
   source: string;
   target: string[];
   binary?: string[];
-  scope?: string;
   excludePackages?: string[];
   customRule?: string[];
   customRuleRepository?: RulesRepositoryFields;
@@ -106,7 +104,6 @@ export class AnalysisProfile {
       source,
       target,
       binary,
-      scope,
       excludePackages,
       customRule,
       sources,
@@ -116,7 +113,6 @@ export class AnalysisProfile {
       effort,
       manuallyAnalyzePackages,
       excludedPackagesList,
-      incidents,
       openSourceLibraries,
       customRuleRepository,
       language,
@@ -124,7 +120,6 @@ export class AnalysisProfile {
     this.source = source;
     this.target = target;
     if (binary) this.binary = binary;
-    if (scope) this.scope = scope;
     if (customRule) this.customRule = customRule;
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
@@ -144,7 +139,7 @@ export class AnalysisProfile {
     const itemsPerPage = 100;
     if (forceReload) {
       cy.visit(AnalysisProfile.fullUrl, { timeout: 35 * SEC }).then((_) => {
-        cy.get("h1", { timeout: 10 * SEC }).should("contain", analysisProfile);
+        cy.get("h1", { timeout: 10 * SEC }).should("contain", analysisProfiles);
         selectItemsPerPage(itemsPerPage);
       });
       return;
@@ -153,8 +148,8 @@ export class AnalysisProfile {
     cy.url().then(($url) => {
       if ($url != AnalysisProfile.fullUrl) {
         selectUserPerspective(migration);
-        clickByText(navMenu, analysisProfile);
-        cy.get("h1", { timeout: 60 * SEC }).should("contain", analysisProfile);
+        clickByText(navMenu, analysisProfiles);
+        cy.get("h1", { timeout: 60 * SEC }).should("contain", analysisProfiles);
       }
       selectItemsPerPage(itemsPerPage);
     });
@@ -173,16 +168,18 @@ export class AnalysisProfile {
       return;
     }
 
-    if (isEdit && newValue !== undefined && newValue !== currentValue) {
-      action(newValue);
-      assign?.(newValue);
-    }
-  }
+    if (isEdit && newValue !== undefined) {
+      const hasChanged =
+        Array.isArray(newValue) && Array.isArray(currentValue)
+          ? JSON.stringify(newValue) !== JSON.stringify(currentValue)
+          : typeof newValue === "object" && typeof currentValue === "object"
+            ? JSON.stringify(newValue) !== JSON.stringify(currentValue)
+            : newValue !== currentValue;
 
-  public fillProfileDetails() {
-    inputText(profileNameInput, this.name);
-    if (this.description) {
-      inputText(profileDescriptionInput, this.description);
+      if (hasChanged) {
+        action(newValue);
+        assign?.(newValue);
+      }
     }
   }
 
@@ -229,16 +226,6 @@ export class AnalysisProfile {
     }
   }
 
-  protected uploadBinary() {
-    this.binary.forEach((binaryList) => {
-      cy.get(fileInput).selectFile(binaryList, { force: true });
-      cy.get(progressMeasure, { timeout: 5000 * SEC }).should(
-        "contain",
-        "100%"
-      );
-    });
-  }
-
   protected enableTransactionAnalysis() {
     cy.get(enableTransactionAnalysis)
       .invoke("is", ":checked")
@@ -266,9 +253,7 @@ export class AnalysisProfile {
         .click();
       const folder = this.customRule[i].split(".").pop();
       uploadFile(`${folder}/${this.customRule[i]}`);
-      cy.wait(2000);
       cy.get(progressMeasure, { timeout: 150000 }).should("contain", "100%");
-      cy.wait(2000);
       cy.contains(addRules, "Add", { timeout: 2000 }).click();
     }
   }
@@ -303,13 +288,6 @@ export class AnalysisProfile {
       click(CustomMigrationTargetView.credentialsDropdown);
       clickByText(button, this.customRuleRepository.credentials.name);
     }
-  }
-
-  protected isNextEnabled() {
-    cy.contains(button, "Next", { timeout: 300 * SEC }).should(
-      "not.have.class",
-      "pf-m-disabled"
-    );
   }
 
   protected scopeSelect() {
@@ -361,14 +339,6 @@ export class AnalysisProfile {
       (v) => this.selectSourceofAnalysis(v),
       (v) => (this.source = v)
     );
-
-    this.applyValue(
-      isEdit,
-      data.binary,
-      this.binary,
-      () => this.uploadBinary(),
-      (v) => (this.binary = v)
-    );
     next();
 
     this.applyValue(
@@ -394,25 +364,24 @@ export class AnalysisProfile {
       data.excludePackages ||
       data.openSourceLibraries !== undefined
     ) {
-      this.scopeSelect();
       Object.assign(this, data);
+      this.scopeSelect();
     }
     next();
 
-    this.applyValue(
-      isEdit,
-      data.customRule,
-      this.customRule,
-      () => this.uploadCustomRule(),
-      (v) => (this.customRule = v)
-    );
+    this.applyValue(isEdit, data.customRule, this.customRule, (v) => {
+      this.customRule = v;
+      this.uploadCustomRule();
+    });
 
     this.applyValue(
       isEdit,
       data.customRuleRepository,
       this.customRuleRepository,
-      () => this.fetchCustomRules(),
-      (v) => (this.customRuleRepository = v)
+      (v) => {
+        this.customRuleRepository = v;
+        this.fetchCustomRules();
+      }
     );
     next();
 
@@ -439,11 +408,7 @@ export class AnalysisProfile {
       () => this.disableAutomatedTagging(),
       (v) => (this.disableTagging = v)
     );
-
-    if (!this.sources) {
-      next();
-    }
-
+    next();
     cy.get(submitButton, { timeout: 10 * SEC }).click();
   }
 

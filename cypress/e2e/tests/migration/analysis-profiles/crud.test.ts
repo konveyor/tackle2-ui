@@ -17,11 +17,13 @@ limitations under the License.
 
 import { getDescription, getRandomNumber } from "../../../../utils/data_utils";
 import {
+  checkSuccessAlert,
   exists,
   getRandomAnalysisData,
   notExists,
 } from "../../../../utils/utils";
 import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
+import * as commonView from "../../../views/common.view";
 
 describe(["@tier2"], "Analysis Profile CRUD operations", () => {
   beforeEach("Login", function () {
@@ -36,11 +38,18 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
 
     const analysisProfile = new AnalysisProfile(
       profileName,
-      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
+      getRandomAnalysisData(this.analysisData["tackle_test_app_custom_rules"]),
       profileDescription
     );
 
     analysisProfile.create();
+
+    // Verify create success alert
+    checkSuccessAlert(
+      commonView.successAlertMessage,
+      `Analysis profile ${profileName} was successfully created.`,
+      true
+    );
     exists(profileName);
 
     // Update name and description
@@ -53,9 +62,23 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
       },
       false
     );
+
+    // Verify edit success alert
+    checkSuccessAlert(
+      commonView.successAlertMessage,
+      `Analysis profile ${updatedProfileName} was successfully updated.`,
+      true
+    );
     exists(updatedProfileName);
 
     analysisProfile.delete();
+
+    // Verify delete success alert
+    checkSuccessAlert(
+      commonView.successAlertMessage,
+      `Analysis profile ${updatedProfileName} was successfully deleted.`,
+      true
+    );
     notExists(analysisProfile.name);
   });
 });
