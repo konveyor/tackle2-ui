@@ -30,7 +30,7 @@ import { RulesRepositoryFields } from "../../../types/types";
 
 // Automates Bug MTA-3330 | Polarion TC MTA-597
 describe(
-  ["@tier0"],
+  ["@tier1"],
   "Custom Migration Targets rules trigger validation",
   () => {
     let target: CustomMigrationTarget;
