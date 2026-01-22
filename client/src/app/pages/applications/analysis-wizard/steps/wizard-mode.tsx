@@ -18,7 +18,17 @@ import { useAvailableAnalysisProfiles } from "@app/hooks/useAvailableAnalysisPro
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 
-import { WizardFlowMode, WizardFlowModeState } from "../schema";
+// Wizard flow mode - Manual vs Analysis Profile
+export type WizardFlowMode = "manual" | "profile";
+
+export interface WizardFlowModeValues {
+  flowMode: WizardFlowMode;
+  selectedProfile: AnalysisProfile | null;
+}
+
+export interface WizardFlowModeState extends WizardFlowModeValues {
+  isValid: boolean;
+}
 
 interface WizardModeProps {
   applications: Application[];

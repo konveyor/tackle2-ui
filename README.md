@@ -169,6 +169,50 @@ Please read the [Pull Request (PR) Process](https://github.com/konveyor/release-
 section of the [Konveyor versioning and branching doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md)
 for more information.
 
+# Testing
+
+## Unit Tests
+
+Run the unit test suites across the monorepo with:
+
+```sh
+npm run test
+```
+
+For more details on unit testing, see [docs/tests.md](docs/tests.md).
+
+## End-to-End (E2E) Tests
+
+The project includes Cypress-based end-to-end tests that validate the UI against a running Konveyor instance.
+
+**Quick start for running e2e tests against your local dev server:**
+
+```sh
+# 1. Establish your own `.env` and prepare to run
+npm clean-install
+cp -i cypress/.env.example cypress/.env
+
+# 2. Start your local dev server (in one terminal)
+npm run start:dev
+
+# 3. Run tests against localhost:9000 (in another terminal)
+cd cypress
+npm run e2e:run:local
+```
+
+**Run tests against a different URL (run the prepare steps as above then):**
+
+```sh
+# Against minikube
+npm run e2e:run:minikube
+
+# Against any URL
+npm run e2e:run:local -- --config baseUrl=https://your-konveyor-instance.example.com
+```
+
+For comprehensive e2e testing documentation, including environment setup, test tags,
+CI integration, and QE workflows, see [cypress/README.md](cypress/README.md).
+
 # Contributing
 
 We welcome contributions to this project! If you're interested in contributing,

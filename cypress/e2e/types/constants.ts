@@ -23,6 +23,7 @@ export const migrationWaves = "Migration waves";
 export const assess = "Assess";
 export const assessment = "Assessment";
 export const analysis = "Analysis";
+export const analysisProfiles = "Analysis Profiles";
 export const analyzeButton = "Analyze";
 export const artifact = "Artifact";
 export const businessServices = "Business services";
