@@ -139,7 +139,8 @@ export class AnalysisProfile {
     if (manuallyAnalyzePackages)
       this.manuallyAnalyzePackages = manuallyAnalyzePackages;
     if (excludedPackagesList) this.excludedPackagesList = excludedPackagesList;
-    if (openSourceLibraries) this.openSourceLibraries = openSourceLibraries;
+    if (openSourceLibraries !== undefined)
+      this.openSourceLibraries = openSourceLibraries;
     if (language) this.language = language;
   }
 
@@ -167,12 +168,12 @@ export class AnalysisProfile {
     isEdit: boolean,
     newValue: T | undefined,
     currentValue: T,
-    action: (value: T) => void,
-    assign?: (v: T) => void
+    assign: (v: T) => void,
+    action?: () => void
   ) {
     if (!isEdit && newValue !== undefined) {
-      action(newValue);
-      assign?.(newValue);
+      assign(newValue);
+      action?.();
       return;
     }
 
@@ -185,8 +186,8 @@ export class AnalysisProfile {
             : newValue !== currentValue;
 
       if (hasChanged) {
-        action(newValue);
-        assign?.(newValue);
+        assign(newValue);
+        action?.();
       }
     }
   }
@@ -320,14 +321,14 @@ export class AnalysisProfile {
     }
   }
 
-  protected tagsToExclude() {
-    inputText(ruleTagToExclude, this.excludeRuleTags);
+  protected tagsToExclude(tag: string) {
+    inputText(ruleTagToExclude, tag);
     clickByText(addPackageToInclude, "Add");
   }
 
-  protected tagsToInclude() {
+  protected tagsToInclude(tag: string) {
     click(includeTagsInput);
-    cy.get(includeTagsMenuItem).contains(this.includeRuleTags).click();
+    cy.get(includeTagsMenuItem).contains(tag).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
@@ -335,16 +336,16 @@ export class AnalysisProfile {
       isEdit,
       data.name,
       this.name,
-      (v) => inputText(profileNameInput, v),
-      (v) => (this.name = v)
+      (v) => (this.name = v),
+      () => inputText(profileNameInput, this.name)
     );
 
     this.applyValue(
       isEdit,
       data.description,
       this.description,
-      (v) => inputText(profileDescriptionInput, v),
-      (v) => (this.description = v)
+      (v) => (this.description = v),
+      () => inputText(profileDescriptionInput, this.description)
     );
     next();
 
@@ -352,8 +353,8 @@ export class AnalysisProfile {
       isEdit,
       data.source,
       this.source,
-      (v) => this.selectSourceofAnalysis(v),
-      (v) => (this.source = v)
+      (v) => (this.source = v),
+      () => this.selectSourceofAnalysis(this.source)
     );
     next();
 
@@ -361,16 +362,16 @@ export class AnalysisProfile {
       isEdit,
       data.language,
       this.language,
-      (v) => AnalysisProfile.selectLanguage(v),
-      (v) => (this.language = v)
+      (v) => (this.language = v),
+      () => AnalysisProfile.selectLanguage(this.language)
     );
 
     this.applyValue(
       isEdit,
       data.target,
       this.target,
-      (v) => this.selectTarget(v),
-      (v) => (this.target = v)
+      (v) => (this.target = v),
+      () => this.selectTarget(this.target)
     );
     next();
 
@@ -385,10 +386,15 @@ export class AnalysisProfile {
     }
     next();
 
-    this.applyValue(isEdit, data.customRule, this.customRule, (v) => {
-      this.customRule = v;
-      this.uploadCustomRule();
-    });
+    this.applyValue(
+      isEdit,
+      data.customRule,
+      this.customRule,
+      (v) => {
+        this.customRule = v;
+      },
+      () => this.uploadCustomRule()
+    );
 
     this.applyValue(
       isEdit,
@@ -396,41 +402,35 @@ export class AnalysisProfile {
       this.customRuleRepository,
       (v) => {
         this.customRuleRepository = v;
-        this.fetchCustomRules();
-      }
+      },
+      () => this.fetchCustomRules()
     );
     next();
 
-    this.applyValue(
-      isEdit,
-      data.includeRuleTags,
-      this.includeRuleTags,
-      () => this.tagsToInclude(),
-      (v) => (this.includeRuleTags = v)
-    );
+    this.applyValue(isEdit, data.includeRuleTags, this.includeRuleTags, (v) => {
+      this.includeRuleTags = v;
+      this.tagsToInclude(v);
+    });
 
-    this.applyValue(
-      isEdit,
-      data.excludeRuleTags,
-      this.excludeRuleTags,
-      () => this.tagsToExclude(),
-      (v) => (this.excludeRuleTags = v)
-    );
+    this.applyValue(isEdit, data.excludeRuleTags, this.excludeRuleTags, (v) => {
+      this.excludeRuleTags = v;
+      this.tagsToExclude(v);
+    });
 
     this.applyValue(
       isEdit,
       data.enableTransaction,
       this.enableTransaction,
-      () => this.enableTransactionAnalysis(),
-      (v) => (this.enableTransaction = v)
+      (v) => (this.enableTransaction = v),
+      () => this.enableTransactionAnalysis()
     );
 
     this.applyValue(
       isEdit,
       data.disableTagging,
       this.disableTagging,
-      () => this.disableAutomatedTagging(),
-      (v) => (this.disableTagging = v)
+      (v) => (this.disableTagging = v),
+      () => this.disableAutomatedTagging()
     );
     next();
     cy.get(submitButton, { timeout: 10 * SEC }).click();
