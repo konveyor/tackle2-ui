@@ -22,6 +22,7 @@ import {
   deleteByList,
   login,
 } from "../../../../utils/utils";
+import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../../models/migration/archetypes/target-profile";
 import { Tag } from "../../../models/migration/controls/tags";
@@ -30,6 +31,7 @@ import { successAlertMessage } from "../../../views/common.view";
 
 let tags: Tag[];
 let archetype: Archetype;
+let analysisProfile: AnalysisProfile;
 
 describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
   before("Login", function () {
@@ -44,9 +46,20 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
       [tags[1].name]
     );
     archetype.create();
+
+    // Create an analysis profile for target profile tests
+    analysisProfile = new AnalysisProfile(
+      `test-analysis-${getRandomWord(8)}`,
+      {
+        source: "Application server",
+        target: ["Containerization"],
+      },
+      "Analysis profile for target profile testing"
+    );
+    analysisProfile.create();
   });
 
-  it("Bug MTA-6469: Perform CRUD tests on Archetype target profile", function () {
+  it("Scenario 1: Create target profile with only generator", function () {
     // Automates Polarion MTA-786
     const targetProfile = new TargetProfile(
       `test-profile-${getRandomWord(8)}`,
@@ -67,7 +80,26 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
     );
   });
 
+  it("Scenario 2: Create target profile with only analysis profile - verify create button is enabled", function () {
+    const targetProfile = new TargetProfile(
+      `test-profile-analysis-${getRandomWord(8)}`,
+      undefined,
+      analysisProfile.name
+    );
+    targetProfile.create(archetype.name, false, true);
+  });
+
+  it("Scenario 3: Create target profile with both generator and analysis profile ", function () {
+    const targetProfile = new TargetProfile(
+      `test-profile-both-${getRandomWord(8)}`,
+      [defaultGenerator],
+      analysisProfile.name
+    );
+    targetProfile.create(archetype.name, false, true);
+  });
+
   after("Clear test data", function () {
+    analysisProfile.delete();
     archetype.delete();
     deleteByList(tags);
   });
