@@ -24,6 +24,7 @@ import {
   performRowActionByIcon,
   selectAnalysisMode,
   selectItemsPerPage,
+  selectRow,
   selectUserPerspective,
   uploadFile,
 } from "../../../../utils/utils";
@@ -466,16 +467,9 @@ export class AnalysisProfile {
     cancel ? click(commonView.cancelButton) : click(commonView.confirmButton);
   }
 
-  selectApplicationRow(): void {
-    cy.get(tdTag, { timeout: 10 * SEC })
-      .contains(this.name)
-      .closest(trTag)
-      .click();
-  }
-
   validateAnalysisProfileInformation(): void {
     AnalysisProfile.open();
-    this.selectApplicationRow();
+    selectRow(this.name);
     cy.get(rightSideMenu).within(() => {
       // Validate description
       if (this.description) {
