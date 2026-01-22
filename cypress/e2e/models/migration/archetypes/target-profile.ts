@@ -16,12 +16,14 @@ limitations under the License.
 import {
   cancelForm,
   click,
+  clickByText,
   clickItemInKebabMenu,
   clickKebabMenuOptionArchetype,
   clickWithinByText,
   inputText,
   selectFormItems,
 } from "../../../../utils/utils";
+import { button } from "../../../types/constants";
 import * as commonView from "../../../views/common.view";
 import * as view from "../../../views/target-profile.view";
 
@@ -52,7 +54,10 @@ export class TargetProfile {
   }
 
   protected selectAnalysisProfile(analysisProfile: string): void {
-    selectFormItems("#analysis-profile-select", analysisProfile);
+    selectFormItems(
+      "#analysis-profile-select-toggle-select-typeahead",
+      analysisProfile
+    );
   }
 
   protected selectGenerators(generatorList: string[]): void {
@@ -72,7 +77,7 @@ export class TargetProfile {
       .click();
 
     if (cancel) {
-      cancelForm();
+      clickByText(button, "Cancel");
       return;
     }
 
@@ -90,6 +95,7 @@ export class TargetProfile {
 
     if (verifyOnly) {
       this.verifyCreateButtonEnabled();
+      clickByText(button, "Cancel");
       return;
     }
 
@@ -106,7 +112,7 @@ export class TargetProfile {
   delete(cancel = false): void {
     clickItemInKebabMenu(this.name, "Delete");
     if (cancel) {
-      cancelForm();
+      clickByText(button, "Cancel");
       return;
     }
     click(commonView.confirmButton);

@@ -20,6 +20,7 @@ import {
   checkSuccessAlert,
   createMultipleTags,
   deleteByList,
+  getRandomAnalysisData,
   login,
 } from "../../../../utils/utils";
 import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
@@ -47,22 +48,21 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
     );
     archetype.create();
 
-    // Create an analysis profile for target profile tests
-    analysisProfile = new AnalysisProfile(
-      `test-analysis-${getRandomWord(8)}`,
-      {
-        source: "Application server",
-        target: ["Containerization"],
-      },
-      "Analysis profile for target profile testing"
-    );
-    analysisProfile.create();
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+      analysisProfile = new AnalysisProfile(
+        `test-profile-${getRandomWord(8)}`,
+        getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
+        "Analysis profile for target profile testing"
+      );
+      analysisProfile.create();
+    });
   });
 
   it("Scenario 1: Create target profile with only generator", function () {
     // Automates Polarion MTA-786
     const targetProfile = new TargetProfile(
-      `test-profile-${getRandomWord(8)}`,
+      `test-profile-generator-${getRandomWord(8)}`,
       [defaultGenerator]
     );
     targetProfile.create(archetype.name);
