@@ -80,7 +80,8 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
     );
   });
 
-  it("Scenario 2: Create target profile with only analysis profile - verify create button is enabled", function () {
+  it("Scenario 2: While creating target profile with only analysis profile, \
+    verify create button is enabled", function () {
     const targetProfile = new TargetProfile(
       `test-profile-analysis-${getRandomWord(8)}`,
       undefined,
@@ -89,7 +90,8 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
     targetProfile.create(archetype.name, false, true);
   });
 
-  it("Scenario 3: Create target profile with both generator and analysis profile ", function () {
+  it("Scenario 3: While creating target profile with both generator and analysis profile, \
+    verify create button is enabled", function () {
     const targetProfile = new TargetProfile(
       `test-profile-both-${getRandomWord(8)}`,
       [defaultGenerator],

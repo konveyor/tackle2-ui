@@ -50,14 +50,11 @@ export class TargetProfile {
   }
 
   protected fillName(name: string): void {
-    inputText("#target-profile-name", name);
+    inputText(view.targetProfileName, name);
   }
 
   protected selectAnalysisProfile(analysisProfile: string): void {
-    selectFormItems(
-      "#analysis-profile-select-toggle-select-typeahead",
-      analysisProfile
-    );
+    selectFormItems(view.analysisProfileToggle, analysisProfile);
   }
 
   protected selectGenerators(generatorList: string[]): void {
