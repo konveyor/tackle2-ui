@@ -2173,5 +2173,19 @@
         "labels": ["konveyor.io/include=always"]
       }
     ]
+  },
+  "bookServerApp_analysis_profile": {
+    "source": "Source code + dependencies",
+    "target": ["Containerization", "Linux", "Quarkus"],
+    "appName": "bookserver-app",
+    "customRule": [
+      "01-custom-rule-example.windup.yaml",
+      "01-javax-package-custom-target.windup.yaml"
+    ],
+    "openSourceLibraries": false,
+    "manuallyAnalyzePackages": ["io.konveyor.demo.ordermanagement"],
+    "excludePackages": ["bar.com", "foo.com"],
+    "excludeRuleTags": "tag",
+    "includeRuleTags": "amazon"
   }
 }

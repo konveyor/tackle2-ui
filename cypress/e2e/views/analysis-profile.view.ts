@@ -35,3 +35,7 @@ export const progressMeasure = "span.pf-v5-c-progress__measure";
 export const ossCheckbox = "#oss";
 export const ruleTagToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
+export const addPackageToExclude = "#add-package-to-exclude";
+export const includeTagsInput =
+  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
+export const includeTagsMenuItem = ".pf-v5-c-select__menu-item";

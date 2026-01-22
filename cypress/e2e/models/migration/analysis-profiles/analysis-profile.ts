@@ -35,13 +35,18 @@ import {
   button,
   clearAllFilters,
   migration,
+  tdTag,
+  trTag,
 } from "../../../types/constants";
 import { RulesRepositoryFields, analysisData } from "../../../types/types";
 import {
+  addPackageToExclude,
   addPackageToInclude,
   cancelButton,
   checkboxInput,
   description as profileDescriptionInput,
+  includeTagsInput,
+  includeTagsMenuItem,
   languageListbox,
   menuListItem,
   name as profileNameInput,
@@ -55,7 +60,6 @@ import {
   wizardMainBody,
 } from "../../../views/analysis-profile.view";
 import {
-  addButton,
   addRules,
   analyzeManuallyButton,
   camelToggleButton,
@@ -67,6 +71,7 @@ import {
   excludePackagesSwitch,
   languageSelectionDropdown,
   openjdkToggleButton,
+  rightSideMenu,
   sourceDropdown,
 } from "../../../views/analysis.view";
 import * as commonView from "../../../views/common.view";
@@ -85,6 +90,7 @@ export class AnalysisProfile {
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
   excludeRuleTags?: string;
+  includeRuleTags?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   effort?: number;
@@ -108,6 +114,7 @@ export class AnalysisProfile {
       customRule,
       sources,
       excludeRuleTags,
+      includeRuleTags,
       enableTransaction,
       disableTagging,
       effort,
@@ -124,6 +131,7 @@ export class AnalysisProfile {
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
     if (excludeRuleTags) this.excludeRuleTags = excludeRuleTags;
+    if (includeRuleTags) this.includeRuleTags = includeRuleTags;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     if (effort) this.effort = effort;
@@ -292,16 +300,19 @@ export class AnalysisProfile {
 
   protected scopeSelect() {
     if (this.manuallyAnalyzePackages) {
-      // for Scope's "Select the list of packages to be analyzed manually" option
       click(analyzeManuallyButton);
-      inputText(enterPackageName, this.manuallyAnalyzePackages);
-      clickByText(addButton, "Add");
+      this.manuallyAnalyzePackages.forEach((pkg) => {
+        inputText(enterPackageName, pkg);
+        click(addPackageToInclude);
+      });
     }
 
     if (this.excludePackages) {
       click(excludePackagesSwitch);
-      inputText(enterPackageNameToExclude, this.excludePackages);
-      clickByText(addButton, "Add");
+      this.excludePackages.forEach((pkg) => {
+        inputText(enterPackageNameToExclude, pkg);
+        click(addPackageToExclude);
+      });
     }
 
     if (this.openSourceLibraries) {
@@ -312,6 +323,11 @@ export class AnalysisProfile {
   protected tagsToExclude() {
     inputText(ruleTagToExclude, this.excludeRuleTags);
     clickByText(addPackageToInclude, "Add");
+  }
+
+  protected tagsToInclude() {
+    click(includeTagsInput);
+    cy.get(includeTagsMenuItem).contains(this.includeRuleTags).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
@@ -387,6 +403,14 @@ export class AnalysisProfile {
 
     this.applyValue(
       isEdit,
+      data.includeRuleTags,
+      this.includeRuleTags,
+      () => this.tagsToInclude(),
+      (v) => (this.includeRuleTags = v)
+    );
+
+    this.applyValue(
+      isEdit,
       data.excludeRuleTags,
       this.excludeRuleTags,
       () => this.tagsToExclude(),
@@ -439,7 +463,75 @@ export class AnalysisProfile {
   delete(cancel = false) {
     AnalysisProfile.open();
     clickItemInKebabMenu(this.name, "Delete");
-
     cancel ? click(commonView.cancelButton) : click(commonView.confirmButton);
+  }
+
+  selectApplicationRow(): void {
+    cy.get(tdTag, { timeout: 10 * SEC })
+      .contains(this.name)
+      .closest(trTag)
+      .click();
+  }
+
+  validateAnalysisProfileInformation(): void {
+    AnalysisProfile.open();
+    this.selectApplicationRow();
+    cy.get(rightSideMenu).within(() => {
+      // Validate description
+      if (this.description) {
+        cy.contains(this.description, { timeout: 5 * SEC });
+      }
+
+      // Validate scope - open source libraries
+      if (this.openSourceLibraries !== undefined) {
+        const expectedValue = this.openSourceLibraries ? "Yes" : "No";
+        cy.contains(expectedValue, { timeout: 5 * SEC });
+      }
+
+      // Validate scope - manually analyzed packages
+      if (this.manuallyAnalyzePackages) {
+        this.manuallyAnalyzePackages.forEach((pkg) => {
+          cy.contains(pkg, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate scope - excluded packages
+      if (this.excludePackages) {
+        this.excludePackages.forEach((pkg) => {
+          cy.contains(pkg, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate target
+      if (this.target) {
+        this.target.forEach((targetItem) => {
+          cy.contains(targetItem, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate custom rule repository
+      if (this.customRuleRepository) {
+        cy.contains(this.customRuleRepository.repositoryUrl, {
+          timeout: 5 * SEC,
+        });
+      }
+
+      // Validate custom rules
+      if (this.customRule) {
+        this.customRule.forEach((rule) => {
+          cy.contains(rule, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate included rule tags
+      if (this.includeRuleTags) {
+        cy.contains(this.includeRuleTags, { timeout: 5 * SEC });
+      }
+
+      // Validate excluded rule tags
+      if (this.excludeRuleTags) {
+        cy.contains(this.excludeRuleTags, { timeout: 5 * SEC });
+      }
+    });
   }
 }

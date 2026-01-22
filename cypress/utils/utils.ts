@@ -21,6 +21,7 @@ import { CredentialsProxy } from "../e2e/models/administration/credentials/crede
 import { CredentialsSourceControlKey } from "../e2e/models/administration/credentials/credentialsSourceControlKey";
 import { CredentialsSourceControlUsername } from "../e2e/models/administration/credentials/credentialsSourceControlUsername";
 import { Jira } from "../e2e/models/administration/jira-connection/jira";
+import { AnalysisProfile } from "../e2e/models/migration/analysis-profiles/analysis-profile";
 import { Application } from "../e2e/models/migration/applicationinventory/application";
 import { Archetype } from "../e2e/models/migration/archetypes/archetype";
 import { BusinessServices } from "../e2e/models/migration/controls/businessservices";
@@ -1243,6 +1244,7 @@ export function getRandomAnalysisData(analysisdata): analysisData {
     appName: analysisdata.appName,
     effort: analysisdata.effort,
     excludePackages: analysisdata.excludePackages,
+    includeRuleTags: analysisdata.includeRuleTags,
     excludeRuleTags: analysisdata.excludeRuleTags,
     manuallyAnalyzePackages: analysisdata.manuallyAnalyzePackages,
     excludedPackagesList: analysisdata.excludedPackagesList,
@@ -1465,6 +1467,12 @@ export function deleteAllArchetypes() {
 
 export function deleteAllCredentials() {
   Credentials.openList();
+  selectItemsPerPage(100);
+  deleteAllRows();
+}
+
+export function deleteAllProfiles() {
+  AnalysisProfile.open();
   selectItemsPerPage(100);
   deleteAllRows();
 }
