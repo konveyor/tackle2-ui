@@ -42,6 +42,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import {
   useDeleteAnalysisProfileMutation,
   useFetchAnalysisProfiles,
@@ -75,6 +76,7 @@ const useArchetypesUsingAnalysisProfile = (
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const isArchitect = useIsArchitect();
 
   const [openCreateProfile, setOpenCreateProfile] =
     React.useState<boolean>(false);
@@ -183,19 +185,21 @@ export const AnalysisProfiles: React.FC = () => {
           >
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
-                <ToolbarItem>
-                  <Button
-                    id="create-analysis-profile"
-                    variant="primary"
-                    onClick={() => {
-                      setOpenCreateProfile(true);
-                    }}
-                  >
-                    {t("actions.createNew")}
-                  </Button>
-                </ToolbarItem>
-              </ToolbarGroup>
+              {isArchitect && (
+                <ToolbarGroup variant="button-group">
+                  <ToolbarItem>
+                    <Button
+                      id="create-analysis-profile"
+                      variant="primary"
+                      onClick={() => {
+                        setOpenCreateProfile(true);
+                      }}
+                    >
+                      {t("actions.createNew")}
+                    </Button>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              )}
               <ToolbarItem {...paginationToolbarItemProps}>
                 <SimplePagination
                   idPrefix="analysis-profiles-table"
@@ -238,18 +242,20 @@ export const AnalysisProfiles: React.FC = () => {
                       what: t("terms.analysisProfile").toLowerCase(),
                     })}
                   </EmptyStateBody>
-                  <EmptyStateFooter>
-                    <EmptyStateActions>
-                      <Button
-                        variant="primary"
-                        onClick={() => {
-                          setOpenCreateProfile(true);
-                        }}
-                      >
-                        {t("actions.createNew")}
-                      </Button>
-                    </EmptyStateActions>
-                  </EmptyStateFooter>
+                  {isArchitect && (
+                    <EmptyStateFooter>
+                      <EmptyStateActions>
+                        <Button
+                          variant="primary"
+                          onClick={() => {
+                            setOpenCreateProfile(true);
+                          }}
+                        >
+                          {t("actions.createNew")}
+                        </Button>
+                      </EmptyStateActions>
+                    </EmptyStateFooter>
+                  )}
                 </EmptyState>
               }
               numRenderedColumns={numRenderedColumns}
