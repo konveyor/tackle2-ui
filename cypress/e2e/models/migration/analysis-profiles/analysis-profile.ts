@@ -24,6 +24,7 @@ import {
   performRowActionByIcon,
   selectAnalysisMode,
   selectItemsPerPage,
+  selectRow,
   selectUserPerspective,
   uploadFile,
 } from "../../../../utils/utils";
@@ -38,24 +39,26 @@ import {
 } from "../../../types/constants";
 import { RulesRepositoryFields, analysisData } from "../../../types/types";
 import {
+  addPackageToExclude,
   addPackageToInclude,
   cancelButton,
   checkboxInput,
   description as profileDescriptionInput,
+  includeLabelsInput,
+  includeLabelsMenuItem,
   languageListbox,
   menuListItem,
   name as profileNameInput,
   ossCheckbox,
   pencilAction,
   progressMeasure,
-  ruleTagToExclude,
+  ruleLabelToExclude,
   submitButton,
   targetCamelSelect,
   targetOpenJDKSelect,
   wizardMainBody,
 } from "../../../views/analysis-profile.view";
 import {
-  addButton,
   addRules,
   analyzeManuallyButton,
   camelToggleButton,
@@ -67,6 +70,7 @@ import {
   excludePackagesSwitch,
   languageSelectionDropdown,
   openjdkToggleButton,
+  rightSideMenu,
   sourceDropdown,
 } from "../../../views/analysis.view";
 import * as commonView from "../../../views/common.view";
@@ -84,7 +88,8 @@ export class AnalysisProfile {
   customRule?: string[];
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
-  excludeRuleTags?: string;
+  excludeRuleLabels?: string;
+  includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   effort?: number;
@@ -107,7 +112,8 @@ export class AnalysisProfile {
       excludePackages,
       customRule,
       sources,
-      excludeRuleTags,
+      excludeRuleLabels,
+      includeRuleLabels,
       enableTransaction,
       disableTagging,
       effort,
@@ -123,7 +129,8 @@ export class AnalysisProfile {
     if (customRule) this.customRule = customRule;
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
-    if (excludeRuleTags) this.excludeRuleTags = excludeRuleTags;
+    if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
+    if (includeRuleLabels) this.includeRuleLabels = includeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     if (effort) this.effort = effort;
@@ -292,16 +299,19 @@ export class AnalysisProfile {
 
   protected scopeSelect() {
     if (this.manuallyAnalyzePackages) {
-      // for Scope's "Select the list of packages to be analyzed manually" option
       click(analyzeManuallyButton);
-      inputText(enterPackageName, this.manuallyAnalyzePackages);
-      clickByText(addButton, "Add");
+      this.manuallyAnalyzePackages.forEach((pkg) => {
+        inputText(enterPackageName, pkg);
+        click(addPackageToInclude);
+      });
     }
 
     if (this.excludePackages) {
       click(excludePackagesSwitch);
-      inputText(enterPackageNameToExclude, this.excludePackages);
-      clickByText(addButton, "Add");
+      this.excludePackages.forEach((pkg) => {
+        inputText(enterPackageNameToExclude, pkg);
+        click(addPackageToExclude);
+      });
     }
 
     if (this.openSourceLibraries) {
@@ -309,9 +319,14 @@ export class AnalysisProfile {
     }
   }
 
-  protected tagsToExclude() {
-    inputText(ruleTagToExclude, this.excludeRuleTags);
-    clickByText(addPackageToInclude, "Add");
+  protected labelsToExclude(label: string) {
+    inputText(ruleLabelToExclude, label);
+    clickByText(button, "Add");
+  }
+
+  protected labelsToInclude(label: string) {
+    click(includeLabelsInput);
+    cy.get(includeLabelsMenuItem).contains(label).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
@@ -387,10 +402,18 @@ export class AnalysisProfile {
 
     this.applyValue(
       isEdit,
-      data.excludeRuleTags,
-      this.excludeRuleTags,
-      () => this.tagsToExclude(),
-      (v) => (this.excludeRuleTags = v)
+      data.includeRuleLabels,
+      this.includeRuleLabels,
+      (v) => this.labelsToInclude(v),
+      (v) => (this.includeRuleLabels = v)
+    );
+
+    this.applyValue(
+      isEdit,
+      data.excludeRuleLabels,
+      this.excludeRuleLabels,
+      (v) => this.labelsToExclude(v),
+      (v) => (this.excludeRuleLabels = v)
     );
 
     this.applyValue(
@@ -439,7 +462,68 @@ export class AnalysisProfile {
   delete(cancel = false) {
     AnalysisProfile.open();
     clickItemInKebabMenu(this.name, "Delete");
-
     cancel ? click(commonView.cancelButton) : click(commonView.confirmButton);
+  }
+
+  validateAnalysisProfileInformation(): void {
+    AnalysisProfile.open();
+    selectRow(this.name);
+    cy.get(rightSideMenu).within(() => {
+      // Validate description
+      if (this.description) {
+        cy.contains(this.description, { timeout: 5 * SEC });
+      }
+
+      // Validate scope - open source libraries
+      if (this.openSourceLibraries !== undefined) {
+        const expectedValue = this.openSourceLibraries ? "Yes" : "No";
+        cy.contains(expectedValue, { timeout: 5 * SEC });
+      }
+
+      // Validate scope - manually analyzed packages
+      if (this.manuallyAnalyzePackages) {
+        this.manuallyAnalyzePackages.forEach((pkg) => {
+          cy.contains(pkg, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate scope - excluded packages
+      if (this.excludePackages) {
+        this.excludePackages.forEach((pkg) => {
+          cy.contains(pkg, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate target
+      if (this.target) {
+        this.target.forEach((targetItem) => {
+          cy.contains(targetItem, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate custom rule repository
+      if (this.customRuleRepository) {
+        cy.contains(this.customRuleRepository.repositoryUrl, {
+          timeout: 5 * SEC,
+        });
+      }
+
+      // Validate custom rules
+      if (this.customRule) {
+        this.customRule.forEach((rule) => {
+          cy.contains(rule, { timeout: 5 * SEC });
+        });
+      }
+
+      // Validate included rule tags
+      if (this.includeRuleLabels) {
+        cy.contains(this.includeRuleLabels, { timeout: 5 * SEC });
+      }
+
+      // Validate excluded rule tags
+      if (this.excludeRuleLabels) {
+        cy.contains(this.excludeRuleLabels, { timeout: 5 * SEC });
+      }
+    });
   }
 }
