@@ -29,6 +29,7 @@ import { AssessmentQuestionnaire } from "../../models/administration/assessment_
 import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserArchitect } from "../../models/keycloak/users/userArchitect";
+import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
@@ -88,6 +89,10 @@ describe(
 
     it("Architect, validate ability to upload binary", function () {
       application.validateUploadBinary(this.rbacRules);
+    });
+
+    it("Architect, validate Analysis Profiles create button", function () {
+      AnalysisProfile.validateCreateButton(this.rbacRules);
     });
 
     after("Clean up", function () {

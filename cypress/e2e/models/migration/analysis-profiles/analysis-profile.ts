@@ -134,6 +134,14 @@ export class AnalysisProfile {
     });
   }
 
+  public static validateCreateButton(rbacRules: any): void {
+    AnalysisProfile.open();
+    const createButton = "#create-analysis-profile";
+    cy.get(createButton).should(
+      rbacRules["Create new"] ? "exist" : "not.exist"
+    );
+  }
+
   private applyValue<T>(
     isEdit: boolean,
     newValue: T | undefined,
