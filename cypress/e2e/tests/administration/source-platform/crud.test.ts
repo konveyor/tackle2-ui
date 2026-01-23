@@ -31,74 +31,77 @@ import * as selectors from "../../../views/source-platform.view";
 
 const cloudFoundryCreds: Array<CredentialsSourceControlUsername> = [];
 
-describe(["@tier2"], "CRUD operations on Cloud Foundry Source platform", () => {
-  before("Login", function () {
-    if (
-      !Cypress.env("cloudfoundry_user") ||
-      !Cypress.env("cloudfoundry_password") ||
-      !Cypress.env("cloudfoundry_url")
-    ) {
-      throw new Error(`One or more required Cloud Foundry env variables are missing in cypress.config.ts :
+describe(
+  ["@tier2", "cf"],
+  "CRUD operations on Cloud Foundry Source platform",
+  () => {
+    before("Verify Cloud Foundry env variables are present", function () {
+      if (
+        !Cypress.env("cloudfoundry_user") ||
+        !Cypress.env("cloudfoundry_password") ||
+        !Cypress.env("cloudfoundry_url")
+      ) {
+        throw new Error(`One or more required Cloud Foundry env variables are missing in cypress.config.ts :
             \ncloudfoundry_user\ncloudfoundry_password\ncloudfoundry_url`);
-    }
-    login();
-    cy.visit("/");
-    for (let i = 0; i < 2; i++) {
-      const creds = new CredentialsSourceControlUsername(
-        data.getRandomCredentialsData(
-          CredentialType.sourceControl,
-          UserCredentials.usernamePassword,
-          false,
-          null,
-          null,
-          true
-        )
+      }
+      login();
+      cy.visit("/");
+      for (let i = 0; i < 2; i++) {
+        const creds = new CredentialsSourceControlUsername(
+          data.getRandomCredentialsData(
+            CredentialType.sourceControl,
+            UserCredentials.usernamePassword,
+            false,
+            null,
+            null,
+            true
+          )
+        );
+        creds.name = `CF-CREDS-${data.getRandomNumber(1, 500)}`;
+        creds.create();
+        cloudFoundryCreds.push(creds);
+      }
+    });
+
+    it("Perform CRUD Tests on Cloud Foundry Source platform", function () {
+      const platform = new SourcePlatform(
+        `CF-${data.getRandomNumber(1, 500)}`,
+        "Cloud Foundry",
+        Cypress.env("cloudfoundry_url"),
+        cloudFoundryCreds[0].name
       );
-      creds.name = `CF-CREDS-${data.getRandomNumber(1, 500)}`;
-      creds.create();
-      cloudFoundryCreds.push(creds);
-    }
-  });
 
-  it("Perform CRUD Tests on Cloud Foundry Source platform", function () {
-    // TODO : Unskip tests once Infra ticket MTA-6241 is resolved
-    const platform = new SourcePlatform(
-      `CF-${data.getRandomNumber(1, 500)}`,
-      "Cloud Foundry",
-      Cypress.env("cloudfoundry_url"),
-      cloudFoundryCreds[0].name
-    );
+      platform.create();
+      checkSuccessAlert(
+        successAlertMessage,
+        `Success alert:Source platform ${platform.name} was successfully created.`,
+        true
+      );
+      exists(platform.name);
 
-    platform.create();
-    checkSuccessAlert(
-      successAlertMessage,
-      `Success alert:Source platform ${platform.name} was successfully created.`,
-      true
-    );
-    exists(platform.name);
+      const newName = `CF-updatedName-${data.getRandomNumber(1, 500)}`;
+      platform.edit({ name: newName });
+      exists(newName);
 
-    const newName = `CF-updatedName-${data.getRandomNumber(1, 500)}`;
-    platform.edit({ name: newName });
-    exists(newName);
+      const newURL = "https://api.bosh-updated-lite.com";
+      platform.edit({ url: newURL });
+      cy.get(selectors.url).should("have.value", newURL);
 
-    const newURL = "https://api.bosh-updated-lite.com";
-    platform.edit({ url: newURL });
-    cy.get(selectors.url).should("have.value", newURL);
+      const newCreds = cloudFoundryCreds[1].name;
+      platform.edit({ credentials: newCreds });
+      cy.get(selectors.credentials).should("have.value", newCreds);
 
-    const newCreds = cloudFoundryCreds[1].name;
-    platform.edit({ credentials: newCreds });
-    cy.get(selectors.credentials).should("have.value", newCreds);
+      platform.delete();
+      checkSuccessAlert(
+        successAlertMessage,
+        `Success alert:Platform ${platform.name} was successfully deleted.`,
+        true
+      );
+      notExists(platform.name);
+    });
 
-    platform.delete();
-    checkSuccessAlert(
-      successAlertMessage,
-      `Success alert:Platform ${platform.name} was successfully deleted.`,
-      true
-    );
-    notExists(platform.name);
-  });
-
-  after("Clear test data", function () {
-    deleteByList(cloudFoundryCreds);
-  });
-});
+    after("Clear test data", function () {
+      deleteByList(cloudFoundryCreds);
+    });
+  }
+);
