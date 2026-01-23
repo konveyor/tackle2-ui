@@ -87,7 +87,8 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
       undefined,
       analysisProfile.name
     );
-    targetProfile.create(archetype.name, false, true);
+    targetProfile.create(archetype.name);
+    targetProfile.delete();
   });
 
   it("Scenario 3: While creating target profile with both generator and analysis profile, \
@@ -97,7 +98,8 @@ describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
       [defaultGenerator],
       analysisProfile.name
     );
-    targetProfile.create(archetype.name, false, true);
+    targetProfile.create(archetype.name);
+    targetProfile.delete();
   });
 
   after("Clear test data", function () {
