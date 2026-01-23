@@ -36,8 +36,6 @@ import {
   button,
   clearAllFilters,
   migration,
-  tdTag,
-  trTag,
 } from "../../../types/constants";
 import { RulesRepositoryFields, analysisData } from "../../../types/types";
 import {
@@ -46,15 +44,15 @@ import {
   cancelButton,
   checkboxInput,
   description as profileDescriptionInput,
-  includeTagsInput,
-  includeTagsMenuItem,
+  includeLabelsInput,
+  includeLabelsMenuItem,
   languageListbox,
   menuListItem,
   name as profileNameInput,
   ossCheckbox,
   pencilAction,
   progressMeasure,
-  ruleTagToExclude,
+  ruleLabelToExclude,
   submitButton,
   targetCamelSelect,
   targetOpenJDKSelect,
@@ -90,8 +88,8 @@ export class AnalysisProfile {
   customRule?: string[];
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
-  excludeRuleTags?: string;
-  includeRuleTags?: string;
+  excludeRuleLabels?: string;
+  includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   effort?: number;
@@ -114,8 +112,8 @@ export class AnalysisProfile {
       excludePackages,
       customRule,
       sources,
-      excludeRuleTags,
-      includeRuleTags,
+      excludeRuleLabels,
+      includeRuleLabels,
       enableTransaction,
       disableTagging,
       effort,
@@ -131,8 +129,8 @@ export class AnalysisProfile {
     if (customRule) this.customRule = customRule;
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
-    if (excludeRuleTags) this.excludeRuleTags = excludeRuleTags;
-    if (includeRuleTags) this.includeRuleTags = includeRuleTags;
+    if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
+    if (includeRuleLabels) this.includeRuleLabels = includeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     if (effort) this.effort = effort;
@@ -140,8 +138,7 @@ export class AnalysisProfile {
     if (manuallyAnalyzePackages)
       this.manuallyAnalyzePackages = manuallyAnalyzePackages;
     if (excludedPackagesList) this.excludedPackagesList = excludedPackagesList;
-    if (openSourceLibraries !== undefined)
-      this.openSourceLibraries = openSourceLibraries;
+    if (openSourceLibraries) this.openSourceLibraries = openSourceLibraries;
     if (language) this.language = language;
   }
 
@@ -169,12 +166,12 @@ export class AnalysisProfile {
     isEdit: boolean,
     newValue: T | undefined,
     currentValue: T,
-    assign: (v: T) => void,
-    action?: () => void
+    action: (value: T) => void,
+    assign?: (v: T) => void
   ) {
     if (!isEdit && newValue !== undefined) {
-      assign(newValue);
-      action?.();
+      action(newValue);
+      assign?.(newValue);
       return;
     }
 
@@ -187,8 +184,8 @@ export class AnalysisProfile {
             : newValue !== currentValue;
 
       if (hasChanged) {
-        assign(newValue);
-        action?.();
+        action(newValue);
+        assign?.(newValue);
       }
     }
   }
@@ -322,14 +319,14 @@ export class AnalysisProfile {
     }
   }
 
-  protected tagsToExclude(tag: string) {
-    inputText(ruleTagToExclude, tag);
-    clickByText(addPackageToInclude, "Add");
+  protected labelsToExclude(label: string) {
+    inputText(ruleLabelToExclude, label);
+    clickByText(button, "Add");
   }
 
-  protected tagsToInclude(tag: string) {
-    click(includeTagsInput);
-    cy.get(includeTagsMenuItem).contains(tag).click();
+  protected labelsToInclude(label: string) {
+    click(includeLabelsInput);
+    cy.get(includeLabelsMenuItem).contains(label).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
@@ -337,16 +334,16 @@ export class AnalysisProfile {
       isEdit,
       data.name,
       this.name,
-      (v) => (this.name = v),
-      () => inputText(profileNameInput, this.name)
+      (v) => inputText(profileNameInput, v),
+      (v) => (this.name = v)
     );
 
     this.applyValue(
       isEdit,
       data.description,
       this.description,
-      (v) => (this.description = v),
-      () => inputText(profileDescriptionInput, this.description)
+      (v) => inputText(profileDescriptionInput, v),
+      (v) => (this.description = v)
     );
     next();
 
@@ -354,8 +351,8 @@ export class AnalysisProfile {
       isEdit,
       data.source,
       this.source,
-      (v) => (this.source = v),
-      () => this.selectSourceofAnalysis(this.source)
+      (v) => this.selectSourceofAnalysis(v),
+      (v) => (this.source = v)
     );
     next();
 
@@ -363,16 +360,16 @@ export class AnalysisProfile {
       isEdit,
       data.language,
       this.language,
-      (v) => (this.language = v),
-      () => AnalysisProfile.selectLanguage(this.language)
+      (v) => AnalysisProfile.selectLanguage(v),
+      (v) => (this.language = v)
     );
 
     this.applyValue(
       isEdit,
       data.target,
       this.target,
-      (v) => (this.target = v),
-      () => this.selectTarget(this.target)
+      (v) => this.selectTarget(v),
+      (v) => (this.target = v)
     );
     next();
 
@@ -387,15 +384,10 @@ export class AnalysisProfile {
     }
     next();
 
-    this.applyValue(
-      isEdit,
-      data.customRule,
-      this.customRule,
-      (v) => {
-        this.customRule = v;
-      },
-      () => this.uploadCustomRule()
-    );
+    this.applyValue(isEdit, data.customRule, this.customRule, (v) => {
+      this.customRule = v;
+      this.uploadCustomRule();
+    });
 
     this.applyValue(
       isEdit,
@@ -403,35 +395,41 @@ export class AnalysisProfile {
       this.customRuleRepository,
       (v) => {
         this.customRuleRepository = v;
-      },
-      () => this.fetchCustomRules()
+        this.fetchCustomRules();
+      }
     );
     next();
 
-    this.applyValue(isEdit, data.includeRuleTags, this.includeRuleTags, (v) => {
-      this.includeRuleTags = v;
-      this.tagsToInclude(v);
-    });
+    this.applyValue(
+      isEdit,
+      data.includeRuleLabels,
+      this.includeRuleLabels,
+      (v) => this.labelsToInclude(v),
+      (v) => (this.includeRuleLabels = v)
+    );
 
-    this.applyValue(isEdit, data.excludeRuleTags, this.excludeRuleTags, (v) => {
-      this.excludeRuleTags = v;
-      this.tagsToExclude(v);
-    });
+    this.applyValue(
+      isEdit,
+      data.excludeRuleLabels,
+      this.excludeRuleLabels,
+      (v) => this.labelsToExclude(v),
+      (v) => (this.excludeRuleLabels = v)
+    );
 
     this.applyValue(
       isEdit,
       data.enableTransaction,
       this.enableTransaction,
-      (v) => (this.enableTransaction = v),
-      () => this.enableTransactionAnalysis()
+      () => this.enableTransactionAnalysis(),
+      (v) => (this.enableTransaction = v)
     );
 
     this.applyValue(
       isEdit,
       data.disableTagging,
       this.disableTagging,
-      (v) => (this.disableTagging = v),
-      () => this.disableAutomatedTagging()
+      () => this.disableAutomatedTagging(),
+      (v) => (this.disableTagging = v)
     );
     next();
     cy.get(submitButton, { timeout: 10 * SEC }).click();
@@ -518,13 +516,13 @@ export class AnalysisProfile {
       }
 
       // Validate included rule tags
-      if (this.includeRuleTags) {
-        cy.contains(this.includeRuleTags, { timeout: 5 * SEC });
+      if (this.includeRuleLabels) {
+        cy.contains(this.includeRuleLabels, { timeout: 5 * SEC });
       }
 
       // Validate excluded rule tags
-      if (this.excludeRuleTags) {
-        cy.contains(this.excludeRuleTags, { timeout: 5 * SEC });
+      if (this.excludeRuleLabels) {
+        cy.contains(this.excludeRuleLabels, { timeout: 5 * SEC });
       }
     });
   }

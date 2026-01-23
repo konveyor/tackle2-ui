@@ -1057,7 +1057,7 @@
     ]
   },
 
-  "analysis_for_excludeRuleTags": {
+  "analysis_for_excludeRuleLabels": {
     "source": "Source code",
     "target": ["Linux"],
     "appName": "tackle-testapp",
@@ -2185,7 +2185,7 @@
     "openSourceLibraries": false,
     "manuallyAnalyzePackages": ["io.konveyor.demo.ordermanagement"],
     "excludePackages": ["bar.com", "foo.com"],
-    "excludeRuleTags": "tag",
-    "includeRuleTags": "amazon"
+    "excludeRuleLabels": "tag",
+    "includeRuleLabels": "amazon"
   }
 }

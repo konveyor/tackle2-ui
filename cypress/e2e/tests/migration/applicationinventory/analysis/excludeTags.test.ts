@@ -69,7 +69,7 @@ describe.skip(["@tier1"], "Exclude Tags", () => {
       getRandomApplicationData("testapp-excludePackages", {
         sourceData: this.appData["tackle-testapp-git"],
       }),
-      getRandomAnalysisData(this.analysisData["analysis_for_excludeRuleTags"])
+      getRandomAnalysisData(this.analysisData["analysis_for_excludeRuleLabels"])
     );
     application.create();
     application.manageCredentials(source_credential.name);
