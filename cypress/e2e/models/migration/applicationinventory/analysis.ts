@@ -104,7 +104,7 @@ export class Analysis extends Application {
   customRule?: string[];
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
-  excludeRuleTags?: string;
+  excludeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   appName?: string;
@@ -136,7 +136,7 @@ export class Analysis extends Application {
       excludePackages,
       customRule,
       sources,
-      excludeRuleTags,
+      excludeRuleLabels,
       enableTransaction,
       disableTagging,
       appName,
@@ -157,7 +157,7 @@ export class Analysis extends Application {
     if (customRule) this.customRule = customRule;
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
-    if (excludeRuleTags) this.excludeRuleTags = excludeRuleTags;
+    if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     if (appName) this.appName = appName;
@@ -342,7 +342,7 @@ export class Analysis extends Application {
   }
 
   protected tagsToExclude() {
-    inputText("#ruleTagToExclude", this.excludeRuleTags);
+    inputText("#ruleTagToExclude", this.excludeRuleLabels);
     clickByText("#add-package-to-include", "Add");
   }
 
@@ -381,7 +381,7 @@ export class Analysis extends Application {
       this.fetchCustomRules();
     }
     next();
-    if (this.excludeRuleTags) {
+    if (this.excludeRuleLabels) {
       this.tagsToExclude();
     }
     if (this.enableTransaction) {
@@ -579,7 +579,7 @@ export class Analysis extends Application {
       .click();
     cy.get(tabsPanel).contains("Application Details").click();
     click(expandAll);
-    cy.get(panelBody).should("not.contain.text", this.excludeRuleTags);
+    cy.get(panelBody).should("not.contain.text", this.excludeRuleLabels);
   }
 
   // Method to validate Incidents on report page

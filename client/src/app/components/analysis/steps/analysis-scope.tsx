@@ -141,6 +141,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
               removeItemButtonId={(pkg) =>
                 `remove-${pkg}-from-included-packages`
               }
+              addButtonId="add-package-to-include"
               className={spacing.mtMd}
             />
           ) : null
@@ -165,6 +166,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
           itemToAddAriaLabel={t("wizard.label.packageToExclude")}
           itemNotUniqueMessage={t("wizard.label.packageExcluded")}
           removeItemButtonId={(pkg) => `remove-${pkg}-from-excluded-packages`}
+          addButtonId="add-package-to-exclude"
           className={`${spacing.mtSm} ${spacing.mlLg}`}
         />
       ) : null}

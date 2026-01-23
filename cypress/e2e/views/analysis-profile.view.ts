@@ -33,5 +33,9 @@ export const targetCamelSelect = "#target-Camel-select";
 export const fileInput = "input[type=file]";
 export const progressMeasure = "span.pf-v5-c-progress__measure";
 export const ossCheckbox = "#oss";
-export const ruleTagToExclude = "#ruleTagToExclude";
+export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
+export const addPackageToExclude = "#add-package-to-exclude";
+export const includeLabelsInput =
+  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
+export const includeLabelsMenuItem = ".pf-v5-c-select__menu-item";

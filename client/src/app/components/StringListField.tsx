@@ -21,6 +21,7 @@ export interface StringListFieldProps {
   itemToAddAriaLabel: string;
   itemNotUniqueMessage: string;
   removeItemButtonId: (item: string) => string;
+  addButtonId?: string;
   className?: string;
 }
 
@@ -33,6 +34,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
   itemToAddAriaLabel,
   itemNotUniqueMessage,
   removeItemButtonId,
+  addButtonId = "add-package-to-include",
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -88,7 +90,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
                 }}
               />
               <Button
-                id="add-package-to-include"
+                id={addButtonId}
                 variant="control"
                 isDisabled={!isValid}
                 onClick={addItem}
