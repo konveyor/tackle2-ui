@@ -116,7 +116,8 @@ export type analysisData = {
   customRule?: string[];
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
-  excludeRuleTags?: string;
+  excludeRuleLabels?: string;
+  includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   appName?: string;

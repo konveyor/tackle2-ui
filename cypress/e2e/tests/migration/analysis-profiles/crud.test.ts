@@ -38,7 +38,9 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
 
     const analysisProfile = new AnalysisProfile(
       profileName,
-      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
+      getRandomAnalysisData(
+        this.analysisData["bookServerApp_analysis_profile"]
+      ),
       profileDescription
     );
 
@@ -68,6 +70,9 @@ describe(["@tier2"], "Analysis Profile CRUD operations", () => {
       true
     );
     exists(updatedProfileName);
+
+    // Validate the updated profile information
+    analysisProfile.validateAnalysisProfileInformation();
 
     analysisProfile.delete();
     checkSuccessAlert(
