@@ -21,16 +21,13 @@ import {
   clickByText,
   clickItemInKebabMenu,
   clickWithin,
-  clickWithinByText,
   doesExistSelector,
   inputText,
   next,
-  selectAnalysisMode,
   selectCheckBox,
   selectFormItems,
   sidedrawerTab,
   uploadApplications,
-  uploadFile,
   verifySelectorText,
 } from "../../../../utils/utils";
 import {
@@ -38,13 +35,11 @@ import {
   Languages,
   MIN,
   ReportTypeSelectors,
-  RepositoryType,
   SEC,
   analyzeAppButton,
   analyzeButton,
   appInventoryKebab as kebab,
   button,
-  clearAllFilters,
   save,
   tdTag,
   trTag,
@@ -57,33 +52,20 @@ import {
 } from "../../../types/types";
 import {
   AnalysisLogView,
-  addButton,
-  addRules,
   analysisColumn,
   analysisDetails,
-  analyzeManuallyButton,
-  camelToggleButton,
   closeWizard,
-  dropDownMenu,
   effortColumn,
-  enableAutomatedTagging,
-  enableTransactionAnalysis,
-  enterPackageName,
-  enterPackageNameToExclude,
-  excludePackagesSwitch,
   expandAll,
   fileName,
   kebabTopMenuButton,
-  languageSelectionDropdown,
   logDropDown,
   logFilter,
   manageCredentials,
   mavenCredential,
   numberOfRulesColumn,
-  openjdkToggleButton,
   panelBody,
   sourceCredential,
-  sourceDropdown,
   tabsPanel,
 } from "../../../views/analysis.view";
 import { bulkApplicationSelectionCheckBox } from "../../../views/applicationinventory.view";
@@ -91,7 +73,7 @@ import {
   actionMenuItem,
   successAlertMessage,
 } from "../../../views/common.view";
-import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
+import { AnalysisWizardHelpers } from "../analysis-profiles/analysis-wizard-helpers";
 
 import { Application } from "./application";
 
@@ -121,6 +103,7 @@ export class Analysis extends Application {
     total?: number;
   };
   ruleFileToQuantity?: { [id: string]: number };
+  profileName?: string;
 
   constructor(appData: applicationData, analysisData: analysisData) {
     super(appData);
@@ -148,6 +131,7 @@ export class Analysis extends Application {
       customRuleRepository,
       language,
       ruleFileToQuantity,
+      profileName,
     } = analysisData;
     this.name = appData.name;
     this.source = source;
@@ -170,67 +154,31 @@ export class Analysis extends Application {
     if (openSourceLibraries) this.openSourceLibraries = openSourceLibraries;
     if (language) this.language = language;
     if (ruleFileToQuantity) this.ruleFileToQuantity = ruleFileToQuantity;
-  }
-
-  public selectManualAnalysisMode() {
-    cy.get("#wizard-mode-manual").check();
-    cy.get("#wizard-mode-manual").should("be.checked");
-  }
-
-  public selectSourceofAnalysis(source: string): void {
-    selectAnalysisMode(sourceDropdown, source);
+    if (profileName) this.profileName = profileName;
   }
 
   /**
-   * Make sure our language is selected. It may already be selected if language-discovery
-   * added it, or if it was added manually.
-   * @param language
-   * @param removePreSelected boolean if true, it will remove the preselected filters
+   * Selects the analysis mode in the wizard
+   * @param mode - "manual" to manually configure analysis, "profile" to use an existing analysis profile
+   * @param profileName - Required when mode is "profile". The name of the analysis profile to select
+   * @default "manual"
    */
-  public static selectLanguage(language: Languages, removePreSelected = false) {
-    cy.wait(2 * SEC);
-    if (removePreSelected) {
-      cy.get(languageSelectionDropdown).click();
-      /**
-       * There may not be any pre-selected filters so
-       * the only deterministic way to eliminate pre-selected filters is to make sure there is one
-       */
-      cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-        .contains("Java")
-        .closest(".pf-v5-c-menu__list-item")
-        .find("input[type=checkbox]")
-        .check();
-      cy.get(languageSelectionDropdown).click();
-      clickWithinByText(
-        ".pf-v5-c-wizard__main-body",
-        "button",
-        clearAllFilters
-      );
-    }
+  public selectAnalysisMode(
+    mode: "manual" | "profile" = "manual",
+    profileName?: string
+  ) {
+    const modeId =
+      mode === "profile" ? "#wizard-mode-profile" : "#wizard-mode-manual";
+    cy.get(modeId).check();
+    cy.get(modeId).should("be.checked");
 
-    cy.get(languageSelectionDropdown).click();
+    if (mode === "profile") {
+      cy.contains(button, "Next").should("have.class", "pf-m-disabled");
 
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-      .contains(language)
-      .closest(".pf-v5-c-menu__list-item")
-      .find("input[type=checkbox]")
-      .check();
-
-    cy.get(languageSelectionDropdown).click();
-  }
-
-  public selectTarget(target: string[]): void {
-    for (let i = 0; i < target.length; i++) {
-      if (["OpenJDK 11", "OpenJDK 17", "OpenJDK 21"].includes(target[i])) {
-        click(openjdkToggleButton);
-        clickByText(dropDownMenu, target[i]);
-        click(`#target-OpenJDK-select`);
-      } else if (["camel:3", "camel:4"].includes(target[i])) {
-        click(camelToggleButton);
-        clickByText(dropDownMenu, target[i]);
-        click(`#target-Camel-select`);
-      } else {
-        click(`#target-${target[i].replace(/ /g, "-")}-select`);
+      if (profileName) {
+        cy.contains("span", "Select an analysis profile").click();
+        cy.contains("span.pf-v5-c-menu__item-text", profileName).click();
+        cy.contains(button, "Next").should("not.have.class", "pf-m-disabled");
       }
     }
   }
@@ -246,99 +194,11 @@ export class Analysis extends Application {
     });
   }
 
-  protected enableTransactionAnalysis() {
-    cy.get(enableTransactionAnalysis)
-      .invoke("is", ":checked")
-      .then((checked) => {
-        checked
-          ? cy.log("Box is already checked")
-          : cy.get(enableTransactionAnalysis).check();
-      });
-  }
-
-  protected disableAutomatedTagging() {
-    cy.get(enableAutomatedTagging)
-      .invoke("is", ":checked")
-      .then((checked) => {
-        checked
-          ? cy.get(enableAutomatedTagging).uncheck()
-          : cy.log("Box is already unchecked");
-      });
-  }
-
-  protected uploadCustomRule() {
-    for (let i = 0; i < this.customRule.length; i++) {
-      cy.contains("button", "Add rules", { timeout: 20000 })
-        .should("be.enabled")
-        .click();
-      const folder = this.customRule[i].split(".").pop();
-      uploadFile(`${folder}/${this.customRule[i]}`);
-      cy.wait(2000);
-      cy.get("span.pf-v5-c-progress__measure", { timeout: 150000 }).should(
-        "contain",
-        "100%"
-      );
-      cy.wait(2000);
-      cy.contains(addRules, "Add", { timeout: 2000 }).click();
-    }
-  }
-
-  protected fetchCustomRules() {
-    cy.contains("button", "Repository", { timeout: 2000 })
-      .should("be.enabled")
-      .click();
-    click(CustomMigrationTargetView.repositoryTypeDropdown);
-    clickByText(button, RepositoryType.git);
-
-    inputText(
-      CustomMigrationTargetView.repositoryUrl,
-      this.customRuleRepository.repositoryUrl
-    );
-
-    if (this.customRuleRepository.branch) {
-      inputText(
-        CustomMigrationTargetView.branch,
-        this.customRuleRepository.branch
-      );
-    }
-
-    if (this.customRuleRepository.rootPath) {
-      inputText(
-        CustomMigrationTargetView.rootPath,
-        this.customRuleRepository.rootPath
-      );
-    }
-
-    if (this.customRuleRepository.credentials) {
-      click(CustomMigrationTargetView.credentialsDropdown);
-      clickByText(button, this.customRuleRepository.credentials.name);
-    }
-  }
-
   protected isNextEnabled() {
     cy.contains(button, "Next", { timeout: 300 * SEC }).should(
       "not.have.class",
       "pf-m-disabled"
     );
-  }
-
-  protected scopeSelect() {
-    if (this.manuallyAnalyzePackages) {
-      // for Scope's "Select the list of packages to be analyzed manually" option
-      click(analyzeManuallyButton);
-      inputText(enterPackageName, this.manuallyAnalyzePackages);
-      clickByText(addButton, "Add");
-    }
-
-    if (this.excludePackages) {
-      click(excludePackagesSwitch);
-      inputText(enterPackageNameToExclude, this.excludePackages);
-      clickByText(addButton, "Add");
-    }
-
-    if (this.openSourceLibraries) {
-      click("#oss");
-    }
   }
 
   protected tagsToExclude() {
@@ -361,39 +221,50 @@ export class Analysis extends Application {
   private startAnalysis() {
     cy.contains(button, analyzeButton).should("be.enabled").click();
 
-    this.selectManualAnalysisMode();
-    next();
-
-    this.selectSourceofAnalysis(this.source);
-    if (this.binary) this.uploadBinary();
-    this.isNextEnabled();
-    next();
-    Analysis.selectLanguage(this.language);
-    cy.wait(2 * SEC);
-    this.selectTarget(this.target);
-    next();
-    this.scopeSelect();
-    next();
-    if (this.customRule) {
-      this.uploadCustomRule();
-    }
-    if (this.customRuleRepository) {
-      this.fetchCustomRules();
-    }
-    next();
-    if (this.excludeRuleLabels) {
-      this.tagsToExclude();
-    }
-    if (this.enableTransaction) {
-      this.enableTransactionAnalysis();
-    }
-    if (this.disableTagging) {
-      this.disableAutomatedTagging();
-    }
-    if (!this.sources) {
+    if (this.profileName) {
+      this.selectAnalysisMode("profile", this.profileName);
       next();
+      clickByText(button, "Run");
+    } else {
+      // Manual mode: Configure all analysis settings
+      this.selectAnalysisMode("manual");
+      next();
+
+      AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
+      if (this.binary) this.uploadBinary();
+      this.isNextEnabled();
+      next();
+      AnalysisWizardHelpers.selectLanguage(this.language);
+      cy.wait(2 * SEC);
+      AnalysisWizardHelpers.selectTarget(this.target);
+      next();
+      AnalysisWizardHelpers.scopeSelect({
+        manuallyAnalyzePackages: this.manuallyAnalyzePackages,
+        excludePackages: this.excludePackages,
+        openSourceLibraries: this.openSourceLibraries,
+      });
+      next();
+      if (this.customRule) {
+        AnalysisWizardHelpers.uploadCustomRule(this.customRule);
+      }
+      if (this.customRuleRepository) {
+        AnalysisWizardHelpers.fetchCustomRules(this.customRuleRepository);
+      }
+      next();
+      if (this.excludeRuleLabels) {
+        this.tagsToExclude();
+      }
+      if (this.enableTransaction) {
+        AnalysisWizardHelpers.enableTransactionAnalysis();
+      }
+      if (this.disableTagging) {
+        AnalysisWizardHelpers.disableAutomatedTagging();
+      }
+      if (!this.sources) {
+        next();
+      }
+      clickByText(button, "Run");
     }
-    clickByText(button, "Run");
   }
 
   public static analyzeAll(params: Analysis): void {
@@ -613,13 +484,13 @@ export class Analysis extends Application {
     Application.open();
     this.selectApplication();
     cy.contains(button, analyzeButton).should("be.enabled").click();
-    this.selectManualAnalysisMode();
+    this.selectAnalysisMode();
     next();
-    this.selectSourceofAnalysis(this.source);
+    AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
     next();
     next();
     next();
-    this.uploadCustomRule();
+    AnalysisWizardHelpers.uploadCustomRule(this.customRule);
     for (const fileName in this.ruleFileToQuantity) {
       const numOfrules = this.ruleFileToQuantity[fileName];
       cy.get(trTag)

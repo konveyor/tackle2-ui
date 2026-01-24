@@ -30,6 +30,7 @@ import {
   selectItemsPerPage,
 } from "../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
+import { AnalysisWizardHelpers } from "../../../models/migration/analysis-profiles/analysis-wizard-helpers";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
 import {
@@ -246,13 +247,13 @@ describe(
             .should("be.enabled")
             .click();
 
-          application.selectManualAnalysisMode();
+          application.selectAnalysisMode();
           next();
-          application.selectSourceofAnalysis(application.source);
+          AnalysisWizardHelpers.selectSourceofAnalysis(application.source);
           cy.contains(button, "Next", { timeout: 200 }).click();
 
           // Make sure the new custom migration target is in the first position
-          Analysis.selectLanguage(language, true);
+          AnalysisWizardHelpers.selectLanguage(language, true);
           cy.get(".pf-v5-c-card__body", { timeout: 12 * SEC })
             .first()
             .should("contain", target.name);
@@ -298,13 +299,13 @@ describe(
             .should("be.enabled")
             .click();
 
-          application.selectManualAnalysisMode();
+          application.selectAnalysisMode();
           next();
-          application.selectSourceofAnalysis(application.source);
+          AnalysisWizardHelpers.selectSourceofAnalysis(application.source);
           cy.contains(button, "Next", { timeout: 200 }).click();
 
-          Analysis.selectLanguage(language);
-          application.selectTarget([target.name]);
+          AnalysisWizardHelpers.selectLanguage(language);
+          AnalysisWizardHelpers.selectTarget([target.name]);
           next();
           next();
           next();
