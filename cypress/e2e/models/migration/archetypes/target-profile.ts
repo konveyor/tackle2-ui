@@ -14,13 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import {
-  cancelForm,
   click,
+  clickByText,
   clickItemInKebabMenu,
   clickKebabMenuOptionArchetype,
   clickWithinByText,
   inputText,
+  selectFormItems,
 } from "../../../../utils/utils";
+import { button } from "../../../types/constants";
 import * as commonView from "../../../views/common.view";
 import * as view from "../../../views/target-profile.view";
 
@@ -28,11 +30,17 @@ import { Archetype } from "./archetype";
 
 export class TargetProfile {
   name: string;
-  generatorList: string[];
+  generatorList?: string[];
+  analysisProfile?: string;
 
-  constructor(name: string, generatorList: string[]) {
+  constructor(
+    name: string,
+    generatorList?: string[],
+    analysisProfile?: string
+  ) {
     this.name = name;
     this.generatorList = generatorList;
+    this.analysisProfile = analysisProfile;
   }
 
   open(archetypeName: string) {
@@ -41,7 +49,11 @@ export class TargetProfile {
   }
 
   protected fillName(name: string): void {
-    inputText("#target-profile-name", name);
+    inputText(view.targetProfileName, name);
+  }
+
+  protected selectAnalysisProfile(analysisProfile: string): void {
+    selectFormItems(view.analysisProfileToggle, analysisProfile);
   }
 
   protected selectGenerators(generatorList: string[]): void {
@@ -53,7 +65,7 @@ export class TargetProfile {
     cy.get(view.addSelectedItems).click();
   }
 
-  create(archetypeName: string, cancel = false): void {
+  create(archetypeName: string, cancel = false, verifyOnly = false): void {
     this.open(archetypeName);
     cy.contains("button", "Create new target profile")
       .should("be.visible")
@@ -61,19 +73,42 @@ export class TargetProfile {
       .click();
 
     if (cancel) {
-      cancelForm();
+      clickByText(button, "Cancel");
       return;
     }
 
     this.fillName(this.name);
-    this.selectGenerators(this.generatorList);
+
+    // Select analysis profile if provided
+    if (this.analysisProfile) {
+      this.selectAnalysisProfile(this.analysisProfile);
+    }
+
+    // Select generators if provided
+    if (this.generatorList && this.generatorList.length > 0) {
+      this.selectGenerators(this.generatorList);
+    }
+
+    if (verifyOnly) {
+      this.verifyCreateButtonEnabled();
+      clickByText(button, "Cancel");
+      return;
+    }
+
     clickWithinByText(commonView.modal, "button", "Create");
+  }
+
+  verifyCreateButtonEnabled(): void {
+    cy.get(commonView.modal)
+      .find("button#submit")
+      .should("be.visible")
+      .and("be.enabled");
   }
 
   delete(cancel = false): void {
     clickItemInKebabMenu(this.name, "Delete");
     if (cancel) {
-      cancelForm();
+      clickByText(button, "Cancel");
       return;
     }
     click(commonView.confirmButton);
