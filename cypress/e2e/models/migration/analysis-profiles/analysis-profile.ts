@@ -18,6 +18,7 @@ import {
   click,
   clickByText,
   clickItemInKebabMenu,
+  doesExistSelector,
   inputText,
   next,
   performRowActionByIcon,
@@ -35,6 +36,7 @@ import {
 import { RulesRepositoryFields, analysisData } from "../../../types/types";
 import {
   cancelButton,
+  createProfileButton,
   description as profileDescriptionInput,
   includeLabelsInput,
   includeLabelsMenuItem,
@@ -136,10 +138,7 @@ export class AnalysisProfile {
 
   public static validateCreateButton(rbacRules: any): void {
     AnalysisProfile.open();
-    const createButton = "#create-analysis-profile";
-    cy.get(createButton).should(
-      rbacRules["Create new"] ? "exist" : "not.exist"
-    );
+    doesExistSelector(createProfileButton, rbacRules["Create new"]);
   }
 
   private applyValue<T>(
@@ -292,7 +291,7 @@ export class AnalysisProfile {
 
   create(cancel = false) {
     AnalysisProfile.open();
-    clickByText(button, "Create new");
+    cy.get(createProfileButton).click();
 
     if (cancel) {
       click(cancelButton);

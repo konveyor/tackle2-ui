@@ -17,7 +17,7 @@ export const name = "#analysis-profile-name";
 export const description = "#analysis-profile-description";
 export const profileNameColumn = "td[data-label='Name']";
 export const profileDescriptionColumn = "td[data-label='Description']";
-export const createProfileButton = "Create new";
+export const createProfileButton = "#create-analysis-profile";
 export const cancelButton = "div.pf-v5-c-wizard__footer-cancel";
 export const submitButton = 'button[type="submit"]';
 export const pencilAction = '[id^="pencil-action"]';
