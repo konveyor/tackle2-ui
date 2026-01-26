@@ -460,7 +460,7 @@ describe(["@tier1"], "Source Analysis", () => {
   });
 
   after("Perform test data clean up", function () {
-    //deleteBulkApplicationsByApi(applicationIds);
+    deleteBulkApplicationsByApi(applicationIds);
     sourceCredential.delete();
     invalidSourceCredential.delete();
     mavenCredential.delete();
