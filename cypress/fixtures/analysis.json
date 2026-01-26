@@ -1070,7 +1070,7 @@
     "source": "Source code",
     "target": ["Quarkus"],
     "appName": "tackle-testapp",
-    "manuallyAnalyzePackages": "io.konveyor.demo.ordermanagement",
+    "manuallyAnalyzePackages": ["io.konveyor.demo.ordermanagement"],
     "excludedPackagesList": [
       " io.konveyor.demo.ordermanagement",
       " io.konveyor.demo.ordermanagement.model "
@@ -1944,7 +1944,7 @@
     "source": "Upload a local binary",
     "target": ["Containerization"],
     "binary": ["administracionEfectivo.ear"],
-    "manuallyAnalyzePackages": "io.konveyor.demo.ordermanagement",
+    "manuallyAnalyzePackages": ["io.konveyor.demo.ordermanagement"],
     "excludedPackagesList": [
       " io.konveyor.demo.ordermanagement",
       " io.konveyor.demo.ordermanagement.model "

@@ -18,64 +18,36 @@ import {
   click,
   clickByText,
   clickItemInKebabMenu,
-  clickWithinByText,
   inputText,
   next,
   performRowActionByIcon,
-  selectAnalysisMode,
   selectItemsPerPage,
   selectRow,
   selectUserPerspective,
-  uploadFile,
 } from "../../../../utils/utils";
 import {
   Languages,
-  RepositoryType,
   SEC,
   analysisProfiles,
   button,
-  clearAllFilters,
   migration,
 } from "../../../types/constants";
 import { RulesRepositoryFields, analysisData } from "../../../types/types";
 import {
-  addPackageToExclude,
-  addPackageToInclude,
   cancelButton,
-  checkboxInput,
   description as profileDescriptionInput,
   includeLabelsInput,
   includeLabelsMenuItem,
-  languageListbox,
-  menuListItem,
   name as profileNameInput,
-  ossCheckbox,
   pencilAction,
-  progressMeasure,
   ruleLabelToExclude,
   submitButton,
-  targetCamelSelect,
-  targetOpenJDKSelect,
-  wizardMainBody,
 } from "../../../views/analysis-profile.view";
-import {
-  addRules,
-  analyzeManuallyButton,
-  camelToggleButton,
-  dropDownMenu,
-  enableAutomatedTagging,
-  enableTransactionAnalysis,
-  enterPackageName,
-  enterPackageNameToExclude,
-  excludePackagesSwitch,
-  languageSelectionDropdown,
-  openjdkToggleButton,
-  rightSideMenu,
-  sourceDropdown,
-} from "../../../views/analysis.view";
+import { rightSideMenu } from "../../../views/analysis.view";
 import * as commonView from "../../../views/common.view";
-import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
 import { navMenu } from "../../../views/menu.view";
+
+import { AnalysisWizardHelpers } from "./analysis-wizard-helpers";
 
 export class AnalysisProfile {
   static fullUrl = Cypress.config("baseUrl") + "/analysis-profiles";
@@ -190,135 +162,6 @@ export class AnalysisProfile {
     }
   }
 
-  public selectSourceofAnalysis(source: string): void {
-    selectAnalysisMode(sourceDropdown, source);
-  }
-
-  public static selectLanguage(language: Languages, removePreSelected = false) {
-    if (removePreSelected) {
-      cy.get(languageSelectionDropdown).click();
-      cy.get(languageListbox)
-        .contains("Java")
-        .closest(menuListItem)
-        .find(checkboxInput)
-        .check();
-      cy.get(languageSelectionDropdown).click();
-      clickWithinByText(wizardMainBody, "button", clearAllFilters);
-    }
-
-    cy.get(languageSelectionDropdown).click();
-
-    cy.get(languageListbox)
-      .contains(language)
-      .closest(menuListItem)
-      .find(checkboxInput)
-      .check();
-
-    cy.get(languageSelectionDropdown).click();
-  }
-
-  public selectTarget(target: string[]): void {
-    for (let i = 0; i < target.length; i++) {
-      if (["OpenJDK 11", "OpenJDK 17", "OpenJDK 21"].includes(target[i])) {
-        click(openjdkToggleButton);
-        clickByText(dropDownMenu, target[i]);
-        click(targetOpenJDKSelect);
-      } else if (["camel:3", "camel:4"].includes(target[i])) {
-        click(camelToggleButton);
-        clickByText(dropDownMenu, target[i]);
-        click(targetCamelSelect);
-      } else {
-        click(`#target-${target[i].replace(/ /g, "-")}-select`);
-      }
-    }
-  }
-
-  protected enableTransactionAnalysis() {
-    cy.get(enableTransactionAnalysis)
-      .invoke("is", ":checked")
-      .then((checked) => {
-        checked
-          ? cy.log("Box is already checked")
-          : cy.get(enableTransactionAnalysis).check();
-      });
-  }
-
-  protected disableAutomatedTagging() {
-    cy.get(enableAutomatedTagging)
-      .invoke("is", ":checked")
-      .then((checked) => {
-        checked
-          ? cy.get(enableAutomatedTagging).uncheck()
-          : cy.log("Box is already unchecked");
-      });
-  }
-
-  protected uploadCustomRule() {
-    for (let i = 0; i < this.customRule.length; i++) {
-      cy.contains("button", "Add rules", { timeout: 20000 })
-        .should("be.enabled")
-        .click();
-      const folder = this.customRule[i].split(".").pop();
-      uploadFile(`${folder}/${this.customRule[i]}`);
-      cy.get(progressMeasure, { timeout: 150000 }).should("contain", "100%");
-      cy.contains(addRules, "Add", { timeout: 2000 }).click();
-    }
-  }
-
-  protected fetchCustomRules() {
-    cy.contains("button", "Repository", { timeout: 2000 })
-      .should("be.enabled")
-      .click();
-    click(CustomMigrationTargetView.repositoryTypeDropdown);
-    clickByText(button, RepositoryType.git);
-
-    inputText(
-      CustomMigrationTargetView.repositoryUrl,
-      this.customRuleRepository.repositoryUrl
-    );
-
-    if (this.customRuleRepository.branch) {
-      inputText(
-        CustomMigrationTargetView.branch,
-        this.customRuleRepository.branch
-      );
-    }
-
-    if (this.customRuleRepository.rootPath) {
-      inputText(
-        CustomMigrationTargetView.rootPath,
-        this.customRuleRepository.rootPath
-      );
-    }
-
-    if (this.customRuleRepository.credentials) {
-      click(CustomMigrationTargetView.credentialsDropdown);
-      clickByText(button, this.customRuleRepository.credentials.name);
-    }
-  }
-
-  protected scopeSelect() {
-    if (this.manuallyAnalyzePackages) {
-      click(analyzeManuallyButton);
-      this.manuallyAnalyzePackages.forEach((pkg) => {
-        inputText(enterPackageName, pkg);
-        click(addPackageToInclude);
-      });
-    }
-
-    if (this.excludePackages) {
-      click(excludePackagesSwitch);
-      this.excludePackages.forEach((pkg) => {
-        inputText(enterPackageNameToExclude, pkg);
-        click(addPackageToExclude);
-      });
-    }
-
-    if (this.openSourceLibraries) {
-      click(ossCheckbox);
-    }
-  }
-
   protected labelsToExclude(label: string) {
     inputText(ruleLabelToExclude, label);
     clickByText(button, "Add");
@@ -351,7 +194,7 @@ export class AnalysisProfile {
       isEdit,
       data.source,
       this.source,
-      (v) => this.selectSourceofAnalysis(v),
+      (v) => AnalysisWizardHelpers.selectSourceofAnalysis(v),
       (v) => (this.source = v)
     );
     next();
@@ -360,7 +203,7 @@ export class AnalysisProfile {
       isEdit,
       data.language,
       this.language,
-      (v) => AnalysisProfile.selectLanguage(v),
+      (v) => AnalysisWizardHelpers.selectLanguage(v),
       (v) => (this.language = v)
     );
 
@@ -368,7 +211,7 @@ export class AnalysisProfile {
       isEdit,
       data.target,
       this.target,
-      (v) => this.selectTarget(v),
+      (v) => AnalysisWizardHelpers.selectTarget(v),
       (v) => (this.target = v)
     );
     next();
@@ -380,13 +223,17 @@ export class AnalysisProfile {
       data.openSourceLibraries !== undefined
     ) {
       Object.assign(this, data);
-      this.scopeSelect();
+      AnalysisWizardHelpers.scopeSelect({
+        manuallyAnalyzePackages: this.manuallyAnalyzePackages,
+        excludePackages: this.excludePackages,
+        openSourceLibraries: this.openSourceLibraries,
+      });
     }
     next();
 
     this.applyValue(isEdit, data.customRule, this.customRule, (v) => {
       this.customRule = v;
-      this.uploadCustomRule();
+      AnalysisWizardHelpers.uploadCustomRule(this.customRule);
     });
 
     this.applyValue(
@@ -395,7 +242,7 @@ export class AnalysisProfile {
       this.customRuleRepository,
       (v) => {
         this.customRuleRepository = v;
-        this.fetchCustomRules();
+        AnalysisWizardHelpers.fetchCustomRules(this.customRuleRepository);
       }
     );
     next();
@@ -420,7 +267,7 @@ export class AnalysisProfile {
       isEdit,
       data.enableTransaction,
       this.enableTransaction,
-      () => this.enableTransactionAnalysis(),
+      () => AnalysisWizardHelpers.enableTransactionAnalysis(),
       (v) => (this.enableTransaction = v)
     );
 
@@ -428,7 +275,7 @@ export class AnalysisProfile {
       isEdit,
       data.disableTagging,
       this.disableTagging,
-      () => this.disableAutomatedTagging(),
+      () => AnalysisWizardHelpers.disableAutomatedTagging(),
       (v) => (this.disableTagging = v)
     );
     next();

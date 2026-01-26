@@ -136,6 +136,7 @@ export type analysisData = {
   };
   techTags?: string[][];
   ruleFileToQuantity?: { [id: string]: number };
+  profileName?: string;
 };
 
 export type UserData = {

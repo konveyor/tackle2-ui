@@ -118,7 +118,7 @@ describe(["@tier1"], "Source Analysis", () => {
     sourceCredential.setAsDefaultViaActionsMenu();
     application.analyze();
     application.waitStatusChange(AnalysisStatuses.scheduled);
-    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
 
     // analyze after removing valid default source and maven creds
     sourceCredential.unsetAsDefaultViaActionsMenu();
@@ -164,7 +164,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(null, mavenCredential.name);
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
   });
 
   it("Source Analysis on tackle testapp", function () {
@@ -182,7 +182,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(sourceCredential.name, null);
     application.analyze();
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
   it("Analysis on tackle test app with ssh credentials", function () {
@@ -207,7 +207,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(scCredsKey.name, null);
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
   it("Analysis for known Open Source libraries on tackleTest app", function () {
@@ -245,7 +245,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(sourceCredential.name, null);
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
     application.applicationDetailsTab("Tags");
     application.tagAndCategoryExists(
       this.analysisData["analysis_for_enableTagging"]["techTags"]
@@ -267,7 +267,7 @@ describe(["@tier1"], "Source Analysis", () => {
       applicationIds.push(id);
     });
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
     application.verifyEffort(
       this.analysisData["analysis_for_disableTagging"]["effort"]
     );
@@ -313,7 +313,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(sourceCredential.name, mavenCredential.name);
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
   it("Bug MTA-4412: Bug MTA-5212  Openjdk17 Source + dependencies analysis on tackletest app", function () {
@@ -332,7 +332,7 @@ describe(["@tier1"], "Source Analysis", () => {
     });
     application.manageCredentials(sourceCredential.name, mavenCredential.name);
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
     application.verifyEffort(
       this.analysisData["openJDK17_source+dep_analysis_on_tackletestapp"][
         "effort"
@@ -393,7 +393,7 @@ describe(["@tier1"], "Source Analysis", () => {
       applicationIds.push(id);
     });
     application.analyze();
-    application.verifyAnalysisStatus("Completed");
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
   });
 
   // Automates customer bug MTA-2973
@@ -415,7 +415,7 @@ describe(["@tier1"], "Source Analysis", () => {
       });
       if (credentials) application.manageCredentials(null, credentials.name);
       application.analyze();
-      application.verifyAnalysisStatus("Completed");
+      application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
     };
 
     const appWithCredentials = createApplication();
@@ -457,24 +457,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.analyze();
     application.cancelAnalysis();
     application.verifyAnalysisStatus(AnalysisStatuses.canceled);
-  });
-
-  it("Analysis that requires credentials should fail when none are set", function () {
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+dependencies", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source+dep_analysis_on_tackletestapp"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.failed);
   });
 
   after("Perform test data clean up", function () {

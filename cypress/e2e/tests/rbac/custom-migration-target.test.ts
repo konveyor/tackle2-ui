@@ -28,6 +28,7 @@ import {
 import { User } from "../../models/keycloak/users/user";
 import { UserArchitect } from "../../models/keycloak/users/userArchitect";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { AnalysisWizardHelpers } from "../../models/migration/analysis-profiles/analysis-wizard-helpers";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
 import {
@@ -135,9 +136,9 @@ describe(["tier3"], "Custom Migration Targets RBAC operations", function () {
       .should("be.enabled")
       .click();
 
-    existingAnalysis.selectManualAnalysisMode();
+    existingAnalysis.selectAnalysisMode();
     next();
-    existingAnalysis.selectSourceofAnalysis(existingAnalysis.source);
+    AnalysisWizardHelpers.selectSourceofAnalysis(existingAnalysis.source);
     cy.contains("button", "Next", { timeout: 200 }).click();
 
     // Ensures that the latest custom migration target created is the last one in the list
