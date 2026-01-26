@@ -92,7 +92,11 @@ runs:
       shell: bash
       run: |
         cd ui-tests/cypress
-        node scripts/bug_summary.mjs run/report/index.json
+        if [[ -f run/report/index.json ]]; then
+          node scripts/bug_summary.mjs run/report/index.json
+        else
+          echo "No run/report/index.json found; skipping bug summary generation."
+        fi
 
     - name: Publish Bug Summary to GitHub Job Summary
       if: always()
@@ -101,17 +105,21 @@ runs:
         cd ui-tests/cypress
         echo "## Test Bug Summary" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        jq -r '
-          .summary |
-          "| Metric | Count |
-           |--------|-------|
-           | Total Tests | \(.totalTests) |
-           | Passing | \(.passing) |
-           | Failing | \(.failing) |
-           | Known Bug Failures | \(.totalBugs) |
-           | Pending | \(.pending) |
-           | Skipped | \(.skipped) |"
-        ' run/report/bug-summary.json >> $GITHUB_STEP_SUMMARY
+        if [[ -f run/report/bug-summary.json ]]; then
+          jq -r '
+            .summary |
+            "| Metric | Count |
+             |--------|-------|
+             | Total Tests | \(.totalTests) |
+             | Passing | \(.passing) |
+             | Failing | \(.failing) |
+             | Known Bug Failures | \(.totalBugs) |
+             | Pending | \(.pending) |
+             | Skipped | \(.skipped) |"
+          ' run/report/bug-summary.json >> $GITHUB_STEP_SUMMARY
+        else
+          echo "_Bug summary unavailable (bug-summary.json missing)_" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Upload cypress report data as artifact
       uses: actions/upload-artifact@v4
