@@ -153,10 +153,8 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
       });
       appWithArchetype.create();
 
-      // Login as migrator
+      // Login as migrator and start application analysis
       userMigrator.login();
-
-      // Navigate to application and start analysis
       Application.open();
       cy.get(tdTag)
         .contains(appWithArchetype.name)
@@ -167,12 +165,12 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
 
       cy.contains(button, "Analyze").should("be.enabled").click();
 
-      // Select profile mode
+      // Select analysis profile mode
       cy.get("#wizard-mode-profile").check();
       cy.get("#wizard-mode-profile").should("be.checked");
 
       // Click on the analysis profile dropdown
-      cy.contains("span", "Select an analysis profile").click();
+      cy.get("#analysis-profile-select-toggle").click();
 
       // Verify only the second analysis profile (linked to archetype) is visible
       cy.get("span.pf-v5-c-menu__item-text")
