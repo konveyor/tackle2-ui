@@ -116,7 +116,7 @@ runs:
              | Known Bug Failures | \(.totalBugs) |
              | Pending | \(.pending) |
              | Skipped | \(.skipped) |"
-          ' run/report/bug-summary.json >> $GITHUB_STEP_SUMMARY
+          ' run/report/bug-summary.json | sed 's/^[[:space:]]*//' >> $GITHUB_STEP_SUMMARY
         else
           echo "_Bug summary unavailable (bug-summary.json missing)_" >> $GITHUB_STEP_SUMMARY
         fi
