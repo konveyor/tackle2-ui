@@ -21,7 +21,9 @@ import {
   getRandomUserData,
 } from "../../../utils/data_utils";
 import {
+  createMultipleTags,
   deleteByList,
+  getRandomAnalysisData,
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
@@ -29,10 +31,19 @@ import { AssessmentQuestionnaire } from "../../models/administration/assessment_
 import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { Archetype } from "../../models/migration/archetypes/archetype";
+import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { CredentialType, legacyPathfinder } from "../../types/constants";
+import {
+  CredentialType,
+  button,
+  legacyPathfinder,
+  tdTag,
+  trTag,
+} from "../../types/constants";
 
 const stakeholdersList: Array<Stakeholders> = [];
 const stakeholdersNameList: Array<string> = [];
@@ -88,6 +99,105 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
 
   it("Migrator, validate ability to upload binary", function () {
     application.validateUploadBinary(this.rbacRules);
+  });
+
+  it("Migrator, validate Analysis Profiles create button", function () {
+    AnalysisProfile.validateCreateButton(this.rbacRules);
+  });
+
+  it("Migrator, verify only archetype-linked analysis profiles are visible in dropdown", function () {
+    // Login as admin to set up test data
+    login();
+    cy.visit("/");
+
+    // Create tags for archetype
+    const tags = createMultipleTags(2);
+
+    // Create first analysis profile (not linked to archetype)
+    cy.fixture("analysis").then(function (analysisData) {
+      const analysisProfile1 = new AnalysisProfile(
+        `profile-unlinked-${Date.now()}`,
+        getRandomAnalysisData(analysisData["source_analysis_on_bookserverapp"]),
+        "Analysis profile not linked to archetype"
+      );
+      analysisProfile1.create();
+
+      // Create second analysis profile (will be linked to archetype)
+      const analysisProfile2 = new AnalysisProfile(
+        `profile-linked-${Date.now()}`,
+        getRandomAnalysisData(analysisData["source_analysis_on_bookserverapp"]),
+        "Analysis profile linked to archetype"
+      );
+      analysisProfile2.create();
+
+      // Create archetype with criteria tags
+      const archetype = new Archetype(
+        `test-archetype-${Date.now()}`,
+        [tags[0].name], // Criteria tags
+        [tags[1].name] // Archetype tags
+      );
+      archetype.create();
+
+      // Link second analysis profile to archetype via target profile
+      const targetProfile = new TargetProfile(
+        `target-profile-${Date.now()}`,
+        undefined,
+        analysisProfile2.name
+      );
+      targetProfile.create(archetype.name);
+
+      // Create application with matching tags to associate it with the archetype
+      const appWithArchetype = new Application({
+        name: `app-with-archetype-${Date.now()}`,
+        tags: [tags[0].name], // Matches archetype criteria tags
+      });
+      appWithArchetype.create();
+
+      // Login as migrator
+      userMigrator.login();
+
+      // Navigate to application and start analysis
+      Application.open();
+      cy.get(tdTag)
+        .contains(appWithArchetype.name)
+        .closest(trTag)
+        .within(() => {
+          cy.get("input[type='checkbox']").check();
+        });
+
+      cy.contains(button, "Analyze").should("be.enabled").click();
+
+      // Select profile mode
+      cy.get("#wizard-mode-profile").check();
+      cy.get("#wizard-mode-profile").should("be.checked");
+
+      // Click on the analysis profile dropdown
+      cy.contains("span", "Select an analysis profile").click();
+
+      // Verify only the second analysis profile (linked to archetype) is visible
+      cy.get("span.pf-v5-c-menu__item-text")
+        .contains(analysisProfile2.name)
+        .should("be.visible");
+
+      // Verify the first analysis profile (not linked to archetype) is NOT visible
+      cy.get("span.pf-v5-c-menu__item-text")
+        .contains(analysisProfile1.name)
+        .should("not.exist");
+
+      // Close the wizard
+      cy.contains(button, "Cancel").click();
+
+      // Clean up as admin
+      login();
+      cy.visit("/");
+      appWithArchetype.delete();
+      targetProfile.open(archetype.name);
+      targetProfile.delete();
+      archetype.delete();
+      analysisProfile2.delete();
+      analysisProfile1.delete();
+      deleteByList(tags);
+    });
   });
 
   after("", () => {
