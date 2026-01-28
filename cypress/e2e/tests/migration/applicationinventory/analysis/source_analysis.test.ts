@@ -15,64 +15,31 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import * as data from "../../../../../utils/data_utils";
+import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
-  deleteAllCredentials,
+  checkSuccessAlert,
   deleteBulkApplicationsByApi,
+  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
-  login,
-  writeMavenSettingsFile,
 } from "../../../../../utils/utils";
-import { CredentialsMaven } from "../../../../models/administration/credentials/credentialsMaven";
-import { CredentialsSourceControlKey } from "../../../../models/administration/credentials/credentialsSourceControlKey";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
+import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
-  AnalysisStatuses,
   CredentialType,
-  MIN,
-  SEC,
+  TaskKind,
+  TaskStatus,
   UserCredentials,
 } from "../../../../types/constants";
-let sourceCredential: CredentialsSourceControlUsername;
-let invalidSourceCredential: CredentialsSourceControlUsername;
-let mavenCredential: CredentialsMaven;
+import { AppIssue } from "../../../../types/types";
+import { infoAlertMessage } from "../../../../views/common.view";
 const applicationIds: number[] = [];
+let application: Analysis;
+const credentialsList: Array<CredentialsSourceControlUsername> = [];
 
-describe(["@tier1"], "Source Analysis", () => {
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    deleteAllCredentials();
-
-    // Create source Credentials
-    sourceCredential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        true
-      )
-    );
-    sourceCredential.create();
-
-    // Create invalid source Credentials
-    invalidSourceCredential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        false
-      )
-    );
-    invalidSourceCredential.create();
-
-    // Create Maven credentials
-    mavenCredential = new CredentialsMaven(
-      data.getRandomCredentialsData(CredentialType.maven, null, true)
-    );
-    mavenCredential.create();
-  });
-
+describe(["@tier0"], "Source Analysis without credentials", () => {
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
       this.appData = appData;
@@ -84,182 +51,31 @@ describe(["@tier1"], "Source Analysis", () => {
     // Interceptors
     cy.intercept("POST", "/hub/application*").as("postApplication");
     cy.intercept("GET", "/hub/application*").as("getApplication");
-    cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
     cy.visit("/");
   });
 
-  it("Source + dependencies analysis on tackletest app with default credentials", function () {
-    // Source code analysis require both source and maven credentials
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+dependencies", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source+dep_analysis_on_tackletestapp"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    // analyze with no default creds
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.failed);
-
-    // analyze with inValid default source creds and valid maven creds
-    invalidSourceCredential.setAsDefaultViaActionsMenu();
-    mavenCredential.setAsDefaultViaActionsMenu();
-    application.analyze();
-    application.waitStatusChange(AnalysisStatuses.scheduled);
-    application.verifyAnalysisStatus(AnalysisStatuses.failed);
-
-    // analyze with valid default source and maven creds
-    sourceCredential.setAsDefaultViaActionsMenu();
-    application.analyze();
-    application.waitStatusChange(AnalysisStatuses.scheduled);
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-
-    // analyze after removing valid default source and maven creds
-    sourceCredential.unsetAsDefaultViaActionsMenu();
-    mavenCredential.unsetAsDefaultViaActionsMenu();
-    application.analyze();
-    application.waitStatusChange(AnalysisStatuses.failed);
-  });
-
-  it("Source + dependencies analysis on daytrader app", function () {
-    // Automate bug https://issues.redhat.com/browse/TACKLE-721
-    const application = new Analysis(
-      getRandomApplicationData("dayTraderApp_Source+dependencies", {
-        sourceData: this.appData["daytrader-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source+dep_analysis_on_daytrader-app"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    // Daytrader app take more than 20 min to analyze
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
-  });
-
-  it("Analysis on daytrader app with maven credentials", function () {
-    // Automate bug https://issues.redhat.com/browse/TACKLE-751
-    const application = new Analysis(
-      getRandomApplicationData("dayTraderApp_MavenCreds", {
-        sourceData: this.appData["daytrader-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source+dep_analysis_on_daytrader-app"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(null, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-  });
-
-  it("Source Analysis on tackle testapp", function () {
-    // For tackle test app source credentials are required.
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, null);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
-  });
-
-  it("Analysis on tackle test app with ssh credentials", function () {
-    // Automate bug https://issues.redhat.com/browse/TACKLE-707
-    const scCredsKey = new CredentialsSourceControlKey(
-      data.getRandomCredentialsData(
+  it("Creating source control credentials with username/password", function () {
+    const scCredsUsername = new CredentialsSourceControlUsername(
+      getRandomCredentialsData(
         CredentialType.sourceControl,
-        UserCredentials.sourcePrivateKey
+        UserCredentials.usernamePassword
       )
     );
-    scCredsKey.create();
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_sshCreds", {
-        sourceData: this.appData["tackle-testapp-ssh"],
-      }),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(scCredsKey.name, null);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+    scCredsUsername.create();
+    credentialsList.push(scCredsUsername);
   });
 
-  it("Analysis for known Open Source libraries on tackleTest app", function () {
-    // Source code analysis require both source and maven credentials
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+knownLibraries", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["analysis_for_openSourceLibraries"]
-      )
+  it("Bookserver source analysis - manual and profile mode validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_analysis_on_bookserverapp"]
     );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
-  });
+    analysisData.saveAsProfile = true;
 
-  it("Automated tagging using Source Analysis on tackle testapp", function () {
-    // Automates Polarion MTA-208
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source_autoTagging", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(this.analysisData["analysis_for_enableTagging"])
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, null);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-    application.applicationDetailsTab("Tags");
-    application.tagAndCategoryExists(
-      this.analysisData["analysis_for_enableTagging"]["techTags"]
-    );
-    application.closeApplicationDetails();
-  });
-
-  it("Bug MTA-3418: Disable Automated tagging using Source Analysis on bookServer app", function () {
-    // Automates Polarion MTA-307
-    const application = new Analysis(
-      getRandomApplicationData("bookserverApp_Disable_autoTagging", {
+    application = new Analysis(
+      getRandomApplicationData("bookserverApp", {
         sourceData: this.appData["bookserver-app"],
       }),
-      getRandomAnalysisData(this.analysisData["analysis_for_disableTagging"])
+      analysisData
     );
     application.create();
     cy.wait("@getApplication");
@@ -267,203 +83,105 @@ describe(["@tier1"], "Source Analysis", () => {
       applicationIds.push(id);
     });
     application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-    application.verifyEffort(
-      this.analysisData["analysis_for_disableTagging"]["effort"]
-    );
-    application.applicationDetailsTab("Tags");
-    cy.get("h2", { timeout: 5 * SEC }).should("contain", "No tags available");
-  });
-
-  it("Analysis for Konveyor example1 application", function () {
-    // Automates https://github.com/konveyor/example-applications/tree/main/example-1
-    const application = new Analysis(
-      getRandomApplicationData("Example 1", {
-        sourceData: this.appData["konveyor-exampleapp"],
-      }),
-      getRandomAnalysisData(this.analysisData["analysis_on_example-1-app"])
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     application.verifyAnalysisStatus("Completed");
-    // Polarion TC 406
-    application.verifyEffort(
-      this.analysisData["analysis_on_example-1-app"]["effort"]
+    application.validateIssues(
+      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        application.validateAffected(currentIssue);
+      }
+    );
+
+    // Re-run analysis using the saved profile
+    const profileName = `profile_${application.name}`;
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(application, analysisData);
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.verifyAnalysisStatus("Completed");
+
+    // Verify results match
+    profileApplication.validateIssues(
+      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        profileApplication.validateAffected(currentIssue);
+      }
     );
   });
 
-  it("JWS6 target Source + deps analysis on tackletest app", function () {
-    // Source code analysis require both source and maven credentials
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+dependencies_jws6", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
+  it("Validate saved analysis profile details", function () {
+    const profileName = `profile_${application.name}`;
+
+    // Open analysis profiles page and verify profile exists
+    AnalysisProfile.open(true);
+    exists(profileName);
+
+    // Validate profile information in details page
+    const savedProfile = new AnalysisProfile(
+      profileName,
       getRandomAnalysisData(
-        this.analysisData["jws6_source+dep_analysis_on_tackletestapp"]
+        this.analysisData["source_analysis_on_bookserverapp"]
       )
     );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+    savedProfile.validateAnalysisProfileInformation();
+
+    // Delete the profile
+    savedProfile.delete();
   });
 
-  it("Bug MTA-4412: Bug MTA-5212  Openjdk17 Source + dependencies analysis on tackletest app", function () {
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+dependencies_openjdk17", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["openJDK17_source+dep_analysis_on_tackletestapp"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-    application.verifyEffort(
-      this.analysisData["openJDK17_source+dep_analysis_on_tackletestapp"][
-        "effort"
-      ]
-    );
-  });
-
-  it("OpenJDK21 Source + dependencies analysis on daytrader app", function () {
-    const application = new Analysis(
-      getRandomApplicationData("dayTraderApp_Source+dependencies_openjdk21", {
-        sourceData: this.appData["daytrader-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["openJDK21_source+dep_analysis_on_dayTrader"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
-  });
-
-  // Automates customer bug MTA-1785
-  it("JDK<11 Source + dependencies analysis on tackle app public", function () {
-    const application = new Analysis(
-      getRandomApplicationData("tackle testapp public jdk 9", {
-        sourceData: this.appData["tackle-testapp-public-jdk9"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["jdk9_source_dep_analysis_on_tackletestapp"]
-      )
-    );
-    application.create();
-    application.manageCredentials(null, mavenCredential.name);
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed);
-  });
-
-  // Automates bug MTA-3422
-  it("4 targets source analysis on tackle app public", function () {
-    const application = new Analysis(
-      getRandomApplicationData("tackle-public-4-targets", {
-        sourceData: this.appData["tackle-testapp-public"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["tackle-testapp-public-4-targets"]
-      )
-    );
-    application.create();
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-  });
-
-  // Automates customer bug MTA-2973
-  it("Source analysis on tackle app public with custom rule", function () {
-    const createApplication = () =>
-      new Analysis(
-        getRandomApplicationData("tackle-public-customRule", {
-          sourceData: this.appData["tackle-testapp-public"],
-        }),
-        getRandomAnalysisData(
-          this.analysisData["tackle-testapp-public-customRule"]
-        )
-      );
-
-    const analyzeApplication = (application, credentials) => {
-      application.create();
-      application.extractIDfromName().then((id) => {
-        applicationIds.push(id);
-      });
-      if (credentials) application.manageCredentials(null, credentials.name);
-      application.analyze();
-      application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
-    };
-
-    const appWithCredentials = createApplication();
-    const appWithoutCredentials = createApplication();
-
-    analyzeApplication(appWithCredentials, mavenCredential);
-    analyzeApplication(appWithoutCredentials, null);
-  });
-
-  // Automates Bug https://issues.redhat.com/browse/MTA-3440
-  it("Source analysis on bookserver app with EAP8 target", function () {
-    const application = new Analysis(
-      getRandomApplicationData("eap8-bookserverApp", {
+  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
+    // For source code analysis application must have source code URL git or svn
+    application = new Analysis(
+      getRandomApplicationData("Dep_bookserverApp", {
         sourceData: this.appData["bookserver-app"],
       }),
-      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"])
+      getRandomAnalysisData(
+        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+      )
     );
     application.create();
+    cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    cy.wait("@getApplication");
     application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    application.verifyAnalysisStatus("Completed");
+    application.validateIssues(
+      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
+      "issues"
+    ].forEach((currentIssue: AppIssue) => {
+      application.validateAffected(currentIssue);
+    });
   });
 
-  it("Cancel the analysis and check the status", function () {
-    const application = new Analysis(
-      getRandomApplicationData("eap8-bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      getRandomAnalysisData(this.analysisData["eap8_bookserverApp"])
+  it("Check the bookserver task status on task manager page", function () {
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.analyzer,
+      TaskStatus.succeeded
     );
-    application.create();
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    cy.wait("@getApplication", { timeout: 2 * SEC });
-    application.analyze();
-    application.cancelAnalysis();
-    application.verifyAnalysisStatus(AnalysisStatuses.canceled);
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.techDiscovery,
+      TaskStatus.succeeded
+    );
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.languageDiscovery,
+      TaskStatus.succeeded
+    );
   });
 
   after("Perform test data clean up", function () {
     deleteBulkApplicationsByApi(applicationIds);
-    sourceCredential.delete();
-    invalidSourceCredential.delete();
-    mavenCredential.delete();
-    writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
+    credentialsList.forEach((credential) => credential.delete());
   });
 });

@@ -26,6 +26,11 @@ export const fileName = "div[class='fileName']";
 export const reportStoryPoints =
   "div[class='effortPoints total'] > span[class='points']";
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
+export const enableEnhancedAnalysisDetails =
+  "#enable-advanced-analysis-details-checkbox";
+export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
+export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";
 export const tabsPanel = "ul > li > a";
 export const expandAll = "#expandAll";

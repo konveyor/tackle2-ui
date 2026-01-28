@@ -56,7 +56,6 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
     source_credential.create();
 
-    // Binary analysis needs to pull from the private repo, so it needs to set the url.
     maven_credential = new CredentialsMaven(
       data.getRandomCredentialsData(CredentialType.maven, "None", true)
     );
@@ -74,20 +73,20 @@ describe(["@tier1"], "Binary Analysis", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
   });
 
-  it("Binary Analysis", function () {
-    // For binary analysis application must have group,artifcat and version.
-    cy.visit("/");
+  it("Tackletestapp binary analysis - manual and profile mode validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["binary_analysis_on_tackletestapp"]
+    );
+    analysisData.saveAsProfile = true;
+
     application = new Analysis(
       getRandomApplicationData("tackletestApp_binary", {
         binaryData: this.appData["tackle-testapp-binary"],
       }),
-      getRandomAnalysisData(
-        this.analysisData["binary_analysis_on_tackletestapp"]
-      )
+      analysisData
     );
     application.create();
     cy.wait("@getApplication");
-    // Both source and maven credentials required for binary.
     application.manageCredentials(
       source_credential.name,
       maven_credential.name
@@ -104,6 +103,28 @@ describe(["@tier1"], "Binary Analysis", () => {
     this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
       (currentIssue: AppIssue) => {
         application.validateAffected(currentIssue);
+      }
+    );
+
+    // Re-run analysis using the saved profile
+    const profileName = `profile_${application.name}`;
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(application, analysisData);
+    profileApplication.analyze();
+    profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Step 3: Verify results match
+    Application.open(true);
+    profileApplication.verifyEffort(
+      this.analysisData["binary_analysis_on_tackletestapp"]["effort"]
+    );
+    profileApplication.validateIssues(
+      this.analysisData["binary_analysis_on_tackletestapp"]["issues"]
+    );
+    this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        profileApplication.validateAffected(currentIssue);
       }
     );
   });
