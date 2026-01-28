@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
+  getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -80,12 +81,11 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
     analysisData.saveAsProfile = true;
 
-    application = new Analysis(
-      getRandomApplicationData("tackletestApp_binary", {
-        binaryData: this.appData["tackle-testapp-binary"],
-      }),
-      analysisData
-    );
+    const applicationData = getRandomApplicationData("tackletestApp_binary", {
+      binaryData: this.appData["tackle-testapp-binary"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
     cy.wait("@getApplication");
     application.manageCredentials(
@@ -108,10 +108,11 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
 
     // Re-run analysis using the saved profile
-    const profileName = `profile_${application.name}`;
+    const profileName = getProfileNameFromApp(application.name);
     analysisData.profileName = profileName;
 
-    const profileApplication = new Analysis(application, analysisData);
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
     profileApplication.analyze();
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
 
