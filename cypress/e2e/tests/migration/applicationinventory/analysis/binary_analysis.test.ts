@@ -39,6 +39,7 @@ let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
 const mavenConfiguration = new MavenConfiguration();
 let application: Analysis;
+let analysisProfile: AnalysisProfile;
 
 describe(["@tier1"], "Binary Analysis", () => {
   before("Login", function () {
@@ -130,9 +131,12 @@ describe(["@tier1"], "Binary Analysis", () => {
       }
     );
 
-    // Delete the saved profile
-    const savedProfile = new AnalysisProfile(profileName, {} as any);
-    savedProfile.delete();
+    analysisProfile = new AnalysisProfile(
+      profileName,
+      getRandomAnalysisData(
+        this.analysisData["binary_analysis_on_tackletestapp"]
+      )
+    );
   });
 
   afterEach("Persist session", function () {
@@ -141,6 +145,9 @@ describe(["@tier1"], "Binary Analysis", () => {
   });
 
   after("Perform test data clean up", function () {
+    if (analysisProfile) {
+      analysisProfile.delete();
+    }
     source_credential.delete();
     maven_credential.delete();
     writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));

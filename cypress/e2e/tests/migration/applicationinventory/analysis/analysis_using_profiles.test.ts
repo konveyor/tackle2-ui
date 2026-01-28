@@ -47,9 +47,7 @@ describe(["@tier1"], "Analysis using profiles", () => {
     });
 
     // Interceptors
-    cy.intercept("POST", "/hub/application*").as("postApplication");
     cy.intercept("GET", "/hub/application*").as("getApplication");
-    cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
   });
 
   it("Analysis using profile", function () {

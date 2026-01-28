@@ -284,6 +284,8 @@ export class Analysis extends Application {
       if (this.disableTagging) {
         AnalysisWizardHelpers.disableAutomatedTagging();
       }
+      AnalysisWizardHelpers.enableEnhancedAnalysisDetails();
+
       if (!this.sources) {
         next();
       }
