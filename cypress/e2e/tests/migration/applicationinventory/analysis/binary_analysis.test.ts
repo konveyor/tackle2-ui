@@ -25,6 +25,7 @@ import {
 import { CredentialsMaven } from "../../../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { MavenConfiguration } from "../../../../models/administration/repositories/maven";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 import {
@@ -114,7 +115,7 @@ describe(["@tier1"], "Binary Analysis", () => {
     profileApplication.analyze();
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
 
-    // Step 3: Verify results match
+    // Verify results match
     Application.open(true);
     profileApplication.verifyEffort(
       this.analysisData["binary_analysis_on_tackletestapp"]["effort"]
@@ -127,6 +128,10 @@ describe(["@tier1"], "Binary Analysis", () => {
         profileApplication.validateAffected(currentIssue);
       }
     );
+
+    // Delete the saved profile
+    const savedProfile = new AnalysisProfile(profileName, {} as any);
+    savedProfile.delete();
   });
 
   afterEach("Persist session", function () {
@@ -137,7 +142,6 @@ describe(["@tier1"], "Binary Analysis", () => {
   after("Perform test data clean up", function () {
     source_credential.delete();
     maven_credential.delete();
-
     writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
   });
 });

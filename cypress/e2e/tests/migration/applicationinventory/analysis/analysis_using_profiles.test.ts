@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
+  deleteAllProfiles,
   deleteBulkApplicationsByApi,
   exists,
   getRandomAnalysisData,
