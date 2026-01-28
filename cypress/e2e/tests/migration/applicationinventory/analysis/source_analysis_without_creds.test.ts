@@ -18,11 +18,13 @@ limitations under the License.
 import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
-  deleteByList,
+  deleteBulkApplicationsByApi,
+  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
@@ -33,7 +35,7 @@ import {
 } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
 import { infoAlertMessage } from "../../../../views/common.view";
-const applicationsList: Array<Analysis> = [];
+const applicationIds: number[] = [];
 let application: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
 
@@ -63,19 +65,23 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     credentialsList.push(scCredsUsername);
   });
 
-  it("Source Analysis on bookserver app and its issues validation", function () {
-    // For source code analysis application must have source code URL git or svn
+  it("Bookserver source analysis - manual and profile mode validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_analysis_on_bookserverapp"]
+    );
+    analysisData.saveAsProfile = true;
+
     application = new Analysis(
       getRandomApplicationData("bookserverApp", {
         sourceData: this.appData["bookserver-app"],
       }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
+      analysisData
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     application.verifyAnalysisStatus("Completed");
@@ -87,6 +93,45 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
         application.validateAffected(currentIssue);
       }
     );
+
+    // Re-run analysis using the saved profile
+    const profileName = `profile_${application.name}`;
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(application, analysisData);
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.verifyAnalysisStatus("Completed");
+
+    // Verify results match
+    profileApplication.validateIssues(
+      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        profileApplication.validateAffected(currentIssue);
+      }
+    );
+  });
+
+  it("Validate saved analysis profile details", function () {
+    const profileName = `profile_${application.name}`;
+
+    // Open analysis profiles page and verify profile exists
+    AnalysisProfile.open(true);
+    exists(profileName);
+
+    // Validate profile information in details page
+    const savedProfile = new AnalysisProfile(
+      profileName,
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    savedProfile.validateAnalysisProfileInformation();
+
+    // Delete the profile
+    savedProfile.delete();
   });
 
   it("Source + dependency Analysis on bookserver app and its issues validation", function () {
@@ -100,8 +145,10 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
       )
     );
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     application.verifyAnalysisStatus("Completed");
@@ -134,7 +181,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(applicationsList);
-    deleteByList(credentialsList);
+    deleteBulkApplicationsByApi(applicationIds);
+    credentialsList.forEach((credential) => credential.delete());
   });
 });
