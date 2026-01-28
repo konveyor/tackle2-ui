@@ -1245,12 +1245,6 @@ export function getRandomAnalysisData(analysisdata): analysisData {
   };
 }
 
-/**
- * Generates the profile name from application name
- * This follows the pattern used when saveAsProfile is enabled
- * @param applicationName - The name of the application
- * @returns The generated profile name
- */
 export function getProfileNameFromApp(applicationName: string): string {
   return `profile_${applicationName}`;
 }
