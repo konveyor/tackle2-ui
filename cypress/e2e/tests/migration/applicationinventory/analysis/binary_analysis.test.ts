@@ -83,12 +83,11 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
     analysisData.saveAsProfile = true;
 
-    application = new Analysis(
-      getRandomApplicationData("tackletestApp_binary", {
-        binaryData: this.appData["tackle-testapp-binary"],
-      }),
-      analysisData
-    );
+    const applicationData = getRandomApplicationData("tackletestApp_binary", {
+      binaryData: this.appData["tackle-testapp-binary"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
     cy.wait("@getApplication");
     application.manageCredentials(
@@ -102,7 +101,7 @@ describe(["@tier1"], "Binary Analysis", () => {
     const profileName = getProfileNameFromApp(application.name);
     analysisData.profileName = profileName;
 
-    const profileApplication = new Analysis(application, analysisData);
+    const profileApplication = new Analysis(applicationData, analysisData);
     profileApplication.analyze();
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
 
