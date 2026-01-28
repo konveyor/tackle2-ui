@@ -30,6 +30,7 @@ import { Issues } from "../../../../models/migration/dynamic-report/issues/issue
 import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
 const applicationIds: number[] = [];
+let analysisProfile: AnalysisProfile;
 
 describe(["@tier1"], "Analysis using profiles", () => {
   before("Login", function () {
@@ -58,7 +59,7 @@ describe(["@tier1"], "Analysis using profiles", () => {
       this.analysisData["bookServerApp_analysis_profile"]
     );
 
-    const analysisProfile = new AnalysisProfile(
+    analysisProfile = new AnalysisProfile(
       profileName,
       profileData,
       profileDescription
@@ -84,10 +85,12 @@ describe(["@tier1"], "Analysis using profiles", () => {
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
     Issues.openSingleApplication(application.name);
     exists("CUSTOM RULE FOR DEPENDENCIES");
-    analysisProfile.delete();
   });
 
   after("Perform test data clean up", function () {
     deleteBulkApplicationsByApi(applicationIds);
+    if (analysisProfile) {
+      analysisProfile.delete();
+    }
   });
 });

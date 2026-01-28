@@ -20,6 +20,7 @@ import {
   checkSuccessAlert,
   deleteBulkApplicationsByApi,
   exists,
+  getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
 } from "../../../../../utils/utils";
@@ -71,12 +72,11 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     );
     analysisData.saveAsProfile = true;
 
-    application = new Analysis(
-      getRandomApplicationData("bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      analysisData
-    );
+    const applicationData = getRandomApplicationData("bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
@@ -95,10 +95,11 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     );
 
     // Re-run analysis using the saved profile
-    const profileName = `profile_${application.name}`;
+    const profileName = getProfileNameFromApp(application.name);
     analysisData.profileName = profileName;
 
-    const profileApplication = new Analysis(application, analysisData);
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
     profileApplication.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     profileApplication.verifyAnalysisStatus("Completed");
@@ -115,7 +116,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   });
 
   it("Validate saved analysis profile details", function () {
-    const profileName = `profile_${application.name}`;
+    const profileName = getProfileNameFromApp(application.name);
 
     // Open analysis profiles page and verify profile exists
     AnalysisProfile.open(true);
