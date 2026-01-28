@@ -18,14 +18,18 @@ limitations under the License.
 import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
-  deleteByList,
+  deleteBulkApplicationsByApi,
+  exists,
+  getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
+  AnalysisStatuses,
   CredentialType,
   TaskKind,
   TaskStatus,
@@ -33,9 +37,10 @@ import {
 } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
 import { infoAlertMessage } from "../../../../views/common.view";
-const applicationsList: Array<Analysis> = [];
+const applicationIds: number[] = [];
 let application: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
+const profilesToDelete: AnalysisProfile[] = [];
 
 describe(["@tier0"], "Source Analysis without credentials", () => {
   beforeEach("Load data", function () {
@@ -63,56 +68,119 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     credentialsList.push(scCredsUsername);
   });
 
-  it("Source Analysis on bookserver app and its issues validation", function () {
-    // For source code analysis application must have source code URL git or svn
-    application = new Analysis(
-      getRandomApplicationData("bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
+  it("Bookserver source analysis - manual and profile mode validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_analysis_on_bookserverapp"]
     );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus("Completed");
-    application.validateIssues(
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Verify results match
+    profileApplication.validateIssues(
       this.analysisData["source_analysis_on_bookserverapp"]["issues"]
     );
     this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
       (currentIssue: AppIssue) => {
-        application.validateAffected(currentIssue);
+        profileApplication.validateAffected(currentIssue);
       }
+    );
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
     );
   });
 
-  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
-    // For source code analysis application must have source code URL git or svn
-    application = new Analysis(
-      getRandomApplicationData("Dep_bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
+  it("Validate saved analysis profile details", function () {
+    const profileName = getProfileNameFromApp(application.name);
+    AnalysisProfile.open(true);
+    exists(profileName);
+
+    // Validate profile information in details page
+    const savedProfile = new AnalysisProfile(
+      profileName,
       getRandomAnalysisData(
-        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+        this.analysisData["source_analysis_on_bookserverapp"]
       )
     );
+    savedProfile.validateAnalysisProfileInformation();
+  });
+
+  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+    );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("Dep_bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
-    applicationsList.push(application);
     cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     application.verifyAnalysisStatus("Completed");
-    application.validateIssues(
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus("Completed");
+
+    // Verify results match
+    profileApplication.validateIssues(
       this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
     );
     this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
       "issues"
     ].forEach((currentIssue: AppIssue) => {
-      application.validateAffected(currentIssue);
+      profileApplication.validateAffected(currentIssue);
     });
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+      )
+    );
   });
 
   it("Check the bookserver task status on task manager page", function () {
@@ -134,7 +202,8 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(applicationsList);
-    deleteByList(credentialsList);
+    deleteBulkApplicationsByApi(applicationIds);
+    credentialsList.forEach((credential) => credential.delete());
+    profilesToDelete.forEach((profile) => profile.delete());
   });
 });

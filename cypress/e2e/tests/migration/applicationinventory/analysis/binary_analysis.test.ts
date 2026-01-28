@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
+  getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -25,6 +26,7 @@ import {
 import { CredentialsMaven } from "../../../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { MavenConfiguration } from "../../../../models/administration/repositories/maven";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 import {
@@ -37,6 +39,7 @@ let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
 const mavenConfiguration = new MavenConfiguration();
 let application: Analysis;
+const profilesToDelete: AnalysisProfile[] = [];
 
 describe(["@tier1"], "Binary Analysis", () => {
   before("Login", function () {
@@ -56,7 +59,6 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
     source_credential.create();
 
-    // Binary analysis needs to pull from the private repo, so it needs to set the url.
     maven_credential = new CredentialsMaven(
       data.getRandomCredentialsData(CredentialType.maven, "None", true)
     );
@@ -74,37 +76,55 @@ describe(["@tier1"], "Binary Analysis", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
   });
 
-  it("Binary Analysis", function () {
-    // For binary analysis application must have group,artifcat and version.
-    cy.visit("/");
-    application = new Analysis(
-      getRandomApplicationData("tackletestApp_binary", {
-        binaryData: this.appData["tackle-testapp-binary"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["binary_analysis_on_tackletestapp"]
-      )
+  it("Bug MTA-2887: Tackletestapp binary analysis - manual and profile mode validation", function () {
+    // Bug https://github.com/konveyor/tackle2-ui/issues/2887
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["binary_analysis_on_tackletestapp"]
     );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("tackletestApp_binary", {
+      binaryData: this.appData["tackle-testapp-binary"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
     cy.wait("@getApplication");
-    // Both source and maven credentials required for binary.
     application.manageCredentials(
       source_credential.name,
       maven_credential.name
     );
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.analyze();
+    profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Verify results match
     Application.open(true);
-    application.verifyEffort(
+    profileApplication.verifyEffort(
       this.analysisData["binary_analysis_on_tackletestapp"]["effort"]
     );
-    application.validateIssues(
+    profileApplication.validateIssues(
       this.analysisData["binary_analysis_on_tackletestapp"]["issues"]
     );
     this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
       (currentIssue: AppIssue) => {
-        application.validateAffected(currentIssue);
+        profileApplication.validateAffected(currentIssue);
       }
+    );
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["binary_analysis_on_tackletestapp"]
+      )
     );
   });
 
@@ -116,7 +136,7 @@ describe(["@tier1"], "Binary Analysis", () => {
   after("Perform test data clean up", function () {
     source_credential.delete();
     maven_credential.delete();
-
+    profilesToDelete.forEach((profile) => profile.delete());
     writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
   });
 });

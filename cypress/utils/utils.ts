@@ -1241,7 +1241,12 @@ export function getRandomAnalysisData(analysisdata): analysisData {
     incidents: analysisdata.incidents,
     openSourceLibraries: analysisdata.openSourceLibraries,
     ruleFileToQuantity: analysisdata.ruleFileToQuantity,
+    profileName: analysisdata.profileName,
   };
+}
+
+export function getProfileNameFromApp(applicationName: string): string {
+  return `profile_${applicationName}`;
 }
 
 export function createMultipleApplications(

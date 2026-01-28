@@ -47,6 +47,7 @@ import {
   camelToggleButton,
   dropDownMenu,
   enableAutomatedTagging,
+  enableEnhancedAnalysisDetails,
   enableTransactionAnalysis,
   enterPackageName,
   enterPackageNameToExclude,
@@ -128,6 +129,19 @@ export class AnalysisWizardHelpers {
         checked
           ? cy.log("Box is already checked")
           : cy.get(enableTransactionAnalysis).check();
+      });
+  }
+
+  /**
+   * Enables enhanced analysis details if not already enabled
+   */
+  static enableEnhancedAnalysisDetails() {
+    cy.get(enableEnhancedAnalysisDetails)
+      .invoke("is", ":checked")
+      .then((checked) => {
+        checked
+          ? cy.log("Box is already checked")
+          : cy.get(enableEnhancedAnalysisDetails).check();
       });
   }
 

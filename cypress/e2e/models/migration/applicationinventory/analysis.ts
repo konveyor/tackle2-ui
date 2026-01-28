@@ -54,6 +54,8 @@ import {
   AnalysisLogView,
   analysisColumn,
   analysisDetails,
+  analysisProfileNameInput,
+  analysisProfileSelect,
   closeWizard,
   effortColumn,
   expandAll,
@@ -65,6 +67,7 @@ import {
   mavenCredential,
   numberOfRulesColumn,
   panelBody,
+  saveAsProfileCheckbox,
   sourceCredential,
   tabsPanel,
 } from "../../../views/analysis.view";
@@ -89,6 +92,7 @@ export class Analysis extends Application {
   excludeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
+  saveAsProfile: boolean = false;
   appName?: string;
   effort?: number;
   manuallyAnalyzePackages?: string[];
@@ -122,6 +126,7 @@ export class Analysis extends Application {
       excludeRuleLabels,
       enableTransaction,
       disableTagging,
+      saveAsProfile,
       appName,
       effort,
       manuallyAnalyzePackages,
@@ -144,6 +149,7 @@ export class Analysis extends Application {
     if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
+    this.saveAsProfile = saveAsProfile ?? false;
     if (appName) this.appName = appName;
     if (effort) this.effort = effort;
     if (excludePackages) this.excludePackages = excludePackages;
@@ -176,9 +182,9 @@ export class Analysis extends Application {
       cy.contains(button, "Next").should("have.class", "pf-m-disabled");
 
       if (profileName) {
-        cy.contains("span", "Select an analysis profile").click();
+        cy.get(analysisProfileSelect).click();
         cy.contains("span.pf-v5-c-menu__item-text", profileName).click();
-        cy.contains(button, "Next").should("not.have.class", "pf-m-disabled");
+        next();
       }
     }
   }
@@ -206,6 +212,20 @@ export class Analysis extends Application {
     clickByText("#add-package-to-include", "Add");
   }
 
+  protected enableSaveAsProfile() {
+    cy.get(saveAsProfileCheckbox)
+      .invoke("is", ":checked")
+      .then((checked) => {
+        if (!checked) {
+          cy.get(saveAsProfileCheckbox).check();
+        }
+      });
+
+    // Generate profile name: profile_<application_name>
+    const profileName = `profile_${this.name}`;
+    inputText(analysisProfileNameInput, profileName);
+  }
+
   analyze(cancel = false): void {
     cy.log("Starting Analysis on application", this.name);
     Application.open();
@@ -223,6 +243,7 @@ export class Analysis extends Application {
 
     if (this.profileName) {
       this.selectAnalysisMode("profile", this.profileName);
+      AnalysisWizardHelpers.enableEnhancedAnalysisDetails();
       next();
       clickByText(button, "Run");
     } else {
@@ -257,9 +278,14 @@ export class Analysis extends Application {
       if (this.enableTransaction) {
         AnalysisWizardHelpers.enableTransactionAnalysis();
       }
+      if (this.saveAsProfile) {
+        this.enableSaveAsProfile();
+      }
       if (this.disableTagging) {
         AnalysisWizardHelpers.disableAutomatedTagging();
       }
+      AnalysisWizardHelpers.enableEnhancedAnalysisDetails();
+
       if (!this.sources) {
         next();
       }
