@@ -39,7 +39,7 @@ let source_credential: CredentialsSourceControlUsername;
 let maven_credential: CredentialsMaven;
 const mavenConfiguration = new MavenConfiguration();
 let application: Analysis;
-let analysisProfile: AnalysisProfile;
+const profilesToDelete: AnalysisProfile[] = [];
 
 describe(["@tier1"], "Binary Analysis", () => {
   before("Login", function () {
@@ -76,17 +76,19 @@ describe(["@tier1"], "Binary Analysis", () => {
     cy.intercept("GET", "/hub/application*").as("getApplication");
   });
 
-  it("Tackletestapp binary analysis - manual and profile mode validation", function () {
+  it("Bug MTA-2887: Tackletestapp binary analysis - manual and profile mode validation", function () {
+    // Bug https://github.com/konveyor/tackle2-ui/issues/2887
     const analysisData = getRandomAnalysisData(
       this.analysisData["binary_analysis_on_tackletestapp"]
     );
     analysisData.saveAsProfile = true;
 
-    const applicationData = getRandomApplicationData("tackletestApp_binary", {
-      binaryData: this.appData["tackle-testapp-binary"],
-    });
-
-    application = new Analysis(applicationData, analysisData);
+    application = new Analysis(
+      getRandomApplicationData("tackletestApp_binary", {
+        binaryData: this.appData["tackle-testapp-binary"],
+      }),
+      analysisData
+    );
     application.create();
     cy.wait("@getApplication");
     application.manageCredentials(
@@ -95,25 +97,12 @@ describe(["@tier1"], "Binary Analysis", () => {
     );
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed);
-    Application.open(true);
-    application.verifyEffort(
-      this.analysisData["binary_analysis_on_tackletestapp"]["effort"]
-    );
-    application.validateIssues(
-      this.analysisData["binary_analysis_on_tackletestapp"]["issues"]
-    );
-    this.analysisData["binary_analysis_on_tackletestapp"]["issues"].forEach(
-      (currentIssue: AppIssue) => {
-        application.validateAffected(currentIssue);
-      }
-    );
 
     // Re-run analysis using the saved profile
     const profileName = getProfileNameFromApp(application.name);
     analysisData.profileName = profileName;
 
-    const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = application.name;
+    const profileApplication = new Analysis(application, analysisData);
     profileApplication.analyze();
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
 
@@ -131,9 +120,10 @@ describe(["@tier1"], "Binary Analysis", () => {
       }
     );
 
-    analysisProfile = new AnalysisProfile(
-      profileName,
-      getRandomAnalysisData(
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
         this.analysisData["binary_analysis_on_tackletestapp"]
       )
     );
@@ -145,11 +135,9 @@ describe(["@tier1"], "Binary Analysis", () => {
   });
 
   after("Perform test data clean up", function () {
-    if (analysisProfile) {
-      analysisProfile.delete();
-    }
     source_credential.delete();
     maven_credential.delete();
+    profilesToDelete.forEach((profile) => profile.delete());
     writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
   });
 });

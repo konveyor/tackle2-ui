@@ -29,6 +29,7 @@ import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
+  AnalysisStatuses,
   CredentialType,
   TaskKind,
   TaskStatus,
@@ -39,6 +40,7 @@ import { infoAlertMessage } from "../../../../views/common.view";
 const applicationIds: number[] = [];
 let application: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
+const profilesToDelete: AnalysisProfile[] = [];
 
 describe(["@tier0"], "Source Analysis without credentials", () => {
   beforeEach("Load data", function () {
@@ -84,15 +86,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     });
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus("Completed");
-    application.validateIssues(
-      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
-    );
-    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
-      (currentIssue: AppIssue) => {
-        application.validateAffected(currentIssue);
-      }
-    );
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
 
     // Re-run analysis using the saved profile
     const profileName = getProfileNameFromApp(application.name);
@@ -102,7 +96,8 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     profileApplication.name = application.name;
     profileApplication.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    profileApplication.verifyAnalysisStatus("Completed");
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
 
     // Verify results match
     profileApplication.validateIssues(
@@ -113,12 +108,18 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
         profileApplication.validateAffected(currentIssue);
       }
     );
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
   });
 
   it("Validate saved analysis profile details", function () {
     const profileName = getProfileNameFromApp(application.name);
-
-    // Open analysis profiles page and verify profile exists
     AnalysisProfile.open(true);
     exists(profileName);
 
@@ -130,21 +131,19 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
       )
     );
     savedProfile.validateAnalysisProfileInformation();
-
-    // Delete the profile
-    savedProfile.delete();
   });
 
   it("Source + dependency Analysis on bookserver app and its issues validation", function () {
-    // For source code analysis application must have source code URL git or svn
-    application = new Analysis(
-      getRandomApplicationData("Dep_bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
-      )
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
     );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("Dep_bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
     application.create();
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
@@ -153,14 +152,35 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     application.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     application.verifyAnalysisStatus("Completed");
-    application.validateIssues(
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus("Completed");
+
+    // Verify results match
+    profileApplication.validateIssues(
       this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
     );
     this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
       "issues"
     ].forEach((currentIssue: AppIssue) => {
-      application.validateAffected(currentIssue);
+      profileApplication.validateAffected(currentIssue);
     });
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+      )
+    );
   });
 
   it("Check the bookserver task status on task manager page", function () {
@@ -184,5 +204,6 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   after("Perform test data clean up", function () {
     deleteBulkApplicationsByApi(applicationIds);
     credentialsList.forEach((credential) => credential.delete());
+    profilesToDelete.forEach((profile) => profile.delete());
   });
 });
