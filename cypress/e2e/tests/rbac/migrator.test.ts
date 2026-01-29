@@ -154,7 +154,8 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     AnalysisProfile.validateCreateButton(this.rbacRules);
   });
 
-  it("Migrator, verify only archetype-linked analysis profiles are visible in dropdown", function () {
+  it("Migrator, 1) verify only archetype-linked analysis profiles are visible in dropdown \
+    2) Perform analysis using analysis profile", function () {
     login();
     cy.visit("/");
 
