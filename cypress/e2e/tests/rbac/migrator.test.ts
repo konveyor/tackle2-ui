@@ -18,6 +18,7 @@ limitations under the License.
 import * as data from "../../../utils/data_utils";
 import { getRandomUserData } from "../../../utils/data_utils";
 import {
+  clickByText,
   createMultipleTags,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
@@ -26,6 +27,7 @@ import {
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
+  next,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { User } from "../../models/keycloak/users/user";
@@ -43,8 +45,6 @@ import {
   MIN,
   button,
   legacyPathfinder,
-  tdTag,
-  trTag,
 } from "../../types/constants";
 import {
   analysisProfileMode,
@@ -65,6 +65,7 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   const userMigrator = new UserMigrator(getRandomUserData());
   const application = new Application(getRandomApplicationData());
   let profileData: any;
+  let sourceData: any;
 
   before("Creating RBAC users, adding roles for them", () => {
     cy.clearLocalStorage();
@@ -84,6 +85,10 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
       [tags[1].name] // Archetype tags
     );
     archetype.create();
+
+    cy.fixture("application").then(function (appData) {
+      sourceData = appData["bookserver-app"];
+    });
 
     // Create first analysis profile (not linked to archetype)
     cy.fixture("analysis").then(function (analysisData) {
@@ -160,9 +165,11 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     cy.visit("/");
 
     const appWithArchetype = new Analysis(
-      getRandomApplicationData("bookServer_Profile_Analysis", {
-        sourceData: this.appData["bookserver-app"],
-      }),
+      getRandomApplicationData(
+        "bookServer_Profile_Analysis",
+        { sourceData: sourceData },
+        [tags[0].name] // Matches archetype criteria tags
+      ),
       profileData
     );
     appWithArchetype.create();
@@ -178,19 +185,21 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     cy.get(analysisProfileMode).check().should("be.checked");
     cy.get(analysisProfileSelect).click();
 
-    // Verify only the second analysis profile (linked to archetype) is visible
-    cy.get(actionMenuItem).contains(analysisProfile2.name).should("be.visible");
-
     // Verify the first analysis profile (not linked to archetype) is NOT visible
-    cy.get(actionMenuItem).contains(analysisProfile1.name).should("not.exist");
-    cy.contains(button, "Cancel").click();
+    cy.get(actionMenuItem).should("not.contain", analysisProfile1.name);
 
-    // As migrator, perform application analysis using analysis profile
-    appWithArchetype.analyze();
+    // Verify only the second analysis profile (linked to archetype) is visible
+    // Perform analysis using analysis profile
+    cy.get(actionMenuItem)
+      .contains(analysisProfile2.name)
+      .should("be.visible")
+      .click();
+    next();
+    next();
+    clickByText(button, "Run");
     appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
-
     appWithArchetype.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
-    Issues.openSingleApplication(application.name);
+    Issues.openSingleApplication(appWithArchetype.name);
     exists("CUSTOM RULE FOR DEPENDENCIES");
   });
 
@@ -199,11 +208,19 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     cy.visit("/");
     deleteAllMigrationWaves();
     deleteApplicationTableRows();
-    targetProfile.open(archetype.name);
-    targetProfile.delete();
-    archetype.delete();
-    analysisProfile2.delete();
-    analysisProfile1.delete();
+    if (targetProfile && archetype) {
+      targetProfile.open(archetype.name);
+      targetProfile.delete();
+    }
+    if (archetype) {
+      archetype.delete();
+    }
+    if (analysisProfile2) {
+      analysisProfile2.delete();
+    }
+    if (analysisProfile1) {
+      analysisProfile1.delete();
+    }
     deleteByList(stakeholdersList);
     deleteByList(tags);
     User.loginKeycloakAdmin();
