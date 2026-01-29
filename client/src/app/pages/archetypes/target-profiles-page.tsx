@@ -19,15 +19,7 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { ArchetypeTargetProfilesRoute, Paths } from "@app/Paths";
 import type { TargetProfile } from "@app/api/models";
@@ -35,6 +27,7 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { PageHeader } from "@app/components/PageHeader";
+import { TableActionsColumn } from "@app/components/TableActionsColumn";
 import { ConditionalTableBody } from "@app/components/TableControls";
 import { LabelsFromItems } from "@app/components/labels/labels-from-items/labels-from-items";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
@@ -174,21 +167,19 @@ const TargetProfilesPage: React.FC = () => {
                         <LabelsFromItems items={profile.generators} />
                       </Td>
                       <Td width={25}>{profile.analysisProfile?.name ?? "-"}</Td>
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setProfileToEdit(profile),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setProfileToDelete(profile),
-                              isDanger: true,
-                            },
-                          ]}
-                        />
-                      </Td>
+                      <TableActionsColumn
+                        items={[
+                          {
+                            title: t("actions.edit"),
+                            onClick: () => setProfileToEdit(profile),
+                          },
+                          {
+                            title: t("actions.delete"),
+                            onClick: () => setProfileToDelete(profile),
+                            isDanger: true,
+                          },
+                        ]}
+                      />
                     </Tr>
                   ))}
                 </Tbody>
