@@ -22,6 +22,7 @@ import {
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
   deleteByList,
+  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -36,7 +37,15 @@ import { Archetype } from "../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
 import { Tag } from "../../models/migration/controls/tags";
-import { button, legacyPathfinder, tdTag, trTag } from "../../types/constants";
+import { Issues } from "../../models/migration/dynamic-report/issues/issues";
+import {
+  AnalysisStatuses,
+  MIN,
+  button,
+  legacyPathfinder,
+  tdTag,
+  trTag,
+} from "../../types/constants";
 import {
   analysisProfileMode,
   analysisProfileSelect,
@@ -55,6 +64,7 @@ let targetProfile: TargetProfile;
 describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   const userMigrator = new UserMigrator(getRandomUserData());
   const application = new Application(getRandomApplicationData());
+  let profileData: any;
 
   before("Creating RBAC users, adding roles for them", () => {
     cy.clearLocalStorage();
@@ -77,20 +87,26 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
 
     // Create first analysis profile (not linked to archetype)
     cy.fixture("analysis").then(function (analysisData) {
+      profileData = getRandomAnalysisData(
+        analysisData["bookServerApp_analysis_profile"]
+      );
+
       analysisProfile1 = new AnalysisProfile(
         `profile-unlinked-${Date.now()}`,
-        getRandomAnalysisData(analysisData["source_analysis_on_bookserverapp"]),
+        profileData,
         "Analysis profile not linked to archetype"
       );
       analysisProfile1.create();
 
       // Create second analysis profile (will be linked to archetype)
+
       analysisProfile2 = new AnalysisProfile(
         `profile-linked-${Date.now()}`,
-        getRandomAnalysisData(analysisData["source_analysis_on_bookserverapp"]),
+        profileData,
         "Analysis profile linked to archetype"
       );
       analysisProfile2.create();
+      profileData.profileName = analysisProfile2.name;
 
       // Link second analysis profile to archetype via target profile
       targetProfile = new TargetProfile(
@@ -141,16 +157,20 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   it("Migrator, verify only archetype-linked analysis profiles are visible in dropdown", function () {
     login();
     cy.visit("/");
-    const appWithArchetype = new Application(
-      getRandomApplicationData(`app-with-archetype-${Date.now()}`, null, [
-        tags[0].name,
-      ])
+
+    const appWithArchetype = new Analysis(
+      getRandomApplicationData("bookServer_Profile_Analysis", {
+        sourceData: this.appData["bookserver-app"],
+      }),
+      profileData
     );
     appWithArchetype.create();
 
-    // Start application analysis as migrator
+    // Verify only analysis profiles linked to app's archetype target profile are available
+    // and that system analysis profiles are not available for migrator.
     userMigrator.login();
     Application.open();
+
     cy.get(tdTag)
       .contains(appWithArchetype.name)
       .closest(trTag)
@@ -169,9 +189,15 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
 
     // Verify the first analysis profile (not linked to archetype) is NOT visible
     cy.get(actionMenuItem).contains(analysisProfile1.name).should("not.exist");
-
-    // Close the wizard
     cy.contains(button, "Cancel").click();
+
+    // As migrator, perform application analysis using analysis profile
+    appWithArchetype.analyze();
+    appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
+
+    appWithArchetype.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+    Issues.openSingleApplication(application.name);
+    exists("CUSTOM RULE FOR DEPENDENCIES");
   });
 
   after("", () => {
