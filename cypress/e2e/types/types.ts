@@ -120,6 +120,7 @@ export type analysisData = {
   includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
+  saveAsProfile?: boolean;
   appName?: string;
   effort?: number;
   excludePackages?: string[];
