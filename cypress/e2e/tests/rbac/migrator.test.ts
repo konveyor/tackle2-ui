@@ -65,6 +65,7 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   const userMigrator = new UserMigrator(getRandomUserData());
   const application = new Application(getRandomApplicationData());
   let profileData: any;
+  let sourceData: any;
 
   before("Creating RBAC users, adding roles for them", () => {
     cy.clearLocalStorage();
@@ -84,6 +85,10 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
       [tags[1].name] // Archetype tags
     );
     archetype.create();
+
+    cy.fixture("application").then(function (appData) {
+      sourceData = appData["bookserver-app"];
+    });
 
     // Create first analysis profile (not linked to archetype)
     cy.fixture("analysis").then(function (analysisData) {
@@ -160,9 +165,11 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     cy.visit("/");
 
     const appWithArchetype = new Analysis(
-      getRandomApplicationData("bookServer_Profile_Analysis", {
-        sourceData: this.appData["bookserver-app"],
-      }),
+      getRandomApplicationData(
+        "bookServer_Profile_Analysis",
+        { sourceData: sourceData },
+        [tags[0].name]
+      ), // Matches archetype criteria tags
       profileData
     );
     appWithArchetype.create();
@@ -186,11 +193,12 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     cy.contains(button, "Cancel").click();
 
     // As migrator, perform application analysis using analysis profile
+    Application.open();
     appWithArchetype.analyze();
     appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
 
     appWithArchetype.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
-    Issues.openSingleApplication(application.name);
+    Issues.openSingleApplication(appWithArchetype.name);
     exists("CUSTOM RULE FOR DEPENDENCIES");
   });
 
