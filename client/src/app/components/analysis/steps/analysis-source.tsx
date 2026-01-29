@@ -27,6 +27,9 @@ export const ANALYSIS_MODES = [
 
 export type AnalysisMode = (typeof ANALYSIS_MODES)[number];
 
+export const isSourceMode = (mode: AnalysisMode) =>
+  mode === "source-code" || mode === "source-code-deps";
+
 export interface AnalysisModeValues {
   mode: AnalysisMode;
   artifact: File | undefined | null;
@@ -135,6 +138,11 @@ interface AnalysisSourceProps {
   initialState: AnalysisModeState;
 
   /**
+   * Hides both binary options.
+   */
+  hideBinary?: boolean;
+
+  /**
    * Optional render prop for binary upload UI.
    * When provided and mode is "binary-upload", this component is rendered.
    * This allows the parent to inject the binary upload component with taskgroup context.
@@ -150,6 +158,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   onStateChanged,
   initialState,
   renderBinaryUpload,
+  hideBinary = false,
 }) => {
   const { t } = useTranslation();
 
@@ -182,7 +191,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
 
   // Binary upload only available when applications are provided and there's exactly one
   const isSingleApp = applications && applications.length === 1;
-  const showBinaryUpload = isSingleApp && !!renderBinaryUpload;
+  const showBinaryUpload = !hideBinary && isSingleApp && !!renderBinaryUpload;
 
   const analysisOptions: SelectOptionProps[] = [
     {
@@ -193,7 +202,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
       value: "source-code",
       children: "Source code",
     },
-    {
+    !hideBinary && {
       value: "binary",
       children: "Binary",
     },
