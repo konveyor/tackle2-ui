@@ -198,6 +198,7 @@ const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
               <AnalysisSource
                 onStateChanged={setMode}
                 initialState={state.mode}
+                hideBinary={true}
                 // No applications - profile is a template
                 // No binary upload - not applicable for profiles
               />
