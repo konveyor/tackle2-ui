@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { AnalysisProfile, New } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { isSourceMode } from "@app/components/analysis/steps/analysis-source";
 import { useCreateAnalysisProfileMutation } from "@app/queries/analysis-profiles";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useCreateFileMutation } from "@app/queries/targets";
@@ -18,6 +19,7 @@ import { WizardState } from "./useWizardReducer";
 const isSaveAsProfile = (wizardState: WizardState) => {
   return (
     wizardState.options.saveAsProfile &&
+    isSourceMode(wizardState.mode.mode) &&
     isNotEmptyString(wizardState.options.profileName)
   );
 };
