@@ -171,18 +171,11 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     // and that system analysis profiles are not available for migrator.
     userMigrator.login();
     Application.open();
-
-    cy.get(tdTag)
-      .contains(appWithArchetype.name)
-      .closest(trTag)
-      .within(() => {
-        cy.get("input[type='checkbox']").check();
-      });
+    appWithArchetype.selectApplication();
     cy.contains(button, "Analyze").should("be.enabled").click();
 
     // Select analysis profile mode
-    cy.get(analysisProfileMode).check();
-    cy.get(analysisProfileMode).should("be.checked");
+    cy.get(analysisProfileMode).check().should("be.checked");
     cy.get(analysisProfileSelect).click();
 
     // Verify only the second analysis profile (linked to archetype) is visible
