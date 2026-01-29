@@ -134,7 +134,7 @@ export type ParsedTargetLabel = {
   /** Full label string, e.g. "konveyor.io/target=my-target" */
   label: string;
   /** Type of label, e.g. "source" or "target" */
-  type: "source" | "target" | "other";
+  type: "source" | "target" | "other" | "invalid";
   /** Value of label, e.g. "my-target" */
   value: string;
 };
@@ -156,7 +156,7 @@ export const parseLabel = (label: TargetLabel): ParsedTargetLabel => {
     targetLabel: label,
     name: label.name,
     label: label.label,
-    type: "other",
+    type: "invalid",
     value: label.label,
   };
 };
@@ -173,6 +173,7 @@ export const parseAndGroupLabels = (
     source: [],
     target: [],
     other: [],
+    invalid: [],
     ...group(parsedLabels, ({ type }) => type),
   };
 };
