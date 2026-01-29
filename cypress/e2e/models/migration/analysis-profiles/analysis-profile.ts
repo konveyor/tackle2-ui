@@ -138,7 +138,10 @@ export class AnalysisProfile {
 
   public static validateCreateButton(rbacRules: any): void {
     AnalysisProfile.open();
-    doesExistSelector(createProfileButton, rbacRules["Create new"]);
+    doesExistSelector(
+      createProfileButton,
+      rbacRules["Analysis profile creation"]
+    );
   }
 
   private applyValue<T>(
