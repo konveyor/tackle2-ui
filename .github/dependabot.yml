@@ -8,6 +8,15 @@ updates:
     commit-message:
       prefix: ":seedling: "
 
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+
   # Root workspace dependencies (shared tooling and build)
   - package-ecosystem: "npm"
     directory: "/"
