@@ -268,3 +268,10 @@ export enum DefaultCredentialFilter {
 export enum GeneratorType {
   Helm = "Helm",
 }
+
+export enum AnalysisMode {
+  Binary = "Binary",
+  SourceCode = "Source code",
+  SourceCodeDeps = "Source code + dependencies",
+  BinaryUpload = "Upload a local binary",
+}
