@@ -25,7 +25,7 @@ jobs:
     outputs:
       ui_image: ${{ steps.build-ui-image.outputs.ui_image }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Build UI image
         id: build-ui-image

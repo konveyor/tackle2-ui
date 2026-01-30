@@ -19,13 +19,13 @@ jobs:
       should-test: ${{ steps.check-changes.outputs.should-test }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: What files changed?
         id: changed
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
         with:
           files: |
             Dockerfile
@@ -99,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout merge commit for PR${{ github.event.pull_request.number }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup QEMU to be able to build on ${{ matrix.architecture }}
         if: ${{ matrix.needs-qemu == 'yes' }}
