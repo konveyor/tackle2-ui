@@ -11,7 +11,10 @@ import {
 
 import { Application } from "@app/api/models";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
-import { AnalysisSource } from "@app/components/analysis/steps/analysis-source";
+import {
+  AnalysisSource,
+  isSourceMode,
+} from "@app/components/analysis/steps/analysis-source";
 import { CustomRules } from "@app/components/analysis/steps/custom-rules";
 import { OptionsManual } from "@app/components/analysis/steps/options-advanced";
 import { SetTargets } from "@app/components/analysis/steps/set-targets";
@@ -234,6 +237,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
                 customRules={state.customRules}
                 onStateChanged={setOptions}
                 initialState={state.options}
+                showSaveAsProfile={isSourceMode(state.mode.mode)}
               />
             </WizardStep>,
           ]}
