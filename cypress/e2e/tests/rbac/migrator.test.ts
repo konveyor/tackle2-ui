@@ -16,34 +16,56 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../utils/data_utils";
 import {
-  getRandomCredentialsData,
-  getRandomUserData,
-} from "../../../utils/data_utils";
-import {
+  clickByText,
+  createMultipleTags,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
   deleteByList,
+  exists,
+  getRandomAnalysisData,
   getRandomApplicationData,
   login,
+  next,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { Archetype } from "../../models/migration/archetypes/archetype";
+import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { CredentialType, legacyPathfinder } from "../../types/constants";
+import { Tag } from "../../models/migration/controls/tags";
+import { Issues } from "../../models/migration/dynamic-report/issues/issues";
+import {
+  AnalysisStatuses,
+  MIN,
+  button,
+  legacyPathfinder,
+} from "../../types/constants";
+import {
+  analysisProfileMode,
+  analysisProfileSelect,
+} from "../../views/analysis.view";
+import { actionMenuItem } from "../../views/common.view";
 
-const stakeholdersList: Array<Stakeholders> = [];
-const stakeholdersNameList: Array<string> = [];
+const stakeholdersList: Stakeholders[] = [];
+const stakeholdersNameList: string[] = [];
+
+let tags: Tag[] = [];
+let analysisProfile1: AnalysisProfile;
+let analysisProfile2: AnalysisProfile;
+let archetype: Archetype;
+let targetProfile: TargetProfile;
 
 describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
   const userMigrator = new UserMigrator(getRandomUserData());
   const application = new Application(getRandomApplicationData());
-
-  const appCredentials = new CredentialsSourceControlUsername(
-    getRandomCredentialsData(CredentialType.sourceControl)
-  );
+  let profileData: any;
+  let sourceData: any;
 
   before("Creating RBAC users, adding roles for them", () => {
     cy.clearLocalStorage();
@@ -56,7 +78,50 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     stakeholdersList.push(stakeholder);
     stakeholdersNameList.push(stakeholder.name);
 
-    appCredentials.create();
+    tags = createMultipleTags(2);
+    archetype = new Archetype(
+      `test-archetype-${Date.now()}`,
+      [tags[0].name], // Criteria tags
+      [tags[1].name] // Archetype tags
+    );
+    archetype.create();
+
+    cy.fixture("application").then(function (appData) {
+      sourceData = appData["bookserver-app"];
+    });
+
+    // Create first analysis profile (not linked to archetype)
+    cy.fixture("analysis").then(function (analysisData) {
+      profileData = getRandomAnalysisData(
+        analysisData["bookServerApp_analysis_profile"]
+      );
+
+      analysisProfile1 = new AnalysisProfile(
+        `profile-unlinked-${Date.now()}`,
+        profileData,
+        "Analysis profile not linked to archetype"
+      );
+      analysisProfile1.create();
+
+      // Create second analysis profile (will be linked to archetype)
+
+      analysisProfile2 = new AnalysisProfile(
+        `profile-linked-${Date.now()}`,
+        profileData,
+        "Analysis profile linked to archetype"
+      );
+      analysisProfile2.create();
+      profileData.profileName = analysisProfile2.name;
+
+      // Link second analysis profile to archetype via target profile
+      targetProfile = new TargetProfile(
+        `target-profile-${Date.now()}`,
+        undefined,
+        analysisProfile2.name
+      );
+      targetProfile.create(archetype.name);
+    });
+
     application.create();
     application.perform_review("low");
     User.loginKeycloakAdmin();
@@ -90,12 +155,74 @@ describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
     application.validateUploadBinary(this.rbacRules);
   });
 
+  it("Migrator, validate Analysis Profiles create button", function () {
+    AnalysisProfile.validateCreateButton(this.rbacRules);
+  });
+
+  it("Migrator, 1) verify only archetype-linked analysis profiles are visible in dropdown \
+    2) Perform analysis using analysis profile", function () {
+    login();
+    cy.visit("/");
+
+    const appWithArchetype = new Analysis(
+      getRandomApplicationData(
+        "bookServer_Profile_Analysis",
+        { sourceData: sourceData },
+        [tags[0].name] // Matches archetype criteria tags
+      ),
+      profileData
+    );
+    appWithArchetype.create();
+
+    // Verify only analysis profiles linked to app's archetype target profile are available
+    // and that system analysis profiles are not available for migrator.
+    userMigrator.login();
+    Application.open();
+    appWithArchetype.selectApplication();
+    cy.contains(button, "Analyze").should("be.enabled").click();
+
+    // Select analysis profile mode
+    cy.get(analysisProfileMode).check().should("be.checked");
+    cy.get(analysisProfileSelect).click();
+
+    // Verify the first analysis profile (not linked to archetype) is NOT visible
+    cy.get(actionMenuItem).should("not.contain", analysisProfile1.name);
+
+    // Verify only the second analysis profile (linked to archetype) is visible
+    // Perform analysis using analysis profile
+    cy.get(actionMenuItem)
+      .contains(analysisProfile2.name)
+      .should("be.visible")
+      .click();
+    next();
+    next();
+    clickByText(button, "Run");
+    appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
+    appWithArchetype.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+    Issues.openSingleApplication(appWithArchetype.name);
+    exists("CUSTOM RULE FOR DEPENDENCIES");
+  });
+
   after("", () => {
     login();
     cy.visit("/");
-    appCredentials.delete();
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    if (targetProfile && archetype) {
+      targetProfile.open(archetype.name);
+      targetProfile.delete();
+    }
+    if (archetype) {
+      archetype.delete();
+    }
+    if (analysisProfile2) {
+      analysisProfile2.delete();
+    }
+    if (analysisProfile1) {
+      analysisProfile1.delete();
+    }
     deleteByList(stakeholdersList);
-    application.delete();
+    deleteByList(tags);
     User.loginKeycloakAdmin();
     userMigrator.delete();
   });
