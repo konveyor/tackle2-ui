@@ -22,6 +22,8 @@ import {
 import {
   createMultipleStakeholders,
   deleteByList,
+  exists,
+  getRandomAnalysisData,
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
@@ -32,10 +34,25 @@ import { UserArchitect } from "../../models/keycloak/users/userArchitect";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { CredentialType, legacyPathfinder } from "../../types/constants";
+import {
+  AnalysisStatuses,
+  CredentialType,
+  MIN,
+  button,
+  legacyPathfinder,
+} from "../../types/constants";
+import {
+  analysisProfileMode,
+  analysisProfileSelect,
+} from "../../views/analysis.view";
+import { actionMenuItem } from "../../views/common.view";
 
 let stakeholders: Array<Stakeholders> = [];
+let analysisProfile1: AnalysisProfile;
+let analysisProfile2: AnalysisProfile;
+let targetProfile: TargetProfile;
 
 describe(
   ["@tier3", "@rhsso", "@rhbk"],
@@ -44,6 +61,8 @@ describe(
     // https://issues.redhat.com/browse/MTA-5631
     const userArchitect = new UserArchitect(getRandomUserData());
     const application = new Application(getRandomApplicationData());
+    let profileData: any;
+    let sourceData: any;
 
     const appCredentials = new CredentialsSourceControlUsername(
       getRandomCredentialsData(CredentialType.sourceControl)
@@ -55,6 +74,37 @@ describe(
       cy.visit("/");
       AssessmentQuestionnaire.enable(legacyPathfinder);
       stakeholders = createMultipleStakeholders(1);
+
+      // Create first analysis profile (not linked to archetype)
+      cy.fixture("analysis").then(function (analysisData) {
+        profileData = getRandomAnalysisData(
+          analysisData["bookServerApp_analysis_profile"]
+        );
+
+        analysisProfile1 = new AnalysisProfile(
+          `profile-unlinked-${Date.now()}`,
+          profileData,
+          "Analysis profile not linked to archetype"
+        );
+        analysisProfile1.create();
+
+        // Create second analysis profile (will be linked to archetype)
+        analysisProfile2 = new AnalysisProfile(
+          `profile-linked-${Date.now()}`,
+          profileData,
+          "Analysis profile linked to archetype"
+        );
+        analysisProfile2.create();
+        profileData.profileName = analysisProfile2.name;
+
+        // Link second analysis profile to archetype via target profile
+        targetProfile = new TargetProfile(
+          `target-profile-${Date.now()}`,
+          undefined,
+          analysisProfile2.name
+        );
+        targetProfile.create(archetype.name);
+      });
 
       appCredentials.create();
       application.create();
@@ -93,6 +143,52 @@ describe(
 
     it("Architect, validate Analysis Profiles create button", function () {
       AnalysisProfile.validateCreateButton(this.rbacRules);
+    });
+
+    it("Architect, Perform analysis using analysis profile", function () {
+      login();
+      cy.visit("/");
+
+      const appWithArchetype = new Analysis(
+        getRandomApplicationData(
+          "bookServer_Profile_Analysis",
+          { sourceData: sourceData },
+          [tags[0].name] // Matches archetype criteria tags
+        ),
+        profileData
+      );
+      appWithArchetype.create();
+
+      // Verify only analysis profiles linked to app's archetype target profile are available
+      // and that system analysis profiles are not available for migrator.
+      userArchitect.login();
+      Application.open();
+      appWithArchetype.selectApplication();
+      cy.contains(button, "Analyze").should("be.enabled").click();
+
+      // Select analysis profile mode
+      cy.get(analysisProfileMode).check().should("be.checked");
+      cy.get(analysisProfileSelect).click();
+
+      // Verify the first analysis profile (not linked to archetype) is NOT visible
+      cy.get(actionMenuItem).should("not.contain", analysisProfile1.name);
+
+      // Verify only the second analysis profile (linked to archetype) is visible
+      // Perform analysis using analysis profile
+      cy.get(actionMenuItem)
+        .contains(analysisProfile2.name)
+        .should("be.visible")
+        .click();
+      next();
+      next();
+      clickByText(button, "Run");
+      appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
+      appWithArchetype.verifyAnalysisStatus(
+        AnalysisStatuses.completed,
+        30 * MIN
+      );
+      Issues.openSingleApplication(appWithArchetype.name);
+      exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
     after("Clean up", function () {
