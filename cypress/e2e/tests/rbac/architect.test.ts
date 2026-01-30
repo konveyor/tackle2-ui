@@ -15,12 +15,12 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import {
-  getRandomCredentialsData,
-  getRandomUserData,
-} from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../utils/data_utils";
 import {
   createMultipleStakeholders,
+  createMultipleTags,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
   deleteByList,
   exists,
   getRandomAnalysisData,
@@ -28,17 +28,18 @@ import {
   login,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
 import { User } from "../../models/keycloak/users/user";
 import { UserArchitect } from "../../models/keycloak/users/userArchitect";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { Archetype } from "../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
+import { Tag } from "../../models/migration/controls/tags";
+import { Issues } from "../../models/migration/dynamic-report/issues/issues";
 import {
   AnalysisStatuses,
-  CredentialType,
   MIN,
   button,
   legacyPathfinder,
@@ -49,9 +50,11 @@ import {
 } from "../../views/analysis.view";
 import { actionMenuItem } from "../../views/common.view";
 
+let tags: Tag[] = [];
 let stakeholders: Array<Stakeholders> = [];
 let analysisProfile1: AnalysisProfile;
 let analysisProfile2: AnalysisProfile;
+let archetype: Archetype;
 let targetProfile: TargetProfile;
 
 describe(
@@ -64,16 +67,24 @@ describe(
     let profileData: any;
     let sourceData: any;
 
-    const appCredentials = new CredentialsSourceControlUsername(
-      getRandomCredentialsData(CredentialType.sourceControl)
-    );
-
     before("Creating RBAC users, adding roles for them", function () {
       cy.clearLocalStorage();
       login();
       cy.visit("/");
       AssessmentQuestionnaire.enable(legacyPathfinder);
       stakeholders = createMultipleStakeholders(1);
+
+      tags = createMultipleTags(1);
+      archetype = new Archetype(
+        `test-archetype-${Date.now()}`,
+        [tags[0].name], // Criteria tags
+        [tags[0].name] // Archetype tags
+      );
+      archetype.create();
+
+      cy.fixture("application").then(function (appData) {
+        sourceData = appData["bookserver-app"];
+      });
 
       // Create first analysis profile (not linked to archetype)
       cy.fixture("analysis").then(function (analysisData) {
@@ -106,7 +117,6 @@ describe(
         targetProfile.create(archetype.name);
       });
 
-      appCredentials.create();
       application.create();
       application.perform_review("low");
       application.perform_assessment("low", stakeholders);
@@ -159,8 +169,8 @@ describe(
       );
       appWithArchetype.create();
 
-      // Verify only analysis profiles linked to app's archetype target profile are available
-      // and that system analysis profiles are not available for migrator.
+      // Verify both system analysis profiles and analysis profiles linked to app's
+      // archetype target profile are available for architect.
       userArchitect.login();
       Application.open();
       appWithArchetype.selectApplication();
@@ -170,18 +180,15 @@ describe(
       cy.get(analysisProfileMode).check().should("be.checked");
       cy.get(analysisProfileSelect).click();
 
-      // Verify the first analysis profile (not linked to archetype) is NOT visible
-      cy.get(actionMenuItem).should("not.contain", analysisProfile1.name);
+      // Verify the first analysis profile (system profile) is visible
+      cy.get(actionMenuItem).should("contain", analysisProfile1.name);
+      cy.get(analysisProfileSelect).click();
+      cy.contains(button, "Cancel").click(); // Close the Analysis wizard
+      appWithArchetype.selectApplication(); // Unselect application
 
-      // Verify only the second analysis profile (linked to archetype) is visible
-      // Perform analysis using analysis profile
-      cy.get(actionMenuItem)
-        .contains(analysisProfile2.name)
-        .should("be.visible")
-        .click();
-      next();
-      next();
-      clickByText(button, "Run");
+      // Verify the second analysis profile (linked to archetype) is visible;
+      // Perform analysis using analysis profile using this profile.
+      appWithArchetype.analyze();
       appWithArchetype.waitStatusChange(AnalysisStatuses.scheduled);
       appWithArchetype.verifyAnalysisStatus(
         AnalysisStatuses.completed,
@@ -194,9 +201,23 @@ describe(
     after("Clean up", function () {
       login();
       cy.visit("/");
-      appCredentials.delete();
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+      if (targetProfile && archetype) {
+        targetProfile.open(archetype.name);
+        targetProfile.delete();
+      }
+      if (archetype) {
+        archetype.delete();
+      }
+      if (analysisProfile2) {
+        analysisProfile2.delete();
+      }
+      if (analysisProfile1) {
+        analysisProfile1.delete();
+      }
       deleteByList(stakeholders);
-      application.delete();
+      deleteByList(tags);
       User.loginKeycloakAdmin();
       userArchitect.delete();
     });
