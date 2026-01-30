@@ -88,7 +88,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "mini-css-extract-plugin": "^2.9.4",
     "monaco-editor-webpack-plugin": "^7.1.1",
-    "msw": "^1.2.3",
+    "msw": "^2.12.7",
     "raw-loader": "^4.0.2",
     "react-refresh": "^0.17.0",
     "react-refresh-typescript": "^2.0.10",
