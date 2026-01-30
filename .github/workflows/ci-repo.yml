@@ -28,7 +28,7 @@ jobs:
       should-build: ${{ steps.check-changes.outputs.should-build }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Did only docs and hacks change?
         id: docs-and-hacks-only
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
         with:
           files: |
             docs/**
@@ -49,7 +49,7 @@ jobs:
 
       - name: Did only cypress change?
         id: cypress-only
-        uses: tj-actions/changed-files@823fcebdb31bb35fdf2229d9f769b400309430d0 # v46
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
         with:
           files: |
             cypress/**
@@ -127,7 +127,7 @@ jobs:
     container: ${{ needs.unit-test-lookup.outputs.builder-image }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # TODO: Setup a cache for npm so it could install faster
       #       follow actions/setup-node@v4 techniques
