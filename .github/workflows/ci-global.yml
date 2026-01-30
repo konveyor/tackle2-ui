@@ -42,7 +42,7 @@ jobs:
     outputs:
       IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - id: container
         name: build the tackle2-ui container
