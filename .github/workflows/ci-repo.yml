@@ -28,7 +28,7 @@ jobs:
       should-build: ${{ steps.check-changes.outputs.should-build }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -127,7 +127,7 @@ jobs:
     container: ${{ needs.unit-test-lookup.outputs.builder-image }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # TODO: Setup a cache for npm so it could install faster
       #       follow actions/setup-node@v4 techniques
