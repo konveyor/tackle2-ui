@@ -3,6 +3,7 @@
     "Create new": true,
     "Analyze": true,
     "Upload binary": true,
+    "Analysis profile creation": true,
     "Top action menu": {
       "Not available": false,
       "Discover applications": true,
@@ -26,6 +27,7 @@
     "Create new": false,
     "Analyze": true,
     "Upload binary": true,
+    "Analysis profile creation": false,
     "Top action menu": {
       "Not available": true,
       "Discover applications": false,
