@@ -104,6 +104,21 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
+      - name: Expose metrics endpoint
+        run: |
+          # Find the tackle-hub pod
+          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app=tackle -l component=tackle-hub -o jsonpath='{.items[0].metadata.name}')
+          echo "Hub pod: $HUB_POD"
+
+          # Port-forward metrics endpoint in the background
+          kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
+
+          # Wait for port-forward to be ready
+          sleep 5
+
+          # Set metrics URL for Cypress tests
+          echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
+
       - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v6
         with:
@@ -116,4 +131,5 @@ jobs:
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
+          metrics_url: ${{ env.METRICS_URL }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"

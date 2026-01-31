@@ -1,0 +1,24 @@
+name: Test Metrics on PR (Temporary)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - fix_jira_crud_test
+  workflow_dispatch:
+
+concurrency:
+  group: test-metrics-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-metrics:
+    name: "Test metrics endpoint exposure"
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: "@tier2"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      install_konveyor_version: main
+      test_ref: ${{ github.head_ref || github.ref_name }}
+    secrets: inherit
