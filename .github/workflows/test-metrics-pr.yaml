@@ -1,14 +1,15 @@
-name: Test Metrics on PR (Temporary)
+name: Test Metrics (Temporary)
 
 on:
-  pull_request:
-    branches:
-      - main
-      - fix_jira_crud_test
   workflow_dispatch:
+    inputs:
+      test_branch:
+        description: "Branch to test"
+        required: true
+        default: "fix_jira_crud_test"
 
 concurrency:
-  group: test-metrics-pr-${{ github.ref }}
+  group: test-metrics-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,5 +21,5 @@ jobs:
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
-      test_ref: fix_jira_crud_test
+      test_ref: ${{ inputs.test_branch }}
     secrets: inherit
