@@ -1,6 +1,12 @@
 name: Test Custom Metrics Only (Temporary)
 
 on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - fix_jira_crud_test
   workflow_dispatch:
     inputs:
       test_branch:
@@ -85,7 +91,7 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.test_branch }}
+          ref: ${{ inputs.test_branch || github.ref }}
           path: tackle2-ui
 
       - name: Setup Node.js
