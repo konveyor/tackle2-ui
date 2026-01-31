@@ -21,15 +21,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { SourcePlatform } from "@app/api/models";
@@ -39,6 +31,7 @@ import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
+import { TableActionsColumn } from "@app/components/TableActionsColumn";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -249,8 +242,7 @@ export const SourcePlatforms: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "platformKind" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText="actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -290,35 +282,34 @@ export const SourcePlatforms: React.FC = () => {
                           <LinkToPlatformApplications platform={platform} />
                         </Td>
 
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() => setPlatformToEdit(platform)}
-                            />
-                          </Tooltip>
-                        </Td>
-                        <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={[
-                              ...[
-                                {
-                                  title: t("actions.discoverApplications"),
-                                  onClick: () => discoverImport(platform),
-                                },
-                              ],
-                              { isSeparator: true },
-                              ...[
-                                {
-                                  title: t("actions.delete"),
-                                  onClick: () => setPlatformToDelete(platform),
-                                  isDanger: true,
-                                },
-                              ],
-                            ]}
-                          />
-                        </Td>
+                        <TableActionsColumn
+                          primaryAction={
+                            <Tooltip content={t("actions.edit")}>
+                              <Button
+                                aria-label={t("actions.edit")}
+                                variant="plain"
+                                icon={<PencilAltIcon />}
+                                onClick={() => setPlatformToEdit(platform)}
+                              />
+                            </Tooltip>
+                          }
+                          items={[
+                            ...[
+                              {
+                                title: t("actions.discoverApplications"),
+                                onClick: () => discoverImport(platform),
+                              },
+                            ],
+                            { isSeparator: true },
+                            ...[
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => setPlatformToDelete(platform),
+                                isDanger: true,
+                              },
+                            ],
+                          ]}
+                        />
                       </TableRowContentWithControls>
                     </Tr>
                   ))}
