@@ -76,10 +76,10 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
-        CYPRESS_GIT_USER: gituser
-        CYPRESS_GIT_PASSWORD: gitpass123
-        CYPRESS_SVN_USER: svnuser
-        CYPRESS_SVN_PASSWORD: svnpass123
+        CYPRESS_GIT_USER: ${{ secrets.GIT_USER }}
+        CYPRESS_GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+        CYPRESS_SVN_USER: ${{ secrets.SVN_USER }}
+        CYPRESS_SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
         CYPRESS_jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}
         CYPRESS_jira_stage_bearer_token: ${{ secrets.JIRA_STAGE_BEARER_TOKEN }}
         CYPRESS_jira_stage_basic_login: ${{ secrets.JIRA_STAGE_BASIC_LOGIN }}
