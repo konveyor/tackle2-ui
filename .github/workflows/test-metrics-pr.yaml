@@ -1,4 +1,4 @@
-name: Test Metrics (Temporary)
+name: Test Custom Metrics Only (Temporary)
 
 on:
   workflow_dispatch:
@@ -13,13 +13,124 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-metrics:
-    name: "Test metrics endpoint exposure"
-    uses: ./.github/workflows/e2e-run-ui-tests.yaml
-    with:
-      test_tags: "@tier2"
-      feature_auth_required: false
-      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      install_konveyor_version: main
-      test_ref: ${{ inputs.test_branch }}
-    secrets: inherit
+  test-custom-metrics:
+    name: "Test custom-metrics only"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup minikube
+        uses: konveyor/operator/.github/actions/start-minikube@main
+        with:
+          memory: "max"
+          cpus: "max"
+
+      - name: Checkout the operator
+        uses: actions/checkout@v6
+        with:
+          repository: konveyor/operator
+          ref: main
+          path: konveyor-operator
+
+      - name: Install konveyor
+        uses: ./konveyor-operator/.github/actions/install-konveyor
+        with:
+          bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+          tackle_cr: |
+            kind: Tackle
+            apiVersion: tackle.konveyor.io/v1alpha1
+            metadata:
+              name: tackle
+            spec:
+              image_pull_policy: IfNotPresent
+              feature_auth_required: false
+
+      - name: Wait for Ingress
+        run: |
+          kubectl wait \
+            -n konveyor-tackle \
+            ingress/tackle \
+            --timeout=600s \
+            --for=jsonpath='{.status.loadBalancer.ingress[0]}'
+
+          minikube_ip=$(minikube ip)
+          echo "ingress is ready at: ${minikube_ip}"
+          echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
+
+      - name: Expose metrics endpoint
+        run: |
+          # Wait for tackle-hub pod to be ready
+          echo "Waiting for tackle-hub pod to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -n konveyor-tackle \
+            -l app.kubernetes.io/name=tackle-hub \
+            --timeout=600s
+
+          # Find the tackle-hub pod
+          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
+          echo "Hub pod: $HUB_POD"
+
+          # Port-forward metrics endpoint in the background
+          kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
+
+          # Wait for port-forward to be ready
+          sleep 5
+
+          # Verify metrics endpoint is accessible
+          echo "Testing metrics endpoint..."
+          curl -s http://localhost:2112/metrics | head -20
+
+          # Set metrics URL for Cypress tests
+          echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
+
+      - name: Checkout the repo
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.test_branch }}
+          path: tackle2-ui
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: "tackle2-ui/package.json"
+          cache: "npm"
+          cache-dependency-path: "tackle2-ui/package-lock.json"
+
+      - name: Install dependencies
+        run: |
+          cd tackle2-ui
+          npm clean-install --no-audit
+
+      - name: Run login tests
+        uses: cypress-io/github-action@v6
+        env:
+          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
+          CYPRESS_USER: admin
+          CYPRESS_PASSWORD: Dog8code
+          CYPRESS_INITIAL_PASSWORD: Passw0rd!
+          CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
+        with:
+          install: false
+          working-directory: ./tackle2-ui
+          project: ./cypress
+          spec: "**/e2e/tests/login.test.ts"
+
+      - name: Run custom-metrics test ONLY
+        uses: cypress-io/github-action@v6
+        env:
+          CYPRESS_BASE_URL: "${{ env.UI_URL }}"
+          CYPRESS_USER: admin
+          CYPRESS_PASSWORD: Dog8code
+          CYPRESS_metricsUrl: "${{ env.METRICS_URL }}"
+        with:
+          install: false
+          working-directory: ./tackle2-ui
+          project: ./cypress
+          spec: "**/e2e/tests/custom-metrics/application_metrics.test.ts"
+
+      - name: Upload cypress report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: custom-metrics-test-report
+          path: |
+            ./tackle2-ui/cypress/run
