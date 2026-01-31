@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
+import { uniqBy } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
@@ -13,12 +14,14 @@ import {
 
 import { AnalysisProfile, AnalysisProfileTarget, Ref } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
+import { GroupOfLabels } from "@app/components/analysis/components/group-of-labels";
 import {
   DrawerTabContent,
   DrawerTabContentSection,
   RepositoryDetails,
 } from "@app/components/detail-drawer";
 import { useFetchTargets } from "@app/queries/targets";
+import { ParsedTargetLabel, parseAndGroupLabels } from "@app/utils/rules-utils";
 
 /** Helper to display a list of string labels */
 const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
@@ -45,7 +48,8 @@ const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
 // TODO: Better display of targets and with their labels
 const TargetsList: React.FC<{
   targetRefs?: AnalysisProfileTarget[];
-}> = ({ targetRefs }) => {
+  labelBasedTargets?: ParsedTargetLabel[];
+}> = ({ targetRefs, labelBasedTargets = [] }) => {
   const { t } = useTranslation();
   const { targets } = useFetchTargets();
 
@@ -68,20 +72,36 @@ const TargetsList: React.FC<{
     });
   }, [targetRefs, targets]);
 
-  if (resolvedTargets.length === 0) {
+  const customTargets = uniqBy(labelBasedTargets, ({ value }) => value).filter(
+    ({ value }) =>
+      !targetRefs || targetRefs?.every(({ name }) => name !== value)
+  );
+
+  if (resolvedTargets.length === 0 && customTargets.length === 0) {
     return <EmptyTextMessage message={t("terms.none")} />;
   }
 
   return (
-    <LabelGroup>
-      {resolvedTargets.map((target) => (
-        <Label key={target.id} color="blue">
-          {target.name}
-          {target.provider && ` (${target.provider})`}
-          {target.selection && ` (${target.selection})`}
-        </Label>
-      ))}
-    </LabelGroup>
+    <>
+      {resolvedTargets.length !== 0 && (
+        <LabelGroup>
+          {resolvedTargets.map((target) => (
+            <Label key={target.id} color="blue">
+              {target.name}
+              {target.provider && ` (${target.provider})`}
+              {target.selection && ` (${target.selection})`}
+            </Label>
+          ))}
+        </LabelGroup>
+      )}
+      {customTargets.length !== 0 && (
+        <GroupOfLabels
+          labelColor={"grey"}
+          groupName="Manual custom rules"
+          items={customTargets}
+        />
+      )}
+    </>
   );
 };
 
@@ -129,8 +149,16 @@ export const TabDetailsContent: React.FC<{
 
   // Fetch all targets to cross-reference with the profile's target refs
 
-  const ruleLabelsIncluded =
-    analysisProfile.rules?.labels?.included?.slice(0) ?? [];
+  const parsedRuleLabels = parseAndGroupLabels(
+    analysisProfile.rules?.labels?.included?.map((label) => ({
+      name: label,
+      label,
+    })) ?? []
+  );
+  const ruleLabelsIncluded = [
+    ...(parsedRuleLabels.invalid ?? []),
+    ...(parsedRuleLabels.source ?? []),
+  ].map(({ value }) => value);
   ruleLabelsIncluded.sort();
 
   const ruleLabelsExcluded =
@@ -208,11 +236,10 @@ export const TabDetailsContent: React.FC<{
       <DrawerTabContentSection
         label={t("analysisProfiles.sectionRulesTargets")}
       >
-        {analysisProfile.rules?.targets ? (
-          <TargetsList targetRefs={analysisProfile.rules?.targets} />
-        ) : (
-          <EmptyTextMessage />
-        )}
+        <TargetsList
+          targetRefs={analysisProfile.rules?.targets}
+          labelBasedTargets={parsedRuleLabels.target}
+        />
       </DrawerTabContentSection>
 
       {/* Rules - Repository */}
