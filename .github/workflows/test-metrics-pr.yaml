@@ -20,5 +20,5 @@ jobs:
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
-      test_ref: ${{ github.head_ref || github.ref_name }}
+      test_ref: fix_jira_crud_test
     secrets: inherit

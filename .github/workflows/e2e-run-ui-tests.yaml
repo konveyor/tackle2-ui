@@ -106,39 +106,16 @@ jobs:
 
       - name: Expose metrics endpoint
         run: |
-          # Debug: List all pods in the namespace
-          echo "Listing all pods in konveyor-tackle namespace:"
-          kubectl get pods -n konveyor-tackle --show-labels
+          # Wait for tackle-hub pod to be ready
+          echo "Waiting for tackle-hub pod to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -n konveyor-tackle \
+            -l app.kubernetes.io/name=tackle-hub \
+            --timeout=600s
 
-          # Find the tackle-hub pod (try different label patterns)
-          echo "Finding tackle-hub pod..."
-          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle -l app.kubernetes.io/component=tackle-hub -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)
-
-          if [ -z "$HUB_POD" ]; then
-            echo "Trying alternative label selector..."
-            HUB_POD=$(kubectl get pods -n konveyor-tackle -o jsonpath='{.items[?(@.metadata.name=="tackle-hub")].metadata.name}' 2>/dev/null || true)
-          fi
-
-          if [ -z "$HUB_POD" ]; then
-            echo "Trying to find any pod with 'hub' in the name..."
-            HUB_POD=$(kubectl get pods -n konveyor-tackle -o jsonpath='{.items[0].metadata.name}' --field-selector=metadata.name!=tackle-ui 2>/dev/null | grep -i hub || true)
-          fi
-
-          if [ -z "$HUB_POD" ]; then
-            echo "Trying to get hub pod by name pattern..."
-            HUB_POD=$(kubectl get pods -n konveyor-tackle --no-headers | grep hub | awk '{print $1}' | head -1)
-          fi
-
+          # Find the tackle-hub pod
+          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
           echo "Hub pod: $HUB_POD"
-
-          if [ -z "$HUB_POD" ]; then
-            echo "ERROR: Could not find tackle-hub pod"
-            exit 1
-          fi
-
-          # Wait for the pod to be ready
-          echo "Waiting for $HUB_POD to be ready..."
-          kubectl wait --for=condition=ready pod "$HUB_POD" -n konveyor-tackle --timeout=600s
 
           # Port-forward metrics endpoint in the background
           kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
@@ -148,7 +125,7 @@ jobs:
 
           # Verify metrics endpoint is accessible
           echo "Testing metrics endpoint..."
-          curl -s http://localhost:2112/metrics | head -10 || echo "Warning: Could not access metrics endpoint yet"
+          curl -s http://localhost:2112/metrics | head -10
 
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
