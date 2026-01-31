@@ -106,8 +106,15 @@ jobs:
 
       - name: Expose metrics endpoint
         run: |
+          # Wait for tackle-hub pod to be ready
+          echo "Waiting for tackle-hub pod to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -n konveyor-tackle \
+            -l app=tackle,component=tackle-hub \
+            --timeout=600s
+
           # Find the tackle-hub pod
-          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app=tackle -l component=tackle-hub -o jsonpath='{.items[0].metadata.name}')
+          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app=tackle,component=tackle-hub -o jsonpath='{.items[0].metadata.name}')
           echo "Hub pod: $HUB_POD"
 
           # Port-forward metrics endpoint in the background
@@ -115,6 +122,10 @@ jobs:
 
           # Wait for port-forward to be ready
           sleep 5
+
+          # Verify metrics endpoint is accessible
+          echo "Testing metrics endpoint..."
+          curl -s http://localhost:2112/metrics | head -10 || echo "Warning: Could not access metrics endpoint yet"
 
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
