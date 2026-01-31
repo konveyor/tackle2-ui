@@ -35,3 +35,4 @@ jobs:
       bundle_image: ${{ matrix.refs.bundle_image }}
       install_konveyor_version: ${{ matrix.refs.install_konveyor_version }}
       test_ref: ${{ matrix.refs.test }}
+    secrets: inherit
