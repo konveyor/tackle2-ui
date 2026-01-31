@@ -46,3 +46,4 @@ jobs:
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
       ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
+    secrets: inherit

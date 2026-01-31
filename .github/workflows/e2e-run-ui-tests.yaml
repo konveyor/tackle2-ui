@@ -144,3 +144,15 @@ jobs:
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
+          # Pass secrets as inputs
+          git_user: ${{ secrets.GIT_USER }}
+          git_password: ${{ secrets.GIT_PASSWORD }}
+          svn_user: ${{ secrets.SVN_USER }}
+          svn_password: ${{ secrets.SVN_PASSWORD }}
+          jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}
+          jira_stage_bearer_token: ${{ secrets.JIRA_STAGE_BEARER_TOKEN }}
+          jira_stage_basic_login: ${{ secrets.JIRA_STAGE_BASIC_LOGIN }}
+          jira_stage_basic_password: ${{ secrets.JIRA_STAGE_BASIC_PASSWORD }}
+          jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
+          jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
+          jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}

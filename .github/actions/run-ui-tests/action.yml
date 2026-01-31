@@ -23,6 +23,62 @@ inputs:
     description: The name of the artifact to upload.
     default: "ui-test-reports"
 
+  # Credentials passed from secrets
+  git_user:
+    description: Git username
+    required: false
+    default: ""
+
+  git_password:
+    description: Git password
+    required: false
+    default: ""
+
+  svn_user:
+    description: SVN username
+    required: false
+    default: ""
+
+  svn_password:
+    description: SVN password
+    required: false
+    default: ""
+
+  jira_stage_datacenter_url:
+    description: Jira Stage Datacenter URL
+    required: false
+    default: ""
+
+  jira_stage_bearer_token:
+    description: Jira Stage Bearer Token
+    required: false
+    default: ""
+
+  jira_stage_basic_login:
+    description: Jira Stage Basic Login
+    required: false
+    default: ""
+
+  jira_stage_basic_password:
+    description: Jira Stage Basic Password
+    required: false
+    default: ""
+
+  jira_atlassian_cloud_url:
+    description: Jira Atlassian Cloud URL
+    required: false
+    default: ""
+
+  jira_atlassian_cloud_email:
+    description: Jira Atlassian Cloud Email
+    required: false
+    default: ""
+
+  jira_atlassian_cloud_token:
+    description: Jira Atlassian Cloud Token
+    required: false
+    default: ""
+
 runs:
   using: "composite"
   steps:
@@ -81,17 +137,17 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
-        CYPRESS_GIT_USER: ${{ secrets.GIT_USER }}
-        CYPRESS_GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
-        CYPRESS_SVN_USER: ${{ secrets.SVN_USER }}
-        CYPRESS_SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-        CYPRESS_jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}
-        CYPRESS_jira_stage_bearer_token: ${{ secrets.JIRA_STAGE_BEARER_TOKEN }}
-        CYPRESS_jira_stage_basic_login: ${{ secrets.JIRA_STAGE_BASIC_LOGIN }}
-        CYPRESS_jira_stage_basic_password: ${{ secrets.JIRA_STAGE_BASIC_PASSWORD }}
-        CYPRESS_jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
-        CYPRESS_jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
-        CYPRESS_jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+        CYPRESS_GIT_USER: ${{ inputs.git_user }}
+        CYPRESS_GIT_PASSWORD: ${{ inputs.git_password }}
+        CYPRESS_SVN_USER: ${{ inputs.svn_user }}
+        CYPRESS_SVN_PASSWORD: ${{ inputs.svn_password }}
+        CYPRESS_jira_stage_datacenter_url: ${{ inputs.jira_stage_datacenter_url }}
+        CYPRESS_jira_stage_bearer_token: ${{ inputs.jira_stage_bearer_token }}
+        CYPRESS_jira_stage_basic_login: ${{ inputs.jira_stage_basic_login }}
+        CYPRESS_jira_stage_basic_password: ${{ inputs.jira_stage_basic_password }}
+        CYPRESS_jira_atlassian_cloud_url: ${{ inputs.jira_atlassian_cloud_url }}
+        CYPRESS_jira_atlassian_cloud_email: ${{ inputs.jira_atlassian_cloud_email }}
+        CYPRESS_jira_atlassian_cloud_token: ${{ inputs.jira_atlassian_cloud_token }}
         CYPRESS_metricsUrl: ${{ inputs.metrics_url }}
       with:
         install: false
