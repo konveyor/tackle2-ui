@@ -80,6 +80,13 @@ runs:
         CYPRESS_GIT_PASSWORD: gitpass123
         CYPRESS_SVN_USER: svnuser
         CYPRESS_SVN_PASSWORD: svnpass123
+        CYPRESS_jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}
+        CYPRESS_jira_stage_bearer_token: ${{ secrets.JIRA_STAGE_BEARER_TOKEN }}
+        CYPRESS_jira_stage_basic_login: ${{ secrets.JIRA_STAGE_BASIC_LOGIN }}
+        CYPRESS_jira_stage_basic_password: ${{ secrets.JIRA_STAGE_BASIC_PASSWORD }}
+        CYPRESS_jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
+        CYPRESS_jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
+        CYPRESS_jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
       with:
         install: false
         working-directory: ./ui-tests
