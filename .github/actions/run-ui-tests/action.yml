@@ -23,7 +23,12 @@ inputs:
     description: The name of the artifact to upload.
     default: "ui-test-reports"
 
-  # Credentials passed from secrets
+  # Credentials passed from secrets or environment
+  keycloak_admin_password:
+    description: Keycloak admin password
+    required: false
+    default: ""
+
   git_user:
     description: Git username
     required: false
@@ -109,7 +114,7 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_INITIAL_PASSWORD: Passw0rd!
-        CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
+        CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
       with:
         install: true
         working-directory: ./ui-tests
@@ -136,7 +141,7 @@ runs:
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
-        CYPRESS_KEYCLOAK_ADMIN_PASSWORD: admin123
+        CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
         CYPRESS_GIT_USER: ${{ inputs.git_user }}
         CYPRESS_GIT_PASSWORD: ${{ inputs.git_password }}
         CYPRESS_SVN_USER: ${{ inputs.svn_user }}

@@ -104,6 +104,16 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
+      - name: Get Keycloak admin password
+        run: |
+          # Fetch Keycloak admin password from the secret
+          KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
+            -n konveyor-tackle \
+            -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)
+
+          echo "Keycloak admin password retrieved"
+          echo "KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASS}" >>$GITHUB_ENV
+
       - name: Expose metrics endpoint
         run: |
           # Wait for tackle-hub pod to be ready
@@ -144,7 +154,8 @@ jobs:
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
-          # Pass secrets as inputs
+          # Pass credentials as inputs
+          keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
           git_user: ${{ secrets.GIT_USER }}
           git_password: ${{ secrets.GIT_PASSWORD }}
           svn_user: ${{ secrets.SVN_USER }}
