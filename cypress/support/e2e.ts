@@ -53,6 +53,9 @@ Cypress.on("uncaught:exception", (err) => {
   if (err.message.includes("Failed to execute 'importScripts'")) {
     return false; // don't fail test
   }
+  if (err.message.includes("clipboard-write")) {
+    return false; // don't fail test - clipboard API not supported in headless browser
+  }
 });
 
 beforeEach(() => {
