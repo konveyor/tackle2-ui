@@ -198,6 +198,63 @@ describe(
       exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
+    it("Architect, Analysis Profile CRUD operations", function () {
+      const crudProfileName = `crud-profile-${Date.now()}`;
+      const crudProfile = new AnalysisProfile(
+        crudProfileName,
+        profileData,
+        "Analysis profile for CRUD testing"
+      );
+      crudProfile.create();
+      cy.contains(crudProfileName).should("exist");
+      crudProfile.validateAnalysisProfileInformation();
+
+      // Edit the analysis profile
+      const updatedDescription = "Updated description for CRUD testing";
+      const updatedData: Partial<AnalysisProfile> = {
+        description: updatedDescription,
+      };
+      crudProfile.edit(updatedData);
+      cy.contains(crudProfileName).should("exist");
+
+      // Verify the updated description
+      crudProfile.description = updatedDescription;
+      crudProfile.validateAnalysisProfileInformation();
+
+      crudProfile.delete();
+      cy.contains(crudProfileName).should("not.exist");
+    });
+
+    it("Architect, Perform analysis in manual mode and save as profile", function () {
+      // Architect creates application for analysis
+      const appForSaveProfile = new Analysis(
+        getRandomApplicationData(
+          "app_for_save_profile",
+          { sourceData: sourceData },
+          [tags[0].name]
+        ),
+        {
+          ...profileData,
+          saveAsProfile: true,
+        }
+      );
+      appForSaveProfile.create();
+
+      // Architect performs analysis in manual mode and saves as profile
+      appForSaveProfile.analyze();
+
+      // Verify the profile was created with name format: profile_<application_name>
+      const expectedProfileName = `profile_${appForSaveProfile.name}`;
+      AnalysisProfile.open();
+      cy.contains(expectedProfileName).should("exist");
+
+      const createdProfile = new AnalysisProfile(
+        expectedProfileName,
+        profileData
+      );
+      createdProfile.delete();
+    });
+
     after("Clean up", function () {
       login();
       cy.visit("/");
