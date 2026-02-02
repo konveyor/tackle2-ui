@@ -72,7 +72,7 @@ export class JiraCredentials extends Credentials {
 
   edit(credentialsJiraData: CredentialsJiraData, toBeCanceled = false) {
     const oldValues = this.storeOldValues();
-    super.edit(null);
+    super.edit(oldValues);
     this.init(credentialsJiraData);
     this.fillName();
     isButtonEnabled(submitButton, true);
@@ -98,7 +98,7 @@ export class JiraCredentials extends Credentials {
   }
 
   public validateValues(): void {
-    super.edit(null);
+    super.edit(this.storeOldValues());
     this.validateName(this.name);
     this.validateDescription(this.description);
     cancelForm();
