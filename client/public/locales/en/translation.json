@@ -783,7 +783,8 @@
   "analysisSteps": {
     "labels": {
       "title": "Labels",
-      "description": "Review target labels, select additional labels, and add exclusions."
+      "description": "Review target labels, select additional labels, and add exclusions.",
+      "associatedCredentials": "Associated credentials"
     },
     "review": {
       "title": "Review analysis details",
@@ -794,7 +795,12 @@
       "scope": "Scope",
       "packages": "Packages",
       "rules": "Rules",
-      "autoTagging": "Automated tagging"
+      "autoTagging": "Automated tagging",
+      "targetRuleLabels": "Target rule labels",
+      "sourceRuleLabels": "Source rule labels",
+      "manualCustomRules": "Manual custom rules",
+      "additionalTargetLabels": "Additional target labels",
+      "additionalSourceLabels": "Additional source labels"
     }
   },
   "analysisProfileWizard": {
