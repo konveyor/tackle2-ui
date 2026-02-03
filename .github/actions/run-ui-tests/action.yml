@@ -141,7 +141,7 @@ runs:
         if [[ "$AUTH_REQUIRED" != "true" ]]; then
           echo "Auth is disabled - excluding rbac tests"
           # Filter out any rbac test files from the spec
-          SPEC=$(echo "$SPEC" | tr ',' '\n' | grep -v '/rbac/' | tr '\n' ',' | sed 's/,$//')
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
