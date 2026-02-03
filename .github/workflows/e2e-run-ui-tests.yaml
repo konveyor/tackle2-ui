@@ -135,12 +135,29 @@ jobs:
 
       - name: Get Keycloak admin password
         run: |
-          # Fetch Keycloak admin password from the secret
+          # Wait for Keycloak secret to be created
+          echo "Waiting for Keycloak secret..."
+          for i in {1..30}; do
+            if kubectl get secret tackle-keycloak-sso -n konveyor-tackle &>/dev/null; then
+              echo "Secret found!"
+              break
+            fi
+            echo "Waiting for secret (attempt $i/30)..."
+            sleep 2
+          done
+
+          # Fetch Keycloak admin password from the secret (key is 'password', not 'ADMIN_PASSWORD')
           KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
             -n konveyor-tackle \
-            -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)
+            -o jsonpath='{.data.password}' | base64 -d)
 
-          echo "Keycloak admin password retrieved"
+          if [ -z "$KEYCLOAK_PASS" ]; then
+            echo "ERROR: Keycloak password is empty"
+            kubectl get secret tackle-keycloak-sso -n konveyor-tackle -o yaml
+            exit 1
+          fi
+
+          echo "Keycloak admin password retrieved (length: ${#KEYCLOAK_PASS})"
           echo "KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASS}" >>$GITHUB_ENV
 
       - name: Expose metrics endpoint

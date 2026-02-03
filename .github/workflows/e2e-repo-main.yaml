@@ -42,8 +42,8 @@ jobs:
     needs: build-ui-image-if-needed
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      # TEMPORARY: Testing oc/kubectl fix, Jira export, and task manager tests
-      test_spec: "**/e2e/tests/administration/repository/maven.test.ts,**/e2e/tests/migration/migration-waves/export_to_jira_cloud.test.ts,**/e2e/tests/migration/task-manager/miscellaneous.test.ts"
+      # TEMPORARY: Testing RBAC custom rules with Keycloak auth
+      test_spec: "**/e2e/tests/rbac/custom-rules.test.ts"
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
