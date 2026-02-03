@@ -32,6 +32,30 @@ on:
         type: string
         default: main
 
+    secrets:
+      GIT_USER:
+        required: false
+      GIT_PASSWORD:
+        required: false
+      SVN_USER:
+        required: false
+      SVN_PASSWORD:
+        required: false
+      JIRA_STAGE_DATACENTER_URL:
+        required: false
+      JIRA_STAGE_BEARER_TOKEN:
+        required: false
+      JIRA_STAGE_BASIC_LOGIN:
+        required: false
+      JIRA_STAGE_BASIC_PASSWORD:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_URL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_EMAIL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_TOKEN:
+        required: false
+
   workflow_dispatch: # start from GitHub UI or API
     inputs:
       test_tags:
@@ -177,14 +201,17 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
-      - name: "DEBUG: Check Jira secrets"
+      - name: "DEBUG: Check Jira secrets in workflow"
         run: |
-          echo "JIRA_ATLASSIAN_CLOUD_URL length: ${#JIRA_URL}"
-          echo "JIRA_ATLASSIAN_CLOUD_EMAIL length: ${#JIRA_EMAIL}"
-          echo "JIRA_ATLASSIAN_CLOUD_TOKEN length: ${#JIRA_TOKEN}"
-          echo "JIRA_URL is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL != '' }}"
-          echo "JIRA_EMAIL is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL != '' }}"
-          echo "JIRA_TOKEN is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN != '' }}"
+          echo "=== Workflow Level Debug ==="
+          echo "JIRA_URL length: ${#JIRA_URL}"
+          echo "JIRA_EMAIL length: ${#JIRA_EMAIL}"
+          echo "JIRA_TOKEN length: ${#JIRA_TOKEN}"
+          echo "JIRA_URL is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL != '' }}"
+          echo "JIRA_EMAIL is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL != '' }}"
+          echo "JIRA_TOKEN is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN != '' }}"
+          if [ ${#JIRA_URL} -gt 0 ]; then echo "JIRA_URL first 20 chars: ${JIRA_URL:0:20}"; fi
+          if [ ${#JIRA_EMAIL} -gt 0 ]; then echo "JIRA_EMAIL first 10 chars: ${JIRA_EMAIL:0:10}"; fi
         env:
           JIRA_URL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
