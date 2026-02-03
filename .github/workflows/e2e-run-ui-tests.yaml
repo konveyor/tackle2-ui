@@ -3,6 +3,11 @@ name: e2e - run UI tests on minikube
 on:
   workflow_call: # call from another workflow
     inputs:
+      test_spec:
+        type: string
+        description: Specific test spec to run (overrides test_tags if provided)
+        default: ""
+
       test_tags:
         type: string
         default: "@ci,@tier0"
@@ -175,8 +180,7 @@ jobs:
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          # TEMPORARY: Override to run only metrics test
-          test_spec: "**/e2e/tests/custom-metrics/task_metrics.test.ts"
+          test_spec: ${{ inputs.test_spec }}
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
