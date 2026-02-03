@@ -699,6 +699,12 @@
     "repositoryUrlInvalid": "Must be a valid repository URL."
   },
   "wizard": {
+    "sourceMode": {
+      "binary": "Binary",
+      "sourceCode": "Source code",
+      "sourceCodeDeps": "Source code + dependencies",
+      "binaryUpload": "Upload a local binary"
+    },
     "alert": {
       "sourceMode": {
         "title": "Source Code Mode",
@@ -735,8 +741,11 @@
       "saveAsProfileReview": "Name of the analysis profile to save the analysis options as",
       "scope": "Select the scope of dependencies you want to include in the analysis.",
       "scopeAllDeps": "Application and all dependencies, including known Open Source libraries",
+      "scopeAllDepsShort": "Known Open Source libraries",
       "scopeInternalDeps": "Application and internal dependencies only",
+      "scopeInternalDepsShort": "Application and internal dependencies",
       "scopeSelectDeps": "Add the list of packages to be analyzed",
+      "scopeSelectDepsShort": "List of packages to be analyzed manually",
       "selectAnalysisProfile": "Select an analysis profile",
       "selectWizardMode": "Choose how to configure the analysis.",
       "setTargets": "Select one or more target options in focus for the analysis.",

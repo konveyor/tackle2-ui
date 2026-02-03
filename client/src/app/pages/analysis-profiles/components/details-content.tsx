@@ -22,6 +22,7 @@ import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 import { WizardState } from "../profile-wizard/useWizardReducer";
 
 import { StringLabels } from "./tab-details-content";
+import { TFunction } from "i18next";
 
 export interface DetailsContentProps {
   state: WizardState;
@@ -29,18 +30,20 @@ export interface DetailsContentProps {
   hideName?: boolean;
 }
 
-const defaultMode: Map<string, string> = new Map([
-  ["binary", "Binary"],
-  ["source-code", "Source code"],
-  ["source-code-deps", "Source code + dependencies"],
-  ["binary-upload", "Upload a local binary"],
-]);
+const createDefaultMode: (t: TFunction) => Map<string, string> = (t) =>
+  new Map([
+    ["binary", t("wizard.sourceMode.binary")],
+    ["source-code", t("wizard.sourceMode.sourceCode")],
+    ["source-code-deps", t("wizard.sourceMode.sourceCodeDeps")],
+    ["binary-upload", t("wizard.sourceMode.binaryUpload")],
+  ]);
 
-const defaultScopes: Map<string, string> = new Map([
-  ["app", "Application and internal dependencies"],
-  ["oss", "Known Open Source libraries"],
-  ["select", "List of packages to be analyzed manually"],
-]);
+const createDefaultScopes: (t: TFunction) => Map<string, string> = (t) =>
+  new Map([
+    ["app", t("wizard.label.scopeInternalDepsShort")],
+    ["oss", t("wizard.label.scopeAllDepsShort")],
+    ["select", t("wizard.label.scopeSelectDepsShort")],
+  ]);
 
 export const DetailsContent: React.FC<DetailsContentProps> = ({
   state: { profileDetails, mode, targets, scope, customRules, labels },
@@ -48,6 +51,8 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
   hideName,
 }) => {
   const { t } = useTranslation();
+  const defaultScopes = createDefaultScopes(t);
+  const defaultMode = createDefaultMode(t);
 
   const parsedLabels = targets.selectedTargets.map(([target, label]) => ({
     target,
@@ -300,27 +305,29 @@ const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.sourceRepo")}</DescriptionListTerm>
         <DescriptionListDescription id="source-repository">
-          {customRules.sourceRepository}
+          {customRules.sourceRepository || <EmptyTextMessage />}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.branch")}</DescriptionListTerm>
         <DescriptionListDescription id="branch">
-          {customRules.branch}
+          {customRules.branch || <EmptyTextMessage />}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.rootPath")}</DescriptionListTerm>
         <DescriptionListDescription id="root-path">
-          {customRules.rootPath}
+          {customRules.rootPath || <EmptyTextMessage />}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>
-          {t("analysisSteps.labels.associatedCredentials")}
+          {t("analysisSteps.labels.associatedCredentials") || (
+            <EmptyTextMessage />
+          )}
         </DescriptionListTerm>
         <DescriptionListDescription id="associated-credentials">
-          {customRules.associatedCredentials}
+          {customRules.associatedCredentials || <EmptyTextMessage />}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </DescriptionList>

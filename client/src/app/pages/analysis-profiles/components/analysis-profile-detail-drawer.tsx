@@ -66,10 +66,7 @@ const AnalysisProfileDetailDrawer: React.FC<
               eventKey={TabKey.Summary}
               title={<TabTitleText>{t("terms.summary")}</TabTitleText>}
             >
-              <WizardBasedTabDetails
-                analysisProfile={analysisProfile}
-                key={`details-content-${analysisProfile.id}-${analysisProfile.name}`}
-              />
+              <WizardBasedTabDetails analysisProfile={analysisProfile} />
             </Tab>
             <Tab
               eventKey={TabKey.Details}
