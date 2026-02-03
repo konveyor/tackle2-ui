@@ -21,5 +21,5 @@ export const WizardBasedTabDetails: React.FC<{
       </Bullseye>
     );
   }
-  return <DetailsContent state={state} />;
+  return <DetailsContent state={state} hideName />;
 };

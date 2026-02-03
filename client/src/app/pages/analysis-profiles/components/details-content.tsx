@@ -14,14 +14,19 @@ import {
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { GroupOfLabels } from "@app/components/analysis/components/group-of-labels";
 import { CustomRulesStepState } from "@app/components/analysis/steps/custom-rules";
 import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
 import { WizardState } from "../profile-wizard/useWizardReducer";
 
+import { StringLabels } from "./tab-details-content";
+
 export interface DetailsContentProps {
   state: WizardState;
+  overflowLabelCount?: number;
+  hideName?: boolean;
 }
 
 const defaultMode: Map<string, string> = new Map([
@@ -39,24 +44,46 @@ const defaultScopes: Map<string, string> = new Map([
 
 export const DetailsContent: React.FC<DetailsContentProps> = ({
   state: { profileDetails, mode, targets, scope, customRules, labels },
+  overflowLabelCount,
+  hideName,
 }) => {
   const { t } = useTranslation();
 
-  const hasIncludedPackages = scope.withKnownLibs.includes("select");
-  const targetParsedLabels = targets.selectedTargets.map(([target, label]) => ({
-    target,
-    labels: parseAndGroupLabels(label ? [label] : (target.labels ?? [])),
-  }));
+  const parsedLabels = targets.selectedTargets
+    .map(([target, label]) => ({
+      target,
+      labels: parseAndGroupLabels(label ? [label] : (target.labels ?? [])),
+    }))
+    .filter(({ labels }) => labels.target.length > 0);
+
+  const targetLabels = parsedLabels.filter(
+    ({ labels }) => labels.target.length > 0
+  );
+  const sourceLabels = parsedLabels.filter(
+    ({ labels }) => labels.source.length > 0
+  );
+  const customTargetLabels = parseAndGroupLabels(
+    customRules.customLabels
+  ).target;
+  const customSourceLabels = parseAndGroupLabels(
+    customRules.customLabels
+  ).source;
+
+  const scopeParts =
+    scope.withKnownLibs
+      ?.split(",")
+      .map((scopePart) => defaultScopes.get(scopePart) ?? scopePart) ?? [];
 
   return (
     <DescriptionList isHorizontal className={spacing.mtMd}>
-      <DescriptionListGroup>
-        <DescriptionListTerm>{t("terms.name")}</DescriptionListTerm>
-        <DescriptionListDescription id="name">
-          {profileDetails.name}
-        </DescriptionListDescription>
-      </DescriptionListGroup>
-
+      {!hideName && (
+        <DescriptionListGroup>
+          <DescriptionListTerm>{t("terms.name")}</DescriptionListTerm>
+          <DescriptionListDescription id="name">
+            {profileDetails.name}
+          </DescriptionListDescription>
+        </DescriptionListGroup>
+      )}
       {profileDetails.description && (
         <DescriptionListGroup>
           <DescriptionListTerm>{t("terms.description")}</DescriptionListTerm>
@@ -70,7 +97,7 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
       <DescriptionListGroup>
         <DescriptionListTerm>{t("wizard.terms.mode")}</DescriptionListTerm>
         <DescriptionListDescription id="mode">
-          {defaultMode.get(mode.mode)}
+          {defaultMode.get(mode.mode) || <EmptyTextMessage />}
         </DescriptionListDescription>
       </DescriptionListGroup>
 
@@ -82,14 +109,14 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           })}
         </DescriptionListTerm>
         <DescriptionListDescription id="targets">
-          <List isPlain>
-            {targets.selectedTargets.map(([target, label]) => (
-              <ListItem key={target.id}>
-                {target.name}
-                {target.choice && label && ` (${label.name})`}
-              </ListItem>
-            ))}
-          </List>
+          <StringLabels
+            overflowLabelCount={overflowLabelCount}
+            color="blue"
+            items={targets.selectedTargets?.map(
+              ([target, label]) =>
+                `${target.name}${target.choice && label ? ` (${label.name})` : ""}`
+            )}
+          />
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -97,10 +124,9 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.targetRuleLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="target-target-labels">
-          <Flex direction={{ default: "row" }}>
-            {targetParsedLabels
-              .filter(({ labels }) => labels.target.length > 0)
-              .map(({ target, labels }) => (
+          {targetLabels.length > 0 || customTargetLabels.length > 0 ? (
+            <Flex direction={{ default: "row" }}>
+              {targetLabels.map(({ target, labels }) => (
                 <FlexItem key={target.id}>
                   <GroupOfLabels
                     groupName={target.name}
@@ -108,15 +134,18 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
                   />
                 </FlexItem>
               ))}
-            {customRules.customLabels.length > 0 && (
-              <FlexItem key="custom-target-labels">
-                <GroupOfLabels
-                  groupName={t("analysisSteps.review.manualCustomRules")}
-                  items={parseAndGroupLabels(customRules.customLabels).target}
-                />
-              </FlexItem>
-            )}
-          </Flex>
+              {customTargetLabels.length > 0 && (
+                <FlexItem key="custom-target-labels">
+                  <GroupOfLabels
+                    groupName={t("analysisSteps.review.manualCustomRules")}
+                    items={customTargetLabels}
+                  />
+                </FlexItem>
+              )}
+            </Flex>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -124,10 +153,9 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.sourceRuleLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="target-source-labels">
-          <Flex direction={{ default: "row" }}>
-            {targetParsedLabels
-              .filter(({ labels }) => labels.source.length > 0)
-              .map(({ target, labels }) => (
+          {sourceLabels.length > 0 || customSourceLabels.length > 0 ? (
+            <Flex direction={{ default: "row" }}>
+              {sourceLabels.map(({ target, labels }) => (
                 <FlexItem key={target.id}>
                   <GroupOfLabels
                     groupName={target.name}
@@ -135,15 +163,18 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
                   />
                 </FlexItem>
               ))}
-            {customRules.customLabels.length > 0 && (
-              <FlexItem key="custom-source-labels">
-                <GroupOfLabels
-                  groupName={t("analysisSteps.review.manualCustomRules")}
-                  items={parseAndGroupLabels(customRules.customLabels).source}
-                />
-              </FlexItem>
-            )}
-          </Flex>
+              {customSourceLabels.length > 0 && (
+                <FlexItem key="custom-source-labels">
+                  <GroupOfLabels
+                    groupName={t("analysisSteps.review.manualCustomRules")}
+                    items={customSourceLabels}
+                  />
+                </FlexItem>
+              )}
+            </Flex>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
 
@@ -151,13 +182,15 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
       <DescriptionListGroup>
         <DescriptionListTerm>{t("wizard.terms.scope")}</DescriptionListTerm>
         <DescriptionListDescription id="scope">
-          <List isPlain>
-            {scope.withKnownLibs.split(",").map((scopePart, index) => (
-              <ListItem key={index}>
-                {defaultScopes.get(scopePart) ?? scopePart}
-              </ListItem>
-            ))}
-          </List>
+          {scopeParts.length > 0 ? (
+            <List isPlain>
+              {scopeParts.map((scopePart, index) => (
+                <ListItem key={index}>{scopePart}</ListItem>
+              ))}
+            </List>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -167,13 +200,15 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           })}
         </DescriptionListTerm>
         <DescriptionListDescription id="included-packages">
-          <List isPlain>
-            {hasIncludedPackages
-              ? scope.includedPackages.map((pkg, index) => (
-                  <ListItem key={index}>{pkg}</ListItem>
-                ))
-              : null}
-          </List>
+          {scope.includedPackages?.length > 0 ? (
+            <List isPlain>
+              {scope.includedPackages.map((pkg, index) => (
+                <ListItem key={index}>{pkg}</ListItem>
+              ))}
+            </List>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -183,13 +218,15 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           })}
         </DescriptionListTerm>
         <DescriptionListDescription id="excluded-packages">
-          <List isPlain>
-            {scope.hasExcludedPackages
-              ? scope.excludedPackages.map((pkg, index) => (
-                  <ListItem key={index}>{pkg}</ListItem>
-                ))
-              : null}
-          </List>
+          {scope.excludedPackages?.length > 0 ? (
+            <List isPlain>
+              {scope.excludedPackages.map((pkg, index) => (
+                <ListItem key={index}>{pkg}</ListItem>
+              ))}
+            </List>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
 
@@ -209,9 +246,13 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.additionalTargetLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="additional-target-labels">
-          <GroupOfLabels
-            items={labels.additionalTargetLabels.map(parseLabel)}
-          />
+          {labels.additionalTargetLabels.length > 0 ? (
+            <GroupOfLabels
+              items={labels.additionalTargetLabels.map(parseLabel)}
+            />
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -219,9 +260,13 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.additionalSourceLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="additional-source-labels">
-          <GroupOfLabels
-            items={labels.additionalSourceLabels.map(parseLabel)}
-          />
+          {labels.additionalSourceLabels.length > 0 ? (
+            <GroupOfLabels
+              items={labels.additionalSourceLabels.map(parseLabel)}
+            />
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
@@ -231,11 +276,15 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           })}
         </DescriptionListTerm>
         <DescriptionListDescription id="excluded-rules-labels">
-          <LabelGroup numLabels={5}>
-            {labels.excludedLabels.map((tag) => (
-              <Label key={tag}>{tag}</Label>
-            ))}
-          </LabelGroup>
+          {labels.excludedLabels.length > 0 ? (
+            <LabelGroup numLabels={5}>
+              {labels.excludedLabels.map((tag) => (
+                <Label key={tag}>{tag}</Label>
+              ))}
+            </LabelGroup>
+          ) : (
+            <EmptyTextMessage message={t("terms.none")} />
+          )}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </DescriptionList>
@@ -248,11 +297,9 @@ const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
   const { t } = useTranslation();
   if (customRules.rulesKind === "manual") {
     return (
-      <List isPlain>
-        {customRules.customRulesFiles.map((rule, index) => (
-          <ListItem key={index}>{rule.fileName}</ListItem>
-        ))}
-      </List>
+      <StringLabels
+        items={customRules.customRulesFiles?.map((rule) => rule.fileName)}
+      />
     );
   }
   return (
