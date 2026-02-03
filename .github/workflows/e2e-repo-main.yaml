@@ -42,11 +42,8 @@ jobs:
     needs: build-ui-image-if-needed
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      # TEMPORARY: Override to run only metrics test for fix_metrics_url_issue branch
-      # Use github.head_ref for PRs, github.ref_name for direct pushes
-      test_spec: ${{ (github.head_ref == 'fix_metrics_url_issue' || github.ref_name == 'fix_metrics_url_issue') && '**/e2e/tests/custom-metrics/task_metrics.test.ts' || '' }}
-      # TEMPORARY: Commenting out test_tags to prevent default tests from running
-      # test_tags: "@ci,@tier0"
+      # TEMPORARY: HARDCODED to run only metrics test
+      test_spec: ${{ (endsWith(github.head_ref, 'fix_metrics_url_issue') || endsWith(github.ref_name, 'fix_metrics_url_issue')) && '**/e2e/tests/custom-metrics/task_metrics.test.ts' || '' }} # TEMPORARY: Removed test_tags completely to prevent any tag-based tests
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
