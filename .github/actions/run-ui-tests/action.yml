@@ -146,8 +146,9 @@ runs:
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
-        CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-        CYPRESS_EXCLUDE_TAGS: "cf"
+        # TEMPORARY: Disabled tag filtering to run @tier2 metrics test
+        # CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
+        # CYPRESS_EXCLUDE_TAGS: "cf"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
