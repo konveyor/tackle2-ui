@@ -3,11 +3,6 @@ name: e2e - run UI tests on minikube
 on:
   workflow_call: # call from another workflow
     inputs:
-      test_spec:
-        type: string
-        description: Specific test spec to run (overrides test_tags if provided)
-        default: ""
-
       test_tags:
         type: string
         default: "@ci,@tier0"
@@ -184,7 +179,7 @@ jobs:
 
           # Verify metrics endpoint is accessible
           echo "Testing metrics endpoint..."
-          if curl -s http://localhost:2112/metrics | head -10; then
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
             echo "Metrics endpoint test successful"
           else
             echo "Failed to access metrics endpoint"
@@ -204,7 +199,6 @@ jobs:
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          test_spec: ${{ inputs.test_spec }}
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}

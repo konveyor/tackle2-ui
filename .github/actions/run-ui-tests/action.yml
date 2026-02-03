@@ -6,11 +6,6 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
-  test_spec:
-    description: Specific test spec to run (overrides test_tags if provided)
-    required: false
-    default: ""
-
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -137,25 +132,19 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
-        PROVIDED_SPEC: ${{ inputs.test_spec }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
-        if [[ -n "$PROVIDED_SPEC" ]]; then
-          echo "Using provided test spec: $PROVIDED_SPEC"
-          echo "test_spec=${PROVIDED_SPEC}" >> "$GITHUB_ENV"
-        else
-          cd ui-tests/cypress
-          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+        cd ui-tests/cypress
+        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
-          # Exclude rbac tests if auth is not required
-          if [[ "$AUTH_REQUIRED" != "true" ]]; then
-            echo "Auth is disabled - excluding rbac tests"
-            # Filter out any rbac test files from the spec
-            SPEC=$(echo "$SPEC" | tr ',' '\n' | grep -v '/rbac/' | tr '\n' ',' | sed 's/,$//')
-          fi
-
-          echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+        # Exclude rbac tests if auth is not required
+        if [[ "$AUTH_REQUIRED" != "true" ]]; then
+          echo "Auth is disabled - excluding rbac tests"
+          # Filter out any rbac test files from the spec
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | grep -v '/rbac/' | tr '\n' ',' | sed 's/,$//')
         fi
+
+        echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
 
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
