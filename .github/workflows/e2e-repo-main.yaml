@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - main
+      - fix_metrics_url_issue # TEMPORARY: for testing metrics endpoint fix
     paths:
       - "cypress/**"
+      - ".github/workflows/e2e*.yaml" # Also trigger on workflow changes
 
   pull_request:
     branches:

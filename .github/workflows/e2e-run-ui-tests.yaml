@@ -1,15 +1,6 @@
 name: e2e - run UI tests on minikube
 
 on:
-  # TEMPORARY: Run on push to test metrics endpoint fix
-  push:
-    branches:
-      - fix_metrics_url_issue
-
-  pull_request:
-    branches:
-      - fix_metrics_url_issue
-
   workflow_call: # call from another workflow
     inputs:
       test_tags:
