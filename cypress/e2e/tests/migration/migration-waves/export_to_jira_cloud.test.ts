@@ -55,21 +55,6 @@ let projectName = "";
  */
 describe(["@tier2"], "Export Migration Wave to Jira Cloud", function () {
   before("Create test data", function () {
-    // DEBUG: Log Jira configuration values
-    cy.log("DEBUG: Jira Atlassian Cloud Configuration:");
-    cy.log(
-      `jira_atlassian_cloud_project: ${Cypress.env("jira_atlassian_cloud_project")}`
-    );
-    cy.log(
-      `jira_atlassian_cloud_email: ${Cypress.env("jira_atlassian_cloud_email")}`
-    );
-    cy.log(
-      `jira_atlassian_cloud_url: ${Cypress.env("jira_atlassian_cloud_url")}`
-    );
-    cy.log(
-      `jira_atlassian_cloud_token length: ${Cypress.env("jira_atlassian_cloud_token")?.length || 0}`
-    );
-
     if (
       !Cypress.env("jira_atlassian_cloud_project") ||
       !Cypress.env("jira_atlassian_cloud_email") ||

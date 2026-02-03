@@ -135,41 +135,12 @@ jobs:
 
       - name: Get Keycloak admin password
         run: |
-          echo "=== DEBUG: Listing all pods in konveyor-tackle namespace ==="
-          kubectl get pods -n konveyor-tackle
-
-          echo ""
-          echo "=== DEBUG: Listing Keycloak/RHBK/SSO related secrets ==="
-          kubectl get secrets -n konveyor-tackle | grep -E "keycloak|rhbk|sso" || echo "No keycloak/rhbk/sso secrets found"
-
-          echo ""
-          echo "=== DEBUG: Waiting for Keycloak secret... ==="
-          for i in {1..30}; do
-            if kubectl get secret tackle-keycloak-sso -n konveyor-tackle &>/dev/null; then
-              echo "Secret found!"
-              break
-            fi
-            echo "Waiting for secret (attempt $i/30)..."
-            sleep 2
-          done
-
-          echo ""
-          echo "=== DEBUG: Full secret details ==="
-          kubectl get secret tackle-keycloak-sso -n konveyor-tackle -o yaml || echo "ERROR: Secret not found"
-
-          echo ""
-          echo "=== DEBUG: Fetching password from secret ==="
-          # Fetch Keycloak admin password from the secret (key is 'password', not 'ADMIN_PASSWORD')
+          # Fetch Keycloak admin password from the secret
           KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
             -n konveyor-tackle \
             -o jsonpath='{.data.password}' | base64 -d)
 
-          if [ -z "$KEYCLOAK_PASS" ]; then
-            echo "ERROR: Keycloak password is empty"
-            exit 1
-          fi
-
-          echo "Keycloak admin password retrieved (length: ${#KEYCLOAK_PASS})"
+          echo "Keycloak admin password retrieved"
           echo "KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASS}" >>$GITHUB_ENV
 
       - name: Expose metrics endpoint
@@ -230,30 +201,6 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
-      - name: "DEBUG: Check secrets in workflow"
-        run: |
-          echo "=== Workflow Level Debug ==="
-          echo "--- Jira Secrets ---"
-          echo "JIRA_URL length: ${#JIRA_URL}"
-          echo "JIRA_EMAIL length: ${#JIRA_EMAIL}"
-          echo "JIRA_TOKEN length: ${#JIRA_TOKEN}"
-          echo "JIRA_URL is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL != '' }}"
-          echo "JIRA_EMAIL is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL != '' }}"
-          echo "JIRA_TOKEN is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN != '' }}"
-          if [ ${#JIRA_URL} -gt 0 ]; then echo "JIRA_URL first 20 chars: ${JIRA_URL:0:20}"; fi
-          if [ ${#JIRA_EMAIL} -gt 0 ]; then echo "JIRA_EMAIL first 10 chars: ${JIRA_EMAIL:0:10}"; fi
-          echo "--- Git Secrets ---"
-          echo "GIT_USER length: ${#GIT_USER}"
-          echo "GIT_PASSWORD length: ${#GIT_PASSWORD}"
-          echo "GIT_USER is set (expression): ${{ secrets.GIT_USER != '' }}"
-          echo "GIT_PASSWORD is set (expression): ${{ secrets.GIT_PASSWORD != '' }}"
-        env:
-          JIRA_URL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
-          JIRA_EMAIL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
-          JIRA_TOKEN: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
-          GIT_USER: ${{ secrets.GIT_USER }}
-          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
-
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
@@ -262,6 +209,7 @@ jobs:
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
+          feature_auth_required: ${{ inputs.feature_auth_required }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}

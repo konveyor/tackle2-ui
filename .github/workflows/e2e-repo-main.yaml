@@ -4,10 +4,9 @@ on:
   push:
     branches:
       - main
-      - fix_metrics_url_issue # TEMPORARY: for testing metrics endpoint fix
     paths:
       - "cypress/**"
-      - ".github/workflows/e2e*.yaml" # Also trigger on workflow changes
+      - ".github/workflows/e2e*.yaml"
 
   pull_request:
     branches:
@@ -42,9 +41,8 @@ jobs:
     needs: build-ui-image-if-needed
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      # TEMPORARY: Testing RBAC custom rules with Keycloak auth
-      test_spec: "**/e2e/tests/rbac/custom-rules.test.ts"
-      feature_auth_required: true
+      test_tags: "@ci,@tier0"
+      feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
