@@ -140,7 +140,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     mode: "all",
   });
 
-  const selectedKind = useWatch({ name: "kind" });
+  const selectedKind = useWatch({ name: "kind", control });
 
   const getIdentity = (identityName: string | undefined) => {
     const temp = identities.find((identity) => identity.name === identityName);
