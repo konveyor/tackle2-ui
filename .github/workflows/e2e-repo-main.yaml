@@ -9,7 +9,7 @@ on:
       - "cypress/**"
       - ".github/workflows/e2e*.yaml" # Also trigger on workflow changes
 
-  pull_request:
+  pull_request_target:
     branches:
       - main
     paths:
