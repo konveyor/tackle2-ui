@@ -44,7 +44,7 @@ jobs:
     with:
       # TEMPORARY: Testing RBAC custom rules with Keycloak auth
       test_spec: "**/e2e/tests/rbac/custom-rules.test.ts"
-      feature_auth_required: false
+      feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
       test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
