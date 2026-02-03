@@ -201,9 +201,10 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
-      - name: "DEBUG: Check Jira secrets in workflow"
+      - name: "DEBUG: Check secrets in workflow"
         run: |
           echo "=== Workflow Level Debug ==="
+          echo "--- Jira Secrets ---"
           echo "JIRA_URL length: ${#JIRA_URL}"
           echo "JIRA_EMAIL length: ${#JIRA_EMAIL}"
           echo "JIRA_TOKEN length: ${#JIRA_TOKEN}"
@@ -212,10 +213,17 @@ jobs:
           echo "JIRA_TOKEN is set (expression): ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN != '' }}"
           if [ ${#JIRA_URL} -gt 0 ]; then echo "JIRA_URL first 20 chars: ${JIRA_URL:0:20}"; fi
           if [ ${#JIRA_EMAIL} -gt 0 ]; then echo "JIRA_EMAIL first 10 chars: ${JIRA_EMAIL:0:10}"; fi
+          echo "--- Git Secrets ---"
+          echo "GIT_USER length: ${#GIT_USER}"
+          echo "GIT_PASSWORD length: ${#GIT_PASSWORD}"
+          echo "GIT_USER is set (expression): ${{ secrets.GIT_USER != '' }}"
+          echo "GIT_PASSWORD is set (expression): ${{ secrets.GIT_PASSWORD != '' }}"
         env:
           JIRA_URL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
           JIRA_TOKEN: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+          GIT_USER: ${{ secrets.GIT_USER }}
+          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
 
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
