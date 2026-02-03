@@ -135,8 +135,15 @@ jobs:
 
       - name: Get Keycloak admin password
         run: |
-          # Wait for Keycloak secret to be created
-          echo "Waiting for Keycloak secret..."
+          echo "=== DEBUG: Listing all pods in konveyor-tackle namespace ==="
+          kubectl get pods -n konveyor-tackle
+
+          echo ""
+          echo "=== DEBUG: Listing Keycloak/RHBK/SSO related secrets ==="
+          kubectl get secrets -n konveyor-tackle | grep -E "keycloak|rhbk|sso" || echo "No keycloak/rhbk/sso secrets found"
+
+          echo ""
+          echo "=== DEBUG: Waiting for Keycloak secret... ==="
           for i in {1..30}; do
             if kubectl get secret tackle-keycloak-sso -n konveyor-tackle &>/dev/null; then
               echo "Secret found!"
@@ -146,6 +153,12 @@ jobs:
             sleep 2
           done
 
+          echo ""
+          echo "=== DEBUG: Full secret details ==="
+          kubectl get secret tackle-keycloak-sso -n konveyor-tackle -o yaml || echo "ERROR: Secret not found"
+
+          echo ""
+          echo "=== DEBUG: Fetching password from secret ==="
           # Fetch Keycloak admin password from the secret (key is 'password', not 'ADMIN_PASSWORD')
           KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
             -n konveyor-tackle \
@@ -153,7 +166,6 @@ jobs:
 
           if [ -z "$KEYCLOAK_PASS" ]; then
             echo "ERROR: Keycloak password is empty"
-            kubectl get secret tackle-keycloak-sso -n konveyor-tackle -o yaml
             exit 1
           fi
 
