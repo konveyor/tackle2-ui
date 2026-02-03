@@ -6,6 +6,11 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
+  test_spec:
+    description: Specific test spec to run (overrides test_tags if provided)
+    required: false
+    default: ""
+
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -127,10 +132,16 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
+        PROVIDED_SPEC: ${{ inputs.test_spec }}
       run: |
-        cd ui-tests/cypress
-        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-        echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+        if [[ -n "$PROVIDED_SPEC" ]]; then
+          echo "Using provided test spec: $PROVIDED_SPEC"
+          echo "test_spec=${PROVIDED_SPEC}" >> "$GITHUB_ENV"
+        else
+          cd ui-tests/cypress
+          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+          echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+        fi
 
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6

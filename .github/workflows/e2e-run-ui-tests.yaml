@@ -1,6 +1,11 @@
 name: e2e - run UI tests on minikube
 
 on:
+  # TEMPORARY: Run on pull request for testing metrics endpoint fix
+  pull_request:
+    branches:
+      - fix_metrics_url_issue
+
   workflow_call: # call from another workflow
     inputs:
       test_tags:
@@ -127,15 +132,41 @@ jobs:
           HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
           echo "Hub pod: $HUB_POD"
 
+          # Verify metrics endpoint is available inside the pod first
+          echo "Checking if metrics endpoint is available inside the pod..."
+          for i in {1..30}; do
+            if kubectl exec -n konveyor-tackle "$HUB_POD" -- curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Metrics endpoint is available inside the pod"
+              break
+            fi
+            echo "Waiting for metrics endpoint to be available (attempt $i/30)..."
+            sleep 2
+          done
+
           # Port-forward metrics endpoint in the background
           kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
+          PF_PID=$!
 
-          # Wait for port-forward to be ready
-          sleep 5
+          # Wait for port-forward to be ready with retry logic
+          echo "Waiting for port-forward to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Port-forward is ready and metrics endpoint is accessible"
+              break
+            fi
+            echo "Waiting for port-forward (attempt $i/30)..."
+            sleep 2
+          done
 
           # Verify metrics endpoint is accessible
           echo "Testing metrics endpoint..."
-          curl -s http://localhost:2112/metrics | head -10
+          if curl -s http://localhost:2112/metrics | head -10; then
+            echo "Metrics endpoint test successful"
+          else
+            echo "Failed to access metrics endpoint"
+            kubectl logs -n konveyor-tackle "$HUB_POD" --tail=50
+            exit 1
+          fi
 
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
@@ -149,6 +180,8 @@ jobs:
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
+          # TEMPORARY: Override to run only metrics test
+          test_spec: "**/e2e/tests/custom-metrics/task_metrics.test.ts"
           test_tags: ${{ inputs.test_tags }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
