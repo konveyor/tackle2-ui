@@ -3,7 +3,10 @@ import { Bullseye, Spinner } from "@patternfly/react-core";
 
 import { AnalysisProfile } from "@app/api/models";
 
-import { useWizardReducer } from "../profile-wizard/useWizardReducer";
+import {
+  InitialStateRecipe,
+  useWizardReducer,
+} from "../profile-wizard/useWizardReducer";
 import { useWizardStateBuilder } from "../profile-wizard/useWizardStateBuilder";
 
 import { DetailsContent } from "./details-content";
@@ -13,7 +16,7 @@ export const WizardBasedTabDetails: React.FC<{
 }> = ({ analysisProfile }) => {
   const { recipe: initialState, isLoading } =
     useWizardStateBuilder(analysisProfile);
-  const { state } = useWizardReducer(initialState);
+
   if (isLoading) {
     return (
       <Bullseye>
@@ -21,5 +24,17 @@ export const WizardBasedTabDetails: React.FC<{
       </Bullseye>
     );
   }
+  return (
+    <DetailsContentWrapper
+      initialState={initialState}
+      key={`details-content-${analysisProfile.id}-${analysisProfile.name}`}
+    />
+  );
+};
+
+const DetailsContentWrapper: React.FC<{ initialState: InitialStateRecipe }> = ({
+  initialState,
+}) => {
+  const { state } = useWizardReducer(initialState);
   return <DetailsContent state={state} hideName />;
 };

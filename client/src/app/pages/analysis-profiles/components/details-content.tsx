@@ -49,12 +49,10 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const parsedLabels = targets.selectedTargets
-    .map(([target, label]) => ({
-      target,
-      labels: parseAndGroupLabels(label ? [label] : (target.labels ?? [])),
-    }))
-    .filter(({ labels }) => labels.target.length > 0);
+  const parsedLabels = targets.selectedTargets.map(([target, label]) => ({
+    target,
+    labels: parseAndGroupLabels(label ? [label] : (target.labels ?? [])),
+  }));
 
   const targetLabels = parsedLabels.filter(
     ({ labels }) => labels.target.length > 0
@@ -62,12 +60,7 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
   const sourceLabels = parsedLabels.filter(
     ({ labels }) => labels.source.length > 0
   );
-  const customTargetLabels = parseAndGroupLabels(
-    customRules.customLabels
-  ).target;
-  const customSourceLabels = parseAndGroupLabels(
-    customRules.customLabels
-  ).source;
+  const customLabels = parseAndGroupLabels(customRules.customLabels);
 
   const scopeParts =
     scope.withKnownLibs
@@ -124,7 +117,7 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.targetRuleLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="target-target-labels">
-          {targetLabels.length > 0 || customTargetLabels.length > 0 ? (
+          {targetLabels.length > 0 || customLabels.target.length > 0 ? (
             <Flex direction={{ default: "row" }}>
               {targetLabels.map(({ target, labels }) => (
                 <FlexItem key={target.id}>
@@ -134,11 +127,11 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
                   />
                 </FlexItem>
               ))}
-              {customTargetLabels.length > 0 && (
+              {customLabels.target.length > 0 && (
                 <FlexItem key="custom-target-labels">
                   <GroupOfLabels
                     groupName={t("analysisSteps.review.manualCustomRules")}
-                    items={customTargetLabels}
+                    items={customLabels.target}
                   />
                 </FlexItem>
               )}
@@ -153,7 +146,7 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
           {t("analysisSteps.review.sourceRuleLabels")}
         </DescriptionListTerm>
         <DescriptionListDescription id="target-source-labels">
-          {sourceLabels.length > 0 || customSourceLabels.length > 0 ? (
+          {sourceLabels.length > 0 || customLabels.source.length > 0 ? (
             <Flex direction={{ default: "row" }}>
               {sourceLabels.map(({ target, labels }) => (
                 <FlexItem key={target.id}>
@@ -163,11 +156,11 @@ export const DetailsContent: React.FC<DetailsContentProps> = ({
                   />
                 </FlexItem>
               ))}
-              {customSourceLabels.length > 0 && (
+              {customLabels.source.length > 0 && (
                 <FlexItem key="custom-source-labels">
                   <GroupOfLabels
                     groupName={t("analysisSteps.review.manualCustomRules")}
-                    items={customSourceLabels}
+                    items={customLabels.source}
                   />
                 </FlexItem>
               )}
