@@ -177,6 +177,19 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
+      - name: "DEBUG: Check Jira secrets"
+        run: |
+          echo "JIRA_ATLASSIAN_CLOUD_URL length: ${#JIRA_URL}"
+          echo "JIRA_ATLASSIAN_CLOUD_EMAIL length: ${#JIRA_EMAIL}"
+          echo "JIRA_ATLASSIAN_CLOUD_TOKEN length: ${#JIRA_TOKEN}"
+          echo "JIRA_URL is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL != '' }}"
+          echo "JIRA_EMAIL is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL != '' }}"
+          echo "JIRA_TOKEN is set: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN != '' }}"
+        env:
+          JIRA_URL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:

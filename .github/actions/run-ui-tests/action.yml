@@ -143,6 +143,19 @@ runs:
           echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
         fi
 
+    - name: "DEBUG: Check Jira inputs in action"
+      shell: bash
+      run: |
+        echo "jira_atlassian_cloud_url length: ${#JIRA_URL}"
+        echo "jira_atlassian_cloud_email length: ${#JIRA_EMAIL}"
+        echo "jira_atlassian_cloud_token length: ${#JIRA_TOKEN}"
+        echo "First 10 chars of URL: ${JIRA_URL:0:10}"
+        echo "First 10 chars of email: ${JIRA_EMAIL:0:10}"
+      env:
+        JIRA_URL: ${{ inputs.jira_atlassian_cloud_url }}
+        JIRA_EMAIL: ${{ inputs.jira_atlassian_cloud_email }}
+        JIRA_TOKEN: ${{ inputs.jira_atlassian_cloud_token }}
+
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:

@@ -1943,13 +1943,27 @@ export function getNamespace(): string {
   }
 }
 
+/**
+ * Determines which Kubernetes CLI to use based on environment
+ * Returns 'oc' for downstream (OpenShift/MTA) or 'kubectl' for upstream (Konveyor)
+ */
+function getKubernetesCLI(): string {
+  const baseUrl = Cypress.config("baseUrl") || "";
+  if (baseUrl.includes("mta-openshift")) {
+    return "oc";
+  }
+  return "kubectl";
+}
+
 export function patchTackleCR(option: string, isEnabled = true): void {
   const value = isEnabled ? "true" : "false";
   let command = "";
   const namespace = getNamespace();
-  const tackleCr = `tackle=$(oc get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
+  const kubeCLI = getKubernetesCLI();
+
+  const tackleCr = `tackle=$(${kubeCLI} get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
   command += tackleCr;
-  command += "oc patch tackle ";
+  command += `${kubeCLI} patch tackle `;
   command += "$tackle ";
   command += `-n${namespace} `;
   command += "--type merge ";
@@ -1960,6 +1974,8 @@ export function patchTackleCR(option: string, isEnabled = true): void {
   } else if (option == "metrics") {
     command += `--patch '{"spec":{"hub_metrics_enabled": ${value}}}'`;
   }
+
+  cy.log(`Using ${kubeCLI} to patch Tackle CR`);
   cy.exec(command).then((result) => {
     cy.log(result.stderr);
   });

@@ -42,8 +42,8 @@ jobs:
     needs: build-ui-image-if-needed
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      # TEMPORARY: HARDCODED to run only metrics test
-      test_spec: ${{ (endsWith(github.head_ref, 'fix_metrics_url_issue') || endsWith(github.ref_name, 'fix_metrics_url_issue')) && '**/e2e/tests/custom-metrics/task_metrics.test.ts' || '' }} # TEMPORARY: Removed test_tags completely to prevent any tag-based tests
+      # TEMPORARY: Testing maven repository test to verify oc/kubectl fix and Jira export test
+      test_spec: "**/e2e/tests/administration/repository/maven.test.ts,**/e2e/tests/migration/migration-waves/export_to_jira_cloud.test.ts"
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: ${{ github.base_ref || github.ref_name }}
