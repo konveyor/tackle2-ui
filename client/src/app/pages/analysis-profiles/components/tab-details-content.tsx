@@ -6,8 +6,6 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Label,
-  LabelGroup,
   Text,
 } from "@patternfly/react-core";
 
@@ -20,26 +18,7 @@ import {
 } from "@app/components/detail-drawer";
 import { useFetchTargets } from "@app/queries/targets";
 
-/** Helper to display a list of string labels */
-const StringLabels: React.FC<{ items?: string[]; color?: string }> = ({
-  items,
-  color = "grey",
-}) => {
-  const { t } = useTranslation();
-
-  if (items && items.length > 0) {
-    return (
-      <LabelGroup>
-        {items.map((item, index) => (
-          <Label key={index} color={color as "grey" | "blue" | "green"}>
-            {item}
-          </Label>
-        ))}
-      </LabelGroup>
-    );
-  }
-  return <EmptyTextMessage message={t("terms.none")} />;
-};
+import { StringLabels } from "./string-labels";
 
 /** Display targets with their resolved names */
 // TODO: Better display of targets and with their labels
@@ -73,35 +52,26 @@ const TargetsList: React.FC<{
   }
 
   return (
-    <LabelGroup>
-      {resolvedTargets.map((target) => (
-        <Label key={target.id} color="blue">
-          {target.name}
-          {target.provider && ` (${target.provider})`}
-          {target.selection && ` (${target.selection})`}
-        </Label>
-      ))}
-    </LabelGroup>
+    <StringLabels
+      overflowLabelCount={3}
+      color="blue"
+      items={resolvedTargets.map(
+        (target) =>
+          `${target.name}${target.provider ? ` (${target.provider})` : ""}${target.selection ? ` (${target.selection})` : ""}`
+      )}
+    />
   );
 };
 
 // TODO: Better display of files (more info than just the name from the Ref)
 const FilesList: React.FC<{ fileRefs?: Ref[] }> = ({ fileRefs }) => {
-  const { t } = useTranslation();
   // const { files } = useFetchFiles();
 
-  if (!fileRefs || fileRefs.length === 0) {
-    return <EmptyTextMessage message={t("terms.none")} />;
-  }
-
   return (
-    <LabelGroup>
-      {fileRefs.map((fileRef) => (
-        <Label key={fileRef.id} color="grey">
-          {fileRef.name}
-        </Label>
-      ))}
-    </LabelGroup>
+    <StringLabels
+      items={fileRefs?.map((fileRef) => fileRef.name) ?? []}
+      overflowLabelCount={3}
+    />
   );
 };
 
@@ -175,14 +145,11 @@ export const TabDetailsContent: React.FC<{
               {t("terms.packagesIncluded")}
             </DescriptionListTerm>
             <DescriptionListDescription>
-              {(analysisProfile.scope?.packages?.included?.length ?? 0) > 0 ? (
-                <StringLabels
-                  items={analysisProfile.scope?.packages?.included}
-                  color="green"
-                />
-              ) : (
-                <EmptyTextMessage message={t("analysisProfiles.none")} />
-              )}
+              <StringLabels
+                items={analysisProfile.scope?.packages?.included}
+                color="green"
+                overflowLabelCount={3}
+              />
             </DescriptionListDescription>
           </DescriptionListGroup>
 
@@ -191,14 +158,11 @@ export const TabDetailsContent: React.FC<{
               {t("terms.packagesExcluded")}
             </DescriptionListTerm>
             <DescriptionListDescription>
-              {(analysisProfile.scope?.packages?.excluded?.length ?? 0) > 0 ? (
-                <StringLabels
-                  items={analysisProfile.scope?.packages?.excluded}
-                  color="grey"
-                />
-              ) : (
-                <EmptyTextMessage message={t("analysisProfiles.none")} />
-              )}
+              <StringLabels
+                items={analysisProfile.scope?.packages?.excluded}
+                color="grey"
+                overflowLabelCount={3}
+              />
             </DescriptionListDescription>
           </DescriptionListGroup>
         </CompactDescriptionList>
@@ -208,11 +172,7 @@ export const TabDetailsContent: React.FC<{
       <DrawerTabContentSection
         label={t("analysisProfiles.sectionRulesTargets")}
       >
-        {analysisProfile.rules?.targets ? (
-          <TargetsList targetRefs={analysisProfile.rules?.targets} />
-        ) : (
-          <EmptyTextMessage />
-        )}
+        <TargetsList targetRefs={analysisProfile.rules?.targets} />
       </DrawerTabContentSection>
 
       {/* Rules - Repository */}
@@ -228,11 +188,7 @@ export const TabDetailsContent: React.FC<{
 
       {/* Rules - Files */}
       <DrawerTabContentSection label={t("analysisProfiles.sectionRulesFiles")}>
-        {analysisProfile.rules?.files ? (
-          <FilesList fileRefs={analysisProfile.rules?.files} />
-        ) : (
-          <EmptyTextMessage message={t("analysisProfiles.none")} />
-        )}
+        <FilesList fileRefs={analysisProfile.rules?.files} />
       </DrawerTabContentSection>
 
       {/* Rules - Labels */}
@@ -241,21 +197,21 @@ export const TabDetailsContent: React.FC<{
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.included")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {ruleLabelsIncluded.length > 0 ? (
-                <StringLabels items={ruleLabelsIncluded} color="green" />
-              ) : (
-                <EmptyTextMessage message={t("analysisProfiles.none")} />
-              )}
+              <StringLabels
+                items={ruleLabelsIncluded}
+                color="green"
+                overflowLabelCount={3}
+              />
             </DescriptionListDescription>
           </DescriptionListGroup>
           <DescriptionListGroup>
             <DescriptionListTerm>{t("terms.excluded")}</DescriptionListTerm>
             <DescriptionListDescription>
-              {ruleLabelsExcluded.length > 0 ? (
-                <StringLabels items={ruleLabelsExcluded} color="grey" />
-              ) : (
-                <EmptyTextMessage message={t("analysisProfiles.none")} />
-              )}
+              <StringLabels
+                items={ruleLabelsExcluded}
+                color="grey"
+                overflowLabelCount={3}
+              />
             </DescriptionListDescription>
           </DescriptionListGroup>
         </CompactDescriptionList>

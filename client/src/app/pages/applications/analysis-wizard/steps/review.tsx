@@ -239,7 +239,9 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Target rule labels</DescriptionListTerm>
+          <DescriptionListTerm>
+            {t("analysisSteps.review.targetRuleLabels")}
+          </DescriptionListTerm>
           <DescriptionListDescription id="target-target-labels">
             <Flex direction={{ default: "row" }}>
               {targetParsedLabels
@@ -255,7 +257,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
               {customRules.customLabels.length > 0 && (
                 <FlexItem key="custom-target-labels">
                   <GroupOfLabels
-                    groupName="Manual custom rules"
+                    groupName={t("analysisSteps.review.manualCustomRules")}
                     items={parseAndGroupLabels(customRules.customLabels).target}
                   />
                 </FlexItem>
@@ -264,7 +266,9 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Source rule labels</DescriptionListTerm>
+          <DescriptionListTerm>
+            {t("analysisSteps.review.sourceRuleLabels")}
+          </DescriptionListTerm>
           <DescriptionListDescription id="target-source-labels">
             <Flex direction={{ default: "row" }}>
               {targetParsedLabels
@@ -280,7 +284,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
               {customRules.customLabels.length > 0 && (
                 <FlexItem key="custom-source-labels">
                   <GroupOfLabels
-                    groupName="Manual custom rules"
+                    groupName={t("analysisSteps.review.manualCustomRules")}
                     items={parseAndGroupLabels(customRules.customLabels).source}
                   />
                 </FlexItem>
@@ -345,7 +349,9 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
 
         {/* Advanced options */}
         <DescriptionListGroup>
-          <DescriptionListTerm>Additional target labels</DescriptionListTerm>
+          <DescriptionListTerm>
+            {t("analysisSteps.review.additionalTargetLabels")}
+          </DescriptionListTerm>
           <DescriptionListDescription id="additional-target-labels">
             <GroupOfLabels
               items={options.additionalTargetLabels.map(parseLabel)}
@@ -353,7 +359,9 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
           </DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
-          <DescriptionListTerm>Additional source labels</DescriptionListTerm>
+          <DescriptionListTerm>
+            {t("analysisSteps.review.additionalSourceLabels")}
+          </DescriptionListTerm>
           <DescriptionListDescription id="additional-source-labels">
             <GroupOfLabels
               items={options.additionalSourceLabels.map(parseLabel)}
@@ -414,6 +422,7 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
 const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
   customRules,
 }) => {
+  const { t } = useTranslation();
   if (customRules.rulesKind === "manual") {
     return (
       <List isPlain>
@@ -426,25 +435,27 @@ const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
   return (
     <DescriptionList isHorizontal>
       <DescriptionListGroup>
-        <DescriptionListTerm>Source repository</DescriptionListTerm>
+        <DescriptionListTerm>{t("terms.sourceRepo")}</DescriptionListTerm>
         <DescriptionListDescription id="source-repository">
           {customRules.sourceRepository}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>Branch</DescriptionListTerm>
+        <DescriptionListTerm>{t("terms.branch")}</DescriptionListTerm>
         <DescriptionListDescription id="branch">
           {customRules.branch}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>Root path</DescriptionListTerm>
+        <DescriptionListTerm>{t("terms.rootPath")}</DescriptionListTerm>
         <DescriptionListDescription id="root-path">
           {customRules.rootPath}
         </DescriptionListDescription>
       </DescriptionListGroup>
       <DescriptionListGroup>
-        <DescriptionListTerm>Associated credentials</DescriptionListTerm>
+        <DescriptionListTerm>
+          {t("analysisSteps.labels.associatedCredentials")}
+        </DescriptionListTerm>
         <DescriptionListDescription id="associated-credentials">
           {customRules.associatedCredentials}
         </DescriptionListDescription>
