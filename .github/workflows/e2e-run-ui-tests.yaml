@@ -100,6 +100,10 @@ jobs:
           # Start minikube with main profile
           minikube start --driver=docker --memory=max --cpus=max
 
+          echo "--- Minikube Status ---"
+          minikube profile list
+          minikube status
+
           # Set kubectl context
           kubectl config use-context ${MINIKUBE_PROFILE}
 
@@ -112,6 +116,12 @@ jobs:
           kubectl wait --for=condition=Ready node/${MINIKUBE_PROFILE} --timeout=300s
 
           kubectl cluster-info
+          echo "--- Kubectl Context ---"
+          kubectl config current-context
+
+          echo "--- Cluster Nodes ---"
+          # This will confirm if the node is named 'main' or 'minikube'
+          kubectl get nodes
 
       - name: Checkout the operator so we can pick the install-konveyor version to use dynamically
         uses: actions/checkout@v6
@@ -145,6 +155,12 @@ jobs:
           minikube_ip=$(minikube ip)
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
+          echo "--- Kubectl Context ---"
+          kubectl config current-context
+
+          echo "--- Cluster Nodes ---"
+          # This will confirm if the node is named 'main' or 'minikube'
+          kubectl get nodes
 
       - name: Get Keycloak admin password
         if: ${{ inputs.feature_auth_required }}
@@ -234,6 +250,15 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
+      - name: Debug Cluster State
+        run: |
+          echo "--- Current Minikube Profile ---"
+          echo $MINIKUBE_PROFILE
+          echo "--- Kubectl Context ---"
+          kubectl config current-context
+          echo "--- Nodes ---"
+          kubectl get nodes
+
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
@@ -257,3 +282,15 @@ jobs:
           jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
           jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
           jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+
+      - name: Debug on Failure
+        if: failure()
+        run: |
+          echo "Tests failed! Checking cluster state..."
+          kubectl config current-context
+          kubectl get nodes
+          echo "Checking for Pod errors in konveyor-tackle..."
+          kubectl get pods -n konveyor-tackle
+          # This helps find that 'waiting for secret' issue:
+          kubectl describe pods -l app.kubernetes.io/part-of=tackle -n konveyor-tackle | grep -i "Events\|Error\|Secret"
+          kubectl get secrets --all-namespaces
