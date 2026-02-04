@@ -6,6 +6,10 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
+  test_spec:
+    description: Comma separated list of test file paths to run (overrides test_tags)
+    default: ""
+
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -122,17 +126,24 @@ runs:
         spec: "**/e2e/tests/login.test.ts"
         summary-title: "Login tests"
 
-    - name: Build test spec from test tags
+    - name: Build test spec from test tags or use provided spec
       id: build-test-spec
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
+        TEST_SPEC: ${{ inputs.test_spec }}
       run: |
         cd ui-tests/cypress
-        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-        echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+        if [ -n "$TEST_SPEC" ]; then
+          echo "test_spec=${TEST_SPEC}" >> "$GITHUB_ENV"
+          echo "selection_mode=custom-paths" >> "$GITHUB_ENV"
+        else
+          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+          echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+          echo "selection_mode=tags" >> "$GITHUB_ENV"
+        fi
 
-    - name: "Run UI tests (${{ inputs.test_tags }})"
+    - name: "Run UI tests (${{ env.selection_mode == 'custom-paths' && 'custom paths' || inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
@@ -159,7 +170,7 @@ runs:
         working-directory: ./ui-tests
         project: ./cypress
         spec: "${{ env.test_spec }}"
-        summary-title: "UI tests (${{ inputs.test_tags }})"
+        summary-title: "UI tests (${{ env.selection_mode == 'custom-paths' && 'custom paths' || inputs.test_tags }})"
 
     - name: Generate bug summary
       if: always()

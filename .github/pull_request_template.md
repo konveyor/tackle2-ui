@@ -28,3 +28,25 @@ GitHub well, we prefer to standardize on the alias.
 </details>
 
 For more information, please see the Konveyor [Versioning Doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md).
+
+---
+
+## Custom Test Selection (Optional)
+
+You can specify custom test paths to run in CI instead of the default @ci tests. Add paths below using glob patterns:
+
+<!--
+Uncomment and add your test paths below to run specific tests:
+
+test-paths:
+administration/credentials/*.test.ts
+migration/controls/**/*.test.ts
+administration/credentials/maven_crud.test.ts
+
+Supported formats:
+- Specific file: administration/credentials/maven_crud.test.ts
+- Folder (non-recursive): administration/credentials/*.test.ts
+- Folder (recursive): migration/**/*.test.ts
+
+If no test-paths are specified, the default @ci tagged tests will run.
+-->
