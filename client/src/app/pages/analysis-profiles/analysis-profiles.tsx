@@ -277,26 +277,30 @@ export const AnalysisProfiles: React.FC = () => {
                       >
                         {profile.description || "-"}
                       </Td>
-                      <Td isActionCell id={`pencil-action-${profile.id}`}>
-                        <Tooltip content={t("actions.edit")}>
-                          <Button
-                            variant="plain"
-                            icon={<PencilAltIcon />}
-                            onClick={() => setProfileToEdit(profile)}
+                      {isArchitect && (
+                        <Td isActionCell id={`pencil-action-${profile.id}`}>
+                          <Tooltip content={t("actions.edit")}>
+                            <Button
+                              variant="plain"
+                              icon={<PencilAltIcon />}
+                              onClick={() => setProfileToEdit(profile)}
+                            />
+                          </Tooltip>
+                        </Td>
+                      )}
+                      {isArchitect && (
+                        <Td isActionCell id={`row-actions-${profile.id}`}>
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => setProfileToDelete(profile),
+                                isDanger: true,
+                              },
+                            ]}
                           />
-                        </Tooltip>
-                      </Td>
-                      <Td isActionCell id={`row-actions-${profile.id}`}>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => setProfileToDelete(profile),
-                              isDanger: true,
-                            },
-                          ]}
-                        />
-                      </Td>
+                        </Td>
+                      )}
                     </TableRowContentWithControls>
                   </Tr>
                 ))}
