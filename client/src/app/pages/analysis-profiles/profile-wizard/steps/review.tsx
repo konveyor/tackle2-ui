@@ -5,7 +5,7 @@ import { Text, TextContent, Title } from "@patternfly/react-core";
 import {
   DetailsContent,
   DetailsContentProps,
-} from "../../components/details-content";
+} from "@app/pages/analysis-profiles/components/details-content";
 
 export const Review: React.FC<DetailsContentProps> = ({ state }) => {
   const { t } = useTranslation();

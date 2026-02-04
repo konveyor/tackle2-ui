@@ -1,4 +1,5 @@
 import * as React from "react";
+import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import {
   DescriptionList,
@@ -21,8 +22,7 @@ import { parseAndGroupLabels, parseLabel } from "@app/utils/rules-utils";
 
 import { WizardState } from "../profile-wizard/useWizardReducer";
 
-import { StringLabels } from "./tab-details-content";
-import { TFunction } from "i18next";
+import { StringLabels } from "./string-labels";
 
 export interface DetailsContentProps {
   state: WizardState;
@@ -322,9 +322,7 @@ const ReviewCustomRules: React.FC<{ customRules: CustomRulesStepState }> = ({
       </DescriptionListGroup>
       <DescriptionListGroup>
         <DescriptionListTerm>
-          {t("analysisSteps.labels.associatedCredentials") || (
-            <EmptyTextMessage />
-          )}
+          {t("analysisSteps.labels.associatedCredentials")}
         </DescriptionListTerm>
         <DescriptionListDescription id="associated-credentials">
           {customRules.associatedCredentials || <EmptyTextMessage />}

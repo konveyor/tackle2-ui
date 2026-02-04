@@ -6,8 +6,6 @@ import {
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Label,
-  LabelGroup,
   Text,
 } from "@patternfly/react-core";
 
@@ -20,27 +18,7 @@ import {
 } from "@app/components/detail-drawer";
 import { useFetchTargets } from "@app/queries/targets";
 
-/** Helper to display a list of string labels */
-export const StringLabels: React.FC<{
-  items?: string[];
-  color?: "grey" | "blue" | "green";
-  overflowLabelCount?: number;
-}> = ({ items, color = "grey", overflowLabelCount }) => {
-  const { t } = useTranslation();
-
-  if (items && items.length > 0) {
-    return (
-      <LabelGroup numLabels={overflowLabelCount ?? items.length}>
-        {items.map((item) => (
-          <Label key={item} color={color}>
-            {item}
-          </Label>
-        ))}
-      </LabelGroup>
-    );
-  }
-  return <EmptyTextMessage message={t("terms.none")} />;
-};
+import { StringLabels } from "./string-labels";
 
 /** Display targets with their resolved names */
 // TODO: Better display of targets and with their labels
