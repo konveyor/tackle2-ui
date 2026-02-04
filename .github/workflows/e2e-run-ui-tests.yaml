@@ -235,6 +235,7 @@ jobs:
       - name: "Checkout the repo (ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }})"
         uses: actions/checkout@v6
         with:
+          repository: ${{ github.event_name == 'pull_request' && 'sshveta/tackle2-ui' || 'konveyor/tackle2-ui' }}
           ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
           path: tackle2-ui
 
