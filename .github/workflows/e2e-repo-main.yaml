@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - "cypress/**"
-      - ".github/workflows/e2e*.yaml"
 
   pull_request:
     branches:
