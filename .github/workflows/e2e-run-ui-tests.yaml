@@ -101,7 +101,7 @@ jobs:
           minikube start --driver=docker --memory=max --cpus=max
 
           # Set kubectl context
-          kubectl config use-context ${profile}
+          kubectl config use-context ${MINIKUBE_PROFILE}
 
           # Enable required addons
           minikube addons enable ingress
