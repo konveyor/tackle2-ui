@@ -51,6 +51,10 @@ on:
       JIRA_ATLASSIAN_CLOUD_TOKEN:
         required: false
 
+  pull_request: # run on pull request pushes
+    branches:
+      - "**"
+
   workflow_dispatch: # start from GitHub UI or API
     inputs:
       test_tags:
@@ -89,29 +93,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup minikube
-        uses: konveyor/operator/.github/actions/start-minikube@main
-        with:
-          memory: "max"
-          cpus: "max"
-
-      - name: Set kubectl context to minikube
+      - name: Setup minikube with main profile
         run: |
-          echo "Setting kubectl context to Minikube"
-          kubectl config use-context minikube
+          profile="main"
+          minikube="minikube -p ${profile}"
+          memory=20480
+          cpu=4
+
+          # Start minikube with main profile
+          ${minikube} start --driver=docker --memory=${memory} --cpus=${cpu}
+
+          # Set kubectl context
+          kubectl config use-context ${profile}
+
+          # Enable required addons
+          ${minikube} addons enable ingress
+          ${minikube} addons enable olm
+          ${minikube} addons enable metrics-server
+
+          # Wait for cluster to be ready
+          kubectl wait --for=condition=Ready node/${profile} --timeout=300s
+
           kubectl cluster-info
 
       - name: Checkout the operator so we can pick the install-konveyor version to use dynamically
         uses: actions/checkout@v6
         with:
           repository: konveyor/operator
-          ref: ${{ inputs.install_konveyor_version }}
+          ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.install_konveyor_version }}
           path: konveyor-operator
 
-      - name: "Install konveyor using ${{ inputs.install_konveyor_version }}"
+      - name: "Install konveyor using ${{ github.event_name == 'pull_request' && 'main' || inputs.install_konveyor_version }}"
         uses: ./konveyor-operator/.github/actions/install-konveyor
         with:
-          bundle_image: ${{ inputs.bundle_image }}
+          bundle_image: ${{ github.event_name == 'pull_request' && 'quay.io/konveyor/tackle2-operator-bundle:latest' || inputs.bundle_image }}
           tackle_cr: |
             kind: Tackle
             apiVersion: tackle.konveyor.io/v1alpha1
@@ -119,18 +134,21 @@ jobs:
               name: tackle
             spec:
               image_pull_policy: IfNotPresent
-              feature_auth_required: ${{ inputs.feature_auth_required }}
-              ui_image_fqin: ${{ inputs.ui_image }}
+              feature_auth_required: ${{ github.event_name == 'pull_request' && 'false' || inputs.feature_auth_required }}
+              ui_image_fqin: ${{ github.event_name == 'pull_request' && 'quay.io/konveyor/tackle2-ui:latest' || inputs.ui_image }}
 
       - name: Wait for Ingress
         run: |
+          profile="main"
+          minikube="minikube -p ${profile}"
+
           kubectl wait \
             -n konveyor-tackle \
             ingress/tackle \
             --timeout=600s \
             --for=jsonpath='{.status.loadBalancer.ingress[0]}'
 
-          minikube_ip=$(minikube ip)
+          minikube_ip=$(${minikube} ip)
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
@@ -216,21 +234,22 @@ jobs:
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
 
-      - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
+      - name: "Checkout the repo (ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }})"
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.test_ref }}
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
           path: tackle2-ui
 
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          test_tags: ${{ inputs.test_tags }}
-          tests_ref: ${{ inputs.test_ref }}
+          test_tags: ${{ github.event_name == 'pull_request' && '' || inputs.test_tags }}
+          tests_ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
-          feature_auth_required: ${{ inputs.feature_auth_required }}
+          feature_auth_required: ${{ github.event_name == 'pull_request' && 'false' || inputs.feature_auth_required }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
+          test_spec: ${{ github.event_name == 'pull_request' && '**/e2e/tests/migration/applicationinventory/applications/language_discovery.test.ts' || '' }}
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
           git_user: ${{ secrets.GIT_USER }}
