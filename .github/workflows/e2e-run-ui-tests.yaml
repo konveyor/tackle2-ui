@@ -97,11 +97,9 @@ jobs:
         run: |
           profile="main"
           minikube="minikube -p ${profile}"
-          memory=20480
-          cpu=4
 
           # Start minikube with main profile
-          ${minikube} start --driver=docker --memory=${memory} --cpus=${cpu}
+          ${minikube} start --driver=docker --memory=max --cpus=max
 
           # Set kubectl context
           kubectl config use-context ${profile}
