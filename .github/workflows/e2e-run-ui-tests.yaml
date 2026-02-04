@@ -91,26 +91,25 @@ jobs:
   run-test:
     name: "Run tests - ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}, test: ${{ inputs.test_ref }}, tags: ${{ inputs.test_tags }}"
     runs-on: ubuntu-latest
+    env:
+      MINIKUBE_PROFILE: main
 
     steps:
       - name: Setup minikube with main profile
         run: |
-          profile="main"
-          minikube="minikube -p ${profile}"
-
           # Start minikube with main profile
-          ${minikube} start --driver=docker --memory=max --cpus=max
+          minikube start --driver=docker --memory=max --cpus=max
 
           # Set kubectl context
           kubectl config use-context ${profile}
 
           # Enable required addons
-          ${minikube} addons enable ingress
-          ${minikube} addons enable olm
-          ${minikube} addons enable metrics-server
+          minikube addons enable ingress
+          minikube addons enable olm
+          minikube addons enable metrics-server
 
           # Wait for cluster to be ready
-          kubectl wait --for=condition=Ready node/${profile} --timeout=300s
+          kubectl wait --for=condition=Ready node/${MINIKUBE_PROFILE} --timeout=300s
 
           kubectl cluster-info
 
@@ -132,21 +131,18 @@ jobs:
               name: tackle
             spec:
               image_pull_policy: IfNotPresent
-              feature_auth_required: ${{ github.event_name == 'pull_request' && 'false' || inputs.feature_auth_required }}
+              feature_auth_required: ${{ github.event_name == 'pull_request' && 'true' || inputs.feature_auth_required }}
               ui_image_fqin: ${{ github.event_name == 'pull_request' && 'quay.io/konveyor/tackle2-ui:latest' || inputs.ui_image }}
 
       - name: Wait for Ingress
         run: |
-          profile="main"
-          minikube="minikube -p ${profile}"
-
           kubectl wait \
             -n konveyor-tackle \
             ingress/tackle \
             --timeout=600s \
             --for=jsonpath='{.status.loadBalancer.ingress[0]}'
 
-          minikube_ip=$(${minikube} ip)
+          minikube_ip=$(minikube ip)
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
@@ -245,7 +241,7 @@ jobs:
           tests_ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
-          feature_auth_required: ${{ github.event_name == 'pull_request' && 'false' || inputs.feature_auth_required }}
+          feature_auth_required: ${{ github.event_name == 'pull_request' && 'true' || inputs.feature_auth_required }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
           test_spec: ${{ github.event_name == 'pull_request' && '**/e2e/tests/migration/applicationinventory/applications/language_discovery.test.ts' || '' }}
           # Pass credentials as inputs
