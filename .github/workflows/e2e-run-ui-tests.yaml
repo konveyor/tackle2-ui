@@ -232,17 +232,16 @@ jobs:
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
 
-      - name: "Checkout the repo (ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }})"
+      - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v6
         with:
-          repository: ${{ github.event_name == 'pull_request' && 'sshveta/tackle2-ui' || 'konveyor/tackle2-ui' }}
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
+          ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
-          test_tags: ${{ github.event_name == 'pull_request' && '' || inputs.test_tags }}
+          test_tags: ${{ github.event_name == 'pull_request' && '@tier2' || inputs.test_tags }}
           tests_ref: ${{ github.event_name == 'pull_request' && github.head_ref || inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
