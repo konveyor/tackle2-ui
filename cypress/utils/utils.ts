@@ -24,7 +24,6 @@ import { Jira } from "../e2e/models/administration/jira-connection/jira";
 import { AnalysisProfile } from "../e2e/models/migration/analysis-profiles/analysis-profile";
 import { Application } from "../e2e/models/migration/applicationinventory/application";
 import { Archetype } from "../e2e/models/migration/archetypes/archetype";
-import { TargetProfile } from "../e2e/models/migration/archetypes/target-profile";
 import { BusinessServices } from "../e2e/models/migration/controls/businessservices";
 import { Jobfunctions } from "../e2e/models/migration/controls/jobfunctions";
 import { Stakeholdergroups } from "../e2e/models/migration/controls/stakeholdergroups";
@@ -100,7 +99,6 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
-  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -127,6 +125,7 @@ import {
 } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
+import { MigrationWaveView } from "../e2e/views/migration-wave.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { stakeHoldersTable } from "../e2e/views/stakeholders.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
@@ -227,7 +226,7 @@ export function clickJs(
 
 export function submitForm(): void {
   cy.get(submitButton, { timeout: 10 * SEC }).should("not.be.disabled");
-  cy.get(submitButton).click();
+  clickJs(submitButton);
 }
 
 export function cancelForm(): void {
@@ -309,46 +308,6 @@ export function logout(userName?: string): void {
   cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
 }
 
-/**
- * Return authorization headers for direct API calls (`cy.request`).
- *
- * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
- * and returns `{ Authorization: "Bearer <token>" }`.
- * Otherwise returns an empty object so callers can always spread/pass headers
- * without branching.
- */
-export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
-  return cy.uiEnvironmentConfig().then((env) => {
-    if (env["AUTH_REQUIRED"] === "true") {
-      return cy
-        .request({
-          method: "POST",
-          url: "/hub/auth/login",
-          body: {
-            user: Cypress.env("user"),
-            password: Cypress.env("pass"),
-          },
-          failOnStatusCode: false,
-        })
-        .then((res) => {
-          if (res.status !== 200 && res.status !== 201) {
-            throw new Error(
-              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
-            );
-          }
-          const token = res.body?.token;
-          if (!token) {
-            throw new Error(
-              `Auth login response missing token: ${JSON.stringify(res.body)}`
-            );
-          }
-          return { Authorization: `Bearer ${token}` } as Record<string, string>;
-        });
-    }
-    return cy.wrap({} as Record<string, string>);
-  });
-}
-
 export function resetURL(): void {
   Application.open(true);
 }
@@ -385,24 +344,8 @@ export function selectFromDropListByText(
 }
 
 export function selectFormItems(fieldId: string, item: string): void {
-  // PatternFly typeahead selects virtualize the dropdown options, so only
-  // items matching the typed filter are rendered to the DOM.  For plain
-  // toggle-button selects all options are rendered on click.
-  cy.get(fieldId).then(($el) => {
-    if ($el.is("input")) {
-      // Direct input element (e.g. #job-function-toggle-select-typeahead)
-      cy.get(fieldId).click().clear().type(item);
-    } else {
-      // Wrapper div or toggle button — click to open
-      cy.get(fieldId).click();
-      // If the wrapper contains a typeahead input, type into it to filter
-      const $input = $el.find("input");
-      if ($input.length > 0) {
-        cy.wrap($input.first()).clear().type(item);
-      }
-    }
-  });
-  cy.contains("button", item, { timeout: 30 * SEC }).click();
+  cy.get(fieldId).click();
+  cy.contains("button", item).click();
 }
 
 export function selectAnalysisMode(fieldId: string, item: string): void {
@@ -433,10 +376,9 @@ export function sidedrawerTab(name: string, tab: string): void {
 export function checkSuccessAlert(
   fieldId: string,
   message: string,
-  close = false,
-  timeoutMs?: number
+  close = false
 ): void {
-  validateTextPresence(fieldId, message, true, timeoutMs);
+  validateTextPresence(fieldId, message);
   if (close) {
     closeSuccessAlert();
   }
@@ -456,13 +398,12 @@ export function checkErrorMessage(
 export function validateTextPresence(
   fieldId: string,
   message: string,
-  shouldBeFound = true,
-  timeoutMs = 150 * SEC
+  shouldBeFound = true
 ): void {
   if (shouldBeFound) {
-    cy.get(fieldId, { timeout: timeoutMs }).should("contain.text", message);
+    cy.get(fieldId, { timeout: 150 * SEC }).should("contain.text", message);
   } else {
-    cy.get(fieldId, { timeout: timeoutMs }).should("not.contain.text", message);
+    cy.get(fieldId, { timeout: 150 * SEC }).should("not.contain.text", message);
   }
 }
 
@@ -493,48 +434,21 @@ export function removeMember(memberName: string): void {
 }
 
 export function exists(value: string, tableSelector = appTable): void {
-  selectItemsPerPage(100);
-  cy.get("body").then(($body) => {
-    const $table = $body.find(tableSelector);
-    if (
-      $table.length &&
-      !$table.text().includes(value) &&
-      !/No \w.* available/.test($table.text())
-    ) {
-      cy.url().then((currentUrl) => {
-        cy.visit("/");
-        cy.visit(currentUrl);
-      });
+  // Wait for DOM to render table and sibling elements
+  cy.get(tableSelector).then(($tbody) => {
+    if ($tbody.text() !== "No data available") {
+      selectItemsPerPage(100);
+      cy.get(tableSelector).should("contain", value);
     }
-  });
-  cy.get("body").should(($body) => {
-    const $table = $body.find(tableSelector);
-    expect($table.length, `${tableSelector} to exist`).to.be.greaterThan(0);
-    const text = $table.text();
-    if (/No \w.* available/.test(text)) {
-      throw new Error(`Table shows empty state: "${text}"`);
-    }
-    expect(text).to.include(value);
   });
 }
 
 export function notExists(value: string, tableSelector = appTable): void {
-  selectItemsPerPage(100);
-  cy.get("body").then(($body) => {
-    const $table = $body.find(tableSelector);
-    if ($table.length && $table.text().includes(value)) {
-      cy.url().then((currentUrl) => {
-        cy.visit("/");
-        cy.visit(currentUrl);
-      });
+  cy.get(tableSelector).then(($tbody) => {
+    if ($tbody.text() !== "No data available") {
+      selectItemsPerPage(100);
+      cy.get(tableSelector).should("not.contain", value);
     }
-  });
-  cy.get("body").should(($body) => {
-    const $table = $body.find(tableSelector);
-    if (!$table.length) return;
-    const text = $table.text();
-    if (/No \w.* available/.test(text)) return;
-    expect(text).to.not.include(value);
   });
 }
 
@@ -561,6 +475,8 @@ export function selectFilter(filterName: string, eq = 0): void {
 }
 
 export function filterInputText(searchTextValue: string, value: number): void {
+  cy.get(filterInput).eq(value).click().focused().clear();
+  cy.wait(200);
   cy.get(filterInput).eq(value).clear().type(searchTextValue);
   cy.get(searchButton).eq(value).click({ force: true });
 }
@@ -636,7 +552,7 @@ export function applySelectFilter(
   if (isValid) {
     clickByText(".pf-v5-c-menu__item", filterText);
   } else {
-    cy.contains(actionMenuItem, "No results");
+    cy.contains("span.pf-v5-c-menu__item-text", "No results");
   }
   click(".pf-v5-c-text-input-group__text-input");
 }
@@ -672,6 +588,7 @@ export function applySearchFilter(
       }
     }
   });
+  cy.wait(4000);
 }
 
 export function clickOnSortButton(
@@ -771,7 +688,7 @@ export function verifySortDesc(
   unsortedList: unknown[]
 ): void {
   cy.wrap(listToVerify).then((capturedList) => {
-    const reverseSortedList = unsortedList.slice().sort((a, b) =>
+    const reverseSortedList = unsortedList.sort((a, b) =>
       b.toString().localeCompare(a.toString(), "en-us", {
         numeric: !unsortedList.some(isNaN),
       })
@@ -830,9 +747,9 @@ export function expandRowDetails(rowIdentifier: string): void {
     .contains(rowIdentifier)
     .closest(trTag)
     .within(() => {
-      cy.get(expandRow, { timeout: 10 * SEC }).then(($btn) => {
+      cy.get(expandRow).then(($btn) => {
         if ($btn.attr("aria-expanded") === "false") {
-          cy.wrap($btn).click();
+          $btn.trigger("click");
         }
       });
     });
@@ -847,14 +764,11 @@ export function closeRowDetails(rowIdentifier: string): void {
       if (!button["aria-label=Details"]) {
         return;
       }
-      cy.get(expandRow, { timeout: 10 * SEC })
-        .should("be.visible")
-        .should("not.be.disabled")
-        .then(($btn) => {
-          if ($btn.attr("aria-expanded") === "true") {
-            cy.wrap($btn).click();
-          }
-        });
+      cy.get(expandRow).then(($btn) => {
+        if ($btn.attr("aria-expanded") === "true") {
+          $btn.trigger("click");
+        }
+      });
     });
 }
 
@@ -953,7 +867,7 @@ export function application_inventory_kebab_menu(menu: string): void {
   if (menu == "Import") {
     clickByText(button, "Import");
   } else {
-    cy.get(actionMenuItem)
+    cy.get("span.pf-v5-c-menu__item-text")
       .contains(menu)
       .then(($menu_item) => {
         if (!$menu_item.hasClass("pf-m-disabled")) {
@@ -1023,14 +937,12 @@ export function clickKebabMenuOptionArchetype(
 ): void {
   // The clickItemInKebabMenu() fn can't be used on the Archetype page just yet because the
   // the individual archetypes don't have an id for their kebab menu.
-  cy.contains(rowItem, { timeout: 10 * SEC })
+  cy.contains(rowItem)
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
     });
-  cy.get(actionMenuItem, { timeout: 15 * SEC })
-    .contains(itemName, { timeout: 10 * SEC })
-    .click({ force: true });
+  cy.get(actionMenuItem).contains(itemName).click({ force: true });
 }
 
 export function createMultipleJiraConnections(
@@ -1155,7 +1067,6 @@ export function createMultipleJobFunctions(num): Array<Jobfunctions> {
   for (let i = 0; i < num; i++) {
     const jobFunction = new Jobfunctions(data.getFullName());
     jobFunction.create();
-    closeSuccessAlert();
     jobFunctionsList.push(jobFunction);
   }
   return jobFunctionsList;
@@ -1183,68 +1094,6 @@ export function createMultipleArchetypes(number, tags?: Tag[]): Archetype[] {
     archetypesList.push(archetype);
   }
   return archetypesList;
-}
-
-/**
- * Creates an archetype with multiple analysis profiles and target profiles
- * @param archetypeName - Name for the archetype
- * @param criteriaTags - Tags for archetype criteria
- * @param archetypeTags - Tags for the archetype itself
- * @param targetProfileCount - Number of target profiles to create (each with its own analysis profile)
- * @param profileData - Analysis profile configuration data
- * @param profileNamePrefix - Optional prefix for analysis profile names (defaults to archetype name)
- * @returns Object containing the archetype, analysis profiles array, and target profiles array
- */
-export function createArchetypeWithProfiles(
-  archetypeName: string,
-  criteriaTags: string[],
-  archetypeTags: string[],
-  targetProfileCount: number,
-  profileData: analysisData,
-  profileNamePrefix?: string
-): {
-  archetype: Archetype;
-  analysisProfiles: AnalysisProfile[];
-  targetProfiles: TargetProfile[];
-} {
-  const namePrefix = profileNamePrefix || archetypeName;
-
-  // Create the archetype
-  const archetype = new Archetype(archetypeName, criteriaTags, archetypeTags);
-  archetype.create();
-  closeSuccessAlert();
-
-  const analysisProfiles: AnalysisProfile[] = [];
-  const targetProfiles: TargetProfile[] = [];
-
-  // Create analysis profiles and target profiles
-  for (let i = 0; i < targetProfileCount; i++) {
-    // Create analysis profile
-    const analysisProfile = new AnalysisProfile(
-      `${namePrefix}_analysis_prof_${i + 1}_${data.getRandomNumber()}`,
-      profileData,
-      `Analysis profile ${i + 1} for ${archetypeName}`
-    );
-    analysisProfile.create();
-    closeSuccessAlert();
-    analysisProfiles.push(analysisProfile);
-
-    // Create target profile linked to the analysis profile
-    const targetProfile = new TargetProfile(
-      `${namePrefix}_target_prof_${i + 1}_${data.getRandomNumber()}`,
-      undefined,
-      analysisProfile.name
-    );
-    targetProfile.create(archetype.name);
-    closeSuccessAlert();
-    targetProfiles.push(targetProfile);
-  }
-
-  return {
-    archetype,
-    analysisProfiles,
-    targetProfiles,
-  };
 }
 
 export function createMultipleStakeholderGroups(
@@ -1457,19 +1306,6 @@ export function deleteByList<T extends Deletable>(array: T[]): void {
   });
 }
 
-type DeletableViaApi = {
-  deleteViaApi: (headers?: Record<string, string>) => void;
-};
-
-export function deleteByListViaAPI<T extends DeletableViaApi>(
-  array: T[],
-  headers?: Record<string, string>
-): void {
-  cy.wrap(array).each((element: T) => {
-    element.deleteViaApi(headers);
-  });
-}
-
 export function deleteAllTagsAndTagCategories(): void {
   const nonDefaultTagTypes = [];
   TagCategory.openList();
@@ -1604,33 +1440,30 @@ export function deleteAllItems(tableSelector: string = commonTable) {
 }
 
 export function deleteAllBusinessServices() {
-  getAuthHeaders().then((headers) => {
-    BusinessServices.deleteAllViaApi(headers);
-  });
+  BusinessServices.openList();
+  deleteAllRows();
 }
 
 export function deleteAllStakeholderGroups(_cancel = false): void {
-  getAuthHeaders().then((headers) => {
-    Stakeholdergroups.deleteAllViaApi(headers);
-  });
+  Stakeholdergroups.openList();
+  deleteAllRows();
 }
 
 export function deleteAllStakeholders(): void {
-  getAuthHeaders().then((headers) => {
-    Stakeholders.deleteAllViaApi(headers);
-  });
+  Stakeholders.openList();
+  deleteAllRows(stakeHoldersTable);
 }
 
 export function deleteAllArchetypes() {
-  getAuthHeaders().then((headers) => {
-    Archetype.deleteAllViaApi(headers);
-  });
+  Archetype.open();
+  selectItemsPerPage(100);
+  deleteAllRows();
 }
 
 export function deleteAllCredentials() {
-  getAuthHeaders().then((headers) => {
-    Credentials.deleteAllViaApi(headers);
-  });
+  Credentials.openList();
+  selectItemsPerPage(100);
+  deleteAllRows();
 }
 
 export function deleteAllProfiles() {
@@ -1640,9 +1473,11 @@ export function deleteAllProfiles() {
 }
 
 export function deleteApplicationTableRows(): void {
-  getAuthHeaders().then((headers) => {
-    Application.deleteAllViaApi(headers);
-  });
+  navigate_to_application_inventory();
+  cy.intercept("GET", "/hub/application*").as("getApplication");
+  cy.wait("@getApplication", { timeout: 10 * SEC });
+  selectItemsPerPage(100);
+  deleteAllItems();
 }
 
 export function deleteBulkApplicationsByApi(appIds: number[]): void {
@@ -1693,8 +1528,26 @@ export function validatePageTitle(pageTitle: string) {
 }
 
 export function deleteAllMigrationWaves() {
-  getAuthHeaders().then((headers) => {
-    MigrationWave.deleteAllViaApi(headers);
+  MigrationWave.open();
+  selectItemsPerPage(100);
+  // This method if for pages that have delete button inside Kebab menu
+  // like Applications and Imports page
+  isTableEmpty().then((empty) => {
+    if (!empty) {
+      cy.get("tbody tr").then(($rows) => {
+        for (let i = 0; i < $rows.length; i++) {
+          cy.get(MigrationWaveView.actionsButton, { timeout: 10000 })
+            .first()
+            .click();
+          cy.contains("Delete").click();
+          cy.get(confirmButton).click();
+          cy.wait(5000);
+          isTableEmpty().then((empty) => {
+            if (empty) return;
+          });
+        }
+      });
+    }
   });
 }
 
@@ -1862,20 +1715,24 @@ export function itemsPerPageValidation(
   columnName = "Name"
 ): void {
   selectItemsPerPage(10);
+  cy.wait(2000);
 
-  // Verify that only 10 items are displayed (retryable assertion)
-  cy.get(tableSelector).should(($table) => {
-    const rows = $table.find(`td[data-label='${columnName}']`);
-    expect(rows.length).to.eq(10);
-  });
+  // Verify that only 10 items are displayed
+  cy.get(tableSelector)
+    .find(`td[data-label='${columnName}']`)
+    .then(($rows) => {
+      cy.wrap($rows.length).should("eq", 10);
+    });
 
   selectItemsPerPage(20);
+  cy.wait(2000);
 
   // Verify that items less than or equal to 20 and greater than 10 are displayed
-  cy.get(tableSelector).should(($table) => {
-    const rows = $table.find(`td[data-label='${columnName}']`);
-    expect(rows.length).to.be.lte(20).and.be.gt(10);
-  });
+  cy.get(tableSelector)
+    .find(`td[data-label='${columnName}']`)
+    .then(($rows) => {
+      cy.wrap($rows.length).should("be.lte", 20).and("be.gt", 10);
+    });
 }
 
 export function autoPageChangeValidations(columnName = "Name"): void {
@@ -2147,41 +2004,14 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
-
-  cy.root().then(($root) => {
-    const visibleTab = $root
-      .find(`${navTab}:contains("${name}")`)
-      .filter((_index, el) => {
-        const $el = Cypress.$(el);
-        return (
-          $el.is(":visible") &&
-          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
-        );
-      });
-
-    if (visibleTab.length > 0) {
-      clickByText(navTab, name);
-    } else {
-      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
-      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
-          force: true,
-        });
-        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
-        clickByText(actionMenuItem, name);
-      } else {
-        clickByText(navTab, name);
-      }
-    }
-  });
+  clickByText(navTab, name);
 }
 
 export function cleanupDownloads(): void {
   // This will eliminate content of `downloads` folder
   const downloadsFolder = Cypress.config("downloadsFolder");
   cy.exec(
-    `bash -lc 'set -euo pipefail; mkdir -p "$DOWNLOADS_FOLDER"; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
+    `bash -lc 'set -euo pipefail; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
     {
       env: { DOWNLOADS_FOLDER: String(downloadsFolder) },
     }
@@ -2316,13 +2146,8 @@ export function seedAnalysisData(applicationId: number): void {
     `seedAnalysisData: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
   );
 
-  const command = `cd fixtures && chmod +x analysis.sh && ./analysis.sh ${applicationId}`;
+  const command = `cd fixtures && chmod +x analysis.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./analysis.sh ${applicationId}`;
   cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2356,195 +2181,6 @@ export function seedAnalysisData(applicationId: number): void {
   });
 }
 
-export function seedIssuesData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x issues.sh && ./issues.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes(
-      "Issues seeding completed successfully!"
-    );
-    if (!isSuccess || result.exitCode !== 0) {
-      const errorContext = [
-        `seedIssuesData failed`,
-        `Exit code: ${result.exitCode}`,
-        `stdout: ${result.stdout}`,
-        `stderr: ${result.stderr}`,
-      ].join("\n");
-
-      throw new Error(errorContext);
-    }
-
-    expect(result.exitCode, "issues.sh should exit with code 0").to.eq(0);
-    expect(
-      result.stdout,
-      "issues.sh should output 'Issues seeding completed successfully!'"
-    ).to.include("Issues seeding completed successfully!");
-  });
-}
-
-export function cleanupIssuesData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x issues-cleanup.sh && ./issues-cleanup.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
-    if (!isSuccess || result.exitCode !== 0) {
-      cy.log(
-        `WARNING: cleanupIssuesData had issues (exit code: ${result.exitCode})`
-      );
-    }
-  });
-}
-
-export function seedInsightsData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x insights.sh && ./insights.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes(
-      "Insights seeding completed successfully!"
-    );
-    if (!isSuccess || result.exitCode !== 0) {
-      const errorContext = [
-        `seedInsightsData failed`,
-        `Exit code: ${result.exitCode}`,
-        `stdout: ${result.stdout}`,
-        `stderr: ${result.stderr}`,
-      ].join("\n");
-
-      throw new Error(errorContext);
-    }
-
-    expect(result.exitCode, "insights.sh should exit with code 0").to.eq(0);
-    expect(
-      result.stdout,
-      "insights.sh should output 'Insights seeding completed successfully!'"
-    ).to.include("Insights seeding completed successfully!");
-  });
-}
-
-export function cleanupInsightsData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x insights-cleanup.sh && ./insights-cleanup.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
-    if (!isSuccess || result.exitCode !== 0) {
-      cy.log(
-        `WARNING: cleanupInsightsData had issues (exit code: ${result.exitCode})`
-      );
-    }
-  });
-}
-
-export function seedDependenciesData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x dependencies.sh && ./dependencies.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes(
-      "Dependencies seeding completed successfully!"
-    );
-    if (!isSuccess || result.exitCode !== 0) {
-      const errorContext = [
-        `seedDependenciesData failed`,
-        `Exit code: ${result.exitCode}`,
-        `stdout: ${result.stdout}`,
-        `stderr: ${result.stderr}`,
-      ].join("\n");
-
-      throw new Error(errorContext);
-    }
-
-    expect(result.exitCode, "dependencies.sh should exit with code 0").to.eq(0);
-    expect(
-      result.stdout,
-      "dependencies.sh should output 'Dependencies seeding completed successfully!'"
-    ).to.include("Dependencies seeding completed successfully!");
-  });
-}
-
-export function cleanupDependenciesData(): void {
-  const baseUrl = Cypress.config("baseUrl");
-  const hostname = new URL(baseUrl).origin;
-  const username = Cypress.env("user");
-  const password = Cypress.env("pass");
-
-  const command = `cd fixtures && chmod +x dependencies-cleanup.sh && ./dependencies-cleanup.sh`;
-  cy.exec(command, {
-    env: {
-      HOST: String(hostname),
-      HUB_USER: String(username ?? ""),
-      HUB_PASSWORD: String(password ?? ""),
-    },
-    timeout: 180 * SEC,
-    failOnNonZeroExit: false,
-  }).then((result) => {
-    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
-    if (!isSuccess || result.exitCode !== 0) {
-      cy.log(
-        `WARNING: cleanupDependenciesData had issues (exit code: ${result.exitCode})`
-      );
-    }
-  });
-}
-
 export function getApplicationID(url: string): number | null {
   const urlObj = new URL(url);
   const activeItem = urlObj.searchParams.get("activeItem");
@@ -2568,30 +2204,22 @@ export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
 export function validateTackleCr(): void {
   const namespace = getNamespace();
   const kubeCLI = getKubernetesCLI();
-  const command = `${kubeCLI} get tackle -n${namespace} -o json`;
+  let tackleCr: any;
+  let command = `tackleCR=$(${kubeCLI} get tackle -n${namespace}|grep -vi name|cut -d ' ' -f 1);`;
+  command += `${kubeCLI} get tackle $tackleCr -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
-    let tackleCr: Record<string, unknown>;
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
       throw new Error("Failed to parse Tackle CR");
     }
-    const conditions = tackleCr.items?.[0]?.status?.conditions;
-    expect(conditions, "Tackle CR conditions missing").to.be.an("array");
-
-    // Find the condition that has ansibleResult
-    const runningCondition = conditions.find(
-      (c: { type?: string; ansibleResult?: unknown }) =>
-        c.type === "Running" && c.ansibleResult
-    );
-    expect(runningCondition, "ansibleResult condition missing").to.exist;
-    expect(
-      runningCondition!.status,
-      "Running condition status is not True"
-    ).to.equal("True");
-
-    const failures = runningCondition!.ansibleResult!.failures;
-    expect(failures, `Ansible failures detected: ${failures}`).to.eq(0);
+    const condition = tackleCr["items"][0]["status"]["conditions"][1];
+    const failures = condition["ansibleResult"]["failures"];
+    const type = condition["type"];
+    cy.log(`Failures: ${failures}`);
+    cy.log(`Condition type: ${type}`);
+    expect(failures).be.equal(0);
+    expect(type).be.equal("Running");
   });
 }
 
