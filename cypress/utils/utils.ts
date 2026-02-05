@@ -24,6 +24,7 @@ import { Jira } from "../e2e/models/administration/jira-connection/jira";
 import { AnalysisProfile } from "../e2e/models/migration/analysis-profiles/analysis-profile";
 import { Application } from "../e2e/models/migration/applicationinventory/application";
 import { Archetype } from "../e2e/models/migration/archetypes/archetype";
+import { TargetProfile } from "../e2e/models/migration/archetypes/target-profile";
 import { BusinessServices } from "../e2e/models/migration/controls/businessservices";
 import { Jobfunctions } from "../e2e/models/migration/controls/jobfunctions";
 import { Stakeholdergroups } from "../e2e/models/migration/controls/stakeholdergroups";
@@ -1094,6 +1095,68 @@ export function createMultipleArchetypes(number, tags?: Tag[]): Archetype[] {
     archetypesList.push(archetype);
   }
   return archetypesList;
+}
+
+/**
+ * Creates an archetype with multiple analysis profiles and target profiles
+ * @param archetypeName - Name for the archetype
+ * @param criteriaTags - Tags for archetype criteria
+ * @param archetypeTags - Tags for the archetype itself
+ * @param targetProfileCount - Number of target profiles to create (each with its own analysis profile)
+ * @param profileData - Analysis profile configuration data
+ * @param profileNamePrefix - Optional prefix for analysis profile names (defaults to archetype name)
+ * @returns Object containing the archetype, analysis profiles array, and target profiles array
+ */
+export function createArchetypeWithProfiles(
+  archetypeName: string,
+  criteriaTags: string[],
+  archetypeTags: string[],
+  targetProfileCount: number,
+  profileData: any,
+  profileNamePrefix?: string
+): {
+  archetype: Archetype;
+  analysisProfiles: AnalysisProfile[];
+  targetProfiles: TargetProfile[];
+} {
+  const namePrefix = profileNamePrefix || archetypeName;
+
+  // Create the archetype
+  const archetype = new Archetype(archetypeName, criteriaTags, archetypeTags);
+  archetype.create();
+  closeSuccessAlert();
+
+  const analysisProfiles: AnalysisProfile[] = [];
+  const targetProfiles: TargetProfile[] = [];
+
+  // Create analysis profiles and target profiles
+  for (let i = 0; i < targetProfileCount; i++) {
+    // Create analysis profile
+    const analysisProfile = new AnalysisProfile(
+      `${namePrefix}_analysis_prof_${i + 1}_${data.getRandomNumber()}`,
+      profileData,
+      `Analysis profile ${i + 1} for ${archetypeName}`
+    );
+    analysisProfile.create();
+    closeSuccessAlert();
+    analysisProfiles.push(analysisProfile);
+
+    // Create target profile linked to the analysis profile
+    const targetProfile = new TargetProfile(
+      `${namePrefix}_target_prof_${i + 1}_${data.getRandomNumber()}`,
+      undefined,
+      analysisProfile.name
+    );
+    targetProfile.create(archetype.name);
+    closeSuccessAlert();
+    targetProfiles.push(targetProfile);
+  }
+
+  return {
+    archetype,
+    analysisProfiles,
+    targetProfiles,
+  };
 }
 
 export function createMultipleStakeholderGroups(
