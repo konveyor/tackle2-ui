@@ -42,7 +42,7 @@ const applicationList: Application[] = [];
 const credentialsList: Credentials[] = [];
 
 describe(
-  ["@tier2"],
+  ["@tier2", "@downstream"],
   "Test if application language is discovered and tagged correctly",
   () => {
     languageDiscoveryData.forEach((data) => {
@@ -124,10 +124,6 @@ describe(
         TaskKind.techDiscovery,
         TaskStatus.succeeded
       );
-    });
-
-    afterEach("Persist session", function () {
-      Application.open(true);
     });
 
     after("Perform test data clean up", function () {

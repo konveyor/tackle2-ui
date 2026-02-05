@@ -6,10 +6,6 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
-  test_spec:
-    description: Specific test file to run (overrides test_tags if provided)
-    default: ""
-
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -100,7 +96,7 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: "${{ inputs.tests_ref }}"
-        repository: sshveta/tackle2-ui
+        repository: konveyor/tackle2-ui
         path: ui-tests
 
     - name: Setup Node.js
@@ -136,25 +132,16 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
-        TEST_SPEC_INPUT: ${{ inputs.test_spec }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
         cd ui-tests/cypress
+        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
-        # If test_spec input is provided, use it directly
-        if [[ -n "$TEST_SPEC_INPUT" ]]; then
-          echo "Using provided test spec: $TEST_SPEC_INPUT"
-          SPEC="$TEST_SPEC_INPUT"
-        else
-          # Build spec from test tags
-          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-
-          # Exclude rbac tests if auth is not required
-          if [[ "$AUTH_REQUIRED" != "true" ]]; then
-            echo "Auth is disabled - excluding rbac tests"
-            # Filter out any rbac test files from the spec
-            SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
-          fi
+        # Exclude rbac tests if auth is not required
+        if [[ "$AUTH_REQUIRED" != "true" ]]; then
+          echo "Auth is disabled - excluding rbac tests"
+          # Filter out any rbac test files from the spec
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
@@ -163,7 +150,7 @@ runs:
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-        CYPRESS_EXCLUDE_TAGS: "cf"
+        CYPRESS_EXCLUDE_TAGS: "cf,downstream"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
