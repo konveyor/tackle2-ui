@@ -9,7 +9,7 @@ import {
 } from "../../../../utils/utils";
 import { SEC, button, tdTag, trTag } from "../../../types/constants";
 import { UserData } from "../../../types/types";
-import { modalConfirm } from "../../../views/common.view";
+import { actionMenuItem, modalConfirm } from "../../../views/common.view";
 import * as loginView from "../../../views/login.view";
 import {
   addUserButton,
@@ -172,8 +172,7 @@ export class User {
     clickByText("a", this.username);
     this.navigateToSection("role-mapping-tab");
     click(assignRoleButton);
-    click(filterTypeDropdown);
-    clickByText(button, "Filter by realm roles");
+    cy.contains(actionMenuItem, "Realm roles").click();
     cy.contains(tdTag, role)
       .closest(trTag)
       .within(() => {

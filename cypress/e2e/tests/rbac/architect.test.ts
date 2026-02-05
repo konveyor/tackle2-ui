@@ -53,14 +53,14 @@ import {
 import { actionMenuItem } from "../../views/common.view";
 
 let tags: Tag[] = [];
-let stakeholders: Array<Stakeholders> = [];
+let stakeholders: Stakeholders[] = [];
 let adminAnalysisProfile: AnalysisProfile;
 let arch1Profile1: AnalysisProfile;
 let arch1Profile2: AnalysisProfile;
 let arch2Profile: AnalysisProfile;
 let archetype1: Archetype;
 let archetype2: Archetype;
-let targetProfile: TargetProfile;
+let targetProfile1: TargetProfile;
 let targetProfile2: TargetProfile;
 let targetProfile3: TargetProfile;
 let appWithArchetype: Analysis;
@@ -197,7 +197,6 @@ describe(
     });
 
     it("Architect, Perform analysis using analysis profile", function () {
-      // Create first archetype with 2 target profiles (each with unique analysis profile)
       const archetype1 = createArchetypeWithProfiles(
         `architect_archetype_${getRandomNumber()}`,
         [tags[0].name],
@@ -206,12 +205,11 @@ describe(
         profileData,
         "archetype1"
       );
-      targetProfile = archetype1.targetProfiles[0];
+      targetProfile1 = archetype1.targetProfiles[0];
       targetProfile2 = archetype1.targetProfiles[1];
       arch1Profile1 = archetype1.analysisProfiles[0];
       arch1Profile2 = archetype1.analysisProfiles[1];
 
-      // Create second archetype with 1 target profile
       const archetype2 = createArchetypeWithProfiles(
         `architect_archetype2_${getRandomNumber()}`,
         [tags[1].name],
@@ -306,9 +304,9 @@ describe(
       deleteApplicationTableRows();
 
       if (archetype1) {
-        if (targetProfile) {
-          targetProfile.open(archetype1.name);
-          targetProfile.delete();
+        if (targetProfile1) {
+          targetProfile1.open(archetype1.name);
+          targetProfile1.delete();
         }
         if (targetProfile2) {
           targetProfile2.open(archetype1.name);
