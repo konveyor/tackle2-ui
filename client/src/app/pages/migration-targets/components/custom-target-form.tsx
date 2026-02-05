@@ -615,26 +615,26 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="sourceRepository"
-            label="Source repository"
+            label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
             isRequired
           />
           <HookFormPFTextInput
             control={control}
             name="branch"
-            label="Branch"
+            label={t("terms.branch")}
             fieldId="branch"
           />
           <HookFormPFTextInput
             control={control}
             name="rootPath"
-            label="Root path"
+            label={t("terms.rootPath")}
             fieldId="rootPath"
           />
           <HookFormPFGroupController
             control={control}
             name="associatedCredentials"
-            label="Associated credentials"
+            label={t("analysisSteps.labels.associatedCredentials")}
             fieldId="credentials-select"
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
