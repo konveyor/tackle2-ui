@@ -56,9 +56,11 @@ Cypress.on("uncaught:exception", (err) => {
   if (err.message.includes("clipboard-write")) {
     return false; // don't fail test - clipboard API not supported in headless browser
   }
+  // Only suppress generic null/undefined errors if they're from Keycloak admin console
   if (
-    err.message.includes("Cannot read properties of null") ||
-    err.message.includes("can't access property")
+    (err.message.includes("Cannot read properties of null") ||
+      err.message.includes("can't access property")) &&
+    (window.location.href.includes("/auth/") || err.stack?.includes("keycloak"))
   ) {
     return false; // don't fail test - Keycloak admin UI bug
   }
