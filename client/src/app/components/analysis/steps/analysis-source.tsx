@@ -88,36 +88,47 @@ export const useAnalyzableApplicationsByMode = (
 
 export const useAnalysisModeSchema = ({
   applications,
-  messageNotCompatible,
 }: {
   applications?: Application[];
-  messageNotCompatible: string;
-}): yup.SchemaOf<AnalysisModeValues> => {
+}): {
+  schema: yup.SchemaOf<AnalysisModeValues>;
+  compatibleMode: AnalysisMode | undefined;
+} => {
   const { t } = useTranslation();
   const analyzableAppsByMode = useAnalyzableApplicationsByMode(
     applications ?? []
   );
 
-  return yup.object({
+  const messageNotCompatible = t("wizard.label.notAllCompatible");
+
+  const isModeCompatible = (mode?: AnalysisMode) => {
+    // When no applications are provided (profile wizard), all modes are valid
+    if (!applications || applications.length === 0) {
+      return true;
+    }
+
+    const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
+    return mode === "binary-upload"
+      ? analyzableApplications.length === 1
+      : analyzableApplications.length > 0;
+  };
+
+  // prefer source-code-deps mode over other modes
+  const modes: AnalysisMode[] = ["source-code-deps", ...ANALYSIS_MODES];
+  const compatibleMode = modes.find(isModeCompatible);
+
+  const schema = yup.object({
     mode: yup
       .mixed<AnalysisMode>()
       .required(t("validation.required"))
-      .test("isModeCompatible", messageNotCompatible, (mode) => {
-        // When no applications are provided (profile wizard), all modes are valid
-        if (!applications || applications.length === 0) {
-          return true;
-        }
-
-        const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
-        return mode === "binary-upload"
-          ? analyzableApplications.length === 1
-          : analyzableApplications.length > 0;
-      }),
+      .test("isModeCompatible", messageNotCompatible, isModeCompatible),
     artifact: yup.mixed<File>().when("mode", {
       is: "binary-upload",
       then: (schema) => schema.required(),
     }),
   });
+
+  return { schema, compatibleMode };
 };
 
 interface AnalysisSourceProps {
@@ -162,10 +173,8 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const schema = useAnalysisModeSchema({
+  const { schema } = useAnalysisModeSchema({
     applications,
-    messageNotCompatible:
-      "Selected mode is not supported for the selected applications",
   });
   const form = useForm<AnalysisModeValues>({
     defaultValues: {

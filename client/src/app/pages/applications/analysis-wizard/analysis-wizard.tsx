@@ -12,8 +12,12 @@ import {
 import { Application } from "@app/api/models";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
 import {
+  ANALYSIS_MODES,
+  AnalysisMode,
   AnalysisSource,
   isSourceMode,
+  useAnalysisModeSchema,
+  useAnalyzableApplicationsByMode,
 } from "@app/components/analysis/steps/analysis-source";
 import { CustomRules } from "@app/components/analysis/steps/custom-rules";
 import { OptionsManual } from "@app/components/analysis/steps/options-advanced";
@@ -27,7 +31,7 @@ import { Review } from "./steps/review";
 import { WizardMode } from "./steps/wizard-mode";
 import { useSaveAnalysisProfile } from "./useSaveAnalysisProfile";
 import { useTaskGroupManager } from "./useTaskGroupManager";
-import { useWizardReducer } from "./useWizardReducer";
+import { useWizardReducer, WizardState } from "./useWizardReducer";
 import { useAnalyzableApplications } from "./utils";
 
 import "./wizard.css";
@@ -47,6 +51,13 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { identities } = useFetchIdentities();
 
+  const { compatibleMode } = useAnalysisModeSchema({ applications });
+  const calculateInitialState = (draft: WizardState) => {
+    if (compatibleMode) {
+      draft.mode.mode = compatibleMode;
+    }
+  };
+
   const {
     state,
     setFlowMode,
@@ -56,7 +67,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     setCustomRules,
     setOptions,
     reset,
-  } = useWizardReducer();
+  } = useWizardReducer(calculateInitialState);
 
   const { ensureTaskGroup, submitAnalysis, cancelAnalysis } =
     useTaskGroupManager();
