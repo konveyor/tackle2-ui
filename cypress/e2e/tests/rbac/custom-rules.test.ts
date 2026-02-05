@@ -94,6 +94,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     analysisWithPublicRules.customRuleRepository = getRulesData(
       this.customRules.rules_from_bookServerApp
     ) as RulesRepositoryFields;
+    analysisWithPublicRules.target = [];
 
     analysisWithPublicRules.create();
     analyzeAndVerify(analysisWithPublicRules, AnalysisStatuses.completed);
@@ -114,6 +115,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     };
     analysisWithPrivateRules.customRuleRepository =
       repositoryData as RulesRepositoryFields;
+    analysisWithPrivateRules.target = [];
 
     analysisWithPrivateRules.create();
     analyzeAndVerify(analysisWithPrivateRules, AnalysisStatuses.completed);
@@ -131,6 +133,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     analysisWithPrivateRulesNoCred.customRuleRepository = getRulesData(
       this.customRules.rules_from_tackle_testApp
     ) as RulesRepositoryFields;
+    analysisWithPrivateRulesNoCred.target = [];
 
     analysisWithPrivateRulesNoCred.create();
     analyzeAndVerify(analysisWithPrivateRulesNoCred, AnalysisStatuses.failed);
