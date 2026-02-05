@@ -204,7 +204,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
             <FlexItem key={`manual-custom-rules-${customLabels.target.length}`}>
               <GroupOfLabels
                 labelColor={"grey"}
-                groupName="Manual custom rules"
+                groupName={t("analysisSteps.review.manualCustomRules")}
                 items={customLabels.target}
               />
             </FlexItem>
@@ -214,7 +214,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
 
       <HookFormPFGroupController
         control={control}
-        label="Additional target labels"
+        label={t("analysisSteps.review.additionalTargetLabels")}
         name="additionalTargetLabels"
         fieldId="additional-target-labels"
         renderInput={({
@@ -285,7 +285,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
             <FlexItem>
               <GroupOfLabels
                 labelColor={"grey"}
-                groupName="Manual custom rules"
+                groupName={t("analysisSteps.review.manualCustomRules")}
                 items={customLabels.source}
               />
             </FlexItem>
@@ -295,7 +295,7 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
 
       <HookFormPFGroupController
         control={control}
-        label="Additional source labels"
+        label={t("analysisSteps.review.additionalSourceLabels")}
         name="additionalSourceLabels"
         fieldId="additional-source-labels"
         renderInput={({
