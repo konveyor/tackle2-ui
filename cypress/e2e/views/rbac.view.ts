@@ -8,6 +8,7 @@ export const kebabToogleButton = 'button[aria-label="Kebab toggle"]';
 export const modalConfirmButton = "#modal-confirm";
 export const tempPasswordToggle = "#temporaryPassword";
 export const assignRoleButton = 'button[data-testid="add-role-mapping-button"]';
+export const upstreamAssignRoleButton = 'button[data-testid="assignRole"]';
 export const filterTypeDropdown = 'button[data-testid="filter-type-dropdown"]';
 export const assignButton = 'button[data-testid="assign"]';
 export const checkBox = "input";
