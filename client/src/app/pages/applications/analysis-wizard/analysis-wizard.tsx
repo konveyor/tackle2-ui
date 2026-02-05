@@ -48,10 +48,18 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
 
   const { identities } = useFetchIdentities();
 
-  const { compatibleMode } = useAnalysisModeSchema({ applications });
+  const { compatibleMode, supportsSourceAnalysisModes } = useAnalysisModeSchema(
+    { applications }
+  );
+  // no application is compatible with source analysis modes
+  // so analysis profile cannot be used
+  const forceManualAnalysisMode = !supportsSourceAnalysisModes;
   const calculateInitialState = (draft: WizardState) => {
     if (compatibleMode) {
       draft.mode.mode = compatibleMode;
+    }
+    if (forceManualAnalysisMode) {
+      draft.flowMode.flowMode = "manual";
     }
   };
 
@@ -97,7 +105,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   const isManualMode = state.flowMode.flowMode === "manual";
   const isProfileMode = state.flowMode.flowMode === "profile";
 
-  if (!isOpen) {
+  if (!isOpen || (forceManualAnalysisMode && isProfileMode)) {
     return null;
   }
 
@@ -126,35 +134,39 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
         }
         isVisitRequired
       >
-        {/* Mode Selection Step - Always visible */}
-        <WizardStep
-          key="step-mode"
-          id="step-mode"
-          name={t("wizard.terms.wizardMode")}
-          footer={{
-            isBackHidden: true,
-            isNextDisabled: !state.flowMode.isValid,
-          }}
-        >
-          <WizardMode
-            applications={applications}
-            onStateChanged={setFlowMode}
-            initialState={state.flowMode}
-          />
-        </WizardStep>
-
+        {!forceManualAnalysisMode && (
+          <WizardStep
+            key="step-mode"
+            id="step-mode"
+            name={t("wizard.terms.wizardMode")}
+            footer={{
+              isBackHidden: true,
+              isNextDisabled: !state.flowMode.isValid,
+            }}
+          >
+            <WizardMode
+              applications={applications}
+              onStateChanged={setFlowMode}
+              initialState={state.flowMode}
+            />
+          </WizardStep>
+        )}
         {/* Manual Mode Steps - Configure Analysis */}
         <WizardStep
           key="step-analysis"
           id="step-analysis"
           name={t("wizard.terms.configureAnalysis")}
           isHidden={isProfileMode}
+          footer={{
+            isBackHidden: forceManualAnalysisMode,
+          }}
           steps={[
             <WizardStep
               key="step-analysis-source"
               id="step-analysis-source"
               name={t("wizard.terms.analysisSource")}
               footer={{
+                isBackHidden: forceManualAnalysisMode,
                 isNextDisabled: !state.mode.isValid,
               }}
             >

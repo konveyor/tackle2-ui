@@ -17,18 +17,22 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { isNotEmptyString } from "@app/utils/utils";
 
-// Analysis mode (source)
-export const ANALYSIS_MODES = [
-  "binary",
+export const BINARY_ANALYSIS_MODES = ["binary", "binary-upload"] as const;
+export const SOURCE_ANALYSIS_MODES = [
   "source-code",
   "source-code-deps",
-  "binary-upload",
+] as const;
+
+// Analysis mode (source)
+export const ANALYSIS_MODES = [
+  ...BINARY_ANALYSIS_MODES,
+  ...SOURCE_ANALYSIS_MODES,
 ] as const;
 
 export type AnalysisMode = (typeof ANALYSIS_MODES)[number];
 
 export const isSourceMode = (mode: AnalysisMode) =>
-  mode === "source-code" || mode === "source-code-deps";
+  (SOURCE_ANALYSIS_MODES as readonly string[]).includes(mode);
 
 export interface AnalysisModeValues {
   mode: AnalysisMode;
@@ -93,6 +97,7 @@ export const useAnalysisModeSchema = ({
 }): {
   schema: yup.SchemaOf<AnalysisModeValues>;
   compatibleMode: AnalysisMode | undefined;
+  supportsSourceAnalysisModes: boolean;
 } => {
   const { t } = useTranslation();
   const analyzableAppsByMode = useAnalyzableApplicationsByMode(
@@ -114,8 +119,12 @@ export const useAnalysisModeSchema = ({
   };
 
   // prefer source-code-deps mode over other modes
-  const modes: AnalysisMode[] = ["source-code-deps", ...ANALYSIS_MODES];
-  const compatibleMode = modes.find(isModeCompatible);
+  const compatibleMode = isModeCompatible("source-code-deps")
+    ? "source-code-deps"
+    : ANALYSIS_MODES.find(isModeCompatible);
+
+  const supportsSourceAnalysisModes =
+    SOURCE_ANALYSIS_MODES.some(isModeCompatible);
 
   const schema = yup.object({
     mode: yup
@@ -128,7 +137,7 @@ export const useAnalysisModeSchema = ({
     }),
   });
 
-  return { schema, compatibleMode };
+  return { schema, compatibleMode, supportsSourceAnalysisModes };
 };
 
 interface AnalysisSourceProps {
