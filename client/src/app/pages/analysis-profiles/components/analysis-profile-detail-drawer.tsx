@@ -18,6 +18,7 @@ import {
 } from "@app/components/detail-drawer";
 
 import { TabDetailsContent } from "./tab-details-content";
+import { WizardBasedTabDetails } from "./wizard-based-tab-details";
 
 export interface IAnalysisProfileDetailDrawerProps {
   onCloseClick: () => void;
@@ -25,7 +26,8 @@ export interface IAnalysisProfileDetailDrawerProps {
 }
 
 enum TabKey {
-  Details = 0,
+  Summary = 0,
+  Details = 1,
 }
 
 const AnalysisProfileDetailDrawer: React.FC<
@@ -33,7 +35,7 @@ const AnalysisProfileDetailDrawer: React.FC<
 > = ({ onCloseClick, analysisProfile }) => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = React.useState<TabKey>(
-    TabKey.Details
+    TabKey.Summary
   );
 
   return (
@@ -60,6 +62,12 @@ const AnalysisProfileDetailDrawer: React.FC<
             activeKey={activeTabKey}
             onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
           >
+            <Tab
+              eventKey={TabKey.Summary}
+              title={<TabTitleText>{t("terms.summary")}</TabTitleText>}
+            >
+              <WizardBasedTabDetails analysisProfile={analysisProfile} />
+            </Tab>
             <Tab
               eventKey={TabKey.Details}
               title={<TabTitleText>{t("terms.details")}</TabTitleText>}

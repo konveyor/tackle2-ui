@@ -571,6 +571,7 @@
     "started": "Started",
     "status": "Status",
     "suggestedAdoptionPlan": "Suggested adoption plan",
+    "summary": "Summary",
     "svnConfig": "Subversion configuration",
     "tableView": "Table view",
     "tag": "Tag",
@@ -698,6 +699,12 @@
     "repositoryUrlInvalid": "Must be a valid repository URL."
   },
   "wizard": {
+    "sourceMode": {
+      "binary": "Binary",
+      "sourceCode": "Source code",
+      "sourceCodeDeps": "Source code + dependencies",
+      "binaryUpload": "Upload a local binary"
+    },
     "alert": {
       "sourceMode": {
         "title": "Source Code Mode",
@@ -734,8 +741,11 @@
       "saveAsProfileReview": "Name of the analysis profile to save the analysis options as",
       "scope": "Select the scope of dependencies you want to include in the analysis.",
       "scopeAllDeps": "Application and all dependencies, including known Open Source libraries",
+      "scopeAllDepsShort": "Known Open Source libraries",
       "scopeInternalDeps": "Application and internal dependencies only",
+      "scopeInternalDepsShort": "Application and internal dependencies",
       "scopeSelectDeps": "Add the list of packages to be analyzed",
+      "scopeSelectDepsShort": "List of packages to be analyzed manually",
       "selectAnalysisProfile": "Select an analysis profile",
       "selectWizardMode": "Choose how to configure the analysis.",
       "setTargets": "Select one or more target options in focus for the analysis.",
@@ -782,7 +792,8 @@
   "analysisSteps": {
     "labels": {
       "title": "Labels",
-      "description": "Review target labels, select additional labels, and add exclusions."
+      "description": "Review target labels, select additional labels, and add exclusions.",
+      "associatedCredentials": "Associated credentials"
     },
     "review": {
       "title": "Review analysis details",
@@ -793,7 +804,12 @@
       "scope": "Scope",
       "packages": "Packages",
       "rules": "Rules",
-      "autoTagging": "Automated tagging"
+      "autoTagging": "Automated tagging",
+      "targetRuleLabels": "Target rule labels",
+      "sourceRuleLabels": "Source rule labels",
+      "manualCustomRules": "Manual custom rules",
+      "additionalTargetLabels": "Additional target labels",
+      "additionalSourceLabels": "Additional source labels"
     }
   },
   "analysisProfileWizard": {

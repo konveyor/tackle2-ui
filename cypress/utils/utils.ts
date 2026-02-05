@@ -1943,13 +1943,30 @@ export function getNamespace(): string {
   }
 }
 
+/**
+ * Determines which Kubernetes CLI to use based on environment
+ * Returns 'oc' for downstream (OpenShift/MTA) or 'kubectl' for upstream (Konveyor)
+ */
+function getKubernetesCLI(): string {
+  const baseUrl = Cypress.config("baseUrl") || "";
+  if (
+    baseUrl.includes("konveyor-tackle") ||
+    baseUrl.includes("mta-openshift")
+  ) {
+    return "oc";
+  }
+  return "kubectl";
+}
+
 export function patchTackleCR(option: string, isEnabled = true): void {
   const value = isEnabled ? "true" : "false";
   let command = "";
   const namespace = getNamespace();
-  const tackleCr = `tackle=$(oc get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
+  const kubeCLI = getKubernetesCLI();
+
+  const tackleCr = `tackle=$(${kubeCLI} get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
   command += tackleCr;
-  command += "oc patch tackle ";
+  command += `${kubeCLI} patch tackle `;
   command += "$tackle ";
   command += `-n${namespace} `;
   command += "--type merge ";
@@ -1960,6 +1977,7 @@ export function patchTackleCR(option: string, isEnabled = true): void {
   } else if (option == "metrics") {
     command += `--patch '{"spec":{"hub_metrics_enabled": ${value}}}'`;
   }
+
   cy.exec(command).then((result) => {
     cy.log(result.stderr);
   });
@@ -2108,9 +2126,10 @@ export function getCommandOutput(
 export function isRwxEnabled(): Cypress.Chainable<boolean> {
   let command = "";
   const namespace = getNamespace();
-  const tackleCr = `tackle=$(oc get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
+  const kubeCLI = getKubernetesCLI();
+  const tackleCr = `tackle=$(${kubeCLI} get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
   command += tackleCr;
-  command += `oc get tackle $tackle -n${namespace} -o jsonpath='{.spec.rwx_supported}'`;
+  command += `${kubeCLI} get tackle $tackle -n${namespace} -o jsonpath='{.spec.rwx_supported}'`;
   return getCommandOutput(command).then((result) => {
     if (result.stderr !== "") throw new Error(result.stderr.toString());
     return result.stdout.trim().toLowerCase() === "true";
@@ -2170,8 +2189,9 @@ export function getApplicationID(url: string): number | null {
 
 export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
   const namespace = getNamespace();
-  const podName = `$(oc get pods -n${namespace}| grep ui|cut -d " " -f 1)`;
-  const command = `oc describe pod ${podName} -n${namespace}| grep -i version|awk '{print $2}'`;
+  const kubeCLI = getKubernetesCLI();
+  const podName = `$(${kubeCLI} get pods -n${namespace}| grep ui|cut -d " " -f 1)`;
+  const command = `${kubeCLI} describe pod ${podName} -n${namespace}| grep -i version|awk '{print $2}'`;
   getCommandOutput(command).then((output) => {
     if (expectedMtaVersion !== output.stdout) {
       throw new Error(
@@ -2183,9 +2203,10 @@ export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
 
 export function validateTackleCr(): void {
   const namespace = getNamespace();
-  let tackleCr;
-  let command = `tackleCR=$(oc get tackle -n${namespace}|grep -vi name|cut -d ' ' -f 1);`;
-  command += `oc get tackle $tackleCr -n${namespace} -o json`;
+  const kubeCLI = getKubernetesCLI();
+  let tackleCr: any;
+  let command = `tackleCR=$(${kubeCLI} get tackle -n${namespace}|grep -vi name|cut -d ' ' -f 1);`;
+  command += `${kubeCLI} get tackle $tackleCr -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
     try {
       tackleCr = JSON.parse(result.stdout);
@@ -2204,8 +2225,9 @@ export function validateTackleCr(): void {
 
 export function validateMtaOperatorLog(): void {
   const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
   cy.wait(30 * SEC);
-  const command = `oc logs $(oc get pods -n${namespace} | grep mta-operator | cut -d " " -f 1) -n${namespace} | grep failed | tail -n 1| awk -F 'failed=' '{print $2}'|cut -d " " -f 1`;
+  const command = `${kubeCLI} logs $(${kubeCLI} get pods -n${namespace} | grep mta-operator | cut -d " " -f 1) -n${namespace} | grep failed | tail -n 1| awk -F 'failed=' '{print $2}'|cut -d " " -f 1`;
   getCommandOutput(command).then((result) => {
     const failedCount = parseInt(result.stdout.trim());
     expect(failedCount).equal(0);
@@ -2368,7 +2390,8 @@ export function downloadTaskDetails(format = downloadFormatDetails.yaml) {
 export function getNumberOfNonTaskPods(): Cypress.Chainable<number> {
   let podsNumber: number;
   const namespace = getNamespace();
-  const command = `oc get pod --no-headers -n ${namespace} | grep -v task | grep -v Completed | wc -l`;
+  const kubeCLI = getKubernetesCLI();
+  const command = `${kubeCLI} get pod --no-headers -n ${namespace} | grep -v task | grep -v Completed | wc -l`;
   return getCommandOutput(command).then((output) => {
     podsNumber = Number(output.stdout);
     return podsNumber;
@@ -2377,9 +2400,10 @@ export function getNumberOfNonTaskPods(): Cypress.Chainable<number> {
 
 export function limitPodsByQuota(podsNumber: number) {
   const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
   cy.fixture("custom-resource").then((cr) => {
     const manifast = cr["resourceQuota"];
-    const command = `PODS_NUMBER=${podsNumber} envsubst < ${manifast} | oc apply -f - -n ${namespace}`;
+    const command = `PODS_NUMBER=${podsNumber} envsubst < ${manifast} | ${kubeCLI} apply -f - -n ${namespace}`;
     getCommandOutput(command).then((output) => {
       expect(output.stdout).to.equal("resourcequota/task-pods created");
     });
@@ -2392,7 +2416,8 @@ export function deleteCustomResource(
   ignoreNotFound = false
 ) {
   const namespace = getNamespace();
-  let command = `oc delete ${resourceType} ${resourceName} -n${namespace}`;
+  const kubeCLI = getKubernetesCLI();
+  let command = `${kubeCLI} delete ${resourceType} ${resourceName} -n${namespace}`;
   if (ignoreNotFound) {
     command = `${command} --ignore-not-found=true`;
   }

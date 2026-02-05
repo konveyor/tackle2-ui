@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  nightly:
+  nightly-auth:
     strategy:
       fail-fast: false
       matrix:
@@ -19,19 +19,40 @@ jobs:
           - "@tier0"
           - "@tier2"
           - "@tier3"
-        feature_auth_required:
-          - true
-          - false
         refs:
           - bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
             install_konveyor_version: main
             test: main
 
-    name: "Nightly ${{ matrix.feature_auth_required && 'auth' || 'noauth' }}, test ref: ${{ matrix.refs.test }}, ${{ matrix.test_tags }}"
+    name: "Nightly auth, test ref: ${{ matrix.refs.test }}, ${{ matrix.test_tags }}"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
       test_tags: ${{ matrix.test_tags }}
-      feature_auth_required: ${{ matrix.feature_auth_required }}
+      feature_auth_required: true
+      bundle_image: ${{ matrix.refs.bundle_image }}
+      install_konveyor_version: ${{ matrix.refs.install_konveyor_version }}
+      test_ref: ${{ matrix.refs.test }}
+    secrets: inherit
+
+  nightly-noauth:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_tags:
+          - "@ci"
+          - "@tier0"
+          - "@tier2"
+          - "@tier3"
+        refs:
+          - bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+            install_konveyor_version: main
+            test: main
+
+    name: "Nightly noauth, test ref: ${{ matrix.refs.test }}, ${{ matrix.test_tags }}"
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: ${{ matrix.test_tags }}
+      feature_auth_required: false
       bundle_image: ${{ matrix.refs.bundle_image }}
       install_konveyor_version: ${{ matrix.refs.install_konveyor_version }}
       test_ref: ${{ matrix.refs.test }}

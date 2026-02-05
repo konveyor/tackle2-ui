@@ -88,8 +88,6 @@ describe(["@tier2"], "Actions in Task Manager Page", function () {
         }
       });
     });
-    // Succeeded tasks cannot be cancelled.
-    TaskManager.cancelTask("Succeeded");
   });
 
   after("Perform test data clean up", function () {
