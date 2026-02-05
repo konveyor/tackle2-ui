@@ -31,6 +31,7 @@ import {
   verifySelectorText,
 } from "../../../../utils/utils";
 import {
+  AnalysisMode,
   AnalysisStatuses,
   Languages,
   MIN,
@@ -278,7 +279,12 @@ export class Analysis extends Application {
       if (this.enableTransaction) {
         AnalysisWizardHelpers.enableTransactionAnalysis();
       }
-      if (this.saveAsProfile) {
+      // Save as profile is only available for source code modes
+      if (
+        this.saveAsProfile &&
+        (this.source === AnalysisMode.SourceCode ||
+          this.source === AnalysisMode.SourceCodeDeps)
+      ) {
         this.enableSaveAsProfile();
       }
       if (this.disableTagging) {
