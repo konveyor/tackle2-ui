@@ -54,7 +54,6 @@ export const menuList = "div.pf-v5-c-menu";
 export const languageSelectionDropdown = "#filter-control-provider-Languages";
 export const numberOfRulesColumn = "td[data-label='Number of rules']";
 export const logFilter = "span.pf-v5-c-menu-toggle__toggle-icon";
-export const logDropDown = "span.pf-v5-c-menu__item-text";
 export const analysisProfileMode = "#wizard-mode-profile";
 
 export enum AnalysisLogView {
