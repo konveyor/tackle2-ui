@@ -95,12 +95,6 @@ jobs:
           memory: "max"
           cpus: "max"
 
-      - name: Set kubectl context to minikube
-        run: |
-          echo "Setting kubectl context to Minikube"
-          kubectl config use-context minikube
-          kubectl cluster-info
-
       - name: Checkout the operator so we can pick the install-konveyor version to use dynamically
         uses: actions/checkout@v6
         with:
