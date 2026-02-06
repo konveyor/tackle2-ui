@@ -9,7 +9,7 @@ import {
 } from "../../../../utils/utils";
 import { SEC, button, tdTag, trTag } from "../../../types/constants";
 import { UserData } from "../../../types/types";
-import { modalConfirm } from "../../../views/common.view";
+import { actionMenuItem, modalConfirm } from "../../../views/common.view";
 import * as loginView from "../../../views/login.view";
 import {
   addUserButton,
@@ -23,6 +23,7 @@ import {
   passwordInput,
   saveUserButton,
   tempPasswordToggle,
+  upstreamAssignRoleButton,
 } from "../../../views/rbac.view";
 const tackleUiUrl = Cypress.config("baseUrl");
 const keycloakAdminPassword = Cypress.env("keycloakAdminPassword");
@@ -168,12 +169,21 @@ export class User {
   }
 
   addRole(role: string): void {
+    const namespace = getNamespace();
     User.openList();
     clickByText("a", this.username);
     this.navigateToSection("role-mapping-tab");
-    click(assignRoleButton);
-    click(filterTypeDropdown);
-    clickByText(button, "Filter by realm roles");
+
+    if (namespace.includes("mta")) {
+      click(assignRoleButton);
+      cy.contains(actionMenuItem, "Realm roles").click();
+    } else {
+      // Upstream
+      click(upstreamAssignRoleButton);
+      click(filterTypeDropdown);
+      clickByText(button, "Filter by realm roles");
+    }
+
     cy.contains(tdTag, role)
       .closest(trTag)
       .within(() => {
