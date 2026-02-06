@@ -20,8 +20,12 @@ const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/;
 
 /** Parse the codeSnip to extract the starting line number and the code content. */
 const parseCodeSnip = (
-  codeSnip: string
-): { startLine: number; code: string; lineCount: number } => {
+  codeSnip?: string | null
+): { valid: boolean; startLine: number; code: string; lineCount: number } => {
+  if (!codeSnip?.trim()) {
+    return { valid: false, startLine: 0, code: "", lineCount: 0 };
+  }
+
   const numberedLines = codeSnip.split("\n");
   const codeLines: string[] = [];
   let startLine = 1;
@@ -44,6 +48,7 @@ const parseCodeSnip = (
   }
 
   return {
+    valid: true,
     startLine,
     code: codeLines.join("\n"),
     lineCount: codeLines.length,
@@ -61,8 +66,12 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
   incident,
 }) => {
   const { t } = useTranslation();
+  const { valid, startLine, code, lineCount } = React.useMemo(
+    () => parseCodeSnip(incident.codeSnip),
+    [incident.codeSnip]
+  );
 
-  if (!incident?.codeSnip.trim()) {
+  if (!valid) {
     return (
       <EmptyState variant={EmptyStateVariant.sm}>
         <EmptyStateHeader
@@ -76,8 +85,6 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       </EmptyState>
     );
   }
-
-  const { startLine, code, lineCount } = parseCodeSnip(incident.codeSnip);
 
   // Convert absolute file line numbers to/from relative editor line numbers
   const toRelativeLine = (absoluteLine: number) => absoluteLine - startLine + 1;
