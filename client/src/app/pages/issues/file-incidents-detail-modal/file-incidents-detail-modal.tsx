@@ -18,13 +18,13 @@ import { AnalysisInsight, AnalysisReportFile } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { StateError } from "@app/components/StateError";
+import { IncidentCodeSnipViewer } from "@app/components/code-snip-viewer";
 import { InsightDescriptionAndLinks } from "@app/components/insights/components";
 import { useFetchIncidentsForInsight } from "@app/queries/analysis";
 
 import { getIssueTitle } from "../helpers";
 
 import { FileAllIncidentsTable } from "./file-all-incidents-table";
-import { IncidentCodeSnipViewer } from "./incident-code-snip-viewer";
 
 export interface IFileIncidentsDetailModalProps {
   issue: AnalysisInsight;
@@ -104,7 +104,7 @@ export const FileIncidentsDetailModal: React.FC<
                   <Grid hasGutter className={spacing.mtLg}>
                     <GridItem span={6}>
                       <IncidentCodeSnipViewer
-                        issueTitle={issueTitle}
+                        markerMessage={issueTitle}
                         incident={incident}
                       />
                     </GridItem>
