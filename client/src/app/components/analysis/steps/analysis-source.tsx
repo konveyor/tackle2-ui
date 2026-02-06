@@ -167,11 +167,12 @@ interface AnalysisSourceProps {
 export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   applications,
   onStateChanged,
-  initialState,
+  initialState: state,
   renderBinaryUpload,
   hideBinary = false,
 }) => {
   const { t } = useTranslation();
+  const [initialState] = React.useState(state);
 
   const { schema } = useAnalysisModeSchema({
     applications,
