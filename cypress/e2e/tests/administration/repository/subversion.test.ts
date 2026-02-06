@@ -29,6 +29,7 @@ import { AnalysisStatuses, CredentialType } from "../../../types/constants";
 import { analysisDetailsEditor } from "../../../views/analysis.view";
 
 // Skipping until bug https://github.com/konveyor/tackle2-hub/issues/988  is fixed.
+
 describe.skip(
   ["@tier2"],
   "Bug MTA-988: Test secure and insecure svn repository analysis",
