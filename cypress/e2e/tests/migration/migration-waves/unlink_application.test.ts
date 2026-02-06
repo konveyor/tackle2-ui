@@ -99,7 +99,7 @@ describe(
     });
 
     // Automates Polarion TC 414
-    it("Bug MTA-5930: Export to Jira Cloud and unlink applications from wave", function () {
+    it("Export to Jira Cloud and unlink applications from wave", function () {
       exportWave().then(() => {
         migrationWave.clickWaveStatus();
         migrationWave.unlinkApplications(applications);
