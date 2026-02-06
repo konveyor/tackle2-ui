@@ -56,10 +56,17 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("uiEnvironmentConfig", () =>
   cy.request("/").then<object>((resp) => {
+    // Debug logging to diagnose deployment issues
+    cy.log("Status: " + resp.status);
+    cy.log("Content-Type: " + resp.headers["content-type"]);
+
     expect(resp.status).to.eq(200);
 
     cy.log("Looking for _env in UI's index.html");
     const htmlBody = resp.body;
+    cy.log("Body length: " + htmlBody.length);
+    cy.log("Body preview (first 500 chars): " + htmlBody.substring(0, 500));
+
     const windowEnv = htmlBody.match(/window\._env\s*=\s*"(.*?)"/);
     expect(windowEnv, "Find _env in index.html").to.not.be.null;
 
