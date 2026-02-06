@@ -4,7 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 
 import { table } from "table";
 
-const bugPattern = /Bug\s+([A-Z]+-\d+)/i;
+const bugPattern = /Bug\s+((?:MTA|Tackle|TACKLE)-\d+)/i;
 const fileArg = process.argv[2] || "run/report/index.json";
 const outputFile = "run/report/bug-summary.json";
 
