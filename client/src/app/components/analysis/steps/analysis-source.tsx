@@ -177,18 +177,32 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
     applications,
   });
   const form = useForm<AnalysisModeValues>({
-    defaultValues: {
-      mode: initialState.mode,
-      artifact: initialState.artifact,
-    },
     mode: "all",
     resolver: yupResolver(schema),
   });
 
+  const { control, setValue } = form;
+
+  // Use instead of setting defaultValues. Workaround for 2 issues:
+  // 1. formState.errors not populated when defaultValues fail validation. Without this,
+  // the resolver sets isValid correctly but errors are only set after user interaction.
+  // 2. after manually triggering validation the HookFormPFGroupController does not display the error
+  // due to extra logic that requires isDirty OR isTouched to be true.
+  React.useEffect(() => {
+    setValue("mode", initialState.mode, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setValue("artifact", initialState.artifact, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [initialState.mode, initialState.artifact, setValue]);
+
   useFormChangeHandler({ form, onStateChanged });
 
   const [mode, artifact] = useWatch({
-    control: form.control,
+    control,
     name: ["mode", "artifact"],
   });
 
@@ -233,7 +247,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         </Title>
       </TextContent>
       <HookFormPFGroupController
-        control={form.control}
+        control={control}
         name="mode"
         label={t("wizard.label.analysisSource")}
         fieldId="analysis-source"
@@ -276,7 +290,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         renderBinaryUpload({
           artifact,
           onArtifactChange: (artifact) =>
-            form.setValue("artifact", artifact, { shouldValidate: true }),
+            setValue("artifact", artifact, { shouldValidate: true }),
         })}
     </Form>
   );
