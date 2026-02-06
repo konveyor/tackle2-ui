@@ -41,7 +41,7 @@ let counter: number;
 
 // Automates Polarion TC 337
 describe(
-  ["@tier2"],
+  ["@tier2", "@downstream"],
   "Custom Metrics - Count the total number of issues exported",
   function () {
     before("Create test data", function () {
