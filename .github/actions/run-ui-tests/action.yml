@@ -19,6 +19,11 @@ inputs:
     required: false
     default: ""
 
+  feature_auth_required:
+    description: Whether authentication is enabled (if false, excludes rbac tests)
+    required: false
+    default: "false"
+
   report_artifact_name:
     description: The name of the artifact to upload.
     default: "ui-test-reports"
@@ -127,16 +132,25 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
+        AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
         cd ui-tests/cypress
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+
+        # Exclude rbac tests if auth is not required
+        if [[ "$AUTH_REQUIRED" != "true" ]]; then
+          echo "Auth is disabled - excluding rbac tests"
+          # Filter out any rbac test files from the spec
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
+        fi
+
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
 
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-        CYPRESS_EXCLUDE_TAGS: "cf"
+        CYPRESS_EXCLUDE_TAGS: "cf,downstream"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin

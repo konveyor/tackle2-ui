@@ -15,19 +15,19 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomUserData } from "../../../../utils/data_utils";
+import { getRandomUserData } from "../../../utils/data_utils";
 import {
   deleteApplicationTableRows,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
-} from "../../../../utils/utils";
-import { User } from "../../../models/keycloak/users/user";
-import { UserArchitect } from "../../../models/keycloak/users/userArchitect";
-import { UserMigrator } from "../../../models/keycloak/users/userMigrator";
-import { Analysis } from "../../../models/migration/applicationinventory/analysis";
-import { TaskManager } from "../../../models/migration/task-manager/task-manager";
-import { TaskStatus } from "../../../types/constants";
+} from "../../../utils/utils";
+import { User } from "../../models/keycloak/users/user";
+import { UserArchitect } from "../../models/keycloak/users/userArchitect";
+import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { Analysis } from "../../models/migration/applicationinventory/analysis";
+import { TaskManager } from "../../models/migration/task-manager/task-manager";
+import { TaskStatus } from "../../types/constants";
 
 describe(["@tier3"], "Cancel task created by another user", function () {
   const userMigrator = new UserMigrator(getRandomUserData());

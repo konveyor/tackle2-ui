@@ -27,6 +27,30 @@ on:
         type: string
         default: main
 
+    secrets:
+      GIT_USER:
+        required: false
+      GIT_PASSWORD:
+        required: false
+      SVN_USER:
+        required: false
+      SVN_PASSWORD:
+        required: false
+      JIRA_STAGE_DATACENTER_URL:
+        required: false
+      JIRA_STAGE_BEARER_TOKEN:
+        required: false
+      JIRA_STAGE_BASIC_LOGIN:
+        required: false
+      JIRA_STAGE_BASIC_PASSWORD:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_URL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_EMAIL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_TOKEN:
+        required: false
+
   workflow_dispatch: # start from GitHub UI or API
     inputs:
       test_tags:
@@ -105,11 +129,31 @@ jobs:
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
       - name: Get Keycloak admin password
+        if: ${{ inputs.feature_auth_required }}
         run: |
+          # Wait for Keycloak secret to be created
+          echo "Waiting for tackle-keycloak-sso secret..."
+          secret_found=false
+          for i in {1..30}; do
+            if kubectl get secret tackle-keycloak-sso -n konveyor-tackle &>/dev/null; then
+              echo "Secret found!"
+              secret_found=true
+              break
+            fi
+            echo "Waiting for secret (attempt $i/30)..."
+            sleep 2
+          done
+
+          if [[ "$secret_found" != "true" ]]; then
+            echo "ERROR: tackle-keycloak-sso secret not found after 30 attempts"
+            kubectl get secrets -n konveyor-tackle
+            exit 1
+          fi
+
           # Fetch Keycloak admin password from the secret
           KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
             -n konveyor-tackle \
-            -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)
+            -o jsonpath='{.data.password}' | base64 -d)
 
           echo "Keycloak admin password retrieved"
           echo "KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASS}" >>$GITHUB_ENV
@@ -127,15 +171,41 @@ jobs:
           HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
           echo "Hub pod: $HUB_POD"
 
+          # Verify metrics endpoint is available inside the pod first
+          echo "Checking if metrics endpoint is available inside the pod..."
+          for i in {1..30}; do
+            if kubectl exec -n konveyor-tackle "$HUB_POD" -- curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Metrics endpoint is available inside the pod"
+              break
+            fi
+            echo "Waiting for metrics endpoint to be available (attempt $i/30)..."
+            sleep 2
+          done
+
           # Port-forward metrics endpoint in the background
           kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
+          PF_PID=$!
 
-          # Wait for port-forward to be ready
-          sleep 5
+          # Wait for port-forward to be ready with retry logic
+          echo "Waiting for port-forward to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Port-forward is ready and metrics endpoint is accessible"
+              break
+            fi
+            echo "Waiting for port-forward (attempt $i/30)..."
+            sleep 2
+          done
 
           # Verify metrics endpoint is accessible
           echo "Testing metrics endpoint..."
-          curl -s http://localhost:2112/metrics | head -10
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+            echo "Metrics endpoint test successful"
+          else
+            echo "Failed to access metrics endpoint"
+            kubectl logs -n konveyor-tackle "$HUB_POD" --tail=50
+            exit 1
+          fi
 
           # Set metrics URL for Cypress tests
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
@@ -153,6 +223,7 @@ jobs:
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
+          feature_auth_required: ${{ inputs.feature_auth_required }}
           report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}

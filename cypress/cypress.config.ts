@@ -87,6 +87,42 @@ export default defineConfig({
       config.env.svn_user = process.env.CYPRESS_SVN_USER;
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
+      // Jira Atlassian Cloud credentials - override hardcoded defaults with environment variables
+      if (process.env.CYPRESS_jira_atlassian_cloud_url) {
+        config.env.jira_atlassian_cloud_url =
+          process.env.CYPRESS_jira_atlassian_cloud_url;
+      }
+      if (process.env.CYPRESS_jira_atlassian_cloud_email) {
+        config.env.jira_atlassian_cloud_email =
+          process.env.CYPRESS_jira_atlassian_cloud_email;
+      }
+      if (process.env.CYPRESS_jira_atlassian_cloud_token) {
+        config.env.jira_atlassian_cloud_token =
+          process.env.CYPRESS_jira_atlassian_cloud_token;
+      }
+      if (process.env.CYPRESS_jira_atlassian_cloud_project) {
+        config.env.jira_atlassian_cloud_project =
+          process.env.CYPRESS_jira_atlassian_cloud_project;
+      }
+
+      // Jira Stage Datacenter credentials - override hardcoded defaults with environment variables
+      if (process.env.CYPRESS_jira_stage_datacenter_url) {
+        config.env.jira_stage_datacenter_url =
+          process.env.CYPRESS_jira_stage_datacenter_url;
+      }
+      if (process.env.CYPRESS_jira_stage_bearer_token) {
+        config.env.jira_stage_bearer_token =
+          process.env.CYPRESS_jira_stage_bearer_token;
+      }
+      if (process.env.CYPRESS_jira_stage_basic_login) {
+        config.env.jira_stage_basic_login =
+          process.env.CYPRESS_jira_stage_basic_login;
+      }
+      if (process.env.CYPRESS_jira_stage_basic_password) {
+        config.env.jira_stage_basic_password =
+          process.env.CYPRESS_jira_stage_basic_password;
+      }
+
       // Plugins
       // Esbuild bundler configured with sourcemaps for better stack traces
       on(

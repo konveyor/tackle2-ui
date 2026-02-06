@@ -143,7 +143,7 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
             <FlexItem key={`manual-custom-rules-${customLabels.target.length}`}>
               <GroupOfLabels
                 labelColor={"grey"}
-                groupName="Manual custom rules"
+                groupName={t("analysisSteps.review.manualCustomRules")}
                 items={customLabels.target}
               />
             </FlexItem>
@@ -153,7 +153,7 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
 
       <HookFormPFGroupController
         control={control}
-        label="Additional target labels"
+        label={t("analysisSteps.review.additionalTargetLabels")}
         name="additionalTargetLabels"
         fieldId="additional-target-labels"
         renderInput={({
@@ -224,7 +224,7 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
             <FlexItem>
               <GroupOfLabels
                 labelColor={"grey"}
-                groupName="Manual custom rules"
+                groupName={t("analysisSteps.review.manualCustomRules")}
                 items={customLabels.source}
               />
             </FlexItem>
@@ -234,7 +234,7 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
 
       <HookFormPFGroupController
         control={control}
-        label="Additional source labels"
+        label={t("analysisSteps.review.additionalSourceLabels")}
         name="additionalSourceLabels"
         fieldId="additional-source-labels"
         renderInput={({
