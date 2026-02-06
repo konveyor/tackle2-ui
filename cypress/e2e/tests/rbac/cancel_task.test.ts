@@ -15,8 +15,7 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomUserData } from "utils/data_utils";
-
+import { getRandomUserData } from "../../../utils/data_utils";
 import {
   deleteApplicationTableRows,
   getRandomAnalysisData,
