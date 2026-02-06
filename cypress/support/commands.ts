@@ -68,6 +68,14 @@ Cypress.Commands.add("uiEnvironmentConfig", () =>
     cy.log("Body preview (first 500 chars): " + htmlBody.substring(0, 500));
 
     const windowEnv = htmlBody.match(/window\._env\s*=\s*"(.*?)"/);
+
+    if (!windowEnv) {
+      cy.log("window._env NOT FOUND - capturing screenshot for debugging");
+      // Visit the page so we can capture what's actually being displayed
+      cy.visit("/", { failOnStatusCode: false });
+      cy.screenshot("debug-missing-window-env", { capture: "fullPage" });
+    }
+
     expect(windowEnv, "Find _env in index.html").to.not.be.null;
 
     const env = JSON.parse(atob(windowEnv[1]));
