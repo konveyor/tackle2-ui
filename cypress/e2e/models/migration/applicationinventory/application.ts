@@ -93,7 +93,6 @@ import {
   continueButton,
 } from "../../../views/assessment.view";
 import * as commonView from "../../../views/common.view";
-import { alertBody, alertTitle } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import { reviewColumnSelector } from "../../../views/review.view";
 import { Archetype } from "../archetypes/archetype";
@@ -423,7 +422,7 @@ export class Application {
       cy.get(appDetailsView.tagCategoryFilter).click();
     else cy.get(appDetailsView.tagFilter).click();
 
-    cy.get(appDetailsView.filterSourceMenu).contains(source).click();
+    cy.get(commonView.actionMenuItem).contains(source).click();
   }
 
   /**
@@ -937,7 +936,7 @@ export class Application {
     const archetypeNames = archetypes.map((archetype) => archetype.name);
     const joinedArchetypes = archetypeNames.join(", ");
     const alertTitleMessage = `The application ${this.name} already is associated with archetypes: ${joinedArchetypes}`;
-    cy.get(alertTitle)
+    cy.get(commonView.alertTitle)
       .invoke("text")
       .then((text) => {
         // remove whitespace chars causing the text compare to fail - BUG MTA-1968
@@ -950,7 +949,7 @@ export class Application {
     // todo: remove previous code once the bug has been resolved and uncomment the below code
     // validateTextPresence(alertTitle,alertTitleMessage);
     const alertBodyMessage = `Do you want to create a dedicated assessment for this application and override the inherited archetype assessment(s)?`;
-    validateTextPresence(alertBody, alertBodyMessage);
+    validateTextPresence(commonView.alertBody, alertBodyMessage);
   }
 
   // Checks if app name is displayed in the dropdown under respective dependency

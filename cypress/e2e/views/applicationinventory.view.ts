@@ -53,7 +53,6 @@ export const user = "User";
 export const kebabMenu = "#row-actions";
 export const kebabMenuAction = "#action";
 export const topKebabMenu = "#toolbar-kebab";
-export const kebabMenuItem = "span.pf-v5-c-menu__item-text";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
 export const profileEdit = ".pf-m-1-col > .pf-v5-c-button";
@@ -83,7 +82,6 @@ export enum appDetailsView {
   closeDetailsPage = "button[aria-label='Close drawer panel']",
   tagFilter = "#filter-control-source-typeahead-select-input",
   tagCategory = "div[class='pf-v5-c-content'] > h4",
-  filterSourceMenu = "span.pf-v5-c-menu__item-text",
   tagCategoryFilter = "#filter-control-tagCategory-typeahead-select-input",
 }
 
