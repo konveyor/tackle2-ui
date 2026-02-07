@@ -60,7 +60,7 @@ describe(
     });
 
     describe("Test same rules are triggered for custom rules and custom migration target", function () {
-      it("Bug Tackle-966: Create test data", function () {
+      it("Bug Tackle-996: Create test data", function () {
         // Bug - https://github.com/konveyor/tackle2-hub/issues/996
         CustomMigrationTarget.open(true);
         const targetData = this.customMigrationTargets["rules_from_bug_3330"];
