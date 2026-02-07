@@ -1049,7 +1049,7 @@
     "source": "Source code",
     "target": ["Containerization"],
     "appName": "tackle-testapp",
-    "excludePackages": "io.konveyor.demo.ordermanagement.model",
+    "excludePackages": ["io.konveyor.demo.ordermanagement.model"],
     "issues": [
       {
         "name": ["File system - Java IO", "Java Servlet"]

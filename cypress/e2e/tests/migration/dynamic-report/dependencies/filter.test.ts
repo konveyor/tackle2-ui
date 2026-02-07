@@ -142,7 +142,8 @@ describe(["@tier3"], "Dependency filtering", () => {
     clearAllFilters();
   });
 
-  it("Filtering dependencies by Archetype", function () {
+  // https://github.com/konveyor/tackle2-ui/issues/2960
+  it("Bug Tackle-2960: Filtering dependencies by Archetype", function () {
     Dependencies.applyFilter(dependencyFilter.archetype, archetype.name);
     this.analysisData["source_analysis_on_bookserverapp"][
       "dependencies"

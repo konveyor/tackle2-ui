@@ -2074,7 +2074,7 @@ export function cleanupDownloads(): void {
   // This will eliminate content of `downloads` folder
   const downloadsFolder = Cypress.config("downloadsFolder");
   cy.exec(
-    `bash -lc 'set -euo pipefail; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
+    `bash -lc 'set -euo pipefail; mkdir -p "$DOWNLOADS_FOLDER"; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
     {
       env: { DOWNLOADS_FOLDER: String(downloadsFolder) },
     }

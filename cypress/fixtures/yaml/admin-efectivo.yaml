@@ -1,7 +1,7 @@
 - category: potential
   customVariables: []
   description: Test-002 Remote Exception
-  effort: 0
+  effort: 1
   labels:
     - konveyor.io/target=cloud-readiness
     - konveyor.io/source

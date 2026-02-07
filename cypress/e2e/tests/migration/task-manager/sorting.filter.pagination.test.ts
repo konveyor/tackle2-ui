@@ -243,7 +243,7 @@ describe(
       clearAllFilters();
     });
 
-    it("Bug MTA-5753: Filter by 'Created By'", () => {
+    it("Filter by 'Created By'", () => {
       TaskManager.open();
       TaskManager.applyFilter(TaskFilter.createdBy, "admin");
       validateTextPresence(TaskManagerColumns.createdBy, "admin");
