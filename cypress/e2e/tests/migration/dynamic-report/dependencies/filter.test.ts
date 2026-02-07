@@ -221,12 +221,12 @@ describe(["@tier3"], "Dependency filtering", () => {
     });
   });
 
-  // after("Perform test data clean up", function () {
-  //   archetype.delete();
-  //   deleteByList(applicationsList);
-  //   deleteByList(stakeholders);
-  //   deleteByList(stakeholderGroups);
-  //   deleteByList(tags);
-  //   deleteByList(businessServiceList);
-  // });
+  after("Perform test data clean up", function () {
+    archetype.delete();
+    deleteByList(applicationsList);
+    deleteByList(stakeholders);
+    deleteByList(stakeholderGroups);
+    deleteByList(tags);
+    deleteByList(businessServiceList);
+  });
 });

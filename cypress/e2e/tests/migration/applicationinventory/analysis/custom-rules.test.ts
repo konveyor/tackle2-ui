@@ -17,7 +17,6 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  deleteAppImportsTableRows,
   deleteByList,
   exists,
   getRandomAnalysisData,
@@ -44,7 +43,6 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
   before("Create test data", function () {
     login();
     cy.visit("/");
-    deleteAppImportsTableRows();
     sourceCredential = new CredentialsSourceControlUsername(
       data.getRandomCredentialsData(
         CredentialType.sourceControl,
