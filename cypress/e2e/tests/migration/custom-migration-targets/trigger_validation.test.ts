@@ -102,11 +102,11 @@ describe(
         });
       });
 
-      it("Bug Tackle-966: Verify effort for analysis configured with custom migration target", function () {
+      it("Bug Tackle-996: Verify effort for analysis configured with custom migration target", function () {
         applications[0].verifyEffort(EXPECTED_EFFORT);
       });
 
-      it("Bug Tackle-966: Verify effort for analysis configured with custom rules from a repository", function () {
+      it("Bug Tackle-996: Verify effort for analysis configured with custom rules from a repository", function () {
         applications[1].verifyEffort(EXPECTED_EFFORT);
       });
     });

@@ -82,7 +82,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     });
   });
 
-  it("Bug Tackle-966: Admin, Rules from public repository", function () {
+  it("Bug Tackle-996: Admin, Rules from public repository", function () {
     // Bug - https://github.com/konveyor/tackle2-hub/issues/996
     analysisWithPublicRules = new Analysis(
       getRandomApplicationData("bookServerApp", {
@@ -101,7 +101,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     analyzeAndVerify(analysisWithPublicRules, AnalysisStatuses.completed);
   });
 
-  it("Bug Tackle-966: Admin, Rules from private repository with credentials", function () {
+  it("Bug Tackle-996: Admin, Rules from private repository with credentials", function () {
     analysisWithPrivateRules = new Analysis(
       getRandomApplicationData("bookServerApp", {
         sourceData: this.appData["bookserver-app"],
@@ -140,7 +140,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     analyzeAndVerify(analysisWithPrivateRulesNoCred, AnalysisStatuses.failed);
   });
 
-  it("Bug Tackle-966: Architect, Rules from public and private(with and without credentials) repository", function () {
+  it("Bug Tackle-996: Architect, Rules from public and private(with and without credentials) repository", function () {
     architect.login();
     analyzeAndVerify(analysisWithPublicRules, AnalysisStatuses.completed);
     analyzeAndVerify(analysisWithPrivateRules, AnalysisStatuses.completed);
@@ -148,7 +148,7 @@ describe(["@tier2"], "Custom Rules RBAC operations", function () {
     architect.logout();
   });
 
-  it("Bug Tackle-966: Migrator, Rules from public and private(with and without credentials)repository", function () {
+  it("Bug Tackle-996: Migrator, Rules from public and private(with and without credentials)repository", function () {
     migrator.login();
     analyzeAndVerify(analysisWithPublicRules, AnalysisStatuses.completed);
     analyzeAndVerify(analysisWithPrivateRules, AnalysisStatuses.completed);
