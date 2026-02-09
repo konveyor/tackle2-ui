@@ -62,7 +62,6 @@ import {
   expandAll,
   fileName,
   kebabTopMenuButton,
-  logDropDown,
   logFilter,
   manageCredentials,
   mavenCredential,
@@ -184,7 +183,7 @@ export class Analysis extends Application {
 
       if (profileName) {
         cy.get(analysisProfileSelect).click();
-        cy.contains("span.pf-v5-c-menu__item-text", profileName).click();
+        cy.contains(actionMenuItem, profileName).click();
         next();
       }
     }
@@ -544,7 +543,7 @@ export class Analysis extends Application {
   ): void {
     this.openAnalysisDetails();
     cy.get(logFilter).eq(2).click();
-    clickByText(logDropDown, analysisLogView);
+    clickByText(actionMenuItem, analysisLogView);
     cy.wait(3 * SEC);
 
     cy.get(".pf-v5-c-code-editor__code", { timeout: 10000 })
