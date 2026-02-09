@@ -11,49 +11,10 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 
 import { AnalysisIncident } from "@app/api/models";
+import { parseCodeSnip } from "@app/utils/code-snip-utils";
 import { LANGUAGES_BY_FILE_EXTENSION } from "config/monacoConstants";
 
 import "./incident-code-snip-viewer.css";
-
-// Pattern: leading whitespace, line number, optional 2-space separator, code content
-const codeLineRegex = /^\s*([0-9]+)( {2})?(.*)$/;
-
-/** Parse the codeSnip to extract the starting line number and the code content. */
-const parseCodeSnip = (
-  codeSnip?: string | null
-): { valid: boolean; startLine: number; code: string; lineCount: number } => {
-  if (!codeSnip?.trim()) {
-    return { valid: false, startLine: 0, code: "", lineCount: 0 };
-  }
-
-  const numberedLines = codeSnip.split("\n");
-  const codeLines: string[] = [];
-  let startLine = 1;
-  let startLineFound = false;
-
-  for (const numberedLine of numberedLines) {
-    const match = numberedLine.match(codeLineRegex);
-    if (match) {
-      const lineNum = Number(match[1]);
-      if (!startLineFound && !isNaN(lineNum)) {
-        startLine = lineNum;
-        startLineFound = true;
-      }
-      // match[3] is the code content after the line number and optional separator
-      codeLines.push(match[3] ?? "");
-    }
-    // Lines without line numbers (e.g., empty string from leading \n) are skipped
-    // as they are format artifacts, not actual source lines.
-    // Blank source lines like " 6  " still match because they have a line number.
-  }
-
-  return {
-    valid: true,
-    startLine,
-    code: codeLines.join("\n"),
-    lineCount: codeLines.length,
-  };
-};
 
 export interface IIncidentCodeSnipViewerProps {
   /** The title/message to display in the error marker tooltip */
@@ -66,12 +27,12 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
   incident,
 }) => {
   const { t } = useTranslation();
-  const { valid, startLine, code, lineCount } = React.useMemo(
+  const parsed = React.useMemo(
     () => parseCodeSnip(incident.codeSnip),
     [incident.codeSnip]
   );
 
-  if (!valid) {
+  if (!parsed.valid) {
     return (
       <EmptyState variant={EmptyStateVariant.sm}>
         <EmptyStateHeader
@@ -85,6 +46,8 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       </EmptyState>
     );
   }
+
+  const { startLine, code, lineCount } = parsed;
 
   // Convert absolute file line numbers to/from relative editor line numbers
   const toRelativeLine = (absoluteLine: number) => absoluteLine - startLine + 1;
