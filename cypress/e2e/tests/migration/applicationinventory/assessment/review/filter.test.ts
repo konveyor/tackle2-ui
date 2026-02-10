@@ -73,7 +73,7 @@ describe(
     });
 
     identifiedRisksFilterValidations.forEach((validation) => {
-      it(`Bug MTA-2784: Filtering identified risks by ${validation.name}`, function () {
+      it(`Filtering identified risks by ${validation.name}`, function () {
         const commonActions = () => {
           applySelectFilter(
             validation.id,
