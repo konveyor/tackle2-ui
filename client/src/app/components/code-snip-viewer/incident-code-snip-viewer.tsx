@@ -49,7 +49,7 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
 
   const { startLine, code, lineCount } = parsed;
 
-  // Convert codeSnip line numbers to/from editor line numbers
+  // Convert codeSnip line numbers (starting at codeSnip first line number) to/from editor line numbers (start at 1)
   const toSnipLine = (absoluteLine: number) => absoluteLine - startLine + 1;
   const toEditorLine = (relativeLine: number) => relativeLine + startLine - 1;
 
