@@ -280,7 +280,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             schema
               .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
-              .max(220, t("validation.maxLength", { length: 220 })),
         })
         .when("kind", {
           is: (kind: IdentityKind) => kind === "basic-auth",
@@ -288,7 +287,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             schema
               .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
-              .max(281, t("validation.maxLength", { length: 281 })),
         })
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>
@@ -297,7 +295,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
             schema
               .required(t("validation.required"))
               .min(3, t("validation.minLength", { length: 3 }))
-              .max(120, t("validation.maxLength", { length: 120 })),
         }),
 
       key: yup
