@@ -70,4 +70,10 @@ describe("parseCodeSnip", () => {
       lineCount: 1,
     });
   });
+
+  it("returns invalid result for string with no line numbers", () => {
+    expect(parseCodeSnip("  this is some string\nwith\nbad format")).toEqual({
+      valid: false,
+    });
+  });
 });

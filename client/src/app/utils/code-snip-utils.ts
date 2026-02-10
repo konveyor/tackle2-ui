@@ -34,6 +34,10 @@ export const parseCodeSnip = (
     // Blank source lines like " 6  " still match because they have a line number.
   }
 
+  if (!startLineFound) {
+    return { valid: false };
+  }
+
   return {
     valid: true,
     startLine,
