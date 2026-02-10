@@ -54,6 +54,7 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
       toggle={toggle}
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
       selected={value}
+      isScrollable
       onSelect={(_, selection) => {
         onChange(selection as string);
         setIsOpen(false);
