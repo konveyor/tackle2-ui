@@ -279,14 +279,14 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           then: (schema) =>
             schema
               .required(t("validation.required"))
-              .min(3, t("validation.minLength", { length: 3 }))
+              .min(3, t("validation.minLength", { length: 3 })),
         })
         .when("kind", {
           is: (kind: IdentityKind) => kind === "basic-auth",
           then: (schema) =>
             schema
               .required(t("validation.required"))
-              .min(3, t("validation.minLength", { length: 3 }))
+              .min(3, t("validation.minLength", { length: 3 })),
         })
         .when(["kind", "userCredentials"], {
           is: (kind: IdentityKind, userCredentials: UserCredentials) =>
@@ -294,7 +294,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           then: (schema) =>
             schema
               .required(t("validation.required"))
-              .min(3, t("validation.minLength", { length: 3 }))
+              .min(3, t("validation.minLength", { length: 3 })),
         }),
 
       key: yup
