@@ -49,9 +49,9 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
 
   const { startLine, code, lineCount } = parsed;
 
-  // Convert absolute file line numbers to/from relative editor line numbers
-  const toRelativeLine = (absoluteLine: number) => absoluteLine - startLine + 1;
-  const toAbsoluteLine = (relativeLine: number) => relativeLine + startLine - 1;
+  // Convert codeSnip line numbers to/from editor line numbers
+  const toSnipLine = (absoluteLine: number) => absoluteLine - startLine + 1;
+  const toEditorLine = (relativeLine: number) => relativeLine + startLine - 1;
 
   const extension = incident.file.toLowerCase().split(".").slice(-1)[0];
   const language = Object.keys(LANGUAGES_BY_FILE_EXTENSION).includes(extension)
@@ -61,9 +61,9 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
     : undefined;
 
   // Check if the incident line is within the snippet bounds
-  const relativeIncidentLine = toRelativeLine(incident.line);
-  const isLineInBounds =
-    relativeIncidentLine >= 1 && relativeIncidentLine <= lineCount;
+  const snipIncidentLine = toSnipLine(incident.line);
+  const isIncidentLineVisible =
+    snipIncidentLine >= 1 && snipIncidentLine <= lineCount;
 
   return (
     <CodeEditor
@@ -75,37 +75,32 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       language={language}
       options={{
         renderValidationDecorations: "on",
-        lineNumbers: (lineNumber: number) => String(toAbsoluteLine(lineNumber)),
+        lineNumbers: (lineNumber: number) => String(toEditorLine(lineNumber)),
       }}
       onEditorDidMount={(editor, monaco) => {
-        if (!isLineInBounds) {
-          editor.layout();
+        if (!isIncidentLineVisible) {
           return;
         }
 
         try {
           const model = editor.getModel();
           if (model) {
-            // Get column positions for the marker. These methods return 0 for
-            // empty or whitespace-only lines, but Monaco columns are 1-based.
-            const firstNonWsCol =
-              model.getLineFirstNonWhitespaceColumn(relativeIncidentLine);
-            const lastNonWsCol =
-              model.getLineLastNonWhitespaceColumn(relativeIncidentLine);
-
+            // Determine the column positions for the marker. Monaco columns are 1-based.
             // For empty/whitespace lines, use column 1 and end of line
-            const startColumn = firstNonWsCol || 1;
+            const startColumn =
+              model.getLineFirstNonWhitespaceColumn(snipIncidentLine) || 1;
             const endColumn =
-              lastNonWsCol || model.getLineMaxColumn(relativeIncidentLine);
+              model.getLineLastNonWhitespaceColumn(snipIncidentLine) ||
+              model.getLineMaxColumn(snipIncidentLine);
 
             // Red squiggly under the affected line
             monaco.editor.setModelMarkers(model, "incident-markers", [
               {
                 message: markerMessage,
                 severity: monaco.MarkerSeverity.Error,
-                startLineNumber: relativeIncidentLine,
+                startLineNumber: snipIncidentLine,
                 startColumn,
-                endLineNumber: relativeIncidentLine,
+                endLineNumber: snipIncidentLine,
                 endColumn,
               },
             ]);
@@ -114,9 +109,9 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
             editor.createDecorationsCollection([
               {
                 range: new monaco.Range(
-                  relativeIncidentLine,
+                  snipIncidentLine,
                   1,
-                  relativeIncidentLine,
+                  snipIncidentLine,
                   1
                 ),
                 options: {
@@ -132,7 +127,8 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
             error
           );
         }
-        editor.layout();
+
+        editor.layout(); // Layout the editor to ensure the markers are visible
       }}
     />
   );
