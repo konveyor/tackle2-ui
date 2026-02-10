@@ -18,6 +18,7 @@ limitations under the License.
 import * as data from "../../../../../utils/data_utils";
 import {
   deleteAllCredentials,
+  deleteApplicationTableRows,
   deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
@@ -44,6 +45,7 @@ describe(["@tier1"], "Source Analysis", () => {
   before("Login", function () {
     login();
     cy.visit("/");
+    deleteApplicationTableRows();
     deleteAllCredentials();
 
     // Create source Credentials
@@ -210,7 +212,8 @@ describe(["@tier1"], "Source Analysis", () => {
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
-  it("Analysis for known Open Source libraries on tackleTest app", function () {
+  it("Bug Tackle-1078: Analysis for known Open Source libraries on tackleTest app", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1078
     // Source code analysis require both source and maven credentials
     const application = new Analysis(
       getRandomApplicationData("tackleTestApp_Source+knownLibraries", {
@@ -296,7 +299,8 @@ describe(["@tier1"], "Source Analysis", () => {
     );
   });
 
-  it("JWS6 target Source + deps analysis on tackletest app", function () {
+  it("Bug Tackle-1078: JWS6 target Source + deps analysis on tackletest app", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1078
     // Source code analysis require both source and maven credentials
     const application = new Analysis(
       getRandomApplicationData("tackleTestApp_Source+dependencies_jws6", {
@@ -359,7 +363,8 @@ describe(["@tier1"], "Source Analysis", () => {
   });
 
   // Automates customer bug MTA-1785
-  it("JDK<11 Source + dependencies analysis on tackle app public", function () {
+  it("Bug Tackle-1078: JDK<11 Source + dependencies analysis on tackle app public", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1078
     const application = new Analysis(
       getRandomApplicationData("tackle testapp public jdk 9", {
         sourceData: this.appData["tackle-testapp-public-jdk9"],
