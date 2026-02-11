@@ -49,9 +49,10 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
 
   const { startLine, code, lineCount } = parsed;
 
-  // Convert codeSnip line numbers (starting at codeSnip first line number) to/from editor line numbers (start at 1)
-  const toSnipLine = (absoluteLine: number) => absoluteLine - startLine + 1;
-  const toEditorLine = (relativeLine: number) => relativeLine + startLine - 1;
+  // Convert between source file line numbers and 1-based snippet line positions
+  const sourceLineToSnipLine = (sourceLine: number) =>
+    sourceLine - startLine + 1;
+  const snipLineToSourceLine = (snipLine: number) => snipLine + startLine - 1;
 
   const extension = incident.file.toLowerCase().split(".").slice(-1)[0];
   const language = Object.keys(LANGUAGES_BY_FILE_EXTENSION).includes(extension)
@@ -61,12 +62,13 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
     : undefined;
 
   // Check if the incident line is within the snippet bounds
-  const snipIncidentLine = toSnipLine(incident.line);
+  const snipIncidentLine = sourceLineToSnipLine(incident.line);
   const isIncidentLineVisible =
     snipIncidentLine >= 1 && snipIncidentLine <= lineCount;
 
   return (
     <CodeEditor
+      id="incident-code-snip-viewer"
       isReadOnly
       isDarkTheme
       isLineNumbersVisible
@@ -75,7 +77,8 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       language={language}
       options={{
         renderValidationDecorations: "on",
-        lineNumbers: (lineNumber: number) => String(toEditorLine(lineNumber)),
+        lineNumbers: (lineNumber: number) =>
+          String(snipLineToSourceLine(lineNumber)),
       }}
       onEditorDidMount={(editor, monaco) => {
         if (!isIncidentLineVisible) {
