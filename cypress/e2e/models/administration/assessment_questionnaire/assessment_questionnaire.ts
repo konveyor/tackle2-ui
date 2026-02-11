@@ -58,6 +58,7 @@ export class AssessmentQuestionnaire {
 
   public static import(fileName: string, submit: boolean = true) {
     AssessmentQuestionnaire.open();
+    cy.wait(2 * SEC);
     click(importQuestionnaire);
     cy.get('input[type="file"]', { timeout: 2 * SEC }).selectFile(
       `fixtures/${fileName}`,
