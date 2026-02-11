@@ -1,0 +1,44 @@
+name: Nightly CI for release-0.9
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+
+  workflow_dispatch:
+
+  workflow_call:
+
+concurrency:
+  group: nightly-release09-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repo-level-ci:
+    name: Run repo-level CI for release-0.9
+    uses: konveyor/tackle2-ui/.github/workflows/ci-repo.yml@release-0.9
+
+  global-ci:
+    name: Run global CI for release-0.9
+    uses: konveyor/tackle2-ui/.github/workflows/ci-global.yml@release-0.9
+
+  e2e-nightly-auth:
+    name: "E2E auth tests (release-0.9) - all tiers"
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.9
+    with:
+      test_tags: "@ci,@tier0,@tier2,@tier3"
+      feature_auth_required: true
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      install_konveyor_version: release-0.9
+      test_ref: release-0.9
+    secrets: inherit
+
+  e2e-nightly-noauth:
+    name: "E2E noauth tests (release-0.9) - all tiers"
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.9
+    with:
+      test_tags: "@ci,@tier0,@tier2,@tier3"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      install_konveyor_version: release-0.9
+      test_ref: release-0.9
+    secrets: inherit
