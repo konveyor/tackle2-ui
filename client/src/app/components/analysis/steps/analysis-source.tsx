@@ -179,12 +179,16 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   });
   const form = useForm<AnalysisModeValues>({
     mode: "all",
+    defaultValues: {
+      mode: initialState.mode,
+      artifact: initialState.artifact,
+    },
     resolver: yupResolver(schema),
   });
 
   const { control, setValue } = form;
 
-  // Use instead of setting defaultValues. Workaround for 2 issues:
+  // Use in addition to defaultValues to workaround 2 issues:
   // 1. formState.errors not populated when defaultValues fail validation. Without this,
   // the resolver sets isValid correctly but errors are only set after user interaction.
   // 2. after manually triggering validation the HookFormPFGroupController does not display the error
@@ -192,11 +196,11 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   React.useEffect(() => {
     setValue("mode", initialState.mode, {
       shouldValidate: true,
-      shouldDirty: true,
+      shouldTouch: true,
     });
     setValue("artifact", initialState.artifact, {
       shouldValidate: true,
-      shouldDirty: true,
+      shouldTouch: true,
     });
   }, [initialState.mode, initialState.artifact, setValue]);
 
@@ -252,9 +256,11 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         name="mode"
         label={t("wizard.label.analysisSource")}
         fieldId="analysis-source"
+        helperTextTestId="analysis-source-select-message"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelectBasic
+            toggleDataTestId="analysis-source-select-toggle"
             selectId="analysis-source"
             toggleId="analysis-source-toggle"
             toggleAriaLabel="Analysis source dropdown toggle"
