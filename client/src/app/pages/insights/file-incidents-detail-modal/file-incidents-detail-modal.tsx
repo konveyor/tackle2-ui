@@ -104,6 +104,7 @@ export const FileIncidentsDetailModal: React.FC<
                   <Grid hasGutter className={spacing.mtLg}>
                     <GridItem span={6}>
                       <IncidentCodeSnipViewer
+                        key={incident.id}
                         markerMessage={insightTitle}
                         incident={incident}
                       />

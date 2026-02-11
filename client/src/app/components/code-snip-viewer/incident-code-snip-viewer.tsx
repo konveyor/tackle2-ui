@@ -77,10 +77,29 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
       language={language}
       options={{
         renderValidationDecorations: "on",
+        contextmenu: false,
         lineNumbers: (lineNumber: number) =>
           String(snipLineToSourceLine(lineNumber)),
       }}
+      editorProps={{
+        // Stable URI per incident so Monaco reuses the same model instead
+        // of creating orphaned models that accumulate markers.
+        path: `incident-${incident.id}`,
+      }}
       onEditorDidMount={(editor, monaco) => {
+        // Disable command palette keyboard shortcuts (F1 and Ctrl+Shift+P)
+        editor.addCommand(monaco.KeyCode.F1, () => {});
+        editor.addCommand(
+          monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
+          () => {}
+        );
+
+        // Clear any stale markers on this model from a previous mount
+        const currentModel = editor.getModel();
+        if (currentModel) {
+          monaco.editor.setModelMarkers(currentModel, "incident-markers", []);
+        }
+
         if (!isIncidentLineVisible) {
           return;
         }
