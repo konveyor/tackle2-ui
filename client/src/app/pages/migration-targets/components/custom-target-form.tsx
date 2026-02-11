@@ -256,7 +256,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       associatedCredentials: identities.find(
         (identity) => identity.id === target?.ruleset?.identity?.id
       )?.name,
-      repositoryType: target?.ruleset?.repository?.kind,
+      repositoryType: target?.ruleset?.repository?.kind ?? "git",
       sourceRepository: target?.ruleset?.repository?.url,
       branch: target?.ruleset?.repository?.branch,
       rootPath: target?.ruleset?.repository?.path,
