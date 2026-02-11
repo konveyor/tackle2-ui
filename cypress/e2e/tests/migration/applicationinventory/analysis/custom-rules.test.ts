@@ -84,7 +84,8 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
     exists("CUSTOM RULE");
   });
 
-  it("Verify triggered rule", function () {
+  it("Bug Tackle-1094: Verify triggered rule", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1094
     const app = new Analysis(
       getRandomApplicationData("jee-example-app custom rule"),
       getRandomAnalysisData({
@@ -104,7 +105,8 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
   });
 
   // Automates Bug MTA-2001
-  it("Verify triggered rule for dependency", function () {
+  it("Bug Tackle-1095: Verify triggered rule for dependency", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1095
     const app = new Analysis(
       getRandomApplicationData("tackle-testapp-custom-rules", {
         sourceData: this.appData["tackle-testapp-git"],
@@ -123,13 +125,14 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
   });
 
   // Automates Bug MTA-2000
-  it("Verify triggered rule for javax.* package import", function () {
+  it("Bug Tackle-1095: Verify triggered rule for javax.* package import", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1095
     Issues.openSingleApplication(tackleTestapp.name);
     exists("CUSTOM RULE for javax.* package import");
   });
 
   // Automates Bug MTA-2003
-  it("Verify number of rules detected in uploaded yaml file", function () {
+  it("Bug Tackle-1095: Verify number of rules detected in uploaded yaml file", function () {
     tackleTestapp.verifyRulesNumber();
   });
 
@@ -147,7 +150,8 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
     // TODO: after the bug is fixed Verify that the uploaded yaml not valid
   });
 
-  it("Python custom rules file analysis", function () {
+  it("Bug Tackle-1093: Python custom rules file analysis", function () {
+    // https://github.com/konveyor/analyzer-lsp/issues/1093
     const app = new Analysis(
       getRandomApplicationData("python-app-custom-rules", {
         sourceData: this.appData["python-demo-app"],

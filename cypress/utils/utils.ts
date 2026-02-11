@@ -553,7 +553,7 @@ export function applySelectFilter(
   if (isValid) {
     clickByText(".pf-v5-c-menu__item", filterText);
   } else {
-    cy.contains("span.pf-v5-c-menu__item-text", "No results");
+    cy.contains(actionMenuItem, "No results");
   }
   click(".pf-v5-c-text-input-group__text-input");
 }
@@ -868,7 +868,7 @@ export function application_inventory_kebab_menu(menu: string): void {
   if (menu == "Import") {
     clickByText(button, "Import");
   } else {
-    cy.get("span.pf-v5-c-menu__item-text")
+    cy.get(actionMenuItem)
       .contains(menu)
       .then(($menu_item) => {
         if (!$menu_item.hasClass("pf-m-disabled")) {
@@ -2074,7 +2074,7 @@ export function cleanupDownloads(): void {
   // This will eliminate content of `downloads` folder
   const downloadsFolder = Cypress.config("downloadsFolder");
   cy.exec(
-    `bash -lc 'set -euo pipefail; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
+    `bash -lc 'set -euo pipefail; mkdir -p "$DOWNLOADS_FOLDER"; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
     {
       env: { DOWNLOADS_FOLDER: String(downloadsFolder) },
     }
