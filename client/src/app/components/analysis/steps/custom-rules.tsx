@@ -143,7 +143,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
       rulesKind: initialState.rulesKind,
       customRulesFiles: initialState.customRulesFiles,
       customLabels: initialState.customLabels,
-      repositoryType: initialState.repositoryType,
+      repositoryType: initialState.repositoryType ?? "git",
       sourceRepository: initialState.sourceRepository,
       branch: initialState.branch,
       rootPath: initialState.rootPath,
