@@ -404,6 +404,17 @@ npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs tier4)"
 npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs interop)"
 ```
 
+### Excluded Tags in Upstream CI
+
+Some tests are excluded from upstream GitHub Actions runs because they require external credentials or infrastructure not available in the upstream CI environment:
+
+- **`cf`** - CloudFoundry tests (requires CloudFoundry instance and credentials)
+- **`downstream`** - Red Hat internal tests (requires access to Red Hat Stage Jira and internal infrastructure)
+
+**Configuration**: Exclude tags are set in `.github/actions/run-ui-tests/action.yml` via `CYPRESS_EXCLUDE_TAGS: "cf,downstream"`.
+
+**Important**: Exclude tags must be specified **without the `@` symbol**: use `"downstream"` not `"@downstream"`.
+
 ## Code Formatting
 
 Husky and lint-staged automatically format staged files on commit.

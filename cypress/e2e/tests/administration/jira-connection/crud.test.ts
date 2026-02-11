@@ -122,7 +122,7 @@ describe(["@tier2"], "CRUD operations for Jira Cloud instance", () => {
     jiraStageConnection.create(toBeCanceled);
   });
 
-  it(["@tier2", "@downstream"], "Creating Jira Stage connection", () => {
+  it(["@tier2", "downstream"], "Creating Jira Stage connection", () => {
     jiraStageConnection.create();
     jiraStageConnection.validateState(!expectedToFail);
   });
