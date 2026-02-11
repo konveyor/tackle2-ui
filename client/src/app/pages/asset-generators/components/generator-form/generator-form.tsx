@@ -53,7 +53,7 @@ export interface GeneratorFormProps {
 }
 
 const EMPTY_REPOSITORY: Repository = {
-  kind: "",
+  kind: "git",
   url: "",
   path: "",
   branch: "",
