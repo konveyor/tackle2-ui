@@ -19,6 +19,20 @@ const applicationData2 = {
   migrationWave: null,
 };
 
+const applicationWithBinary = {
+  id: 10,
+  name: "BinaryApp",
+  migrationWave: null,
+  binary: "com.example:myapp:1.0",
+};
+
+const applicationWithSource = {
+  id: 11,
+  name: "SourceApp",
+  migrationWave: null,
+  repository: { url: "https://github.com/example/repo" },
+};
+
 const mockAnalysisProfile = {
   id: 1,
   name: "Test Profile",
@@ -92,6 +106,77 @@ describe("<AnalysisWizard />", () => {
         name: /wizard\.label\.useAnalysisProfile/i,
       });
       expect(profileRadio).not.toBeChecked();
+    });
+  });
+
+  describe("Analysis source pre-selection (compatibleMode)", () => {
+    it("pre-selects source+deps mode when two apps are selected (one binary, one source)", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationWithBinary, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      await navigateToAnalysisSourceStep();
+
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() =>
+        expect(modeDropdown).toHaveTextContent("Source code + dependencies")
+      );
+    });
+
+    it("pre-selects binary mode when a single binary-only app is selected", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationWithBinary]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      await navigateToAnalysisSourceStep();
+
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() => expect(modeDropdown).toHaveTextContent("Binary"));
+    });
+    it("pre-selects source+deps mode and displays an error if no compatible mode is found", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationData1, applicationData2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      await navigateToAnalysisSourceStep();
+
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() =>
+        expect(modeDropdown).toHaveTextContent("Source code + dependencies")
+      );
+
+      const analysisSourceSelectMessage = await screen.findByTestId(
+        "analysis-source-select-message"
+      );
+      await waitFor(() =>
+        expect(analysisSourceSelectMessage).toHaveTextContent(
+          "wizard.label.notAllCompatible"
+        )
+      );
     });
   });
 
