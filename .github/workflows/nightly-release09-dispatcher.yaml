@@ -10,3 +10,4 @@ jobs:
   call-release09-nightly:
     name: Trigger nightly CI for release-0.9
     uses: konveyor/tackle2-ui/.github/workflows/nightly-release09.yaml@release-0.9
+    secrets: inherit
