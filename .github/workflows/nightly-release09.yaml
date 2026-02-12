@@ -16,10 +16,14 @@ jobs:
   repo-level-ci:
     name: Run repo-level CI for release-0.9
     uses: konveyor/tackle2-ui/.github/workflows/ci-repo.yml@release-0.9
+    with:
+      checkout_ref: release-0.9
 
   global-ci:
     name: Run global CI for release-0.9
     uses: konveyor/tackle2-ui/.github/workflows/ci-global.yml@release-0.9
+    with:
+      checkout_ref: release-0.9
 
   e2e-nightly-auth:
     name: "E2E auth tests (release-0.9) - all tiers"
