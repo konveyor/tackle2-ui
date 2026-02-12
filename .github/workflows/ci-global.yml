@@ -14,11 +14,6 @@ on:
       - "main"
 
   workflow_call:
-    inputs:
-      checkout_ref:
-        type: string
-        description: Git ref to checkout (defaults to the triggering ref)
-        required: false
 
 ###
 # The global CI settings need to be adjusted for the `release-*`` branches such that:
@@ -48,8 +43,6 @@ jobs:
       IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.checkout_ref }}
 
       - id: container
         name: build the tackle2-ui container
@@ -68,10 +61,9 @@ jobs:
       - name: Determine what git ref to use for the UI tests
         id: determine-ref
         run: |
-          REF="${{ inputs.checkout_ref || github.ref }}"
-          echo "ui_tests_ref=$REF"
-          echo "ui_tests_ref=$REF" >> "$GITHUB_OUTPUT"
-          echo "Using \`ui_tests_ref=$REF\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "ui_tests_ref=${{ github.ref }}"
+          echo "ui_tests_ref=${{ github.ref }}" >> "$GITHUB_OUTPUT"
+          echo "Using \`ui_tests_ref=${{ github.ref }}\`" >> "$GITHUB_STEP_SUMMARY"
 
   run-global-ci:
     needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
