@@ -32,6 +32,7 @@ jobs:
       test_tags: "@ci,@tier0,@tier2,@tier3"
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.9
       install_konveyor_version: release-0.9
       test_ref: release-0.9
     secrets: inherit
@@ -43,6 +44,7 @@ jobs:
       test_tags: "@ci,@tier0,@tier2,@tier3"
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.9
       install_konveyor_version: release-0.9
       test_ref: release-0.9
     secrets: inherit
