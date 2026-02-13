@@ -68,14 +68,24 @@ pipeline{
                 // Update GitHub Dashboard
                 def bugSummaryPath = "cypress/run/report/bug-summary.json"
                 if(fileExists(bugSummaryPath)){
-                    sh """#!/bin/bash
-                        set -e
-                        echo "Updating GitHub dashboard..."
-                        TEMP_DIR=\$(mktemp -d)
-                        git clone -q --depth 1 https://${TACKLE_GIT_CREDS_USR}:${TACKLE_GIT_CREDS_PSW}@github.com/konveyor/release-tools.git "\$TEMP_DIR"
-                        cd "\$TEMP_DIR"
-                        TIMESTAMP=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-                        cat > community-health-dashboard/jenkins-results.json <<EOF
+                    withCredentials([usernamePassword(credentialsId: 'tackle_git_pass', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
+                        sh """#!/bin/bash
+                            set -e
+                            echo "Updating GitHub dashboard..."
+                            TEMP_DIR=\$(mktemp -d)
+                            CRED_HELPER=\$(mktemp)
+                            trap 'rm -rf "\$TEMP_DIR" "\$CRED_HELPER"' EXIT
+                            cat > "\$CRED_HELPER" <<'HELPER'
+#!/bin/sh
+echo username=\$GIT_USER
+echo password=\$GIT_PASS
+HELPER
+                            chmod +x "\$CRED_HELPER"
+                            export GIT_ASKPASS="\$CRED_HELPER"
+                            git clone -q --depth 1 https://github.com/konveyor/release-tools.git "\$TEMP_DIR"
+                            cd "\$TEMP_DIR"
+                            TIMESTAMP=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                            cat > community-health-dashboard/jenkins-results.json <<EOF
 {
   "jobName": "UI All Tiers Nightly",
   "jobUrl": "https://jenkins-csb-migrationqe-main.dno.corp.redhat.com/view/Konveyor/job/mta/job/konveyor-ui-tiers-all-nightly",
@@ -98,12 +108,12 @@ pipeline{
   "updatedAt": "\${TIMESTAMP}"
 }
 EOF
-                        git config user.name "Jenkins CI"
-                        git config user.email "jenkins@konveyor.io"
-                        git add community-health-dashboard/jenkins-results.json
-                        git diff --quiet --cached || (git commit -q -m "Update Jenkins metrics #${BUILD_NUMBER}" && git push -q origin main && echo "✓ Dashboard updated")
-                        rm -rf "\$TEMP_DIR"
-                    """
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@konveyor.io"
+                            git add community-health-dashboard/jenkins-results.json
+                            git diff --quiet --cached || (git commit -q -m "Update Jenkins metrics #${BUILD_NUMBER}" && git push -q origin main && echo "✓ Dashboard updated")
+                        """
+                    }
                 }
                 cleanWs()
             }
