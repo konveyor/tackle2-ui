@@ -65,6 +65,46 @@ pipeline{
     post{
         always{
             script{
+                // Update GitHub Dashboard
+                def bugSummaryPath = "cypress/run/report/bug-summary.json"
+                if(fileExists(bugSummaryPath)){
+                    sh """#!/bin/bash
+                        set -e
+                        echo "Updating GitHub dashboard..."
+                        TEMP_DIR=\$(mktemp -d)
+                        git clone -q --depth 1 https://${TACKLE_GIT_CREDS_USR}:${TACKLE_GIT_CREDS_PSW}@github.com/konveyor/release-tools.git "\$TEMP_DIR"
+                        cd "\$TEMP_DIR"
+                        TIMESTAMP=\$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+                        cat > community-health-dashboard/jenkins-results.json <<EOF
+{
+  "jobName": "UI All Tiers Nightly",
+  "jobUrl": "https://jenkins-csb-migrationqe-main.dno.corp.redhat.com/view/Konveyor/job/mta/job/konveyor-ui-tiers-all-nightly",
+  "lastBuild": {
+    "number": ${BUILD_NUMBER},
+    "status": "${currentBuild.currentResult}",
+    "timestamp": "\${TIMESTAMP}",
+    "duration": ${currentBuild.duration ?: 0},
+    "url": "${BUILD_URL}"
+  },
+  "testResults": {
+    "totalTests": \$(jq -r '.summary.totalTests // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "passing": \$(jq -r '.summary.passing // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "failing": \$(jq -r '.summary.failing // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "pending": \$(jq -r '.summary.pending // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "skipped": \$(jq -r '.summary.skipped // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "totalBugs": \$(jq -r '.summary.totalBugs // 0' "${WORKSPACE}/${bugSummaryPath}"),
+    "percentFailed": \$(jq -r '.summary.percentFailed // 0' "${WORKSPACE}/${bugSummaryPath}")
+  },
+  "updatedAt": "\${TIMESTAMP}"
+}
+EOF
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@konveyor.io"
+                        git add community-health-dashboard/jenkins-results.json
+                        git diff --quiet --cached || (git commit -q -m "Update Jenkins metrics #${BUILD_NUMBER}" && git push -q origin main && echo "✓ Dashboard updated")
+                        rm -rf "\$TEMP_DIR"
+                    """
+                }
                 cleanWs()
             }
         }
