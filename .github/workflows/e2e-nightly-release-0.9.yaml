@@ -1,0 +1,35 @@
+name: e2e - run all(but analysis) tests nightly (@release-0.9)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: e2e-nightly-release-0.9-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  nightly-auth:
+    name: "Nightly auth - all tiers"
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.9
+    with:
+      test_tags: "@ci,@tier0,@tier2,@tier3"
+      feature_auth_required: true
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.9
+      install_konveyor_version: release-0.9
+      test_ref: release-0.9
+    secrets: inherit
+
+  nightly-noauth:
+    name: "Nightly noauth - all tiers"
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.9
+    with:
+      test_tags: "@ci,@tier0,@tier2,@tier3"
+      feature_auth_required: false
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.9
+      install_konveyor_version: release-0.9
+      test_ref: release-0.9
+    secrets: inherit
