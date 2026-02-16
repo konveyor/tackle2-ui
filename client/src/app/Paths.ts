@@ -51,13 +51,19 @@ export const DevPaths = {
   insightsSingleAppSelected: "/insights/single-app/:applicationId",
 
   dependencies: "/dependencies",
-  tasks: "/tasks",
-  taskDetails: "/tasks/:taskId",
-  taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
   migrationTargets: "/migration-targets",
 } as const;
 
 export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
+
+export const UniversalPaths = {
+  tasks: "/tasks",
+  taskDetails: "/tasks/:taskId",
+  taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
+} as const;
+
+export type UniversalPathValues =
+  (typeof UniversalPaths)[keyof typeof UniversalPaths];
 
 export const AdminPaths = {
   // Administrator perspective
@@ -89,7 +95,12 @@ export const DevtoolPaths = {
 export type DevtoolPathValues =
   (typeof DevtoolPaths)[keyof typeof DevtoolPaths];
 
-export const Paths = { ...GeneralPaths, ...AdminPaths, ...DevPaths } as const;
+export const Paths = {
+  ...GeneralPaths,
+  ...AdminPaths,
+  ...DevPaths,
+  ...UniversalPaths,
+} as const;
 
 export interface AssessmentRoute {
   assessmentId: string;
