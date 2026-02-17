@@ -8,6 +8,7 @@ import {
   DevtoolPathValues,
   DevtoolPaths,
   Paths,
+  UniversalPathValues,
 } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ErrorFallback } from "@app/components/ErrorFallback";
@@ -243,6 +244,19 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
     exact: false,
   },
   {
+    path: Paths.migrationTargets,
+    comp: MigrationTargets,
+    exact: false,
+  },
+  {
+    path: Paths.analysisProfiles,
+    comp: AnalysisProfiles,
+    exact: false,
+  },
+];
+
+export const universalRoutes: IRoute<UniversalPathValues>[] = [
+  {
     path: Paths.tasks,
     comp: TaskManager,
     exact: true,
@@ -255,16 +269,6 @@ export const migrationRoutes: IRoute<DevPathValues>[] = [
   {
     path: Paths.taskDetailsAttachment,
     comp: TaskDetails,
-    exact: false,
-  },
-  {
-    path: Paths.migrationTargets,
-    comp: MigrationTargets,
-    exact: false,
-  },
-  {
-    path: Paths.analysisProfiles,
-    comp: AnalysisProfiles,
     exact: false,
   },
 ];
@@ -342,15 +346,17 @@ export const AppRoutes = () => {
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
         <Switch>
-          {migrationRoutes.map(({ comp, path, exact }, index) => (
-            <RouteWrapper
-              comp={comp}
-              key={index}
-              roles={devRoles}
-              path={path}
-              exact={exact}
-            />
-          ))}
+          {[...migrationRoutes, ...universalRoutes].map(
+            ({ comp, path, exact }, index) => (
+              <RouteWrapper
+                comp={comp}
+                key={index}
+                roles={devRoles}
+                path={path}
+                exact={exact}
+              />
+            )
+          )}
           {administrationRoutes.map(({ comp, path, exact }, index) => (
             <RouteWrapper
               comp={comp}
