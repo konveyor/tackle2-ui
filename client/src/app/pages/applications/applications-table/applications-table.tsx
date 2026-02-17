@@ -1321,13 +1321,15 @@ export const ApplicationsTable: FC = () => {
         />
       </div>
 
-      <AnalysisWizard
-        applications={selectedRows}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
+      {isAnalyzeModalOpen && (
+        <AnalysisWizard
+          applications={selectedRows}
+          isOpen={true}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      )}
       <RetrieveConfigWizard
         key={
           retrieveConfigApplications
