@@ -88,36 +88,47 @@ export const useAnalyzableApplicationsByMode = (
 
 export const useAnalysisModeSchema = ({
   applications,
-  messageNotCompatible,
 }: {
   applications?: Application[];
-  messageNotCompatible: string;
-}): yup.SchemaOf<AnalysisModeValues> => {
+}): {
+  schema: yup.SchemaOf<AnalysisModeValues>;
+  compatibleMode: AnalysisMode | undefined;
+} => {
   const { t } = useTranslation();
   const analyzableAppsByMode = useAnalyzableApplicationsByMode(
     applications ?? []
   );
 
-  return yup.object({
+  const messageNotCompatible = t("wizard.label.notAllCompatible");
+
+  const isModeCompatible = (mode?: AnalysisMode) => {
+    // When no applications are provided (profile wizard), all modes are valid
+    if (!applications || applications.length === 0) {
+      return true;
+    }
+
+    const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
+    return mode === "binary-upload"
+      ? analyzableApplications.length === 1
+      : analyzableApplications.length > 0;
+  };
+
+  // prefer source-code-deps mode over other modes
+  const modes: AnalysisMode[] = ["source-code-deps", ...ANALYSIS_MODES];
+  const compatibleMode = modes.find(isModeCompatible);
+
+  const schema = yup.object({
     mode: yup
       .mixed<AnalysisMode>()
       .required(t("validation.required"))
-      .test("isModeCompatible", messageNotCompatible, (mode) => {
-        // When no applications are provided (profile wizard), all modes are valid
-        if (!applications || applications.length === 0) {
-          return true;
-        }
-
-        const analyzableApplications = mode ? analyzableAppsByMode[mode] : [];
-        return mode === "binary-upload"
-          ? analyzableApplications.length === 1
-          : analyzableApplications.length > 0;
-      }),
+      .test("isModeCompatible", messageNotCompatible, isModeCompatible),
     artifact: yup.mixed<File>().when("mode", {
       is: "binary-upload",
       then: (schema) => schema.required(),
     }),
   });
+
+  return { schema, compatibleMode };
 };
 
 interface AnalysisSourceProps {
@@ -156,30 +167,47 @@ interface AnalysisSourceProps {
 export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   applications,
   onStateChanged,
-  initialState,
+  initialState: state,
   renderBinaryUpload,
   hideBinary = false,
 }) => {
   const { t } = useTranslation();
+  const [initialState] = React.useState(state);
 
-  const schema = useAnalysisModeSchema({
+  const { schema } = useAnalysisModeSchema({
     applications,
-    messageNotCompatible:
-      "Selected mode is not supported for the selected applications",
   });
   const form = useForm<AnalysisModeValues>({
+    mode: "all",
     defaultValues: {
       mode: initialState.mode,
       artifact: initialState.artifact,
     },
-    mode: "all",
     resolver: yupResolver(schema),
   });
+
+  const { control, setValue } = form;
+
+  // Use in addition to defaultValues to workaround 2 issues:
+  // 1. formState.errors not populated when defaultValues fail validation. Without this,
+  // the resolver sets isValid correctly but errors are only set after user interaction.
+  // 2. after manually triggering validation the HookFormPFGroupController does not display the error
+  // due to extra logic that requires isDirty OR isTouched to be true.
+  React.useEffect(() => {
+    setValue("mode", initialState.mode, {
+      shouldValidate: true,
+      shouldTouch: true,
+    });
+    setValue("artifact", initialState.artifact, {
+      shouldValidate: true,
+      shouldTouch: true,
+    });
+  }, [initialState.mode, initialState.artifact, setValue]);
 
   useFormChangeHandler({ form, onStateChanged });
 
   const [mode, artifact] = useWatch({
-    control: form.control,
+    control,
     name: ["mode", "artifact"],
   });
 
@@ -224,13 +252,15 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         </Title>
       </TextContent>
       <HookFormPFGroupController
-        control={form.control}
+        control={control}
         name="mode"
         label={t("wizard.label.analysisSource")}
         fieldId="analysis-source"
+        helperTextTestId="analysis-source-select-message"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelectBasic
+            toggleDataTestId="analysis-source-select-toggle"
             selectId="analysis-source"
             toggleId="analysis-source-toggle"
             toggleAriaLabel="Analysis source dropdown toggle"
@@ -267,7 +297,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         renderBinaryUpload({
           artifact,
           onArtifactChange: (artifact) =>
-            form.setValue("artifact", artifact, { shouldValidate: true }),
+            setValue("artifact", artifact, { shouldValidate: true }),
         })}
     </Form>
   );
