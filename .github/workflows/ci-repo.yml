@@ -14,6 +14,11 @@ on:
   workflow_dispatch:
 
   workflow_call:
+    inputs:
+      checkout_ref:
+        type: string
+        description: Git ref to checkout (defaults to the triggering ref)
+        required: false
 
 concurrency:
   group: ci-repo-${{ github.event_name }}-${{ github.ref }}
@@ -30,12 +35,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
 
       - name: Lookup builder image from the project's Dockerfile
         id: grepBuilder
         run: |
-          builder=$(grep 'as builder' Dockerfile | sed -e 's/^FROM \(.*\) as builder$/\1/')
+          builder=$(grep -i 'as builder' Dockerfile | sed -e 's/^from \(.*\) as builder$/\1/i')
           echo "builder=$builder" >> "$GITHUB_OUTPUT"
 
       - name: Did only docs and hacks change?
@@ -128,6 +134,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.checkout_ref }}
 
       # TODO: Setup a cache for npm so it could install faster
       #       follow actions/setup-node@v4 techniques

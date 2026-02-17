@@ -1,0 +1,13 @@
+name: Nightly Dispatcher for release-0.9
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # every day @ 3:00am UTC
+
+  workflow_dispatch:
+
+jobs:
+  call-release09-nightly:
+    name: Trigger nightly CI for release-0.9
+    uses: konveyor/tackle2-ui/.github/workflows/nightly-release09.yaml@release-0.9
+    secrets: inherit
