@@ -81,7 +81,8 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
     target.delete();
   });
 
-  it("Source Analysis on Nexus app", function () {
+  it("Bug Tackle-3002: Source Analysis on Nexus app", function () {
+    // https://github.com/konveyor/tackle2-ui/issues/3002
     const application = new Analysis(
       getRandomApplicationData("Nexus Source", {
         sourceData: this.appData["nexus"],
@@ -109,7 +110,8 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
-  it("Source + dependency Analysis on Nexus app", function () {
+  it("Bug Tackle-3002: Source + dependency Analysis on Nexus app", function () {
+    // https://github.com/konveyor/tackle2-ui/issues/3002
     const application = new Analysis(
       getRandomApplicationData("Nexus Source+dep", {
         sourceData: this.appData["nexus"],
