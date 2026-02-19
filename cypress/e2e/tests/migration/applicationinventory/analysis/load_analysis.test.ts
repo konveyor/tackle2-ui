@@ -20,7 +20,7 @@ import { getRulesData } from "../../../../../utils/data_utils";
 import {
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
-  deleteByList,
+  deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -30,7 +30,7 @@ import { Application } from "../../../../models/migration/applicationinventory/a
 import { CustomMigrationTarget } from "../../../../models/migration/custom-migration-targets/custom-migration-target";
 import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
-const applications: Analysis[] = [];
+const applicationIds: number[] = [];
 describe(["@tier1"], "Source Analysis of big applications", () => {
   before("Login", function () {
     login();
@@ -74,7 +74,9 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
 
     application.target = [target.name];
     application.create();
-    applications.push(application);
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed);
@@ -90,7 +92,9 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
       getRandomAnalysisData(this.analysisData["source_analysis_on_nexus_app"])
     );
     application.create();
-    applications.push(application);
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
@@ -104,7 +108,9 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
       getRandomAnalysisData(this.analysisData["source_analysis_on_openmrs_app"])
     );
     application.create();
-    applications.push(application);
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
@@ -121,7 +127,9 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
       )
     );
     application.create();
-    applications.push(application);
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
     cy.wait("@getApplication");
     application.analyze();
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
@@ -133,7 +141,6 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
   });
 
   after("Test data clean up", function () {
-    Analysis.open(true);
-    deleteByList(applications);
+    deleteBulkApplicationsByApi(applicationIds);
   });
 });
