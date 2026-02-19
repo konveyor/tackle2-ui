@@ -58,6 +58,10 @@ yup.addMethod(
 
       let resp: boolean | yup.ValidationError = false;
       try {
+        if (validateSettingsXml.cache.has(value)) {
+          return validateSettingsXml.cache.get(value);
+        }
+        validateSettingsXml.cache.clear?.();
         resp = await validateSettingsXml(value);
       } catch (e) {
         resp = this.createError({
