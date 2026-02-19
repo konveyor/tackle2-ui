@@ -2265,21 +2265,23 @@ export function validateTackleCr(): void {
   const namespace = getNamespace();
   const kubeCLI = getKubernetesCLI();
   let tackleCr: any;
-  let command = `tackleCR=$(${kubeCLI} get tackle -n${namespace}|grep -vi name|cut -d ' ' -f 1);`;
-  command += `${kubeCLI} get tackle $tackleCr -n${namespace} -o json`;
+  const command = `${kubeCLI} get tackle -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
       throw new Error("Failed to parse Tackle CR");
     }
-    const condition = tackleCr["items"][0]["status"]["conditions"][1];
-    const failures = condition["ansibleResult"]["failures"];
-    const type = condition["type"];
-    cy.log(`Failures: ${failures}`);
-    cy.log(`Condition type: ${type}`);
-    expect(failures).be.equal(0);
-    expect(type).be.equal("Running");
+    const conditions = tackleCr.items?.[0]?.status?.conditions;
+    expect(conditions, "Tackle CR conditions missing").to.be.an("array");
+
+    // Find the condition that has ansibleResult
+    const runningCondition = conditions.find((c: any) => c.type === "Running");
+    expect(runningCondition, `Running condition missing`).to.exist;
+    expect(runningCondition!.status).to.equal("True");
+
+    const failures = runningCondition!.ansibleResult?.failures;
+    expect(failures, `Ansible failures detected: ${failures}`).to.eq(0);
   });
 }
 
