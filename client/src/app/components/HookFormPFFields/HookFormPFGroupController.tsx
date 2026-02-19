@@ -30,6 +30,7 @@ export interface BaseHookFormPFGroupControllerProps<
   helperText?: React.ReactNode;
   className?: string;
   formGroupProps?: FormGroupProps;
+  helperTextTestId?: string;
 }
 
 export interface HookFormPFGroupControllerProps<
@@ -53,6 +54,7 @@ export const HookFormPFGroupController = <
   helperText,
   className,
   formGroupProps = {},
+  helperTextTestId,
   renderInput,
 }: HookFormPFGroupControllerProps<TFieldValues, TName>) => (
   <Controller<TFieldValues, TName>
@@ -77,6 +79,7 @@ export const HookFormPFGroupController = <
             <FormHelperText id={`${fieldId}-helper`}>
               <HelperText>
                 <HelperTextItem
+                  data-testid={helperTextTestId}
                   variant={shouldDisplayError ? "error" : "default"}
                 >
                   {shouldDisplayError ? error.message : helperText}
@@ -115,6 +118,7 @@ export const extractGroupControllerProps = <
     helperText,
     className,
     formGroupProps,
+    helperTextTestId,
     ...remainingProps
   } = props;
   return {
@@ -129,6 +133,7 @@ export const extractGroupControllerProps = <
       helperText,
       className,
       formGroupProps,
+      helperTextTestId,
     },
     remainingProps,
   };
