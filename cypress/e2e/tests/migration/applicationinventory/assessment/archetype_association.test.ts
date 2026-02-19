@@ -61,7 +61,9 @@ describe(
       AssessmentQuestionnaire.enable(legacyPathfinder);
     });
 
-    it("Verify multiple applications inherit assessment and review inheritance from an archetype", function () {
+    it("Bug Tackle-2996: Verify multiple applications inherit assessment and review inheritance from an archetype", function () {
+      // https://github.com/konveyor/tackle2-ui/issues/2996
+
       // Automates Polarion MTA-400 Archetype association - Application creation before archetype creation.
       AssessmentQuestionnaire.import(cloudReadinessFilePath);
       AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
