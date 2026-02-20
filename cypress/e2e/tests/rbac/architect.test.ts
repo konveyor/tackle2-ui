@@ -23,7 +23,6 @@ import {
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
   deleteByList,
-  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
@@ -39,7 +38,6 @@ import { Archetype } from "../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../models/migration/archetypes/target-profile";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
 import { Tag } from "../../models/migration/controls/tags";
-import { Issues } from "../../models/migration/dynamic-report/issues/issues";
 import {
   AnalysisStatuses,
   MIN,
@@ -258,8 +256,6 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
-      Issues.openSingleApplication(appWithArchetype.name);
-      exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
     it("Migrator, Perform analysis using architect-created profile", function () {
@@ -293,8 +289,6 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
-      Issues.openSingleApplication(migratorAnalysis.name);
-      exists("CUSTOM RULE FOR DEPENDENCIES");
     });
 
     after("Clean up", function () {

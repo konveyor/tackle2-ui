@@ -52,6 +52,10 @@ import {
   applicationData,
 } from "../../../types/types";
 import {
+  includeLabelsInput,
+  includeLabelsMenuItem,
+} from "../../../views/analysis-profile.view";
+import {
   AnalysisLogView,
   analysisColumn,
   analysisDetails,
@@ -90,6 +94,7 @@ export class Analysis extends Application {
   customRuleRepository?: RulesRepositoryFields;
   sources?: string;
   excludeRuleLabels?: string;
+  includeRuleLabels?: string;
   enableTransaction?: boolean;
   disableTagging?: boolean;
   saveAsProfile: boolean = false;
@@ -124,6 +129,7 @@ export class Analysis extends Application {
       customRule,
       sources,
       excludeRuleLabels,
+      includeRuleLabels,
       enableTransaction,
       disableTagging,
       saveAsProfile,
@@ -147,6 +153,7 @@ export class Analysis extends Application {
     if (customRuleRepository) this.customRuleRepository = customRuleRepository;
     if (sources) this.sources = sources;
     if (excludeRuleLabels) this.excludeRuleLabels = excludeRuleLabels;
+    if (includeRuleLabels) this.includeRuleLabels = includeRuleLabels;
     if (enableTransaction) this.enableTransaction = enableTransaction;
     if (disableTagging) this.disableTagging = disableTagging;
     this.saveAsProfile = saveAsProfile ?? false;
@@ -212,6 +219,11 @@ export class Analysis extends Application {
     clickByText("#add-package-to-include", "Add");
   }
 
+  protected labelsToInclude(label: string) {
+    click(includeLabelsInput);
+    cy.get(includeLabelsMenuItem).contains(label).click();
+  }
+
   protected enableSaveAsProfile() {
     cy.get(saveAsProfileCheckbox)
       .invoke("is", ":checked")
@@ -274,6 +286,9 @@ export class Analysis extends Application {
       next();
       if (this.excludeRuleLabels) {
         this.tagsToExclude();
+      }
+      if (this.includeRuleLabels) {
+        this.labelsToInclude(this.includeRuleLabels);
       }
       if (this.enableTransaction) {
         AnalysisWizardHelpers.enableTransactionAnalysis();
