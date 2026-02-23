@@ -2267,9 +2267,9 @@ export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
 export function validateTackleCr(): void {
   const namespace = getNamespace();
   const kubeCLI = getKubernetesCLI();
-  let tackleCr: any;
   const command = `${kubeCLI} get tackle -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
+    let tackleCr: any;
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
@@ -2279,11 +2279,16 @@ export function validateTackleCr(): void {
     expect(conditions, "Tackle CR conditions missing").to.be.an("array");
 
     // Find the condition that has ansibleResult
-    const runningCondition = conditions.find((c: any) => c.type === "Running");
-    expect(runningCondition, `Running condition missing`).to.exist;
-    expect(runningCondition!.status).to.equal("True");
+    const runningCondition = conditions.find(
+      (c: any) => c.type === "Running" && c.ansibleResult
+    );
+    expect(runningCondition, "ansibleResult condition missing").to.exist;
+    expect(
+      runningCondition!.status,
+      "Running condition status is not True"
+    ).to.equal("True");
 
-    const failures = runningCondition!.ansibleResult?.failures;
+    const failures = runningCondition!.ansibleResult!.failures;
     expect(failures, `Ansible failures detected: ${failures}`).to.eq(0);
   });
 }
