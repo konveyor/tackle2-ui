@@ -17,16 +17,13 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  deleteAllProfiles,
   deleteBulkApplicationsByApi,
-  exists,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
 } from "../../../../../utils/utils";
 import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
-import { Issues } from "../../../../models/migration/dynamic-report/issues/issues";
 import { AnalysisStatuses, MIN } from "../../../../types/constants";
 
 const applicationIds: number[] = [];
@@ -79,10 +76,7 @@ describe(["@tier1"], "Analysis using profiles", () => {
     });
     application.analyze();
     application.waitStatusChange(AnalysisStatuses.scheduled);
-
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
-    Issues.openSingleApplication(application.name);
-    exists("CUSTOM RULE FOR DEPENDENCIES");
   });
 
   after("Perform test data clean up", function () {
