@@ -132,7 +132,7 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
   });
 
   // Automates Bug MTA-2003
-  it("Bug Tackle-1095: Verify number of rules detected in uploaded yaml file", function () {
+  it("Verify number of rules detected in uploaded yaml file", function () {
     tackleTestapp.verifyRulesNumber();
   });
 

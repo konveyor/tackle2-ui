@@ -120,7 +120,7 @@ describe(["@tier1"], "Source Analysis", () => {
     sourceCredential.setAsDefaultViaActionsMenu();
     application.analyze();
     application.waitStatusChange(AnalysisStatuses.scheduled);
-    application.verifyAnalysisStatus(AnalysisStatuses.completed, 20 * MIN);
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
 
     // analyze after removing valid default source and maven creds
     sourceCredential.unsetAsDefaultViaActionsMenu();

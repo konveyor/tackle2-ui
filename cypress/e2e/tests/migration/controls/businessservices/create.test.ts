@@ -72,7 +72,7 @@ describe(["@tier2"], "Business service validations", () => {
     cy.contains(button, createNewButton).should("exist");
   });
 
-  it("Bug MTA-3095: Business service success alert and unique constraint validation", function () {
+  it("Business service success alert and unique constraint validation", function () {
     const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
     stakeholder.create();
     const businessService = new BusinessServices(
@@ -115,8 +115,6 @@ describe(["@tier2"], "Business service validations", () => {
       commonView.successAlertMessage,
       `Success alert:Business service deleted`
     );
-    // TODO: Remove workaround (cy.wait) once bug is fixed MTA-3095
-    cy.wait(5 * SEC);
     businessService1.delete();
     checkSuccessAlert(
       commonView.successAlertMessage,

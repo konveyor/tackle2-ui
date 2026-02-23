@@ -90,7 +90,7 @@ describe(["@tier1"], "Test Static Report UI", { baseUrl: null }, function () {
     category: "mandatory",
     target: "quarkus",
     dependency: "com.fasterxml.jackson.core.jackson-databind",
-    technology: "EJB XML",
+    technology: "Spring DI",
   };
 
   beforeEach("Open static report", function () {

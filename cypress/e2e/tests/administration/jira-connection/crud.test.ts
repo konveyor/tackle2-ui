@@ -127,23 +127,35 @@ describe(["@tier2"], "CRUD operations for Jira Cloud instance", () => {
     jiraStageConnection.validateState(!expectedToFail);
   });
 
-  it("Editing Jira Stage connection and cancelling without saving", () => {
-    jiraStageConnection.edit(jiraStageConnectionDataIncorrect, toBeCanceled);
-  });
+  it(
+    ["@tier2", "downstream"],
+    "Editing Jira Stage connection and cancelling without saving",
+    () => {
+      jiraStageConnection.edit(jiraStageConnectionDataIncorrect, toBeCanceled);
+    }
+  );
 
-  it("Editing Jira Stage connection with incorrect data, then configuring back with correct", () => {
-    jiraStageConnection.edit(jiraStageConnectionDataIncorrect, !toBeCanceled);
-    jiraStageConnection.validateState(expectedToFail);
-    jiraStageConnection.edit(jiraStageConnectionData);
-  });
+  it(
+    ["@tier2", "downstream"],
+    "Editing Jira Stage connection with incorrect data, then configuring back with correct",
+    () => {
+      jiraStageConnection.edit(jiraStageConnectionDataIncorrect, !toBeCanceled);
+      jiraStageConnection.validateState(expectedToFail);
+      jiraStageConnection.edit(jiraStageConnectionData);
+    }
+  );
 
-  it("Delete Jira Stage connection and cancel deletion", () => {
-    jiraStageConnection.delete(toBeCanceled);
-  });
+  it(
+    ["@tier2", "downstream"],
+    "Delete Jira Stage connection and cancel deletion",
+    () => {
+      jiraStageConnection.delete(toBeCanceled);
+      jiraStageConnection.delete();
+    }
+  );
 
   after("Cleanup", () => {
     jiraCloudConnection.delete();
-    jiraStageConnection.delete();
     jiraBasicCredential.delete();
     jiraBasicStageCredential.delete();
   });
