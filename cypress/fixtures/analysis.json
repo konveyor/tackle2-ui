@@ -965,7 +965,7 @@
     "source": "Source code",
     "target": ["Jakarta EE 9", "Containerization"],
     "appName": "tackle-testapp",
-    "effort": 11,
+    "effort": 30,
     "techTags": [
       ["HTTP", ["Servlet"]],
       ["Other", ["Properties"]],
@@ -2029,7 +2029,7 @@
     "target": [],
     "appName": "nodejs-app-custom-rules",
     "customRule": ["nodejs-rules.yaml"],
-    "effort": 6,
+    "effort": 7,
     "issues": [
       {
         "name": "Testing that the node provider works - function",

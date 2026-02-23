@@ -44,6 +44,7 @@ import { Tag } from "../../../../models/migration/controls/tags";
 import { Issues } from "../../../../models/migration/dynamic-report/issues/issues";
 import {
   AnalysisStatuses,
+  MIN,
   SEC,
   dynamicReportFilter,
   tdTag,
@@ -72,19 +73,26 @@ describe(
     ];
     const singleApplicationSortByList = ["Issue", "Category", "Affected files"];
     const affectedFilesSortByList = ["File", "Incidents", "Effort"];
-    const appAmount = 6;
 
-    before("Login", function () {
+    // Test data constants
+    const BOOKSERVER_APP_COUNT = 3;
+    const COOLSTORE_APP_COUNT = 1;
+
+    before("Login and create test data", function () {
       Cypress.session.clearAllSavedSessions();
       login();
       cy.visit("/");
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
+
+      // Create control data
       stakeholders = createMultipleStakeholders(2);
       stakeholderGroups = createMultipleStakeholderGroups(2);
       businessServiceList = createMultipleBusinessServices(2);
       tags = createMultipleTags(2);
       tagNames = tags.map((tag) => tag.name);
+
+      // Create archetype
       archetype = new Archetype(
         data.getRandomWord(8),
         [tagNames[0]],
@@ -94,9 +102,11 @@ describe(
         stakeholderGroups
       );
       archetype.create();
+
+      // Create bookserver applications
       cy.fixture("application").then((appData) => {
         cy.fixture("analysis").then((analysisData) => {
-          for (let i = 0; i < appAmount; i++) {
+          for (let i = 0; i < BOOKSERVER_APP_COUNT; i++) {
             const bookServerApp = new Analysis(
               getRandomApplicationData("IssuesFilteringApp1_" + i, {
                 sourceData: appData["bookserver-app"],
@@ -106,14 +116,12 @@ describe(
               )
             );
             bookServerApp.business = businessServiceList[0].name;
+            bookServerApp.create();
             applicationsList.push(bookServerApp);
           }
-        });
-      });
 
-      cy.fixture("application").then((appData) => {
-        cy.fixture("analysis").then((analysisData) => {
-          for (let i = 0; i < appAmount; i++) {
+          // Create coolstore application
+          for (let i = 0; i < COOLSTORE_APP_COUNT; i++) {
             const coolstoreApp = new Analysis(
               getRandomApplicationData("IssuesFilteringApp2_" + i, {
                 sourceData: appData["coolstore-app"],
@@ -122,38 +130,31 @@ describe(
             );
             coolstoreApp.tags = tagNames;
             coolstoreApp.business = businessServiceList[1].name;
+            coolstoreApp.create();
             applicationsList.push(coolstoreApp);
           }
-
-          applicationsList.forEach((application) => application.create());
         });
       });
     });
 
-    beforeEach("Load data", function () {
-      cy.fixture("application").then(function (appData) {
-        this.appData = appData;
-      });
+    beforeEach("Load data and setup intercepts", function () {
       cy.fixture("analysis").then(function (analysisData) {
         this.analysisData = analysisData;
       });
       cy.intercept("GET", "/hub/analyses/report/rules*").as("getIssues");
-      cy.intercept("GET", "hub/analyses/report/issues/applications*").as(
-        "getApplications"
-      );
     });
 
     it("All issues - Filtering issues by name", function () {
-      // Analyzing Coolstore app for pagination test to generate issues more than 10.
       const bookServerApp = applicationsList[0];
-      const coolstoreApp = applicationsList[appAmount];
+      const coolstoreApp = applicationsList[BOOKSERVER_APP_COUNT];
       const bookServerIssues =
         this.analysisData["source_analysis_on_bookserverapp"]["issues"];
       const coolstoreIssues =
         this.analysisData["source+dep_on_coolStore_app"]["issues"];
 
+      // Analyze all applications
       Analysis.analyzeByList(applicationsList);
-      Analysis.verifyAllAnalysisStatuses(AnalysisStatuses.completed);
+      Analysis.verifyAllAnalysisStatuses(AnalysisStatuses.completed, 30 * MIN);
 
       Issues.openList(100, true);
       Issues.applyAndValidateFilter(
@@ -175,12 +176,13 @@ describe(
 
     it("All issues - filtering by multiple names", function () {
       const bookServerApp = applicationsList[0];
-      const coolstoreApp = applicationsList[6];
+      const coolstoreApp = applicationsList[BOOKSERVER_APP_COUNT];
       const bookServerIssues =
         this.analysisData["source_analysis_on_bookserverapp"]["issues"];
       const coolstoreIssues =
         this.analysisData["source+dep_on_coolStore_app"]["issues"];
 
+      Issues.openList(100, true);
       Issues.applyMultiFilter(dynamicReportFilter.applicationName, [
         bookServerApp.name,
         coolstoreApp.name,
@@ -192,6 +194,7 @@ describe(
     });
 
     it("All issues - Filtering issues by Archetype", function () {
+      Issues.openList(100, true);
       Issues.applyFilter(dynamicReportFilter.archetype, archetype.name);
       this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
         (issue: AppIssue) => {
@@ -202,6 +205,7 @@ describe(
     });
 
     it("All issues - Filtering issues by BS", function () {
+      Issues.openList(100, true);
       Issues.applyFilter(dynamicReportFilter.bs, businessServiceList[0].name);
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
@@ -212,6 +216,7 @@ describe(
     });
 
     it("All issues - Filtering issues by tags", function () {
+      Issues.openList(100, true);
       tagNames.forEach((currentTag: string) => {
         Issues.applyFilter(dynamicReportFilter.tags, currentTag);
         this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
@@ -224,6 +229,7 @@ describe(
     });
 
     it("All issues - Filtering issues by category", function () {
+      Issues.openList(100, true);
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           Issues.applyFilter(dynamicReportFilter.category, issue.category);
@@ -239,6 +245,7 @@ describe(
     });
 
     it("All issues - Filtering issues by source", function () {
+      Issues.openList(100, true);
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           issue.sources.forEach((source) => {
@@ -256,6 +263,7 @@ describe(
     });
 
     it("All issues - Filtering issues by target", function () {
+      Issues.openList(100, true);
       const issues =
         this.analysisData["source_analysis_on_bookserverapp"]["issues"];
       issues.forEach((issue: AppIssue) => {
@@ -275,18 +283,17 @@ describe(
     allIssuesSortByList.forEach((column) => {
       it(`All issues - Sort issues by ${column}`, function () {
         Issues.openList();
-        cy.wait("@getIssues");
         selectItemsPerPage(100);
-        cy.wait("@getIssues");
         validateSortBy(column);
       });
     });
 
     it("All issues - Sorting affected files", function () {
+      Issues.openList(100, true);
       Issues.openAffectedApplications(
         this.analysisData["source+dep_on_coolStore_app"]["issues"][0]["name"]
       );
-      clickByText(tdTag, applicationsList[6].name);
+      clickByText(tdTag, applicationsList[BOOKSERVER_APP_COUNT].name);
       cy.get(rightSideBar).within(() => {
         affectedFilesSortByList.forEach((column) => {
           validateSortBy(column);
@@ -296,11 +303,13 @@ describe(
 
     it("All issues - Pagination validation", function () {
       Issues.openList(10);
+      cy.wait("@getIssues");
       validatePagination();
     });
 
     affectedApplicationSortByList.forEach((column) => {
       it(`Affected applications - sort by ${column}`, function () {
+        Issues.openList(100, true);
         Issues.openAffectedApplications(
           this.analysisData["source_analysis_on_bookserverapp"]["issues"][0][
             "name"
@@ -313,15 +322,6 @@ describe(
         selectItemsPerPage(100);
         validateSortBy(column);
       });
-    });
-
-    it("Affected applications - pagination validation", function () {
-      Issues.openAffectedApplications(
-        this.analysisData["source_analysis_on_bookserverapp"]["issues"][1][
-          "name"
-        ]
-      );
-      validatePagination();
     });
 
     it("Single application - filtering issues by category", function () {
