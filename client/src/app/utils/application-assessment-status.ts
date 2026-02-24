@@ -40,10 +40,9 @@ export const buildApplicationAssessmentStatus = (
 
   const directStatus = chooseAssessmentStatus(application.assessed, direct);
 
-  const inherited = archetypes
-    .filter((archetype) =>
-      archetype.applications?.some(({ id }) => id === application.id)
-    )
+  const inherited = (application.archetypes ?? [])
+    .map((ref) => archetypes.find((a) => a.id === ref.id))
+    .filter(Boolean)
     .map((archetype) => {
       const archetypeAssessments = assessments.filter(
         (assessment) =>
