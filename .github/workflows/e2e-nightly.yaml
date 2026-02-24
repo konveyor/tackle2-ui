@@ -21,7 +21,7 @@ jobs:
     name: "TEST - Application metrics test (auth)"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      test_tags: "@tier2"
+      test_tags: ""
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
