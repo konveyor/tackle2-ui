@@ -5,7 +5,7 @@ on:
     inputs:
       test_tags:
         type: string
-        default: "@ci,@tier0"
+        default: ""
 
       test_spec:
         type: string

@@ -146,15 +146,19 @@ runs:
         if [[ -n "$TEST_SPEC_OVERRIDE" ]]; then
           echo "Using provided test spec: $TEST_SPEC_OVERRIDE"
           SPEC="$TEST_SPEC_OVERRIDE"
+          # Don't filter by tags when running specific test files
+          echo "INCLUDE_TAGS=" >> "$GITHUB_ENV"
         else
           SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+          # Use tag filtering when building from tags
+          echo "INCLUDE_TAGS=${TEST_TAGS}" >> "$GITHUB_ENV"
 
-          # Exclude rbac tests if auth is not required
-          if [[ "$AUTH_REQUIRED" != "true" ]]; then
-            echo "Auth is disabled - excluding rbac tests"
-            # Filter out any rbac test files from the spec
-            SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
-          fi
+            # Exclude rbac tests if auth is not required
+            if [[ "$AUTH_REQUIRED" != "true" ]]; then
+              echo "Auth is disabled - excluding rbac tests"
+              # Filter out any rbac test files from the spec
+              SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
+            fi
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
@@ -162,7 +166,7 @@ runs:
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
-        CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
+        CYPRESS_INCLUDE_TAGS: "${{ env.INCLUDE_TAGS }}"
         CYPRESS_EXCLUDE_TAGS: "cf,downstream"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
