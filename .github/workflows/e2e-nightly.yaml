@@ -1,9 +1,16 @@
-name: e2e - run all non-analysis tests nightly (@main)
+name: e2e - TEMPORARY TEST - Metrics only on PR
+
+# TEMPORARY: Testing metrics port-forward fix
+# Original triggers commented out - restore after testing
+# on:
+#   workflow_dispatch:
+#   schedule:
+#     - cron: "0 0 * * *"
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
+  pull_request:
+    branches:
+      - main
 
 concurrency:
   group: e2e-nightly-${{ github.ref }}
@@ -11,23 +18,25 @@ concurrency:
 
 jobs:
   nightly-auth:
-    name: "Nightly auth - all tiers"
+    name: "TEST - Application metrics test (auth)"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      test_tags: "@ci,@tier0,@tier2,@tier3"
+      test_tags: "@tier2"
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
-      test_ref: main
+      test_ref: ${{ github.head_ref }}
+      test_spec: "cypress/e2e/tests/custom-metrics/application_metrics.test.ts"
     secrets: inherit
 
-  nightly-noauth:
-    name: "Nightly noauth - all tiers"
-    uses: ./.github/workflows/e2e-run-ui-tests.yaml
-    with:
-      test_tags: "@ci,@tier0,@tier2,@tier3"
-      feature_auth_required: false
-      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      install_konveyor_version: main
-      test_ref: main
-    secrets: inherit
+  # TEMPORARY: Disabled noauth for testing
+  # nightly-noauth:
+  #   name: "Nightly noauth - all tiers"
+  #   uses: ./.github/workflows/e2e-run-ui-tests.yaml
+  #   with:
+  #     test_tags: "@ci,@tier0,@tier2,@tier3"
+  #     feature_auth_required: false
+  #     bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+  #     install_konveyor_version: main
+  #     test_ref: main
+  #   secrets: inherit

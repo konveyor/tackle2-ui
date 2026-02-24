@@ -40,8 +40,7 @@ describe(["@tier1"], "Python app analysis", () => {
     cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
   });
 
-  it("Bug Tackle-1093: Source analysis on python application", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1093
+  it("Source analysis on python application", function () {
     const application = new Analysis(
       getRandomApplicationData("pythonApp_Source", {
         sourceData: this.appData["python-app"],

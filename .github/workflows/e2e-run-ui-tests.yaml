@@ -7,6 +7,11 @@ on:
         type: string
         default: "@ci,@tier0"
 
+      test_spec:
+        type: string
+        description: Specific test spec to run (overrides test_tags)
+        default: ""
+
       feature_auth_required:
         type: boolean
         default: false
@@ -57,6 +62,11 @@ on:
         description: Comma separated list of test tags to run
         type: string
         default: "@ci,@tier0"
+
+      test_spec:
+        description: Specific test spec to run (overrides test_tags)
+        type: string
+        default: ""
 
       feature_auth_required:
         description: Enable authentication?
@@ -182,9 +192,10 @@ jobs:
             sleep 2
           done
 
-          # Port-forward metrics endpoint in the background
-          kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
-          PF_PID=$!
+          # Port-forward metrics endpoint in the background (persistent across steps)
+          nohup kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 > /tmp/port-forward-metrics.log 2>&1 &
+          echo $! > /tmp/port-forward-metrics.pid
+          echo "Port-forward PID: $(cat /tmp/port-forward-metrics.pid)"
 
           # Wait for port-forward to be ready with retry logic
           echo "Waiting for port-forward to be ready..."
@@ -216,15 +227,42 @@ jobs:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
+      - name: Verify metrics endpoint is still accessible
+        run: |
+          echo "Verifying port-forward is still running..."
+          if [[ -f /tmp/port-forward-metrics.pid ]]; then
+            PID=$(cat /tmp/port-forward-metrics.pid)
+            if ps -p $PID > /dev/null 2>&1; then
+              echo "✓ Port-forward process is running (PID: $PID)"
+            else
+              echo "✗ Port-forward process is NOT running!"
+              exit 1
+            fi
+          else
+            echo "✗ Port-forward PID file not found!"
+            exit 1
+          fi
+
+          echo "Testing metrics endpoint accessibility..."
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+            echo "✓ Metrics endpoint is accessible"
+          else
+            echo "✗ Metrics endpoint is NOT accessible!"
+            echo "Port-forward logs:"
+            cat /tmp/port-forward-metrics.log || echo "No logs found"
+            exit 1
+          fi
+
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
           test_tags: ${{ inputs.test_tags }}
+          test_spec: ${{ inputs.test_spec }}
           tests_ref: ${{ inputs.test_ref }}
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
           feature_auth_required: ${{ inputs.feature_auth_required }}
-          report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
+          report_artifact_name: "ui-test-reports-${{ inputs.feature_auth_required && 'auth' || 'noauth' }}-${{ github.run_id }}"
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
           git_user: ${{ secrets.GIT_USER }}
@@ -238,3 +276,15 @@ jobs:
           jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
           jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
           jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}
+
+      - name: Cleanup port-forward
+        if: always()
+        run: |
+          if [[ -f /tmp/port-forward-metrics.pid ]]; then
+            PID=$(cat /tmp/port-forward-metrics.pid)
+            echo "Stopping port-forward (PID: $PID)"
+            kill $PID 2>/dev/null || true
+            echo "Port-forward stopped"
+          else
+            echo "No port-forward PID file found"
+          fi

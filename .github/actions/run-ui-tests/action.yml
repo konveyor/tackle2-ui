@@ -6,6 +6,11 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
+  test_spec:
+    description: Specific test spec to run (overrides test_tags if provided)
+    required: false
+    default: ""
+
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -132,16 +137,24 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
+        TEST_SPEC_OVERRIDE: ${{ inputs.test_spec }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
         cd ui-tests/cypress
-        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
-        # Exclude rbac tests if auth is not required
-        if [[ "$AUTH_REQUIRED" != "true" ]]; then
-          echo "Auth is disabled - excluding rbac tests"
-          # Filter out any rbac test files from the spec
-          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
+        # Use override spec if provided, otherwise build from tags
+        if [[ -n "$TEST_SPEC_OVERRIDE" ]]; then
+          echo "Using provided test spec: $TEST_SPEC_OVERRIDE"
+          SPEC="$TEST_SPEC_OVERRIDE"
+        else
+          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+
+          # Exclude rbac tests if auth is not required
+          if [[ "$AUTH_REQUIRED" != "true" ]]; then
+            echo "Auth is disabled - excluding rbac tests"
+            # Filter out any rbac test files from the spec
+            SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
+          fi
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
@@ -213,7 +226,6 @@ runs:
       uses: actions/upload-artifact@v4
       if: always() && inputs.report_artifact_name != ''
       with:
-        overwrite: true
         name: ${{ inputs.report_artifact_name }}
         path: |
           ./ui-tests/cypress/run
