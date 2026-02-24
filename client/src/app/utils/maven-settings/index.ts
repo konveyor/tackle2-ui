@@ -1,4 +1,5 @@
 import { XMLValidator } from "fast-xml-parser";
+import { memoize } from "lodash-es";
 
 // Import schemas
 import schema0 from "./schema-1.0.0.xsd";
@@ -20,7 +21,7 @@ type XSD_NAMES = keyof typeof XSD_BY_NAME;
  * @returns {boolean} `true` if valid, `false` if content is empty
  * @throws {Error} Contents fails validation. Details is the message.
  */
-export async function validateSettingsXml(contents?: string) {
+export const validateSettingsXml = memoize(async (contents?: string) => {
   if (contents === undefined || contents.length === 0) {
     return false;
   }
@@ -70,4 +71,4 @@ export async function validateSettingsXml(contents?: string) {
       validationResult.errors.map((e) => e.rawMessage).join(", ")
     );
   }
-}
+});
