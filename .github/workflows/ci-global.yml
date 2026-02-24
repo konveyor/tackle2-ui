@@ -38,7 +38,7 @@ on:
 ##
 
 concurrency:
-  group: ci-global-${{ github.ref }}
+  group: ci-global-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
 
 jobs:
