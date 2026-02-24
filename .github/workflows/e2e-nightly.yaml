@@ -26,7 +26,7 @@ jobs:
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       install_konveyor_version: main
       test_ref: ${{ github.ref }}
-      test_spec: "e2e/tests/custom-metrics/application_metrics.test.ts"
+      test_spec: "**/e2e/tests/custom-metrics/application_metrics.test.ts"
     secrets: inherit
 
   # TEMPORARY: Disabled noauth for testing
