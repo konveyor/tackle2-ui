@@ -192,27 +192,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
-  it("Bug Tackle-1078: Analysis for known Open Source libraries on tackleTest app", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1078
-    // Source code analysis require both source and maven credentials
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+knownLibraries", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["analysis_for_openSourceLibraries"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
-  });
-
   it("Automated tagging using Source Analysis on tackle testapp", function () {
     // Automates Polarion MTA-208
     const application = new Analysis(

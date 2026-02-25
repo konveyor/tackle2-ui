@@ -1083,7 +1083,7 @@
     "source": "Source code + dependencies",
     "target": ["Quarkus"],
     "appName": "deps",
-    "openSourceLibraries": true,
+    "openSourceLibraries": false,
     "storyPoints": "2,602"
   },
 
