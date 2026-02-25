@@ -135,10 +135,7 @@ runs:
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
         cd ui-tests/cypress
-
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-        # Use tag filtering when building from tags
-        echo "INCLUDE_TAGS=${TEST_TAGS}" >> "$GITHUB_ENV"
 
         # Exclude rbac tests if auth is not required
         if [[ "$AUTH_REQUIRED" != "true" ]]; then
@@ -152,7 +149,7 @@ runs:
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
       env:
-        CYPRESS_INCLUDE_TAGS: "${{ env.INCLUDE_TAGS }}"
+        CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
         CYPRESS_EXCLUDE_TAGS: "cf,downstream"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"

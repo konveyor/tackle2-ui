@@ -181,7 +181,6 @@ describe(
       this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
         (issue: AppIssue) => {
           issue.sources.forEach((source) => {
-            cy.log(`Filtering by source: ${source} for issue: ${issue.name}`); // Debug log
             Issues.applyFilter(dynamicReportFilter.source, source);
             Issues.validateFilter(issue);
             clearAllFilters();
@@ -215,9 +214,7 @@ describe(
     allIssuesSortByList.forEach((column) => {
       it(`All issues - Sort issues by ${column}`, function () {
         Issues.openList();
-        cy.wait("@getIssues");
         selectItemsPerPage(100);
-        cy.wait("@getIssues");
         validateSortBy(column);
       });
     });
