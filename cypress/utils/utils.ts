@@ -689,7 +689,7 @@ export function verifySortDesc(
   unsortedList: unknown[]
 ): void {
   cy.wrap(listToVerify).then((capturedList) => {
-    const reverseSortedList = unsortedList.sort((a, b) =>
+    const reverseSortedList = unsortedList.slice().sort((a, b) =>
       b.toString().localeCompare(a.toString(), "en-us", {
         numeric: !unsortedList.some(isNaN),
       })
@@ -2238,6 +2238,59 @@ export function seedAnalysisData(applicationId: number): void {
       result.stdout,
       "analysis.sh should output 'Analysis: created.'"
     ).to.include("Analysis: created.");
+  });
+}
+
+export function seedIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Issues seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedIssuesData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "issues.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "issues.sh should output 'Issues seeding completed successfully!'"
+    ).to.include("Issues seeding completed successfully!");
+  });
+}
+
+export function cleanupIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues-cleanup.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupIssuesData had issues (exit code: ${result.exitCode})`
+      );
+    }
   });
 }
 

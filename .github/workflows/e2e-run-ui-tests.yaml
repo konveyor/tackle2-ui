@@ -182,9 +182,10 @@ jobs:
             sleep 2
           done
 
-          # Port-forward metrics endpoint in the background
-          kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 &
-          PF_PID=$!
+          # Port-forward metrics endpoint in the background (persistent across steps)
+          nohup kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 > /tmp/port-forward-metrics.log 2>&1 &
+          echo $! > /tmp/port-forward-metrics.pid
+          echo "Port-forward PID: $(cat /tmp/port-forward-metrics.pid)"
 
           # Wait for port-forward to be ready with retry logic
           echo "Waiting for port-forward to be ready..."
@@ -215,6 +216,31 @@ jobs:
         with:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
+
+      - name: Verify metrics endpoint is still accessible
+        run: |
+          echo "Verifying port-forward is still running..."
+          if [[ -f /tmp/port-forward-metrics.pid ]]; then
+            PID=$(cat /tmp/port-forward-metrics.pid)
+            if ps -p $PID > /dev/null 2>&1; then
+              echo "✓ Port-forward process is running (PID: $PID)"
+            else
+              echo "✗ Port-forward process is NOT running!"
+              exit 1
+            fi
+          else
+            echo "✗ Port-forward PID file not found!"
+            exit 1
+          fi
+
+          echo "Testing metrics endpoint accessibility..."
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+            echo "✓ Metrics endpoint is accessible"
+          else
+            echo "✗ Metrics endpoint is NOT accessible!"
+            cat /tmp/port-forward-metrics.log
+            exit 1
+          fi
 
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests

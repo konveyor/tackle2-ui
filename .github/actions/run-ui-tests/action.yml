@@ -213,7 +213,6 @@ runs:
       uses: actions/upload-artifact@v4
       if: always() && inputs.report_artifact_name != ''
       with:
-        overwrite: true
         name: ${{ inputs.report_artifact_name }}
         path: |
           ./ui-tests/cypress/run
