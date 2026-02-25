@@ -6,11 +6,6 @@ inputs:
     description: Comma separated list of test tags to run
     default: "@ci,@tier0"
 
-  test_spec:
-    description: Specific test spec to run (overrides test_tags if provided)
-    required: false
-    default: ""
-
   tests_ref:
     description: Ref in this repo to use for the tests
     default: main
@@ -137,28 +132,19 @@ runs:
       shell: bash
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
-        TEST_SPEC_OVERRIDE: ${{ inputs.test_spec }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
       run: |
         cd ui-tests/cypress
 
-        # Use override spec if provided, otherwise build from tags
-        if [[ -n "$TEST_SPEC_OVERRIDE" ]]; then
-          echo "Using provided test spec: $TEST_SPEC_OVERRIDE"
-          SPEC="$TEST_SPEC_OVERRIDE"
-          # Don't filter by tags when running specific test files
-          echo "INCLUDE_TAGS=" >> "$GITHUB_ENV"
-        else
-          SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
-          # Use tag filtering when building from tags
-          echo "INCLUDE_TAGS=${TEST_TAGS}" >> "$GITHUB_ENV"
+        SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
+        # Use tag filtering when building from tags
+        echo "INCLUDE_TAGS=${TEST_TAGS}" >> "$GITHUB_ENV"
 
-            # Exclude rbac tests if auth is not required
-            if [[ "$AUTH_REQUIRED" != "true" ]]; then
-              echo "Auth is disabled - excluding rbac tests"
-              # Filter out any rbac test files from the spec
-              SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
-            fi
+        # Exclude rbac tests if auth is not required
+        if [[ "$AUTH_REQUIRED" != "true" ]]; then
+          echo "Auth is disabled - excluding rbac tests"
+          # Filter out any rbac test files from the spec
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
