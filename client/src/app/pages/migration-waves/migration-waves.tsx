@@ -469,7 +469,7 @@ export const MigrationWaves: React.FC = () => {
                             ? migrationWave.status
                             : "--"}
                         </Td>
-                        <Td isActionCell id="row-actions">
+                        <Td isActionCell id="action">
                           {rbacWriteAccess && (
                             <OverflowMenu breakpoint="sm">
                               <Tooltip content={t("actions.edit")}>
