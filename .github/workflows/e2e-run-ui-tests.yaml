@@ -246,8 +246,7 @@ jobs:
         env:
           TEST_REF: ${{ inputs.test_ref }}
         run: |
-          SANITIZED_REF="${TEST_REF}"
-          SANITIZED_REF="${SANITIZED_REF//\//-}"
+          SANITIZED_REF="${TEST_REF//\//_}"
           echo "SANITIZED_TEST_REF=${SANITIZED_REF}" >> $GITHUB_ENV
 
       - name: "Run UI tests"
