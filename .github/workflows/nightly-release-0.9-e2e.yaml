@@ -1,4 +1,4 @@
-name: e2e - run all(but analysis) tests nightly (@release-0.9)
+name: Nightly e2e - run all non-analysis tests (@release-0.9)
 
 on:
   workflow_dispatch:
