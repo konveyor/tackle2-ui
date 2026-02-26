@@ -243,8 +243,10 @@ jobs:
           fi
 
       - name: Sanitize test_ref for artifact name
+        env:
+          TEST_REF: ${{ inputs.test_ref }}
         run: |
-          SANITIZED_REF="${{ inputs.test_ref }}"
+          SANITIZED_REF="${TEST_REF}"
           SANITIZED_REF="${SANITIZED_REF//\//-}"
           echo "SANITIZED_TEST_REF=${SANITIZED_REF}" >> $GITHUB_ENV
 
