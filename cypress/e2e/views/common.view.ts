@@ -40,7 +40,6 @@ export const expandableRow = ".pf-c-expandable-row";
 export const helper = "span.pf-v5-c-helper-text__item-text";
 export const filterInput = "input[type='search']";
 export const inputText = "input[type='text']";
-
 export const searchButton = "button#search-button";
 export const nextPageButton = "button[aria-label='Go to next page']";
 export const prevPageButton = "button[aria-label='Go to previous page']";
@@ -94,6 +93,7 @@ export const radioButton = '*[class^="pf-v5-c-radio__input"]';
 export const splitItem = "div.pf-v5-l-split__item";
 export const taskNotificationBadge = "#task-notification-badge";
 export const modalConfirm = "#modal-confirm";
+export const kebabToggleButton = 'button[aria-label="Kebab toggle"]';
 
 // Application/Archetype side drawer
 export enum sideDrawer {
