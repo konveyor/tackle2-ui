@@ -2294,6 +2294,112 @@ export function cleanupIssuesData(): void {
   });
 }
 
+export function seedInsightsData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x insights.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./insights.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Insights seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedInsightsData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "insights.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "insights.sh should output 'Insights seeding completed successfully!'"
+    ).to.include("Insights seeding completed successfully!");
+  });
+}
+
+export function cleanupInsightsData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x insights-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./insights-cleanup.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupInsightsData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
+export function seedDependenciesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x dependencies.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./dependencies.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Dependencies seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedDependenciesData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "dependencies.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "dependencies.sh should output 'Dependencies seeding completed successfully!'"
+    ).to.include("Dependencies seeding completed successfully!");
+  });
+}
+
+export function cleanupDependenciesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x dependencies-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./dependencies-cleanup.sh`;
+  cy.exec(command, {
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupDependenciesData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
 export function getApplicationID(url: string): number | null {
   const urlObj = new URL(url);
   const activeItem = urlObj.searchParams.get("activeItem");

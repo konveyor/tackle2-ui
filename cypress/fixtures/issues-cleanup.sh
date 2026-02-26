@@ -19,11 +19,12 @@ export TOKEN=$(curl -kSs -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD
   ${host}/auth/login | jq -r ".token")
 
 if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
-  echo "ERROR: Failed to obtain authentication token"
-  exit 1
+  echo "WARNING: Authentication returned empty token (auth may be disabled on this instance)"
+  echo "Continuing without authentication..."
+  export TOKEN=""
+else
+  echo "Authenticated successfully"
 fi
-
-echo "Authenticated successfully"
 echo "Cleaning up issues test data..."
 
 # Delete applications by name pattern
