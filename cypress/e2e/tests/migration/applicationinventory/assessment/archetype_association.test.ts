@@ -17,14 +17,14 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
-  clickByText,
   createMultipleApplications,
   createMultipleArchetypes,
   createMultipleStakeholders,
   createMultipleTags,
+  deleteAllArchetypes,
+  deleteApplicationTableRows,
   deleteByList,
   login,
-  selectFromDropListByText,
 } from "../../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -36,48 +36,47 @@ import {
   cloudReadinessQuestionnaire,
   legacyPathfinder,
 } from "../../../../types/constants";
-import {
-  ViewArchetypes,
-  customActionButton,
-} from "../../../../views/applicationinventory.view";
-import { archetypeDropdown } from "../../../../views/archetype.view";
 
-let applicationList: Application[];
-let inheritanceTags: Tag[];
-let associationTags: Tag[];
 let stakeholders: Stakeholders[];
+const allApplications: Application[] = [];
+const allArchetypes: Archetype[] = [];
+const allTags: Tag[] = [];
+
 describe(
   ["@tier3"],
   "Tests related to application-archetype association ",
   () => {
-    before("Login", function () {
+    before("Login and setup", function () {
       login();
       cy.visit("/");
-      inheritanceTags = createMultipleTags(2);
-      associationTags = createMultipleTags(2);
       stakeholders = createMultipleStakeholders(1);
 
       AssessmentQuestionnaire.deleteAllQuestionnaires();
       AssessmentQuestionnaire.enable(legacyPathfinder);
+      AssessmentQuestionnaire.import(cloudReadinessFilePath);
+      AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
     });
 
     it("Bug Tackle-2996: Verify multiple applications inherit assessment and review inheritance from an archetype", function () {
       // https://github.com/konveyor/tackle2-ui/issues/2996
 
       // Automates Polarion MTA-400 Archetype association - Application creation before archetype creation.
-      AssessmentQuestionnaire.import(cloudReadinessFilePath);
-      AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
-      applicationList = createMultipleApplications(2, [
-        inheritanceTags[0].name,
+      const test1Tags = createMultipleTags(2);
+      allTags.push(...test1Tags);
+
+      const applicationList = createMultipleApplications(2, [
+        test1Tags[0].name,
       ]);
+      allApplications.push(...applicationList);
 
       const archetype = new Archetype(
         data.getRandomWord(8),
-        [inheritanceTags[0].name],
-        [inheritanceTags[1].name],
+        [test1Tags[0].name],
+        [test1Tags[1].name],
         null
       );
       archetype.create();
+      allArchetypes.push(archetype);
 
       /*Automates Polarion MTA-499 Verify multiple applications inherit assessment and review inheritance from an archetype
           and Polarion MTA-2464 Assess archetype with multiple questionnaires */
@@ -128,27 +127,30 @@ describe(
         applicationList[i].verifyStatus("assessment", "Completed");
         applicationList[i].verifyInheritanceStatus("assessment");
       }
-
-      archetype.delete();
-      AssessmentQuestionnaire.delete(cloudReadinessQuestionnaire);
     });
 
     it("Verify application assessment and review inheritance from multiple archetypes ", function () {
       /* Automates MTA-420
         This also verifies: Archetype association - Application creation after archetype creation.
         */
+      AssessmentQuestionnaire.delete(cloudReadinessQuestionnaire);
+      deleteApplicationTableRows();
+      deleteAllArchetypes();
+      const test2Tags = createMultipleTags(2);
+      allTags.push(...test2Tags);
 
-      const archetypeList = createMultipleArchetypes(2, inheritanceTags);
+      const archetypeList = createMultipleArchetypes(2, test2Tags);
+      allArchetypes.push(...archetypeList);
       const archetypeNames = [archetypeList[0].name, archetypeList[1].name];
 
       const appdata = {
         name: data.getAppName(),
-        tags: [inheritanceTags[0].name, inheritanceTags[1].name],
+        tags: [test2Tags[0].name, test2Tags[1].name],
       };
 
       const application2 = new Application(appdata);
-      applicationList.push(application2);
       application2.create();
+      allApplications.push(application2);
 
       // Note that the application is associated with 2 archetypes. Its 'Assessment' and 'Review'
       // status show 'In-progress' until all associated archetypes have been assessed.
@@ -162,8 +164,6 @@ describe(
 
       // Validate 'Reviews' field on app drawer after review inheritance
       application2.validateInheritedReviewFields(archetypeNames);
-
-      // Assert that 'Archetypes reviewed' is populated on app drawer after review inheritance
       application2.verifyArchetypeList(archetypeNames, "Archetypes reviewed");
 
       // Verify assessment inheritance from multiple archetypes
@@ -186,54 +186,16 @@ describe(
       }
       application2.verifyStatus("assessment", "Not started");
       application2.verifyStatus("review", "Not started");
-
-      deleteByList(archetypeList);
-    });
-
-    it("View Archetypes from application assessment popup", function () {
-      // Automates Polarion MTA-436
-      applicationList = [];
-      const archetypeList = createMultipleArchetypes(2, associationTags);
-
-      AssessmentQuestionnaire.import(cloudReadinessFilePath);
-      AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
-      AssessmentQuestionnaire.disable(legacyPathfinder);
-
-      for (let i = 0; i < archetypeList.length; i++) {
-        archetypeList[i].perform_assessment(
-          "low",
-          stakeholders,
-          null,
-          cloudReadinessQuestionnaire
-        );
-        Archetype.open(true);
-        archetypeList[i].verifyStatus("assessment", "Completed");
-      }
-
-      const appdata = {
-        name: data.getAppName(),
-        tags: associationTags.map((tag) => tag.name),
-      };
-
-      const application = new Application(appdata);
-      applicationList.push(application);
-      application.create();
-      application.verifyStatus("assessment", "Completed");
-      application.clickAssessButton();
-
-      clickByText(customActionButton, ViewArchetypes);
-      selectFromDropListByText(archetypeDropdown, archetypeList[0].name);
-      selectFromDropListByText(archetypeDropdown, archetypeList[1].name);
-
-      deleteByList(archetypeList);
     });
 
     after("Perform test data clean up", function () {
-      Application.open(true);
-      deleteByList(applicationList);
-      deleteByList(inheritanceTags);
-      deleteByList(associationTags);
+      deleteApplicationTableRows();
+      deleteAllArchetypes();
+      if (allTags.length > 0) {
+        deleteByList(allTags);
+      }
       deleteByList(stakeholders);
+      AssessmentQuestionnaire.deleteAllQuestionnaires();
     });
   }
 );

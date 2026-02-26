@@ -1,4 +1,4 @@
-name: e2e - run all non-analysis tests nightly (@main)
+name: Nightly e2e - run all non-analysis tests (@main)
 
 on:
   workflow_dispatch:
@@ -17,6 +17,7 @@ jobs:
       test_tags: "@ci,@tier0,@tier2,@tier3"
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      ui_image: quay.io/konveyor/tackle2-ui:latest
       install_konveyor_version: main
       test_ref: main
     secrets: inherit
@@ -28,6 +29,7 @@ jobs:
       test_tags: "@ci,@tier0,@tier2,@tier3"
       feature_auth_required: false
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
+      ui_image: quay.io/konveyor/tackle2-ui:latest
       install_konveyor_version: main
       test_ref: main
     secrets: inherit

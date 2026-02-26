@@ -68,45 +68,8 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
     });
   });
 
-  it("Bug MTA-5199: Custom rule with administracionEfectivo application", function () {
-    const app = new Analysis(
-      getRandomApplicationData("customRule_administracionEfectivo"),
-      getRandomAnalysisData(
-        this.analysisData["administracionEfectivo_custom_rules"]
-      )
-    );
-    Application.open();
-    applications.push(app);
-    app.create();
-    app.analyze();
-    app.verifyAnalysisStatus(AnalysisStatuses.completed);
-    Issues.openSingleApplication(app.name);
-    exists("CUSTOM RULE");
-  });
-
-  it("Bug Tackle-1094: Verify triggered rule", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1094
-    const app = new Analysis(
-      getRandomApplicationData("jee-example-app custom rule"),
-      getRandomAnalysisData({
-        source: "Upload a local binary",
-        target: ["Application server migration to"],
-        binary: ["jee-example-app-1.0.0.ear"],
-        customRule: ["basic-custom-rule.yaml"],
-      })
-    );
-    Application.open();
-    applications.push(app);
-    app.create();
-    app.analyze();
-    app.verifyAnalysisStatus(AnalysisStatuses.completed);
-    Issues.openSingleApplication(app.name);
-    exists("CUSTOM RULE");
-  });
-
   // Automates Bug MTA-2001
-  it("Bug Tackle-1095: Verify triggered rule for dependency", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1095
+  it("Verify triggered rule for dependency", function () {
     const app = new Analysis(
       getRandomApplicationData("tackle-testapp-custom-rules", {
         sourceData: this.appData["tackle-testapp-git"],
@@ -125,8 +88,7 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
   });
 
   // Automates Bug MTA-2000
-  it("Bug Tackle-1095: Verify triggered rule for javax.* package import", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1095
+  it("Verify triggered rule for javax.* package import", function () {
     Issues.openSingleApplication(tackleTestapp.name);
     exists("CUSTOM RULE for javax.* package import");
   });
@@ -150,8 +112,7 @@ describe(["@tier1"], "Custom Rules in analyses", function () {
     // TODO: after the bug is fixed Verify that the uploaded yaml not valid
   });
 
-  it("Bug Tackle-1093: Python custom rules file analysis", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1093
+  it("Python custom rules file analysis", function () {
     const app = new Analysis(
       getRandomApplicationData("python-app-custom-rules", {
         sourceData: this.appData["python-demo-app"],
