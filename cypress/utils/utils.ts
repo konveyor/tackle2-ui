@@ -2206,8 +2206,13 @@ export function seedAnalysisData(applicationId: number): void {
     `seedAnalysisData: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
   );
 
-  const command = `cd fixtures && chmod +x analysis.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./analysis.sh ${applicationId}`;
+  const command = `cd fixtures && chmod +x analysis.sh && ./analysis.sh ${applicationId}`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2247,8 +2252,13 @@ export function seedIssuesData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x issues.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues.sh`;
+  const command = `cd fixtures && chmod +x issues.sh && ./issues.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2280,8 +2290,13 @@ export function cleanupIssuesData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x issues-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./issues-cleanup.sh`;
+  const command = `cd fixtures && chmod +x issues-cleanup.sh && ./issues-cleanup.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2300,8 +2315,13 @@ export function seedInsightsData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x insights.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./insights.sh`;
+  const command = `cd fixtures && chmod +x insights.sh && ./insights.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2333,8 +2353,13 @@ export function cleanupInsightsData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x insights-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./insights-cleanup.sh`;
+  const command = `cd fixtures && chmod +x insights-cleanup.sh && ./insights-cleanup.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2353,8 +2378,13 @@ export function seedDependenciesData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x dependencies.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./dependencies.sh`;
+  const command = `cd fixtures && chmod +x dependencies.sh && ./dependencies.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {
@@ -2386,8 +2416,13 @@ export function cleanupDependenciesData(): void {
   const username = Cypress.env("user");
   const password = Cypress.env("pass");
 
-  const command = `cd fixtures && chmod +x dependencies-cleanup.sh && HOST=${hostname} USERNAME=${username} PASSWORD=${password} ./dependencies-cleanup.sh`;
+  const command = `cd fixtures && chmod +x dependencies-cleanup.sh && ./dependencies-cleanup.sh`;
   cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      USERNAME: String(username ?? ""),
+      PASSWORD: String(password ?? ""),
+    },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
   }).then((result) => {

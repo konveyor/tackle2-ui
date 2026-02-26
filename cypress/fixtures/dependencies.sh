@@ -16,12 +16,38 @@ if [[ ! "$host" =~ ^https?:// ]]; then
   host="https://${host}"
 fi
 
-export TOKEN=$(curl -kSs -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
-  ${host}/auth/login | jq -r ".token")
+auth_response=$(curl -kSs -w "\n%{http_code}" -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
+  "${host}/auth/login")
 
-if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
-  export TOKEN=""
+http_code=$(echo "$auth_response" | tail -n1)
+response_body=$(echo "$auth_response" | sed '$d')
+
+if [[ "$http_code" != "200" && "$http_code" != "201" ]]; then
+  echo "ERROR: Authentication failed with HTTP $http_code" >&2
+  exit 1
 fi
+
+TOKEN=$(echo "$response_body" | jq -r ".token")
+
+if [[ "$TOKEN" == "null" ]]; then
+  echo "ERROR: Authentication response missing token field" >&2
+  exit 1
+fi
+
+# If token is empty, verify auth is actually disabled by testing API access
+if [[ -z "$TOKEN" ]]; then
+  test_response=$(curl -kSs -w "\n%{http_code}" "${host}/applications")
+  test_code=$(echo "$test_response" | tail -n1)
+
+  if [[ "$test_code" == "401" || "$test_code" == "403" ]]; then
+    echo "ERROR: Authentication required but token is empty" >&2
+    echo "The server requires authentication but returned an empty token." >&2
+    echo "Please check your credentials (USERNAME, PASSWORD) or server configuration." >&2
+    exit 1
+  fi
+fi
+
+export TOKEN
 
 # Function to create bookserver manifest with dependencies (source_analysis_on_bookserverapp - 41 deps)
 create_bookserver_manifest() {
@@ -431,7 +457,7 @@ app_response=$(curl -kSs -X POST \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"${app_name}\",\"description\":\"Bookserver app for dependencies filtering test\"}" \
-  ${host}/applications)
+  "${host}/applications")
 
 app_id=$(echo $app_response | jq -r '.id')
 
@@ -451,7 +477,7 @@ code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
   -H "Authorization: Bearer ${TOKEN}" \
   -F "file=@${manifest_file};type=application/x-yaml" \
   -H 'Accept:application/x-yaml' \
-  ${host}/applications/${app_id}/analyses)
+  "${host}/applications/${app_id}/analyses")
 
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to upload analysis for $app_name"
@@ -477,7 +503,7 @@ app_response=$(curl -kSs -X POST \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"${app_name}\",\"description\":\"Daytrader app for dependencies filtering test\"}" \
-  ${host}/applications)
+  "${host}/applications")
 
 app_id=$(echo $app_response | jq -r '.id')
 
@@ -497,7 +523,7 @@ code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
   -H "Authorization: Bearer ${TOKEN}" \
   -F "file=@${manifest_file};type=application/x-yaml" \
   -H 'Accept:application/x-yaml' \
-  ${host}/applications/${app_id}/analyses)
+  "${host}/applications/${app_id}/analyses")
 
 if [ $? -ne 0 ]; then
   echo "ERROR: Failed to upload analysis for $app_name"
