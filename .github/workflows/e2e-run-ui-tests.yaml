@@ -242,6 +242,13 @@ jobs:
             exit 1
           fi
 
+      - name: Sanitize test_ref for artifact name
+        env:
+          TEST_REF: ${{ inputs.test_ref }}
+        run: |
+          SANITIZED_REF="${TEST_REF//\//_}"
+          echo "SANITIZED_TEST_REF=${SANITIZED_REF}" >> $GITHUB_ENV
+
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
         with:
@@ -250,7 +257,7 @@ jobs:
           base_url: ${{ env.UI_URL }}
           metrics_url: ${{ env.METRICS_URL }}
           feature_auth_required: ${{ inputs.feature_auth_required }}
-          report_artifact_name: "ui-test-reports-${{ github.run_id }}-${{ github.job }}"
+          report_artifact_name: "ui-test-e2e-reports-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.feature_auth_required && 'auth' || 'noauth' }}-${{ env.SANITIZED_TEST_REF }}"
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
           git_user: ${{ secrets.GIT_USER }}
