@@ -2,7 +2,11 @@ import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
 import { ToolbarChip } from "@patternfly/react-core";
 
-import { AdminPathValues, DevPathValues } from "@app/Paths";
+import {
+  AdminPathValues,
+  DevPathValues,
+  UniversalPathValues,
+} from "@app/Paths";
 import i18n from "@app/i18n";
 
 // Axios error
@@ -141,7 +145,7 @@ export const isValidSvnUrl = (url: string) =>
   svnUrlRegex.test(url) || isValidStandardUrl(url);
 
 export const formatPath = (
-  path: AdminPathValues | DevPathValues,
+  path: AdminPathValues | DevPathValues | UniversalPathValues,
   data: Record<string, unknown>
 ) => {
   let url = path as string;
