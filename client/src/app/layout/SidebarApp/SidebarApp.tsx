@@ -145,67 +145,94 @@ export const MigrationSidebar = ({
   return (
     <PersonaSidebar selectedPersona="MIGRATION" setLastPersona={setLastPersona}>
       <NavList title="Global">
-        <NavItem>
-          <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
-            {t("sidebar.applicationInventory")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
-            {t("sidebar.archetypes")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
-            {t("sidebar.reports")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
-            {t("sidebar.controls")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.migrationWaves} activeClassName="pf-m-current">
-            {t("sidebar.migrationWaves")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
-            {t("sidebar.issues")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.insightsAllTab} activeClassName="pf-m-current">
-            {t("sidebar.insights")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
-            {t("sidebar.dependencies")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
-            {t("sidebar.tasks")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            to={DevPaths.migrationTargets}
-            activeClassName="pf-m-current"
-          >
-            {t("sidebar.customMigrationTargets")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            to={DevPaths.analysisProfiles}
-            activeClassName="pf-m-current"
-          >
-            {t("sidebar.analysisProfiles")}
-          </NavLink>
-        </NavItem>
+        <NavExpandable
+          title={t("sidebar.group.applications")}
+          srText={t("sidebar.group.applications")}
+          groupId="migration-applications"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
+              {t("sidebar.applicationInventory")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
+              {t("sidebar.archetypes")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              to={DevPaths.migrationWaves}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.migrationWaves")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
+        <NavExpandable
+          title={t("sidebar.group.analysisResults")}
+          srText={t("sidebar.group.analysisResults")}
+          groupId="migration-analysis-results"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
+              {t("sidebar.reports")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
+              {t("sidebar.issues")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              to={DevPaths.insightsAllTab}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.insights")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
+              {t("sidebar.dependencies")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
+        <NavExpandable
+          title={t("sidebar.group.configuration")}
+          srText={t("sidebar.group.configuration")}
+          groupId="migration-configuration"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink
+              to={DevPaths.analysisProfiles}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.analysisProfiles")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
+              {t("sidebar.controls")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              to={DevPaths.migrationTargets}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.customMigrationTargets")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
+              {t("sidebar.tasks")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
       </NavList>
     </PersonaSidebar>
   );
