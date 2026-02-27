@@ -57,9 +57,7 @@ describe(
       AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
     });
 
-    it("Bug Tackle-2996: Verify multiple applications inherit assessment and review inheritance from an archetype", function () {
-      // https://github.com/konveyor/tackle2-ui/issues/2996
-
+    it("Verify multiple applications inherit assessment and review inheritance from an archetype", function () {
       // Automates Polarion MTA-400 Archetype association - Application creation before archetype creation.
       const test1Tags = createMultipleTags(2);
       allTags.push(...test1Tags);
