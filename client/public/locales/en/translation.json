@@ -337,7 +337,12 @@
     "issues": "Issues",
     "insights": "Insights",
     "dependencies": "Dependencies",
-    "tasks": "Task Manager"
+    "tasks": "Task Manager",
+    "group": {
+      "applications": "Applications",
+      "analysisResults": "Analysis Results",
+      "configuration": "Configuration"
+    }
   },
   "taskState": {
     "Canceled": "Canceled",
