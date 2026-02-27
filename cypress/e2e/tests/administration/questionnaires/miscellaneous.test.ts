@@ -115,7 +115,6 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
       const expectedFileName = `questionnaire-${questionnaireId}.yaml`;
       const filePath = `${cloudNativeDownloadPath}/${expectedFileName}`;
 
-      // cy.readFile automatically retries until file exists
       cy.readFile(filePath).then((fileContent) => {
         const updatedContent = AssessmentQuestionnaire.updateYamlContent(
           fileContent,
