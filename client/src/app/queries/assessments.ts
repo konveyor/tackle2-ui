@@ -97,7 +97,7 @@ export const useUpdateAssessmentMutation = (
       return updateAssessment(assessment);
     },
     onSuccess: (_, args) => {
-      onSuccess && onSuccess(args.name);
+      onSuccess?.(args.name);
       const isArchetype = !!args.archetype?.id;
 
       queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
@@ -164,8 +164,7 @@ export const useDeleteAssessmentMutation = (
       return deletedAssessment;
     },
     onSuccess: (_, args) => {
-      onSuccess &&
-        onSuccess(args?.applicationName || args?.archetypeName || "Unknown");
+      onSuccess?.(args?.applicationName || args?.archetypeName || "Unknown");
     },
     onError: onError,
   });

@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 
 import { ENV } from "@app/env";
-import useBranding from "@app/hooks/useBranding";
+import { useBranding } from "@app/hooks/useBranding";
 
 export interface AppAboutModalProps {
   isOpen: boolean;

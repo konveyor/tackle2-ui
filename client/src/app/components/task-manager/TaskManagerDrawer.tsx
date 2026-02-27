@@ -1,6 +1,7 @@
 import * as React from "react";
 import { forwardRef, useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   Dropdown,
@@ -61,6 +62,7 @@ interface TaskManagerTask {
 const PAGE_SIZE = 20;
 
 export const TaskManagerDrawer = forwardRef((_props, ref) => {
+  const { t } = useTranslation();
   const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
   const { tasks, hasNextPage, fetchNextPage, pageSize } = useTaskManagerData();
 
@@ -88,7 +90,7 @@ export const TaskManagerDrawer = forwardRef((_props, ref) => {
           <EmptyState variant={EmptyStateVariant.full}>
             <EmptyStateHeader
               headingLevel="h2"
-              titleText="There are no queued tasks"
+              titleText={t("message.noQueuedTasksTitle")}
               icon={<EmptyStateIcon icon={CubesIcon} />}
             />
             <EmptyStateBody>

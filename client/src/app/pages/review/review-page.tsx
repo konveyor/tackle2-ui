@@ -13,7 +13,7 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import BanIcon from "@patternfly/react-icons/dist/esm/icons/ban-icon";
+import { BanIcon } from "@patternfly/react-icons";
 
 import { Paths, ReviewRoute } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";

@@ -3,10 +3,11 @@ import {
   Button,
   ButtonVariant,
   InputGroup,
+  InputGroupItem,
   TextInput,
   ToolbarFilter,
 } from "@patternfly/react-core";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { SearchIcon } from "@patternfly/react-icons";
 
 import { IFilterControlProps } from "./FilterControl";
 import { ISearchFilterCategory } from "./FilterToolbar";
@@ -51,29 +52,33 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
       showToolbarItem={showToolbarItem}
     >
       <InputGroup>
-        <TextInput
-          name={id}
-          id="search-input"
-          type={isNumeric ? "number" : "search"}
-          onChange={(_, value) => setInputValue(value)}
-          aria-label={`${category.title} filter`}
-          value={inputValue}
-          placeholder={category.placeholderText}
-          onKeyDown={(event: React.KeyboardEvent) => {
-            if (event.key && event.key !== "Enter") return;
-            onFilterSubmit();
-          }}
-          isDisabled={isDisabled}
-        />
-        <Button
-          variant={ButtonVariant.control}
-          id="search-button"
-          aria-label="search button for search input"
-          onClick={onFilterSubmit}
-          isDisabled={isDisabled}
-        >
-          <SearchIcon />
-        </Button>
+        <InputGroupItem isFill>
+          <TextInput
+            name={id}
+            id="search-input"
+            type={isNumeric ? "number" : "search"}
+            onChange={(_, value) => setInputValue(value)}
+            aria-label={`${category.title} filter`}
+            value={inputValue}
+            placeholder={category.placeholderText}
+            onKeyDown={(event: React.KeyboardEvent) => {
+              if (event.key && event.key !== "Enter") return;
+              onFilterSubmit();
+            }}
+            isDisabled={isDisabled}
+          />
+        </InputGroupItem>
+        <InputGroupItem>
+          <Button
+            variant={ButtonVariant.control}
+            id="search-button"
+            aria-label="search button for search input"
+            onClick={onFilterSubmit}
+            isDisabled={isDisabled}
+          >
+            <SearchIcon />
+          </Button>
+        </InputGroupItem>
       </InputGroup>
     </ToolbarFilter>
   );

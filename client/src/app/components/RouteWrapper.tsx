@@ -7,7 +7,7 @@ import keycloak from "@app/keycloak";
 import { checkAccess } from "../utils/rbac-utils";
 
 interface IRouteWrapperProps {
-  comp: React.ComponentType<any>;
+  comp: React.ComponentType<Record<string, unknown>>;
   roles: string[];
   path: string;
   exact?: boolean;

@@ -9,7 +9,7 @@ import {
   EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
 
 export interface NoEntitySelectedProps {
   entityName?: string;

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
   Spinner,
-  Title,
 } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
@@ -42,6 +43,7 @@ export const SchemaAsCodeEditor = ({
   isReadOnly = false,
   height = "600px",
 }: ISchemaAsCodeEditorProps) => {
+  const { t } = useTranslation();
   const editorRef = useRef<ControlledEditor>();
 
   const [currentCode, setCurrentCode] = useState(
@@ -50,19 +52,18 @@ export const SchemaAsCodeEditor = ({
   // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
-  useEffect(() => {
-    if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
-      focusAndHomePosition();
-      focusMovedOnSelectedDocumentChange.current = true;
-    }
-  }, [currentCode]);
-
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
       editorRef.current.setPosition({ column: 1, lineNumber: 1 });
     }
   };
+  useEffect(() => {
+    if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
+      focusAndHomePosition();
+      focusMovedOnSelectedDocumentChange.current = true;
+    }
+  }, [currentCode]);
 
   const validator = useMemo(() => {
     return !jsonSchema ? undefined : jsonSchemaToYupSchema(jsonSchema);
@@ -76,7 +77,7 @@ export const SchemaAsCodeEditor = ({
         if (!validator || validator.isValidSync(asJson)) {
           onDocumentChanged(asJson);
         }
-      } catch (error) {
+      } catch {
         // ignore invalid JSON, the change will be ignored
       }
     }
@@ -123,10 +124,11 @@ export const SchemaAsCodeEditor = ({
       emptyState={
         <div className="simple-task-viewer-empty-state">
           <EmptyState variant={EmptyStateVariant.sm} isFullHeight>
-            <EmptyStateIcon icon={Spinner} />
-            <Title size="lg" headingLevel="h4">
-              Loading Document
-            </Title>
+            <EmptyStateHeader
+              titleText={t("message.loadingDocumentTitle")}
+              icon={<EmptyStateIcon icon={Spinner} />}
+              headingLevel="h4"
+            />
           </EmptyState>
         </div>
       }

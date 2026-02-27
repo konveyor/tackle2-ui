@@ -1,14 +1,14 @@
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import { extend } from "dayjs";
+import { default as customParseFormat } from "dayjs/plugin/customParseFormat";
+import { default as isSameOrBefore } from "dayjs/plugin/isSameOrBefore";
+import { default as localizedFormat } from "dayjs/plugin/localizedFormat";
+import { default as relativeTime } from "dayjs/plugin/relativeTime";
+import { default as timezone } from "dayjs/plugin/timezone";
+import { default as utc } from "dayjs/plugin/utc";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
-dayjs.extend(isSameOrBefore);
-dayjs.extend(relativeTime);
-dayjs.extend(localizedFormat);
+extend(utc);
+extend(timezone);
+extend(customParseFormat);
+extend(isSameOrBefore);
+extend(relativeTime);
+extend(localizedFormat);

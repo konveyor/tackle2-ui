@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Icon, Tooltip } from "@patternfly/react-core";
-import StarIcon from "@patternfly/react-icons/dist/esm/icons/star-icon";
+import { StarIcon } from "@patternfly/react-icons";
 
 import { Identity } from "@app/api/models";
 import { useIdentityKind } from "@app/hooks/useIdentityKind";

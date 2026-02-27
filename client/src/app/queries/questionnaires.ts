@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import saveAs from "file-saver";
-import yaml from "js-yaml";
+import { saveAs } from "file-saver";
+import * as yaml from "js-yaml";
 
 import { LooseQuestionnaire, Questionnaire } from "@app/api/models";
 import {
@@ -118,11 +118,11 @@ export const useCreateQuestionnaireMutation = (
   const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createQuestionnaire,
     onSuccess: (res) => {
-      onSuccess && onSuccess(res);
+      onSuccess?.(res);
       queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
     },
     onError: (err: AxiosError) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
   return {

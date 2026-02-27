@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { mixed, object, string } from "yup";
@@ -91,7 +91,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
     mode: "all",
   });
 
-  const onTagSuccess = (_: AxiosResponse<Tag>) =>
+  const onTagSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.tag"),
@@ -110,7 +110,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
 
   const { mutate: createTag } = useCreateTagMutation(onTagSuccess, onTagError);
 
-  const onUpdateTagSuccess = (_: AxiosResponse<Tag>) =>
+  const onUpdateTagSuccess = () =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.tag"),

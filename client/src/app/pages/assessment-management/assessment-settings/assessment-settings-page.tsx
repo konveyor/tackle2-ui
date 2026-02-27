@@ -10,6 +10,7 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   List,
   MenuToggle,
@@ -21,7 +22,6 @@ import {
   Switch,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -97,7 +97,9 @@ const AssessmentSettings: React.FC = () => {
 
   const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
 
-  const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
+  const [questionnaireForKebab, setQuestionnaireForKebab] = React.useState<
+    number | null
+  >(null);
 
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
@@ -241,12 +243,13 @@ const AssessmentSettings: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      No questionnaire available
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={t("message.noQuestionnairesAvailable")}
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
-                      Use the import button above to add your questionnaire.
+                      {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
@@ -318,9 +321,13 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                           <Td width={10}>
                             <Dropdown
-                              isOpen={isKebabOpen === questionnaire.id}
-                              onSelect={() => setIsKebabOpen(null)}
-                              onOpenChange={(_isOpen) => setIsKebabOpen(null)}
+                              isOpen={
+                                questionnaireForKebab === questionnaire.id
+                              }
+                              onSelect={() => setQuestionnaireForKebab(null)}
+                              onOpenChange={() =>
+                                setQuestionnaireForKebab(null)
+                              }
                               toggle={(
                                 toggleRef: React.Ref<MenuToggleElement>
                               ) => (
@@ -329,11 +336,16 @@ const AssessmentSettings: React.FC = () => {
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
                                   onClick={() => {
-                                    isKebabOpen
-                                      ? setIsKebabOpen(null)
-                                      : setIsKebabOpen(questionnaire.id);
+                                    if (
+                                      questionnaireForKebab === questionnaire.id
+                                    ) {
+                                      setQuestionnaireForKebab(null);
+                                    } else {
+                                      setQuestionnaireForKebab(
+                                        questionnaire.id
+                                      );
+                                    }
                                   }}
-                                  isExpanded={isKebabOpen === rowIndex}
                                 >
                                   <EllipsisVIcon />
                                 </MenuToggle>
@@ -411,8 +423,9 @@ const AssessmentSettings: React.FC = () => {
         nameToDelete={questionnaireToDelete?.name}
         onClose={() => setQuestionnaireToDelete(undefined)}
         onConfirmDelete={() => {
-          questionnaireToDelete &&
+          if (questionnaireToDelete) {
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
+          }
           setQuestionnaireToDelete(undefined);
         }}
         titleWhat={t("terms.questionnaire").toLowerCase()}

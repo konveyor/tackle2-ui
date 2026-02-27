@@ -49,10 +49,10 @@ export const useCreateReviewMutation = (
           res?.archetype?.id,
         ],
       });
-      onSuccess && onSuccess(res?.application?.name || "");
+      onSuccess?.(res?.application?.name || "");
     },
     onError: (error) => {
-      onError && onError(error as AxiosError);
+      onError?.(error as AxiosError);
     },
   });
 };
@@ -73,7 +73,7 @@ export const useUpdateReviewMutation = (
           _.archetype?.id,
         ],
       });
-      onSuccess && onSuccess(args?.application?.name || "");
+      onSuccess?.(args?.application?.name || "");
     },
     onError: onError,
   });
@@ -93,11 +93,11 @@ export const useDeleteReviewMutation = (
   return useMutation({
     mutationFn: (args: IReviewMutation) => deleteReview(args.id),
     onSuccess: (_, args) => {
-      onSuccess && onSuccess(args.name);
+      onSuccess?.(args.name);
       queryClient.invalidateQueries({ queryKey: [reviewsQueryKey] });
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
-    onError: onError && onError,
+    onError,
   });
 };
 

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import * as React from "react";
 import ReactJsonView from "@microlink/react-json-view";
+import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   Button,
@@ -28,7 +29,7 @@ import {
   TextContent,
   Title,
 } from "@patternfly/react-core";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+import { EllipsisVIcon } from "@patternfly/react-icons";
 
 import { JsonSchemaObject } from "@app/api/models";
 import {
@@ -67,6 +68,7 @@ const asObject = (schema: string | object) => {
 };
 
 export const SchemaDefinedPage: React.FC = () => {
+  const { t } = useTranslation();
   const [schemaCode, setSchemaCode] = useState<string>(asString(example1));
   const [parsedSchema, setParsedSchema] = useState<
     JsonSchemaObject | undefined
@@ -97,7 +99,7 @@ export const SchemaDefinedPage: React.FC = () => {
       try {
         asObject(schemaCode);
         return "y";
-      } catch (error) {
+      } catch {
         return "n";
       }
     }
@@ -224,7 +226,7 @@ export const SchemaDefinedPage: React.FC = () => {
                     {currentDocument === null ? (
                       <EmptyState variant={EmptyStateVariant.xs} isFullHeight>
                         <EmptyStateHeader
-                          titleText="No Document"
+                          titleText={t("message.noDocument")}
                           headingLevel="h4"
                         />
                         <EmptyStateBody>

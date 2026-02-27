@@ -1,5 +1,5 @@
 import * as React from "react";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 
 import { Fact } from "@app/api/models";

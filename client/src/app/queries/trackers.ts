@@ -39,14 +39,14 @@ export const useFetchTrackers = (
 };
 
 export const useCreateTrackerMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (tracker: Tracker) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createTracker,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (tracker) => {
+      onSuccess(tracker);
       queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] });
     },
     onError: onError,
@@ -54,14 +54,14 @@ export const useCreateTrackerMutation = (
 };
 
 export const useUpdateTrackerMutation = (
-  onSuccess: (res: any, tracker: Tracker) => void,
+  onSuccess: (response: unknown, tracker: Tracker) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTracker,
-    onSuccess: (res, tracker) => {
-      onSuccess(res, tracker);
+    onSuccess: (response, tracker) => {
+      onSuccess(response, tracker);
       queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] });
     },
     onError: onError,

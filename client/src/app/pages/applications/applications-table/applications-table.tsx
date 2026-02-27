@@ -678,6 +678,21 @@ export const ApplicationsTable: FC = () => {
     filterToolbarProps.setFilterValues({});
   };
 
+  const handleRetrieveConfigurations = (app: DecoratedApplication) => {
+    setRetrieveConfigApplications([app]);
+  };
+
+  const handleRetrieveConfigurationsBulk = (apps: DecoratedApplication[]) => {
+    setRetrieveConfigApplications(apps);
+  };
+
+  const handleCancelBulkAnalysis = () => {
+    const runningTasksToCancel = selectedRows.filter((application) =>
+      isTaskCancellable(application)
+    );
+    setTasksToCancel(runningTasksToCancel);
+  };
+
   const userScopes: string[] = token?.scope.split(" ") || [],
     importWriteAccess = checkAccess(userScopes, importsWriteScopes),
     applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
@@ -864,13 +879,6 @@ export const ApplicationsTable: FC = () => {
     }
   };
 
-  const handleCancelBulkAnalysis = () => {
-    const runningTasksToCancel = selectedRows.filter((application) =>
-      isTaskCancellable(application)
-    );
-    setTasksToCancel(runningTasksToCancel);
-  };
-
   const assessSelectedApp = async (application: DecoratedApplication) => {
     setApplicationToAssess(application);
 
@@ -927,14 +935,6 @@ export const ApplicationsTable: FC = () => {
         })
       );
     }
-  };
-
-  const handleRetrieveConfigurations = (app: DecoratedApplication) => {
-    setRetrieveConfigApplications([app]);
-  };
-
-  const handleRetrieveConfigurationsBulk = (apps: DecoratedApplication[]) => {
-    setRetrieveConfigApplications(apps);
   };
 
   const handleGenerateAssets = (app: DecoratedApplication) => {

@@ -7,7 +7,7 @@ import {
   GridItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { MinusCircleIcon } from "@patternfly/react-icons/dist/js/icons/minus-circle-icon";
+import { MinusCircleIcon } from "@patternfly/react-icons";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { HookFormPFTextInput as InputField } from "@app/components/HookFormPFFields";

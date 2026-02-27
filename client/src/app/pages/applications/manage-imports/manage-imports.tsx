@@ -8,17 +8,17 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   PageSection,
   Popover,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
@@ -239,12 +239,13 @@ export const ManageImports: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
+                    <EmptyStateHeader
+                      titleText={t("composed.noDataStateTitle", {
                         what: t("terms.importSummary").toLowerCase(),
                       })}
-                    </Title>
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.import"),

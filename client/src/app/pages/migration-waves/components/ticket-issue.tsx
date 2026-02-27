@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Text, TextVariants } from "@patternfly/react-core";
 
 import { Ticket } from "@app/api/models";
-import ExternalLink from "@app/components/ExternalLink";
+import { ExternalLink } from "@app/components/ExternalLink";
 import { useTrackerTypesByProjectId } from "@app/queries/trackers";
 
 export interface ITicketIssueProps {

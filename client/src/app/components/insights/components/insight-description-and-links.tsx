@@ -4,7 +4,7 @@ import { List, ListItem, TextContent } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisInsightLink } from "@app/api/models";
-import ExternalLink from "@app/components/ExternalLink";
+import { ExternalLink } from "@app/components/ExternalLink";
 import { markdownPFComponents } from "@app/components/markdownPFComponents";
 
 export interface IInsightDescriptionAndLinksProps {

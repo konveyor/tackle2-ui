@@ -11,7 +11,7 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { IconedStatus } from "@app/components/Icons";

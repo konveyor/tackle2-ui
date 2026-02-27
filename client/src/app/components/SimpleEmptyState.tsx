@@ -2,16 +2,17 @@ import * as React from "react";
 import {
   EmptyState,
   EmptyStateBody,
+  EmptyStateFooter,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
-  Title,
 } from "@patternfly/react-core";
 
 export interface SimpleEmptyStateProps {
-  icon?: any;
+  icon?: React.ComponentType;
   title: string;
   description?: string;
-  primaryAction?: any;
+  primaryAction?: React.ReactNode;
 }
 
 export const SimpleEmptyState: React.FC<SimpleEmptyStateProps> = ({
@@ -22,12 +23,14 @@ export const SimpleEmptyState: React.FC<SimpleEmptyStateProps> = ({
 }) => {
   return (
     <EmptyState variant={EmptyStateVariant.sm}>
-      {icon && <EmptyStateIcon icon={icon} />}
-      <Title headingLevel="h2" size="lg">
-        {title}
-      </Title>
+      <EmptyStateHeader
+        titleText={title}
+        headingLevel="h2"
+        icon={icon && <EmptyStateIcon icon={icon} />}
+      />
+
       {description && <EmptyStateBody>{description}</EmptyStateBody>}
-      {primaryAction}
+      <EmptyStateFooter>{primaryAction}</EmptyStateFooter>
     </EmptyState>
   );
 };

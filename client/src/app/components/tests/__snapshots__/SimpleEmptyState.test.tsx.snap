@@ -11,19 +11,27 @@ exports[`SimpleEmptyState Renders with description 1`] = `
         <div
           class="pf-v5-c-empty-state__content"
         >
-          <h2
-            class="pf-v5-c-title pf-m-lg"
-            data-ouia-component-id="OUIA-Generated-Title-6"
-            data-ouia-component-type="PF5/Title"
-            data-ouia-safe="true"
+          <div
+            class="pf-v5-c-empty-state__header"
           >
-            my title
-          </h2>
+            <div
+              class="pf-v5-c-empty-state__title"
+            >
+              <h2
+                class="pf-v5-c-empty-state__title-text"
+              >
+                my title
+              </h2>
+            </div>
+          </div>
           <div
             class="pf-v5-c-empty-state__body"
           >
             my description
           </div>
+          <div
+            class="pf-v5-c-empty-state__footer"
+          />
         </div>
       </div>
     </div>
@@ -35,19 +43,27 @@ exports[`SimpleEmptyState Renders with description 1`] = `
       <div
         class="pf-v5-c-empty-state__content"
       >
-        <h2
-          class="pf-v5-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-6"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
+        <div
+          class="pf-v5-c-empty-state__header"
         >
-          my title
-        </h2>
+          <div
+            class="pf-v5-c-empty-state__title"
+          >
+            <h2
+              class="pf-v5-c-empty-state__title-text"
+            >
+              my title
+            </h2>
+          </div>
+        </div>
         <div
           class="pf-v5-c-empty-state__body"
         >
           my description
         </div>
+        <div
+          class="pf-v5-c-empty-state__footer"
+        />
       </div>
     </div>
   </div>,
@@ -117,20 +133,28 @@ exports[`SimpleEmptyState Renders with icon 1`] = `
           class="pf-v5-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__icon"
+            class="pf-v5-c-empty-state__header"
           >
-            <test-file-stub
-              aria-hidden="true"
-            />
+            <div
+              class="pf-v5-c-empty-state__icon"
+            >
+              <test-file-stub
+                aria-hidden="true"
+              />
+            </div>
+            <div
+              class="pf-v5-c-empty-state__title"
+            >
+              <h2
+                class="pf-v5-c-empty-state__title-text"
+              >
+                my title
+              </h2>
+            </div>
           </div>
-          <h2
-            class="pf-v5-c-title pf-m-lg"
-            data-ouia-component-id="OUIA-Generated-Title-4"
-            data-ouia-component-type="PF5/Title"
-            data-ouia-safe="true"
-          >
-            my title
-          </h2>
+          <div
+            class="pf-v5-c-empty-state__footer"
+          />
         </div>
       </div>
     </div>
@@ -143,20 +167,28 @@ exports[`SimpleEmptyState Renders with icon 1`] = `
         class="pf-v5-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__icon"
+          class="pf-v5-c-empty-state__header"
         >
-          <test-file-stub
-            aria-hidden="true"
-          />
+          <div
+            class="pf-v5-c-empty-state__icon"
+          >
+            <test-file-stub
+              aria-hidden="true"
+            />
+          </div>
+          <div
+            class="pf-v5-c-empty-state__title"
+          >
+            <h2
+              class="pf-v5-c-empty-state__title-text"
+            >
+              my title
+            </h2>
+          </div>
         </div>
-        <h2
-          class="pf-v5-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-4"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-        >
-          my title
-        </h2>
+        <div
+          class="pf-v5-c-empty-state__footer"
+        />
       </div>
     </div>
   </div>,
@@ -225,22 +257,31 @@ exports[`SimpleEmptyState Renders with primaryAction 1`] = `
         <div
           class="pf-v5-c-empty-state__content"
         >
-          <h2
-            class="pf-v5-c-title pf-m-lg"
-            data-ouia-component-id="OUIA-Generated-Title-8"
-            data-ouia-component-type="PF5/Title"
-            data-ouia-safe="true"
+          <div
+            class="pf-v5-c-empty-state__header"
           >
-            my title
-          </h2>
+            <div
+              class="pf-v5-c-empty-state__title"
+            >
+              <h2
+                class="pf-v5-c-empty-state__title-text"
+              >
+                my title
+              </h2>
+            </div>
+          </div>
           <div
             class="pf-v5-c-empty-state__body"
           >
             my description
           </div>
-          <button>
-            My action
-          </button>
+          <div
+            class="pf-v5-c-empty-state__footer"
+          >
+            <button>
+              My action
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -252,22 +293,31 @@ exports[`SimpleEmptyState Renders with primaryAction 1`] = `
       <div
         class="pf-v5-c-empty-state__content"
       >
-        <h2
-          class="pf-v5-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-8"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
+        <div
+          class="pf-v5-c-empty-state__header"
         >
-          my title
-        </h2>
+          <div
+            class="pf-v5-c-empty-state__title"
+          >
+            <h2
+              class="pf-v5-c-empty-state__title-text"
+            >
+              my title
+            </h2>
+          </div>
+        </div>
         <div
           class="pf-v5-c-empty-state__body"
         >
           my description
         </div>
-        <button>
-          My action
-        </button>
+        <div
+          class="pf-v5-c-empty-state__footer"
+        >
+          <button>
+            My action
+          </button>
+        </div>
       </div>
     </div>
   </div>,
@@ -336,14 +386,22 @@ exports[`SimpleEmptyState Renders without crashing 1`] = `
         <div
           class="pf-v5-c-empty-state__content"
         >
-          <h2
-            class="pf-v5-c-title pf-m-lg"
-            data-ouia-component-id="OUIA-Generated-Title-2"
-            data-ouia-component-type="PF5/Title"
-            data-ouia-safe="true"
+          <div
+            class="pf-v5-c-empty-state__header"
           >
-            my title
-          </h2>
+            <div
+              class="pf-v5-c-empty-state__title"
+            >
+              <h2
+                class="pf-v5-c-empty-state__title-text"
+              >
+                my title
+              </h2>
+            </div>
+          </div>
+          <div
+            class="pf-v5-c-empty-state__footer"
+          />
         </div>
       </div>
     </div>
@@ -355,14 +413,22 @@ exports[`SimpleEmptyState Renders without crashing 1`] = `
       <div
         class="pf-v5-c-empty-state__content"
       >
-        <h2
-          class="pf-v5-c-title pf-m-lg"
-          data-ouia-component-id="OUIA-Generated-Title-2"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
+        <div
+          class="pf-v5-c-empty-state__header"
         >
-          my title
-        </h2>
+          <div
+            class="pf-v5-c-empty-state__title"
+          >
+            <h2
+              class="pf-v5-c-empty-state__title-text"
+            >
+              my title
+            </h2>
+          </div>
+        </div>
+        <div
+          class="pf-v5-c-empty-state__footer"
+        />
       </div>
     </div>
   </div>,

@@ -21,12 +21,12 @@ const ENTITY_FIELD = "entity";
 export interface IAppTableProps extends TableProps {
   isLoading: boolean;
   loadingVariant?: "skeleton" | "spinner" | "none";
-  fetchError?: any;
+  fetchError?: Error | unknown;
 
   filtersApplied?: boolean;
-  noDataState?: any;
-  noSearchResultsState?: any;
-  errorState?: any;
+  noDataState?: React.ReactNode;
+  noSearchResultsState?: React.ReactNode;
+  errorState?: React.ReactNode;
   onAppClick?: (application: Application) => void;
 }
 

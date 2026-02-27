@@ -46,18 +46,6 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 import GeneratorDetailDrawer from "./components/generator-detail-drawer";
 import GeneratorForm from "./components/generator-form";
 
-// Static empty state configuration
-const NO_DATA_EMPTY_STATE = (
-  <EmptyState variant="sm">
-    <EmptyStateHeader
-      titleText="No generators have been created"
-      headingLevel="h2"
-      icon={<EmptyStateIcon icon={CubesIcon} />}
-    />
-    <EmptyStateBody>Create a new generator to get started.</EmptyStateBody>
-  </EmptyState>
-);
-
 const AssetGenerators: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -283,7 +271,18 @@ const AssetGenerators: FC = () => {
                 isLoading={isLoading}
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
-                noDataEmptyState={NO_DATA_EMPTY_STATE}
+                noDataEmptyState={
+                  <EmptyState variant="sm">
+                    <EmptyStateHeader
+                      titleText={t("message.noGeneratorsCreatedTitle")}
+                      headingLevel="h2"
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                    />
+                    <EmptyStateBody>
+                      {t("message.noGeneratorsCreatedTitleDescription")}
+                    </EmptyStateBody>
+                  </EmptyState>
+                }
                 numRenderedColumns={numRenderedColumns}
               >
                 <Tbody>

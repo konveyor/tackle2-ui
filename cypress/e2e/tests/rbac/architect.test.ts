@@ -44,6 +44,7 @@ import {
   button,
   legacyPathfinder,
 } from "../../types/constants";
+import { analysisData, applicationData } from "../../types/types";
 import {
   analysisProfileMode,
   analysisProfileSelect,
@@ -71,8 +72,8 @@ describe(
     const userArchitect = new UserArchitect(getRandomUserData());
     const userMigrator = new UserMigrator(getRandomUserData());
     const application = new Application(getRandomApplicationData());
-    let profileData: any;
-    let sourceData: any;
+    let profileData: analysisData;
+    let sourceData: applicationData;
 
     before("Creating RBAC users, adding roles for them", function () {
       login();

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Language } from "@patternfly/react-code-editor";
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
-import CodeIcon from "@patternfly/react-icons/dist/esm/icons/code-icon";
+import { CodeIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 import editorStyles from "@patternfly/react-styles/css/components/CodeEditor/code-editor";
 import "./SimpleDocumentViewer.css";

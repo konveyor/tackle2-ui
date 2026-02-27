@@ -11,7 +11,7 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import { HelpIcon } from "@patternfly/react-icons";
 
 import { SectionWithQuestionOrder } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";

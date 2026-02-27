@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
@@ -112,7 +112,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     mode: "all",
   });
 
-  const onCreateStakeholderSuccess = (_: AxiosResponse<Stakeholder>) =>
+  const onCreateStakeholderSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.stakeholder"),
@@ -134,7 +134,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     onCreateStakeholderError
   );
 
-  const onUpdateStakeholderSuccess = (_: AxiosResponse<Stakeholder>) =>
+  const onUpdateStakeholderSuccess = () =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.stakeholder"),

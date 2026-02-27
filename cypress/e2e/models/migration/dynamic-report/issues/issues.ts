@@ -10,7 +10,6 @@ import {
 import {
   button,
   dynamicReportFilter,
-  tdTag,
   trTag,
 } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";

@@ -62,7 +62,7 @@ import { checkAccess } from "@app/utils/rbac-utils";
 import { formatPath } from "@app/utils/utils";
 
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
-import ArchetypeForm from "./components/archetype-form";
+import { ArchetypeForm } from "./components/archetype-form";
 import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
 import ArchetypeTagsColumn from "./components/archetype-tags-column";
 import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
@@ -198,18 +198,6 @@ const Archetypes: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const CreateButton = () => (
-    <Button
-      type="button"
-      id="create-new-archetype"
-      aria-label="Create new archetype"
-      variant={ButtonVariant.primary}
-      onClick={() => setOpenCreateArchetype(true)}
-    >
-      {t("dialog.title.newArchetype")}
-    </Button>
-  );
-  const [isOverrideModalOpen, setOverrideModalOpen] = React.useState(false);
   const [archetypeToAssess, setArchetypeToAssess] =
     React.useState<Archetype | null>(null);
 
@@ -217,15 +205,15 @@ const Archetypes: React.FC = () => {
     // if application/archetype has an assessment, ask if user wants to override it
     const matchingAssessment = false;
     if (matchingAssessment) {
-      setOverrideModalOpen(true);
       setArchetypeToAssess(archetype);
     } else {
-      archetype?.id &&
+      if (archetype?.id) {
         history.push(
           formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: archetype?.id,
+            archetypeId: archetype.id,
           })
         );
+      }
       setArchetypeToAssess(null);
     }
   };
@@ -278,7 +266,17 @@ const Archetypes: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    {archetypeWriteAccess && <CreateButton />}
+                    {archetypeWriteAccess && (
+                      <Button
+                        type="button"
+                        id="create-new-archetype"
+                        aria-label="Create new archetype"
+                        variant={ButtonVariant.primary}
+                        onClick={() => setOpenCreateArchetype(true)}
+                      >
+                        {t("dialog.title.newArchetype")}
+                      </Button>
+                    )}
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
@@ -608,7 +606,7 @@ const Archetypes: React.FC = () => {
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}
-        isOpen={isOverrideModalOpen}
+        isOpen={archetypeToAssess !== null}
         message={t("message.overrideArchetypeConfirmation")}
         confirmBtnVariant={ButtonVariant.primary}
         confirmBtnLabel={t("actions.accept")}
@@ -616,12 +614,13 @@ const Archetypes: React.FC = () => {
         onCancel={() => setArchetypeToAssess(null)}
         onClose={() => setArchetypeToAssess(null)}
         onConfirm={() => {
-          archetypeToAssess &&
+          if (archetypeToAssess) {
             history.push(
               formatPath(Paths.archetypeAssessmentActions, {
-                archetypeId: archetypeToAssess?.id,
+                archetypeId: archetypeToAssess.id,
               })
             );
+          }
           setArchetypeToAssess(null);
         }}
       />

@@ -6,7 +6,7 @@ import {
   MenuToggle,
   MenuToggleElement,
 } from "@patternfly/react-core";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+import { EllipsisVIcon } from "@patternfly/react-icons";
 
 export interface IKebabDropdownProps {
   dropdownItems?: React.ReactNode[];

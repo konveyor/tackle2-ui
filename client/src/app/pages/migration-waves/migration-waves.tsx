@@ -9,6 +9,7 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   MenuToggle,
   MenuToggleElement,
@@ -19,16 +20,17 @@ import {
   PageSectionVariants,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
-import PencilAltIcon from "@patternfly/react-icons/dist/esm/icons/pencil-alt-icon";
+import {
+  CubesIcon,
+  EllipsisVIcon,
+  PencilAltIcon,
+} from "@patternfly/react-icons";
 import {
   ActionsColumn,
   ExpandableRowContent,
@@ -390,10 +392,11 @@ export const MigrationWaves: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      No migration waves available
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={t("message.noMigrationWavesAvailable")}
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>

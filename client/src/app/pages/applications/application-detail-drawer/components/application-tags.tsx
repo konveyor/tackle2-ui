@@ -15,7 +15,7 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { FilterIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 
@@ -208,7 +208,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           tagsInThisSource?.forEach((tag) => {
             const category =
               tag?.category?.id && tagCategoriesById.get(tag?.category?.id);
-            category && tagCategoriesInThisSource.add(category);
+            if (category) tagCategoriesInThisSource.add(category);
           });
           return (
             <React.Fragment key={source}>

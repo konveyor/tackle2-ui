@@ -26,7 +26,9 @@ export abstract class DynamicReports {
   static menuName: string;
 
   static get fullUrl(): string {
-    return Cypress.config("baseUrl") + (this as any).urlSuffix;
+    return (
+      Cypress.config("baseUrl") + (this as typeof DynamicReports).urlSuffix
+    );
   }
 
   public static openList(itemsPerPage = 100, forceReload = false): void {

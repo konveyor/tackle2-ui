@@ -71,11 +71,11 @@ export const useDeleteImportSummaryMutation = (
   return useMutation({
     mutationFn: deleteApplicationImportSummary,
     onSuccess: () => {
-      onSuccess && onSuccess();
+      onSuccess?.();
       queryClient.invalidateQueries({ queryKey: [ImportSummariesQueryKey] });
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import saveAs from "file-saver";
+import { saveAs } from "file-saver";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
@@ -328,14 +328,10 @@ export const useCreateApplicationDependency = ({
       queryClient.invalidateQueries({
         queryKey: [ApplicationDependencyQueryKey],
       });
-      if (onSuccess) {
-        onSuccess();
-      }
+      onSuccess?.();
     },
     onError: (error: AxiosError) => {
-      if (onError) {
-        onError(error);
-      }
+      onError?.(error);
     },
   });
 };

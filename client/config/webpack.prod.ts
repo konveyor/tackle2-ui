@@ -3,8 +3,8 @@ import path from "path";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import webpack, { Configuration } from "webpack";
-import merge from "webpack-merge";
+import { Configuration, EnvironmentPlugin } from "webpack";
+import { merge } from "webpack-merge";
 
 import { brandingAssetPath } from "@konveyor-ui/common";
 
@@ -51,7 +51,7 @@ const config = merge<Configuration>(commonWebpackConfiguration, {
         preset: ["default", { mergeLonghand: false }],
       },
     }),
-    new webpack.EnvironmentPlugin({
+    new EnvironmentPlugin({
       NODE_ENV: "production",
     }),
 

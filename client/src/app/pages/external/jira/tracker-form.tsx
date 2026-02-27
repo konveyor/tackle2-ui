@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -77,7 +77,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) => {
+  const onCreateTrackerSuccess = (tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
@@ -85,13 +85,10 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       variant: "success",
     });
 
-    addUpdatingTrackerId(_.data.id);
+    addUpdatingTrackerId(tracker.id);
   };
 
-  const onUpdateTrackerSuccess = (
-    _: AxiosResponse<Tracker>,
-    tracker: Tracker
-  ) => {
+  const onUpdateTrackerSuccess = (_response: unknown, tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),

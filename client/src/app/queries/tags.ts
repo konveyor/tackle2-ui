@@ -108,7 +108,7 @@ export const useFetchTagsWithTagItems = (
 };
 
 export const useCreateTagMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -129,7 +129,7 @@ export const useCreateTagMutation = (
 };
 
 export const useCreateTagCategoryMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -148,7 +148,7 @@ export const useCreateTagCategoryMutation = (
 };
 
 export const useUpdateTagMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -169,7 +169,7 @@ export const useUpdateTagMutation = (
 };
 
 export const useUpdateTagCategoryMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -189,7 +189,7 @@ export const useUpdateTagCategoryMutation = (
   });
 };
 export const useDeleteTagMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -210,7 +210,7 @@ export const useDeleteTagMutation = (
 };
 
 export const useDeleteTagCategoryMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();

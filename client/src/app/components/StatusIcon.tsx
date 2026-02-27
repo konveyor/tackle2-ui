@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { SpinnerProps, TextContent } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
-import { SVGIconProps } from "@patternfly/react-icons/dist/js/createIcon";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InProgressIcon,
+  TimesCircleIcon,
+  UnknownIcon,
+} from "@patternfly/react-icons";
 import {
   global_Color_dark_200 as unknownColor,
   global_danger_color_100 as errorColor,
@@ -29,7 +30,9 @@ export type StatusIconType =
 
 type IconListType = {
   [key in StatusIconType]: {
-    Icon: React.ComponentClass<SVGIconProps> | React.FC<SpinnerProps>;
+    Icon:
+      | React.ComponentType<React.SVGProps<SVGSVGElement>>
+      | React.FC<SpinnerProps>;
     color: { name: string; value: string; var: string };
   };
 };

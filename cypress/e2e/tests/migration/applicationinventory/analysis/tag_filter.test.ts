@@ -38,7 +38,7 @@ let source_credential: CredentialsSourceControlUsername;
 let tagCategory: TagCategory;
 let tag: Tag;
 let application: Analysis;
-let techTags: any[];
+let techTags: [string, string[]][];
 
 describe(["@tier1"], "Filter tags on application details page", () => {
   before("Login", function () {

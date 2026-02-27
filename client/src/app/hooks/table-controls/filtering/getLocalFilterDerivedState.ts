@@ -53,7 +53,8 @@ export const getLocalFilterDerivedState = <
       const defaultMatcher = (filterValue: string, item: TItem) =>
         legacyMatcher(
           filterValue,
-          filterCategory?.getItemValue?.(item) ?? (item as any)[filterKey]
+          filterCategory?.getItemValue?.(item) ??
+            (item as Record<string, unknown>)[filterKey]
         );
       const matcher = filterCategory?.matcher ?? defaultMatcher;
       const logicOperator =
@@ -69,7 +70,7 @@ export const getLocalFilterDerivedState = <
  *
  * @returns false for any falsy value (regardless of the filter value), true if (coerced to string) lowercased value contains lowercased filter value.
  */
-const legacyMatcher = (filterValue: string, value: any) => {
+const legacyMatcher = (filterValue: string, value: unknown) => {
   if (!value) return false;
   const lowerCaseItemValue = String(value).toLowerCase();
   const lowerCaseFilterValue = String(filterValue).toLowerCase();

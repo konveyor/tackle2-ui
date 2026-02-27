@@ -2,8 +2,8 @@ import * as React from "react";
 
 export interface ConditionalRenderProps {
   when: boolean;
-  then: any;
-  children: any;
+  then: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const ConditionalRender: React.FC<ConditionalRenderProps> = ({

@@ -55,7 +55,7 @@ export const useFetchStakeholders = (
 };
 
 export const useCreateStakeholderMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -71,7 +71,7 @@ export const useCreateStakeholderMutation = (
 };
 
 export const useUpdateStakeholderMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -91,7 +91,7 @@ export const useUpdateStakeholderMutation = (
 };
 
 export const useDeleteStakeholderMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (res: unknown) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();

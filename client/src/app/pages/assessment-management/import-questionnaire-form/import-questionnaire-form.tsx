@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import jsYaml from "js-yaml";
+import * as jsYaml from "js-yaml";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -123,7 +123,7 @@ export const ImportQuestionnaireForm: React.FC<
     try {
       const jsonData = jsYaml.load(yamlString);
       return jsonData;
-    } catch (error) {
+    } catch {
       return null;
     }
   };
@@ -201,7 +201,7 @@ export const ImportQuestionnaireForm: React.FC<
                     const yamlContent = e?.target?.result as string;
                     onChange(yamlContent);
                     setFilename(file.name);
-                  } catch (error) {
+                  } catch {
                     setError(name, {
                       type: "custom",
                       message: t("message.errorReadingFile"),

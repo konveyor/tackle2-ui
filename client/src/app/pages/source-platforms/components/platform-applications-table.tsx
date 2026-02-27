@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -23,7 +22,6 @@ const PlatformAppsTable: React.FC<IPlatformAppsTableProps> = ({
   platformApplications: platformApplicationRefs,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
 
   const {
     data: allApplications,

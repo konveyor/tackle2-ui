@@ -3,8 +3,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Button, InputGroup, TextInput } from "@patternfly/react-core";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
+import {
+  Button,
+  InputGroup,
+  InputGroupItem,
+  TextInput,
+} from "@patternfly/react-core";
+import { TimesCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Tr } from "@patternfly/react-table";
 
@@ -74,29 +79,33 @@ export const StringListField: React.FC<StringListFieldProps> = ({
           };
           return (
             <InputGroup>
-              <TextInput
-                ref={ref}
-                id={itemToAddFieldId}
-                aria-label={itemToAddAriaLabel}
-                validated={getValidatedFromErrors(error, isDirty, isTouched)}
-                value={value}
-                onChange={(_, value) => onChange(value)}
-                onBlur={onBlur}
-                onKeyUp={(event) => {
-                  if (event.key === "Enter") {
-                    onBlur();
-                    if (isValid) addItem();
-                  }
-                }}
-              />
-              <Button
-                id={addButtonId}
-                variant="control"
-                isDisabled={!isValid}
-                onClick={addItem}
-              >
-                {t("terms.add")}
-              </Button>
+              <InputGroupItem isFill>
+                <TextInput
+                  ref={ref}
+                  id={itemToAddFieldId}
+                  aria-label={itemToAddAriaLabel}
+                  validated={getValidatedFromErrors(error, isDirty, isTouched)}
+                  value={value}
+                  onChange={(_, value) => onChange(value)}
+                  onBlur={onBlur}
+                  onKeyUp={(event) => {
+                    if (event.key === "Enter") {
+                      onBlur();
+                      if (isValid) addItem();
+                    }
+                  }}
+                />
+              </InputGroupItem>
+              <InputGroupItem>
+                <Button
+                  id={addButtonId}
+                  variant="control"
+                  isDisabled={!isValid}
+                  onClick={addItem}
+                >
+                  {t("terms.add")}
+                </Button>
+              </InputGroupItem>
             </InputGroup>
           );
         }}

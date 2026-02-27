@@ -43,10 +43,10 @@ export const useRemoveTaskgroupFileMutation = (
   return useMutation({
     mutationFn: removeFileTaskgroup,
     onSuccess: (data) => {
-      successCallback && successCallback(data);
+      successCallback?.(data);
     },
     onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
+      errorCallback?.(err);
     },
   });
 };

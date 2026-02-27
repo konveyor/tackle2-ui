@@ -13,8 +13,7 @@ import {
   StackItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { MinusCircleIcon } from "@patternfly/react-icons/dist/js/icons/minus-circle-icon";
-import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import { MinusCircleIcon, PlusCircleIcon } from "@patternfly/react-icons";
 import styles from "@patternfly/react-styles/css/components/Form/form";
 
 import { JsonDocument } from "@app/api/models";

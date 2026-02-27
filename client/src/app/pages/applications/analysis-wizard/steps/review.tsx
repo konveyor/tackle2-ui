@@ -62,8 +62,6 @@ export const Review: React.FC<ReviewProps> = ({
   customRules,
   options,
 }) => {
-  const { t } = useTranslation();
-
   // Profile mode review
   if (flowMode === "profile") {
     return (

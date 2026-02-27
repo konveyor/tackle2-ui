@@ -395,7 +395,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         variant: "success",
       });
       if (isArchetype) {
-        assessment?.archetype?.id &&
+        if (assessment?.archetype?.id) {
           getArchetypeById(assessment.archetype.id)
             .then((data) => {
               history.push(
@@ -410,8 +410,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                 variant: "danger",
               });
             });
+        }
       } else {
-        assessment?.application?.id &&
+        if (assessment?.application?.id) {
           getApplicationById(assessment.application.id)
             .then((data) => {
               history.push(
@@ -426,6 +427,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                 variant: "danger",
               });
             });
+        }
       }
     } catch (error) {
       pushNotification({
@@ -506,7 +508,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const handleCancelAssessment = () => {
     if (assessment) {
       if (isArchetype) {
-        assessment.status === "empty" &&
+        if (assessment.status === "empty") {
           deleteAssessmentMutation({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
@@ -514,8 +516,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
+        }
       } else {
-        assessment.status === "empty" &&
+        if (assessment.status === "empty") {
           deleteAssessmentMutation({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
@@ -523,6 +526,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
+        }
       }
     }
     setAssessmentToCancel(null);
@@ -582,13 +586,13 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
               setCurrentStep(curr.index);
             }}
             onClose={() => {
-              assessment && setAssessmentToCancel(assessment);
+              if (assessment) setAssessmentToCancel(assessment);
             }}
             header={
               <WizardHeader
                 title={t("terms.assessment")}
                 onClose={() => {
-                  assessment && setAssessmentToCancel(assessment);
+                  if (assessment) setAssessmentToCancel(assessment);
                 }}
               />
             }

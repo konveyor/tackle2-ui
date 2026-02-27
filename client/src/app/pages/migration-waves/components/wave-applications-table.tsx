@@ -148,8 +148,9 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                           matchingTicket && {
                             title: t("actions.unlink"),
                             onClick: () => {
-                              matchingTicket?.id &&
-                                deleteTicket(matchingTicket?.id);
+                              if (matchingTicket?.id) {
+                                deleteTicket(matchingTicket.id);
+                              }
                             },
                           },
                         ].filter(Boolean)}

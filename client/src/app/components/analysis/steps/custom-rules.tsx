@@ -20,8 +20,7 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import { FilterIcon } from "@patternfly/react-icons/dist/esm/icons/filter-icon";
-import { TrashIcon } from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import { FilterIcon, TrashIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { ICell, IRow, TableText, cellWidth } from "@patternfly/react-table";
 import {

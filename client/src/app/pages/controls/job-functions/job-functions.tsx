@@ -6,9 +6,9 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -188,12 +188,17 @@ export const JobFunctions: React.FC = () => {
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
-                  <EmptyStateIcon icon={CubesIcon} />
-                  <Title headingLevel="h2" size="lg">
-                    {t("composed.noDataStateTitle", {
-                      what: t("terms.jobFunction").toLowerCase(),
-                    })}
-                  </Title>
+                  <EmptyStateHeader
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.jobFunction").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    icon={<EmptyStateIcon icon={CubesIcon} />}
+                    headingLevel="h2"
+                  />
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),

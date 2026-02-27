@@ -5,14 +5,14 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -274,12 +274,13 @@ export const SingleApplicationInsightsTable: React.FC<
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
             <EmptyState variant="sm">
-              <EmptyStateIcon icon={CubesIcon} />
-              <Title headingLevel="h2" size="lg">
-                Select application from filter menu
-              </Title>
+              <EmptyStateHeader
+                titleText={t("message.selectApplicationFromFilterMenu")}
+                icon={<EmptyStateIcon icon={CubesIcon} />}
+                headingLevel="h2"
+              />
               <EmptyStateBody>
-                Use the filter menu above to select your application.
+                {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>
             </EmptyState>
           }

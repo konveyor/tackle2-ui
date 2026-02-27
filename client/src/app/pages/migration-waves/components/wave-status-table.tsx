@@ -11,8 +11,7 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import UnlinkIcon from "@patternfly/react-icons/dist/esm/icons/unlink-icon";
+import { TrashIcon, UnlinkIcon } from "@patternfly/react-icons";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 

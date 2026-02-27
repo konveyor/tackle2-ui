@@ -17,6 +17,7 @@
 // custom commands
 export {};
 declare global {
+  /* eslint-disable @typescript-eslint/no-namespace -- Cypress command augmentation requires namespace */
   namespace Cypress {
     interface Chainable {
       /**
@@ -38,6 +39,7 @@ declare global {
       uiEnvironmentConfig(): Cypress.Chainable<object>;
     }
   }
+  /* eslint-enable @typescript-eslint/no-namespace */
 }
 
 Cypress.Commands.add(

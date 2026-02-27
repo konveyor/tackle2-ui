@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { object, string } from "yup";
@@ -96,9 +96,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
     mode: "all",
   });
 
-  const onCreateStakeholderGroupSuccess = (
-    _: AxiosResponse<StakeholderGroup>
-  ) =>
+  const onCreateStakeholderGroupSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.stakeholderGroup"),
@@ -106,7 +104,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
       variant: "success",
     });
 
-  const onCreateStakeholderGroupError = (_error: AxiosError) => {
+  const onCreateStakeholderGroupError = () => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.stakeholderGroup").toLowerCase(),
@@ -121,11 +119,12 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   );
 
   const onUpdateStakeholderGroupSuccess = (
-    res: AxiosResponse<StakeholderGroup>
+    _response: unknown,
+    group: StakeholderGroup
   ) =>
     pushNotification({
       title: t("toastr.success.saveWhat", {
-        what: res.data.name,
+        what: group.name,
         type: t("terms.stakeholderGroup"),
       }),
       variant: "success",

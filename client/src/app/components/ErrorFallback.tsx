@@ -6,11 +6,11 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
-  Title,
 } from "@patternfly/react-core";
-import UserNinjaIcon from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
+import { UserNinjaIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -48,10 +48,11 @@ export const ErrorFallback = ({
   return (
     <Bullseye>
       <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateIcon icon={UserNinjaIcon} />
-        <Title headingLevel="h2" size="lg">
-          {t("dialog.message.pageError")}
-        </Title>
+        <EmptyStateHeader
+          titleText={<>{t("dialog.message.pageError")}</>}
+          icon={<EmptyStateIcon icon={UserNinjaIcon} />}
+          headingLevel="h2"
+        />
         <EmptyStateBody>
           {t("dialog.message.refreshPage")}
           <Button

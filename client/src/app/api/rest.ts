@@ -338,7 +338,7 @@ export const getTrackers = (): Promise<Tracker[]> =>
   axios.get(TRACKERS).then((response) => response.data);
 
 export const createTracker = (obj: Tracker): Promise<Tracker> =>
-  axios.post(TRACKERS, obj);
+  axios.post(TRACKERS, obj).then((res) => res.data);
 
 export const updateTracker = (obj: Tracker): Promise<Tracker> =>
   axios.put(`${TRACKERS}/${obj.id}`, obj);
@@ -410,7 +410,8 @@ export const deleteStakeholderGroup = (id: number): Promise<StakeholderGroup> =>
 
 export const createStakeholderGroup = (
   obj: New<StakeholderGroup>
-): Promise<StakeholderGroup> => axios.post(STAKEHOLDER_GROUPS, obj);
+): Promise<StakeholderGroup> =>
+  axios.post(STAKEHOLDER_GROUPS, obj).then((res) => res.data);
 
 export const updateStakeholderGroup = (
   obj: StakeholderGroup

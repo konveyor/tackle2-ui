@@ -136,7 +136,7 @@ export const getWavesWithStatus = (
   };
   const getApplications = (refs: Ref[]) => {
     const ids = refs.map((ref) => ref.id);
-    return applications.filter((application: any) =>
+    return applications.filter((application: Application) =>
       ids.includes(application.id)
     );
   };

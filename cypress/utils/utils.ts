@@ -1112,7 +1112,7 @@ export function createArchetypeWithProfiles(
   criteriaTags: string[],
   archetypeTags: string[],
   targetProfileCount: number,
-  profileData: any,
+  profileData: analysisData,
   profileNamePrefix?: string
 ): {
   archetype: Archetype;
@@ -2458,7 +2458,7 @@ export function validateTackleCr(): void {
   const kubeCLI = getKubernetesCLI();
   const command = `${kubeCLI} get tackle -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
-    let tackleCr: any;
+    let tackleCr: Record<string, unknown>;
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
@@ -2469,7 +2469,8 @@ export function validateTackleCr(): void {
 
     // Find the condition that has ansibleResult
     const runningCondition = conditions.find(
-      (c: any) => c.type === "Running" && c.ansibleResult
+      (c: { type?: string; ansibleResult?: unknown }) =>
+        c.type === "Running" && c.ansibleResult
     );
     expect(runningCondition, "ansibleResult condition missing").to.exist;
     expect(

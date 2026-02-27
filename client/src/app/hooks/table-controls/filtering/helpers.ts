@@ -37,7 +37,7 @@ export const deserializeFilterUrlParams = <
 }): Partial<Record<TFilterCategoryKey, FilterValue>> => {
   try {
     return JSON.parse(serializedParams.filters || "{}");
-  } catch (e) {
+  } catch {
     return {};
   }
 };

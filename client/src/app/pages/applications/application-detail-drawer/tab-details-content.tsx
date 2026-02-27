@@ -23,7 +23,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Archetype } from "@app/api/models";
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
-import ExternalLink from "@app/components/ExternalLink";
+import { ExternalLink } from "@app/components/ExternalLink";
 import { RiskLabel } from "@app/components/RiskLabel";
 import {
   DrawerTabContent,

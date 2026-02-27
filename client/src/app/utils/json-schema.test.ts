@@ -337,7 +337,9 @@ describe("combineSchemas", () => {
   });
 
   it("returns undefined when input is null", () => {
-    expect(combineSchemas(null as any)).toBeUndefined();
+    expect(
+      combineSchemas(null as unknown as JsonSchemaObject[])
+    ).toBeUndefined();
   });
 
   it("returns a base schema when given an empty array", () => {

@@ -7,7 +7,7 @@ import {
   MultipleFileUploadMain,
   MultipleFileUploadStatusItem,
 } from "@patternfly/react-core";
-import { UploadIcon } from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { UploadIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { uploadLimit } from "@app/Constants";

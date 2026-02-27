@@ -6,7 +6,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "@app/App";
 import { KeycloakProvider } from "@app/components/KeycloakProvider";
-import ENV from "@app/env";
+import { ENV } from "@app/env";
 
 import "@app/dayjs";
 import "@app/i18n";

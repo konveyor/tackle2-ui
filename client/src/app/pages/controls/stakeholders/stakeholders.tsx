@@ -10,16 +10,16 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   ModalVariant,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   ExpandableRowContent,
@@ -260,12 +260,17 @@ export const Stakeholders: React.FC = () => {
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
-                  <EmptyStateIcon icon={CubesIcon} />
-                  <Title headingLevel="h2" size="lg">
-                    {t("composed.noDataStateTitle", {
-                      what: t("terms.stakeholder").toLowerCase(),
-                    })}
-                  </Title>
+                  <EmptyStateHeader
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.stakeholder").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    icon={<EmptyStateIcon icon={CubesIcon} />}
+                    headingLevel="h2"
+                  />
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.add"),

@@ -4,16 +4,17 @@ import {
   Card,
   CardBody,
   EmptyState,
+  EmptyStateHeader,
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Spinner,
   Text,
   TextContent,
-  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
+import { Proxy } from "@app/api/models";
 import { useFetchProxies } from "@app/queries/proxies";
 
 import { ProxyForm } from "./proxy-form";
@@ -24,9 +25,11 @@ export const Proxies: React.FC = () => {
 
   const { proxies, isFetching } = useFetchProxies();
 
-  const existingHttpProxy = proxies.find((proxy: any) => proxy.kind === "http");
+  const existingHttpProxy = proxies.find(
+    (proxy: Proxy) => proxy.kind === "http"
+  );
   const existingHttpsProxy = proxies.find(
-    (proxy: any) => proxy.kind === "https"
+    (proxy: Proxy) => proxy.kind === "https"
   );
 
   return (
@@ -42,10 +45,11 @@ export const Proxies: React.FC = () => {
           <CardBody>
             {isFetching ? (
               <EmptyState className={spacing.mtXl}>
-                <EmptyStateIcon icon={Spinner} />
-                <Title size="lg" headingLevel="h4">
-                  Loading
-                </Title>
+                <EmptyStateHeader
+                  titleText={t("message.loadingTripleDot")}
+                  icon={<EmptyStateIcon icon={Spinner} />}
+                  headingLevel="h4"
+                />
               </EmptyState>
             ) : (
               <ProxyForm

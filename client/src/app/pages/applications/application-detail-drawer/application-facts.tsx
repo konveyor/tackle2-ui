@@ -7,7 +7,7 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { FilterIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Fact } from "@app/api/models";

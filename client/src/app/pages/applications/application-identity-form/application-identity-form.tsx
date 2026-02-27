@@ -13,7 +13,7 @@ import {
   Text,
   Title,
 } from "@patternfly/react-core";
-import WarningTriangleIcon from "@patternfly/react-icons/dist/esm/icons/warning-triangle-icon";
+import { WarningTriangleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";

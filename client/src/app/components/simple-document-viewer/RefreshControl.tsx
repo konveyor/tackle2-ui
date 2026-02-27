@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CodeEditorControl } from "@patternfly/react-code-editor";
-import UndoIcon from "@patternfly/react-icons/dist/esm/icons/undo-icon";
+import { UndoIcon } from "@patternfly/react-icons";
 import "./SimpleDocumentViewer.css";
 
 export const RefreshControl: React.FC<{

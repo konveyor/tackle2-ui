@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import {
   DatePicker,
   InputGroup,
+  InputGroupItem,
   ToolbarChip,
   ToolbarChipGroup,
   ToolbarFilter,
@@ -99,32 +100,36 @@ export const DateRangeFilter = <TItem,>({
       showToolbarItem={showToolbarItem}
     >
       <InputGroup>
-        <DatePicker
-          value={from ? americanDateFormat(from) : ""}
-          dateFormat={americanDateFormat}
-          dateParse={parseAmericanDate}
-          onChange={onFromDateChange}
-          aria-label="Interval start"
-          placeholder="MM/DD/YYYY"
-          // disable error text (no space in toolbar scenario)
-          invalidFormatText={""}
-          // default value ("parent") creates collision with sticky table header
-          appendTo={document.body}
-          isDisabled={isDisabled}
-        />
-        <DatePicker
-          value={to ? americanDateFormat(to) : ""}
-          onChange={onToDateChange}
-          isDisabled={isDisabled || !isValidJSDate(from)}
-          dateFormat={americanDateFormat}
-          dateParse={parseAmericanDate}
-          // disable error text (no space in toolbar scenario)
-          invalidFormatText={""}
-          rangeStart={from}
-          aria-label="Interval end"
-          placeholder="MM/DD/YYYY"
-          appendTo={document.body}
-        />
+        <InputGroupItem>
+          <DatePicker
+            value={from ? americanDateFormat(from) : ""}
+            dateFormat={americanDateFormat}
+            dateParse={parseAmericanDate}
+            onChange={onFromDateChange}
+            aria-label="Interval start"
+            placeholder="MM/DD/YYYY"
+            // disable error text (no space in toolbar scenario)
+            invalidFormatText={""}
+            // default value ("parent") creates collision with sticky table header
+            appendTo={document.body}
+            isDisabled={isDisabled}
+          />
+        </InputGroupItem>
+        <InputGroupItem>
+          <DatePicker
+            value={to ? americanDateFormat(to) : ""}
+            onChange={onToDateChange}
+            isDisabled={isDisabled || !isValidJSDate(from)}
+            dateFormat={americanDateFormat}
+            dateParse={parseAmericanDate}
+            // disable error text (no space in toolbar scenario)
+            invalidFormatText={""}
+            rangeStart={from}
+            aria-label="Interval end"
+            placeholder="MM/DD/YYYY"
+            appendTo={document.body}
+          />
+        </InputGroupItem>
       </InputGroup>
     </ToolbarFilter>
   );

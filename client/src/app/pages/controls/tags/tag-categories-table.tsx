@@ -6,10 +6,10 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   ModalVariant,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -303,12 +303,17 @@ export const Tags: React.FC = () => {
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
-                  <EmptyStateIcon icon={CubesIcon} />
-                  <Title headingLevel="h2" size="lg">
-                    {t("composed.noDataStateTitle", {
-                      what: t("terms.tags").toLowerCase(),
-                    })}
-                  </Title>
+                  <EmptyStateHeader
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.tags").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    icon={<EmptyStateIcon icon={CubesIcon} />}
+                    headingLevel="h2"
+                  />
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -374,10 +379,13 @@ export const Tags: React.FC = () => {
                               />
                             ) : (
                               <EmptyState variant="sm">
-                                <EmptyStateIcon icon={CubesIcon} />
-                                <Title headingLevel="h4" size="lg">
-                                  {t("message.noTagsAvailable")}
-                                </Title>
+                                <EmptyStateHeader
+                                  titleText={
+                                    <>{t("message.noTagsAvailable")}</>
+                                  }
+                                  icon={<EmptyStateIcon icon={CubesIcon} />}
+                                  headingLevel="h4"
+                                />
                                 <EmptyStateBody>
                                   {t("message.noAssociatedTags")}
                                 </EmptyStateBody>

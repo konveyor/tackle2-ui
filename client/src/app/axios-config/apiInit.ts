@@ -34,7 +34,7 @@ export const initInterceptors = () => {
             };
             return axios(retryConfig);
           }
-        } catch (refreshError) {
+        } catch {
           keycloak.login();
         }
       }

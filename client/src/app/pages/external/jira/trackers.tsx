@@ -6,19 +6,19 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Tracker } from "@app/api/models";
@@ -230,12 +230,17 @@ export const JiraTrackers: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
-                        what: t("terms.jiraConfig").toLowerCase(),
-                      })}
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={
+                        <>
+                          {t("composed.noDataStateTitle", {
+                            what: t("terms.jiraConfig").toLowerCase(),
+                          })}
+                        </>
+                      }
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.create"),
@@ -283,14 +288,14 @@ export const JiraTrackers: React.FC = () => {
                           <AppTableActionButtons
                             onEdit={() => setTrackerModalState(tracker)}
                             onDelete={() => {
-                              includesTracker(tracker.id)
-                                ? pushNotification({
-                                    title: t(
-                                      "This instance contains issues associated with applications and cannot be deleted"
-                                    ),
-                                    variant: "danger",
-                                  })
-                                : setTrackerToDelete(tracker);
+                              if (includesTracker(tracker.id)) {
+                                pushNotification({
+                                  title: t("message.trackerInUse"),
+                                  variant: "danger",
+                                });
+                              } else {
+                                setTrackerToDelete(tracker);
+                              }
                             }}
                           />
                         </Td>

@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Alert, AlertProps, Icon } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  UnknownIcon,
+} from "@patternfly/react-icons";
 
 import type { StatusType } from "./schema-defined-page";
 

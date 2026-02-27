@@ -11,7 +11,7 @@ import {
   Form,
   Popover,
 } from "@patternfly/react-core";
-import { HelpIcon } from "@patternfly/react-icons/dist/esm/icons/help-icon";
+import { HelpIcon } from "@patternfly/react-icons";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import type { New, SourcePlatform } from "@app/api/models";

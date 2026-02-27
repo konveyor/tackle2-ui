@@ -11,7 +11,7 @@ export const useAsyncYupValidation = <TFieldValues>(
       try {
         await schema.validate(values);
         setIsValid(true);
-      } catch (e: unknown) {
+      } catch {
         setIsValid(false);
       }
     };

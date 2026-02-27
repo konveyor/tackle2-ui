@@ -574,11 +574,13 @@ describe("yupRepositoryFields", () => {
       const schema = yup.object().shape({
         hasRepository: yup.boolean(),
         repository: yupRepositoryFields({
-          isRequired: (context?: any) => {
+          isRequired: (context?: {
+            from: { value: { hasRepository: boolean } }[];
+          }) => {
             // In yup 0.32, context.from[1] contains the parent of the repository object
             // context.parent is the repository object itself
             // context.from[1].value is the top-level object containing hasRepository
-            const topLevelObject = context.from?.[1]?.value;
+            const topLevelObject = context?.from?.[1]?.value;
             return topLevelObject?.hasRepository === true;
           },
         }),

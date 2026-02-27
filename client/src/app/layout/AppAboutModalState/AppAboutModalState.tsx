@@ -9,7 +9,7 @@ export interface ChildrenProps {
 }
 
 export interface AppAboutModalStateProps {
-  children: (args: ChildrenProps) => any;
+  children: (args: ChildrenProps) => React.ReactNode;
 }
 
 export const AppAboutModalState: React.FC<AppAboutModalStateProps> = ({

@@ -7,9 +7,9 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   PageSection,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -182,12 +182,13 @@ export const ManageImportsDetails: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
+                    <EmptyStateHeader
+                      titleText={t("composed.noDataStateTitle", {
                         what: t("terms.imports").toLowerCase(),
                       })}
-                    </Title>
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),

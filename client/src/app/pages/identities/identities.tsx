@@ -7,12 +7,12 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -250,12 +250,17 @@ export const Identities: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
-                        what: t("terms.credential").toLowerCase(),
-                      })}
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={
+                        <>
+                          {t("composed.noDataStateTitle", {
+                            what: t("terms.credential").toLowerCase(),
+                          })}
+                        </>
+                      }
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),

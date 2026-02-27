@@ -13,8 +13,10 @@ import {
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
@@ -31,7 +33,7 @@ import { formatPath } from "@app/utils/utils";
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 import { ApplicationFacts } from "./application-facts";
-import DownloadButton from "./components/download-button";
+import { DownloadButton } from "./components/download-button";
 
 export const TabReportsContent: React.FC<{
   application: DecoratedApplication;

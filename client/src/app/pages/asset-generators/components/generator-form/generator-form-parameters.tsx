@@ -3,7 +3,7 @@ import * as React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button, FormFieldGroupHeader, Label } from "@patternfly/react-core";
-import { PlusCircleIcon } from "@patternfly/react-icons/dist/js/icons/plus-circle-icon";
+import { PlusCircleIcon } from "@patternfly/react-icons";
 
 import { ControlledFormFieldGroupExpandable } from "@app/components/ControlledFormFieldGroupExpandable";
 

@@ -10,7 +10,7 @@ import {
   ToolbarToggleGroup,
   ToolbarToggleGroupProps,
 } from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { FilterIcon } from "@patternfly/react-icons";
 
 import { FilterControl } from "./FilterControl";
 
