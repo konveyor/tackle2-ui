@@ -7,13 +7,13 @@ import { server } from "@mocks/server";
 
 import { AnalysisWizard } from "../analysis-wizard";
 
-const applicationData1 = {
+const applicationOnlyName1 = {
   id: 1,
   name: "App1",
   migrationWave: null,
 };
 
-const applicationData2 = {
+const applicationOnlyName2 = {
   id: 2,
   name: "App2",
   migrationWave: null,
@@ -71,7 +71,7 @@ describe("<AnalysisWizard />", () => {
     it("allows to cancel an analysis wizard", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -85,10 +85,10 @@ describe("<AnalysisWizard />", () => {
       expect(cancelButton).toBeEnabled();
     });
 
-    it("starts on Mode step with manual selection by default", async () => {
+    it("starts on Mode step with manual selection by default if applications are compatible with source analysis modes", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -142,8 +142,6 @@ describe("<AnalysisWizard />", () => {
         />
       );
 
-      await navigateToAnalysisSourceStep();
-
       const modeDropdown = await screen.findByTestId(
         "analysis-source-select-toggle"
       );
@@ -152,15 +150,13 @@ describe("<AnalysisWizard />", () => {
     it("pre-selects source+deps mode and displays an error if no compatible mode is found", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
         />
       );
-
-      await navigateToAnalysisSourceStep();
 
       const modeDropdown = await screen.findByTestId(
         "analysis-source-select-toggle"
@@ -181,19 +177,16 @@ describe("<AnalysisWizard />", () => {
   });
 
   describe("Manual mode flow", () => {
-    it("has next button disabled on Analysis Source step when applications have no binary source defined", async () => {
+    it("has next button disabled on Analysis Source step when applications have no binary and no source code defined", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
         />
       );
-
-      // Navigate from Mode step to Analysis Source step
-      await navigateToAnalysisSourceStep();
 
       // Now we should be on Analysis Source step
       const alert = await screen.findByText(/warning alert:/i);
@@ -206,16 +199,13 @@ describe("<AnalysisWizard />", () => {
     it("has next button disabled on Analysis Source step when applications have no source code defined", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
         />
       );
-
-      // Navigate from Mode step to Analysis Source step
-      await navigateToAnalysisSourceStep();
 
       // The analysis source dropdown has toggleAriaLabel="Analysis source dropdown toggle"
       const modeDropdown = await screen.findByRole("button", {
@@ -240,16 +230,13 @@ describe("<AnalysisWizard />", () => {
       let isOpen = true;
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isOpen}
           onClose={() => {
             isOpen = false;
           }}
         />
       );
-
-      // Navigate from Mode step to Analysis Source step
-      await navigateToAnalysisSourceStep();
 
       // The analysis source dropdown has toggleAriaLabel="Analysis source dropdown toggle"
       const modeDropdown = await screen.findByRole("button", {
@@ -273,16 +260,13 @@ describe("<AnalysisWizard />", () => {
     it("cannot upload a binary file when analyzing multiple applications", async () => {
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationOnlyName2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
           }}
         />
       );
-
-      // Navigate from Mode step to Analysis Source step
-      await navigateToAnalysisSourceStep();
 
       // Open the mode dropdown
       const modeDropdown = await screen.findByRole("button", {
@@ -310,7 +294,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -340,7 +324,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -370,7 +354,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -398,7 +382,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -439,7 +423,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationData1, applicationData2]}
+          applications={[applicationOnlyName1, applicationWithSource]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
