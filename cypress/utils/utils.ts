@@ -100,6 +100,7 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
+  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -126,7 +127,6 @@ import {
 } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
-import { MigrationWaveView } from "../e2e/views/migration-wave.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { stakeHoldersTable } from "../e2e/views/stakeholders.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
@@ -1596,9 +1596,7 @@ export function deleteAllMigrationWaves() {
     if (!empty) {
       cy.get("tbody tr").then(($rows) => {
         for (let i = 0; i < $rows.length; i++) {
-          cy.get(MigrationWaveView.actionsButton, { timeout: 10000 })
-            .first()
-            .click();
+          cy.get(kebabToggleButton, { timeout: 10000 }).first().click();
           cy.contains("Delete").click();
           cy.get(confirmButton).click();
           cy.wait(5000);
