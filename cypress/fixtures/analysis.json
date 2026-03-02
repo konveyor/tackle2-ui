@@ -919,7 +919,7 @@
     "target": ["Jakarta EE 9", "Containerization"],
     "appName": "tackle-testapp",
     "effort": 547,
-    "openSourceLibraries": true
+    "openSourceLibraries": false
   },
 
   "binary_analysis_on_tackletestapp": {
@@ -1083,7 +1083,7 @@
     "source": "Source code + dependencies",
     "target": ["Quarkus"],
     "appName": "deps",
-    "openSourceLibraries": true,
+    "openSourceLibraries": false,
     "storyPoints": "2,602"
   },
 
@@ -1114,7 +1114,7 @@
     "appName": "pet-clinic"
   },
   "tackle_test_app_custom_rules": {
-    "source": "Source code + dependencies",
+    "source": "Source code",
     "target": [],
     "appName": "tackle-testapp",
     "customRule": [
@@ -1125,7 +1125,7 @@
       "01-custom-rule-example.windup.yaml": 1,
       "01-javax-package-custom-target.windup.yaml": 1
     },
-    "openSourceLibraries": true
+    "openSourceLibraries": false
   },
   "affected_files_on_bookserverapp": {
     "source": "Source code",
@@ -1877,7 +1877,7 @@
     "source": "Source code + dependencies",
     "target": ["JBoss Web Server 6"],
     "appName": "tackle-testapp",
-    "openSourceLibraries": true,
+    "openSourceLibraries": false,
     "effort": 34
   },
 
@@ -1901,7 +1901,7 @@
     "source": "Source code + dependencies",
     "target": ["Containerization"],
     "appName": "tackle testapp public jdk 9",
-    "openSourceLibraries": true
+    "openSourceLibraries": false
   },
 
   "administracionEfectivo_custom_rules": {
@@ -2148,7 +2148,7 @@
     ]
   },
   "bookServerApp_analysis_profile": {
-    "source": "Source code + dependencies",
+    "source": "Source code",
     "target": ["Containerization", "Linux", "Quarkus"],
     "appName": "bookserver-app",
     "customRule": [
