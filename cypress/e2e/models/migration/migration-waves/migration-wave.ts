@@ -4,6 +4,7 @@ import {
   clickByText,
   clickJs,
   inputText,
+  performRowActionByIcon,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -13,7 +14,6 @@ import {
   button,
   createNewButton,
   deleteAction,
-  editAction,
   exportToIssueManagerAction,
   manageApplications,
   migrationWaves,
@@ -26,7 +26,9 @@ import {
   cancelButton,
   confirmButton,
   itemsSelectInsideDialog,
+  kebabToggleButton,
   modal,
+  pencilIcon,
   submitButton,
 } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
@@ -89,8 +91,7 @@ export class MigrationWave {
 
   public edit(updateValues: Partial<MigrationWave>) {
     MigrationWave.open();
-    this.expandActionsMenu();
-    cy.contains(editAction).click();
+    performRowActionByIcon(this.name, pencilIcon);
     this.fillForm(updateValues);
     submitForm();
   }
@@ -286,7 +287,7 @@ export class MigrationWave {
       cy.contains(targetName)
         .parents("tr")
         .within(() => {
-          cy.get(MigrationWaveView.actionsButton).then(($btn) => {
+          cy.get(kebabToggleButton).then(($btn) => {
             $btn.trigger("click");
           });
         });
@@ -303,7 +304,7 @@ export class MigrationWave {
 
         if (startCell === targetStartDate && endCell === targetEndDate) {
           cy.wrap($row)
-            .find(MigrationWaveView.actionsButton)
+            .find(kebabToggleButton)
             .then(($btn) => {
               if ($btn.attr("aria-expanded") === "false") {
                 $btn.trigger("click");
