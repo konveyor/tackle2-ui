@@ -16,15 +16,38 @@ if [[ ! "$host" =~ ^https?:// ]]; then
   host="https://${host}"
 fi
 
-export TOKEN=$(curl -kSs -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
-  ${host}/auth/login | jq -r ".token")
+auth_response=$(curl -kSs -w "\n%{http_code}" -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
+  "${host}/auth/login")
 
-if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
-  echo "ERROR: Failed to obtain authentication token"
+http_code=$(echo "$auth_response" | tail -n1)
+response_body=$(echo "$auth_response" | sed '$d')
+
+if [[ "$http_code" != "200" && "$http_code" != "201" ]]; then
+  echo "ERROR: Authentication failed with HTTP $http_code" >&2
   exit 1
 fi
 
-echo "Authenticated successfully"
+TOKEN=$(echo "$response_body" | jq -r ".token")
+
+if [[ "$TOKEN" == "null" ]]; then
+  echo "ERROR: Authentication response missing token field" >&2
+  exit 1
+fi
+
+# If token is empty, verify auth is actually disabled by testing API access
+if [[ -z "$TOKEN" ]]; then
+  test_response=$(curl -kSs -w "\n%{http_code}" "${host}/applications")
+  test_code=$(echo "$test_response" | tail -n1)
+
+  if [[ "$test_code" == "401" || "$test_code" == "403" ]]; then
+    echo "ERROR: Authentication required but token is empty" >&2
+    echo "The server requires authentication but returned an empty token." >&2
+    echo "Please check your credentials (USERNAME, PASSWORD) or server configuration." >&2
+    exit 1
+  fi
+fi
+
+export TOKEN
 
 # Get existing tags
 echo "Getting existing tags..."
@@ -70,7 +93,7 @@ if [[ -z "$sh1_id" || "$sh1_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"email":"stakeholder1@issues.test","name":"Issues Stakeholder 1"}' \
-    ${host}/stakeholders)
+    "${host}/stakeholders")
   sh1_id=$(echo $sh1_response | jq -r '.id')
 
   if [[ -z "$sh1_id" || "$sh1_id" == "null" ]]; then
@@ -90,7 +113,7 @@ if [[ -z "$sh2_id" || "$sh2_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"email":"stakeholder2@issues.test","name":"Issues Stakeholder 2"}' \
-    ${host}/stakeholders)
+    "${host}/stakeholders")
   sh2_id=$(echo $sh2_response | jq -r '.id')
 
   if [[ -z "$sh2_id" || "$sh2_id" == "null" ]]; then
@@ -121,7 +144,7 @@ if [[ -z "$shg1_id" || "$shg1_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Issues StakeholderGroup 1","description":"Group 1"}' \
-    ${host}/stakeholdergroups)
+    "${host}/stakeholdergroups")
   shg1_id=$(echo $shg1_response | jq -r '.id')
 
   if [[ -z "$shg1_id" || "$shg1_id" == "null" ]]; then
@@ -141,7 +164,7 @@ if [[ -z "$shg2_id" || "$shg2_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Issues StakeholderGroup 2","description":"Group 2"}' \
-    ${host}/stakeholdergroups)
+    "${host}/stakeholdergroups")
   shg2_id=$(echo $shg2_response | jq -r '.id')
 
   if [[ -z "$shg2_id" || "$shg2_id" == "null" ]]; then
@@ -172,7 +195,7 @@ if [[ -z "$bs1_id" || "$bs1_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"name":"BookServer Business Service","description":"Business service for bookserver apps"}' \
-    ${host}/businessservices)
+    "${host}/businessservices")
   bs1_id=$(echo $bs1_response | jq -r '.id')
 
   if [[ -z "$bs1_id" || "$bs1_id" == "null" ]]; then
@@ -193,7 +216,7 @@ if [[ -z "$bs2_id" || "$bs2_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Coolstore Business Service","description":"Business service for coolstore app"}' \
-    ${host}/businessservices)
+    "${host}/businessservices")
   bs2_id=$(echo $bs2_response | jq -r '.id')
 
   if [[ -z "$bs2_id" || "$bs2_id" == "null" ]]; then
@@ -225,7 +248,7 @@ if [[ -z "$archetype_id" || "$archetype_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"IssuesArchetype\",\"description\":\"Archetype for issues tests\",\"criteria\":[{\"id\":${tag1_id}}],\"tags\":[{\"id\":${tag2_id}}],\"stakeholders\":[{\"id\":${sh1_id}},{\"id\":${sh2_id}}],\"stakeholderGroups\":[{\"id\":${shg1_id}},{\"id\":${shg2_id}}]}" \
-    ${host}/archetypes)
+    "${host}/archetypes")
   archetype_id=$(echo $archetype_response | jq -r '.id')
 
   if [[ -z "$archetype_id" || "$archetype_id" == "null" ]]; then
@@ -720,7 +743,7 @@ for i in {0..2}; do
       -H "Authorization: Bearer ${TOKEN}" \
       -H "Content-Type: application/json" \
       -d "{\"name\":\"${app_name}\",\"businessService\":{\"id\":${bs1_id}}}" \
-      ${host}/applications)
+      "${host}/applications")
 
     app_id=$(echo $app_response | jq -r '.id')
 
@@ -742,7 +765,7 @@ for i in {0..2}; do
       -H "Authorization: Bearer ${TOKEN}" \
       -F "file=@${manifest_file};type=application/x-yaml" \
       -H 'Accept:application/x-yaml' \
-      ${host}/applications/${app_id}/analyses)
+      "${host}/applications/${app_id}/analyses")
 
     if [ $? -ne 0 ]; then
       echo "  ERROR: Failed to upload analysis for ${app_name}"
@@ -782,7 +805,7 @@ if [[ -z "$app_id" || "$app_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"${app_name}\",\"businessService\":{\"id\":${bs2_id}},\"tags\":[{\"id\":${tag1_id}},{\"id\":${tag2_id}}]}" \
-    ${host}/applications)
+    "${host}/applications")
 
   app_id=$(echo $app_response | jq -r '.id')
 
@@ -804,7 +827,7 @@ if [[ -z "$app_id" || "$app_id" == "null" ]]; then
     -H "Authorization: Bearer ${TOKEN}" \
     -F "file=@${manifest_file};type=application/x-yaml" \
     -H 'Accept:application/x-yaml' \
-    ${host}/applications/${app_id}/analyses)
+    "${host}/applications/${app_id}/analyses")
 
   if [ $? -ne 0 ]; then
     echo "  ERROR: Failed to upload analysis for ${app_name}"
