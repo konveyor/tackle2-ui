@@ -15,10 +15,9 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
+import * as data from "../../../../../utils/data_utils";
 import {
   clickOnSortButton,
-  createMultipleJobFunctions,
-  deleteByList,
   getTableColumnData,
   login,
   verifySortAsc,
@@ -27,17 +26,18 @@ import {
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 import { SortType, name } from "../../../../types/constants";
 
-let jobFunctionsList: Array<Jobfunctions> = [];
+const jobFunctionsList: Array<Jobfunctions> = [];
 
 describe(["@tier3"], "Job function sorting", function () {
   before("Login and Create Test Data", function () {
     login();
-    cy.visit("/");
-    jobFunctionsList = createMultipleJobFunctions(2);
-  });
 
-  beforeEach("Interceptors", function () {
-    cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
+    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
+      jobFunctionsList.push(jf)
+    );
+    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
+      jobFunctionsList.push(jf)
+    );
   });
 
   it("Name sort validations", function () {
@@ -53,6 +53,6 @@ describe(["@tier3"], "Job function sorting", function () {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(jobFunctionsList);
+    jobFunctionsList.forEach((jf) => jf.deleteViaApi());
   });
 });

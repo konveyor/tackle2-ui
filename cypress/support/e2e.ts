@@ -66,6 +66,36 @@ Cypress.on("uncaught:exception", (err) => {
   }
 });
 
+// ── Command-level tracing ────────────────────────────────────────────
+// Enabled with:  --env TRACE_COMMANDS=true
+// Logs every Cypress command with its duration (ms) to the terminal.
+if (Cypress.env("TRACE_COMMANDS")) {
+  const cmdStack: Array<{ name: string; args: string; start: number }> = [];
+
+  Cypress.on("command:start", (cmd) => {
+    const args = (cmd.get("args") || [])
+      .map((a: unknown) => (typeof a === "string" ? a : ""))
+      .filter(Boolean)
+      .join(", ");
+    cmdStack.push({
+      name: cmd.get("name"),
+      args,
+      start: performance.now(),
+    });
+  });
+
+  Cypress.on("command:end", (cmd) => {
+    const entry = cmdStack.pop();
+    if (!entry) return;
+    const duration = Math.round(performance.now() - entry.start);
+    const label = entry.args ? `${entry.name}(${entry.args})` : entry.name;
+    // Only log commands that took > 50ms to reduce noise
+    if (duration > 50) {
+      cy.task("log", `⏱  ${duration}ms  ${label}`, { log: false });
+    }
+  });
+}
+
 beforeEach(() => {
   // Disable for static report test as it need to open local files
   if (Cypress.spec.name === "static_report.test.ts") {

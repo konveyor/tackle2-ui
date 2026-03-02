@@ -345,8 +345,24 @@ export function selectFromDropListByText(
 }
 
 export function selectFormItems(fieldId: string, item: string): void {
-  cy.get(fieldId).click();
-  cy.contains("button", item).click();
+  // PatternFly typeahead selects virtualize the dropdown options, so only
+  // items matching the typed filter are rendered to the DOM.  For plain
+  // toggle-button selects all options are rendered on click.
+  cy.get(fieldId).then(($el) => {
+    if ($el.is("input")) {
+      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      cy.get(fieldId).click().clear().type(item);
+    } else {
+      // Wrapper div or toggle button — click to open
+      cy.get(fieldId).click();
+      // If the wrapper contains a typeahead input, type into it to filter
+      const $input = $el.find("input");
+      if ($input.length > 0) {
+        cy.wrap($input.first()).clear().type(item);
+      }
+    }
+  });
+  cy.contains("button", item, { timeout: 30 * SEC }).click();
 }
 
 export function selectAnalysisMode(fieldId: string, item: string): void {
@@ -445,10 +461,14 @@ export function exists(value: string, tableSelector = appTable): void {
 }
 
 export function notExists(value: string, tableSelector = appTable): void {
-  cy.get(tableSelector).then(($tbody) => {
-    if ($tbody.text() !== "No data available") {
-      selectItemsPerPage(100);
-      cy.get(tableSelector).should("not.contain", value);
+  // After deletion the table may re-render without the row OR vanish
+  // entirely (replaced by an empty-state component).  A retryable
+  // .should() callback handles both: Cypress retries until the value
+  // is gone or the table disappears, whichever comes first.
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    if ($table.length && !$table.text().includes("No data available")) {
+      expect($table.text()).to.not.include(value);
     }
   });
 }
@@ -476,8 +496,6 @@ export function selectFilter(filterName: string, eq = 0): void {
 }
 
 export function filterInputText(searchTextValue: string, value: number): void {
-  cy.get(filterInput).eq(value).click().focused().clear();
-  cy.wait(200);
   cy.get(filterInput).eq(value).clear().type(searchTextValue);
   cy.get(searchButton).eq(value).click({ force: true });
 }
@@ -589,7 +607,6 @@ export function applySearchFilter(
       }
     }
   });
-  cy.wait(4000);
 }
 
 export function clickOnSortButton(
@@ -1068,6 +1085,7 @@ export function createMultipleJobFunctions(num): Array<Jobfunctions> {
   for (let i = 0; i < num; i++) {
     const jobFunction = new Jobfunctions(data.getFullName());
     jobFunction.create();
+    closeSuccessAlert();
     jobFunctionsList.push(jobFunction);
   }
   return jobFunctionsList;
@@ -1773,24 +1791,20 @@ export function itemsPerPageValidation(
   columnName = "Name"
 ): void {
   selectItemsPerPage(10);
-  cy.wait(2000);
 
-  // Verify that only 10 items are displayed
-  cy.get(tableSelector)
-    .find(`td[data-label='${columnName}']`)
-    .then(($rows) => {
-      cy.wrap($rows.length).should("eq", 10);
-    });
+  // Verify that only 10 items are displayed (retryable assertion)
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.eq(10);
+  });
 
   selectItemsPerPage(20);
-  cy.wait(2000);
 
   // Verify that items less than or equal to 20 and greater than 10 are displayed
-  cy.get(tableSelector)
-    .find(`td[data-label='${columnName}']`)
-    .then(($rows) => {
-      cy.wrap($rows.length).should("be.lte", 20).and("be.gt", 10);
-    });
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.be.lte(20).and.be.gt(10);
+  });
 }
 
 export function autoPageChangeValidations(columnName = "Name"): void {

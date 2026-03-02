@@ -19,6 +19,7 @@ import {
   clickByText,
   clickItemInKebabMenu,
   inputText,
+  notExists,
   performRowActionByIcon,
   selectItemsPerPage,
   selectUserPerspective,
@@ -39,15 +40,41 @@ import { navMenu, navTab } from "../../../views/menu.view";
 
 export class Jobfunctions {
   name: string;
+  id?: number;
   static fullUrl = Cypress.config("baseUrl") + "/controls/job-functions";
 
-  constructor(name: string) {
+  constructor(name: string, id?: number) {
     this.name = name;
+    this.id = id;
+  }
+
+  /** Create a job function via the API (no UI interaction). */
+  static createViaApi(name: string): Cypress.Chainable<Jobfunctions> {
+    return cy
+      .request({ method: "POST", url: "/hub/jobfunctions", body: { name } })
+      .then((res) => new Jobfunctions(res.body.name, res.body.id));
+  }
+
+  /** Delete a job function via the API (no UI interaction). */
+  deleteViaApi(): void {
+    if (this.id) {
+      cy.request({ method: "DELETE", url: `/hub/jobfunctions/${this.id}` });
+    }
+  }
+
+  /** Delete all job functions via the API. */
+  static deleteAllViaApi(): void {
+    cy.request("GET", "/hub/jobfunctions").then((res) => {
+      const items = Array.isArray(res.body) ? res.body : [];
+      items.forEach((jf: { id: number }) => {
+        cy.request({ method: "DELETE", url: `/hub/jobfunctions/${jf.id}` });
+      });
+    });
   }
 
   public static openList(itemsPerPage = 100): void {
     cy.url().then(($url) => {
-      if ($url != Jobfunctions.fullUrl) {
+      if (!$url.includes("/controls/job-functions")) {
         selectUserPerspective(migration);
         clickByText(navMenu, controls);
         cy.get("h1", { timeout: 60 * SEC }).should("contain", "Controls");
@@ -62,6 +89,7 @@ export class Jobfunctions {
   }
 
   create(cancel = false): void {
+    cy.intercept("POST", "/hub/jobfunctions*").as("postJobfunction");
     Jobfunctions.openList();
     clickByText(button, createNewButton);
     if (cancel) {
@@ -69,33 +97,37 @@ export class Jobfunctions {
     } else {
       this.fillName(this.name);
       submitForm();
+      cy.wait("@postJobfunction");
     }
   }
 
   edit(updatedName: string, cancel = false): void {
     Jobfunctions.openList();
-    selectItemsPerPage(100);
-    cy.wait(2000);
     performRowActionByIcon(this.name, commonView.pencilIcon);
 
     if (cancel) {
       cancelForm();
     } else {
       if (updatedName != this.name) {
+        cy.intercept("PUT", "/hub/jobfunctions/*").as("putJobfunction");
         this.fillName(updatedName);
         this.name = updatedName;
         submitForm();
+        cy.wait("@putJobfunction");
       }
     }
   }
 
   delete(cancel = false): void {
     Jobfunctions.openList();
+    cy.intercept("DELETE", "/hub/jobfunctions/*").as("deleteJobfunction");
     clickItemInKebabMenu(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       click(commonView.confirmButton);
+      cy.wait("@deleteJobfunction");
+      notExists(this.name);
     }
   }
 }
