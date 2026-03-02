@@ -38,6 +38,7 @@ describe(["@tier3"], "Assessment Questionnaire filter validation", () => {
   before("Login", function () {
     login();
     cy.visit("/");
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
     AssessmentQuestionnaire.import(yamlFileName);
     AssessmentQuestionnaire.enable(cloudNative, false);
     assessmentQuestionnaireList.push(cloudNative);
