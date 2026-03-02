@@ -46,7 +46,7 @@ jobs:
 
       - name: Did only docs and hacks change?
         id: docs-and-hacks-only
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
+        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a # v46
         with:
           files: |
             docs/**
@@ -55,7 +55,7 @@ jobs:
 
       - name: Did only cypress change?
         id: cypress-only
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v46
+        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a # v46
         with:
           files: |
             cypress/**
