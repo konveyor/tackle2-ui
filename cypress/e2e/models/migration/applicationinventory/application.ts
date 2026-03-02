@@ -284,6 +284,7 @@ export class Application {
     updateAppInfo = false,
     cancel = false
   ): void {
+    Application.open();
     cy.wait(2000);
     if (updateAppInfo) {
       this.editApplicationFromApplicationProfile();

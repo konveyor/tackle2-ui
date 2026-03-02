@@ -60,8 +60,7 @@ describe(
     });
 
     describe("Test same rules are triggered for custom rules and custom migration target", function () {
-      it("Bug Tackle-996: Create test data", function () {
-        // Bug - https://github.com/konveyor/tackle2-hub/issues/996
+      it("Create test data", function () {
         CustomMigrationTarget.open(true);
         const targetData = this.customMigrationTargets["rules_from_bug_3330"];
         target = new CustomMigrationTarget(
@@ -102,11 +101,11 @@ describe(
         });
       });
 
-      it("Bug Tackle-996: Verify effort for analysis configured with custom migration target", function () {
+      it("Verify effort for analysis configured with custom migration target", function () {
         applications[0].verifyEffort(EXPECTED_EFFORT);
       });
 
-      it("Bug Tackle-996: Verify effort for analysis configured with custom rules from a repository", function () {
+      it("Verify effort for analysis configured with custom rules from a repository", function () {
         applications[1].verifyEffort(EXPECTED_EFFORT);
       });
     });

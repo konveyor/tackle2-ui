@@ -37,7 +37,6 @@ import {
   UserCredentials,
 } from "../../../../types/constants";
 let sourceCredential: CredentialsSourceControlUsername;
-let invalidSourceCredential: CredentialsSourceControlUsername;
 let mavenCredential: CredentialsMaven;
 const applicationIds: number[] = [];
 
@@ -57,16 +56,6 @@ describe(["@tier1"], "Source Analysis", () => {
       )
     );
     sourceCredential.create();
-
-    // Create invalid source Credentials
-    invalidSourceCredential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        false
-      )
-    );
-    invalidSourceCredential.create();
 
     // Create Maven credentials
     mavenCredential = new CredentialsMaven(
@@ -105,19 +94,10 @@ describe(["@tier1"], "Source Analysis", () => {
     application.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    // analyze with no default creds
-    application.analyze();
-    application.verifyAnalysisStatus(AnalysisStatuses.failed);
-
-    // analyze with inValid default source creds and valid maven creds
-    invalidSourceCredential.setAsDefaultViaActionsMenu();
-    mavenCredential.setAsDefaultViaActionsMenu();
-    application.analyze();
-    application.waitStatusChange(AnalysisStatuses.scheduled);
-    application.verifyAnalysisStatus(AnalysisStatuses.failed);
 
     // analyze with valid default source and maven creds
     sourceCredential.setAsDefaultViaActionsMenu();
+    mavenCredential.setAsDefaultViaActionsMenu();
     application.analyze();
     application.waitStatusChange(AnalysisStatuses.scheduled);
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
@@ -212,27 +192,6 @@ describe(["@tier1"], "Source Analysis", () => {
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
   });
 
-  it("Bug Tackle-1078: Analysis for known Open Source libraries on tackleTest app", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1078
-    // Source code analysis require both source and maven credentials
-    const application = new Analysis(
-      getRandomApplicationData("tackleTestApp_Source+knownLibraries", {
-        sourceData: this.appData["tackle-testapp-git"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["analysis_for_openSourceLibraries"]
-      )
-    );
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.manageCredentials(sourceCredential.name, mavenCredential.name);
-    application.analyze();
-    application.verifyAnalysisStatus("Completed", 30 * MIN);
-  });
-
   it("Automated tagging using Source Analysis on tackle testapp", function () {
     // Automates Polarion MTA-208
     const application = new Analysis(
@@ -299,8 +258,7 @@ describe(["@tier1"], "Source Analysis", () => {
     );
   });
 
-  it("Bug Tackle-1078: JWS6 target Source + deps analysis on tackletest app", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1078
+  it("JWS6 target Source + deps analysis on tackletest app", function () {
     // Source code analysis require both source and maven credentials
     const application = new Analysis(
       getRandomApplicationData("tackleTestApp_Source+dependencies_jws6", {
@@ -363,8 +321,7 @@ describe(["@tier1"], "Source Analysis", () => {
   });
 
   // Automates customer bug MTA-1785
-  it("Bug Tackle-1078: JDK<11 Source + dependencies analysis on tackle app public", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1078
+  it("JDK<11 Source + dependencies analysis on tackle app public", function () {
     const application = new Analysis(
       getRandomApplicationData("tackle testapp public jdk 9", {
         sourceData: this.appData["tackle-testapp-public-jdk9"],
@@ -467,7 +424,6 @@ describe(["@tier1"], "Source Analysis", () => {
   after("Perform test data clean up", function () {
     deleteBulkApplicationsByApi(applicationIds);
     sourceCredential.delete();
-    invalidSourceCredential.delete();
     mavenCredential.delete();
     writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
   });

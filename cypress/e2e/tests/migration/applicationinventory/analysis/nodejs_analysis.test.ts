@@ -39,8 +39,7 @@ describe(["@tier1"], "Nodejs Analysis", () => {
     cy.intercept("DELETE", "/hub/application*").as("deleteApplication");
   });
 
-  it("Bug Tackle-1093: Source analysis on nodejs app", function () {
-    // https://github.com/konveyor/analyzer-lsp/issues/1093
+  it("Source analysis on nodejs app", function () {
     const application = new Analysis(
       getRandomApplicationData("nodejsApp_Source", {
         sourceData: this.appData["nodejs-app"],
