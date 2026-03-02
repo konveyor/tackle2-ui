@@ -41,7 +41,7 @@
     "git-url-parse": "^16.1.0",
     "i18next": "^25.3.0",
     "i18next-http-backend": "^3.0.2",
-    "immer": "^10.2.0",
+    "immer": "^11.1.4",
     "js-yaml": "^4.1.0",
     "keycloak-js": "^26.1.0",
     "lodash-es": "^4.17.21",
