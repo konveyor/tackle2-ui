@@ -29,8 +29,8 @@ import {
   kebabToggleButton,
   modal,
   pencilIcon,
-  submitButton,
 } from "../../../views/common.view";
+import { submitButton } from "../../../views/login.view";
 import { navMenu } from "../../../views/menu.view";
 import { MigrationWaveView } from "../../../views/migration-wave.view";
 import { Application } from "../applicationinventory/application";
@@ -160,7 +160,10 @@ export class MigrationWave {
       return;
     }
 
-    clickJs(submitButton);
+    cy.get(submitButton, { timeout: 10000 }).should("exist").scrollIntoView();
+    cy.get(submitButton).should("be.visible").should("not.be.disabled");
+    clickJs(submitButton, true);
+    cy.get(modal, { timeout: 15000 }).should("not.exist");
   }
 
   public clearApplications(): void {

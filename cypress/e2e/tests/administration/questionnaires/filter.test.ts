@@ -66,6 +66,6 @@ describe(["@tier3"], "Assessment Questionnaire filter validation", () => {
   });
 
   after("Perform test data clean up", function () {
-    AssessmentQuestionnaire.delete(cloudNative);
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

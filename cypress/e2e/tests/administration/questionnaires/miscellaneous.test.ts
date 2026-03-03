@@ -33,9 +33,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
     cy.readFile(filePath).then((fileContent) => {
       try {
         yaml.load(fileContent);
-        // Parsing successful, file is in YAML format
       } catch {
-        // Parsing failed, file is not in YAML format
         throw new Error(`File is not in YAML format: ${filePath}`);
       }
     });
@@ -46,14 +44,12 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
   });
 
   it("Delete imported sample questionnaire", function () {
-    // Automates bugs: https://issues.redhat.com/browse/MTA-1725 and https://issues.redhat.com/browse/MTA-1781
+    // Automates bugs: https://issues.redhat.com/browse/MTA-1725 and
+    // https://issues.redhat.com/browse/MTA-1781
 
     AssessmentQuestionnaire.open();
-
     AssessmentQuestionnaire.import(yamlFile);
-
     AssessmentQuestionnaire.delete(sampleQuestionnaireTemplate);
-
     notExists(sampleQuestionnaireTemplate);
   });
 
@@ -61,7 +57,6 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
     // Automates bug https://issues.redhat.com/browse/MTA-1349
 
     AssessmentQuestionnaire.open();
-
     AssessmentQuestionnaire.import(invalidYamlFile);
 
     cy.get(alertTitle).then(($element) => {
@@ -138,5 +133,6 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
 
   after("Cleaning up", function () {
     cleanupDownloads();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

@@ -83,5 +83,6 @@ describe(["@tier2"], "Questionnaire CRUD operations", () => {
 
   after("Cleaning up", function () {
     cleanupDownloads();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

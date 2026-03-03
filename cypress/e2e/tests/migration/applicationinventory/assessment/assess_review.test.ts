@@ -163,5 +163,6 @@ describe(["@tier2"], "Application assessment and review tests", () => {
 
   after("Perform test data clean up", function () {
     deleteByList(stakeholders);
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });
