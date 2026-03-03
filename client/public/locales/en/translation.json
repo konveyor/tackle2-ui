@@ -742,7 +742,7 @@
       "analysisProfile": "Analysis profile",
       "analysisSource": "Source for analysis",
       "customRules": "Include rules for the analysis by uploading or importing from a repository.",
-      "customRulesActions": "Custom rules actions",
+      "customRulesTable": "Custom rules table",
       "excludePackages": "Exclude packages",
       "manualModeDescription": "Manually configure all analysis settings step by step.",
       "manualSelection": "Manual selection",

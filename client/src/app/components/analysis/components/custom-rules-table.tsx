@@ -114,7 +114,7 @@ const CustomRulesTable: React.FC<{
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-      <Table {...tableProps} aria-label="Custom rules table">
+      <Table {...tableProps} aria-label={t("wizard.label.customRulesTable")}>
         <Thead>
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
