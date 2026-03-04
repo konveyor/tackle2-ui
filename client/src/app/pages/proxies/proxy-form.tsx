@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import {
   Controller,
   FieldValues,
+  FormStateSubscribe,
   SubmitHandler,
   useForm,
 } from "react-hook-form";
@@ -70,35 +71,29 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
       label: identity?.name || "",
     }));
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    setValue,
-    control,
-    reset,
-  } = useForm<ProxyFormValues>({
-    defaultValues: useMemo<ProxyFormValues>(
-      () => ({
-        // http
-        isHttpProxyEnabled: httpProxy?.enabled === true,
-        httpHost: httpProxy?.host || "",
-        httpPort: httpProxy?.port || 8080,
-        isHttpIdentityRequired: !!httpProxy?.identity?.name,
-        httpIdentity: httpProxy?.identity?.name || null,
-        // https
-        isHttpsProxyEnabled: httpsProxy?.enabled === true,
-        httpsHost: httpsProxy?.host || "",
-        httpsPort: httpsProxy?.port || 8080,
-        isHttpsIdentityRequired: !!httpsProxy?.identity?.name,
-        httpsIdentity: httpsProxy?.identity?.name || null,
-        excluded: httpProxy?.excluded.join(",") || "",
-      }),
-      [httpProxy, httpsProxy]
-    ),
-    resolver: yupResolver(useProxyFormValidationSchema()),
-    mode: "all",
-  });
+  const { handleSubmit, getValues, setValue, control, reset } =
+    useForm<ProxyFormValues>({
+      defaultValues: useMemo<ProxyFormValues>(
+        () => ({
+          // http
+          isHttpProxyEnabled: httpProxy?.enabled === true,
+          httpHost: httpProxy?.host || "",
+          httpPort: httpProxy?.port || 8080,
+          isHttpIdentityRequired: !!httpProxy?.identity?.name,
+          httpIdentity: httpProxy?.identity?.name || null,
+          // https
+          isHttpsProxyEnabled: httpsProxy?.enabled === true,
+          httpsHost: httpsProxy?.host || "",
+          httpsPort: httpsProxy?.port || 8080,
+          isHttpsIdentityRequired: !!httpsProxy?.identity?.name,
+          httpsIdentity: httpsProxy?.identity?.name || null,
+          excluded: httpProxy?.excluded.join(",") || "",
+        }),
+        [httpProxy, httpsProxy]
+      ),
+      resolver: yupResolver(useProxyFormValidationSchema()),
+      mode: "all",
+    });
 
   const values = getValues();
 
@@ -393,19 +388,28 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           placeholder="*.example.com, *.example2.com"
         />
       )}
-      <ActionGroup>
-        <Button
-          type="submit"
-          id="submit"
-          aria-label="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={
-            !isValid || isSubmitting || isValidating || isLoading || !isDirty
-          }
-        >
-          {httpProxy || httpsProxy ? "Save" : "Update"}
-        </Button>
-      </ActionGroup>
+      <FormStateSubscribe
+        control={control}
+        render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+          <ActionGroup>
+            <Button
+              type="submit"
+              id="submit"
+              aria-label="submit"
+              variant={ButtonVariant.primary}
+              isDisabled={
+                !isValid ||
+                isSubmitting ||
+                isValidating ||
+                isLoading ||
+                !isDirty
+              }
+            >
+              {httpProxy || httpsProxy ? "Save" : "Update"}
+            </Button>
+          </ActionGroup>
+        )}
+      />
     </Form>
   );
 };
