@@ -2072,9 +2072,7 @@ export function clickTab(name: string): void {
       cy.get("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
         force: true,
       });
-      cy.contains(".pf-v5-c-menu__item-text", name, { timeout: 5 * SEC }).click(
-        { force: true }
-      );
+      clickByText(actionMenuItem, name);
     } else {
       clickByText(navTab, name);
     }
