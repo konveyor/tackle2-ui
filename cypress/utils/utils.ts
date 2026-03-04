@@ -2062,7 +2062,21 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  clickByText(navTab, name);
+  cy.root().then(($root) => {
+    const visibleTab = $root.find(`${navTab}:contains("${name}"):visible`);
+    const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+
+    if (visibleTab.length > 0) {
+      clickByText(navTab, name);
+    } else if (overflowItem.length > 0) {
+      cy.get("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+        force: true,
+      });
+      clickByText(actionMenuItem, name);
+    } else {
+      clickByText(navTab, name);
+    }
+  });
 }
 
 export function cleanupDownloads(): void {
