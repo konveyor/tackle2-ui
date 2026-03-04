@@ -1,7 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -78,13 +78,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     kind: yup.string().required("Issue type is a required field"),
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    watch,
-    setValue,
-    control,
-  } = useForm<FormValues>({
+  const { handleSubmit, setValue, control } = useForm<FormValues>({
     defaultValues: {
       issueManager: undefined,
       tracker: "",
@@ -95,19 +89,16 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     mode: "all",
   });
 
-  const values = watch();
+  const [issueManager, tracker, project, kind] = useWatch({
+    control,
+    name: ["issueManager", "tracker", "project", "kind"],
+  });
 
-  const projectsByTracker = useTrackerProjectsByTracker(values.tracker);
+  const projectsByTracker = useTrackerProjectsByTracker(tracker);
+  const matchingProject = projectsByTracker.find((p) => project === p.name);
 
-  const matchingProject = projectsByTracker.find(
-    (project) => values.project === project.name
-  );
-
-  const typesByProject = useTrackerTypesByProjectName(
-    values.tracker,
-    values.project
-  );
-  const matchingKind = typesByProject.find((type) => values.kind === type.name);
+  const typesByProject = useTrackerTypesByProjectName(tracker, project);
+  const matchingKind = typesByProject.find((type) => kind === type.name);
 
   const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
@@ -175,19 +166,16 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
-            isDisabled={!values.issueManager}
+            isDisabled={!issueManager}
             toggleAriaLabel="tracker select dropdown toggle"
             ariaLabel={name}
             value={value}
             options={
-              values.issueManager
-                ? getTrackersByKind(
-                    trackers,
-                    values.issueManager?.toString()
-                  ).map(
-                    (tracker): FilterSelectOptionProps => ({
-                      value: tracker.name,
-                      label: tracker.name,
+              issueManager
+                ? getTrackersByKind(trackers, issueManager.toString()).map(
+                    (tr): FilterSelectOptionProps => ({
+                      value: tr.name,
+                      label: tr.name,
                     })
                   )
                 : []
@@ -212,18 +200,16 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
-            isDisabled={!values.tracker}
+            isDisabled={!tracker}
             toggleAriaLabel="project select dropdown toggle"
             ariaLabel={name}
             value={value}
-            options={
-              projectsByTracker?.map(
-                (project): FilterSelectOptionProps => ({
-                  value: project.name,
-                  label: project.name,
-                })
-              ) || []
-            }
+            options={projectsByTracker.map(
+              (p): FilterSelectOptionProps => ({
+                value: p.name,
+                label: p.name,
+              })
+            )}
             onSelect={(selection) => {
               setValue("kind", "");
               onChange(selection ?? "");
@@ -243,43 +229,46 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.issueType").toLowerCase(),
             })}
-            isDisabled={!values.project}
+            isDisabled={!project}
             toggleAriaLabel="issue-type select dropdown toggle"
             ariaLabel={name}
             value={value}
-            options={
-              typesByProject?.map(
-                (issueType): FilterSelectOptionProps => ({
-                  value: issueType.name,
-                  label: issueType.name,
-                })
-              ) || []
-            }
+            options={typesByProject.map(
+              (issueType): FilterSelectOptionProps => ({
+                value: issueType.name,
+                label: issueType.name,
+              })
+            )}
             onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />
-      <ActionGroup>
-        <Button
-          type="submit"
-          aria-label="submit"
-          id="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-        >
-          {t("actions.export")}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>
-      </ActionGroup>
+      <FormStateSubscribe
+        control={control}
+        render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+          <ActionGroup>
+            <Button
+              type="submit"
+              aria-label="submit"
+              id="submit"
+              variant={ButtonVariant.primary}
+              isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+            >
+              {t("actions.export")}
+            </Button>
+            <Button
+              type="button"
+              id="cancel"
+              aria-label="cancel"
+              variant={ButtonVariant.link}
+              isDisabled={isSubmitting || isValidating}
+              onClick={onClose}
+            >
+              {t("actions.cancel")}
+            </Button>
+          </ActionGroup>
+        )}
+      />
     </Form>
   );
 };
