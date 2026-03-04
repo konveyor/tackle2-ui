@@ -87,6 +87,8 @@ if (Cypress.env("TRACE_COMMANDS")) {
   Cypress.on("command:end", (cmd) => {
     const entry = cmdStack.pop();
     if (!entry) return;
+    // Skip task commands to prevent recursive tracing (cy.task fires command:end)
+    if (entry.name === "task") return;
     const duration = Math.round(performance.now() - entry.start);
     const label = entry.args ? `${entry.name}(${entry.args})` : entry.name;
     // Only log commands that took > 50ms to reduce noise

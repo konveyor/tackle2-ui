@@ -241,6 +241,11 @@ describe(["@ci"], "UI Sanity Tests", () => {
         const id = getApplicationID(currentUrl);
         cy.log(`Current URL: ${currentUrl}`);
         cy.log(`Extracted ID: ${id}`);
+        if (id == null || id <= 0) {
+          throw new Error(
+            `Failed to extract a valid application ID from URL: ${currentUrl}`
+          );
+        }
         seedAnalysisData(id);
       });
       application.verifyEffort(

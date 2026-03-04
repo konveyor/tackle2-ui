@@ -185,9 +185,11 @@ export class Archetype {
     if (cancel) {
       cancelForm();
     } else {
+      let hasChanges = false;
       if (updatedValues.name && updatedValues.name != this.name) {
         this.fillName(updatedValues.name);
         this.name = updatedValues.name;
+        hasChanges = true;
       }
       if (
         updatedValues.description &&
@@ -195,6 +197,7 @@ export class Archetype {
       ) {
         this.fillDescription(updatedValues.description);
         this.description = updatedValues.description;
+        hasChanges = true;
       }
       if (
         updatedValues.criteriaTags &&
@@ -202,6 +205,7 @@ export class Archetype {
       ) {
         this.selectCriteriaTags(updatedValues.criteriaTags);
         this.criteriaTags = updatedValues.criteriaTags;
+        hasChanges = true;
       }
       if (
         updatedValues.archetypeTags &&
@@ -209,6 +213,7 @@ export class Archetype {
       ) {
         this.selectArchetypeTags(updatedValues.archetypeTags);
         this.archetypeTags = updatedValues.archetypeTags;
+        hasChanges = true;
       }
       if (
         updatedValues.stakeholders &&
@@ -216,6 +221,7 @@ export class Archetype {
       ) {
         this.selectStakeholders(updatedValues.stakeholders);
         this.stakeholders = updatedValues.stakeholders;
+        hasChanges = true;
       }
       if (
         updatedValues.stakeholderGroups &&
@@ -223,12 +229,14 @@ export class Archetype {
       ) {
         this.selectStakeholderGroups(updatedValues.stakeholderGroups);
         this.stakeholderGroups = updatedValues.stakeholderGroups;
+        hasChanges = true;
       }
       if (updatedValues.comments && updatedValues.comments != this.comments) {
         this.fillComment(updatedValues.comments);
         this.comments = updatedValues.comments;
+        hasChanges = true;
       }
-      if (updatedValues) {
+      if (hasChanges) {
         cy.intercept("PUT", "/hub/archetypes/*").as("putArchetype");
         submitForm();
         cy.wait("@putArchetype");

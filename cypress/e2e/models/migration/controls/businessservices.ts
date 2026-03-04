@@ -65,45 +65,6 @@ export class BusinessServices {
   /** Create a business service via the API (no UI interaction). */
   static createViaApi(
     name: string,
-    description?: string
-  ): Cypress.Chainable<BusinessServices> {
-    return cy
-      .request({
-        method: "POST",
-        url: "/hub/businessservices",
-        body: { name, description: description || "" },
-      })
-      .then(
-        (res) =>
-          new BusinessServices(
-            res.body.name,
-            res.body.description,
-            undefined,
-            res.body.id
-          )
-      );
-  }
-
-  /** Delete a business service via the API (no UI interaction). */
-  deleteViaApi(): void {
-    if (this.id) {
-      cy.request({ method: "DELETE", url: `/hub/businessservices/${this.id}` });
-    }
-  }
-
-  /** Delete all business services via the API. */
-  static deleteAllViaApi(): void {
-    cy.request("GET", "/hub/businessservices").then((res) => {
-      const items = Array.isArray(res.body) ? res.body : [];
-      items.forEach((bs: { id: number }) => {
-        cy.request({ method: "DELETE", url: `/hub/businessservices/${bs.id}` });
-      });
-    });
-  }
-
-  /** Create a business service via the API (no UI interaction). */
-  static createViaApi(
-    name: string,
     description?: string,
     headers?: Record<string, string>
   ): Cypress.Chainable<BusinessServices> {
@@ -260,9 +221,11 @@ export class BusinessServices {
     if (cancel) {
       cancelForm();
     } else {
+      let hasChanges = false;
       if (updateValues.name && updateValues.name != this.name) {
         this.fillName(updateValues.name);
         this.name = updateValues.name;
+        hasChanges = true;
       }
       if (
         updateValues.description &&
@@ -270,12 +233,14 @@ export class BusinessServices {
       ) {
         this.fillDescription(updateValues.description);
         this.description = updateValues.description;
+        hasChanges = true;
       }
       if (updateValues.owner && updateValues.owner != this.owner) {
         this.selectOwner(updateValues.owner);
         this.owner = updateValues.owner;
+        hasChanges = true;
       }
-      if (updateValues) {
+      if (hasChanges) {
         cy.intercept("PUT", "/hub/businessservices/*").as("putBusinessService");
         submitForm();
         cy.wait("@putBusinessService");

@@ -328,14 +328,22 @@ export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
             user: Cypress.env("user"),
             password: Cypress.env("pass"),
           },
+          failOnStatusCode: false,
         })
-        .then(
-          (res) =>
-            ({ Authorization: `Bearer ${res.body.token}` }) as Record<
-              string,
-              string
-            >
-        );
+        .then((res) => {
+          if (res.status !== 200 && res.status !== 201) {
+            throw new Error(
+              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
+            );
+          }
+          const token = res.body?.token;
+          if (!token) {
+            throw new Error(
+              `Auth login response missing token: ${JSON.stringify(res.body)}`
+            );
+          }
+          return { Authorization: `Bearer ${token}` } as Record<string, string>;
+        });
     }
     return cy.wrap({} as Record<string, string>);
   });
