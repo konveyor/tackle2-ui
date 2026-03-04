@@ -49,25 +49,47 @@ export class Jobfunctions {
   }
 
   /** Create a job function via the API (no UI interaction). */
-  static createViaApi(name: string): Cypress.Chainable<Jobfunctions> {
+  static createViaApi(
+    name: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Jobfunctions> {
     return cy
-      .request({ method: "POST", url: "/hub/jobfunctions", body: { name } })
+      .request({
+        method: "POST",
+        url: "/hub/jobfunctions",
+        body: { name },
+        ...(headers && { headers }),
+      })
       .then((res) => new Jobfunctions(res.body.name, res.body.id));
   }
 
   /** Delete a job function via the API (no UI interaction). */
-  deleteViaApi(): void {
+  deleteViaApi(headers?: Record<string, string>): void {
     if (this.id) {
-      cy.request({ method: "DELETE", url: `/hub/jobfunctions/${this.id}` });
+      cy.request({
+        method: "DELETE",
+        url: `/hub/jobfunctions/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
     }
   }
 
   /** Delete all job functions via the API. */
-  static deleteAllViaApi(): void {
-    cy.request("GET", "/hub/jobfunctions").then((res) => {
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/jobfunctions",
+      ...(headers && { headers }),
+    }).then((res) => {
       const items = Array.isArray(res.body) ? res.body : [];
       items.forEach((jf: { id: number }) => {
-        cy.request({ method: "DELETE", url: `/hub/jobfunctions/${jf.id}` });
+        cy.request({
+          method: "DELETE",
+          url: `/hub/jobfunctions/${jf.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
       });
     });
   }

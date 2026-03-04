@@ -18,6 +18,7 @@ limitations under the License.
 import * as data from "../../../../../utils/data_utils";
 import {
   clickOnSortButton,
+  getAuthHeaders,
   getTableColumnData,
   login,
   verifySortAsc,
@@ -32,12 +33,14 @@ describe(["@tier3"], "Job function sorting", function () {
   before("Login and Create Test Data", function () {
     login();
 
-    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
-      jobFunctionsList.push(jf)
-    );
-    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
-      jobFunctionsList.push(jf)
-    );
+    getAuthHeaders().then((headers) => {
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+    });
   });
 
   it("Name sort validations", function () {
@@ -53,6 +56,8 @@ describe(["@tier3"], "Job function sorting", function () {
   });
 
   after("Perform test data clean up", function () {
-    jobFunctionsList.forEach((jf) => jf.deleteViaApi());
+    getAuthHeaders().then((headers) => {
+      jobFunctionsList.forEach((jf) => jf.deleteViaApi(headers));
+    });
   });
 });

@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
+  getAuthHeaders,
   itemsPerPageValidation,
   login,
   selectItemsPerPage,
@@ -28,9 +29,11 @@ describe(["@tier3"], "Job functions pagination validations", function () {
   before("Login and Create Test Data", function () {
     login();
 
-    for (let i = 0; i < 11; i++) {
-      Jobfunctions.createViaApi(data.getFullName());
-    }
+    getAuthHeaders().then((headers) => {
+      for (let i = 0; i < 11; i++) {
+        Jobfunctions.createViaApi(data.getFullName(), headers);
+      }
+    });
   });
 
   it("Navigation button validations", function () {
@@ -46,6 +49,8 @@ describe(["@tier3"], "Job functions pagination validations", function () {
   });
 
   after("Perform test data clean up", function () {
-    Jobfunctions.deleteAllViaApi();
+    getAuthHeaders().then((headers) => {
+      Jobfunctions.deleteAllViaApi(headers);
+    });
   });
 });

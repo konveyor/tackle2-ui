@@ -20,6 +20,7 @@ import {
   applySearchFilter,
   clickByText,
   exists,
+  getAuthHeaders,
   login,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
@@ -32,12 +33,14 @@ describe(["@tier2"], "Job function filter validations", function () {
   before("Login and Create Test Data", function () {
     login();
 
-    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
-      jobFunctionsList.push(jf)
-    );
-    Jobfunctions.createViaApi(data.getFullName()).then((jf) =>
-      jobFunctionsList.push(jf)
-    );
+    getAuthHeaders().then((headers) => {
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+    });
   });
 
   it("Name filter validations", function () {
@@ -60,6 +63,8 @@ describe(["@tier2"], "Job function filter validations", function () {
   });
 
   after("Perform test data clean up", function () {
-    jobFunctionsList.forEach((jf) => jf.deleteViaApi());
+    getAuthHeaders().then((headers) => {
+      jobFunctionsList.forEach((jf) => jf.deleteViaApi(headers));
+    });
   });
 });

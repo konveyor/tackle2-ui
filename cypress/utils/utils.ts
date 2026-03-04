@@ -309,6 +309,38 @@ export function logout(userName?: string): void {
   cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
 }
 
+/**
+ * Return authorization headers for direct API calls (`cy.request`).
+ *
+ * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
+ * and returns `{ Authorization: "Bearer <token>" }`.
+ * Otherwise returns an empty object so callers can always spread/pass headers
+ * without branching.
+ */
+export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
+  return cy.uiEnvironmentConfig().then((env) => {
+    if (env["AUTH_REQUIRED"] === "true") {
+      return cy
+        .request({
+          method: "POST",
+          url: "/hub/auth/login",
+          body: {
+            user: Cypress.env("user"),
+            password: Cypress.env("pass"),
+          },
+        })
+        .then(
+          (res) =>
+            ({ Authorization: `Bearer ${res.body.token}` }) as Record<
+              string,
+              string
+            >
+        );
+    }
+    return cy.wrap({} as Record<string, string>);
+  });
+}
+
 export function resetURL(): void {
   Application.open(true);
 }
@@ -2222,8 +2254,8 @@ export function seedAnalysisData(applicationId: number): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
@@ -2268,8 +2300,8 @@ export function seedIssuesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2306,8 +2338,8 @@ export function cleanupIssuesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2331,8 +2363,8 @@ export function seedInsightsData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2369,8 +2401,8 @@ export function cleanupInsightsData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2394,8 +2426,8 @@ export function seedDependenciesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2432,8 +2464,8 @@ export function cleanupDependenciesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,

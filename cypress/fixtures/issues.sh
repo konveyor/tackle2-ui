@@ -16,7 +16,9 @@ if [[ ! "$host" =~ ^https?:// ]]; then
   host="https://${host}"
 fi
 
-auth_response=$(curl -kSs -w "\n%{http_code}" -d "{\"user\":\"${USERNAME}\",\"password\":\"${PASSWORD}\"}" \
+auth_response=$(curl -kSs -w "\n%{http_code}" \
+  -H "Content-Type: application/json" \
+  -d "{\"user\":\"${HUB_USER}\",\"password\":\"${HUB_PASSWORD}\"}" \
   "${host}/auth/login")
 
 http_code=$(echo "$auth_response" | tail -n1)
@@ -42,7 +44,7 @@ if [[ -z "$TOKEN" ]]; then
   if [[ "$test_code" == "401" || "$test_code" == "403" ]]; then
     echo "ERROR: Authentication required but token is empty" >&2
     echo "The server requires authentication but returned an empty token." >&2
-    echo "Please check your credentials (USERNAME, PASSWORD) or server configuration." >&2
+    echo "Please check your credentials (HUB_USER, HUB_PASSWORD) or server configuration." >&2
     exit 1
   fi
 fi

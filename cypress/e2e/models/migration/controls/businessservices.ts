@@ -60,6 +60,61 @@ export class BusinessServices {
     if (owner) this.owner = owner;
   }
 
+  /** Create a business service via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    description?: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<BusinessServices> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/businessservices",
+        body: { name, description: description || "" },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new BusinessServices(
+            res.body.name,
+            res.body.description,
+            undefined,
+            res.body.id
+          )
+      );
+  }
+
+  /** Delete a business service via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/businessservices/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all business services via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/businessservices",
+      ...(headers && { headers }),
+    }).then((res) => {
+      const items = Array.isArray(res.body) ? res.body : [];
+      items.forEach((bs: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/businessservices/${bs.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
   public static openList(itemsPerPage = 100): void {
     cy.url().then(($url) => {
       if ($url != BusinessServices.fullUrl) {
