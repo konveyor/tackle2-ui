@@ -157,10 +157,14 @@ export class Archetype {
 
   delete(cancel = false): void {
     Archetype.open();
+    cy.intercept("DELETE", "/hub/archetypes/*").as("deleteArchetype");
     clickKebabMenuOptionArchetype(this.name, "Delete");
     if (cancel) {
       cancelForm();
-    } else click(commonView.confirmButton);
+    } else {
+      click(commonView.confirmButton);
+      cy.wait("@deleteArchetype");
+    }
   }
 
   edit(
@@ -225,7 +229,9 @@ export class Archetype {
         this.comments = updatedValues.comments;
       }
       if (updatedValues) {
+        cy.intercept("PUT", "/hub/archetypes/*").as("putArchetype");
         submitForm();
+        cy.wait("@putArchetype");
       }
     }
   }

@@ -227,7 +227,7 @@ export function clickJs(
 
 export function submitForm(): void {
   cy.get(submitButton, { timeout: 10 * SEC }).should("not.be.disabled");
-  clickJs(submitButton);
+  cy.get(submitButton).click();
 }
 
 export function cancelForm(): void {
@@ -425,9 +425,10 @@ export function sidedrawerTab(name: string, tab: string): void {
 export function checkSuccessAlert(
   fieldId: string,
   message: string,
-  close = false
+  close = false,
+  timeoutMs?: number
 ): void {
-  validateTextPresence(fieldId, message);
+  validateTextPresence(fieldId, message, true, timeoutMs);
   if (close) {
     closeSuccessAlert();
   }
@@ -447,12 +448,13 @@ export function checkErrorMessage(
 export function validateTextPresence(
   fieldId: string,
   message: string,
-  shouldBeFound = true
+  shouldBeFound = true,
+  timeoutMs = 150 * SEC
 ): void {
   if (shouldBeFound) {
-    cy.get(fieldId, { timeout: 150 * SEC }).should("contain.text", message);
+    cy.get(fieldId, { timeout: timeoutMs }).should("contain.text", message);
   } else {
-    cy.get(fieldId, { timeout: 150 * SEC }).should("not.contain.text", message);
+    cy.get(fieldId, { timeout: timeoutMs }).should("not.contain.text", message);
   }
 }
 
@@ -483,25 +485,56 @@ export function removeMember(memberName: string): void {
 }
 
 export function exists(value: string, tableSelector = appTable): void {
-  // Wait for DOM to render table and sibling elements
-  cy.get(tableSelector).then(($tbody) => {
-    if ($tbody.text() !== "No data available") {
-      selectItemsPerPage(100);
-      cy.get(tableSelector).should("contain", value);
+  // After a mutation the UI query hooks use a 5s polling interval
+  // (DEFAULT_REFETCH_INTERVAL) and an isFetching/isLoading aliasing bug
+  // means background refetches never flip the loading flag — the table
+  // keeps showing stale cached data until the next poll tick.
+  // If the table is visible but doesn't yet contain the expected value,
+  // navigate away and back to force a component remount and immediate
+  // fresh data fetch from the server (~300ms vs 5s poll wait).
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if (
+      $table.length &&
+      !$table.text().includes(value) &&
+      !/No \w.* available/.test($table.text())
+    ) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
     }
+  });
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    expect($table.length, `${tableSelector} to exist`).to.be.greaterThan(0);
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) {
+      throw new Error(`Table shows empty state: "${text}"`);
+    }
+    expect(text).to.include(value);
   });
 }
 
 export function notExists(value: string, tableSelector = appTable): void {
-  // After deletion the table may re-render without the row OR vanish
-  // entirely (replaced by an empty-state component).  A retryable
-  // .should() callback handles both: Cypress retries until the value
-  // is gone or the table disappears, whichever comes first.
+  // Same stale-data workaround as exists() above — if the table still
+  // contains the deleted value, navigate away and back to force a fresh
+  // data fetch instead of waiting up to 5s for the polling interval.
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if ($table.length && $table.text().includes(value)) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
+    }
+  });
   cy.get("body").should(($body) => {
     const $table = $body.find(tableSelector);
-    if ($table.length && !$table.text().includes("No data available")) {
-      expect($table.text()).to.not.include(value);
-    }
+    if (!$table.length) return;
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) return;
+    expect(text).to.not.include(value);
   });
 }
 
