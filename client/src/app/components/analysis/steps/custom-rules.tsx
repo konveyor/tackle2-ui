@@ -206,11 +206,11 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
       value: "git",
-      toString: () => `Git`,
+      label: `Git`,
     },
     {
       value: "svn",
-      toString: () => `Subversion`,
+      label: `Subversion`,
     },
   ];
 
@@ -469,7 +469,6 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
                     const selectionValue = selection as OptionWithValue<string>;
                     onChange(selectionValue.value);
                   }}
-                  onClear={() => onChange("")}
                 />
               )}
             />
