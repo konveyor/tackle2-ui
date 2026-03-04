@@ -1,10 +1,16 @@
-import * as React from "react";
+import { FC, useRef, useState } from "react";
+import { t } from "i18next";
+import { toggle as toggleArray } from "radash";
+import { useTranslation } from "react-i18next";
 import {
   Button,
+  ButtonVariant,
   Chip,
   ChipGroup,
+  KeyTypes,
   MenuToggle,
   MenuToggleElement,
+  MenuToggleProps,
   Select,
   SelectList,
   SelectOption,
@@ -12,108 +18,152 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
+  Tooltip,
 } from "@patternfly/react-core";
-import { TimesIcon } from "@patternfly/react-icons";
+import { TimesCircleIcon } from "@patternfly/react-icons";
 
-export interface ISimpleSelectBasicProps {
-  onChange: (selection: string | string[]) => void;
-  options: SelectOptionProps[];
-  value?: string;
-  placeholderText?: string;
-  id?: string;
-  toggleId?: string;
-  toggleAriaLabel?: string;
-  selectMultiple?: boolean;
-  width?: number;
-  noResultsFoundText?: string;
-  hideClearButton?: boolean;
-}
+export type SelectTypeaheadOptionProps = {
+  /** Human readable value.
+   * 1. used as option content (may be overridden by optionProps.children)
+   * 2. if not present the value prop is used instead.
+   * 3. used for filtering the list of available options. If optionProps.children is used then its content should logically match the label prop.
+   * 4. should be unique within the list of options (to avoid user confusion)
+   */
+  label?: string;
+  // pass through props
+  optionProps?: SelectOptionProps;
+  // identity prop used to tract selection - should be unique within the list.
+  value: string;
+};
 
-export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
-  onChange,
+const createItemId = (value: unknown) =>
+  `select-typeahead-${String(value)?.replace(" ", "-")}`;
+
+type SimpleSelectTypeaheadProps = {
+  dataTestId?: string;
+  getToggleStatus?: (value: string) => MenuToggleProps["status"];
+  isDisabled?: boolean;
+  isFullWidth?: boolean;
+  options: SelectTypeaheadOptionProps[];
+  placeholder?: string;
+  selectedValues: string[];
+  setSelectedValues: (value: string[]) => void;
+};
+
+const skipWordSeparators = (word: string) => word.replaceAll(/[\s-_:]/g, "");
+
+const getDisplayValue = (option: SelectTypeaheadOptionProps) => {
+  if (!option) {
+    return "";
+  }
+  const { label, value } = option;
+
+  if (!label) {
+    return value;
+  }
+
+  // label and value are (almost) the same
+  if (
+    skipWordSeparators(label).toLowerCase() ===
+    skipWordSeparators(value).toLowerCase()
+  ) {
+    return label;
+  }
+
+  // show both human readable and machine readable values as
+  // "label (value)"
+  return t("composed.labelAndValue", { label, value });
+};
+
+export const SimpleSelectTypeahead: FC<SimpleSelectTypeaheadProps> = ({
+  dataTestId,
+  getToggleStatus,
+  isDisabled,
+  isFullWidth = false,
   options,
-  value,
-  placeholderText = "Select...",
-  id,
-  toggleId,
-  toggleAriaLabel,
-  selectMultiple = false,
-  width,
-  noResultsFoundText,
-  hideClearButton = false,
+  placeholder,
+  selectedValues,
+  setSelectedValues,
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [selected, setSelected] = React.useState<string | string[]>(
-    selectMultiple ? [] : ""
-  );
-  const [inputValue, setInputValue] = React.useState<string>(value || "");
-  const [filterValue, setFilterValue] = React.useState<string>("");
-  const [selectOptions, setSelectOptions] =
-    React.useState<SelectOptionProps[]>(options);
-  const [focusedItemIndex, setFocusedItemIndex] = React.useState<number | null>(
-    null
-  );
-  const [activeItem, setActiveItem] = React.useState<string | null>(null);
-  const textInputRef = React.useRef<HTMLInputElement>();
-  React.useEffect(() => {
-    let newSelectOptions: SelectOptionProps[] = options;
+  const { t } = useTranslation();
+  const [randomIdSuffix] = useState(crypto.randomUUID());
 
-    // Filter menu items based on the text input value when one exists
-    if (filterValue) {
-      newSelectOptions = options.filter((menuItem) =>
-        String(menuItem.value).toLowerCase().includes(filterValue.toLowerCase())
-      );
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState<string>("");
 
-      // When no options are found after filtering, display 'No results found'
-      if (!newSelectOptions.length) {
-        newSelectOptions = [
-          {
-            isDisabled: true,
-            children:
-              noResultsFoundText || `No results found for "${filterValue}"`,
-            value: "no results",
-          },
-        ];
-      }
+  const [focusedItemIndex, setFocusedItemIndex] = useState<null | number>(null);
+  const [activeItemId, setActiveItemId] = useState<null | string>(null);
+  const textInputRef = useRef<HTMLInputElement>();
 
-      // Open the menu when the input value changes and the new value is not empty
-      if (!isOpen) {
-        setIsOpen(true);
-      }
-    }
+  const filteredOptions: SelectTypeaheadOptionProps[] = options
+    ?.filter((opt) =>
+      getDisplayValue(opt).toLowerCase().includes(inputValue.toLowerCase())
+    )
+    .map((opt) => ({
+      ...opt,
+      label: getDisplayValue(opt),
+    }));
 
-    setSelectOptions(newSelectOptions);
-    setActiveItem(null);
+  const notAvailableOption: SelectTypeaheadOptionProps | false =
+    options.length === 0 &&
+      !inputValue && {
+        label: t("message.noDataAvailableTitle"),
+        optionProps: { isDisabled: true },
+        value: "no data available",
+      };
+
+  const notFoundOption: SelectTypeaheadOptionProps | false =
+    filteredOptions.length === 0 &&
+      !!inputValue && {
+        label: t("message.noResultsFoundFor", { value: inputValue }),
+        optionProps: { isDisabled: true },
+        value: "no results found",
+      };
+
+  const selectOptions: SelectTypeaheadOptionProps[] = [
+    notAvailableOption,
+    notFoundOption,
+    ...filteredOptions,
+  ].filter(Boolean);
+
+  const setActiveAndFocusedItem = (itemIndex: number) => {
+    setFocusedItemIndex(itemIndex);
+    const focusedItem = selectOptions[itemIndex];
+    setActiveItemId(createItemId(focusedItem.value));
+  };
+
+  const resetActiveAndFocusedItem = () => {
     setFocusedItemIndex(null);
-  }, [filterValue, options, isOpen, noResultsFoundText]);
+    setActiveItemId(null);
+  };
 
-  const onToggleClick = () => {
-    setIsOpen(!isOpen);
+  const openMenu = () => {
+    if (!isOpen) {
+      setIsOpen(true);
+    }
+  };
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    resetActiveAndFocusedItem();
+  };
+
+  const selectOption = (option: SelectTypeaheadOptionProps) => {
+    closeMenu();
+    setInputValue("");
+    setSelectedValues(toggleArray(selectedValues, option.value));
   };
 
   const onSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined
+    value: number | string | undefined
   ) => {
-    value = value as string;
-    if (value && value !== "no results") {
-      if (selectMultiple) {
-        const selections = Array.isArray(selected) ? selected : [selected];
-        const newSelections = selections.includes(value)
-          ? selections.filter((sel) => sel !== value)
-          : [...selections, value];
-        setSelected(newSelections);
-        onChange(newSelections);
-      } else {
-        onChange(value);
-        setInputValue(value);
-        setFilterValue("");
-        setSelected(value);
-      }
+    if (!value) return;
+
+    const option = options.find((option) => option.value === value);
+    if (option) {
+      selectOption(option);
     }
-    setIsOpen(false);
-    setFocusedItemIndex(null);
-    setActiveItem(null);
   };
 
   const onTextInputChange = (
@@ -121,61 +171,76 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     value: string
   ) => {
     setInputValue(value);
-    setFilterValue(value);
+
+    if (value) {
+      openMenu();
+    }
+
+    resetActiveAndFocusedItem();
   };
 
-  const handleMenuArrowKeys = (key: string, oldIndex?: number) => {
-    if (isOpen && selectOptions.some((o) => !o.isDisabled)) {
-      const currentIndex = oldIndex || focusedItemIndex;
-      const indexToFocus =
-        key === "ArrowUp"
-          ? currentIndex === null || currentIndex === 0
-            ? selectOptions.length - 1
-            : currentIndex - 1
-          : currentIndex === null || currentIndex === selectOptions.length - 1
-            ? 0
-            : currentIndex + 1;
+  const handleMenuArrowKeys = (key: string) => {
+    let indexToFocus = 0;
 
-      setFocusedItemIndex(indexToFocus);
-      const focusedItem = selectOptions[indexToFocus];
-      if (focusedItem.isDisabled) {
-        handleMenuArrowKeys(key, indexToFocus);
+    openMenu();
+
+    if (selectOptions.every((option) => option.optionProps?.isDisabled)) {
+      return;
+    }
+
+    if (key === KeyTypes.ArrowUp) {
+      // When no index is set or at the first index, focus to the last, otherwise decrement focus index
+      if (focusedItemIndex === null || focusedItemIndex === 0) {
+        indexToFocus = selectOptions.length - 1;
       } else {
-        setActiveItem(
-          `select-typeahead-${focusedItem.value.replace(" ", "-")}`
-        );
+        indexToFocus = focusedItemIndex - 1;
+      }
+
+      // Skip disabled options
+      while (selectOptions[indexToFocus]?.optionProps?.isDisabled) {
+        indexToFocus--;
+        if (indexToFocus === -1) {
+          indexToFocus = selectOptions.length - 1;
+        }
       }
     }
+
+    if (key === KeyTypes.ArrowDown) {
+      // When no index is set or at the last index, focus to the first, otherwise increment focus index
+      if (
+        focusedItemIndex === null ||
+        focusedItemIndex === selectOptions.length - 1
+      ) {
+        indexToFocus = 0;
+      } else {
+        indexToFocus = focusedItemIndex + 1;
+      }
+
+      // Skip disabled options
+      while (selectOptions[indexToFocus]?.optionProps?.isDisabled) {
+        indexToFocus++;
+        if (indexToFocus === selectOptions.length) {
+          indexToFocus = 0;
+        }
+      }
+    }
+
+    setActiveAndFocusedItem(indexToFocus);
   };
 
   const onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const enabledMenuItems = selectOptions.filter(
-      (option) => !option.isDisabled
-    );
-    const [firstMenuItem] = enabledMenuItems;
-    const focusedItem = focusedItemIndex
-      ? enabledMenuItems[focusedItemIndex]
-      : firstMenuItem;
-
-    if (!focusedItem) return;
+    const focusedItem =
+      focusedItemIndex !== null ? selectOptions[focusedItemIndex] : null;
 
     switch (event.key) {
-      // Select the first available option
       case "Enter":
-        if (isOpen && focusedItem.value !== "no results") {
-          const value = String(focusedItem.value);
-          onSelect(undefined, value);
-        } else {
-          setIsOpen((prevIsOpen) => !prevIsOpen);
-          setFocusedItemIndex(null);
-          setActiveItem(null);
+        event.preventDefault();
+        if (isOpen && focusedItem && !focusedItem.optionProps?.isAriaDisabled) {
+          onSelect(undefined, focusedItem.value);
         }
-        break;
-      case "Tab":
-      case "Escape":
-        event.stopPropagation();
-        setIsOpen(false);
-        setActiveItem(null);
+
+        openMenu();
+
         break;
       case "ArrowUp":
       case "ArrowDown":
@@ -185,123 +250,109 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     }
   };
 
+  const onToggleClick = () => {
+    setIsOpen((isOpen) => !isOpen);
+    textInputRef?.current?.focus();
+  };
+
+  const onTextInputClick = openMenu;
+
+  const onClearButtonClick = () => {
+    setSelectedValues([]);
+    setInputValue("");
+    resetActiveAndFocusedItem();
+    textInputRef?.current?.focus();
+  };
+
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
-      aria-label={toggleAriaLabel}
-      id={toggleId}
-      ref={toggleRef}
-      variant="typeahead"
-      onClick={onToggleClick}
+      aria-label="Typeahead menu toggle"
+      isDisabled={isDisabled}
       isExpanded={isOpen}
-      isFullWidth={!width}
-      style={{ width: width && width + "px" }}
+      isFullWidth={isFullWidth}
+      onClick={onToggleClick}
+      ref={toggleRef}
+      status={getToggleStatus?.(inputValue)}
+      variant="typeahead"
     >
       <TextInputGroup isPlain>
         <TextInputGroupMain
-          value={inputValue}
-          onClick={onToggleClick}
-          onChange={onTextInputChange}
-          onKeyDown={onInputKeyDown}
-          onBlur={() => {
-            if (selectMultiple) {
-              setInputValue("");
-            } else {
-              setInputValue(selected.toString());
-            }
-          }}
-          id="typeahead-select-input"
           autoComplete="off"
           innerRef={textInputRef}
-          placeholder={placeholderText}
-          {...(activeItem && { "aria-activedescendant": activeItem })}
-          role="combobox"
+          onChange={onTextInputChange}
+          onClick={onTextInputClick}
+          onKeyDown={onInputKeyDown}
+          placeholder={placeholder}
+          value={inputValue}
+          {...(activeItemId && { "aria-activedescendant": activeItemId })}
+          aria-controls={`select-typeahead-listbox-${randomIdSuffix}`}
           isExpanded={isOpen}
-          aria-controls="select-typeahead-listbox"
+          role="combobox"
         >
-          {selectMultiple && (
-            <ChipGroup aria-label="Current selections">
-              {(Array.isArray(selected) ? selected : [selected]).map(
-                (sel, index) => (
-                  <Chip
-                    key={index}
-                    onClick={(ev) => {
-                      ev.stopPropagation();
-                      onSelect(undefined, sel);
-                    }}
-                  >
-                    {sel}
-                  </Chip>
-                )
-              )}
-            </ChipGroup>
-          )}
+          <ChipGroup aria-label="Current selections">
+            {selectedValues.map((sel) => (
+              <Chip
+                key={sel}
+                onClick={(ev) => {
+                  ev.stopPropagation();
+                  setSelectedValues(toggleArray(selectedValues, sel));
+                }}
+              >
+                {sel}
+              </Chip>
+            ))}
+          </ChipGroup>
         </TextInputGroupMain>
-        <TextInputGroupUtilities>
-          {selectMultiple && selected.length > 0 && (
-            <Button
-              variant="plain"
-              onClick={() => {
-                setInputValue("");
-                setSelected([]);
-                onChange([]);
-                textInputRef?.current?.focus();
-              }}
-              aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
-          )}
-          {!hideClearButton && !selectMultiple && !!inputValue && (
-            <Button
-              variant="plain"
-              onClick={() => {
-                setSelected("");
-                setInputValue("");
-                setFilterValue("");
-                onChange("");
-                textInputRef?.current?.focus();
-              }}
-              aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
-          )}
-        </TextInputGroupUtilities>
+        {selectedValues.length > 0 && (
+          <TextInputGroupUtilities>
+            <Tooltip content={t("actions.clearAllSelections")}>
+              <Button
+                aria-label={t("actions.clearAllSelections")}
+                icon={<TimesCircleIcon />}
+                onClick={onClearButtonClick}
+                variant={ButtonVariant.plain}
+              />
+            </Tooltip>
+          </TextInputGroupUtilities>
+        )}
       </TextInputGroup>
     </MenuToggle>
   );
+
   return (
-    <>
-      <Select
-        id={id}
-        isOpen={isOpen}
-        selected={selected}
-        onSelect={onSelect}
-        onOpenChange={() => {
-          setFilterValue("");
-          setIsOpen(false);
-        }}
-        toggle={toggle}
-      >
-        <SelectList
-          id="select-typeahead-listbox"
-          isAriaMultiselectable={selectMultiple}
-        >
-          {selectOptions.map((option, index) => (
+    <Select
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          closeMenu();
+        }
+      }}
+      data-test={dataTestId}
+      id={dataTestId}
+      isOpen={isOpen}
+      isScrollable
+      onSelect={onSelect}
+      selected={selectedValues}
+      toggle={toggle}
+      variant="typeahead"
+    >
+      <SelectList id={`select-typeahead-listbox-${randomIdSuffix}`}>
+        {selectOptions?.map(({ label, optionProps, value }, index) => {
+          const { children, ...otherOptionProps } = optionProps ?? {};
+          return (
             <SelectOption
-              key={option.value}
+              {...otherOptionProps}
+              id={createItemId(value)}
               isFocused={focusedItemIndex === index}
-              className={option.className}
-              onClick={() => onSelect(undefined, option.value)}
-              id={`select-typeahead-${option.value.replace(" ", "-")}`}
-              {...option}
-              ref={null}
+              key={value}
+              value={value}
             >
-              {(option.children || option.value) as string}
+              {children ?? label ?? value}
             </SelectOption>
-          ))}
-        </SelectList>
-      </Select>
-    </>
+          );
+        })}
+      </SelectList>
+    </Select>
   );
 };
+
+export default SimpleSelectTypeahead;

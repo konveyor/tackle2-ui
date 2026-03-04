@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Divider,
   DropdownItem,
   FormSelect,
   FormSelectOption,
@@ -16,7 +17,6 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,
@@ -705,7 +705,7 @@ export const ApplicationsTable: FC = () => {
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
-    (index) => <DropdownSeparator key={`breakpoint-${index}`} />,
+    (index) => <Divider key={`breakpoint-${index}`} />,
     [
       [
         importWriteAccess && (

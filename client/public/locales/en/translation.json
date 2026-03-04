@@ -17,6 +17,7 @@
     "cancelTasks": "Cancel tasks",
     "checkDocumentation": "Check documentation",
     "clearAllFilters": "Clear all filters",
+    "clearAllSelections": "Clear all selections",
     "clearRepositoryNotSupported": "This action is disabled when RWX volumes are not available",
     "close": "Close",
     "continue": "Continue",
@@ -108,6 +109,7 @@
     "yellow": "Yellow"
   },
   "composed": {
+    "labelAndValue": "{{label}} ({{value}})",
     "add": "Add {{what}}",
     "new": "New {{what}}",
     "applicationAssessment": "Application assessment",
@@ -275,6 +277,7 @@
     "noDataAvailableTitle": "No data available",
     "noResultsFoundBody": "No results match the filter criteria. Remove all filters or clear all filters to show results.",
     "noResultsFoundTitle": "No results found",
+    "noResultsFoundFor": "No results found for {{value}}",
     "noAnalysisProfileSelected": "No analysis profile selected",
     "analysisProfileInUseWarning_one": "This analysis profile is referenced by archetype {{archetypes}}. Deleting it will remove the reference from this archetype.",
     "analysisProfileInUseWarning_other": "This analysis profile is referenced by {{count}} archetypes: {{archetypes}}. Deleting it will remove the reference from these archetypes.",

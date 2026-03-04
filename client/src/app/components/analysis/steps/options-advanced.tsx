@@ -1,6 +1,5 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
@@ -15,21 +14,16 @@ import {
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core/deprecated";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
 import { TargetLabelSchema } from "@app/api/schemas";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { SimpleSelectTypeahead } from "@app/components/SimpleSelectTypeahead";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useIsArchitect } from "@app/hooks/useIsArchitect";
@@ -149,9 +143,6 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
 
   useFormChangeHandler({ form, onStateChanged });
 
-  const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
-  const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-
   // TODO: Include labels parsed from uploaded manual custom rule files?
   const availableTargetLabels = parseLabels(useTargetLabels());
   const availableSourceLabels = parseLabels(useSourceLabels());
@@ -218,47 +209,36 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         name="additionalTargetLabels"
         fieldId="additional-target-labels"
         renderInput={({
-          field: { onChange, onBlur, value },
+          field: { onChange, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
+          const onNewSelections = (selections: string[]) => {
+            const selectedLabels =
+              selections
+                .map((selection) =>
+                  availableTargetLabels.find(
+                    (label) => label.value === selection
+                  )
+                )
+                .filter(Boolean) ?? [];
+            onChange(selectedLabels.map((label) => label.targetLabel));
+          };
           return (
-            <Select
-              id="additional-target-labels"
-              toggleId="additional-target-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select targets"
-              selections={selections}
-              isOpen={isSelectTargetsOpen}
-              onSelect={(_, selection) => {
-                const selectedLabel = availableTargetLabels.find(
-                  (label) => label.value === selection
-                );
-                if (selectedLabel) {
-                  onChange(
-                    toggle(
-                      value,
-                      selectedLabel.targetLabel,
-                      (label) => label.label
-                    )
-                  );
-                }
-                onBlur();
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onToggle={() => {
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
-            >
-              {availableTargetLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
-            </Select>
+            <SimpleSelectTypeahead
+              options={availableTargetLabels.map(({ value, name }) => ({
+                value: value,
+                label: name,
+              }))}
+              selectedValues={selections}
+              setSelectedValues={onNewSelections}
+              isFullWidth
+              getToggleStatus={() =>
+                getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                  ? "danger"
+                  : undefined
+              }
+            />
           );
         }}
       />
@@ -299,47 +279,38 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         name="additionalSourceLabels"
         fieldId="additional-source-labels"
         renderInput={({
-          field: { onChange, onBlur, value },
+          field: { onChange, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
+          const onNewSelections = (selections: string[]) => {
+            const selectedLabels =
+              selections
+                .map((selection) =>
+                  availableSourceLabels.find(
+                    (label) => label.value === selection
+                  )
+                )
+                .filter(Boolean) ?? [];
+            onChange(selectedLabels.map((label) => label.targetLabel));
+          };
           return (
-            <Select
-              id="additional-source-labels"
-              toggleId="additional-source-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select sources"
-              selections={selections}
-              isOpen={isSelectSourcesOpen}
-              onSelect={(_, selection) => {
-                const selectedLabel = availableSourceLabels.find(
-                  (label) => label.value === selection
-                );
-                if (selectedLabel) {
-                  onChange(
-                    toggle(
-                      value,
-                      selectedLabel.targetLabel,
-                      (label) => label.label
-                    )
-                  );
+            <>
+              <SimpleSelectTypeahead
+                options={availableSourceLabels.map(({ value, name }) => ({
+                  value: value,
+                  label: name,
+                }))}
+                selectedValues={selections}
+                setSelectedValues={onNewSelections}
+                isFullWidth
+                getToggleStatus={() =>
+                  getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                    ? "danger"
+                    : undefined
                 }
-                onBlur();
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onToggle={() => {
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
-            >
-              {availableSourceLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
-            </Select>
+              />
+            </>
           );
         }}
       />
