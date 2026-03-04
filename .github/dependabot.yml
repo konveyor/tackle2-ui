@@ -1,5 +1,6 @@
 version: 2
 updates:
+  # Track Docker image updates
   - package-ecosystem: docker
     directory: /
     schedule:
@@ -17,7 +18,8 @@ updates:
     commit-message:
       prefix: ":ghost: "
 
-  # Root workspace dependencies (shared tooling and build)
+  # All npm workspace dependencies (root, client, server, common, cypress)
+  # Uses a single root entry so dependabot can update the shared package-lock.json
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -28,12 +30,16 @@ updates:
     allow:
       - dependency-type: direct
 
+    ignore:
+      - dependency-name: "@patternfly/*"
+        update-types:
+          - version-update:semver-major
+
     groups:
       "build-tools":
         patterns:
           - "@rollup/*"
           - "rollup*"
-          - "webpack*"
           - "copy*"
           - "rimraf"
           - "concurrently"
@@ -46,7 +52,7 @@ updates:
           - "prettier"
           - "lint-staged"
           - "husky"
-          - "*eslint-plugin-*"
+          - "*eslint-plugin*"
 
       "typescript-tooling":
         patterns:
@@ -54,28 +60,9 @@ updates:
           - "ts-*"
           - "@types/*"
 
-  # Client workspace dependencies (React frontend)
-  - package-ecosystem: "npm"
-    directory: "/client"
-    schedule:
-      interval: "monthly"
-      day: monday
-    commit-message:
-      prefix: ":ghost: "
-    allow:
-      - dependency-type: direct
-
-    # Ignore major version updates for PatternFly packages
-    ignore:
-      - dependency-name: "@patternfly/*"
-        update-types:
-          - version-update:semver-major
-
-    groups:
       "react-ecosystem":
         patterns:
           - "react*"
-          - "@testing-library/*"
           - "@pmmmwh/react-refresh-webpack-plugin"
           - "react-refresh*"
 
@@ -134,41 +121,7 @@ updates:
           - "ts-jest"
           - "@testing-library/*"
 
-  # Server workspace dependencies
-  - package-ecosystem: "npm"
-    directory: "/server"
-    schedule:
-      interval: "monthly"
-      day: monday
-    commit-message:
-      prefix: ":ghost: "
-    allow:
-      - dependency-type: direct
-
-    groups:
       "server-dependencies":
         patterns:
           - "cookie"
           - "http-terminator"
-
-  # Common workspace dependencies
-  - package-ecosystem: "npm"
-    directory: "/common"
-    schedule:
-      interval: "monthly"
-      day: monday
-    commit-message:
-      prefix: ":ghost: "
-    allow:
-      - dependency-type: direct
-
-  # Cypress workspace dependencies
-  - package-ecosystem: "npm"
-    directory: "/cypress"
-    schedule:
-      interval: "monthly"
-      day: monday
-    commit-message:
-      prefix: ":ghost: "
-    allow:
-      - dependency-type: direct
