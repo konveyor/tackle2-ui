@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ReactElement } from "react-markdown/lib/react-markdown";
 import { Icon } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
@@ -39,7 +38,7 @@ export type IconedStatusStatusType =
 
 type IconedStatusPresetType = {
   [key in IconedStatusPreset]: Omit<IIconedStatusProps, "preset"> & {
-    topologyIcon?: ReactElement;
+    topologyIcon?: React.ReactElement;
   };
 };
 
