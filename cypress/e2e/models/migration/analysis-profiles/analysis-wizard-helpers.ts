@@ -207,7 +207,7 @@ export class AnalysisWizardHelpers {
     }
 
     if (customRuleRepository.credentials) {
-      click(CustomMigrationTargetView.credentialsDropdown);
+      click(CustomMigrationTargetView.credentialsInput);
       clickByText(button, customRuleRepository.credentials.name);
     }
   }

@@ -20,11 +20,12 @@ import type {
   Generator,
   TargetProfile,
 } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { useFetchGenerators } from "@app/queries/generators";
 import { refsToItems, toRef, toRefs } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
@@ -47,7 +48,7 @@ interface TargetProfileFormProps {
 
 interface TargetProfileFormPropsInner extends TargetProfileFormProps {
   generators: Generator[];
-  analysisProfileOptions: OptionWithValue<AnalysisProfile>[];
+  analysisProfileOptions: FilterSelectOptionProps[];
   findProfileById: (id: number | undefined) => AnalysisProfile | undefined;
 }
 
@@ -220,26 +221,24 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
           label={t("terms.analysisProfile")}
           fieldId="target-profile-analysis-profile"
           renderInput={({ field: { value, onChange } }) => (
-            <SimpleSelect
+            <TypeaheadSelect
               id="analysis-profile-select"
               toggleId="analysis-profile-select-toggle"
-              variant="typeahead"
               placeholderText={t("composed.selectOne", {
                 what: t("terms.analysisProfile").toLowerCase(),
               })}
               toggleAriaLabel="Analysis profile select"
-              aria-label="Select analysis profile"
-              value={
-                value
-                  ? analysisProfileOptions.find((o) => o.value.id === value.id)
-                  : undefined
-              }
+              ariaLabel="Select analysis profile"
+              categoryKey="analysisProfile"
+              value={value ? value.id.toString() : undefined}
               options={analysisProfileOptions}
-              onChange={(selection) => {
-                const selected = selection as OptionWithValue<AnalysisProfile>;
-                onChange(selected?.value ?? null);
-              }}
-              onClear={() => onChange(null)}
+              onSelect={(selectedId) =>
+                onChange(
+                  selectedId
+                    ? (findProfileById(Number(selectedId)) ?? null)
+                    : null
+                )
+              }
             />
           )}
         />

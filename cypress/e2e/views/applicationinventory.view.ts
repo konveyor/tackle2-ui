@@ -27,7 +27,7 @@ export const applicationContributorsInput =
   "#contributors-select-toggle-select-multi-typeahead-typeahead";
 export const applicationContributorsText = ".pf-v5-c-chip__text";
 export const applicationContributorsAction = ".pf-v5-c-chip__actions";
-export const applicationOwnerInput = "#owner-toggle-select-typeahead";
+export const applicationOwnerInput = "#owner-toggle";
 export const modalBoxDialog = "#confirm-dialog";
 export const modalBoxMessage = ".pf-v5-c-modal-box__body";
 export const reviewConfirmationText =

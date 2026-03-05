@@ -17,8 +17,8 @@ export const sourceDropdown = "#analysis-source-toggle";
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";
-export const sourceCredential = "#source-credentials-toggle-select-typeahead";
-export const mavenCredential = "#maven-settings-toggle-select-typeahead";
+export const sourceCredential = "#source-credentials-toggle";
+export const mavenCredential = "#maven-settings-toggle";
 export const nextButton = "button[type=submit]";
 export const addRules =
   "div > footer[class='pf-v5-c-modal-box__footer'] > button";
