@@ -13,6 +13,7 @@ import {
   TagRef,
 } from "@app/api/models";
 import { Color } from "@app/components/Color";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { OptionWithValue } from "@app/components/SimpleSelect";
 
 interface IModel {
@@ -205,17 +206,24 @@ export const toOptionLike = <T,>(
     ? undefined
     : options.find((option) => option.value === value);
 };
+export const findOption = (
+  value: string | undefined | null,
+  options: FilterSelectOptionProps[]
+) => {
+  return options.find((option) => option.value === value);
+};
 
-export const IssueManagerOptions: OptionWithValue<IssueManagerKind>[] = [
-  {
-    value: "jira-cloud",
-    toString: () => "Jira Cloud",
-  },
-  {
-    value: "jira-onprem",
-    toString: () => "Jira Server/Datacenter",
-  },
-];
+const IssueManagerKindToLabel: Record<IssueManagerKind, string> = {
+  "jira-cloud": "Jira Cloud",
+  "jira-onprem": "Jira Server/Datacenter",
+};
+
+export const IssueManagerOptions: FilterSelectOptionProps[] = Object.entries(
+  IssueManagerKindToLabel
+).map(([kind, label]) => ({
+  value: kind,
+  label,
+}));
 
 export const toIdRef = <RefLike extends IdRef>(
   source: RefLike | undefined

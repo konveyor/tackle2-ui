@@ -1,29 +1,25 @@
 import { useCallback, useMemo } from "react";
 
 import { AnalysisProfile } from "@app/api/models";
-import { OptionWithValue } from "@app/components/SimpleSelect";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 
 export interface UseAnalysisProfileOptionsResult {
   analysisProfiles: AnalysisProfile[];
-  analysisProfileOptions: OptionWithValue<AnalysisProfile>[];
+  analysisProfileOptions: FilterSelectOptionProps[];
   isFetching: boolean;
   findProfileById: (id: number | undefined) => AnalysisProfile | undefined;
 }
 
-/**
- * Custom hook to fetch analysis profiles and provide them as select options.
- * Used in the target profile form for attaching an analysis profile.
- */
 export const useAnalysisProfileOptions =
   (): UseAnalysisProfileOptionsResult => {
     const { analysisProfiles, isFetching } = useFetchAnalysisProfiles();
 
-    const analysisProfileOptions = useMemo(
+    const analysisProfileOptions: FilterSelectOptionProps[] = useMemo(
       () =>
         analysisProfiles.map((profile) => ({
-          value: profile,
-          toString: () => profile.name,
+          value: profile.id.toString(),
+          label: profile.name,
         })),
       [analysisProfiles]
     );

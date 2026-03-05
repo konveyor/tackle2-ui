@@ -18,7 +18,7 @@ export const generatorsMenu = "Generators";
 export enum GeneratorView {
   nameInput = "input[id='name']",
   descriptionInput = "input[id='description']",
-  generatorTypeSelect = "input[id='generator-type-toggle-select-typeahead']",
+  generatorTypeSelect = "#generator-type-toggle",
   templateRepositoryToggle = "div[id='template-repository-header']",
   repositoryTypeButton = "button[id='repo-type-toggle']",
   repositoryUrlInput = "input[id='repository.url']",

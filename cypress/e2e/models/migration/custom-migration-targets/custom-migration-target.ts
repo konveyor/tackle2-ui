@@ -225,7 +225,7 @@ export class CustomMigrationTarget {
     }
 
     if (values.credentials) {
-      click(CustomMigrationTargetView.credentialsDropdown);
+      click(CustomMigrationTargetView.credentialsInput);
       clickByText(button, values.credentials.name);
     }
   }

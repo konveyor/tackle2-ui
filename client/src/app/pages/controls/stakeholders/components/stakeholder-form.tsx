@@ -12,6 +12,7 @@ import {
 } from "@patternfly/react-core";
 
 import { New, Ref, Stakeholder } from "@app/api/models";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -210,19 +211,16 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         label={t("terms.jobFunction")}
         fieldId="jobFunction"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeahead"
+          <TypeaheadSelect
+            isScrollable
             id="job-function"
             toggleId="job-function-toggle"
             toggleAriaLabel="Job function select dropdown toggle"
-            aria-label={name}
-            value={value ? toOptionLike(value, jobFunctionOptions) : undefined}
+            ariaLabel={name}
+            value={value}
             options={jobFunctionOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange("")}
+            onSelect={onChange}
+            categoryKey="job-function"
           />
         )}
       />
