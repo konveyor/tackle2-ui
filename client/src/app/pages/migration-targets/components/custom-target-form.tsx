@@ -21,12 +21,16 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
 import { UploadFileSchema } from "@app/api/schemas";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  OptionWithValue,
+  SimpleSelect as DeprecatedSimpleSelect,
+} from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSettingMutation } from "@app/queries/settings";
 import {
@@ -143,7 +147,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     () =>
       providerList.map((provider) => ({
         value: provider,
-        toString: () => provider,
+        label: provider,
       })),
     [providerList]
   );
@@ -156,15 +160,9 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const [imageFilename, setImageFilename] = useState("default.png");
 
-  const repositoryTypeOptions: OptionWithValue<string>[] = [
-    {
-      value: "git",
-      toString: () => `Git`,
-    },
-    {
-      value: "svn",
-      toString: () => `Subversion`,
-    },
+  const repositoryTypeOptions = [
+    { value: "git", label: "Git" },
+    { value: "svn", label: "Subversion" },
   ];
 
   const { identities } = useFetchIdentities();
@@ -445,16 +443,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         fieldId="provider-type-select"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
+            isScrollable
+            isFullWidth
             id="provider-type-select"
             toggleId="provider-type-select-toggle"
             toggleAriaLabel="Provider type select dropdown toggle"
-            aria-label={name}
-            value={value ? toOptionLike(value, providerListOptions) : undefined}
+            ariaLabel={name}
+            value={value ?? undefined}
             options={providerListOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />
@@ -596,17 +593,16 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             isRequired
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
+                isScrollable
+                isFullWidth
                 id="repo-type-select"
                 toggleId="repo-type-select-toggle"
                 toggleAriaLabel="Repository type select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, repositoryTypeOptions) : undefined
-                }
+                ariaLabel={name}
+                value={value ?? undefined}
                 options={repositoryTypeOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
+                onSelect={(selection) => {
+                  onChange(selection);
                   trigger("sourceRepository");
                 }}
               />
@@ -637,7 +633,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             label={t("analysisSteps.labels.associatedCredentials")}
             fieldId="credentials-select"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
+              <DeprecatedSimpleSelect
                 variant="typeahead"
                 id="associated-credentials-select"
                 toggleId="associated-credentials-select-toggle"
