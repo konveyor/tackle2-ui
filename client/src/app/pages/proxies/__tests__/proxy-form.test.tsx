@@ -71,25 +71,23 @@ describe("Component: proxy-form", () => {
       "HTTP proxy credentials"
     );
     fireEvent.click(httpProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
+
+    const selectToggle = await screen.findByRole("button", {
+      name: /Select\.\.\./i,
+    });
+    fireEvent.click(selectToggle);
 
     await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+      () => {
+        const option = screen.getByText("proxy-cred");
+        fireEvent.click(option);
+      },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+
+    expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+    expect(screen.queryByText("maven-cred")).toBeNull();
+    expect(screen.queryByText("source-cred")).toBeNull();
   });
 
   it("Select https proxy identity", async () => {
@@ -100,24 +98,22 @@ describe("Component: proxy-form", () => {
       "HTTPS proxy credentials"
     );
     fireEvent.click(httpsProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
+
+    const selectToggle = await screen.findByRole("button", {
+      name: /Select\.\.\./i,
+    });
+    fireEvent.click(selectToggle);
 
     await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+      () => {
+        const option = screen.getByText("proxy-cred");
+        fireEvent.click(option);
+      },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+
+    expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+    expect(screen.queryByText("maven-cred")).toBeNull();
+    expect(screen.queryByText("source-cred")).toBeNull();
   });
 });

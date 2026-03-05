@@ -5,26 +5,18 @@ import { Trans, useTranslation } from "react-i18next";
 import { Alert, FileUpload, Switch } from "@patternfly/react-core";
 
 import { Identity, IdentityKind } from "@app/api/models";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import KeyDisplayToggle from "@app/components/KeyDisplayToggle";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
 
-import { UserCredentials } from "./identity-form";
 import { KindSimpleUsernamePasswordForm } from "./kind-simple-username-password-form";
 
-const USER_CREDENTIALS_OPTIONS: OptionWithValue<UserCredentials>[] = [
-  {
-    value: "userpass",
-    toString: () => `Username/Password`,
-  },
-  {
-    value: "source",
-    toString: () => `Source Private Key/Passphrase`,
-  },
+const USER_CREDENTIALS_OPTIONS = [
+  { value: "userpass", label: "Username/Password" },
+  { value: "source", label: "Source Private Key/Passphrase" },
 ];
 
 export const KindSourceForm: React.FC<{
@@ -62,18 +54,16 @@ export const KindSourceForm: React.FC<{
         fieldId="user-credentials-select"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
+            isScrollable
+            isFullWidth
             id="user-credentials-select"
             toggleId="user-credentials-select-toggle"
             toggleAriaLabel="User credentials select dropdown toggle"
-            aria-label={name}
-            value={
-              value ? toOptionLike(value, USER_CREDENTIALS_OPTIONS) : undefined
-            }
+            ariaLabel={name}
+            value={value ?? undefined}
             options={USER_CREDENTIALS_OPTIONS}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as OptionWithValue<UserCredentials>;
-              onChange(selectionValue.value);
+            onSelect={(selection) => {
+              onChange(selection);
               // So we don't retain the values from the wrong type of credential
               resetField("default");
               resetField("user");
