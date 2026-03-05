@@ -15,11 +15,11 @@ limitations under the License.
 */
 export const stakeholderEmailInput = "input[name=email]";
 export const stakeholderNameInput = "input[name=name]";
-export const jobfunctionInput =
-  "[data-ouia-component-id='job-function-toggle'] [data-ouia-component-type='PF5/TextInput']";
+export const jobfunctionInput = "#job-function-toggle-input";
 export const groupInput =
   "#stakeholder-groups-toggle-select-multi-typeahead-typeahead";
 export const groupsCount = "td[data-label='Group count']";
 export const stakeholderHelper = "div.pf-v5-c-helper-text";
-export const removeJobFunction = ".pf-v5-c-select__toggle-clear";
+export const removeJobFunction =
+  "[data-ouia-component-id='job-function-toggle-clear-button']";
 export const stakeHoldersTable = "table[aria-label='Stakeholders table']";

@@ -12,14 +12,14 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Tag, TagCategory } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateTagMutation,
   useFetchTagCategories,
@@ -46,13 +46,11 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const { tags } = useFetchTags();
   const { tagCategories } = useFetchTagCategories();
 
-  const tagCategoryOptions = useMemo(() => {
-    const options = tagCategories.map((tagCategory: TagCategory) => {
-      return {
-        value: tagCategory.name,
-        toString: () => tagCategory.name,
-      };
-    });
+  const tagCategoryOptions: FilterSelectOptionProps[] = useMemo(() => {
+    const options = tagCategories.map((tagCategory: TagCategory) => ({
+      value: tagCategory.name,
+      label: tagCategory.name,
+    }));
 
     return options.sort((a, b) => universalComparator(a.value, b.value));
   }, [tagCategories]);
@@ -175,22 +173,16 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
         fieldId="tagCategory"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeahead"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+          <TypeaheadSelect
             placeholderText={t("composed.selectOne", {
               what: t("terms.tagCategory").toLowerCase(),
             })}
-            id="tag-type-select"
             toggleId="tag-type-select-toggle"
             toggleAriaLabel="Tag Type select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
             value={value}
             options={tagCategoryOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />

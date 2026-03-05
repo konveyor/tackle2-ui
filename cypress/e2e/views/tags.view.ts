@@ -17,7 +17,7 @@ export const createTagButton = "Create tag";
 export const createTagCategoryButton = "Create tag category";
 export const colorHelper = "div[id=color-helper]";
 export const dropdownMenuToggle =
-  '[data-ouia-component-id="tag-type-select-toggle"] [data-ouia-component-type="PF5/TextInput"]';
+  '[data-ouia-component-id="tag-type-select-toggle"]';
 export const dropdownMenuTypeToggle =
   '[data-ouia-component-id="type-select-toggle"]';
 export const tagsHelper = "div.pf-v5-c-helper-text";

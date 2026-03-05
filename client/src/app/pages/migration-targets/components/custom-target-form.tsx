@@ -21,16 +21,14 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
 import { UploadFileSchema } from "@app/api/schemas";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import {
-  OptionWithValue,
-  SimpleSelect as DeprecatedSimpleSelect,
-} from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
 import { useSettingMutation } from "@app/queries/settings";
 import {
@@ -39,7 +37,7 @@ import {
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { toOptionLike, toRef } from "@app/utils/model-utils";
+import { toRef } from "@app/utils/model-utils";
 import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -167,14 +165,12 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const { identities } = useFetchIdentities();
 
-  const sourceIdentityOptions = identities
+  const sourceIdentityOptions: FilterSelectOptionProps[] = identities
     .filter((identity) => identity.kind === "source")
-    .map((sourceIdentity) => {
-      return {
-        value: sourceIdentity.name,
-        toString: () => sourceIdentity.name,
-      };
-    });
+    .map((sourceIdentity) => ({
+      value: sourceIdentity.name,
+      label: sourceIdentity.name,
+    }));
 
   const { targets } = useFetchTargets();
 
@@ -627,21 +623,13 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             label={t("analysisSteps.labels.associatedCredentials")}
             fieldId="credentials-select"
             renderInput={({ field: { value, name, onChange } }) => (
-              <DeprecatedSimpleSelect
-                variant="typeahead"
-                id="associated-credentials-select"
+              <TypeaheadSelect
                 toggleId="associated-credentials-select-toggle"
                 toggleAriaLabel="Associated credentials dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, sourceIdentityOptions) : undefined
-                }
+                ariaLabel={name}
+                value={value ?? undefined}
                 options={sourceIdentityOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onClear={() => onChange("")}
+                onSelect={onChange}
               />
             )}
           />

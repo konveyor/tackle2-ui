@@ -19,27 +19,26 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import "./tracker-form.css";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { IdentityKind, IssueManagerKind, Tracker } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
   useCreateTrackerMutation,
   useFetchTrackers,
   useUpdateTrackerMutation,
 } from "@app/queries/trackers";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { IssueManagerOptions } from "@app/utils/model-utils";
 import {
   duplicateNameCheck,
   getAxiosErrorMessage,
   standardStrictURLRegex,
 } from "@app/utils/utils";
-
 const supportedIdentityKindByIssueManagerKind: Record<
   IssueManagerKind,
   IdentityKind[]
@@ -187,7 +186,9 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
 
   const values = getValues();
 
-  const identityOptions = (kind?: IssueManagerKind) => {
+  const identityOptions = (
+    kind?: IssueManagerKind
+  ): FilterSelectOptionProps[] => {
     const identityKinds = kind
       ? supportedIdentityKindByIssueManagerKind[kind]
       : [];
@@ -195,12 +196,10 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       .filter((identity) =>
         identity.kind ? identityKinds.includes(identity.kind) : false
       )
-      .map((identity) => {
-        return {
-          value: identity.name,
-          toString: () => identity.name,
-        };
-      });
+      .map((identity) => ({
+        value: identity.name,
+        label: identity.name,
+      }));
   };
 
   return (
@@ -233,22 +232,16 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         fieldId="type-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            id="type-select"
+          <TypeaheadSelect
             toggleId="type-select-toggle"
-            variant="typeahead"
             placeholderText={t("composed.selectMany", {
               what: t("terms.instanceType").toLowerCase(),
             })}
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={value ? toOptionLike(value, IssueManagerOptions) : undefined}
+            ariaLabel={name}
+            value={value}
             options={IssueManagerOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as OptionWithValue<IssueManagerKind>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />
@@ -259,27 +252,16 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         fieldId="credentials-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            id="credentials-select"
+          <TypeaheadSelect
             toggleId="credentials-select-toggle"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
             placeholderText={t("composed.selectMany", {
               what: t("terms.credentials").toLowerCase(),
             })}
             toggleAriaLabel="Credentials select dropdown toggle"
-            aria-label={name}
-            value={
-              value
-                ? toOptionLike(value, identityOptions(values.kind))
-                : undefined
-            }
+            ariaLabel={name}
+            value={value}
             options={identityOptions(values.kind)}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange("")}
+            onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />
