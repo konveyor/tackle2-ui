@@ -2,7 +2,7 @@ import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FieldErrors, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { mixed, number, object, string } from "yup";
 import {
   ActionGroup,
@@ -55,7 +55,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   review,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = React.useContext(NotificationsContext);
   const isArchetype = useIsArchetype();
 
@@ -149,7 +149,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         });
       }
 
-      history.push(isArchetype ? Paths.archetypes : Paths.applications);
+      navigate(isArchetype ? Paths.archetypes : Paths.applications);
     } catch (error) {
       console.error("Error:", error);
       pushNotification({
@@ -264,7 +264,7 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           onClick={() => {
-            history.push(isArchetype ? Paths.archetypes : Paths.applications);
+            navigate(isArchetype ? Paths.archetypes : Paths.applications);
           }}
         >
           {t("actions.cancel")}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -49,7 +49,8 @@ import { useFetchPlatformsWithTasks } from "./useFetchPlatformsWithTasks";
 
 export const SourcePlatforms: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { getDisplayLabel } = usePlatformKindList();
@@ -169,10 +170,10 @@ export const SourcePlatforms: React.FC = () => {
   } = tableControls;
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
     filterToolbarProps.setFilterValues({});
   };
 

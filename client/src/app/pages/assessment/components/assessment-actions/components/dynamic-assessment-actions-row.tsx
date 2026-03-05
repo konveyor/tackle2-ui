@@ -1,7 +1,7 @@
 import { FunctionComponent, useCallback, useContext } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@patternfly/react-core";
 import { TrashIcon } from "@patternfly/react-icons";
 import { Td } from "@patternfly/react-table";
@@ -51,7 +51,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   onOpenModal,
 }) => {
   const isArchetype = useIsArchetype();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const { pushNotification } = useContext(NotificationsContext);
@@ -191,7 +191,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
               type="button"
               variant="secondary"
               onClick={() => {
-                history.push(
+                navigate(
                   formatPath(
                     isArchetype
                       ? Paths.archetypeAssessmentSummary

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -62,7 +62,8 @@ import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const [openCreateArchetype, setOpenCreateArchetype] =
@@ -206,7 +207,7 @@ const Archetypes: React.FC = () => {
       setArchetypeToAssess(archetype);
     } else {
       if (archetype?.id) {
-        history.push(
+        navigate(
           formatPath(Paths.archetypeAssessmentActions, {
             archetypeId: archetype.id,
           })
@@ -220,7 +221,7 @@ const Archetypes: React.FC = () => {
     if (archetype.review) {
       setReviewToEdit(archetype.id);
     } else {
-      history.push(
+      navigate(
         formatPath(Paths.archetypeReview, {
           archetypeId: archetype.id,
         })
@@ -236,10 +237,10 @@ const Archetypes: React.FC = () => {
   );
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
     filterToolbarProps.setFilterValues({});
   };
 
@@ -439,7 +440,7 @@ const Archetypes: React.FC = () => {
                                       title: t("actions.manageTargetProfiles"),
                                       itemKey: "manageTargetProfiles",
                                       onClick: () =>
-                                        history.push(
+                                        navigate(
                                           formatPath(
                                             Paths.archetypeTargetProfiles,
                                             {
@@ -559,7 +560,7 @@ const Archetypes: React.FC = () => {
               application: success.map(({ application }) => application.name),
               workflow: [workflowRef],
             });
-            if (success.length > 0) history.push(launchedRunsPath);
+            if (success.length > 0) navigate(launchedRunsPath);
             pushNotification({
               title:
                 failure.length === 0
@@ -683,7 +684,7 @@ const Archetypes: React.FC = () => {
         onClose={() => setArchetypeToAssess(null)}
         onConfirm={() => {
           if (archetypeToAssess) {
-            history.push(
+            navigate(
               formatPath(Paths.archetypeAssessmentActions, {
                 archetypeId: archetypeToAssess.id,
               })
@@ -707,7 +708,7 @@ const Archetypes: React.FC = () => {
         onCancel={() => setReviewToEdit(null)}
         onClose={() => setReviewToEdit(null)}
         onConfirm={() => {
-          history.push(
+          navigate(
             formatPath(Paths.archetypeReview, {
               archetypeId: reviewToEdit,
             })

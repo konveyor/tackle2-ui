@@ -7,18 +7,14 @@ import QuestionnaireSummary, {
 } from "@app/components/questionnaire-summary/questionnaire-summary";
 import { useFetchQuestionnaireById } from "@app/queries/questionnaires";
 
-interface QuestionnairePageParams {
-  questionnaireId: string;
-}
-
 const QuestionnairePage: React.FC = () => {
-  const { questionnaireId } = useParams<QuestionnairePageParams>();
+  const { questionnaireId } = useParams<"questionnaireId">();
 
   const {
     questionnaire,
     isFetching: isFetchingQuestionnaireById,
     fetchError: fetchQuestionnaireByIdError,
-  } = useFetchQuestionnaireById(questionnaireId);
+  } = useFetchQuestionnaireById(questionnaireId!);
 
   return (
     <QuestionnaireSummary

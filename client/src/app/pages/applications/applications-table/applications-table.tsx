@@ -1,7 +1,7 @@
 import { type FC, useContext, useState } from "react";
 import { AxiosError } from "axios";
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -121,7 +121,8 @@ export const ApplicationsTable: FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = useContext(NotificationsContext);
 
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
@@ -678,10 +679,10 @@ export const ApplicationsTable: FC = () => {
   });
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
     filterToolbarProps.setFilterValues({});
   };
 
@@ -735,7 +736,7 @@ export const ApplicationsTable: FC = () => {
           <DropdownItem
             key="manage-import-applications"
             onClick={() => {
-              history.push(Paths.applicationsImports);
+              navigate(Paths.applicationsImports);
             }}
           >
             {t("actions.manageApplicationImports")}
@@ -890,7 +891,7 @@ export const ApplicationsTable: FC = () => {
 
   const handleNavToAssessment = (application: DecoratedApplication) => {
     if (application?.id) {
-      history.push(
+      navigate(
         formatPath(Paths.applicationAssessmentActions, {
           applicationId: application?.id,
         })
@@ -900,7 +901,7 @@ export const ApplicationsTable: FC = () => {
 
   const handleNavToViewArchetypes = (application: DecoratedApplication) => {
     if (application?.id && archetypeRefsToOverride?.length) {
-      history.push(
+      navigate(
         formatPath(Paths.viewArchetypes, {
           applicationId: application?.id,
           archetypeId: archetypeRefsToOverride[0].id,
@@ -939,7 +940,7 @@ export const ApplicationsTable: FC = () => {
           } else if (application.review) {
             setReviewToEdit(application.id);
           } else {
-            history.push(
+            navigate(
               formatPath(Paths.applicationsReview, {
                 applicationId: application.id,
               })
@@ -959,7 +960,7 @@ export const ApplicationsTable: FC = () => {
     } else if (application.review) {
       setReviewToEdit(application.id);
     } else {
-      history.push(
+      navigate(
         formatPath(Paths.applicationsReview, {
           applicationId: application.id,
         })
@@ -1307,7 +1308,7 @@ export const ApplicationsTable: FC = () => {
                                     const taskId =
                                       application.tasks.currentAnalyzer?.id;
                                     if (taskId && application.id) {
-                                      history.push(
+                                      navigate(
                                         formatPath(
                                           Paths.applicationsAnalysisDetails,
                                           {
@@ -1400,7 +1401,7 @@ export const ApplicationsTable: FC = () => {
               application: [runForApplication.name],
             });
             setRunForApplication(null);
-            history.push(launchedRunsPath);
+            navigate(launchedRunsPath);
           }}
         />
       )}
@@ -1417,7 +1418,7 @@ export const ApplicationsTable: FC = () => {
               application: success.map(({ application }) => application.name),
               workflow: [workflowRef],
             });
-            if (success.length > 0) history.push(launchedRunsPath);
+            if (success.length > 0) navigate(launchedRunsPath);
             pushNotification({
               title:
                 failure.length === 0
@@ -1432,7 +1433,7 @@ export const ApplicationsTable: FC = () => {
                 <Button
                   variant="link"
                   isInline
-                  onClick={() => history.push(launchedRunsPath)}
+                  onClick={() => navigate(launchedRunsPath)}
                 >
                   {t("agentic.bulkRun.viewRuns")}
                 </Button>
@@ -1647,7 +1648,7 @@ export const ApplicationsTable: FC = () => {
         onCancel={() => setAssessmentToEdit(null)}
         onClose={() => setAssessmentToEdit(null)}
         onConfirm={() => {
-          history.push(
+          navigate(
             formatPath(Paths.applicationsAssessment, {
               assessmentId: assessmentToEdit?.id,
             })
@@ -1668,7 +1669,7 @@ export const ApplicationsTable: FC = () => {
         onCancel={() => setReviewToEdit(null)}
         onClose={() => setReviewToEdit(null)}
         onConfirm={() => {
-          history.push(
+          navigate(
             formatPath(Paths.applicationsReview, {
               applicationId: reviewToEdit,
             })
@@ -1697,7 +1698,7 @@ export const ApplicationsTable: FC = () => {
         onClose={() => setArchetypeRefsToOverrideReview(null)}
         onConfirm={() => {
           if (applicationToReview) {
-            history.push(
+            navigate(
               formatPath(Paths.applicationsReview, {
                 applicationId: applicationToReview.id,
               })

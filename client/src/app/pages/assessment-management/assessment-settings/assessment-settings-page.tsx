@@ -2,7 +2,7 @@ import * as React from "react";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -63,7 +63,7 @@ import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresh
 const AssessmentSettings: React.FC = () => {
   const { t } = useTranslation();
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { questionnaires, isFetching, fetchError } = useFetchQuestionnaires();
@@ -326,7 +326,7 @@ const AssessmentSettings: React.FC = () => {
                                 {
                                   title: t("actions.view"),
                                   onClick: () => {
-                                    history.push(
+                                    navigate(
                                       formatPath(Paths.questionnaire, {
                                         questionnaireId: questionnaire.id,
                                       })

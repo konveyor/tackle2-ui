@@ -26,7 +26,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { ArchetypeTargetProfilesRoute, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import type { TargetProfile } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -41,7 +41,7 @@ import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const TargetProfilesPage: React.FC = () => {
   const { t } = useTranslation();
-  const { archetypeId } = useParams<ArchetypeTargetProfilesRoute>();
+  const { archetypeId } = useParams<"archetypeId">();
 
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const [profileToEdit, setProfileToEdit] = useState<TargetProfile | null>(
@@ -55,7 +55,7 @@ const TargetProfilesPage: React.FC = () => {
     archetype,
     isFetching: isArchetypesFetching,
     fetchError,
-  } = useFetchArchetypeById(archetypeId);
+  } = useFetchArchetypeById(archetypeId!);
 
   const { addTargetProfile, updateTargetProfile, deleteTargetProfile } =
     useArchetypeMutations();

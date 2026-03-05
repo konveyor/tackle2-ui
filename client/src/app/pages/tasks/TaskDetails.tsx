@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { Paths, TaskDetailsAttachmentRoute } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { formatPath } from "@app/utils/utils";
@@ -10,8 +10,9 @@ import { TaskDetailsBase } from "./TaskDetailsBase";
 
 export const TaskDetails = () => {
   const { t } = useTranslation();
-  const { taskId, attachmentId, applicationId } =
-    useParams<TaskDetailsAttachmentRoute>();
+  const { taskId, attachmentId, applicationId } = useParams<
+    "taskId" | "attachmentId" | "applicationId"
+  >();
   const currentPath = window.location.pathname;
   const isFromApplication = currentPath.includes("application") ? true : false;
   const { application } = useFetchApplicationById(applicationId);
