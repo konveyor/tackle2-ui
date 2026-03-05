@@ -15,7 +15,7 @@ import {
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 
-import { Paths, ReviewRoute } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { PageHeader } from "@app/components/PageHeader";
@@ -33,7 +33,9 @@ import { ReviewForm } from "./components/review-form";
 const ReviewPage: React.FC = () => {
   const { t } = useTranslation();
 
-  const { applicationId, archetypeId } = useParams<ReviewRoute>();
+  const { applicationId, archetypeId } = useParams<
+    "applicationId" | "archetypeId"
+  >();
   const isArchetype = useIsArchetype();
 
   const { archetype } = useFetchArchetypeById(archetypeId);

@@ -37,17 +37,12 @@ import {
 } from "./helpers";
 import { InsightDetailDrawer } from "./insight-detail-drawer";
 
-interface IAffectedApplicationsRouteParams {
-  ruleset: string;
-  rule: string;
-}
-
 export const AffectedApplicationsPage: React.FC = () => {
   const { t } = useTranslation();
 
-  const routeParams = useParams<IAffectedApplicationsRouteParams>();
-  const ruleset = decodeURIComponent(routeParams.ruleset);
-  const rule = decodeURIComponent(routeParams.rule);
+  const routeParams = useParams<"ruleset" | "rule">();
+  const ruleset = decodeURIComponent(routeParams.ruleset ?? "");
+  const rule = decodeURIComponent(routeParams.rule ?? "");
   const insightTitle =
     new URLSearchParams(useLocation().search).get("insightTitle") ||
     "Active rule";

@@ -37,17 +37,12 @@ import {
 } from "./helpers";
 import { IssueDetailDrawer } from "./issue-detail-drawer";
 
-interface IAffectedApplicationsRouteParams {
-  ruleset: string;
-  rule: string;
-}
-
 export const AffectedApplicationsPage: React.FC = () => {
   const { t } = useTranslation();
 
-  const routeParams = useParams<IAffectedApplicationsRouteParams>();
-  const ruleset = decodeURIComponent(routeParams.ruleset);
-  const rule = decodeURIComponent(routeParams.rule);
+  const routeParams = useParams<"ruleset" | "rule">();
+  const ruleset = decodeURIComponent(routeParams.ruleset ?? "");
+  const rule = decodeURIComponent(routeParams.rule ?? "");
   const issueTitle =
     new URLSearchParams(useLocation().search).get("issueTitle") ||
     "Active rule";

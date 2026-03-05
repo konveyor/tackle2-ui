@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Label,
   LabelGroup,
@@ -139,13 +139,14 @@ export const Dependencies: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
   };
 
   return (

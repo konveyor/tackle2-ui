@@ -1,6 +1,6 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Route, Switch, useHistory } from "react-router-dom";
+import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import {
   Nav,
   NavExpandable,
@@ -45,37 +45,33 @@ type PersonaType = keyof typeof PersonaDefinition;
 export const SidebarApp: React.FC = () => {
   const [lastPersona, setLastPersona] = useState<PersonaType>();
   return (
-    <Switch>
-      {migrationRoutes.map(({ path, exact }, index) => (
+    <Routes>
+      {migrationRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <MigrationSidebar setLastPersona={setLastPersona} />}
+          element={<MigrationSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {administrationRoutes.map(({ path, exact }, index) => (
+      {administrationRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <AdminSidebar setLastPersona={setLastPersona} />}
+          element={<AdminSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {devtoolRoutes.map(({ path, exact }, index) => (
+      {devtoolRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() => <DevtoolSidebar setLastPersona={setLastPersona} />}
+          element={<DevtoolSidebar setLastPersona={setLastPersona} />}
         />
       ))}
-      {universalRoutes.map(({ path, exact }, index) => (
+      {universalRoutes.map(({ path }, index) => (
         <Route
           path={path}
-          exact={exact}
           key={index}
-          render={() =>
+          element={
             lastPersona === "ADMINISTRATION" ? (
               <AdminSidebar setLastPersona={setLastPersona} />
             ) : (
@@ -84,7 +80,7 @@ export const SidebarApp: React.FC = () => {
           }
         />
       ))}
-    </Switch>
+    </Routes>
   );
 };
 
@@ -107,7 +103,7 @@ const PersonaSidebar: FC<{
     isDevtoolsEnabled && "DEVTOOL",
   ].filter<PersonaType>(Boolean);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   return (
     <PageSidebar theme={LayoutTheme}>
       <div className="perspective">
@@ -121,7 +117,7 @@ const PersonaSidebar: FC<{
             const startPath =
               PersonaDefinition[value as PersonaType]?.startPath;
             if (value !== selectedPersona && startPath) {
-              history.push(startPath);
+              navigate(startPath);
             }
           }}
         />
@@ -152,19 +148,25 @@ export const MigrationSidebar = ({
           isExpanded
         >
           <NavItem>
-            <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.applications}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.applicationInventory")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.archetypes}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.archetypes")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
               to={DevPaths.migrationWaves}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               {t("sidebar.migrationWaves")}
             </NavLink>
@@ -177,25 +179,34 @@ export const MigrationSidebar = ({
           isExpanded
         >
           <NavItem>
-            <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.reports}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.reports")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.issuesAllTab}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.issues")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
               to={DevPaths.insightsAllTab}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               {t("sidebar.insights")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.dependencies}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.dependencies")}
             </NavLink>
           </NavItem>
@@ -209,26 +220,32 @@ export const MigrationSidebar = ({
           <NavItem>
             <NavLink
               to={DevPaths.analysisProfiles}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               {t("sidebar.analysisProfiles")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
+            <NavLink
+              to={DevPaths.controls}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.controls")}
             </NavLink>
           </NavItem>
           <NavItem>
             <NavLink
               to={DevPaths.migrationTargets}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               {t("sidebar.customMigrationTargets")}
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
+            <NavLink
+              to={UniversalPaths.tasks}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               {t("sidebar.tasks")}
             </NavLink>
           </NavItem>
@@ -251,12 +268,18 @@ export const AdminSidebar = ({
     >
       <NavList title="Admin">
         <NavItem>
-          <NavLink to={AdminPaths.general} activeClassName="pf-m-current">
+          <NavLink
+            to={AdminPaths.general}
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+          >
             {t("terms.general")}
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={AdminPaths.identities} activeClassName="pf-m-current">
+          <NavLink
+            to={AdminPaths.identities}
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+          >
             {t("terms.credentials")}
           </NavLink>
         </NavItem>
@@ -269,7 +292,7 @@ export const AdminSidebar = ({
           <NavItem>
             <NavLink
               to={AdminPaths.repositoriesGit}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               Git
             </NavLink>
@@ -277,7 +300,7 @@ export const AdminSidebar = ({
           <NavItem>
             <NavLink
               to={AdminPaths.repositoriesSvn}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               Subversion
             </NavLink>
@@ -285,14 +308,17 @@ export const AdminSidebar = ({
           <NavItem>
             <NavLink
               to={AdminPaths.repositoriesMvn}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               Maven
             </NavLink>
           </NavItem>
         </NavExpandable>
         <NavItem>
-          <NavLink to={AdminPaths.proxies} activeClassName="pf-m-current">
+          <NavLink
+            to={AdminPaths.proxies}
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+          >
             Proxy
           </NavLink>
         </NavItem>
@@ -303,20 +329,26 @@ export const AdminSidebar = ({
           isExpanded
         >
           <NavItem>
-            <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
+            <NavLink
+              to={AdminPaths.jira}
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+            >
               Jira
             </NavLink>
           </NavItem>
         </NavExpandable>
         <NavItem>
-          <NavLink to={AdminPaths.assessment} activeClassName="pf-m-current">
+          <NavLink
+            to={AdminPaths.assessment}
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+          >
             {t("terms.assessmentQuestionnaires")}
           </NavLink>
         </NavItem>
         <NavItem>
           <NavLink
             to={AdminPaths.sourcePlatforms}
-            activeClassName="pf-m-current"
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
           >
             {t("terms.sourcePlatforms")}
           </NavLink>
@@ -324,13 +356,16 @@ export const AdminSidebar = ({
         <NavItem>
           <NavLink
             to={AdminPaths.assetGenerators}
-            activeClassName="pf-m-current"
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
           >
             {t("terms.generators")}
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
+          <NavLink
+            to={UniversalPaths.tasks}
+            className={({ isActive }) => (isActive ? "pf-m-current" : "")}
+          >
             {t("sidebar.tasks")}
           </NavLink>
         </NavItem>
@@ -351,7 +386,7 @@ const DevtoolSidebar = !isDevtoolsEnabled
           <NavItem>
             <NavLink
               to={DevtoolPaths.schemaDefined}
-              activeClassName="pf-m-current"
+              className={({ isActive }) => (isActive ? "pf-m-current" : "")}
             >
               SDF Playground
             </NavLink>
