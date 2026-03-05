@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { FormStateSubscribe, useForm } from "react-hook-form";
+import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -161,7 +161,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     insecure: yup.boolean().required(),
   });
 
-  const { handleSubmit, getValues, control } = useForm<FormValues>({
+  const { handleSubmit, control } = useForm<FormValues>({
     defaultValues: {
       name: tracker?.name || "",
       url: tracker?.url || "",
@@ -173,7 +173,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     mode: "all",
   });
 
-  const values = getValues();
+  const kind = useWatch({ control, name: "kind" });
 
   const identityOptions = (
     kind?: IssueManagerKind
@@ -249,7 +249,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             toggleAriaLabel="Credentials select dropdown toggle"
             ariaLabel={name}
             value={value}
-            options={identityOptions(values.kind)}
+            options={identityOptions(kind)}
             onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
