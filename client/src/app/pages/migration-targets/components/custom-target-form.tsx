@@ -3,7 +3,12 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import { unique } from "radash";
-import { FormStateSubscribe, useFieldArray, useForm } from "react-hook-form";
+import {
+  FormStateSubscribe,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -261,7 +266,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
 
   const {
     handleSubmit,
-    getValues,
     setValue,
     control,
     setFocus,
@@ -300,7 +304,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     };
   }, [initialTarget]);
 
-  const values = getValues();
+  const rulesKind = useWatch({ control, name: "rulesKind" });
 
   const {
     createTargetAsync,
@@ -553,7 +557,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         )}
       />
 
-      {values?.rulesKind === "manual" && (
+      {rulesKind === "manual" && (
         <CustomRuleFilesUpload
           ruleFiles={fields}
           onAddRuleFiles={(ruleFiles) => {
@@ -575,7 +579,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         />
       )}
 
-      {values?.rulesKind === "repository" && (
+      {rulesKind === "repository" && (
         <>
           <HookFormPFGroupController
             control={control}

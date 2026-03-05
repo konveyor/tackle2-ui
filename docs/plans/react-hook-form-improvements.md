@@ -105,11 +105,41 @@ these forms grow in complexity.
 
 ---
 
+## 5. Replace `getValues()` with reactive `useWatch` -- DONE
+
+Moving formState out of the `useForm` destructure (step 4) removed an implicit
+re-render trigger that several forms relied on. Previously, formState changes
+(e.g. `isDirty` toggling) caused re-renders that kept `getValues()` snapshots
+current. With formState isolated in `<FormStateSubscribe>`, the parent component
+no longer re-renders on formState changes, so `getValues()` returned stale data
+and conditional rendering based on form field values stopped working.
+
+The fix replaced non-reactive `getValues()` calls with scoped `useWatch()`
+subscriptions -- which is also an improvement, since these forms were relying on
+an accidental side-effect for reactivity.
+
+**Changes applied:**
+
+- **`identity-form.tsx`** -- `useWatch({ control, name: "kind" })` replaces
+  `getValues().kind` for conditional rendering of kind-specific form sections
+- **`proxy-form.tsx`** -- `useWatch` for `isHttpProxyEnabled`,
+  `isHttpsProxyEnabled`, `isHttpIdentityRequired`, `isHttpsIdentityRequired`;
+  also changed `reset(values)` to `reset(getValues())` so the callback reads
+  current values at invocation time rather than a stale snapshot
+- **`tracker-form.tsx`** -- `useWatch({ control, name: "kind" })` replaces
+  `getValues().kind` for identity option filtering
+- **`custom-target-form.tsx`** -- `useWatch({ control, name: "rulesKind" })`
+  replaces `getValues().rulesKind` for conditional rendering of manual vs
+  repository rule sections
+
+---
+
 ## Implementation order
 
-| Step | Item                                | Files affected | Status      |
-| ---- | ----------------------------------- | -------------- | ----------- |
-| 1    | Scope `useWatch` calls (1a–1d)      | 4 files        | Done        |
-| 2    | `compute` in `useFormChangeHandler` | 1 file         | Not adopted |
-| 3    | `<Watch>` component evaluation      | 2 candidates   | Not adopted |
-| 4    | `<FormStateSubscribe>` isolation    | 6 files        | Done        |
+| Step | Item                                           | Files affected | Status      |
+| ---- | ---------------------------------------------- | -------------- | ----------- |
+| 1    | Scope `useWatch` calls (1a–1d)                 | 4 files        | Done        |
+| 2    | `compute` in `useFormChangeHandler`            | 1 file         | Not adopted |
+| 3    | `<Watch>` component evaluation                 | 2 candidates   | Not adopted |
+| 4    | `<FormStateSubscribe>` isolation               | 6 files        | Done        |
+| 5    | Replace `getValues()` with reactive `useWatch` | 4 files        | Done        |
