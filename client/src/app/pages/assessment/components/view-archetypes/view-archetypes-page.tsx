@@ -10,7 +10,7 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 
-import { Paths, ViewArchetypesRoute } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { Ref } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -22,7 +22,9 @@ import { formatPath } from "@app/utils/utils";
 import ViewArchetypesTable from "./components/view-archetypes-table";
 
 const ViewArchetypes: React.FC = () => {
-  const { applicationId, archetypeId } = useParams<ViewArchetypesRoute>();
+  const { applicationId, archetypeId } = useParams<
+    "applicationId" | "archetypeId"
+  >();
   const { archetype } = useFetchArchetypeById(archetypeId);
   const { application } = useFetchApplicationById(applicationId);
 
@@ -56,7 +58,7 @@ const ViewArchetypes: React.FC = () => {
           </BreadcrumbItem>
           <BreadcrumbItem
             to={formatPath(Paths.applicationAssessmentActions, {
-              applicationId,
+              applicationId: applicationId!,
             })}
           >
             {application?.name}

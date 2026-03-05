@@ -6,18 +6,13 @@ import QuestionnaireSummary, {
 } from "@app/components/questionnaire-summary/questionnaire-summary";
 import { useFetchAssessmentById } from "@app/queries/assessments";
 
-interface AssessmentSummaryRouteParams {
-  assessmentId: string;
-  applicationId: string;
-}
-
 const AssessmentSummaryPage: React.FC = () => {
-  const { assessmentId } = useParams<AssessmentSummaryRouteParams>();
+  const { assessmentId } = useParams<"assessmentId">();
   const {
     assessment,
     isFetching: isFetchingAssessment,
     fetchError: fetchAssessmentError,
-  } = useFetchAssessmentById(assessmentId);
+  } = useFetchAssessmentById(assessmentId!);
 
   return (
     <QuestionnaireSummary

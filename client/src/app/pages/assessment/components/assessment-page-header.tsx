@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
 
 import { Paths } from "@app/Paths";
@@ -20,7 +20,7 @@ export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
   assessment,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const isArchetype = useIsArchetype();
 
   const { archetype } = useFetchArchetypeById(assessment?.archetype?.id);
@@ -94,7 +94,7 @@ export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
           onCancel={() => setIsConfirmDialogOpen(false)}
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={() =>
-            history.push(isArchetype ? Paths.archetypes : Paths.applications)
+            navigate(isArchetype ? Paths.archetypes : Paths.applications)
           }
         />
       )}

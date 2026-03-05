@@ -1,6 +1,6 @@
 import { type ComponentType, Suspense, lazy } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Redirect, Switch, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import {
   AdminPathValues,
@@ -90,241 +90,69 @@ const AssetGenerators = lazy(
   () => import("./pages/asset-generators/asset-generators")
 );
 
-export interface IRoute<T> {
-  path: T;
+export interface IRoute<T extends string = string> {
+  path: T | `${T}/*`;
   comp: ComponentType;
-  exact?: boolean;
 }
 
 export const migrationRoutes: IRoute<DevPathValues>[] = [
-  {
-    path: Paths.applicationsImportsDetails,
-    comp: ImportDetails,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsAnalysisDetails,
-    comp: AnalysisDetails,
-    exact: true,
-  },
-  {
-    path: Paths.applicationsTaskDetails,
-    comp: TaskDetails,
-    exact: true,
-  },
-  {
-    path: Paths.applicationsAnalysisDetailsAttachment,
-    comp: AnalysisDetails,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsImports,
-    comp: ManageImports,
-    exact: false,
-  },
-  {
-    path: Paths.archetypeReview,
-    comp: Review,
-    exact: false,
-  },
-  {
-    path: Paths.applicationsReview,
-    comp: Review,
-    exact: false,
-  },
-  {
-    path: Paths.applicationAssessmentActions,
-    comp: AssessmentActions,
-    exact: false,
-  },
-  {
-    path: Paths.archetypeAssessmentActions,
-    comp: AssessmentActions,
-    exact: false,
-  },
-  {
-    path: Paths.viewArchetypes,
-    comp: ViewArchetypes,
-    exact: false,
-  },
-  {
-    path: Paths.applicationAssessmentSummary,
-    comp: AssessmentSummary,
-    exact: false,
-  },
-  {
-    path: Paths.archetypeAssessmentSummary,
-    comp: AssessmentSummary,
-    exact: false,
-  },
-  {
-    path: Paths.applications,
-    comp: Applications,
-    exact: false,
-  },
-  {
-    path: Paths.controls,
-    comp: Controls,
-    exact: false,
-  },
-  {
-    path: Paths.reports,
-    comp: Reports,
-    exact: false,
-  },
-  {
-    path: Paths.migrationWaves,
-    comp: MigrationWaves,
-    exact: false,
-  },
+  { path: Paths.applicationsImportsDetails, comp: ImportDetails },
+  { path: Paths.applicationsAnalysisDetails, comp: AnalysisDetails },
+  { path: Paths.applicationsTaskDetails, comp: TaskDetails },
+  { path: Paths.applicationsAnalysisDetailsAttachment, comp: AnalysisDetails },
+  { path: Paths.applicationsImports, comp: ManageImports },
+  { path: Paths.archetypeReview, comp: Review },
+  { path: Paths.applicationsReview, comp: Review },
+  { path: Paths.applicationAssessmentActions, comp: AssessmentActions },
+  { path: Paths.archetypeAssessmentActions, comp: AssessmentActions },
+  { path: Paths.viewArchetypes, comp: ViewArchetypes },
+  { path: Paths.applicationAssessmentSummary, comp: AssessmentSummary },
+  { path: Paths.archetypeAssessmentSummary, comp: AssessmentSummary },
+  { path: Paths.applications, comp: Applications },
+  { path: `${Paths.controls}/*`, comp: Controls },
+  { path: Paths.reports, comp: Reports },
+  { path: Paths.migrationWaves, comp: MigrationWaves },
   {
     path: Paths.issuesAllAffectedApplications,
     comp: IssuesAffectedApplications,
-    exact: false,
   },
-  {
-    path: Paths.issuesAllTab,
-    comp: Issues,
-    exact: false,
-  },
-  {
-    path: Paths.issuesSingleAppTab,
-    comp: Issues,
-    exact: false,
-  },
-  {
-    path: Paths.issuesSingleAppSelected,
-    comp: Issues,
-    exact: false,
-  },
-  {
-    path: Paths.issues,
-    comp: Issues,
-    exact: false,
-  },
+  { path: Paths.issuesAllTab, comp: Issues },
+  { path: Paths.issuesSingleAppTab, comp: Issues },
+  { path: Paths.issuesSingleAppSelected, comp: Issues },
+  { path: Paths.issues, comp: Issues },
   {
     path: Paths.insightsAllAffectedApplications,
     comp: InsightsAffectedApplications,
-    exact: false,
   },
-  {
-    path: Paths.insightsAllTab,
-    comp: Insights,
-    exact: false,
-  },
-  {
-    path: Paths.insightsSingleAppTab,
-    comp: Insights,
-    exact: false,
-  },
-  {
-    path: Paths.insightsSingleAppSelected,
-    comp: Insights,
-    exact: false,
-  },
-  {
-    path: Paths.insights,
-    comp: Insights,
-    exact: false,
-  },
-  {
-    path: Paths.dependencies,
-    comp: Dependencies,
-    exact: false,
-  },
-  // Target profiles route must come before archetypes route due to route matching order
-  {
-    path: Paths.archetypeTargetProfiles,
-    comp: TargetProfilesPage,
-    exact: false,
-  },
-  {
-    path: Paths.archetypes,
-    comp: Archetypes,
-    exact: false,
-  },
-  {
-    path: Paths.migrationTargets,
-    comp: MigrationTargets,
-    exact: false,
-  },
-  {
-    path: Paths.analysisProfiles,
-    comp: AnalysisProfiles,
-    exact: false,
-  },
+  { path: Paths.insightsAllTab, comp: Insights },
+  { path: Paths.insightsSingleAppTab, comp: Insights },
+  { path: Paths.insightsSingleAppSelected, comp: Insights },
+  { path: Paths.insights, comp: Insights },
+  { path: Paths.dependencies, comp: Dependencies },
+  { path: Paths.archetypeTargetProfiles, comp: TargetProfilesPage },
+  { path: Paths.archetypes, comp: Archetypes },
+  { path: Paths.migrationTargets, comp: MigrationTargets },
+  { path: Paths.analysisProfiles, comp: AnalysisProfiles },
 ];
 
 export const universalRoutes: IRoute<UniversalPathValues>[] = [
-  {
-    path: Paths.tasks,
-    comp: TaskManager,
-    exact: true,
-  },
-  {
-    path: Paths.taskDetails,
-    comp: TaskDetails,
-    exact: true,
-  },
-  {
-    path: Paths.taskDetailsAttachment,
-    comp: TaskDetails,
-    exact: false,
-  },
+  { path: Paths.tasks, comp: TaskManager },
+  { path: Paths.taskDetails, comp: TaskDetails },
+  { path: Paths.taskDetailsAttachment, comp: TaskDetails },
 ];
 
 export const administrationRoutes: IRoute<AdminPathValues>[] = [
-  {
-    comp: General,
-    path: Paths.general,
-    exact: false,
-  },
-  {
-    comp: Identities,
-    path: Paths.identities,
-    exact: false,
-  },
-  {
-    comp: RepositoriesGit,
-    path: Paths.repositoriesGit,
-    exact: false,
-  },
-  {
-    comp: RepositoriesSvn,
-    path: Paths.repositoriesSvn,
-    exact: false,
-  },
-  {
-    comp: RepositoriesMvn,
-    path: Paths.repositoriesMvn,
-    exact: false,
-  },
-  {
-    path: Paths.assessment,
-    comp: AssessmentSettings,
-    exact: false,
-  },
-  {
-    path: Paths.questionnaire,
-    comp: Questionnaire,
-    exact: false,
-  },
-  { comp: Proxies, path: Paths.proxies, exact: false },
-  {
-    comp: Jira,
-    path: Paths.jira,
-    exact: false,
-  },
-  {
-    comp: SourcePlatforms,
-    path: Paths.sourcePlatforms,
-    exact: false,
-  },
-  {
-    comp: AssetGenerators,
-    path: Paths.assetGenerators,
-    exact: false,
-  },
+  { comp: General, path: Paths.general },
+  { comp: Identities, path: Paths.identities },
+  { comp: RepositoriesGit, path: Paths.repositoriesGit },
+  { comp: RepositoriesSvn, path: Paths.repositoriesSvn },
+  { comp: RepositoriesMvn, path: Paths.repositoriesMvn },
+  { path: Paths.assessment, comp: AssessmentSettings },
+  { path: Paths.questionnaire, comp: Questionnaire },
+  { comp: Proxies, path: Paths.proxies },
+  { comp: Jira, path: Paths.jira },
+  { comp: SourcePlatforms, path: Paths.sourcePlatforms },
+  { comp: AssetGenerators, path: Paths.assetGenerators },
 ];
 
 export const devtoolRoutes: IRoute<DevtoolPathValues>[] = isDevtoolsEnabled
@@ -334,7 +162,6 @@ export const devtoolRoutes: IRoute<DevtoolPathValues>[] = isDevtoolsEnabled
           () => import("./devtools/schema-defined/schema-defined-page")
         ),
         path: DevtoolPaths.schemaDefined,
-        exact: false,
       },
     ]
   : [];
@@ -345,38 +172,32 @@ export const AppRoutes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <ErrorBoundary FallbackComponent={ErrorFallback} key={location.pathname}>
-        <Switch>
+        <Routes>
           {[...migrationRoutes, ...universalRoutes].map(
-            ({ comp, path, exact }, index) => (
-              <RouteWrapper
-                comp={comp}
+            ({ comp, path }, index) => (
+              <Route
                 key={index}
-                roles={devRoles}
                 path={path}
-                exact={exact}
+                element={<RouteWrapper comp={comp} roles={devRoles} />}
               />
             )
           )}
-          {administrationRoutes.map(({ comp, path, exact }, index) => (
-            <RouteWrapper
-              comp={comp}
+          {administrationRoutes.map(({ comp, path }, index) => (
+            <Route
               key={index}
-              roles={adminRoles}
               path={path}
-              exact={exact}
+              element={<RouteWrapper comp={comp} roles={adminRoles} />}
             />
           ))}
-          {devtoolRoutes.map(({ comp, path, exact }, index) => (
-            <RouteWrapper
-              comp={comp}
+          {devtoolRoutes.map(({ comp, path }, index) => (
+            <Route
               key={index}
-              roles={devRoles}
               path={path}
-              exact={exact}
+              element={<RouteWrapper comp={comp} roles={devRoles} />}
             />
           ))}
-          <Redirect from="*" to="/applications" />
-        </Switch>
+          <Route path="*" element={<Navigate to="/applications" replace />} />
+        </Routes>
       </ErrorBoundary>
     </Suspense>
   );
