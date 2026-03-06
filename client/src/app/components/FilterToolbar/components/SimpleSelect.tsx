@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, Ref, useState } from "react";
 import {
   MenuToggle,
   MenuToggleElement,
@@ -7,7 +7,6 @@ import {
   SelectList,
   SelectOption,
 } from "@patternfly/react-core";
-import { css } from "@patternfly/react-styles";
 
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
@@ -32,7 +31,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
   options,
   value: selectedValue,
   onSelect,
-  placeholderText = "Select...", // "Any"
+  placeholderText = "Select...",
   isDisabled,
   isFullWidth,
   ariaLabel,
@@ -42,12 +41,15 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
 }) => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => {
+  const toggle = (toggleRef: Ref<MenuToggleElement>) => {
     const selectedOption = options.find(
       (option) => option.value === selectedValue
     );
     const displayText =
-      selectedOption?.label ?? selectedValue ?? placeholderText;
+      selectedOption?.optionProps?.children ??
+      selectedOption?.label ??
+      selectedValue ??
+      placeholderText;
 
     return (
       <MenuToggle
@@ -69,7 +71,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
   return (
     <Select
       id={id}
-      className={css(isScrollable && "isScrollable")}
+      isScrollable={isScrollable}
       aria-label={ariaLabel}
       toggle={toggle}
       onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
@@ -89,7 +91,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
             value={value}
             isSelected={value === selectedValue}
           >
-            {label ?? value}
+            {optionProps?.children ?? label ?? value}
           </SelectOption>
         ))}
       </SelectList>
