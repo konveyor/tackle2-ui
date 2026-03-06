@@ -1594,6 +1594,8 @@ export function deleteAllMigrationWaves() {
   // like Applications and Imports page
   isTableEmpty().then((empty) => {
     if (!empty) {
+      // Wait for kebab buttons to be visible before attempting to delete
+      cy.get(kebabToggleButton, { timeout: 15 * SEC }).should("be.visible");
       cy.get("tbody tr").then(($rows) => {
         for (let i = 0; i < $rows.length; i++) {
           cy.get(kebabToggleButton, { timeout: 10000 }).first().click();
