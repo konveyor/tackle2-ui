@@ -8,13 +8,13 @@ import {
 } from "react-hook-form";
 
 import { Repository } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { RepositoryKind } from "@app/hooks/useRepositoryKind";
-import { toOptionLike } from "@app/utils/model-utils";
 
 import { isNotEmptyString } from "./model-utils";
 
@@ -36,7 +36,7 @@ export interface RepositoryFieldsProps<TFormValues extends FieldValues> {
    * TypeScript will ensure this path points to a Repository or Repository | undefined field.
    */
   prefix: RepositoryFieldPath<TFormValues>;
-  kindOptions: OptionWithValue<RepositoryKind>[];
+  kindOptions: FilterSelectOptionProps[];
   labels: {
     type: string;
     url: string;
@@ -92,14 +92,14 @@ export const RepositoryFields = <TFormValues extends FieldValues>({
         isRequired={isTypeRequired}
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
+            isScrollable
             toggleId={toggleIds.type || `${prefix}-repo-type-toggle`}
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={value ? toOptionLike(value, kindOptions) : undefined}
+            ariaLabel={name}
+            value={value ?? undefined}
             options={kindOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
+            onSelect={(selection) => {
+              onChange(selection);
               trigger(nameUrl);
             }}
           />

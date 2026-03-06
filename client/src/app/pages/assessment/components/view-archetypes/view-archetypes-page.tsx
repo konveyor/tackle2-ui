@@ -14,7 +14,7 @@ import { Paths, ViewArchetypesRoute } from "@app/Paths";
 import { Ref } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { useFetchApplicationById } from "@app/queries/applications";
 import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { formatPath } from "@app/utils/utils";
@@ -38,22 +38,11 @@ const ViewArchetypes: React.FC = () => {
     }
   }, [archetypeId, archetype]);
 
-  function mapRefToOption(ref: Ref | null): OptionWithValue<Ref | null> {
-    if (ref) {
-      return {
-        value: ref,
-        toString: () => ref.name,
-      };
-    } else {
-      return {
-        value: null,
-        toString: () => "All",
-      };
-    }
-  }
-  const options: OptionWithValue<Ref | null>[] = [
-    ...(application?.archetypes?.map(mapRefToOption) || []),
-  ];
+  const archetypeOptions =
+    application?.archetypes?.map((ref) => ({
+      value: String(ref.id),
+      label: ref.name,
+    })) ?? [];
 
   return (
     <>
@@ -84,17 +73,18 @@ const ViewArchetypes: React.FC = () => {
         <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
           {application?.archetypes && application?.archetypes?.length > 1 && (
             <SimpleSelect
-              width={300}
               id="archetype-select"
-              aria-label="Select an archetype"
-              variant="single"
-              value={mapRefToOption(activeArchetype)}
-              onChange={(selection) => {
-                const selectedArchetype =
-                  selection as OptionWithValue<Ref | null>;
-                setActiveArchetype(selectedArchetype.value);
+              isScrollable
+              ariaLabel="Select an archetype"
+              value={activeArchetype ? String(activeArchetype.id) : undefined}
+              options={archetypeOptions}
+              onSelect={(value) => {
+                const ref =
+                  application?.archetypes?.find(
+                    (a) => String(a.id) === value
+                  ) ?? null;
+                setActiveArchetype(ref);
               }}
-              options={options}
             />
           )}
           <TextContent>
