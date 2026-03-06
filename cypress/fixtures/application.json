@@ -81,6 +81,10 @@
     "repoType": "Git",
     "sourceRepo": "https://github.com/melix/jmh-gradle-example"
   },
+  "gradle8-example": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/jmle/gradle8-example"
+  },
   "python-demo-app": {
     "repoType": "Git",
     "sourceRepo": "https://github.com/Shopify/sample-django-app"
