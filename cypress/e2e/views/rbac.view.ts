@@ -4,7 +4,6 @@ export const createPasswordButton =
   "button[data-testid='no-credentials-empty-action']";
 export const passwordInput = "input[data-testid='passwordField']";
 export const passwordConfirm = "input[data-testid='passwordConfirmationField']";
-export const kebabToogleButton = 'button[aria-label="Kebab toggle"]';
 export const modalConfirmButton = "#modal-confirm";
 export const tempPasswordToggle = "#temporaryPassword";
 export const assignRoleButton = 'button[data-testid="add-role-mapping-button"]';
