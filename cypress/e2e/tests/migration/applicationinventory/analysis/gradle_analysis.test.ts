@@ -47,10 +47,10 @@ describe(["@tier1"], "Gradle Analysis", () => {
   });
 
   // Automates TC 532
-  it("Bug MTA-6211: Analysis for Gradle JMH application", function () {
+  it("Bug MTA-6211: Analysis for Gradle application (gradle8-example)", function () {
     const application = new Analysis(
-      getRandomApplicationData("JMH Gradle", {
-        sourceData: this.appData["jmh-gradle-example"],
+      getRandomApplicationData("Gradle 8 Example", {
+        sourceData: this.appData["gradle8-example"],
       }),
       {
         source: "Source code + dependencies",
@@ -58,7 +58,7 @@ describe(["@tier1"], "Gradle Analysis", () => {
         target: [],
       }
     );
-    application.customRule = ["jmh-gradle-annotation-state-test-rule.yaml"];
+    application.customRule = ["gradle8-serializable-test-rule.yaml"];
     application.create();
     applications.push(application);
     cy.wait("@getApplication");
@@ -68,10 +68,10 @@ describe(["@tier1"], "Gradle Analysis", () => {
   });
 
   // Automates TC 546
-  it("Bug MTA-6211: Analysis for Gradle JMH application with Open Source libraries", function () {
+  it("Bug MTA-6211: Analysis for Gradle application with Open Source libraries (gradle8-example)", function () {
     const application = new Analysis(
-      getRandomApplicationData("JMH Gradle OS libs", {
-        sourceData: this.appData["jmh-gradle-example"],
+      getRandomApplicationData("Gradle 8 Example OS libs", {
+        sourceData: this.appData["gradle8-example"],
       }),
       {
         source: "Source code + dependencies",
@@ -79,7 +79,7 @@ describe(["@tier1"], "Gradle Analysis", () => {
         openSourceLibraries: true,
       }
     );
-    application.customRule = ["jmh-gradle-serializable-test-rule.yaml"];
+    application.customRule = ["gradle8-serializable-test-rule.yaml"];
     application.create();
     applications.push(application);
     cy.wait("@getApplication");
