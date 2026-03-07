@@ -26,9 +26,9 @@ import {
   cancelButton,
   confirmButton,
   itemsSelectInsideDialog,
-  kebabToggleButton,
   modal,
   pencilIcon,
+  rowActionsKebabToggle,
   submitButton,
 } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
@@ -287,7 +287,7 @@ export class MigrationWave {
       cy.contains(targetName)
         .parents("tr")
         .within(() => {
-          cy.get(kebabToggleButton).then(($btn) => {
+          cy.get(rowActionsKebabToggle).then(($btn) => {
             $btn.trigger("click");
           });
         });
@@ -304,7 +304,7 @@ export class MigrationWave {
 
         if (startCell === targetStartDate && endCell === targetEndDate) {
           cy.wrap($row)
-            .find(kebabToggleButton)
+            .find(rowActionsKebabToggle)
             .then(($btn) => {
               if ($btn.attr("aria-expanded") === "false") {
                 $btn.trigger("click");
