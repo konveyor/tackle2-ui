@@ -20,6 +20,12 @@ export type DefaultFormState<TFormValues extends FieldValues> =
  * Generic form change handler that watches form fields and calls a state change callback.
  * @template TFormValues - The type of the form values
  * @template TState - The type of the state object (defaults to form values + isValid)
+ *
+ * NOTE: useWatch's `compute` prop (v7.61+) cannot be used here because `isValid`
+ * comes from formState, not from watched values. The `compute` callback only
+ * re-evaluates when watched values change, so it would produce stale results when
+ * `isValid` transitions independently (e.g. async validation). The explicit
+ * `useMemo` over both `watchedValues` and `isValid` keeps the derived state correct.
  */
 export const useFormChangeHandler = <
   TFormValues extends FieldValues,

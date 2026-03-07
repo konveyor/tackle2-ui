@@ -1,7 +1,12 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { FormProvider, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  FormStateSubscribe,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -332,15 +337,9 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    control,
-    resetField,
-  } = methods;
+  const { handleSubmit, control, resetField } = methods;
 
-  const values = getValues();
+  const kind = useWatch({ control, name: "kind" });
 
   const clearIdentityDataFields = React.useCallback(() => {
     resetField("settings", { defaultValue: "" });
@@ -393,21 +392,21 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           )}
         />
 
-        {values?.kind === "source" && (
+        {kind === "source" && (
           <KindSourceForm
             identity={identity}
             defaultIdentities={defaultIdentities}
           />
         )}
 
-        {values?.kind === "maven" && (
+        {kind === "maven" && (
           <KindMavenSettingsFileForm
             identity={identity}
             defaultIdentities={defaultIdentities}
           />
         )}
 
-        {values?.kind === "proxy" && (
+        {kind === "proxy" && (
           <KindSimpleUsernamePasswordForm
             identity={identity}
             usernameLabel="Username"
@@ -416,7 +415,7 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           />
         )}
 
-        {values?.kind === "basic-auth" && (
+        {kind === "basic-auth" && (
           <KindSimpleUsernamePasswordForm
             identity={identity}
             usernameLabel="Jira username or email"
@@ -424,31 +423,36 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           />
         )}
 
-        {values?.kind === "bearer" && (
-          <KindBearerTokenForm identity={identity} />
-        )}
+        {kind === "bearer" && <KindBearerTokenForm identity={identity} />}
 
-        <ActionGroup>
-          <Button
-            type="submit"
-            aria-label="submit"
-            id="submit"
-            variant={ButtonVariant.primary}
-            isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-          >
-            {!identity ? "Create" : "Save"}
-          </Button>
-          <Button
-            type="button"
-            id="cancel"
-            aria-label="cancel"
-            variant={ButtonVariant.link}
-            isDisabled={isSubmitting || isValidating}
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-        </ActionGroup>
+        <FormStateSubscribe
+          control={control}
+          render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+            <ActionGroup>
+              <Button
+                type="submit"
+                aria-label="submit"
+                id="submit"
+                variant={ButtonVariant.primary}
+                isDisabled={
+                  !isValid || isSubmitting || isValidating || !isDirty
+                }
+              >
+                {!identity ? "Create" : "Save"}
+              </Button>
+              <Button
+                type="button"
+                id="cancel"
+                aria-label="cancel"
+                variant={ButtonVariant.link}
+                isDisabled={isSubmitting || isValidating}
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+            </ActionGroup>
+          )}
+        />
       </Form>
     </FormProvider>
   );

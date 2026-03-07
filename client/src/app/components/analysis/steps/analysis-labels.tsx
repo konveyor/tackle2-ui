@@ -87,7 +87,7 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
   );
 
   const { control } = form;
-  const { excludedLabels } = useWatch({ control });
+  const excludedLabels = useWatch({ control, name: "excludedLabels" });
   useFormChangeHandler({ form, onStateChanged });
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
