@@ -44,16 +44,67 @@ import {
   createTagCategoryButton,
 } from "../../../views/tags.view";
 
-import { clickTags, fillName } from "./tags";
+import { fillName } from "./tags";
 
 export class TagCategory {
   name: string;
   fieldId: "color";
   color: string;
+  id?: number;
 
-  constructor(name: string, color: string) {
+  constructor(name: string, color: string, id?: number) {
     this.name = name;
     this.color = color;
+    if (id) this.id = id;
+  }
+
+  /** Create a tag category via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    color?: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<TagCategory> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/tagcategories",
+        body: { name, colour: color || "" },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) => new TagCategory(res.body.name, res.body.colour, res.body.id)
+      );
+  }
+
+  /** Delete a tag category via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/tagcategories/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all tag categories via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/tagcategories",
+      ...(headers && { headers }),
+    }).then((res) => {
+      const items = Array.isArray(res.body) ? res.body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/tagcategories/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 
   static fullUrl = Cypress.config("baseUrl") + "/controls/tags";
@@ -85,7 +136,6 @@ export class TagCategory {
 
   create(cancel = false, readSuccessAlert = false): void {
     TagCategory.openList();
-    clickTags();
     clickByText(button, createTagCategoryButton);
     if (cancel) {
       cancelForm();
@@ -118,14 +168,14 @@ export class TagCategory {
   }
 
   delete(cancel = false): void {
-    // Opening tags list only if another tab is opened
     TagCategory.openList();
+    cy.intercept("DELETE", "/hub/tagcategories/*").as("deleteTagCategory");
     clickItemInKebabMenu(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       confirm();
+      cy.wait("@deleteTagCategory");
     }
-    cy.wait(SEC);
   }
 }
