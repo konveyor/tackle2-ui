@@ -1,7 +1,0 @@
-.pf-v5-c-table.app-table
-  thead
-  > tr
-  > th.pf-v5-c-table__toggle
-  > :first-of-type {
-  display: none;
-}
