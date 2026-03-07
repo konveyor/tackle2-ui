@@ -18,7 +18,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { ImportSummaryRoute, Paths } from "@app/Paths";
+import { Paths } from "@app/Paths";
 import { getApplicationSummaryCSV } from "@app/api/rest";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -46,19 +46,19 @@ export const ManageImportsDetails: React.FC = () => {
   const { t } = useTranslation();
 
   // Router
-  const { importId } = useParams<ImportSummaryRoute>();
+  const { importId } = useParams<"importId">();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { imports, isFetching, fetchError } = useFetchImports(
-    parseInt(importId),
+    parseInt(importId!),
     false
   );
 
-  const { importSummary } = useFetchImportSummaryById(importId);
+  const { importSummary } = useFetchImportSummaryById(importId!);
 
   const exportCSV = () => {
-    getApplicationSummaryCSV(importId)
+    getApplicationSummaryCSV(importId!)
       .then((response) => {
         const fileName = importSummary?.filename || "file.csv";
         saveAs(new Blob([response.data]), fileName);

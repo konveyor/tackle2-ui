@@ -1,6 +1,6 @@
 import { type FC } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PageSection } from "@patternfly/react-core";
 
 import { PageHeader, PageHeaderProps } from "@app/components/PageHeader";
@@ -31,11 +31,11 @@ export const TaskDetailsBase: FC<{
   const { search } = useLocation();
   const hasMergedParam = new URLSearchParams(search).has("merged");
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const onDocumentChange = (documentId: DocumentId) =>
     typeof documentId === "number"
-      ? history.push(formatAttachmentPath(documentId))
-      : history.push({
+      ? navigate(formatAttachmentPath(documentId))
+      : navigate({
           pathname: detailsPath,
           search: documentId === "MERGED_VIEW" ? "?merged=true" : undefined,
         });

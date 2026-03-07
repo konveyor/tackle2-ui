@@ -1,7 +1,7 @@
 import { type FC, type ReactNode } from "react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   PageSection,
   PageSectionVariants,
@@ -64,7 +64,8 @@ export const taskStateToLabel: Record<TaskState, string> = {
 
 export const TasksPage: FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters") ?? "";
@@ -208,10 +209,10 @@ export const TasksPage: FC = () => {
   };
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
     filterToolbarProps.setFilterValues({});
   };
 
