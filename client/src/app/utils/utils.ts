@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
-import { ToolbarChip } from "@patternfly/react-core";
+import { MenuToggleProps, ToolbarChip } from "@patternfly/react-core";
 
 import {
   AdminPathValues,
@@ -106,6 +106,15 @@ export const getValidatedFromErrors = (
   isTouched: boolean | undefined
 ) => {
   return error && (dirty || isTouched) ? "error" : "default";
+};
+
+export const getToggleStatusFromErrors = (
+  error: unknown | undefined,
+  dirty: boolean | undefined,
+  isTouched: boolean | undefined
+): MenuToggleProps["status"] => {
+  const validated = getValidatedFromErrors(error, dirty, isTouched);
+  return validated === "error" ? "danger" : undefined;
 };
 
 export const getValidatedFromError = (error: unknown | undefined) => {
