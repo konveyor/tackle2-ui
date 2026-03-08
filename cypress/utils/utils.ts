@@ -100,7 +100,6 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
-  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -109,6 +108,7 @@ import {
   pageNumInput,
   prevPageButton,
   removeButton,
+  rowActionsKebabToggle,
   searchButton,
   sideDrawer,
   span,
@@ -1594,14 +1594,12 @@ export function deleteAllMigrationWaves() {
   // like Applications and Imports page
   isTableEmpty().then((empty) => {
     if (!empty) {
-      // Wait for kebab buttons to be visible before attempting to delete
-      cy.get(kebabToggleButton, { timeout: 15 * SEC }).should("be.visible");
       cy.get("tbody tr").then(($rows) => {
-        for (let i = 0; i < $rows.length; i++) {
-          cy.get(kebabToggleButton, { timeout: 10000 }).first().click();
+        for (let i = 0; i < $rows.length - 1; i++) {
+          cy.get(rowActionsKebabToggle, { timeout: 10000 }).first().click();
           cy.contains("Delete").click();
           cy.get(confirmButton).click();
-          cy.wait(5000);
+          cy.wait(2 * SEC);
           isTableEmpty().then((empty) => {
             if (empty) return;
           });
