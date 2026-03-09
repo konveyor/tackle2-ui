@@ -59,10 +59,44 @@ export function fillName(name: string): void {
 export class Tag {
   name: string;
   tagCategory: string;
+  id?: number;
 
-  constructor(name: string, tagCategory: string) {
+  constructor(name: string, tagCategory: string, id?: number) {
     this.name = name;
     this.tagCategory = tagCategory;
+    if (id) this.id = id;
+  }
+
+  /**
+   * Create a tag via the API (no UI interaction).
+   * Requires a `tagCategoryId` — the numeric ID of the parent tag category.
+   */
+  static createViaApi(
+    name: string,
+    tagCategoryId: number,
+    tagCategoryName: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Tag> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/tags",
+        body: { name, category: { id: tagCategoryId } },
+        ...(headers && { headers }),
+      })
+      .then((res) => new Tag(res.body.name, tagCategoryName, res.body.id));
+  }
+
+  /** Delete a tag via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/tags/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
   }
 
   static fullUrl = Cypress.config("baseUrl") + "/controls/tags";
@@ -140,13 +174,14 @@ export class Tag {
 
   delete(cancel = false): void {
     Tag.openList();
+    cy.intercept("DELETE", "/hub/tags/*").as("deleteTag");
     expandRowDetails(this.tagCategory);
     applyAction(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       confirm();
+      cy.wait("@deleteTag");
     }
-    cy.wait(SEC);
   }
 }
