@@ -76,6 +76,7 @@ describe("Component: proxy-form", () => {
       { name: /HTTP proxy credentials/i },
       { timeout: 3000 }
     );
+    expect(selectToggle).toHaveTextContent("Select...");
     fireEvent.click(selectToggle);
 
     const httpOption = await screen.findByText(
@@ -86,7 +87,7 @@ describe("Component: proxy-form", () => {
     fireEvent.click(httpOption);
 
     await waitFor(() => {
-      expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+      expect(selectToggle).toHaveTextContent("proxy-cred");
       expect(screen.queryByText("maven-cred")).toBeNull();
       expect(screen.queryByText("source-cred")).toBeNull();
     });
@@ -106,6 +107,7 @@ describe("Component: proxy-form", () => {
       { name: /HTTPS proxy credentials/i },
       { timeout: 3000 }
     );
+    expect(selectToggle).toHaveTextContent("Select...");
     fireEvent.click(selectToggle);
 
     const httpsOption = await screen.findByText(
@@ -116,7 +118,7 @@ describe("Component: proxy-form", () => {
     fireEvent.click(httpsOption);
 
     await waitFor(() => {
-      expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+      expect(selectToggle).toHaveTextContent("proxy-cred");
       expect(screen.queryByText("maven-cred")).toBeNull();
       expect(screen.queryByText("source-cred")).toBeNull();
     });
