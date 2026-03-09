@@ -79,7 +79,8 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     defaultValues: {
       name: tagCategory?.name || "",
       color: tagCategory
-        ? tagCategory.colour || getTagCategoryFallbackColor(tagCategory)
+        ? tagCategory.colour?.toUpperCase() ||
+          getTagCategoryFallbackColor(tagCategory)
         : null,
     },
     resolver: yupResolver(validationSchema),
@@ -132,7 +133,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const onSubmit = (formValues: FormValues) => {
     const payload: New<TagCategory> = {
       name: formValues.name.trim(),
-      colour: formValues.color || undefined,
+      colour: formValues.color?.toUpperCase() || undefined,
     };
 
     if (tagCategory) updateTagCategory({ id: tagCategory.id, ...payload });
@@ -140,13 +141,15 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     onClose();
   };
 
-  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => ({
-    value: color,
-    label: color,
-    optionProps: {
-      children: <Color hex={color} />,
-    },
-  }));
+  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME)
+    .map((color) => color.toUpperCase())
+    .map((color) => ({
+      value: color,
+      label: color,
+      optionProps: {
+        children: <Color hex={color} />,
+      },
+    }));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -174,7 +177,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
             ariaLabel={name}
-            value={value ?? undefined}
+            value={value?.toUpperCase() ?? undefined}
             options={colorOptions}
             onSelect={onChange}
           />
