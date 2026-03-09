@@ -18,8 +18,8 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
-import {
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";

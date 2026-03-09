@@ -1,5 +1,4 @@
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 
 import {
