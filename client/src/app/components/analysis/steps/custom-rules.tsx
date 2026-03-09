@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Alert,
-  Button,
   Form,
   Tab,
   TabTitleText,
@@ -14,41 +13,22 @@ import {
   Text,
   TextContent,
   Title,
-  Toolbar,
-  ToolbarContent,
-  ToolbarGroup,
-  ToolbarItem,
-  ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import { FilterIcon, TrashIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { ICell, IRow, TableText, cellWidth } from "@patternfly/react-table";
-import {
-  Table,
-  TableBody,
-  TableHeader,
-} from "@patternfly/react-table/deprecated";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
 import {
-  FilterCategory,
-  FilterToolbar,
-  FilterType,
-} from "@app/components/FilterToolbar";
-import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-import { useLegacyFilterState } from "@app/hooks/useLegacyFilterState";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
-import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
 import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 
+import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
 
 export interface CustomRulesStepValues {
@@ -191,18 +171,6 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customLabels", uniqueNewTargetLabels);
   };
 
-  const onRemoveRuleFile = (ruleFile: UploadFile) => {
-    // Remove the rule file from `customRulesFiles`
-    const newCustomRulesFiles = customRulesFiles.filter(
-      (file) => file.fileName !== ruleFile.fileName
-    );
-    setValue("customRulesFiles", newCustomRulesFiles);
-
-    // Rebuild the labels from the remaining rule files
-    const currentFileLabels = buildSetOfTargetLabels(newCustomRulesFiles);
-    setValue("customLabels", currentFileLabels);
-  };
-
   const repositoryTypeOptions: OptionWithValue<string>[] = [
     {
       value: "git",
@@ -221,90 +189,6 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
       toString: () => identity.name,
     })
   );
-
-  const filterCategories: FilterCategory<UploadFile, "name">[] = [
-    {
-      categoryKey: "name",
-      title: t("terms.name"),
-      type: FilterType.search,
-      placeholderText:
-        t("actions.filterBy", {
-          what: t("terms.name").toLowerCase(),
-        }) + "...",
-      getItemValue: (item) => {
-        return item?.fileName || "";
-      },
-    },
-  ];
-
-  // TODO: Replace with the current table and filter state -- set-targets has a similar implementation
-  const { filterValues, setFilterValues, filteredItems } = useLegacyFilterState(
-    customRulesFiles,
-    filterCategories
-  );
-
-  const handleOnClearAllFilters = () => {
-    setFilterValues({});
-  };
-
-  // Table
-  const columns: ICell[] = [
-    {
-      title: t("terms.name"),
-      transforms: [cellWidth(20)],
-    },
-    {
-      title: `${t("wizard.terms.source", { count: 2 })} / ${t("wizard.terms.target", { count: 2 })}`,
-      transforms: [cellWidth(20)],
-    },
-    { title: t("wizard.terms.numberOfRules"), transforms: [cellWidth(10)] },
-    {
-      title: "",
-      props: {
-        className: "pf-v5-c-table__inline-edit-action",
-      },
-    },
-  ];
-
-  const rows: IRow[] = [];
-  filteredItems?.forEach((item) => {
-    const { source, target, total } = parseRules(item);
-
-    const sources = getParsedLabel(source).labelValue || t("wizard.terms.none");
-    const targets = getParsedLabel(target).labelValue || t("wizard.terms.none");
-    const sourceTargetLabel = `${sources} / ${targets}`;
-
-    rows.push({
-      entity: item,
-      cells: [
-        {
-          title: <TableText wrapModifier="truncate">{item.fileName}</TableText>,
-        },
-        {
-          title: (
-            <TableText wrapModifier="truncate">{sourceTargetLabel}</TableText>
-          ),
-        },
-        {
-          title: <TableText wrapModifier="truncate">{total}</TableText>,
-        },
-        {
-          title: (
-            <div className="pf-v5-c-inline-edit__action pf-m-enable-editable">
-              <Button
-                id="remove-rule-button"
-                type="button"
-                variant="plain"
-                onClick={() => onRemoveRuleFile(item)}
-              >
-                <TrashIcon />
-              </Button>
-            </div>
-          ),
-        },
-      ],
-    });
-  });
 
   return (
     <>
@@ -344,59 +228,18 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
       />
 
       {activeTabKey === 0 && (
-        <>
-          <div className="line">
-            <Toolbar
-              className="pf-m-toggle-group-container"
-              collapseListedFiltersBreakpoint="xl"
-              clearAllFilters={handleOnClearAllFilters}
-              clearFiltersButtonText="clear Filter"
-            >
-              <ToolbarContent>
-                <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-                  <FilterToolbar
-                    filterCategories={filterCategories}
-                    filterValues={filterValues}
-                    setFilterValues={setFilterValues}
-                  />
-                </ToolbarToggleGroup>
-                <ToolbarGroup variant="button-group">
-                  <ToolbarItem>
-                    <Button
-                      id="add-rules"
-                      type="button"
-                      aria-label="add rules"
-                      variant="primary"
-                      onClick={() => onShowUploadFiles(true)}
-                    >
-                      {t("composed.add", {
-                        what: t("wizard.terms.rules").toLowerCase(),
-                      })}
-                    </Button>
-                  </ToolbarItem>
-                </ToolbarGroup>
-              </ToolbarContent>
-            </Toolbar>
-          </div>
-          {filteredItems.length > 0 ? (
-            <Table
-              aria-label="Custom rules table"
-              className="custom-rules-table"
-              cells={columns}
-              rows={rows}
-            >
-              <TableHeader />
-              <TableBody />
-            </Table>
-          ) : (
-            <NoDataEmptyState
-              title={t("wizard.label.noCustomRules")}
-              description={t("composed.add", {
-                what: t("wizard.terms.rules").toLowerCase(),
-              })}
-            />
-          )}
-        </>
+        <CustomRulesTable
+          customRulesFiles={customRulesFiles}
+          onAddRulesFiles={() => onShowUploadFiles(true)}
+          setCustomRulesFiles={(newCustomRulesFiles: UploadFile[]) => {
+            setValue("customRulesFiles", newCustomRulesFiles);
+
+            // Rebuild the labels from the remaining rule files
+            const currentFileLabels =
+              buildSetOfTargetLabels(newCustomRulesFiles);
+            setValue("customLabels", currentFileLabels);
+          }}
+        />
       )}
 
       {activeTabKey === 1 && (
