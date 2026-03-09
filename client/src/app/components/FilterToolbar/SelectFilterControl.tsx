@@ -2,7 +2,6 @@ import { ToolbarChip, ToolbarFilter } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";
-import "./select-overrides.css";
 import SimpleSelect from "./components/SimpleSelect";
 
 export interface ISelectFilterControlProps<

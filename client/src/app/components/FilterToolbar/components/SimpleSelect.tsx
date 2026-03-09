@@ -53,7 +53,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
 
     return (
       <MenuToggle
-        aria-label={toggleAriaLabel}
+        aria-label={toggleAriaLabel ?? ariaLabel}
         id={toggleId}
         ref={toggleRef}
         onClick={() => {
@@ -72,10 +72,10 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
     <Select
       id={id}
       isScrollable={isScrollable}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel ?? toggleAriaLabel}
       toggle={toggle}
       onOpenChange={(isOpen) => setIsFilterDropdownOpen(isOpen)}
-      selected={selectedValue ?? placeholderText}
+      selected={selectedValue}
       onSelect={(_, value) => {
         onSelect(value as string);
         setIsFilterDropdownOpen(false);

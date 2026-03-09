@@ -141,7 +141,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   };
 
   const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => ({
-    value: color.toUpperCase(),
+    value: color,
     label: color,
     optionProps: {
       children: <Color hex={color} />,
