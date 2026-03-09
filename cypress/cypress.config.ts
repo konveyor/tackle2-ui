@@ -144,6 +144,10 @@ export default defineConfig({
           decompress(path + file, path + "/" + file.split(".")[0]);
           return null;
         },
+        log(message: string) {
+          console.log(message);
+          return null;
+        },
       });
       return config;
     },
