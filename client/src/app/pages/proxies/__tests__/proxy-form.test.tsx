@@ -71,22 +71,25 @@ describe("Component: proxy-form", () => {
     );
     fireEvent.click(httpProxyIdentitySwitch);
 
-    const selectToggle = await screen.findByRole("button", {
-      name: /Select\.\.\./i,
-    });
-    fireEvent.click(selectToggle);
-
-    await waitFor(
-      () => {
-        const option = screen.getByText("proxy-cred");
-        fireEvent.click(option);
-      },
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTP proxy credentials/i },
       { timeout: 3000 }
     );
+    fireEvent.click(selectToggle);
 
-    expect(screen.getByText("proxy-cred")).toBeInTheDocument();
-    expect(screen.queryByText("maven-cred")).toBeNull();
-    expect(screen.queryByText("source-cred")).toBeNull();
+    const httpOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpOption);
+
+    await waitFor(() => {
+      expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 
   it("Select https proxy identity", async () => {
@@ -98,21 +101,24 @@ describe("Component: proxy-form", () => {
     );
     fireEvent.click(httpsProxyIdentitySwitch);
 
-    const selectToggle = await screen.findByRole("button", {
-      name: /Select\.\.\./i,
-    });
-    fireEvent.click(selectToggle);
-
-    await waitFor(
-      () => {
-        const option = screen.getByText("proxy-cred");
-        fireEvent.click(option);
-      },
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTPS proxy credentials/i },
       { timeout: 3000 }
     );
+    fireEvent.click(selectToggle);
 
-    expect(screen.getByText("proxy-cred")).toBeInTheDocument();
-    expect(screen.queryByText("maven-cred")).toBeNull();
-    expect(screen.queryByText("source-cred")).toBeNull();
+    const httpsOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpsOption);
+
+    await waitFor(() => {
+      expect(screen.getByText("proxy-cred")).toBeInTheDocument();
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 });

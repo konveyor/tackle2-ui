@@ -48,8 +48,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
     const displayText =
       selectedOption?.optionProps?.children ??
       selectedOption?.label ??
-      selectedValue ??
-      placeholderText;
+      (selectedValue || placeholderText); // empty string is often used as no selection
 
     return (
       <MenuToggle

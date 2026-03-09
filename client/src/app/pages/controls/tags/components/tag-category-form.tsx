@@ -174,7 +174,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
             ariaLabel={name}
-            value={value?.toUpperCase()}
+            value={value ?? undefined}
             options={colorOptions}
             onSelect={onChange}
           />
