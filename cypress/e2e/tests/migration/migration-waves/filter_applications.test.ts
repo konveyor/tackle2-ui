@@ -186,11 +186,13 @@ describe(
 
     after("Perform test data clean up", function () {
       getAuthHeaders().then((headers) => {
-        MigrationWave.deleteAllViaApi(headers);
         Application.deleteAllViaApi(headers);
+        MigrationWave.deleteAllViaApi(headers);
         BusinessServices.deleteAllViaApi(headers);
         Stakeholders.deleteAllViaApi(headers);
-        tagList.forEach((tag) => tag.deleteViaApi(headers));
+        tagList.forEach((tag) => {
+          tag.deleteViaApi(headers);
+        });
       });
     });
   }

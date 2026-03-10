@@ -245,7 +245,9 @@ describe(
     after("Perform test data clean up", function () {
       getAuthHeaders().then((headers) => {
         deleteByListViaAPI(applicationList, headers);
-        deleteByListViaAPI(tagList, headers);
+        tagList.forEach((tag) => {
+          tag.deleteViaApi(headers, true);
+        });
         deleteByListViaAPI(businessServicesList, headers);
         deleteByListViaAPI(stakeholdersList, headers);
         deleteByListViaAPI(stakeholderGroupsList, headers);
