@@ -47,6 +47,8 @@ import {
   tagMenuButton,
 } from "../../../views/tags.view";
 
+import { TagCategory } from "./tagcategory";
+
 export function clickTags(): void {
   clickByText(navMenu, controls);
   clickByText(navTab, tags);
@@ -65,38 +67,6 @@ export class Tag {
     this.name = name;
     this.tagCategory = tagCategory;
     if (id) this.id = id;
-  }
-
-  /**
-   * Create a tag via the API (no UI interaction).
-   * Requires a `tagCategoryId` — the numeric ID of the parent tag category.
-   */
-  static createViaApi(
-    name: string,
-    tagCategoryId: number,
-    tagCategoryName: string,
-    headers?: Record<string, string>
-  ): Cypress.Chainable<Tag> {
-    return cy
-      .request({
-        method: "POST",
-        url: "/hub/tags",
-        body: { name, category: { id: tagCategoryId } },
-        ...(headers && { headers }),
-      })
-      .then((res) => new Tag(res.body.name, tagCategoryName, res.body.id));
-  }
-
-  /** Delete a tag via the API (no UI interaction). */
-  deleteViaApi(headers?: Record<string, string>): void {
-    if (this.id) {
-      cy.request({
-        method: "DELETE",
-        url: `/hub/tags/${this.id}`,
-        ...(headers && { headers }),
-        failOnStatusCode: false,
-      });
-    }
   }
 
   static fullUrl = Cypress.config("baseUrl") + "/controls/tags";
@@ -183,5 +153,69 @@ export class Tag {
       confirm();
       cy.wait("@deleteTag");
     }
+  }
+
+  /**
+   * Create a tag via the API (no UI interaction).
+   * Requires a `tagCategoryId` — the numeric ID of the parent tag category.
+   */
+  static createViaApi(
+    name: string,
+    tagCategoryId: number,
+    tagCategoryName: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Tag> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/tags",
+        body: { name, category: { id: tagCategoryId } },
+        ...(headers && { headers }),
+      })
+      .then((res) => new Tag(res.body.name, tagCategoryName, res.body.id));
+  }
+
+  /** Delete a tag via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/tags/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Create multiple tags via the API. Each tag gets its own tag category. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Tag[]> {
+    const tags: Tag[] = [];
+    const timestamp = Date.now();
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+      chain = chain.then(() =>
+        TagCategory.createViaApi(
+          `Tag Category ${timestamp}-${i}`,
+          color,
+          headers
+        ).then((category) =>
+          Tag.createViaApi(
+            `Tag ${timestamp}-${i}`,
+            category.id,
+            `Tag Category ${timestamp}-${i}`,
+            headers
+          ).then((tag) => {
+            tags.push(tag);
+          })
+        )
+      );
+    }
+
+    return chain.then(() => tags);
   }
 }

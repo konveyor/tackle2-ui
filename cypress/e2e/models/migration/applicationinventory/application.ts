@@ -96,8 +96,10 @@ import * as commonView from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import { reviewColumnSelector } from "../../../views/review.view";
 import { Archetype } from "../archetypes/archetype";
+import { BusinessServices } from "../controls/businessservices";
 import { Stakeholdergroups } from "../controls/stakeholdergroups";
 import { Stakeholders } from "../controls/stakeholders";
+import { Tag } from "../controls/tags";
 import { Issues } from "../dynamic-report/issues/issues";
 import { MigrationWave } from "../migration-waves/migration-wave";
 
@@ -1030,5 +1032,106 @@ export class Application {
       const id = Number(activeItem);
       return Number.isNaN(id) ? null : id;
     });
+  }
+
+  /** Delete an application via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    cy.then(() => {
+      this.extractIDfromName().then((id) => {
+        if (id) {
+          cy.request({
+            method: "DELETE",
+            url: `/hub/applications/${id}`,
+            ...(headers && { headers }),
+            failOnStatusCode: false,
+          });
+        }
+      });
+    });
+  }
+
+  /** Delete all applications via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/applications",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((app: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/applications/${app.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create an application via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    businessServiceId?: number,
+    tagIds?: number[],
+    ownerId?: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Application> {
+    const body: any = { name };
+
+    if (businessServiceId) body.businessService = { id: businessServiceId };
+    if (tagIds && tagIds.length > 0) {
+      body.tags = tagIds.map((id) => ({ id }));
+    }
+    if (ownerId) body.owner = { id: ownerId };
+
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/applications",
+        body,
+        ...(headers && { headers }),
+      })
+      .then((res) => new Application({ name: res.body.name }));
+  }
+
+  /** Create multiple applications via the API. */
+  static createMultipleViaApi(
+    count: number,
+    businessServices?: BusinessServices[],
+    tags?: Tag[],
+    stakeholders?: Stakeholders[],
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Application[]> {
+    const applications: Application[] = [];
+    const timestamp = Date.now();
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      const appData: applicationData = {
+        name: `Application ${timestamp}-${i}`,
+        business: businessServices?.[i]?.name,
+        tags: tags?.[i]?.name ? [tags[i].name] : undefined,
+        owner: stakeholders?.[i]?.name,
+      };
+
+      chain = chain.then(() =>
+        Application.createViaApi(
+          appData.name,
+          businessServices?.[i]?.id,
+          tags?.[i]?.id ? [tags[i].id] : undefined,
+          stakeholders?.[i]?.id,
+          headers
+        ).then(() => {
+          const app = new Application(appData);
+          applications.push(app);
+        })
+      );
+    }
+
+    return chain.then(() => applications);
   }
 }
