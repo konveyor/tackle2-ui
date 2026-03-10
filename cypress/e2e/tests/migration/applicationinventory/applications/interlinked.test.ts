@@ -19,14 +19,10 @@ import * as data from "../../../../../utils/data_utils";
 import {
   clickByText,
   clickItemInKebabMenu,
-  createMultipleBusinessServices,
-  createMultipleStakeholderGroups,
-  createMultipleStakeholders,
-  createMultipleTags,
-  deleteByList,
+  deleteByListViaAPI,
   deleteFromArrayByIndex,
+  getAuthHeaders,
   login,
-  selectItemsPerPage,
 } from "../../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -62,162 +58,198 @@ describe(
       cy.visit("/");
       AssessmentQuestionnaire.deleteAllQuestionnaires();
       AssessmentQuestionnaire.enable(legacyPathfinder);
-      stakeholdersList = createMultipleStakeholders(1);
-      stakeholderGroupsList = createMultipleStakeholderGroups(
-        1,
-        stakeholdersList
-      );
+
+      getAuthHeaders().then((headers) => {
+        Stakeholders.createMultipleViaApi(1, headers).then((sList) => {
+          stakeholdersList = sList;
+        });
+
+        Stakeholdergroups.createMultipleViaApi(1, headers).then((sgList) => {
+          stakeholderGroupsList = sgList;
+        });
+
+        BusinessServices.createMultipleViaApi(2, headers).then((bsList) => {
+          businessServicesList = bsList;
+        });
+
+        Tag.createMultipleViaApi(5, headers).then((tList) => {
+          tagList = tList;
+        });
+      });
     });
 
     beforeEach("Define interceptors", function () {
-      // Interceptors for stakeholder groups
       cy.intercept("POST", "/hub/stakeholdergroups*").as(
         "postStakeholdergroups"
       );
-
-      // Interceptors for applications
       cy.intercept("GET", "/hub/application*").as("getApplication");
     });
 
     it("Business service, tag update and delete dependency on application", function () {
-      businessServicesList = createMultipleBusinessServices(2);
-      tagList = createMultipleTags(2);
-      const appdata = {
-        name: data.getAppName(),
-        business: businessServicesList[0].name,
-        description: data.getDescription(),
-        tags: [tagList[0].name],
-        comment: data.getDescription(),
-      };
-      const application = new Application(appdata);
-      applicationList.push(application);
-      application.create();
-      cy.get("@getApplication");
+      let application: Application;
+      getAuthHeaders().then((headers) => {
+        Application.createViaApi(
+          data.getAppName(),
+          businessServicesList[0].id,
+          [tagList[0].id],
+          undefined,
+          headers
+        ).then((app) => {
+          app.business = businessServicesList[0].name;
+          app.tags = [tagList[0].name];
+          application = app;
+          applicationList.push(app);
+          Application.open();
+          cy.get("@getApplication");
 
-      application.applicationDetailsTab("Tags");
-      application.tagAndCategoryExists(tagList[0].name);
-      application.closeApplicationDetails();
+          application.applicationDetailsTab("Tags");
+          application.tagAndCategoryExists(tagList[0].name);
+          application.closeApplicationDetails();
 
-      // Remove the BS and tags
-      application.removeBusinessService();
-      tagList[0].delete();
-      deleteFromArrayByIndex(tagList, 0);
+          // Remove the BS and tags
+          application.removeBusinessService();
+          tagList[0].delete();
+          deleteFromArrayByIndex(tagList, 0);
 
-      // Navigate to application inventory
-      clickByText(navMenu, applicationInventory);
-      cy.get("@getApplication");
+          clickByText(navMenu, applicationInventory);
+          cy.get("@getApplication");
 
-      // Assert that deleted business service is removed from application
-      application.getColumnText(businessColumnSelector, "");
+          // Assert that deleted business service is removed from application
+          application.getColumnText(businessColumnSelector, "");
 
-      // Assert that deleted tag is removed
-      application.applicationDetailsTab("Tags");
-      application.noTagExists();
-      application.closeApplicationDetails();
+          // Assert that deleted tag is removed
+          application.applicationDetailsTab("Tags");
+          application.noTagExists();
+          application.closeApplicationDetails();
 
-      application.edit({
-        business: businessServicesList[1].name,
-        tags: [tagList[1].name],
+          application.edit({
+            business: businessServicesList[1].name,
+            tags: [tagList[1].name],
+          });
+          cy.get("@getApplication");
+
+          // Assert that business service is updated
+          application.getColumnText(
+            businessColumnSelector,
+            businessServicesList[1].name
+          );
+
+          // Assert that created tag exists
+          application.applicationDetailsTab("Tags");
+          application.tagAndCategoryExists(tagList[1].name);
+          application.closeApplicationDetails();
+        });
       });
-      cy.get("@getApplication");
-
-      // Assert that business service is updated
-      application.getColumnText(
-        businessColumnSelector,
-        businessServicesList[1].name
-      );
-
-      // Assert that created tag exists
-      application.applicationDetailsTab("Tags");
-      application.tagAndCategoryExists(tagList[1].name);
-      application.closeApplicationDetails();
     });
 
     it("Stakeholder and stakeholder group delete dependency on application", function () {
-      //Create application
-      const appdata = {
-        name: data.getAppName(),
-        description: data.getDescription(),
-        comment: data.getDescription(),
-      };
-      const application = new Application(appdata);
-      applicationList.push(application);
-      application.create();
-      cy.get("@getApplication");
-      // Perform assessment of application
-      application.perform_assessment(
-        "low",
-        stakeholdersList,
-        stakeholderGroupsList
-      );
-      application.verifyStatus("assessment", "Completed");
+      let application: Application;
+      getAuthHeaders().then((headers) => {
+        Application.createViaApi(
+          data.getAppName(),
+          undefined,
+          undefined,
+          undefined,
+          headers
+        ).then((app) => {
+          application = app;
+          applicationList.push(app);
+          Application.open();
+          cy.get("@getApplication");
+          application.perform_assessment(
+            "low",
+            stakeholdersList,
+            stakeholderGroupsList
+          );
+          application.verifyStatus("assessment", "Completed");
 
-      // Delete the stakeholders, group and removing them from the list where they were added before
-      stakeholdersList[0].delete();
-      deleteFromArrayByIndex(stakeholdersList, 0);
-      stakeholderGroupsList[0].delete();
-      deleteFromArrayByIndex(stakeholderGroupsList, 0);
+          stakeholdersList[0].deleteViaApi(headers);
+          deleteFromArrayByIndex(stakeholdersList, 0);
+          stakeholderGroupsList[0].deleteViaApi(headers);
+          deleteFromArrayByIndex(stakeholderGroupsList, 0);
 
-      clickByText(navMenu, applicationInventory);
-      selectItemsPerPage(100);
-      application.selectApplication();
-      clickItemInKebabMenu(application.name, "Assess");
-      clickByText(button, "Retake");
+          clickByText(navMenu, applicationInventory);
+          application.selectApplication();
+          clickItemInKebabMenu(application.name, "Assess");
+          clickByText(button, "Retake");
 
-      //Verify that values show blank
-      cy.get(stakeholdersAndGroupsSelect).should("have.value", "");
-      clickByText(button, "Cancel");
-      cy.get(continueButton).click();
+          cy.get(stakeholdersAndGroupsSelect).should("have.value", "");
+          clickByText(button, "Cancel");
+          cy.get(continueButton).click();
+        });
+      });
     });
 
     it("Validates association application tags to  archetype tags ", function () {
-      //automates polarion MTA-401
-      tagList = createMultipleTags(3);
       const archetype = new Archetype(
         data.getRandomWord(8),
-        [tagList[0].name, tagList[2].name],
-        [tagList[1].name],
+        [tagList[2].name, tagList[4].name],
+        [tagList[3].name],
         null
       );
       archetype.create();
 
-      const tagCombinations = [
-        [tagList[0].name, tagList[2].name],
-        [tagList[0].name, tagList[1].name],
-        [tagList[0].name, tagList[2].name],
-      ];
+      getAuthHeaders().then((headers) => {
+        Application.createViaApi(
+          data.getAppName(),
+          undefined,
+          [tagList[2].id, tagList[4].id],
+          undefined,
+          headers
+        ).then((app1) => {
+          app1.tags = [tagList[2].name, tagList[4].name];
+          applicationList.push(app1);
 
-      const appDataConfigs = tagCombinations.map((tags) => ({
-        name: data.getAppName(),
-        description: data.getDescription(),
-        tags: tags,
-        comment: data.getDescription(),
-      }));
+          Application.createViaApi(
+            data.getAppName(),
+            undefined,
+            [tagList[2].id, tagList[3].id],
+            undefined,
+            headers
+          ).then((app2) => {
+            app2.tags = [tagList[2].name, tagList[3].name];
+            applicationList.push(app2);
 
-      appDataConfigs.forEach((appData) => {
-        const application = new Application(appData);
-        applicationList.push(application);
-        application.create();
-        cy.get("@getApplication");
-        application.applicationDetailsTab("Tags");
-        appData.tags.forEach((tag) => {
-          application.tagAndCategoryExists(tag);
+            Application.createViaApi(
+              data.getAppName(),
+              undefined,
+              [tagList[2].id, tagList[4].id],
+              undefined,
+              headers
+            ).then((app3) => {
+              app3.tags = [tagList[2].name, tagList[4].name];
+              applicationList.push(app3);
+
+              Application.open();
+              const applications = [app1, app2, app3];
+
+              applications.forEach((application) => {
+                cy.get("@getApplication");
+                application.applicationDetailsTab("Tags");
+                application.tags.forEach((tag) => {
+                  application.tagAndCategoryExists(tag);
+                });
+                application.closeApplicationDetails();
+              });
+
+              archetype.getAssociatedAppsCount().then((appCount) => {
+                expect(appCount).to.equal(2);
+              });
+              archetype.delete();
+            });
+          });
         });
-        application.closeApplicationDetails();
       });
-
-      //validate app count on archytpe
-      archetype.getAssociatedAppsCount().then((appCount) => {
-        expect(appCount).to.equal(2);
-      });
-      archetype.delete();
     });
 
     after("Perform test data clean up", function () {
-      Application.open(true);
-      deleteByList(applicationList);
-      deleteByList(tagList);
-      deleteByList(businessServicesList);
+      getAuthHeaders().then((headers) => {
+        deleteByListViaAPI(applicationList, headers);
+        deleteByListViaAPI(tagList, headers);
+        deleteByListViaAPI(businessServicesList, headers);
+        deleteByListViaAPI(stakeholdersList, headers);
+        deleteByListViaAPI(stakeholderGroupsList, headers);
+      });
     });
   }
 );

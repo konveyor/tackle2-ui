@@ -19,6 +19,7 @@ import {
   clickByText,
   clickItemInKebabMenu,
   clickTab,
+  closeSuccessAlert,
   doesExistButton,
   doesExistSelector,
   doesExistText,
@@ -107,6 +108,7 @@ import { Assessment } from "./assessment";
 
 export class Application {
   name: string;
+  id?: number;
   business?: string;
   description?: string;
   tags?: Array<string>;
@@ -251,8 +253,9 @@ export class Application {
     if (this.packaging) inputText(packaging, this.packaging);
   }
 
-  create(cancel = false): void {
+  create(cancel = false, readSuccessAlert = false): void {
     Application.open();
+    cy.intercept("POST", "/hub/applications*").as("postApplication");
     cy.contains("button", createNewButton, { timeout: 20000 })
       .should("be.enabled")
       .click();
@@ -268,6 +271,10 @@ export class Application {
       if (this.sourceRepo) this.fillSourceModeFields();
       if (this.group) this.fillBinaryModeFields();
       submitForm();
+      cy.wait("@postApplication").then((interception) => {
+        this.id = interception.response.body.id;
+      });
+      if (!readSuccessAlert) closeSuccessAlert();
     }
   }
 
@@ -341,6 +348,7 @@ export class Application {
       }
       if (updatedValues) {
         submitForm();
+        closeSuccessAlert();
       }
     }
   }
@@ -387,13 +395,15 @@ export class Application {
   }
 
   applicationDetailsTab(tab: string): void {
-    // Navigate to the application details page and click desired tab
     Application.open();
     this.selectApplicationRow();
+    cy.get(rightSideMenu, { timeout: 10 * SEC }).should("be.visible");
     cy.get(rightSideMenu).within(() => {
+      cy.get("span.pf-v5-c-tabs__item-text", { timeout: 10 * SEC }).should(
+        "be.visible"
+      );
       clickTab(tab);
     });
-    // Make sure application 'Tags' tab page is loaded before proceeding with anything
     if (tab == "Tags")
       cy.get("div[class='pf-v5-c-toolbar__item']", { timeout: 60 * SEC });
   }
@@ -1036,18 +1046,14 @@ export class Application {
 
   /** Delete an application via the API (no UI interaction). */
   deleteViaApi(headers?: Record<string, string>): void {
-    cy.then(() => {
-      this.extractIDfromName().then((id) => {
-        if (id) {
-          cy.request({
-            method: "DELETE",
-            url: `/hub/applications/${id}`,
-            ...(headers && { headers }),
-            failOnStatusCode: false,
-          });
-        }
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/applications/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
       });
-    });
+    }
   }
 
   /** Delete all applications via the API. */
@@ -1095,7 +1101,11 @@ export class Application {
         body,
         ...(headers && { headers }),
       })
-      .then((res) => new Application({ name: res.body.name }));
+      .then((res) => {
+        const app = new Application({ name: res.body.name });
+        app.id = res.body.id;
+        return app;
+      });
   }
 
   /** Create multiple applications via the API. */
@@ -1125,8 +1135,10 @@ export class Application {
           tags?.[i]?.id ? [tags[i].id] : undefined,
           stakeholders?.[i]?.id,
           headers
-        ).then(() => {
-          const app = new Application(appData);
+        ).then((app) => {
+          app.business = appData.business;
+          app.tags = appData.tags;
+          app.owner = appData.owner;
           applications.push(app);
         })
       );
