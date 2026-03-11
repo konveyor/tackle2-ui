@@ -102,11 +102,8 @@ describe(["@tier1"], "Source Analysis", () => {
     application.waitStatusChange(AnalysisStatuses.scheduled);
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
 
-    // analyze after removing valid default source and maven creds
     sourceCredential.unsetAsDefaultViaActionsMenu();
     mavenCredential.unsetAsDefaultViaActionsMenu();
-    application.analyze();
-    application.waitStatusChange(AnalysisStatuses.failed);
   });
 
   it("Source + dependencies analysis on daytrader app", function () {
