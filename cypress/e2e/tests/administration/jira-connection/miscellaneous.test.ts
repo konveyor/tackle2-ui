@@ -110,7 +110,7 @@ describe(["@tier3"], "Jira connection negative tests", () => {
     });
   });
 
-  it("Bug MTA-2549: Validating error when Jira Stage Instance is not connected", () => {
+  it("Validating error when Jira Stage Instance is not connected", () => {
     /**
          Implements MTA-362 - Add JIRA instance with invalid credentials
          Automates https://issues.redhat.com/browse/MTA-991

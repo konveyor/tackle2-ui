@@ -14,6 +14,7 @@ import {
   button,
   createNewButton,
   deleteAction,
+  editAction,
   exportToIssueManagerAction,
   manageApplications,
   migrationWaves,
@@ -91,7 +92,8 @@ export class MigrationWave {
 
   public edit(updateValues: Partial<MigrationWave>) {
     MigrationWave.open();
-    performRowActionByIcon(this.name, pencilIcon);
+    this.expandActionsMenu();
+    cy.contains(editAction).click();
     this.fillForm(updateValues);
     submitForm();
   }
