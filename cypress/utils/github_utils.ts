@@ -138,6 +138,22 @@ export function checkGitHubBeforeTest(options: GitHubIssueCheckOptions): void {
  *
  * @param options - Configuration options for the GitHub issue check
  * @param context - Mocha test context (this)
+ *
+ * @example
+ * ```typescript
+ * it("my test", function (this: Mocha.Context) {
+ *   checkGitHubInTest({
+ *     issueNumber: 123,
+ *     githubConfig: {
+ *       owner: "konveyor",
+ *       auth: { token: Cypress.env("github_token") }
+ *     },
+ *     repo: "tackle2-ui"
+ *   }, this);
+ *
+ *   cy.log("Test runs only if GitHub issue is closed");
+ * });
+ * ```
  */
 export function checkGitHubInTest(
   options: GitHubIssueCheckOptions,
