@@ -51,18 +51,20 @@ export class BusinessServices {
   name: string;
   description: string;
   owner: string;
+  id?: number;
 
   static fullUrl = Cypress.config("baseUrl") + "/controls/business-services";
 
-  constructor(name: string, description?: string, owner?: string) {
+  constructor(name: string, description?: string, owner?: string, id?: number) {
     this.name = name;
     if (description) this.description = description;
     if (owner) this.owner = owner;
+    this.id = id;
   }
 
   public static openList(itemsPerPage = 100): void {
     cy.url().then(($url) => {
-      if ($url != BusinessServices.fullUrl) {
+      if (!$url.includes("/controls/business-services")) {
         selectUserPerspective(migration);
         clickByText(navMenu, controls);
         cy.get("h1", { timeout: 60 * SEC }).should("contain", "Controls");
@@ -132,6 +134,7 @@ export class BusinessServices {
   }
 
   create(cancel = false): void {
+    cy.intercept("POST", "/hub/businessservices*").as("postBusinessService");
     BusinessServices.openList();
     clickByText(button, createNewButton);
     if (cancel) {
@@ -145,6 +148,7 @@ export class BusinessServices {
         this.selectOwner(this.owner);
       }
       submitForm();
+      cy.wait("@postBusinessService");
     }
   }
 
@@ -157,15 +161,16 @@ export class BusinessServices {
     cancel = false
   ): void {
     BusinessServices.openList();
-    cy.wait(2000);
     performRowActionByIcon(this.name, commonView.pencilIcon);
 
     if (cancel) {
       cancelForm();
     } else {
+      let hasChanges = false;
       if (updateValues.name && updateValues.name != this.name) {
         this.fillName(updateValues.name);
         this.name = updateValues.name;
+        hasChanges = true;
       }
       if (
         updateValues.description &&
@@ -173,25 +178,113 @@ export class BusinessServices {
       ) {
         this.fillDescription(updateValues.description);
         this.description = updateValues.description;
+        hasChanges = true;
       }
       if (updateValues.owner && updateValues.owner != this.owner) {
         this.selectOwner(updateValues.owner);
         this.owner = updateValues.owner;
+        hasChanges = true;
       }
-      if (updateValues) {
+      if (hasChanges) {
+        cy.intercept("PUT", "/hub/businessservices/*").as("putBusinessService");
         submitForm();
+        cy.wait("@putBusinessService");
       }
     }
   }
 
   delete(cancel = false): void {
     BusinessServices.openList();
+    cy.intercept("DELETE", "/hub/businessservices/*").as(
+      "deleteBusinessService"
+    );
     clickItemInKebabMenu(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       click(commonView.confirmButton);
+      cy.wait("@deleteBusinessService");
       notExists(this.name);
     }
+  }
+
+  /** Create a business service via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<BusinessServices> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/businessservices",
+        body: { name },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new BusinessServices(
+            res.body.name,
+            res.body.description,
+            undefined,
+            res.body.id
+          )
+      );
+  }
+
+  /** Delete a business service via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/businessservices/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all business services via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/businessservices",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((bs: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/businessservices/${bs.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create multiple business services via the API. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<BusinessServices[]> {
+    const timestamp = Date.now();
+    const businessServices: BusinessServices[] = [];
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      chain = chain.then(() =>
+        BusinessServices.createViaApi(
+          `Business Service ${timestamp}-${i}`,
+          headers
+        ).then((bs) => {
+          businessServices.push(bs);
+        })
+      );
+    }
+
+    return chain.then(() => businessServices);
   }
 }
