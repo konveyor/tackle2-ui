@@ -112,7 +112,9 @@ export class User {
   }
 
   protected navigateToSection(section: string) {
-    click(`a[data-testid=${section}]`);
+    cy.get(`a[data-testid=${section}]`, { timeout: 30 * SEC })
+      .should("be.visible")
+      .click();
   }
 
   protected inputUsername(username: string) {
