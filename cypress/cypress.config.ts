@@ -84,6 +84,7 @@ export default defineConfig({
         process.env.CYPRESS_KEYCLOAK_ADMIN_PASSWORD;
       config.env.git_user = process.env.CYPRESS_GIT_USER;
       config.env.git_password = process.env.CYPRESS_GIT_PASSWORD;
+      config.env.git_token = process.env.CYPRESS_GIT_TOKEN;
       config.env.svn_user = process.env.CYPRESS_SVN_USER;
       config.env.svn_password = process.env.CYPRESS_SVN_PASSWORD;
 
