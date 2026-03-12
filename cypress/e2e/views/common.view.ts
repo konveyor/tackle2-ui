@@ -94,8 +94,6 @@ export const splitItem = "div.pf-v5-l-split__item";
 export const taskNotificationBadge = "#task-notification-badge";
 export const modalConfirm = "#modal-confirm";
 export const kebabToggleButton = 'button[aria-label="Kebab toggle"]';
-export const rowActionsKebabToggle =
-  'button[aria-label="row actions dropdown toggle"]';
 
 // Application/Archetype side drawer
 export enum sideDrawer {
