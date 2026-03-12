@@ -47,6 +47,8 @@ import {
   tagMenuButton,
 } from "../../../views/tags.view";
 
+import { TagCategory } from "./tagcategory";
+
 export function clickTags(): void {
   clickByText(navMenu, controls);
   clickByText(navTab, tags);
@@ -59,10 +61,19 @@ export function fillName(name: string): void {
 export class Tag {
   name: string;
   tagCategory: string;
+  id?: number;
+  tagCategoryId?: number;
 
-  constructor(name: string, tagCategory: string) {
+  constructor(
+    name: string,
+    tagCategory: string,
+    id?: number,
+    tagCategoryId?: number
+  ) {
     this.name = name;
     this.tagCategory = tagCategory;
+    if (id) this.id = id;
+    if (tagCategoryId) this.tagCategoryId = tagCategoryId;
   }
 
   static fullUrl = Cypress.config("baseUrl") + "/controls/tags";
@@ -140,13 +151,114 @@ export class Tag {
 
   delete(cancel = false): void {
     Tag.openList();
+    cy.intercept("DELETE", "/hub/tags/*").as("deleteTag");
     expandRowDetails(this.tagCategory);
     applyAction(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       confirm();
+      cy.wait("@deleteTag");
     }
-    cy.wait(SEC);
+  }
+
+  /**
+   * Create a tag via the API (no UI interaction).
+   * Requires a `tagCategoryId` — the numeric ID of the parent tag category.
+   */
+  static createViaApi(
+    name: string,
+    tagCategoryId: number,
+    tagCategoryName: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Tag> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/tags",
+        body: { name, category: { id: tagCategoryId } },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new Tag(res.body.name, tagCategoryName, res.body.id, tagCategoryId)
+      );
+  }
+
+  /** Delete a tag via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>, deleteCategory = false): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/tags/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      }).then(() => {
+        if (deleteCategory && this.tagCategoryId) {
+          cy.request({
+            method: "DELETE",
+            url: `/hub/tagcategories/${this.tagCategoryId}`,
+            ...(headers && { headers }),
+            failOnStatusCode: false,
+          });
+        }
+      });
+    }
+  }
+
+  /** Delete all tags via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/tags",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((tag: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/tags/${tag.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create multiple tags via the API. Each tag gets its own tag category. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Tag[]> {
+    const tags: Tag[] = [];
+    const timestamp = Date.now();
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      const color = `#${Math.floor(Math.random() * 0xffffff)
+        .toString(16)
+        .padStart(6, "0")}`;
+      chain = chain.then(() =>
+        TagCategory.createViaApi(
+          `Tag Category ${timestamp}-${i}`,
+          color,
+          headers
+        ).then((category) =>
+          Tag.createViaApi(
+            `Tag ${timestamp}-${i}`,
+            category.id,
+            `Tag Category ${timestamp}-${i}`,
+            headers
+          ).then((tag) => {
+            tags.push(tag);
+          })
+        )
+      );
+    }
+
+    return chain.then(() => tags);
   }
 }

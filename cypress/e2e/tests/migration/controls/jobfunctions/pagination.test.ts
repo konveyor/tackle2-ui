@@ -15,26 +15,25 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
+import * as data from "../../../../../utils/data_utils";
 import {
-  createMultipleJobFunctions,
-  deleteByList,
+  getAuthHeaders,
   itemsPerPageValidation,
   login,
   selectItemsPerPage,
   validatePagination,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
-let jobFunctionsList: Array<Jobfunctions> = [];
 
 describe(["@tier3"], "Job functions pagination validations", function () {
   before("Login and Create Test Data", function () {
     login();
-    cy.visit("/");
-    jobFunctionsList = createMultipleJobFunctions(11);
-  });
 
-  beforeEach("Interceptors", function () {
-    cy.intercept("GET", "/hub/jobfunctions*").as("getJobfunctions");
+    getAuthHeaders().then((headers) => {
+      for (let i = 0; i < 11; i++) {
+        Jobfunctions.createViaApi(data.getFullName(), headers);
+      }
+    });
   });
 
   it("Navigation button validations", function () {
@@ -50,6 +49,8 @@ describe(["@tier3"], "Job functions pagination validations", function () {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(jobFunctionsList);
+    getAuthHeaders().then((headers) => {
+      Jobfunctions.deleteAllViaApi(headers);
+    });
   });
 });

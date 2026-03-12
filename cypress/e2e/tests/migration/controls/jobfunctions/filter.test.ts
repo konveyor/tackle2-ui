@@ -19,22 +19,28 @@ import * as data from "../../../../../utils/data_utils";
 import {
   applySearchFilter,
   clickByText,
-  createMultipleJobFunctions,
-  deleteByList,
   exists,
+  getAuthHeaders,
   login,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 import { button, clearAllFilters, name } from "../../../../types/constants";
 
-let jobFunctionsList: Array<Jobfunctions> = [];
+const jobFunctionsList: Array<Jobfunctions> = [];
 const invalidSearchInput = String(data.getRandomNumber());
 
 describe(["@tier2"], "Job function filter validations", function () {
   before("Login and Create Test Data", function () {
     login();
-    cy.visit("/");
-    jobFunctionsList = createMultipleJobFunctions(2);
+
+    getAuthHeaders().then((headers) => {
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+        jobFunctionsList.push(jf)
+      );
+    });
   });
 
   it("Name filter validations", function () {
@@ -57,6 +63,8 @@ describe(["@tier2"], "Job function filter validations", function () {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(jobFunctionsList);
+    getAuthHeaders().then((headers) => {
+      jobFunctionsList.forEach((jf) => jf.deleteViaApi(headers));
+    });
   });
 });

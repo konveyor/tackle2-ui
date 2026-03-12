@@ -19,6 +19,7 @@ import {
   clickByText,
   clickItemInKebabMenu,
   clickTab,
+  closeSuccessAlert,
   doesExistButton,
   doesExistSelector,
   doesExistText,
@@ -96,8 +97,10 @@ import * as commonView from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import { reviewColumnSelector } from "../../../views/review.view";
 import { Archetype } from "../archetypes/archetype";
+import { BusinessServices } from "../controls/businessservices";
 import { Stakeholdergroups } from "../controls/stakeholdergroups";
 import { Stakeholders } from "../controls/stakeholders";
+import { Tag } from "../controls/tags";
 import { Issues } from "../dynamic-report/issues/issues";
 import { MigrationWave } from "../migration-waves/migration-wave";
 
@@ -105,6 +108,7 @@ import { Assessment } from "./assessment";
 
 export class Application {
   name: string;
+  id?: number;
   business?: string;
   description?: string;
   tags?: Array<string>;
@@ -249,8 +253,9 @@ export class Application {
     if (this.packaging) inputText(packaging, this.packaging);
   }
 
-  create(cancel = false): void {
+  create(cancel = false, readSuccessAlert = false): void {
     Application.open();
+    cy.intercept("POST", "/hub/applications*").as("postApplication");
     cy.contains("button", createNewButton, { timeout: 20000 })
       .should("be.enabled")
       .click();
@@ -266,6 +271,10 @@ export class Application {
       if (this.sourceRepo) this.fillSourceModeFields();
       if (this.group) this.fillBinaryModeFields();
       submitForm();
+      cy.wait("@postApplication").then((interception) => {
+        this.id = interception.response.body.id;
+      });
+      if (!readSuccessAlert) closeSuccessAlert();
     }
   }
 
@@ -339,6 +348,7 @@ export class Application {
       }
       if (updatedValues) {
         submitForm();
+        closeSuccessAlert();
       }
     }
   }
@@ -385,13 +395,15 @@ export class Application {
   }
 
   applicationDetailsTab(tab: string): void {
-    // Navigate to the application details page and click desired tab
     Application.open();
     this.selectApplicationRow();
+    cy.get(rightSideMenu, { timeout: 10 * SEC }).should("be.visible");
     cy.get(rightSideMenu).within(() => {
+      cy.get("span.pf-v5-c-tabs__item-text", { timeout: 10 * SEC }).should(
+        "be.visible"
+      );
       clickTab(tab);
     });
-    // Make sure application 'Tags' tab page is loaded before proceeding with anything
     if (tab == "Tags")
       cy.get("div[class='pf-v5-c-toolbar__item']", { timeout: 60 * SEC });
   }
@@ -1030,5 +1042,108 @@ export class Application {
       const id = Number(activeItem);
       return Number.isNaN(id) ? null : id;
     });
+  }
+
+  /** Delete an application via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/applications/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all applications via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/applications",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((app: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/applications/${app.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create an application via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    businessServiceId?: number,
+    tagIds?: number[],
+    ownerId?: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Application> {
+    const body: any = { name };
+
+    if (businessServiceId) body.businessService = { id: businessServiceId };
+    if (tagIds && tagIds.length > 0) {
+      body.tags = tagIds.map((id) => ({ id }));
+    }
+    if (ownerId) body.owner = { id: ownerId };
+
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/applications",
+        body,
+        ...(headers && { headers }),
+      })
+      .then((res) => {
+        const app = new Application({ name: res.body.name });
+        app.id = res.body.id;
+        return app;
+      });
+  }
+
+  /** Create multiple applications via the API. */
+  static createMultipleViaApi(
+    count: number,
+    businessServices?: BusinessServices[],
+    tags?: Tag[],
+    stakeholders?: Stakeholders[],
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Application[]> {
+    const applications: Application[] = [];
+    const timestamp = Date.now();
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      const appData: applicationData = {
+        name: `Application ${timestamp}-${i}`,
+        business: businessServices?.[i]?.name,
+        tags: tags?.[i]?.name ? [tags[i].name] : undefined,
+        owner: stakeholders?.[i]?.name,
+      };
+
+      chain = chain.then(() =>
+        Application.createViaApi(
+          appData.name,
+          businessServices?.[i]?.id,
+          tags?.[i]?.id ? [tags[i].id] : undefined,
+          stakeholders?.[i]?.id,
+          headers
+        ).then((app) => {
+          app.business = appData.business;
+          app.tags = appData.tags;
+          app.owner = appData.owner;
+          applications.push(app);
+        })
+      );
+    }
+
+    return chain.then(() => applications);
   }
 }

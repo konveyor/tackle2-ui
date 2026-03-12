@@ -46,12 +46,98 @@ export class Stakeholdergroups {
   name: string;
   description: string;
   members: Array<string>;
-  static fullUrl = Cypress.config("baseUrl") + "controls/stakeholder-groups";
+  id?: number;
+  static fullUrl = Cypress.config("baseUrl") + "/controls/stakeholder-groups";
 
-  constructor(name: string, description?: string, members?: Array<string>) {
+  constructor(
+    name: string,
+    description?: string,
+    members?: Array<string>,
+    id?: number
+  ) {
     this.name = name;
     if (description) this.description = description;
     if (members) this.members = members;
+    if (id) this.id = id;
+  }
+
+  /** Create a stakeholder group via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    description?: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Stakeholdergroups> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/stakeholdergroups",
+        body: { name, description: description || "" },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new Stakeholdergroups(
+            res.body.name,
+            res.body.description,
+            undefined,
+            res.body.id
+          )
+      );
+  }
+
+  /** Delete a stakeholder group via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/stakeholdergroups/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Create multiple stakeholder groups via the API. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Stakeholdergroups[]> {
+    const timestamp = Date.now();
+    const stakeholderGroups: Stakeholdergroups[] = [];
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      chain = chain.then(() =>
+        Stakeholdergroups.createViaApi(
+          `Stakeholder Group ${timestamp}-${i}`,
+          undefined,
+          headers
+        ).then((sg) => {
+          stakeholderGroups.push(sg);
+        })
+      );
+    }
+
+    return chain.then(() => stakeholderGroups);
+  }
+
+  /** Delete all stakeholder groups via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/stakeholdergroups",
+      ...(headers && { headers }),
+    }).then((res) => {
+      const items = Array.isArray(res.body) ? res.body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/stakeholdergroups/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 
   public static openList(itemsPerPage = 100): void {
@@ -130,11 +216,15 @@ export class Stakeholdergroups {
 
   delete(cancel = false): void {
     Stakeholdergroups.openList();
+    cy.intercept("DELETE", "/hub/stakeholdergroups/*").as(
+      "deleteStakeholdergroup"
+    );
     clickItemInKebabMenu(this.name, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       click(commonView.confirmButton);
+      cy.wait("@deleteStakeholdergroup");
     }
   }
 }

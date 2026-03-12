@@ -100,6 +100,7 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
+  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -227,7 +228,7 @@ export function clickJs(
 
 export function submitForm(): void {
   cy.get(submitButton, { timeout: 10 * SEC }).should("not.be.disabled");
-  clickJs(submitButton);
+  cy.get(submitButton).click();
 }
 
 export function cancelForm(): void {
@@ -309,6 +310,46 @@ export function logout(userName?: string): void {
   cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
 }
 
+/**
+ * Return authorization headers for direct API calls (`cy.request`).
+ *
+ * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
+ * and returns `{ Authorization: "Bearer <token>" }`.
+ * Otherwise returns an empty object so callers can always spread/pass headers
+ * without branching.
+ */
+export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
+  return cy.uiEnvironmentConfig().then((env) => {
+    if (env["AUTH_REQUIRED"] === "true") {
+      return cy
+        .request({
+          method: "POST",
+          url: "/hub/auth/login",
+          body: {
+            user: Cypress.env("user"),
+            password: Cypress.env("pass"),
+          },
+          failOnStatusCode: false,
+        })
+        .then((res) => {
+          if (res.status !== 200 && res.status !== 201) {
+            throw new Error(
+              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
+            );
+          }
+          const token = res.body?.token;
+          if (!token) {
+            throw new Error(
+              `Auth login response missing token: ${JSON.stringify(res.body)}`
+            );
+          }
+          return { Authorization: `Bearer ${token}` } as Record<string, string>;
+        });
+    }
+    return cy.wrap({} as Record<string, string>);
+  });
+}
+
 export function resetURL(): void {
   Application.open(true);
 }
@@ -345,8 +386,24 @@ export function selectFromDropListByText(
 }
 
 export function selectFormItems(fieldId: string, item: string): void {
-  cy.get(fieldId).click();
-  cy.contains("button", item).click();
+  // PatternFly typeahead selects virtualize the dropdown options, so only
+  // items matching the typed filter are rendered to the DOM.  For plain
+  // toggle-button selects all options are rendered on click.
+  cy.get(fieldId).then(($el) => {
+    if ($el.is("input")) {
+      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      cy.get(fieldId).click().clear().type(item);
+    } else {
+      // Wrapper div or toggle button — click to open
+      cy.get(fieldId).click();
+      // If the wrapper contains a typeahead input, type into it to filter
+      const $input = $el.find("input");
+      if ($input.length > 0) {
+        cy.wrap($input.first()).clear().type(item);
+      }
+    }
+  });
+  cy.contains("button", item, { timeout: 30 * SEC }).click();
 }
 
 export function selectAnalysisMode(fieldId: string, item: string): void {
@@ -377,9 +434,10 @@ export function sidedrawerTab(name: string, tab: string): void {
 export function checkSuccessAlert(
   fieldId: string,
   message: string,
-  close = false
+  close = false,
+  timeoutMs?: number
 ): void {
-  validateTextPresence(fieldId, message);
+  validateTextPresence(fieldId, message, true, timeoutMs);
   if (close) {
     closeSuccessAlert();
   }
@@ -399,12 +457,13 @@ export function checkErrorMessage(
 export function validateTextPresence(
   fieldId: string,
   message: string,
-  shouldBeFound = true
+  shouldBeFound = true,
+  timeoutMs = 150 * SEC
 ): void {
   if (shouldBeFound) {
-    cy.get(fieldId, { timeout: 150 * SEC }).should("contain.text", message);
+    cy.get(fieldId, { timeout: timeoutMs }).should("contain.text", message);
   } else {
-    cy.get(fieldId, { timeout: 150 * SEC }).should("not.contain.text", message);
+    cy.get(fieldId, { timeout: timeoutMs }).should("not.contain.text", message);
   }
 }
 
@@ -435,21 +494,48 @@ export function removeMember(memberName: string): void {
 }
 
 export function exists(value: string, tableSelector = appTable): void {
-  // Wait for DOM to render table and sibling elements
-  cy.get(tableSelector).then(($tbody) => {
-    if ($tbody.text() !== "No data available") {
-      selectItemsPerPage(100);
-      cy.get(tableSelector).should("contain", value);
+  selectItemsPerPage(100);
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if (
+      $table.length &&
+      !$table.text().includes(value) &&
+      !/No \w.* available/.test($table.text())
+    ) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
     }
+  });
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    expect($table.length, `${tableSelector} to exist`).to.be.greaterThan(0);
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) {
+      throw new Error(`Table shows empty state: "${text}"`);
+    }
+    expect(text).to.include(value);
   });
 }
 
 export function notExists(value: string, tableSelector = appTable): void {
-  cy.get(tableSelector).then(($tbody) => {
-    if ($tbody.text() !== "No data available") {
-      selectItemsPerPage(100);
-      cy.get(tableSelector).should("not.contain", value);
+  selectItemsPerPage(100);
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if ($table.length && $table.text().includes(value)) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
     }
+  });
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    if (!$table.length) return;
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) return;
+    expect(text).to.not.include(value);
   });
 }
 
@@ -476,8 +562,6 @@ export function selectFilter(filterName: string, eq = 0): void {
 }
 
 export function filterInputText(searchTextValue: string, value: number): void {
-  cy.get(filterInput).eq(value).click().focused().clear();
-  cy.wait(200);
   cy.get(filterInput).eq(value).clear().type(searchTextValue);
   cy.get(searchButton).eq(value).click({ force: true });
 }
@@ -589,7 +673,6 @@ export function applySearchFilter(
       }
     }
   });
-  cy.wait(4000);
 }
 
 export function clickOnSortButton(
@@ -748,9 +831,9 @@ export function expandRowDetails(rowIdentifier: string): void {
     .contains(rowIdentifier)
     .closest(trTag)
     .within(() => {
-      cy.get(expandRow).then(($btn) => {
+      cy.get(expandRow, { timeout: 10 * SEC }).then(($btn) => {
         if ($btn.attr("aria-expanded") === "false") {
-          $btn.trigger("click");
+          cy.wrap($btn).click();
         }
       });
     });
@@ -765,11 +848,14 @@ export function closeRowDetails(rowIdentifier: string): void {
       if (!button["aria-label=Details"]) {
         return;
       }
-      cy.get(expandRow).then(($btn) => {
-        if ($btn.attr("aria-expanded") === "true") {
-          $btn.trigger("click");
-        }
-      });
+      cy.get(expandRow, { timeout: 10 * SEC })
+        .should("be.visible")
+        .should("not.be.disabled")
+        .then(($btn) => {
+          if ($btn.attr("aria-expanded") === "true") {
+            cy.wrap($btn).click();
+          }
+        });
     });
 }
 
@@ -1068,6 +1154,7 @@ export function createMultipleJobFunctions(num): Array<Jobfunctions> {
   for (let i = 0; i < num; i++) {
     const jobFunction = new Jobfunctions(data.getFullName());
     jobFunction.create();
+    closeSuccessAlert();
     jobFunctionsList.push(jobFunction);
   }
   return jobFunctionsList;
@@ -1112,7 +1199,7 @@ export function createArchetypeWithProfiles(
   criteriaTags: string[],
   archetypeTags: string[],
   targetProfileCount: number,
-  profileData: any,
+  profileData: analysisData,
   profileNamePrefix?: string
 ): {
   archetype: Archetype;
@@ -1366,6 +1453,19 @@ type Deletable = { delete: () => void };
 export function deleteByList<T extends Deletable>(array: T[]): void {
   cy.wrap(array).each((element: T) => {
     element.delete();
+  });
+}
+
+type DeletableViaApi = {
+  deleteViaApi: (headers?: Record<string, string>) => void;
+};
+
+export function deleteByListViaAPI<T extends DeletableViaApi>(
+  array: T[],
+  headers?: Record<string, string>
+): void {
+  cy.wrap(array).each((element: T) => {
+    element.deleteViaApi(headers);
   });
 }
 
@@ -1773,24 +1873,20 @@ export function itemsPerPageValidation(
   columnName = "Name"
 ): void {
   selectItemsPerPage(10);
-  cy.wait(2000);
 
-  // Verify that only 10 items are displayed
-  cy.get(tableSelector)
-    .find(`td[data-label='${columnName}']`)
-    .then(($rows) => {
-      cy.wrap($rows.length).should("eq", 10);
-    });
+  // Verify that only 10 items are displayed (retryable assertion)
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.eq(10);
+  });
 
   selectItemsPerPage(20);
-  cy.wait(2000);
 
   // Verify that items less than or equal to 20 and greater than 10 are displayed
-  cy.get(tableSelector)
-    .find(`td[data-label='${columnName}']`)
-    .then(($rows) => {
-      cy.wrap($rows.length).should("be.lte", 20).and("be.gt", 10);
-    });
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.be.lte(20).and.be.gt(10);
+  });
 }
 
 export function autoPageChangeValidations(columnName = "Name"): void {
@@ -2062,7 +2158,34 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  clickByText(navTab, name);
+  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+
+  cy.root().then(($root) => {
+    const visibleTab = $root
+      .find(`${navTab}:contains("${name}")`)
+      .filter((_index, el) => {
+        const $el = Cypress.$(el);
+        return (
+          $el.is(":visible") &&
+          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+        );
+      });
+
+    if (visibleTab.length > 0) {
+      clickByText(navTab, name);
+    } else {
+      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
+        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+          force: true,
+        });
+        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
+        clickByText(actionMenuItem, name);
+      } else {
+        clickByText(navTab, name);
+      }
+    }
+  });
 }
 
 export function cleanupDownloads(): void {
@@ -2208,8 +2331,8 @@ export function seedAnalysisData(applicationId: number): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 120 * SEC,
     failOnNonZeroExit: false,
@@ -2254,8 +2377,8 @@ export function seedIssuesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2292,8 +2415,8 @@ export function cleanupIssuesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2317,8 +2440,8 @@ export function seedInsightsData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2355,8 +2478,8 @@ export function cleanupInsightsData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2380,8 +2503,8 @@ export function seedDependenciesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2418,8 +2541,8 @@ export function cleanupDependenciesData(): void {
   cy.exec(command, {
     env: {
       HOST: String(hostname),
-      USERNAME: String(username ?? ""),
-      PASSWORD: String(password ?? ""),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
     },
     timeout: 180 * SEC,
     failOnNonZeroExit: false,
@@ -2458,7 +2581,7 @@ export function validateTackleCr(): void {
   const kubeCLI = getKubernetesCLI();
   const command = `${kubeCLI} get tackle -n${namespace} -o json`;
   getCommandOutput(command).then((result) => {
-    let tackleCr: any;
+    let tackleCr: Record<string, unknown>;
     try {
       tackleCr = JSON.parse(result.stdout);
     } catch {
@@ -2469,7 +2592,8 @@ export function validateTackleCr(): void {
 
     // Find the condition that has ansibleResult
     const runningCondition = conditions.find(
-      (c: any) => c.type === "Running" && c.ansibleResult
+      (c: { type?: string; ansibleResult?: unknown }) =>
+        c.type === "Running" && c.ansibleResult
     );
     expect(runningCondition, "ansibleResult condition missing").to.exist;
     expect(

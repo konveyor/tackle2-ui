@@ -51,18 +51,21 @@ export class Stakeholders {
   email: string;
   jobfunction: string;
   groups: Array<string>;
+  id?: number;
   static fullUrl = Cypress.config("baseUrl") + "/controls/stakeholders";
 
   constructor(
     email: string,
     name: string,
     jobfunction?: string,
-    groups?: Array<string>
+    groups?: Array<string>,
+    id?: number
   ) {
     this.email = email;
     this.name = name;
     if (jobfunction) this.jobfunction = jobfunction;
     if (groups) this.groups = groups;
+    if (id) this.id = id;
   }
 
   public static openList(forceReload = false): void {
@@ -176,12 +179,97 @@ export class Stakeholders {
 
   delete(cancel = false): void {
     Stakeholders.openList();
+    cy.intercept("DELETE", "/hub/stakeholders/*").as("deleteStakeholder");
     clickItemInKebabMenu(this.email, deleteAction);
     if (cancel) {
       click(commonView.confirmCancelButton);
     } else {
       click(commonView.confirmButton);
+      cy.wait("@deleteStakeholder");
       notExists(this.email);
     }
+  }
+
+  /** Create a stakeholder via the API (no UI interaction). */
+  static createViaApi(
+    email: string,
+    name: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Stakeholders> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/stakeholders",
+        body: { email, name },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new Stakeholders(
+            res.body.email,
+            res.body.name,
+            undefined,
+            undefined,
+            res.body.id
+          )
+      );
+  }
+
+  /** Delete a stakeholder via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/stakeholders/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all stakeholders via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/stakeholders",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/stakeholders/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create multiple stakeholders via the API. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Stakeholders[]> {
+    const timestamp = Date.now();
+    const stakeholders: Stakeholders[] = [];
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      chain = chain.then(() =>
+        Stakeholders.createViaApi(
+          `stakeholder${timestamp}-${i}@example.com`,
+          `Stakeholder ${timestamp}-${i}`,
+          headers
+        ).then((sh) => {
+          stakeholders.push(sh);
+        })
+      );
+    }
+
+    return chain.then(() => stakeholders);
   }
 }
