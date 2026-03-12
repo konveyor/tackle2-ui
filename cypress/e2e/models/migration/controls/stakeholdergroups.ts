@@ -97,6 +97,30 @@ export class Stakeholdergroups {
     }
   }
 
+  /** Create multiple stakeholder groups via the API. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<Stakeholdergroups[]> {
+    const timestamp = Date.now();
+    const stakeholderGroups: Stakeholdergroups[] = [];
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      chain = chain.then(() =>
+        Stakeholdergroups.createViaApi(
+          `Stakeholder Group ${timestamp}-${i}`,
+          undefined,
+          headers
+        ).then((sg) => {
+          stakeholderGroups.push(sg);
+        })
+      );
+    }
+
+    return chain.then(() => stakeholderGroups);
+  }
+
   /** Delete all stakeholder groups via the API. */
   static deleteAllViaApi(headers?: Record<string, string>): void {
     cy.request({

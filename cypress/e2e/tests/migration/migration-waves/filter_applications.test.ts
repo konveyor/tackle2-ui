@@ -16,13 +16,7 @@ import * as data from "../../../../utils/data_utils";
 import {
   applySearchFilter,
   clickByText,
-  createMultipleApplicationsWithBSandTags,
-  createMultipleBusinessServices,
-  createMultipleStakeholders,
-  createMultipleTags,
-  deleteAllMigrationWaves,
-  deleteApplicationTableRows,
-  deleteByList,
+  getAuthHeaders,
   login,
 } from "../../../../utils/utils";
 import { Application } from "../../../models/migration/applicationinventory/application";
@@ -56,18 +50,30 @@ describe(
   function () {
     before("Login and Create Test Data", function () {
       login();
-      cy.visit("/");
-      deleteAllMigrationWaves();
-      deleteApplicationTableRows();
-      businessServicesList = createMultipleBusinessServices(2);
-      tagList = createMultipleTags(2);
-      stakeholders = createMultipleStakeholders(2);
-      applicationsList = createMultipleApplicationsWithBSandTags(
-        2,
-        businessServicesList,
-        tagList,
-        stakeholders
-      );
+
+      getAuthHeaders().then((headers) => {
+        BusinessServices.createMultipleViaApi(2, headers).then((bsList) => {
+          businessServicesList = bsList;
+
+          Tag.createMultipleViaApi(2, headers).then((tList) => {
+            tagList = tList;
+
+            Stakeholders.createMultipleViaApi(2, headers).then((sList) => {
+              stakeholders = sList;
+
+              Application.createMultipleViaApi(
+                2,
+                businessServicesList,
+                tagList,
+                stakeholders,
+                headers
+              ).then((appList) => {
+                applicationsList = appList;
+              });
+            });
+          });
+        });
+      });
     });
 
     beforeEach("Login", function () {
@@ -179,11 +185,15 @@ describe(
     });
 
     after("Perform test data clean up", function () {
-      deleteAllMigrationWaves();
-      deleteApplicationTableRows();
-      deleteByList(businessServicesList);
-      deleteByList(tagList);
-      deleteByList(stakeholders);
+      getAuthHeaders().then((headers) => {
+        Application.deleteAllViaApi(headers);
+        MigrationWave.deleteAllViaApi(headers);
+        BusinessServices.deleteAllViaApi(headers);
+        Stakeholders.deleteAllViaApi(headers);
+        tagList.forEach((tag) => {
+          tag.deleteViaApi(headers);
+        });
+      });
     });
   }
 );
