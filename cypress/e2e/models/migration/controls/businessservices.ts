@@ -62,61 +62,6 @@ export class BusinessServices {
     this.id = id;
   }
 
-  /** Create a business service via the API (no UI interaction). */
-  static createViaApi(
-    name: string,
-    description?: string,
-    headers?: Record<string, string>
-  ): Cypress.Chainable<BusinessServices> {
-    return cy
-      .request({
-        method: "POST",
-        url: "/hub/businessservices",
-        body: { name, description: description || "" },
-        ...(headers && { headers }),
-      })
-      .then(
-        (res) =>
-          new BusinessServices(
-            res.body.name,
-            res.body.description,
-            undefined,
-            res.body.id
-          )
-      );
-  }
-
-  /** Delete a business service via the API (no UI interaction). */
-  deleteViaApi(headers?: Record<string, string>): void {
-    if (this.id) {
-      cy.request({
-        method: "DELETE",
-        url: `/hub/businessservices/${this.id}`,
-        ...(headers && { headers }),
-        failOnStatusCode: false,
-      });
-    }
-  }
-
-  /** Delete all business services via the API. */
-  static deleteAllViaApi(headers?: Record<string, string>): void {
-    cy.request({
-      method: "GET",
-      url: "/hub/businessservices",
-      ...(headers && { headers }),
-    }).then((res) => {
-      const items = Array.isArray(res.body) ? res.body : [];
-      items.forEach((bs: { id: number }) => {
-        cy.request({
-          method: "DELETE",
-          url: `/hub/businessservices/${bs.id}`,
-          ...(headers && { headers }),
-          failOnStatusCode: false,
-        });
-      });
-    });
-  }
-
   public static openList(itemsPerPage = 100): void {
     cy.url().then(($url) => {
       if (!$url.includes("/controls/business-services")) {
@@ -261,5 +206,85 @@ export class BusinessServices {
       cy.wait("@deleteBusinessService");
       notExists(this.name);
     }
+  }
+
+  /** Create a business service via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<BusinessServices> {
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/businessservices",
+        body: { name },
+        ...(headers && { headers }),
+      })
+      .then(
+        (res) =>
+          new BusinessServices(
+            res.body.name,
+            res.body.description,
+            undefined,
+            res.body.id
+          )
+      );
+  }
+
+  /** Delete a business service via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/businessservices/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all business services via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/businessservices",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((bs: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/businessservices/${bs.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /** Create multiple business services via the API. */
+  static createMultipleViaApi(
+    count: number,
+    headers?: Record<string, string>
+  ): Cypress.Chainable<BusinessServices[]> {
+    const timestamp = Date.now();
+    const businessServices: BusinessServices[] = [];
+    let chain: Cypress.Chainable<any> = cy.wrap(null);
+
+    for (let i = 0; i < count; i++) {
+      chain = chain.then(() =>
+        BusinessServices.createViaApi(
+          `Business Service ${timestamp}-${i}`,
+          headers
+        ).then((bs) => {
+          businessServices.push(bs);
+        })
+      );
+    }
+
+    return chain.then(() => businessServices);
   }
 }

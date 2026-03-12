@@ -172,7 +172,7 @@ describe(["@tier2"], "Application validations", () => {
     const application = new Application(getRandomApplicationData());
 
     // Create a new application
-    application.create();
+    application.create(false, true);
     cy.wait("@getApplication");
     checkSuccessAlert(
       commonView.successAlertMessage,

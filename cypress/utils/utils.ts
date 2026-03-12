@@ -493,13 +493,7 @@ export function removeMember(memberName: string): void {
 }
 
 export function exists(value: string, tableSelector = appTable): void {
-  // After a mutation the UI query hooks use a 5s polling interval
-  // (DEFAULT_REFETCH_INTERVAL) and an isFetching/isLoading aliasing bug
-  // means background refetches never flip the loading flag — the table
-  // keeps showing stale cached data until the next poll tick.
-  // If the table is visible but doesn't yet contain the expected value,
-  // navigate away and back to force a component remount and immediate
-  // fresh data fetch from the server (~300ms vs 5s poll wait).
+  selectItemsPerPage(100);
   cy.get("body").then(($body) => {
     const $table = $body.find(tableSelector);
     if (
@@ -525,9 +519,7 @@ export function exists(value: string, tableSelector = appTable): void {
 }
 
 export function notExists(value: string, tableSelector = appTable): void {
-  // Same stale-data workaround as exists() above — if the table still
-  // contains the deleted value, navigate away and back to force a fresh
-  // data fetch instead of waiting up to 5s for the polling interval.
+  selectItemsPerPage(100);
   cy.get("body").then(($body) => {
     const $table = $body.find(tableSelector);
     if ($table.length && $table.text().includes(value)) {
@@ -838,9 +830,9 @@ export function expandRowDetails(rowIdentifier: string): void {
     .contains(rowIdentifier)
     .closest(trTag)
     .within(() => {
-      cy.get(expandRow).then(($btn) => {
+      cy.get(expandRow, { timeout: 10 * SEC }).then(($btn) => {
         if ($btn.attr("aria-expanded") === "false") {
-          $btn.trigger("click");
+          cy.wrap($btn).click();
         }
       });
     });
@@ -855,11 +847,14 @@ export function closeRowDetails(rowIdentifier: string): void {
       if (!button["aria-label=Details"]) {
         return;
       }
-      cy.get(expandRow).then(($btn) => {
-        if ($btn.attr("aria-expanded") === "true") {
-          $btn.trigger("click");
-        }
-      });
+      cy.get(expandRow, { timeout: 10 * SEC })
+        .should("be.visible")
+        .should("not.be.disabled")
+        .then(($btn) => {
+          if ($btn.attr("aria-expanded") === "true") {
+            cy.wrap($btn).click();
+          }
+        });
     });
 }
 
@@ -1457,6 +1452,19 @@ type Deletable = { delete: () => void };
 export function deleteByList<T extends Deletable>(array: T[]): void {
   cy.wrap(array).each((element: T) => {
     element.delete();
+  });
+}
+
+type DeletableViaApi = {
+  deleteViaApi: (headers?: Record<string, string>) => void;
+};
+
+export function deleteByListViaAPI<T extends DeletableViaApi>(
+  array: T[],
+  headers?: Record<string, string>
+): void {
+  cy.wrap(array).each((element: T) => {
+    element.deleteViaApi(headers);
   });
 }
 
@@ -2149,19 +2157,32 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
+  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+
   cy.root().then(($root) => {
-    const visibleTab = $root.find(`${navTab}:contains("${name}"):visible`);
-    const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+    const visibleTab = $root
+      .find(`${navTab}:contains("${name}")`)
+      .filter((_index, el) => {
+        const $el = Cypress.$(el);
+        return (
+          $el.is(":visible") &&
+          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+        );
+      });
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
-    } else if (overflowItem.length > 0) {
-      cy.get("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
-        force: true,
-      });
-      clickByText(actionMenuItem, name);
     } else {
-      clickByText(navTab, name);
+      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
+        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+          force: true,
+        });
+        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
+        clickByText(actionMenuItem, name);
+      } else {
+        clickByText(navTab, name);
+      }
     }
   });
 }
