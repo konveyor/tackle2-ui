@@ -1,6 +1,6 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { FormStateSubscribe, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -150,7 +150,6 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
 
   const {
     handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
     // for debugging
     // getValues,
@@ -293,34 +292,39 @@ const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
         resizeOrientation="vertical"
       />
 
-      <ActionGroup>
-        <Button
-          type="submit"
-          id="submit"
-          aria-label="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={
-            !isValid ||
-            isSubmitting ||
-            isValidating ||
-            (!isDirty && !isDuplicating)
-          }
-        >
-          {!archetype || isDuplicating
-            ? t("actions.create")
-            : t("actions.save")}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>
-      </ActionGroup>
+      <FormStateSubscribe
+        control={control}
+        render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+          <ActionGroup>
+            <Button
+              type="submit"
+              id="submit"
+              aria-label="submit"
+              variant={ButtonVariant.primary}
+              isDisabled={
+                !isValid ||
+                isSubmitting ||
+                isValidating ||
+                (!isDirty && !isDuplicating)
+              }
+            >
+              {!archetype || isDuplicating
+                ? t("actions.create")
+                : t("actions.save")}
+            </Button>
+            <Button
+              type="button"
+              id="cancel"
+              aria-label="cancel"
+              variant={ButtonVariant.link}
+              isDisabled={isSubmitting || isValidating}
+              onClick={onClose}
+            >
+              {t("actions.cancel")}
+            </Button>
+          </ActionGroup>
+        )}
+      />
     </Form>
   );
 };
