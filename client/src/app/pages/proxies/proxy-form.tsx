@@ -88,7 +88,9 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
           httpsPort: httpsProxy?.port || 8080,
           isHttpsIdentityRequired: !!httpsProxy?.identity?.name,
           httpsIdentity: httpsProxy?.identity?.name || null,
-          excluded: httpProxy?.excluded.join(",") || "",
+          excluded: Array.isArray(httpProxy?.excluded)
+            ? httpProxy.excluded.join(",")
+            : "",
         }),
         [httpProxy, httpsProxy]
       ),
@@ -419,7 +421,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 !isDirty
               }
             >
-              {httpProxy || httpsProxy ? "Save" : "Update"}
+              {httpProxy || httpsProxy ? "Update" : "Save"}
             </Button>
           </ActionGroup>
         )}
