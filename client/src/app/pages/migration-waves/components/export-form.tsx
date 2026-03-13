@@ -50,13 +50,15 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const { tickets } = useFetchTickets();
 
-  const onExportSuccess = () =>
+  const onExportSuccess = () => {
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.exportToIssue"),
       }),
       variant: "success",
     });
+    onClose();
+  };
 
   const onExportError = (error: AxiosError) =>
     pushNotification({
@@ -124,7 +126,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         applications: applicationsWithNoAssociatedTickets,
       });
     }
-    onClose();
   };
 
   return (
