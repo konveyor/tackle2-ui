@@ -1609,13 +1609,15 @@ export function deleteAllBusinessServices() {
 }
 
 export function deleteAllStakeholderGroups(_cancel = false): void {
-  Stakeholdergroups.openList();
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Stakeholdergroups.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllStakeholders(): void {
-  Stakeholders.openList();
-  deleteAllRows(stakeHoldersTable);
+  getAuthHeaders().then((headers) => {
+    Stakeholders.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllArchetypes() {

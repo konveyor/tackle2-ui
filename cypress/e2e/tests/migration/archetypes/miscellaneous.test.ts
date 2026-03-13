@@ -21,9 +21,8 @@ import {
   clickByText,
   clickJs,
   createMultipleApplications,
-  createMultipleStakeholders,
   deleteAllArchetypes,
-  deleteByList,
+  deleteAllStakeholders,
   exists,
   getAuthHeaders,
   login,
@@ -64,38 +63,41 @@ describe(["@tier3"], "Miscellaneous Archetype tests", () => {
       login();
       cy.visit("/");
 
-      getAuthHeaders().then((headers) => {
-        Application.deleteAllViaApi(headers);
-      });
-      deleteAllArchetypes();
-
       AssessmentQuestionnaire.deleteAllQuestionnaires();
       AssessmentQuestionnaire.disable(legacyPathfinder);
       AssessmentQuestionnaire.import(cloudReadinessFilePath);
       AssessmentQuestionnaire.enable(cloudReadinessQuestionnaire);
-      stakeholderList = createMultipleStakeholders(1);
 
-      archetype = new Archetype(
-        data.getRandomWord(8),
-        ["Language / Java", "Runtime / Spring Boot"],
-        ["Language / Java"],
-        null
-      );
-      archetype.create();
-      archetype.perform_assessment(
-        "high",
-        stakeholderList,
-        null,
-        cloudReadinessQuestionnaire
-      );
-      archetype.verifyStatus("assessment", "Completed");
-      archetype.perform_review("high");
-      archetype.verifyStatus("review", "Completed");
-      Archetype.verifyColumnValue(
-        archetype.name,
-        "Applications",
-        "No applications currently match the criteria tags."
-      );
+      getAuthHeaders().then((headers) => {
+        Application.deleteAllViaApi(headers);
+        deleteAllArchetypes();
+        deleteAllStakeholders();
+        Stakeholders.createMultipleViaApi(1, headers).then((stakeholders) => {
+          stakeholderList = stakeholders;
+
+          archetype = new Archetype(
+            data.getRandomWord(8),
+            ["Language / Java", "Runtime / Spring Boot"],
+            ["Language / Java"],
+            null
+          );
+          archetype.create();
+          archetype.perform_assessment(
+            "high",
+            stakeholderList,
+            null,
+            cloudReadinessQuestionnaire
+          );
+          archetype.verifyStatus("assessment", "Completed");
+          archetype.perform_review("high");
+          archetype.verifyStatus("review", "Completed");
+          Archetype.verifyColumnValue(
+            archetype.name,
+            "Applications",
+            "No applications currently match the criteria tags."
+          );
+        });
+      });
     }
   );
 
@@ -200,11 +202,11 @@ describe(["@tier3"], "Miscellaneous Archetype tests", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(stakeholderList);
     AssessmentQuestionnaire.deleteAllQuestionnaires();
     archetype.delete();
     getAuthHeaders().then((headers) => {
       Application.deleteAllViaApi(headers);
+      Stakeholders.deleteAllViaApi(headers);
     });
   });
 });
