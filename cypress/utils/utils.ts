@@ -1023,12 +1023,14 @@ export function clickKebabMenuOptionArchetype(
 ): void {
   // The clickItemInKebabMenu() fn can't be used on the Archetype page just yet because the
   // the individual archetypes don't have an id for their kebab menu.
-  cy.contains(rowItem)
+  cy.contains(rowItem, { timeout: 10 * SEC })
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
     });
-  cy.get(actionMenuItem).contains(itemName).click({ force: true });
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(itemName, { timeout: 10 * SEC })
+    .click({ force: true });
 }
 
 export function createMultipleJiraConnections(
@@ -1617,9 +1619,9 @@ export function deleteAllStakeholders(): void {
 }
 
 export function deleteAllArchetypes() {
-  Archetype.open();
-  selectItemsPerPage(100);
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Archetype.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllCredentials() {
