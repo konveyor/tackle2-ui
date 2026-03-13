@@ -1,5 +1,4 @@
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 
 import {
@@ -71,25 +70,27 @@ describe("Component: proxy-form", () => {
       "HTTP proxy credentials"
     );
     fireEvent.click(httpProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
 
-    await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTP proxy credentials/i },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+    expect(selectToggle).toHaveTextContent("Select...");
+    fireEvent.click(selectToggle);
+
+    const httpOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpOption);
+
+    await waitFor(() => {
+      expect(selectToggle).toHaveTextContent("proxy-cred");
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 
   it("Select https proxy identity", async () => {
@@ -100,24 +101,26 @@ describe("Component: proxy-form", () => {
       "HTTPS proxy credentials"
     );
     fireEvent.click(httpsProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
 
-    await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTPS proxy credentials/i },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+    expect(selectToggle).toHaveTextContent("Select...");
+    fireEvent.click(selectToggle);
+
+    const httpsOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpsOption);
+
+    await waitFor(() => {
+      expect(selectToggle).toHaveTextContent("proxy-cred");
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 });
