@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Redirect, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { isAuthRequired } from "@app/Constants";
 import keycloak from "@app/keycloak";
@@ -7,17 +7,13 @@ import keycloak from "@app/keycloak";
 import { checkAccess } from "../utils/rbac-utils";
 
 interface IRouteWrapperProps {
-  comp: React.ComponentType<Record<string, unknown>>;
+  comp: React.ComponentType;
   roles: string[];
-  path: string;
-  exact?: boolean;
 }
 
 export const RouteWrapper = ({
   comp: Component,
   roles,
-  path,
-  exact,
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
   const userRoles = token?.realm_access?.roles || [],
@@ -25,16 +21,10 @@ export const RouteWrapper = ({
 
   if (!token && isAuthRequired) {
     //TODO: Handle token expiry & auto logout
-    return <Redirect to="/login" />;
+    return <Navigate to="/login" replace />;
   } else if (token && !access) {
-    return <Redirect to="/applications" />;
+    return <Navigate to="/applications" replace />;
   }
 
-  return (
-    <Route
-      path={path}
-      exact={exact}
-      render={(props) => <Component {...props} />}
-    />
-  );
+  return <Component />;
 };

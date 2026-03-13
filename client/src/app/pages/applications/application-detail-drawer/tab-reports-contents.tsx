@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   DescriptionList,
@@ -58,11 +58,11 @@ export const TabReportsContent: React.FC<{
 
   const enableDownloadSetting = useSetting("download.html.enabled");
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const navigateToAnalysisDetails = () =>
     application?.id &&
     task?.id &&
-    history.push(
+    navigate(
       formatPath(Paths.applicationsAnalysisDetails, {
         applicationId: application?.id,
         taskId: task?.id,

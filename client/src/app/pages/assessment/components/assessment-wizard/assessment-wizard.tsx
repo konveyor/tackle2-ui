@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import {
   ButtonVariant,
@@ -102,7 +102,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const [assessmentToCancel, setAssessmentToCancel] =
     React.useState<Assessment | null>(null);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
@@ -398,7 +398,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         if (assessment?.archetype?.id) {
           getArchetypeById(assessment.archetype.id)
             .then((data) => {
-              history.push(
+              navigate(
                 formatPath(Paths.archetypeReview, {
                   archetypeId: data.id,
                 })
@@ -415,7 +415,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         if (assessment?.application?.id) {
           getApplicationById(assessment.application.id)
             .then((data) => {
-              history.push(
+              navigate(
                 formatPath(Paths.applicationsReview, {
                   applicationId: data.id,
                 })
