@@ -74,13 +74,13 @@ describe(["@ci"], "UI Sanity Tests", () => {
   });
 
   it("Jobfunction CRUD", function () {
-    const jobfunction = new Jobfunctions(data.getJobTitle());
+    const jobfunction = new Jobfunctions("xGoPhT");
     jobfunction.create();
-    exists(jobfunction.name);
+    exists(jobfunction.name, undefined, Jobfunctions.openList);
 
     const updatedJobfuncName = data.getJobTitle();
     jobfunction.edit(updatedJobfuncName);
-    exists(updatedJobfuncName);
+    exists(updatedJobfuncName, undefined, Jobfunctions.openList);
 
     // delete() internally waits for the DELETE response and calls notExists()
     jobfunction.delete();
