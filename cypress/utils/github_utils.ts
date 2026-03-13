@@ -29,7 +29,8 @@ export interface GitHubIssue {
 
 export interface GitHubConfig {
   owner: string;
-  token: string;
+  username: string;
+  password: string;
   apiUrl?: string; // Defaults to api.github.com
 }
 
@@ -41,7 +42,8 @@ export interface GitHubIssueOptions {
 
 const githubConfig: GitHubConfig = {
   owner: "konveyor",
-  token: String(Cypress.env("github_token") ?? "").trim(),
+  username: String(Cypress.env("git_user") ?? "").trim(),
+  password: String(Cypress.env("git_password") ?? "").trim(),
 };
 
 /**
@@ -55,15 +57,23 @@ export function fetchGitHubIssue(
   issueNumber: number,
   repo: string
 ): Cypress.Chainable<GitHubIssue> {
-  const { owner, token, apiUrl = "https://api.github.com" } = githubConfig;
+  const {
+    owner,
+    username,
+    password,
+    apiUrl = "https://api.github.com",
+  } = githubConfig;
   const url = `${apiUrl}/repos/${owner}/${repo}/issues/${issueNumber}`;
+
+  // Create Basic Auth credentials
+  const credentials = btoa(`${username}:${password}`);
 
   return cy
     .request({
       url,
       method: "GET",
       headers: {
-        Authorization: `token ${token}`,
+        Authorization: `Basic ${credentials}`,
         Accept: "application/vnd.github.v3+json",
         "User-Agent": "Cypress-GitHub-Utils",
       },
@@ -89,64 +99,59 @@ export function fetchGitHubIssue(
 export function isGitHubIssueOpen(
   options: GitHubIssueOptions
 ): Cypress.Chainable<boolean> {
-  const { issueNumber, repo, failOnError = false } = options;
+  const { issueNumber, repo } = options;
 
-  // Validate token BEFORE entering async context so it always throws
-  const { token } = githubConfig;
-  if (!token) {
-    throw new Error("Missing Cypress env `github_token`");
+  let state: GitHubIssueState;
+  let isOpen: boolean;
+
+  // Validate credentials BEFORE entering async context so it always throws
+  const { username, password } = githubConfig;
+  if (!username || !password) {
+    throw new Error("Missing Cypress env `git_user` or `git_password`");
   }
 
-  return cy.wrap(
-    new Cypress.Promise<boolean>((resolve, reject) => {
-      fetchGitHubIssue(issueNumber, repo).then((issue) => {
-        const state = issue.state;
-        const isOpen = state === "open";
-        cy.log(
-          `GitHub issue #${issueNumber} (${githubConfig.owner}/${repo}): ${state.toUpperCase()}`
-        );
-        resolve(isOpen);
-      });
-    }).catch((error) => {
-      if (failOnError) {
-        throw error;
-      }
-      cy.log(`GitHub issue #${issueNumber} could not be checked`);
-      return false;
+  return fetchGitHubIssue(issueNumber, repo)
+    .then((issue) => {
+      state = issue.state;
+      isOpen = state === "open";
     })
-  );
+    .then(() => {
+      cy.log(
+        `GitHub issue #${issueNumber} (${githubConfig.owner}/${repo}): ${state.toUpperCase()}`
+      );
+    })
+    .then(() => isOpen);
 }
 
 /**
- * Check GitHub issue status inside an individual test and skip if open
+ * Check GitHub issue status inside an individual test
  *
  * @param options - Configuration options for the GitHub issue check
- * @param context - Mocha test context (this)
+ * @returns Cypress chainable boolean indicating if the issue is open
  *
  * @example
  * ```
- * it("my test", function (this: Mocha.Context) {
- *   checkGitHubInTest(
- *   {
- *     issueNumber: 123,
- *     repo: "tackle2-ui"
- *   },
- *   this);
- *
- *   cy.log("Test runs only if GitHub issue is closed");
- * });
+ * it("test name", function () {
+    checkGitHubInTest({ issueNumber: X, repo: "Y" }).then((isOpen) => {
+      if (isOpen) {
+        this.skip();
+      }
+      // ALL your test code must go here inside this .then() callback
+      // Otherwise it will execute before this.skip() is called
+      cy.log("This test runs only if issue is closed");
+    });
+   });
  * ```
  */
 export function checkGitHubInTest(
-  options: GitHubIssueOptions,
-  context: Mocha.Context
-): void {
-  isGitHubIssueOpen(options).then((isOpen) => {
-    if (isOpen) {
-      cy.log(
-        `Skipping test - GitHub issue #${options.issueNumber} is still open`
-      );
-      context.skip();
-    }
-  });
+  options: GitHubIssueOptions
+): Cypress.Chainable<boolean> {
+  return isGitHubIssueOpen(options);
 }
+
+/**
+ * Use as a before hook to skip all tests in a suite if GitHub issue is open
+ *
+export function checkGitHubBeforeTest(options: GitHubIssueOptions): void {
+}
+*/
