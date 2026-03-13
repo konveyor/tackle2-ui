@@ -15,7 +15,7 @@ limitations under the License.
 */
 export const stakeholderEmailInput = "input[name=email]";
 export const stakeholderNameInput = "input[name=name]";
-export const jobfunctionInput = "#job-function-toggle-select-typeahead";
+export const jobfunctionInput = "#job-function-toggle";
 export const groupInput =
   "#stakeholder-groups-toggle-select-multi-typeahead-typeahead";
 export const groupsCount = "td[data-label='Group count']";

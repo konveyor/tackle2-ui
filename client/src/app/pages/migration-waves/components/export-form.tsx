@@ -11,11 +11,11 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { IssueManagerKind, New, Ref, Ticket, Tracker } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateTicketsMutation,
   useFetchTickets,
@@ -25,7 +25,7 @@ import {
   useTrackerProjectsByTracker,
   useTrackerTypesByProjectName,
 } from "@app/queries/trackers";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { IssueManagerOptions } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 interface FormValues {
@@ -96,15 +96,19 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   });
 
   const values = watch();
+  const projectsPerTracker = useTrackerProjectsByTracker(values.tracker);
+  const typesPerProject = useTrackerTypesByProjectName(
+    values.tracker,
+    values.project
+  );
 
-  const matchingProject = useTrackerProjectsByTracker(values.tracker).find(
+  const matchingProject = projectsPerTracker?.find(
     (project) => values.project === project.name
   );
 
-  const matchingKind = useTrackerTypesByProjectName(
-    values.tracker,
-    values.project
-  ).find((type) => values.kind === type.name);
+  const matchingKind = typesPerProject?.find(
+    (type) => values.kind === type.name
+  );
 
   const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
@@ -142,24 +146,22 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         fieldId="issue-manager-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
+          <TypeaheadSelect
             id="issue-manager-select"
             toggleId="issue-manager-select-toggle"
-            variant="typeahead"
             placeholderText={t("composed.selectAn", {
               what: t("terms.instanceType").toLowerCase(),
             })}
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={value ? toOptionLike(value, IssueManagerOptions) : undefined}
+            ariaLabel={name}
+            categoryKey="issueManager"
+            value={value}
             options={IssueManagerOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as OptionWithValue<IssueManagerKind>;
+            onSelect={(selection) => {
               setValue("tracker", "");
               setValue("project", "");
               setValue("kind", "");
-              onChange(selectionValue.value);
+              onChange(selection);
             }}
           />
         )}
@@ -171,38 +173,35 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         fieldId="tracker-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
+          <TypeaheadSelect
             id="tracker-select"
             toggleId="tracker-select-toggle"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
             isDisabled={!values.issueManager}
             toggleAriaLabel="tracker select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
+            categoryKey="tracker"
             value={value}
             options={
               values.issueManager
                 ? getTrackersByKind(
                     trackers,
                     values.issueManager?.toString()
-                  ).map((tracker) => {
-                    return {
+                  ).map(
+                    (tracker): FilterSelectOptionProps => ({
                       value: tracker.name,
-                      toString: () => tracker.name,
-                    };
-                  })
+                      label: tracker.name,
+                    })
+                  )
                 : []
             }
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
+            onSelect={(selection) => {
               setValue("project", "");
               setValue("kind", "");
-              onChange(selectionValue.value);
+              onChange(selection ?? "");
             }}
-            onClear={() => onChange("")}
           />
         )}
       />
@@ -213,32 +212,29 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         fieldId="project-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
+          <TypeaheadSelect
             id="project-select"
             toggleId="project-select-toggle"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
             isDisabled={!values.tracker}
             toggleAriaLabel="project select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
+            categoryKey="project"
             value={value}
-            options={useTrackerProjectsByTracker(values.tracker).map(
-              (project) => {
-                return {
+            options={
+              projectsPerTracker?.map(
+                (project): FilterSelectOptionProps => ({
                   value: project.name,
-                  toString: () => project.name,
-                };
-              }
-            )}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
+                  label: project.name,
+                })
+              ) || []
+            }
+            onSelect={(selection) => {
               setValue("kind", "");
-              onChange(selectionValue.value);
+              onChange(selection ?? "");
             }}
-            onClear={() => onChange("")}
           />
         )}
       />
@@ -249,32 +245,26 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         fieldId="issue-type-select"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
+          <TypeaheadSelect
             id="issue-type-select"
             toggleId="issue-type-select-toggle"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
             placeholderText={t("composed.selectAn", {
               what: t("terms.issueType").toLowerCase(),
             })}
             isDisabled={!values.project}
             toggleAriaLabel="issue-type select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
+            categoryKey="kind"
             value={value}
-            options={useTrackerTypesByProjectName(
-              values.tracker,
-              values.project
-            ).map((issueType) => {
-              return {
-                value: issueType.name,
-                toString: () => issueType.name,
-              };
-            })}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange("")}
+            options={
+              typesPerProject?.map(
+                (issueType): FilterSelectOptionProps => ({
+                  value: issueType.name,
+                  label: issueType.name,
+                })
+              ) || []
+            }
+            onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />

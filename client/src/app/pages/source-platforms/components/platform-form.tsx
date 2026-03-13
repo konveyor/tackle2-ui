@@ -13,16 +13,16 @@ import {
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import type { New, SourcePlatform } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useFetchIdentities } from "@app/queries/identities";
 import {
@@ -30,7 +30,6 @@ import {
   useFetchPlatforms,
   useUpdatePlatformMutation,
 } from "@app/queries/platforms";
-import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
 export interface PlatformFormValues {
@@ -60,11 +59,8 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const {
-    kinds: platformKindList,
-    getUrlTooltip,
-    getCredentialTooltip,
-  } = usePlatformKindList();
+  const { kindOptions, getUrlTooltip, getCredentialTooltip } =
+    usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({
@@ -72,9 +68,9 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
     });
 
   const { identities } = useFetchIdentities();
-  const identitiesOptions = identities
+  const identitiesOptions: FilterSelectOptionProps[] = identities
     .filter(({ kind }) => kind === "source")
-    .map((identity) => identity.name);
+    .map((identity) => ({ value: identity.name, label: identity.name }));
 
   const validationSchema = yup.object().shape({
     kind: yup
@@ -185,26 +181,19 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
         fieldId="kind"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <>
-            <SimpleSelect
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              placeholderText={t("composed.selectOne", {
-                what: t("terms.platformKind").toLowerCase(),
-              })}
-              variant="typeahead"
-              toggleId="platform-kind-toggle"
-              id="platform-kind-select"
-              toggleAriaLabel="Platform kind select dropdown toggle"
-              aria-label={name}
-              value={value ? toOptionLike(value, platformKindList) : undefined}
-              options={platformKindList || []}
-              onChange={(selection) => {
-                const selectionValue = selection as OptionWithValue<string>;
-                onChange(selectionValue.value);
-              }}
-              onClear={() => onChange("")}
-            />
-          </>
+          <TypeaheadSelect
+            placeholderText={t("composed.selectOne", {
+              what: t("terms.platformKind").toLowerCase(),
+            })}
+            toggleId="platform-kind-toggle"
+            id="platform-kind-select"
+            toggleAriaLabel="Platform kind select dropdown toggle"
+            ariaLabel={name}
+            categoryKey="kind"
+            value={value}
+            options={kindOptions}
+            onSelect={onChange}
+          />
         )}
       />
 
@@ -252,25 +241,19 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
           ) : undefined
         }
         renderInput={({ field: { value, name, onChange } }) => (
-          <>
-            <SimpleSelect
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              placeholderText={t("composed.selectOne", {
-                what: t("terms.credentials").toLowerCase(),
-              })}
-              variant="typeahead"
-              toggleId="credentials-toggle"
-              id="credentials-select"
-              toggleAriaLabel="Credentials select dropdown toggle"
-              aria-label={name}
-              value={value}
-              options={identitiesOptions}
-              onChange={(selection) => {
-                onChange(selection);
-              }}
-              onClear={() => onChange("")}
-            />
-          </>
+          <TypeaheadSelect
+            placeholderText={t("composed.selectOne", {
+              what: t("terms.credentials").toLowerCase(),
+            })}
+            toggleId="credentials-toggle"
+            id="credentials-select"
+            toggleAriaLabel="Credentials select dropdown toggle"
+            ariaLabel={name}
+            categoryKey="credentials"
+            value={value}
+            options={identitiesOptions}
+            onSelect={(selection) => onChange(selection ?? "")}
+          />
         )}
       />
 
