@@ -18,11 +18,11 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   createMultipleApplications,
-  deleteAllMigrationWaves,
-  deleteApplicationTableRows,
+  getAuthHeaders,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
+import { Credentials } from "../../../models/administration/credentials/credentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
@@ -71,8 +71,11 @@ describe(["@tier2"], "Export Migration Wave to Jira Cloud", function () {
     }
     login();
     cy.visit("/");
-    deleteAllMigrationWaves();
-    deleteApplicationTableRows();
+    getAuthHeaders().then((headers) => {
+      MigrationWave.deleteAllViaApi(headers);
+      Application.deleteAllViaApi(headers);
+      Credentials.deleteAllViaApi(headers);
+    });
     jiraCloudCredentials = new JiraCredentials(
       data.getJiraCredentialData(CredentialType.jiraBasic, true)
     );
@@ -165,8 +168,11 @@ describe(["@tier2"], "Export Migration Wave to Jira Cloud", function () {
   });
 
   after("Clear test data", function () {
-    deleteAllMigrationWaves();
-    deleteApplicationTableRows();
+    getAuthHeaders().then((headers) => {
+      MigrationWave.deleteAllViaApi(headers);
+      Application.deleteAllViaApi(headers);
+      Credentials.deleteAllViaApi(headers);
+    });
 
     jiraCloudInstance.delete();
     jiraCloudCredentials.delete();

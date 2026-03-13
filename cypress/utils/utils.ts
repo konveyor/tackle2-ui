@@ -1623,9 +1623,9 @@ export function deleteAllArchetypes() {
 }
 
 export function deleteAllCredentials() {
-  Credentials.openList();
-  selectItemsPerPage(100);
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Credentials.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllProfiles() {
