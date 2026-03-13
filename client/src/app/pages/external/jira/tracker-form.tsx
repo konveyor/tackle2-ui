@@ -84,6 +84,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     addUpdatingTrackerId(tracker.id);
+    onClose();
   };
 
   const onUpdateTrackerSuccess = (tracker: Tracker) => {
@@ -95,6 +96,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     addUpdatingTrackerId(tracker.id);
+    onClose();
   };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
@@ -132,7 +134,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     } else {
       createTracker(payload);
     }
-    onClose();
   };
 
   const standardStrictURL = new RegExp(standardStrictURLRegex);

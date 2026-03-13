@@ -10,8 +10,10 @@ fix existing over-broad subscription patterns that cause unnecessary re-renders.
 
 The upgrade itself provides two automatic wins with zero code changes:
 
-- **Security patches** (v7.69.0) -- CVE-2025-55182 (Critical RCE),
-  CVE-2025-55183, CVE-2025-55184, CVE-2025-67779
+- **Library updates** (v7.69.0–v7.71.x) -- Bug fixes and feature improvements.
+  Note: CVE-2025-55182, CVE-2025-55183, CVE-2025-55184, and CVE-2025-67779
+  affect React Server Components (react-server-dom-\*), not react-hook-form;
+  applications using RSC/Flight should address those separately.
 - **FormProvider memoization** (v7.71.0) -- context value is now memoized and
   the control context is separated, reducing re-renders in all five
   `FormProvider` trees (`assessment-wizard`, `identity-form`, `generator-form`,
@@ -59,7 +61,7 @@ the right pattern. A JSDoc note was added to the hook explaining this decision.
 
 **Feature:** v7.65.0
 
-Both candidates were evaluated and determined to not benefit from `<Watch>`:
+Both candidates were evaluated and determined not to benefit from `<Watch>`:
 
 **`kind-source-form.tsx`:** The 6 watched values (`userCredentials`, `password`,
 `key`, `kind`, `default`, `keyFilename`) are consumed across multiple computed
