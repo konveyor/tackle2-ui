@@ -23,6 +23,7 @@ import {
   createMultipleApplications,
   deleteAllArchetypes,
   deleteAllStakeholders,
+  deleteApplicationTableRows,
   exists,
   getAuthHeaders,
   login,
@@ -204,9 +205,7 @@ describe(["@tier3"], "Miscellaneous Archetype tests", () => {
   after("Perform test data clean up", function () {
     AssessmentQuestionnaire.deleteAllQuestionnaires();
     archetype.delete();
-    getAuthHeaders().then((headers) => {
-      Application.deleteAllViaApi(headers);
-      Stakeholders.deleteAllViaApi(headers);
-    });
+    deleteApplicationTableRows();
+    deleteAllStakeholders();
   });
 });

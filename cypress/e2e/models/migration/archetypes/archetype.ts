@@ -85,7 +85,6 @@ export class Archetype {
     }
 
     cy.url().then(($url) => {
-      cy.log("Current URL:", $url);
       if ($url != Archetype.fullUrl) {
         selectUserPerspective(migration);
         clickByText(navMenu, "Archetypes");
@@ -406,15 +405,12 @@ export class Archetype {
 
   deleteAssessments(): void {
     this.clickAssessButton();
-    cy.log("Deleting assessments for archetype:", this.name);
-    cy.wait(2000); // Wait for the assessments to load
     Assessment.deleteAssessments();
   }
 
   verifyButtonEnabled(button: string): void {
     //validates current page
     validatePageTitle("Assessment Actions").then((titleMatches) => {
-      cy.log("Page title matches expected:", titleMatches);
       if (!titleMatches) {
         Archetype.open();
         this.clickAssessButton();

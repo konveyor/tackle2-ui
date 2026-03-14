@@ -18,6 +18,9 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   createMultipleApplications,
+  deleteAllCredentials,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
   getAuthHeaders,
   login,
 } from "../../../../utils/utils";
@@ -71,11 +74,10 @@ describe(["@tier2"], "Export Migration Wave to Jira Cloud", function () {
     }
     login();
     cy.visit("/");
-    getAuthHeaders().then((headers) => {
-      MigrationWave.deleteAllViaApi(headers);
-      Application.deleteAllViaApi(headers);
-      Credentials.deleteAllViaApi(headers);
-    });
+    deleteAllMigrationWaves();
+    deleteApplicationTableRows();
+    deleteAllCredentials();
+
     jiraCloudCredentials = new JiraCredentials(
       data.getJiraCredentialData(CredentialType.jiraBasic, true)
     );

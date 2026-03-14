@@ -127,8 +127,11 @@ export class Stakeholdergroups {
       method: "GET",
       url: "/hub/stakeholdergroups",
       ...(headers && { headers }),
+      failOnStatusCode: false,
     }).then((res) => {
-      const items = Array.isArray(res.body) ? res.body : [];
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
       items.forEach((item: { id: number }) => {
         cy.request({
           method: "DELETE",

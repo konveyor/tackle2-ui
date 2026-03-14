@@ -18,6 +18,9 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   createMultipleApplications,
+  deleteAllCredentials,
+  deleteAllMigrationWaves,
+  deleteApplicationTableRows,
   getAuthHeaders,
   login,
 } from "../../../../utils/utils";
@@ -73,11 +76,9 @@ describe(
       }
       login();
       cy.visit("/");
-      getAuthHeaders().then((headers) => {
-        MigrationWave.deleteAllViaApi(headers);
-        Application.deleteAllViaApi(headers);
-        Credentials.deleteAllViaApi(headers);
-      });
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+      deleteAllCredentials();
       jiraCredentials = new JiraCredentials(
         data.getJiraCredentialData(CredentialType.jiraToken, true)
       );
@@ -156,13 +157,9 @@ describe(
     });
 
     after("Clear test data", function () {
-      getAuthHeaders().then((headers) => {
-        MigrationWave.deleteAllViaApi(headers);
-        Application.deleteAllViaApi(headers);
-        Credentials.deleteAllViaApi(headers);
-      });
-      jiraInstance.delete();
-      jiraCredentials.delete();
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+      deleteAllCredentials();
     });
   }
 );
