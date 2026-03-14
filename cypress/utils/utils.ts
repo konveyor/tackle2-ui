@@ -109,7 +109,6 @@ import {
   pageNumInput,
   prevPageButton,
   removeButton,
-  rowActionsKebabToggle,
   searchButton,
   sideDrawer,
   span,
