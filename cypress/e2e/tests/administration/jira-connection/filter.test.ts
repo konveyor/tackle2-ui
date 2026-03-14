@@ -20,6 +20,7 @@ import { getJiraCredentialData } from "../../../../utils/data_utils";
 import {
   clearAllFilters,
   createMultipleJiraConnections,
+  deleteAllCredentials,
   deleteByList,
   exists,
   login,
@@ -83,7 +84,6 @@ describe(["@tier3"], "Jira connection filter validations", () => {
   });
 
   after("Clean up", () => {
-    deleteByList(jiraConnectionList);
-    jiraBasicCredential.delete();
+    deleteAllCredentials();
   });
 });

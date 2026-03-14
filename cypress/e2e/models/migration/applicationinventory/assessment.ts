@@ -379,7 +379,7 @@ export class Assessment {
   }
 
   public static deleteAssessments(): void {
-    cy.get(tableRowActions).each(($el) => {
+    cy.get(tableRowActions, { timeout: 30 * SEC }).each(($el) => {
       cy.wrap($el).find(plainButton).click();
     });
   }

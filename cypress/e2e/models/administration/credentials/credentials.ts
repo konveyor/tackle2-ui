@@ -70,6 +70,9 @@ export class Credentials {
   /** Indicates whether this credential is set as the default option */
   isDefault = false;
 
+  /** The ID of the credential */
+  id?: number;
+
   /** Contains URL of credentials web page */
   static fullUrl = Cypress.config("baseUrl") + "/identities";
 
@@ -315,5 +318,39 @@ export class Credentials {
     cy.get(commonView.closeSuccessNotification, { timeout: 10 * SEC })
       .first()
       .click({ force: true });
+  }
+
+  /** Delete a credential via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/identities/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all credentials via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/identities",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/identities/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 }
