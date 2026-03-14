@@ -11,25 +11,21 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import {
-  COLOR_HEX_VALUES_BY_NAME,
-  DEFAULT_SELECT_MAX_HEIGHT,
-} from "@app/Constants";
+import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { New, TagCategory } from "@app/api/models";
 import { Color } from "@app/components/Color";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
 import {
   useCreateTagCategoryMutation,
   useFetchTagCategories,
   useUpdateTagCategoryMutation,
 } from "@app/queries/tags";
-import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
@@ -83,7 +79,8 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     defaultValues: {
       name: tagCategory?.name || "",
       color: tagCategory
-        ? tagCategory.colour || getTagCategoryFallbackColor(tagCategory)
+        ? tagCategory.colour?.toUpperCase() ||
+          getTagCategoryFallbackColor(tagCategory)
         : null,
     },
     resolver: yupResolver(validationSchema),
@@ -136,7 +133,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const onSubmit = (formValues: FormValues) => {
     const payload: New<TagCategory> = {
       name: formValues.name.trim(),
-      colour: formValues.color || undefined,
+      colour: formValues.color?.toUpperCase() || undefined,
     };
 
     if (tagCategory) updateTagCategory({ id: tagCategory.id, ...payload });
@@ -144,15 +141,15 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     onClose();
   };
 
-  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
-    return {
-      value: color.toUpperCase(),
-      toString: () => color,
-      props: {
+  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME)
+    .map((color) => color.toUpperCase())
+    .map((color) => ({
+      value: color,
+      label: color,
+      optionProps: {
         children: <Color hex={color} />,
       },
-    };
-  });
+    }));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -171,25 +168,18 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            variant="single"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            isScrollable
             placeholderText={t("composed.selectOne", {
               what: t("terms.color").toLowerCase(),
             })}
             id="type-select"
+            isFullWidth
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={
-              value
-                ? toOptionLike(value.toUpperCase(), colorOptions)
-                : undefined
-            }
+            ariaLabel={name}
+            value={value?.toUpperCase() ?? undefined}
             options={colorOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />

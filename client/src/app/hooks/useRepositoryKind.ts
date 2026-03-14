@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { OptionWithValue } from "@app/components/SimpleSelect";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
 
 export type RepositoryKind = "git" | "subversion" | "" | null;
 
@@ -13,11 +13,11 @@ export const KIND_META: Map<RepositoryKind, { labelKey: string }> = new Map([
 export const useRepositoryKind = () => {
   const { t } = useTranslation();
 
-  const kindOptions: OptionWithValue<RepositoryKind>[] = useMemo(
+  const kindOptions: FilterSelectOptionProps[] = useMemo(
     () =>
       Array.from(KIND_META.entries()).map(([key, meta]) => ({
-        value: key,
-        toString: () => t(meta.labelKey),
+        value: key as string,
+        label: t(meta.labelKey),
       })),
     [t]
   );

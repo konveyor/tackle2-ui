@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { IdentityKind, IdentityKinds } from "@app/api/models";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 
 const KIND_META: Map<IdentityKind, { labelKey: string }> = new Map([
   ["source", { labelKey: "identityKind.source" }],
@@ -14,15 +13,6 @@ const KIND_META: Map<IdentityKind, { labelKey: string }> = new Map([
 
 export const useIdentityKind = () => {
   const { t } = useTranslation();
-
-  const kindOptions: OptionWithValue<IdentityKind>[] = useMemo(
-    () =>
-      Array.from(KIND_META.entries()).map(([key, meta]) => ({
-        value: key,
-        toString: () => t(meta.labelKey),
-      })),
-    [t]
-  );
 
   const kindFilterOptions = useMemo(
     () =>
@@ -45,7 +35,6 @@ export const useIdentityKind = () => {
   );
 
   return {
-    kindOptions,
     kindFilterOptions,
     kindLabels,
   };

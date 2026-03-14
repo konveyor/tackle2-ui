@@ -7,24 +7,17 @@ import {
 } from "@patternfly/react-core";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { SimpleSelect as DeprecatedSimpleSelect } from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
-import { toOptionLike } from "@app/utils/model-utils";
 
-// Static configuration moved outside component to prevent recreation
 const REPOSITORY_KIND_OPTIONS = [
-  {
-    value: "git",
-    toString: () => `Git`,
-  },
-  {
-    value: "subversion",
-    toString: () => `Subversion`,
-  },
+  { value: "git", label: "Git" },
+  { value: "subversion", label: "Subversion" },
 ];
 
 export const GeneratorFormRepository: React.FC = () => {
@@ -61,16 +54,15 @@ export const GeneratorFormRepository: React.FC = () => {
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
+            isScrollable
             toggleId="repo-type-toggle"
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={
-              value ? toOptionLike(value, REPOSITORY_KIND_OPTIONS) : undefined
-            }
+            ariaLabel={name}
+            isFullWidth
+            value={value ?? undefined}
             options={REPOSITORY_KIND_OPTIONS}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
+            onSelect={(selection) => {
+              onChange(selection);
               trigger("repository.url");
             }}
           />
@@ -105,7 +97,7 @@ export const GeneratorFormRepository: React.FC = () => {
         fieldId="credentials"
         renderInput={({ field: { value, name, onChange } }) => (
           <>
-            <SimpleSelect
+            <DeprecatedSimpleSelect
               maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               placeholderText={t("composed.selectOne", {
                 what: t("terms.credentials").toLowerCase(),
