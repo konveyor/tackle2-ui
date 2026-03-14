@@ -1604,8 +1604,9 @@ export function deleteAllItems(tableSelector: string = commonTable) {
 }
 
 export function deleteAllBusinessServices() {
-  BusinessServices.openList();
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    BusinessServices.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllStakeholderGroups(_cancel = false): void {
@@ -1639,8 +1640,9 @@ export function deleteAllProfiles() {
 }
 
 export function deleteApplicationTableRows(): void {
-  Application.open();
-  deleteAllItems();
+  getAuthHeaders().then((headers) => {
+    Application.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteBulkApplicationsByApi(appIds: number[]): void {
@@ -1691,24 +1693,8 @@ export function validatePageTitle(pageTitle: string) {
 }
 
 export function deleteAllMigrationWaves() {
-  MigrationWave.open();
-  selectItemsPerPage(100);
-  // This method if for pages that have delete button inside Kebab menu
-  // like Applications and Imports page
-  isTableEmpty().then((empty) => {
-    if (!empty) {
-      cy.get("tbody tr").then(($rows) => {
-        for (let i = 0; i < $rows.length; i++) {
-          cy.get(kebabToggleButton, { timeout: 10000 }).first().click();
-          cy.contains("Delete").click();
-          cy.get(confirmButton).click();
-          cy.wait(5000);
-          isTableEmpty().then((empty) => {
-            if (empty) return;
-          });
-        }
-      });
-    }
+  getAuthHeaders().then((headers) => {
+    MigrationWave.deleteAllViaApi(headers);
   });
 }
 

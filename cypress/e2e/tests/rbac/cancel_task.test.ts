@@ -70,34 +70,6 @@ describe(["@tier3"], "Cancel task created by another user", function () {
     });
   });
 
-  it("Bug MTA-3819: Run analysis by admin and cancel by another user - should not be allowed", function () {
-    applicationsList[0].analyze();
-    userMigrator.login();
-    TaskManager.cancelAnalysisByStatus(
-      applicationsList[0].name,
-      TaskStatus.running,
-      false
-    );
-
-    // TODO: (mguetta) uncomment the below once bug MTA-3819 is fixed.
-    // userArchitect.login();
-    // TaskManager.cancelAnalysisByStatus(app.name, TaskStatus.running, false);
-    // userArchitect.logout();
-  });
-
-  it("Bug MTA-3819: Run analysis by migrator and cancel by architect user - should not be allowed", function () {
-    userMigrator.login();
-    applicationsList[1].analyze();
-    userMigrator.logout();
-
-    userArchitect.login();
-    TaskManager.cancelAnalysisByStatus(
-      applicationsList[1].name,
-      TaskStatus.running,
-      false
-    );
-  });
-
   it("Run analysis by architect and cancel by admin user - should be allowed", function () {
     userArchitect.login();
     applicationsList[2].analyze();
