@@ -1,8 +1,8 @@
-import React from "react";
+import * as React from "react";
 import { LabelGroup } from "@patternfly/react-core";
 
 import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
-import type { Archetype, TagCategory, Tag } from "@app/api/models";
+import type { Archetype, Tag, TagCategory } from "@app/api/models";
 import { LabelCustomColor } from "@app/components/LabelCustomColor";
 
 // copied from application-tag-label.tsx
@@ -32,7 +32,9 @@ const ArchetypeTagsColumn: React.FC<{ archetype: Archetype }> = ({
   archetype,
 }) => (
   <LabelGroup>
-    {archetype.tags?.map((tag) => <TagLabel key={tag.id} tag={tag} />)}
+    {archetype.tags?.map((tag) => (
+      <TagLabel key={tag.id} tag={tag} />
+    ))}
   </LabelGroup>
 );
 

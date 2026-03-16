@@ -1,25 +1,29 @@
-import React, { FC } from "react";
-import { NavLink, Route, Switch, useHistory } from "react-router-dom";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NavLink, Route, Switch, useHistory } from "react-router-dom";
 import {
   Nav,
-  NavItem,
-  PageSidebar,
-  NavList,
   NavExpandable,
+  NavItem,
+  NavList,
+  PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
 
-import { AdminPaths, DevPaths } from "@app/Paths";
-import { LayoutTheme } from "../LayoutUtils";
-import { checkAccess } from "@app/utils/rbac-utils";
-import keycloak from "@app/keycloak";
-
-import { FEATURES_ENABLED } from "@app/FeatureFlags";
+import { isDevtoolsEnabled } from "@app/Constants";
+import { AdminPaths, DevPaths, DevtoolPaths, UniversalPaths } from "@app/Paths";
+import {
+  administrationRoutes,
+  devtoolRoutes,
+  migrationRoutes,
+  universalRoutes,
+} from "@app/Routes";
 import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
+import keycloak from "@app/keycloak";
+import { checkAccess } from "@app/utils/rbac-utils";
+
+import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
-import { ReactElement } from "react-markdown/lib/react-markdown";
-import { adminRoutes, devRoutes } from "@app/Routes";
 
 const PersonaDefinition = {
   ADMINISTRATION: {
@@ -30,43 +34,78 @@ const PersonaDefinition = {
     label: "Migration",
     startPath: DevPaths.applications,
   },
+  DEVTOOL: {
+    label: "Development Tools",
+    startPath: DevtoolPaths.schemaDefined,
+  },
 } as const;
 
 type PersonaType = keyof typeof PersonaDefinition;
 
-export const SidebarApp: React.FC = () => (
-  <Switch>
-    {devRoutes.map(({ path, exact }, index) => (
-      <Route
-        path={path}
-        exact={exact}
-        key={index}
-        render={() => <MigrationSidebar />}
-      />
-    ))}
-    {adminRoutes.map(({ path, exact }, index) => (
-      <Route
-        path={path}
-        exact={exact}
-        key={index}
-        render={() => <AdminSidebar />}
-      />
-    ))}
-  </Switch>
-);
+export const SidebarApp: React.FC = () => {
+  const [lastPersona, setLastPersona] = useState<PersonaType>();
+  return (
+    <Switch>
+      {migrationRoutes.map(({ path, exact }, index) => (
+        <Route
+          path={path}
+          exact={exact}
+          key={index}
+          render={() => <MigrationSidebar setLastPersona={setLastPersona} />}
+        />
+      ))}
+      {administrationRoutes.map(({ path, exact }, index) => (
+        <Route
+          path={path}
+          exact={exact}
+          key={index}
+          render={() => <AdminSidebar setLastPersona={setLastPersona} />}
+        />
+      ))}
+      {devtoolRoutes.map(({ path, exact }, index) => (
+        <Route
+          path={path}
+          exact={exact}
+          key={index}
+          render={() => <DevtoolSidebar setLastPersona={setLastPersona} />}
+        />
+      ))}
+      {universalRoutes.map(({ path, exact }, index) => (
+        <Route
+          path={path}
+          exact={exact}
+          key={index}
+          render={() =>
+            lastPersona === "ADMINISTRATION" ? (
+              <AdminSidebar setLastPersona={setLastPersona} />
+            ) : (
+              <MigrationSidebar setLastPersona={setLastPersona} />
+            )
+          }
+        />
+      ))}
+    </Switch>
+  );
+};
 
 const PersonaSidebar: FC<{
-  children: ReactElement;
+  children: ReactNode;
   selectedPersona: PersonaType;
-}> = ({ children, selectedPersona }) => {
+  setLastPersona: (persona: PersonaType) => void;
+}> = ({ children, selectedPersona, setLastPersona }) => {
   const token = keycloak.tokenParsed || undefined;
   const userRoles = token?.realm_access?.roles || [];
   const adminAccess = checkAccess(userRoles, ["tackle-admin"]);
 
-  const personaOptions: PersonaType[] = [
+  useEffect(() => {
+    setLastPersona(selectedPersona);
+  }, [selectedPersona, setLastPersona]);
+
+  const personaOptions = [
     "MIGRATION",
     adminAccess && "ADMINISTRATION",
-  ].filter(Boolean);
+    isDevtoolsEnabled && "DEVTOOL",
+  ].filter<PersonaType>(Boolean);
 
   const history = useHistory();
   return (
@@ -96,33 +135,32 @@ const PersonaSidebar: FC<{
   );
 };
 
-export const MigrationSidebar = () => {
+export const MigrationSidebar = ({
+  setLastPersona,
+}: {
+  setLastPersona: (persona: PersonaType) => void;
+}) => {
   const { t } = useTranslation();
 
   return (
-    <PersonaSidebar selectedPersona="MIGRATION">
+    <PersonaSidebar selectedPersona="MIGRATION" setLastPersona={setLastPersona}>
       <NavList title="Global">
-        <NavItem>
-          <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
-            {t("sidebar.applicationInventory")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
-            {t("sidebar.archetypes")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
-            {t("sidebar.reports")}
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
-            {t("sidebar.controls")}
-          </NavLink>
-        </NavItem>
-        {FEATURES_ENABLED.migrationWaves ? (
+        <NavExpandable
+          title={t("sidebar.group.applications")}
+          srText={t("sidebar.group.applications")}
+          groupId="migration-applications"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={DevPaths.applications} activeClassName="pf-m-current">
+              {t("sidebar.applicationInventory")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.archetypes} activeClassName="pf-m-current">
+              {t("sidebar.archetypes")}
+            </NavLink>
+          </NavItem>
           <NavItem>
             <NavLink
               to={DevPaths.migrationWaves}
@@ -131,38 +169,86 @@ export const MigrationSidebar = () => {
               {t("sidebar.migrationWaves")}
             </NavLink>
           </NavItem>
-        ) : null}
-        {FEATURES_ENABLED.dynamicReports ? (
-          <>
-            <NavItem>
-              <NavLink to={DevPaths.issues} activeClassName="pf-m-current">
-                {t("sidebar.issues")}
-              </NavLink>
-            </NavItem>
-            <NavItem>
-              <NavLink
-                to={DevPaths.dependencies}
-                activeClassName="pf-m-current"
-              >
-                {t("sidebar.dependencies")}
-              </NavLink>
-            </NavItem>
-          </>
-        ) : null}
-        <NavItem>
-          <NavLink to={DevPaths.tasks} activeClassName="pf-m-current">
-            {t("sidebar.tasks")}
-          </NavLink>
-        </NavItem>
+        </NavExpandable>
+        <NavExpandable
+          title={t("sidebar.group.analysisResults")}
+          srText={t("sidebar.group.analysisResults")}
+          groupId="migration-analysis-results"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={DevPaths.reports} activeClassName="pf-m-current">
+              {t("sidebar.reports")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.issuesAllTab} activeClassName="pf-m-current">
+              {t("sidebar.issues")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              to={DevPaths.insightsAllTab}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.insights")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.dependencies} activeClassName="pf-m-current">
+              {t("sidebar.dependencies")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
+        <NavExpandable
+          title={t("sidebar.group.configuration")}
+          srText={t("sidebar.group.configuration")}
+          groupId="migration-configuration"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink
+              to={DevPaths.analysisProfiles}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.analysisProfiles")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={DevPaths.controls} activeClassName="pf-m-current">
+              {t("sidebar.controls")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              to={DevPaths.migrationTargets}
+              activeClassName="pf-m-current"
+            >
+              {t("sidebar.customMigrationTargets")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
+              {t("sidebar.tasks")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
       </NavList>
     </PersonaSidebar>
   );
 };
 
-export const AdminSidebar = () => {
+export const AdminSidebar = ({
+  setLastPersona,
+}: {
+  setLastPersona: (persona: PersonaType) => void;
+}) => {
   const { t } = useTranslation();
   return (
-    <PersonaSidebar selectedPersona="ADMINISTRATION">
+    <PersonaSidebar
+      selectedPersona="ADMINISTRATION"
+      setLastPersona={setLastPersona}
+    >
       <NavList title="Admin">
         <NavItem>
           <NavLink to={AdminPaths.general} activeClassName="pf-m-current">
@@ -210,34 +296,66 @@ export const AdminSidebar = () => {
             Proxy
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink
-            to={AdminPaths.migrationTargets}
-            activeClassName="pf-m-current"
-          >
-            Custom migration targets
-          </NavLink>
-        </NavItem>
-        {FEATURES_ENABLED.migrationWaves ? (
-          <NavExpandable
-            title="Issue management"
-            srText="SR Link"
-            groupId="admin-issue-management"
-            isExpanded
-          >
-            <NavItem>
-              <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
-                Jira
-              </NavLink>
-            </NavItem>
-          </NavExpandable>
-        ) : null}
+        <NavExpandable
+          title="Issue management"
+          srText="SR Link"
+          groupId="admin-issue-management"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={AdminPaths.jira} activeClassName="pf-m-current">
+              Jira
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
         <NavItem>
           <NavLink to={AdminPaths.assessment} activeClassName="pf-m-current">
             {t("terms.assessmentQuestionnaires")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            to={AdminPaths.sourcePlatforms}
+            activeClassName="pf-m-current"
+          >
+            {t("terms.sourcePlatforms")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            to={AdminPaths.assetGenerators}
+            activeClassName="pf-m-current"
+          >
+            {t("terms.generators")}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
+            {t("sidebar.tasks")}
           </NavLink>
         </NavItem>
       </NavList>
     </PersonaSidebar>
   );
 };
+
+const DevtoolSidebar = !isDevtoolsEnabled
+  ? () => null
+  : ({
+      setLastPersona,
+    }: {
+      setLastPersona: (persona: PersonaType) => void;
+    }) => (
+      <PersonaSidebar selectedPersona="DEVTOOL" setLastPersona={setLastPersona}>
+        <NavList title="Devtool">
+          <NavItem>
+            <NavLink
+              to={DevtoolPaths.schemaDefined}
+              activeClassName="pf-m-current"
+            >
+              SDF Playground
+            </NavLink>
+          </NavItem>
+        </NavList>
+      </PersonaSidebar>
+    );

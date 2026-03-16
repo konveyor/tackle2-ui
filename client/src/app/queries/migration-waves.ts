@@ -1,23 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { MigrationWave } from "@app/api/models";
 import {
-  getMigrationWaves,
   createMigrationWave,
   deleteMigrationWave,
-  updateMigrationWave,
-  deleteAllMigrationWaves,
   deleteTicket,
+  getMigrationWaves,
+  updateMigrationWave,
 } from "@app/api/rest";
 import { getWavesWithStatus } from "@app/utils/waves-selector";
-import { TicketsQueryKey, useFetchTickets } from "./tickets";
-import { TrackersQueryKey } from "./trackers";
+
 import { useFetchApplications } from "./applications";
 import { useFetchStakeholders } from "./stakeholders";
+import { TicketsQueryKey, useFetchTickets } from "./tickets";
+import { TrackersQueryKey } from "./trackers";
 
 export const MigrationWavesQueryKey = "migration-waves";
 
 export const useCreateMigrationWaveMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (newMigrationWave: MigrationWave) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
@@ -26,13 +29,15 @@ export const useCreateMigrationWaveMutation = (
     mutationFn: createMigrationWave,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError,
   });
 };
 
-export const useFetchMigrationWaves = () => {
+export const useFetchMigrationWaves = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { tickets } = useFetchTickets();
   const { stakeholders } = useFetchStakeholders();
   const { data: applications } = useFetchApplications();
@@ -41,9 +46,10 @@ export const useFetchMigrationWaves = () => {
   const { isLoading, error, refetch, data } = useQuery({
     queryKey: [MigrationWavesQueryKey],
     queryFn: getMigrationWaves,
-    refetchInterval: 5000,
+    refetchInterval,
     onError: (error) => console.log("error, ", error),
-    onSuccess: () => queryClient.invalidateQueries([TrackersQueryKey]),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] }),
     select: (waves) =>
       getWavesWithStatus(waves, tickets, stakeholders, applications),
   });
@@ -56,62 +62,71 @@ export const useFetchMigrationWaves = () => {
 };
 
 export const useUpdateMigrationWaveMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (migrationWave: MigrationWave) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateMigrationWave,
-    onSuccess: (res) => {
-      onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+    onSuccess: (res, migrationWave) => {
+      onSuccess(migrationWave);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError: onError,
   });
 };
 
 export const useDeleteMigrationWaveMutation = (
-  onSuccess: (migrationWaveName: string) => void,
+  onSuccess: (migrationWave: MigrationWave) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: ({ id }: { id: number; name: string }) =>
-      deleteMigrationWave(id),
-    onSuccess: (_, vars) => {
-      onSuccess(vars.name);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+    mutationFn: (migrationWave: MigrationWave) =>
+      deleteMigrationWave(migrationWave.id),
+    onSuccess: (_, migrationWave) => {
+      onSuccess(migrationWave);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
     onError,
   });
 };
 
+const deleteMultipleWithSingle = (toDelete: MigrationWave[]) => {
+  return Promise.all(
+    toDelete.map((migrationWave) => deleteMigrationWave(migrationWave.id))
+  );
+};
+
 export const useDeleteAllMigrationWavesMutation = (
-  onSuccess: (res: any) => void,
+  onSuccess: (deleted: MigrationWave[]) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteAllMigrationWaves,
-    onSuccess: (res) => {
-      onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
+    mutationFn: deleteMultipleWithSingle,
+    onSuccess: (_, deleted) => {
+      onSuccess(deleted);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
     },
-    onError: onError,
+    onError: (error: AxiosError) => {
+      onError(error);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+    },
   });
 };
+
 export const useDeleteTicketMutation = (
-  onSuccess?: (res: any) => void,
+  onSuccess?: (res: unknown) => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTicket,
     onSuccess: (res) => {
-      onSuccess && onSuccess(res);
-      queryClient.invalidateQueries([MigrationWavesQueryKey]);
-      queryClient.invalidateQueries([TicketsQueryKey]);
+      onSuccess?.(res);
+      queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TicketsQueryKey] });
     },
     onError: onError,
   });

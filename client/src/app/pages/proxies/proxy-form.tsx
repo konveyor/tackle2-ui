@@ -1,4 +1,14 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import {
+  Controller,
+  FieldValues,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
   Button,
@@ -6,29 +16,24 @@ import {
   Form,
   Switch,
 } from "@patternfly/react-core";
-import {
-  Controller,
-  FieldValues,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError } from "axios";
-import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { getAxiosErrorMessage, getValidatedFromErrors } from "@app/utils/utils";
-import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 import { Proxy } from "@app/api/models";
-import { useUpdateProxyMutation } from "@app/queries/proxies";
-import { useFetchIdentities } from "@app/queries/identities";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useFetchIdentities } from "@app/queries/identities";
+import { useUpdateProxyMutation } from "@app/queries/proxies";
+import {
+  getAxiosErrorMessage,
+  getToggleStatusFromErrors,
+} from "@app/utils/utils";
+
+import { useProxyFormValidationSchema } from "./proxies-validation-schema";
 
 export interface ProxyFormValues {
   isHttpProxyEnabled: boolean;
@@ -58,14 +63,12 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
 
   const { identities } = useFetchIdentities();
 
-  const identityOptions: OptionWithValue<string>[] = identities
+  const identityOptions = identities
     .filter((i) => i.kind === "proxy")
-    .map((identity) => {
-      return {
-        value: identity?.name || "",
-        toString: () => identity?.name || "",
-      };
-    });
+    .map((identity) => ({
+      value: identity?.name || "",
+      label: identity?.name || "",
+    }));
 
   const {
     handleSubmit,
@@ -235,7 +238,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             label="HTTP proxy port"
             fieldId="port"
             isRequired
-            type="number"
+            type="integer"
             className={spacing.mMd}
           />
           <Controller
@@ -273,17 +276,20 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 fieldState: { isDirty, error, isTouched },
               }) => (
                 <SimpleSelect
+                  isScrollable
+                  isFullWidth
                   id="httpIdentity"
                   toggleId="http-proxy-credentials-select-toggle"
-                  aria-label="HTTP proxy credentials"
+                  ariaLabel="HTTP proxy credentials"
                   value={value || undefined}
                   options={identityOptions}
                   isDisabled={!identityOptions.length}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  validated={getValidatedFromErrors(error, isDirty, isTouched)}
+                  onSelect={onChange}
+                  toggleStatus={getToggleStatusFromErrors(
+                    error,
+                    isDirty,
+                    isTouched
+                  )}
                 />
               )}
             />
@@ -321,7 +327,7 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
             fieldId="port"
             name="httpsPort"
             isRequired
-            type="number"
+            type="integer"
             className={spacing.mMd}
           />
           <Controller
@@ -359,16 +365,19 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 fieldState: { isDirty, error, isTouched },
               }) => (
                 <SimpleSelect
+                  isScrollable
+                  isFullWidth
                   toggleId="https-proxy-credentials-select-toggle"
-                  aria-label="HTTPS proxy credentials"
+                  ariaLabel="HTTPS proxy credentials"
                   value={value ? value : undefined}
                   options={identityOptions}
                   isDisabled={!identityOptions.length}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
-                  }}
-                  validated={getValidatedFromErrors(error, isDirty, isTouched)}
+                  onSelect={onChange}
+                  toggleStatus={getToggleStatusFromErrors(
+                    error,
+                    isDirty,
+                    isTouched
+                  )}
                 />
               )}
             />

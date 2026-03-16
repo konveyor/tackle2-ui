@@ -26,6 +26,8 @@ npm-debug.log*
 
 # VSCode
 .vscode/*
+!.vscode/extensions.json
+!.vscode/settings.sample.json
 
 # Intellij IDEA
 .idea/

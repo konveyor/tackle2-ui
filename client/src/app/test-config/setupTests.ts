@@ -1,6 +1,14 @@
+// init @testing-library
 import "@testing-library/jest-dom";
+import { configure } from "@testing-library/react";
+
 import { server } from "@mocks/server";
+
+// initialize libraries like is done in ../../index.tsx
 import "@app/dayjs";
+import "@app/yup";
+
+configure({ reactStrictMode: true });
 
 const mockInitialized = false;
 
@@ -33,6 +41,6 @@ afterAll(() => server.close());
 //   console.log(`Request to ${req.url.href} was matched with a handler`);
 // });
 
-// server.events.on("request:unhandled", (req) => {
-//   console.warn(`Request to ${req.url.href} was not handled`);
-// });
+server.events.on("request:unhandled", (req) => {
+  console.warn(`Request to ${req.url.href} was not handled`);
+});

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   deleteApplicationImportSummary,
-  getApplicationImports,
   getApplicationImportSummaryById,
+  getApplicationImports,
   getApplicationsImportSummary,
 } from "@app/api/rest";
 
@@ -13,12 +14,14 @@ export const ImportQueryKey = "import";
 
 export const useFetchImports = (
   importSummaryID: number,
-  isValid: boolean | string
+  isValid: boolean | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [ImportsQueryKey, importSummaryID, isValid],
     queryFn: () => getApplicationImports(importSummaryID, isValid),
     onError: (error) => console.log(error),
+    refetchInterval,
   });
   return {
     imports: data || [],
@@ -28,11 +31,13 @@ export const useFetchImports = (
   };
 };
 
-export const useFetchImportSummaries = () => {
+export const useFetchImportSummaries = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [ImportSummariesQueryKey],
     queryFn: getApplicationsImportSummary,
-    refetchInterval: 5000,
+    refetchInterval,
     onError: (error) => console.log(error),
   });
   return {
@@ -66,11 +71,11 @@ export const useDeleteImportSummaryMutation = (
   return useMutation({
     mutationFn: deleteApplicationImportSummary,
     onSuccess: () => {
-      onSuccess && onSuccess();
-      queryClient.invalidateQueries([ImportSummariesQueryKey]);
+      onSuccess?.();
+      queryClient.invalidateQueries({ queryKey: [ImportSummariesQueryKey] });
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };

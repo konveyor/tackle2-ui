@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import * as React from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError, AxiosResponse } from "axios";
+import { unique } from "radash";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   ActionGroup,
   Alert,
@@ -7,62 +14,56 @@ import {
   ButtonVariant,
   FileUpload,
   Form,
-  MultipleFileUpload,
-  MultipleFileUploadMain,
-  MultipleFileUploadStatus,
-  MultipleFileUploadStatusItem,
   Radio,
 } from "@patternfly/react-core";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import defaultImage from "./default.png";
+import { New, Rule, Target, TargetLabel, UploadFile } from "@app/api/models";
+import { UploadFileSchema } from "@app/api/schemas";
+import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useCreateFileMutation } from "@app/queries/targets";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import {
-  IReadFile,
-  New,
-  ProviderType,
-  Rule,
-  Target,
-  TargetLabel,
-} from "@app/api/models";
-import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { toOptionLike } from "@app/utils/model-utils";
+  OptionWithValue,
+  SimpleSelect as DeprecatedSimpleSelect,
+} from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
-import useRuleFiles from "@app/hooks/useRuleFiles";
-import { customURLValidation, duplicateNameCheck } from "@app/utils/utils";
-import { customRulesFilesSchema } from "../../applications/analysis-wizard/schema";
+import { useSettingMutation } from "@app/queries/settings";
 import {
+  useCreateFileMutation,
   useCreateTargetMutation,
   useFetchTargets,
   useUpdateTargetMutation,
 } from "@app/queries/targets";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { toOptionLike, toRef } from "@app/utils/model-utils";
+import { getParsedLabel, parseRules } from "@app/utils/rules-utils";
+import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
+
+import {
+  DEFAULT_PROVIDER,
+  useMigrationProviderList,
+} from "../useMigrationProviderList";
+
+import defaultImage from "./default.png";
 
 export interface CustomTargetFormProps {
   target?: Target | null;
+  targetOrder: number[];
   onSaved: (response: AxiosResponse<Target>) => void;
   onCancel: () => void;
-  providerType: ProviderType;
 }
 
 export interface CustomTargetFormValues {
   id: number;
   name: string;
   description?: string;
+  providerType?: string;
   imageID: number | null;
-  customRulesFiles: IReadFile[];
+  customRulesFiles: UploadFile[];
   rulesKind: string;
   repositoryType?: string;
   sourceRepository?: string;
@@ -71,30 +72,97 @@ export interface CustomTargetFormValues {
   associatedCredentials?: string;
 }
 
+const targetRulesetsToReadFiles = (target?: Target) =>
+  target?.ruleset?.rules?.map((rule): UploadFile => {
+    return {
+      fileId: rule.file?.id,
+      fileName: rule.name,
+      fullFile: new File([], rule.name, { type: "placeholder" }),
+      uploadProgress: 100,
+      status: "exists",
+    };
+  }) || [];
+
+const useTargetQueryHooks = (
+  onSaved: (response: AxiosResponse<Target>) => void,
+  reset: () => void
+) => {
+  const { pushNotification } = useContext(NotificationsContext);
+
+  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
+
+  const { mutateAsync: createTargetAsync } = useCreateTargetMutation(
+    (response: AxiosResponse<Target>) => {
+      // TODO: Consider any removed files and delete them from hub if necessary
+      onSaved(response);
+      reset();
+    },
+    (error: AxiosError) => {
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
+  );
+
+  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
+    // TODO: Consider any removed files and delete them from hub if necessary
+    onSaved(response);
+    reset();
+  };
+
+  const onUpdateTargetFailure = (_error: AxiosError) => {};
+
+  const { mutate: updateTarget } = useUpdateTargetMutation(
+    onUpdateTargetSuccess,
+    onUpdateTargetFailure
+  );
+
+  const { mutateAsync: targetOrderMutateAsync } =
+    useSettingMutation("ui.target.order");
+
+  return {
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  };
+};
+
 export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   target: initialTarget,
+  targetOrder,
   onSaved,
   onCancel,
-  providerType,
 }) => {
-  const { pushNotification } = useContext(NotificationsContext);
+  const baseProviderList = useMigrationProviderList();
+  const providerList = useMemo(
+    () =>
+      unique([initialTarget?.provider, ...baseProviderList])
+        .filter(Boolean)
+        .sort(),
+    [baseProviderList, initialTarget?.provider]
+  );
+  const providerListOptions = useMemo(
+    () =>
+      providerList.map((provider) => ({
+        value: provider,
+        label: provider,
+      })),
+    [providerList]
+  );
+
   const { t } = useTranslation();
   const [target, setTarget] = useState(initialTarget);
   const [imageRejectedError, setImageRejectedError] = useState<string | null>(
     null
   );
 
-  const [filename, setFilename] = React.useState("default.png");
+  const [imageFilename, setImageFilename] = useState("default.png");
 
-  const repositoryTypeOptions: OptionWithValue<string>[] = [
-    {
-      value: "git",
-      toString: () => `Git`,
-    },
-    {
-      value: "svn",
-      toString: () => `Subversion`,
-    },
+  const repositoryTypeOptions = [
+    { value: "git", label: "Git" },
+    { value: "svn", label: "Subversion" },
   ];
 
   const { identities } = useFetchIdentities();
@@ -126,71 +194,67 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           (value) => duplicateNameCheck(targets, target || null, value || "")
         ),
       description: yup.string(),
+      providerType: yup.string().oneOf(providerList),
       imageID: yup.number().defined().nullable(),
-      rulesKind: yup.string().defined(),
+      rulesKind: yup.string().oneOf(["manual", "repository"]).defined(),
       customRulesFiles: yup
         .array()
-        .of(customRulesFilesSchema)
+        .of(UploadFileSchema)
         .when("rulesKind", {
           is: "manual",
           then: yup
             .array()
-            .of(customRulesFilesSchema)
-            .min(1, "At least 1 valid custom rule file must be uploaded."),
+            .of(UploadFileSchema)
+            .min(1, "At least 1 valid custom rule file must be uploaded.")
+            .test(
+              "All files are loaded successfully",
+              (value) =>
+                value?.every(({ status }) =>
+                  ["exists", "uploaded"].includes(status ?? "")
+                ) ?? false
+            ),
           otherwise: (schema) => schema,
         }),
-      repositoryType: yup.mixed<string>().when("rulesKind", {
+      repositoryType: yup.string().oneOf(["git", "svn"]).when("rulesKind", {
         is: "repository",
-        then: yup.mixed<string>().required(),
+        then: yup.string().required(),
       }),
       sourceRepository: yup.string().when("rulesKind", {
         is: "repository",
-        then: (schema) =>
-          customURLValidation(schema).required("Enter repository url."),
+        then: yup.string().required().repositoryUrl("repositoryType"),
       }),
-      branch: yup.mixed<string>().when("rulesKind", {
+      branch: yup.string().when("rulesKind", {
         is: "repository",
-        then: yup.mixed<string>(),
+        then: yup.string(),
       }),
-      rootPath: yup.mixed<string>().when("rulesKind", {
+      rootPath: yup.string().when("rulesKind", {
         is: "repository",
-        then: yup.mixed<string>(),
+        then: yup.string(),
       }),
-      associatedCredentials: yup.mixed<any>().when("rulesKind", {
+      // associatedCredentials = identity.name
+      associatedCredentials: yup.string().when("rulesKind", {
         is: "repository",
-        then: yup.mixed<any>(),
+        then: yup.string(),
       }),
     });
-
-  const getInitialCustomRulesFilesData = () =>
-    target?.ruleset?.rules?.map((rule): IReadFile => {
-      const emptyFile = new File(["empty"], rule.name, {
-        type: "placeholder",
-      });
-      return {
-        fileName: rule.name,
-        fullFile: emptyFile,
-        loadResult: "success",
-        loadPercentage: 100,
-      };
-    }) || [];
 
   const methods = useForm<CustomTargetFormValues>({
     defaultValues: {
       id: target?.id || 0,
       name: target?.name || "",
       description: target?.description || "",
+      providerType: target?.provider ?? DEFAULT_PROVIDER,
       imageID: target?.image?.id || null,
-      customRulesFiles: getInitialCustomRulesFilesData(),
+      customRulesFiles: targetRulesetsToReadFiles(target || undefined),
       rulesKind: !target
         ? "manual"
         : target?.ruleset?.rules?.length
-        ? "manual"
-        : "repository",
+          ? "manual"
+          : "repository",
       associatedCredentials: identities.find(
         (identity) => identity.id === target?.ruleset?.identity?.id
       )?.name,
-      repositoryType: target?.ruleset?.repository?.kind,
+      repositoryType: target?.ruleset?.repository?.kind ?? "git",
       sourceRepository: target?.ruleset?.repository?.url,
       branch: target?.ruleset?.repository?.branch,
       rootPath: target?.ruleset?.repository?.path,
@@ -205,89 +269,111 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     getValues,
     setValue,
     control,
-    watch,
     setFocus,
     clearErrors,
     trigger,
     reset,
   } = methods;
 
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: "customRulesFiles",
+  });
+
+  const filesToFieldsIndex = (files: UploadFile[]) => {
+    const indexes: number[] = [];
+    if (files && files.length > 0) {
+      fields.forEach(({ fileName }, index) => {
+        if (files.some((f) => fileName === f.fileName)) {
+          indexes.push(index);
+        }
+      });
+    }
+    return indexes;
+  };
+
   useEffect(() => {
     setTarget(initialTarget);
     if (initialTarget?.image?.id === 1) {
-      setFilename("default.png");
+      setImageFilename("default.png");
     } else {
-      setFilename(initialTarget?.image?.name || "default.png");
+      setImageFilename(initialTarget?.image?.name || "default.png");
     }
     return () => {
       setTarget(undefined);
-      setFilename("default.png");
+      setImageFilename("default.png");
     };
-  }, []);
+  }, [initialTarget]);
 
-  const watchAllFields = watch();
   const values = getValues();
 
   const {
-    ruleFiles,
-    handleFileDrop,
-    showStatus,
-    uploadError,
-    setUploadError,
-    setStatus,
-    getloadPercentage,
-    getloadResult,
-    successfullyReadFileCount,
-    handleFile,
-    removeFiles,
-  } = useRuleFiles(null, values.customRulesFiles, methods);
+    createTargetAsync,
+    updateTarget,
+    targetOrderMutateAsync,
+    createImageFileAsync,
+  } = useTargetQueryHooks(onSaved, reset);
 
-  const onSubmit = (formValues: CustomTargetFormValues) => {
-    let rules: Rule[] = [];
-    let labels: TargetLabel[] = [];
+  const onSubmit = async (formValues: CustomTargetFormValues) => {
+    const rules: Rule[] = formValues.customRulesFiles
+      .map((file) => {
+        if (file.contents) {
+          const { allLabels } = parseRules(file);
+          return {
+            name: file.fileName,
+            labels: allLabels,
+            file: {
+              id: file.fileId,
+            },
+          };
+        }
 
-    ruleFiles.forEach((file) => {
-      if (file.data && file?.fullFile?.type !== "placeholder") {
-        const { fileID, allLabels } = parseRules(file);
-        const newRule: Rule = {
-          name: file.fileName,
-          labels: allLabels,
-          file: {
-            id: fileID ? fileID : 0,
-          },
-        };
-        rules = [...rules, newRule];
-        labels = [
-          ...labels,
-          ...(allLabels?.map((label): TargetLabel => {
-            return {
-              name: getParsedLabel(label).labelValue,
-              label: label,
-            };
-          }) || []),
-        ];
-      } else {
-        const matchingExistingRule = target?.ruleset?.rules.find(
+        const existingRule = target?.ruleset?.rules.find(
           (ruleset) => ruleset.name === file.fileName
         );
-        if (matchingExistingRule) {
-          rules = [...rules, matchingExistingRule];
-        }
-      }
-    });
+        return existingRule;
+      })
+      .filter(Boolean);
 
-    const matchingSourceCredential = identities.find(
-      (identity) => identity.name === formValues.associatedCredentials
-    );
+    const labels: TargetLabel[] = rules.reduce<TargetLabel[]>((acc, rule) => {
+      const targetLabels =
+        rule.labels?.map<TargetLabel>((label) => ({
+          name: getParsedLabel(label).labelValue,
+          label,
+        })) ?? [];
+
+      acc.push(...targetLabels);
+      return acc;
+    }, []);
+
+    const associatedCredentials = formValues.associatedCredentials
+      ? identities.find(({ name }) => name === formValues.associatedCredentials)
+      : undefined;
+
+    // Upload the defaultImage for the task if no image is defined
+    let imageId = formValues.imageID;
+    if (imageId === null) {
+      try {
+        const res = await fetch(defaultImage);
+        const blob = await res.blob();
+        const defaultImageFile = new File([blob], "default.png", {
+          type: res.type,
+        });
+        const hubFile = await handleImageFileUpload(defaultImageFile);
+        imageId = hubFile.id;
+      } catch {
+        imageId = null;
+      }
+    }
 
     const payload: New<Target> = {
       name: formValues.name.trim(),
       description: formValues?.description?.trim() || "",
-      ...(formValues.imageID && { image: { id: formValues.imageID } }),
+      ...(imageId && { image: { id: imageId } }),
       custom: true,
       labels: labels.length ? labels : [],
       ruleset: {
-        id: target && target.custom ? target.ruleset.id : undefined,
+        id: target?.custom ? target.ruleset.id : 0,
         name: formValues.name.trim(),
         rules: rules,
         ...(formValues.rulesKind === "repository" && {
@@ -297,106 +383,42 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             branch: formValues?.branch?.trim(),
             path: formValues?.rootPath?.trim(),
           },
+          identity: toRef(associatedCredentials),
         }),
-        ...(formValues.associatedCredentials &&
-          matchingSourceCredential &&
-          formValues.rulesKind === "repository" && {
-            identity: {
-              id: matchingSourceCredential.id,
-              name: matchingSourceCredential.name,
-            },
-          }),
       },
-      provider: providerType || "Java",
+      provider: formValues.providerType,
     };
 
     if (target) {
-      formValues.imageID
-        ? updateTarget({ id: target.id, ...payload })
-        : fetch(defaultImage)
-            .then((res) => res.blob())
-            .then((res) => {
-              const defaultImageFile = new File([res], "default.png");
-              return handleFileUpload(defaultImageFile);
-            })
-            .then((res) => {
-              updateTarget({
-                id: target.id,
-                ...payload,
-                image: { id: res.id },
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+      updateTarget({ id: target.id, ...payload });
     } else {
-      formValues.imageID
-        ? createTarget(payload)
-        : fetch(defaultImage)
-            .then((res) => res.blob())
-            .then((res) => {
-              const defaultImageFile = new File([res], "default.png", {
-                type: res.type,
-              });
-              return handleFileUpload(defaultImageFile);
-            })
-            .then((res) => {
-              createTarget({
-                ...payload,
-                image: { id: res.id },
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+      let newTargetId: number | undefined;
+      try {
+        const response = await createTargetAsync(payload);
+        newTargetId = response.data.id;
+      } catch {
+        /* ignore */
+      }
+
+      // Add the new target to the target order and wait for it to complete before continuing.
+      if (newTargetId !== undefined) {
+        try {
+          await targetOrderMutateAsync([...targetOrder, newTargetId]);
+        } catch {
+          /* ignore */
+        }
+      }
     }
   };
 
-  const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
-
-  const onCreateTargetSuccess = (response: any) => {
-    onSaved(response);
-    reset();
+  const onCancelHandler = () => {
+    // TODO: Consider any uploaded files and delete them from hub if necessary
+    onCancel();
   };
 
-  const onCreateTargetFailure = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
-  const { mutate: createTarget } = useCreateTargetMutation(
-    onCreateTargetSuccess,
-    onCreateTargetFailure
-  );
-
-  const onUpdateTargetSuccess = (response: any) => {
-    onSaved(response);
-    reset();
-  };
-
-  const onUpdateTargetFailure = (error: AxiosError) => {};
-
-  const { mutate: updateTarget } = useUpdateTargetMutation(
-    onUpdateTargetSuccess,
-    onUpdateTargetFailure
-  );
-
-  const handleFileUpload = async (file: File) => {
-    setFilename(file.name);
-    const formFile = new FormData();
-    formFile.append("file", file);
-
-    const newImageFile: IReadFile = {
-      fileName: file.name,
-      fullFile: file,
-    };
-
-    return createImageFileAsync({
-      formData: formFile,
-      file: newImageFile,
-    });
+  const handleImageFileUpload = async (file: File) => {
+    setImageFilename(file.name);
+    return createImageFileAsync({ file });
   };
 
   return (
@@ -416,11 +438,31 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
       <HookFormPFGroupController
         control={control}
+        name="providerType"
+        label="Provider"
+        fieldId="provider-type-select"
+        renderInput={({ field: { value, name, onChange } }) => (
+          <SimpleSelect
+            isScrollable
+            isFullWidth
+            id="provider-type-select"
+            toggleId="provider-type-select-toggle"
+            toggleAriaLabel="Provider type select dropdown toggle"
+            ariaLabel={name}
+            value={value ?? undefined}
+            options={providerListOptions}
+            onSelect={onChange}
+          />
+        )}
+      />
+
+      <HookFormPFGroupController
+        control={control}
         name="imageID"
         label={t("terms.image")}
         fieldId="custom-migration-target-upload-image"
         helperText="Upload a png or jpeg file (Max size: 1 MB)"
-        renderInput={({ field: { onChange, name }, fieldState: { error } }) => (
+        renderInput={({ field: { onChange, name } }) => (
           <>
             {imageRejectedError && (
               <Alert
@@ -432,7 +474,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                   <AlertActionCloseButton
                     onClose={() => {
                       onChange(null);
-                      setFilename("default.png");
+                      setImageFilename("default.png");
                       setValue("imageID", null);
                       setImageRejectedError(null);
                     }}
@@ -443,8 +485,8 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             <FileUpload
               id="custom-migration-target-upload-image"
               name={name}
-              value={filename}
-              filename={filename}
+              value={imageFilename}
+              filename={imageFilename}
               filenamePlaceholder="Drag and drop a file or upload one"
               dropzoneProps={{
                 accept: {
@@ -459,26 +501,26 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
                       "Max image file size of 1 MB exceeded."
                     );
                   }
-                  setFilename(currentFile.file.name);
+                  setImageFilename(currentFile.file.name);
                 },
               }}
               validated={"default"}
-              onFileInputChange={async (_, file) => {
-                handleFileUpload(file)
-                  .then((res) => {
-                    setValue("imageID", res.id);
+              onFileInputChange={(_, file) => {
+                handleImageFileUpload(file)
+                  .then((hubFile) => {
+                    setValue("imageID", hubFile.id);
                     setFocus("imageID");
                     clearErrors("imageID");
                     trigger("imageID");
                   })
-                  .catch((err) => {
+                  .catch(() => {
                     setValue("imageID", null);
                   });
               }}
               onClearClick={() => {
                 setImageRejectedError(null);
                 onChange(null);
-                setFilename("default.png");
+                setImageFilename("default.png");
                 setValue("imageID", null);
               }}
               browseButtonText="Upload"
@@ -493,7 +535,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         label="Custom rules"
         fieldId="type-select"
         isRequired
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { value, onChange } }) => (
           <>
             <Radio
               id="manual"
@@ -520,59 +562,27 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       />
 
       {values?.rulesKind === "manual" && (
-        <>
-          {uploadError !== "" && (
-            <Alert
-              className={`${spacing.mtMd} ${spacing.mbMd}`}
-              variant="danger"
-              isInline
-              title={uploadError}
-              actionClose={
-                <AlertActionCloseButton onClose={() => setUploadError("")} />
-              }
-            />
-          )}
-          <MultipleFileUpload
-            onFileDrop={handleFileDrop}
-            dropzoneProps={{
-              accept: {
-                "text/xml": [".xml"],
-                "text/yaml": [".yml", ".yaml"],
-              },
-            }}
-          >
-            <MultipleFileUploadMain
-              titleIcon={<UploadIcon />}
-              titleText="Drag and drop files here"
-              titleTextSeparator="or"
-              infoText="Accepted file types: .yml, .yaml, .xml"
-            />
-            {showStatus && (
-              <MultipleFileUploadStatus
-                statusToggleText={`${successfullyReadFileCount} of ${ruleFiles.length} files uploaded`}
-                statusToggleIcon={setStatus()}
-              >
-                {ruleFiles.map((file) => (
-                  <MultipleFileUploadStatusItem
-                    file={file.fullFile}
-                    key={file.fileName}
-                    customFileHandler={(file) => {
-                      if (file.type === "placeholder") {
-                        return null;
-                      } else {
-                        return handleFile(file);
-                      }
-                    }}
-                    onClearClick={() => removeFiles([file.fileName])}
-                    progressValue={getloadPercentage(file.fileName)}
-                    progressVariant={getloadResult(file.fileName)}
-                  />
-                ))}
-              </MultipleFileUploadStatus>
-            )}
-          </MultipleFileUpload>
-        </>
+        <CustomRuleFilesUpload
+          ruleFiles={fields}
+          onAddRuleFiles={(ruleFiles) => {
+            append(ruleFiles);
+          }}
+          onRemoveRuleFiles={(ruleFiles) => {
+            const indexesToRemove = filesToFieldsIndex(ruleFiles);
+            if (indexesToRemove.length > 0) {
+              remove(indexesToRemove);
+              // TODO: Track removed files so they can be delete after a successful create/update
+            }
+          }}
+          onChangeRuleFile={(ruleFile) => {
+            const index = fields.findIndex(
+              (f) => f.fileName === ruleFile.fileName
+            );
+            update(index, ruleFile);
+          }}
+        />
       )}
+
       {values?.rulesKind === "repository" && (
         <>
           <HookFormPFGroupController
@@ -583,17 +593,17 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             isRequired
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
+                isScrollable
+                isFullWidth
                 id="repo-type-select"
                 toggleId="repo-type-select-toggle"
                 toggleAriaLabel="Repository type select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, repositoryTypeOptions) : undefined
-                }
+                ariaLabel={name}
+                value={value ?? undefined}
                 options={repositoryTypeOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
+                onSelect={(selection) => {
+                  onChange(selection);
+                  trigger("sourceRepository");
                 }}
               />
             )}
@@ -601,29 +611,29 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           <HookFormPFTextInput
             control={control}
             name="sourceRepository"
-            label="Source repository"
+            label={t("terms.sourceRepo")}
             fieldId="sourceRepository"
             isRequired
           />
           <HookFormPFTextInput
             control={control}
             name="branch"
-            label="Branch"
+            label={t("terms.branch")}
             fieldId="branch"
           />
           <HookFormPFTextInput
             control={control}
             name="rootPath"
-            label="Root path"
+            label={t("terms.rootPath")}
             fieldId="rootPath"
           />
           <HookFormPFGroupController
             control={control}
             name="associatedCredentials"
-            label="Associated credentials"
+            label={t("analysisSteps.labels.associatedCredentials")}
             fieldId="credentials-select"
-            renderInput={({ field: { value, name, onBlur, onChange } }) => (
-              <SimpleSelect
+            renderInput={({ field: { value, name, onChange } }) => (
+              <DeprecatedSimpleSelect
                 variant="typeahead"
                 id="associated-credentials-select"
                 toggleId="associated-credentials-select-toggle"
@@ -666,7 +676,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
           aria-label="cancel"
           variant={ButtonVariant.link}
           isDisabled={isSubmitting || isValidating}
-          onClick={onCancel}
+          onClick={onCancelHandler}
         >
           {t("actions.cancel")}
         </Button>

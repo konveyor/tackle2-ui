@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { saveAs } from "file-saver";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   Application,
   ApplicationDependency,
@@ -8,7 +10,7 @@ import {
   New,
 } from "@app/api/models";
 import {
-  APPLICATIONS,
+  HEADERS,
   createApplication,
   createApplicationDependency,
   deleteApplication,
@@ -16,38 +18,46 @@ import {
   deleteBulkApplications,
   getApplicationById,
   getApplicationDependencies,
+  getApplicationManifest,
   getApplications,
-  updateAllApplications,
+  hub,
   updateApplication,
 } from "@app/api/rest";
+
 import { assessmentsByItemIdQueryKey } from "./assessments";
-import saveAs from "file-saver";
 
 export const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
 export const ReportQueryKey = "report";
-
+export const ApplicationManifestQueryKey = "applicationManifest";
 interface DownloadOptions {
   application: Application;
   mimeType: MimeType;
 }
 
 export const useFetchApplications = (
-  refetchInterval: number | false | (() => number | false) = 5000
+  refetchInterval:
+    | number
+    | false
+    | (() => number | false) = DEFAULT_REFETCH_INTERVAL
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, error, refetch, data } = useQuery({
+  const { isLoading, isSuccess, error, refetch, data } = useQuery({
     queryKey: [ApplicationsQueryKey],
     queryFn: getApplications,
-    refetchInterval: refetchInterval,
     onSuccess: () => {
-      queryClient.invalidateQueries([assessmentsByItemIdQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [assessmentsByItemIdQueryKey],
+      });
     },
     onError: (error: AxiosError) => console.log(error),
+    refetchInterval,
   });
   return {
     data: data || [],
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
     error,
     refetch,
   };
@@ -55,18 +65,48 @@ export const useFetchApplications = (
 
 export const ApplicationQueryKey = "application";
 
-export const useFetchApplicationById = (id?: number | string) => {
-  const { data, isLoading, error } = useQuery({
+export const useFetchApplicationById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
+  const { data, isLoading, isSuccess, error } = useQuery({
     queryKey: [ApplicationQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(undefined) : getApplicationById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {
     application: data,
     isFetching: isLoading,
+    isLoading,
+    isSuccess,
+    fetchError: error,
+  };
+};
+
+export const useFetchApplicationManifest = (
+  applicationId?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL * 2
+) => {
+  const { data, isLoading, isSuccess, error } = useQuery({
+    queryKey: [ApplicationManifestQueryKey, applicationId],
+    queryFn: () =>
+      applicationId === undefined
+        ? Promise.resolve(undefined)
+        : getApplicationManifest(applicationId),
+    enabled: applicationId !== undefined,
+    retry: false,
+    refetchInterval,
+  });
+
+  return {
+    manifest: data,
+    isFetching: isLoading,
+    isLoading,
+    isSuccess,
     fetchError: error,
   };
 };
@@ -79,23 +119,68 @@ export const useUpdateApplicationMutation = (
   return useMutation({
     mutationFn: updateApplication,
     onSuccess: (_res, payload) => {
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
       onSuccess(payload);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
   });
 };
 
-export const useUpdateAllApplicationsMutation = (
-  onSuccess: (res: any) => void,
+export interface UpdateAllApplicationsResult {
+  success: { application: Application; response: AxiosResponse<void> }[];
+  failure: { application: Application; cause: Error }[];
+}
+
+const patchAndUpdateApplications = async ({
+  applications,
+  patch,
+}: {
+  applications: Application[];
+  patch: (application: Application) => Application;
+}): Promise<UpdateAllApplicationsResult> => {
+  // TODO: Ideally we'd have a single request to update all applications instead of one per application.
+  const results = await Promise.allSettled(
+    applications.map(async (application) => {
+      try {
+        const patchedApplication = patch(application);
+        const response = await updateApplication(patchedApplication);
+        return {
+          success: { application: patchedApplication, response },
+        };
+      } catch (error) {
+        return {
+          failure: { application, cause: error as Error },
+        };
+      }
+    })
+  );
+
+  return results.reduce(
+    (acc, result) => {
+      if (result.status === "fulfilled") {
+        if (result.value.success) acc.success.push(result.value.success);
+        if (result.value.failure) acc.failure.push(result.value.failure);
+      }
+      return acc;
+    },
+    { success: [], failure: [] } as UpdateAllApplicationsResult
+  );
+};
+
+/** Mutation to apply a patch function to multiple applications and individually update. */
+export const useBulkPatchApplicationsMutation = (
+  onSuccess: (results: UpdateAllApplicationsResult) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateAllApplications,
-    onSuccess: (res) => {
-      onSuccess(res);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+    mutationFn: patchAndUpdateApplications,
+    onSuccess: async (results) => {
+      await queryClient.invalidateQueries({
+        queryKey: [ApplicationsQueryKey],
+      });
+
+      onSuccess(results);
     },
     onError: onError,
   });
@@ -109,8 +194,8 @@ export const useCreateApplicationMutation = (
   return useMutation({
     mutationFn: createApplication,
     onSuccess: (application: Application, payload: New<Application>) => {
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
       onSuccess(application, payload);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
     },
     onError: onError,
   });
@@ -123,9 +208,9 @@ export const useDeleteApplicationMutation = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id }: { id: number }) => deleteApplication(id),
-    onSuccess: (_res) => {
-      onSuccess(1);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+    onSuccess: (_res, vars) => {
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      onSuccess(vars.id);
     },
     onError: onError,
   });
@@ -140,36 +225,31 @@ export const useBulkDeleteApplicationMutation = (
     mutationFn: ({ ids }: { ids: number[] }) => deleteBulkApplications(ids),
     onSuccess: (res, vars) => {
       onSuccess(vars.ids.length);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
     onError: onError,
   });
 };
 
-export const downloadStaticReport = async ({
+const downloadStaticReport = async ({
   application,
   mimeType,
 }: DownloadOptions): Promise<void> => {
-  const yamlAcceptHeader = "application/x-yaml";
-  let url = `${APPLICATIONS}/${application.id}/analysis/report`;
+  let url = hub`/applications/${application.id}/analysis/report`;
 
   switch (mimeType) {
     case MimeType.YAML:
-      url = `${APPLICATIONS}/${application.id}/analysis`;
+      url = hub`/applications/${application.id}/analysis`;
       break;
     case MimeType.TAR:
     default:
-      url = `${APPLICATIONS}/${application.id}/analysis/report`;
+      url = hub`/applications/${application.id}/analysis/report`;
   }
 
   try {
     const response = await axios.get(url, {
       responseType: "blob",
-      ...(MimeType.YAML && {
-        headers: {
-          Accept: yamlAcceptHeader,
-        },
-      }),
+      ...(mimeType === MimeType.YAML && { headers: HEADERS.yaml }),
     });
 
     if (response.status !== 200) {
@@ -245,15 +325,13 @@ export const useCreateApplicationDependency = ({
   return useMutation({
     mutationFn: createApplicationDependency,
     onSuccess: () => {
-      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
-      if (onSuccess) {
-        onSuccess();
-      }
+      queryClient.invalidateQueries({
+        queryKey: [ApplicationDependencyQueryKey],
+      });
+      onSuccess?.();
     },
     onError: (error: AxiosError) => {
-      if (onError) {
-        onError(error);
-      }
+      onError?.(error);
     },
   });
 };
@@ -264,7 +342,9 @@ export const useDeleteApplicationDependency = () => {
   return useMutation({
     mutationFn: deleteApplicationDependency,
     onSuccess: () => {
-      queryClient.invalidateQueries([ApplicationDependencyQueryKey]);
+      queryClient.invalidateQueries({
+        queryKey: [ApplicationDependencyQueryKey],
+      });
     },
   });
 };

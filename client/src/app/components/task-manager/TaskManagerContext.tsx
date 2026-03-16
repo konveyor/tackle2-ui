@@ -1,5 +1,13 @@
+import {
+  type FC,
+  type ReactNode,
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+
 import { useFetchTaskQueue } from "@app/queries/tasks";
-import React, { useContext, useMemo, useState } from "react";
 
 interface TaskManagerContextProps {
   /** Count of the currently "queued" Tasks */
@@ -12,7 +20,7 @@ interface TaskManagerContextProps {
   setIsExpanded: (value: boolean) => void;
 }
 
-const TaskManagerContext = React.createContext<TaskManagerContextProps>({
+const TaskManagerContext = createContext<TaskManagerContextProps>({
   queuedCount: 0,
 
   isExpanded: false,
@@ -25,7 +33,7 @@ export const useTaskManagerContext = () => {
   return values;
 };
 
-export const TaskManagerProvider: React.FC<{ children: React.ReactNode }> = ({
+export const TaskManagerProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const { taskQueue } = useFetchTaskQueue();

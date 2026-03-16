@@ -15,12 +15,12 @@ import {
   ToolbarFilter,
 } from "@patternfly/react-core";
 import { CaretDownIcon, CaretRightIcon } from "@patternfly/react-icons";
+import { TimesIcon } from "@patternfly/react-icons";
 import { IFilterControlProps } from "./FilterControl";
 import {
   FilterSelectOptionProps,
   IMultiselectFilterCategory,
 } from "./FilterToolbar";
-import { TimesIcon } from "@patternfly/react-icons";
 
 import "./select-overrides.css";
 
@@ -39,9 +39,7 @@ export const MultiselectFilterControl = <TItem,>({
   showToolbarItem,
   isDisabled = false,
   isScrollable = false,
-}: React.PropsWithChildren<
-  IMultiselectFilterControlProps<TItem>
->): JSX.Element | null => {
+}: IMultiselectFilterControlProps<TItem>): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
   const textInputRef = React.useRef<HTMLInputElement>();

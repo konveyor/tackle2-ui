@@ -1,49 +1,50 @@
 import * as React from "react";
+import { AxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import {
-  useDeleteTrackerMutation,
-  useFetchTrackers,
-} from "@app/queries/trackers";
-import { Tbody, Tr, Td, Thead, Th, Table } from "@patternfly/react-table";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "@patternfly/react-icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { Tracker } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { TrackerForm } from "./tracker-form";
-import { Tracker } from "@app/api/models";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchTickets } from "@app/queries/tickets";
-import TrackerStatus from "./components/tracker-status";
+import {
+  useDeleteTrackerMutation,
+  useFetchTrackers,
+} from "@app/queries/trackers";
 import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import TrackerStatus from "./components/tracker-status";
+import { TrackerForm } from "./tracker-form";
 import useUpdatingTrackerIds from "./useUpdatingTrackerIds";
 
 export const JiraTrackers: React.FC = () => {
@@ -219,6 +220,7 @@ export const JiraTrackers: React.FC = () => {
                     <Th {...getThProps({ columnKey: "url" })} />
                     <Th {...getThProps({ columnKey: "kind" })} />
                     <Th {...getThProps({ columnKey: "connection" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -228,12 +230,17 @@ export const JiraTrackers: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
-                        what: t("terms.jiraConfig").toLowerCase(),
-                      })}
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={
+                        <>
+                          {t("composed.noDataStateTitle", {
+                            what: t("terms.jiraConfig").toLowerCase(),
+                          })}
+                        </>
+                      }
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.create"),
@@ -281,14 +288,14 @@ export const JiraTrackers: React.FC = () => {
                           <AppTableActionButtons
                             onEdit={() => setTrackerModalState(tracker)}
                             onDelete={() => {
-                              includesTracker(tracker.id)
-                                ? pushNotification({
-                                    title: t(
-                                      "This instance contains issues associated with applications and cannot be deleted"
-                                    ),
-                                    variant: "danger",
-                                  })
-                                : setTrackerToDelete(tracker);
+                              if (includesTracker(tracker.id)) {
+                                pushNotification({
+                                  title: t("message.trackerInUse"),
+                                  variant: "danger",
+                                });
+                              } else {
+                                setTrackerToDelete(tracker);
+                              }
                             }}
                           />
                         </Td>

@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import keycloak from "@app/keycloak";
 
 export const initInterceptors = () => {
@@ -33,7 +34,7 @@ export const initInterceptors = () => {
             };
             return axios(retryConfig);
           }
-        } catch (refreshError) {
+        } catch {
           keycloak.login();
         }
       }

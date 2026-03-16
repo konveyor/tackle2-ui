@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Label, LabelProps } from "@patternfly/react-core";
 import tinycolor from "tinycolor2";
+import { Label, LabelProps } from "@patternfly/react-core";
 
 // Omit the variant prop, we won't support the outline variant
 export interface ILabelCustomColorProps

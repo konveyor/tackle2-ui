@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
+import * as React from "react";
 import {
   Dropdown,
   DropdownList,
   MenuToggle,
   MenuToggleElement,
 } from "@patternfly/react-core";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+import { EllipsisVIcon } from "@patternfly/react-icons";
 
 export interface IKebabDropdownProps {
   dropdownItems?: React.ReactNode[];

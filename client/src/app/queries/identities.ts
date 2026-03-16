@@ -1,95 +1,105 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { group } from "radash";
 
+import { Identity, New } from "@app/api/models";
 import {
   createIdentity,
   deleteIdentity,
   getIdentities,
   updateIdentity,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
-import { Identity } from "@app/api/models";
 
 export const IdentitiesQueryKey = "identities";
 
 export const useUpdateIdentityMutation = (
-  onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onSuccess?: (identity: Identity) => void,
+  onError?: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: updateIdentity,
-    onSuccess: (res) => {
-      onSuccess(res);
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+    onSuccess: (_, identity) => {
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
+      onSuccess?.(identity);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError,
   });
   return {
     mutate,
-    isLoading,
+    mutateAsync,
+    isPending,
     error,
   };
 };
 
 export const useCreateIdentityMutation = (
-  onSuccess: (res: any) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (identity: Identity, identityToCreate: New<Identity>) => void,
+  onError: (err: AxiosError, identityToCreate: New<Identity>) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: createIdentity,
-    onSuccess: (res) => {
-      onSuccess(res);
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+    onSuccess: (data, identityToCreate) => {
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
+      onSuccess(data, identityToCreate);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-    },
+    onError,
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
 
-export const useFetchIdentities = () => {
-  const { data, isLoading, error, refetch } = useQuery({
+// TODO: Add a filter to the query to only return identities of given kind
+export const useFetchIdentities = (
+  refetchInterval: number | false = false,
+  enabled: boolean = true
+) => {
+  const { data, isLoading, isSuccess, error, refetch } = useQuery({
     queryKey: [IdentitiesQueryKey],
-    queryFn: async () => (await getIdentities()).data,
-    onError: (error) => console.log("error, ", error),
+    queryFn: getIdentities,
+    refetchInterval,
+    enabled,
   });
+
+  const identitiesByKind = useMemo(() => {
+    return data === undefined ? {} : group(data, (item) => item.kind);
+  }, [data]);
+
   return {
     identities: data || [],
+    identitiesByKind,
     isFetching: isLoading,
+    isSuccess,
     fetchError: error,
     refetch,
   };
 };
 
 export const useDeleteIdentityMutation = (
-  onSuccess: (identityName: string) => void,
-  onError: (err: AxiosError) => void
+  onSuccess: (identity: Identity) => void,
+  onError: (err: AxiosError, identity: Identity) => void
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation({
-    mutationFn: ({ identity }: { identity: Identity }) =>
-      deleteIdentity(identity),
-    onSuccess: (_, vars) => {
-      onSuccess(vars.identity.name);
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+  const { isPending, mutate, error } = useMutation({
+    mutationFn: deleteIdentity,
+    onSuccess: (_, identity) => {
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
+      onSuccess(identity);
     },
-    onError: (err: AxiosError) => {
-      onError(err);
-      queryClient.invalidateQueries([IdentitiesQueryKey]);
+    onError: (err: AxiosError, identity) => {
+      queryClient.invalidateQueries({ queryKey: [IdentitiesQueryKey] });
+      onError(err, identity);
     },
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };

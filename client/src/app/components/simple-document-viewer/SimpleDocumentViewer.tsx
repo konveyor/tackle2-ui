@@ -1,22 +1,24 @@
-import * as React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
   Spinner,
-  Title,
 } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
+import { TaskAttachment } from "@app/api/models";
 import {
   useFetchTaskAttachmentById,
   useFetchTaskByIdAndFormat,
 } from "@app/queries/tasks";
-import { RefreshControl } from "./RefreshControl";
-import { LanguageToggle } from "./LanguageToggle";
+
 import { AttachmentToggle } from "./AttachmentToggle";
-import { TaskAttachment } from "@app/api/models";
+import { LanguageToggle } from "./LanguageToggle";
+import { RefreshControl } from "./RefreshControl";
 
 export { Language } from "@patternfly/react-code-editor";
 
@@ -100,7 +102,8 @@ export const SimpleDocumentViewer = ({
   height = "450px",
   onDocumentChange,
 }: ISimpleDocumentViewerProps) => {
-  const configuredDocuments: Document[] = React.useMemo(
+  const { t } = useTranslation();
+  const configuredDocuments: Document[] = useMemo(
     () => [
       {
         id: "LOG_VIEW",
@@ -131,7 +134,7 @@ export const SimpleDocumentViewer = ({
     [attachments, taskId]
   );
 
-  const [selectedDocument, setSelectedDocument] = React.useState<Document>(
+  const [selectedDocument, setSelectedDocument] = useState<Document>(
     configuredDocuments.find(({ id }) => id === documentId) ??
       configuredDocuments[0]
   );
@@ -139,11 +142,11 @@ export const SimpleDocumentViewer = ({
     ({ id }) => id === selectedDocument.id
   )?.languages ?? [Language.yaml, Language.json];
 
-  const [currentLanguage, setCurrentLanguage] = React.useState(
+  const [currentLanguage, setCurrentLanguage] = useState(
     supportedLanguages[0] ?? Language.plaintext
   );
 
-  const editorRef = React.useRef<ControlledEditor>();
+  const editorRef = useRef<ControlledEditor>();
 
   const { code, refetch } = useDocuments({
     taskId,
@@ -152,20 +155,19 @@ export const SimpleDocumentViewer = ({
   });
 
   // move focus on first code change AFTER a new document was selected
-  const focusMovedOnSelectedDocumentChange = React.useRef<boolean>(false);
-  React.useEffect(() => {
-    if (code && !focusMovedOnSelectedDocumentChange.current) {
-      focusAndHomePosition();
-      focusMovedOnSelectedDocumentChange.current = true;
-    }
-  }, [code]);
-
+  const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
   const focusAndHomePosition = () => {
     if (editorRef.current) {
       editorRef.current.focus();
       editorRef.current.setPosition({ column: 0, lineNumber: 1 });
     }
   };
+  useEffect(() => {
+    if (code && !focusMovedOnSelectedDocumentChange.current) {
+      focusAndHomePosition();
+      focusMovedOnSelectedDocumentChange.current = true;
+    }
+  }, [code]);
 
   const onSelect = (docId: string | number) => {
     const doc = configuredDocuments.find(({ id }) => id === docId);
@@ -202,10 +204,13 @@ export const SimpleDocumentViewer = ({
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
           >
-            <EmptyStateIcon icon={Spinner} />
-            <Title size="lg" headingLevel="h4">
-              Loading {currentLanguage}
-            </Title>
+            <EmptyStateHeader
+              titleText={t("message.loadingCurrentLanguage", {
+                currentLanguage,
+              })}
+              icon={<EmptyStateIcon icon={Spinner} />}
+              headingLevel="h4"
+            />
           </EmptyState>
         </div>
       }

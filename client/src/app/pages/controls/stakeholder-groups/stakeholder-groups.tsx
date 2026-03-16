@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,15 +10,17 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
   ModalVariant,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
   ExpandableRowContent,
   Table,
@@ -29,29 +31,29 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
 import { StakeholderGroup } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { controlsWriteScopes, RBAC, RBAC_TYPE } from "@app/rbac";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteStakeholderGroupMutation,
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergroups";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
+
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
+
 import { StakeholderGroupForm } from "./components/stakeholder-group-form";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
 
 export const StakeholderGroups: React.FC = () => {
   const { t } = useTranslation();
@@ -233,7 +235,7 @@ export const StakeholderGroups: React.FC = () => {
                     width={25}
                   />
                   <Th {...getThProps({ columnKey: "count" })} width={40} />
-                  <Th width={10} />
+                  <Th screenReaderText="row actions" width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -243,12 +245,17 @@ export const StakeholderGroups: React.FC = () => {
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
-                  <EmptyStateIcon icon={CubesIcon} />
-                  <Title headingLevel="h2" size="lg">
-                    {t("composed.noDataStateTitle", {
-                      what: t("terms.stakeholderGroup").toLowerCase(),
-                    })}
-                  </Title>
+                  <EmptyStateHeader
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.stakeholderGroup").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    icon={<EmptyStateIcon icon={CubesIcon} />}
+                    headingLevel="h2"
+                  />
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.add"),
@@ -284,7 +291,7 @@ export const StakeholderGroups: React.FC = () => {
                           >
                             {stakeholderGroup.stakeholders?.length}
                           </Td>
-                          <ControlTableActionButtons
+                          <ControlTableActionsColumn
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholderGroup)
                             }

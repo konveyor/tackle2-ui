@@ -1,19 +1,20 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { SpinnerProps, TextContent } from "@patternfly/react-core";
-import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import InProgressIcon from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import { SVGIconProps } from "@patternfly/react-icons/dist/js/createIcon";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import UnknownIcon from "@patternfly/react-icons/dist/esm/icons/unknown-icon";
 import {
-  global_disabled_color_200 as disabledColor,
-  global_success_color_100 as successColor,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InProgressIcon,
+  TimesCircleIcon,
+  UnknownIcon,
+} from "@patternfly/react-icons";
+import {
   global_Color_dark_200 as unknownColor,
-  global_info_color_200 as loadingColor,
   global_danger_color_100 as errorColor,
+  global_disabled_color_200 as disabledColor,
   global_info_color_100 as infoColor,
+  global_info_color_200 as loadingColor,
+  global_success_color_100 as successColor,
 } from "@patternfly/react-tokens";
 
 export type StatusIconType =
@@ -29,7 +30,9 @@ export type StatusIconType =
 
 type IconListType = {
   [key in StatusIconType]: {
-    Icon: React.ComponentClass<SVGIconProps> | React.FC<SpinnerProps>;
+    Icon:
+      | React.ComponentType<React.SVGProps<SVGSVGElement>>
+      | React.FC<SpinnerProps>;
     color: { name: string; value: string; var: string };
   };
 };

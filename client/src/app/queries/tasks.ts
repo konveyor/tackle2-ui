@@ -5,26 +5,30 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import {
+  HubPaginatedResult,
+  HubRequestParams,
+  New,
+  Task,
+  TaskDashboard,
+  TaskQueue,
+} from "@app/api/models";
 import {
   cancelTask,
   cancelTasks,
+  createTask,
   deleteTask,
   getServerTasks,
   getTaskById,
   getTaskByIdAndFormat,
   getTaskQueue,
   getTasksDashboard,
-  getTextFile,
+  getTextFileById,
+  submitTask,
   updateTask,
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
-import {
-  HubPaginatedResult,
-  HubRequestParams,
-  Task,
-  TaskQueue,
-  TaskDashboard,
-} from "@app/api/models";
 
 export const TaskStates = {
   Canceled: ["Canceled"],
@@ -45,7 +49,9 @@ export const TaskAttachmentByIDQueryKey = "taskAttachmentByID";
 /**
  * Rebuild the __state__ of a Task to include the UI synthetic "SucceededWithErrors"
  */
-const calculateSyntheticTaskState = (task: Task): Task => {
+const calculateSyntheticTaskState = <D, TaskType extends Task<D> = Task<D>>(
+  task: TaskType
+): TaskType => {
   if (task.state === "Succeeded" && (task.errors?.length ?? 0) > 0) {
     task.state = "SucceededWithErrors";
   }
@@ -75,11 +81,11 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
         .map(calculateSyntheticTaskDashboardState)
         .sort((a, b) => -1 * universalComparator(a.createTime, b.createTime)),
     onError: (err) => console.log(err),
-    refetchInterval: !refetchDisabled ? 5000 : false,
+    refetchInterval: !refetchDisabled ? DEFAULT_REFETCH_INTERVAL : false,
   });
 
   const hasActiveTasks =
-    data && data.some((task) => TaskStates.Queued.includes(task.state ?? ""));
+    data?.some((task) => TaskStates.Queued.includes(task.state ?? "")) ?? false;
 
   return {
     tasks: data || [],
@@ -92,7 +98,7 @@ export const useFetchTaskDashboard = (refetchDisabled: boolean = false) => {
 
 export const useInfiniteServerTasks = (
   initialParams: HubRequestParams,
-  refetchInterval?: number
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   return useInfiniteQuery({
     // usually the params are part of the key
@@ -127,13 +133,13 @@ export const useInfiniteServerTasks = (
     },
     onError: (error: Error) => console.log("error, ", error),
     keepPreviousData: true,
-    refetchInterval: refetchInterval ?? false,
+    refetchInterval,
   });
 };
 
-export const useServerTasks = (
+export const useServerTasks = <D, TaskType extends Task<D> = Task<D>>(
   params: HubRequestParams,
-  refetchInterval?: number
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [TasksQueryKey, params],
@@ -146,7 +152,7 @@ export const useServerTasks = (
     },
     onError: (error: Error) => console.log("error, ", error),
     keepPreviousData: true,
-    refetchInterval: refetchInterval ?? false,
+    refetchInterval,
   });
 
   return {
@@ -154,7 +160,7 @@ export const useServerTasks = (
       data: data?.data,
       total: data?.total ?? 0,
       params: data?.params ?? params,
-    } as HubPaginatedResult<Task>,
+    } as HubPaginatedResult<TaskType>,
     isFetching: isLoading,
     fetchError: error,
     refetch,
@@ -162,67 +168,111 @@ export const useServerTasks = (
 };
 
 export const useDeleteTaskMutation = (
-  onSuccess: () => void,
-  onError: (err: Error | null) => void
+  onSuccess?: () => void,
+  onError?: (err: Error | null) => void
 ) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTask,
-    onSuccess: () => {
-      onSuccess && onSuccess();
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.();
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTask,
-    onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
-      onSuccess && onSuccess(response.status);
+    onSuccess: ({ status }, id) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
 export const useCancelTasksMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cancelTasks,
-    onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
-      onSuccess && onSuccess(response.status);
+    onSuccess: ({ status }, data) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      data.forEach((id) => {
+        queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, id] });
+      });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
 };
 
-export const useUpdateTaskMutation = (
-  onSuccess: (statusCode: number) => void,
-  onError: (err: Error | null) => void
+export const useUpdateTaskMutation = <D, TaskType extends Task<D> = Task<D>>(
+  onSuccess?: (statusCode: number) => void,
+  onError?: (err: Error | null) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateTask,
-    onSuccess: (response) => {
-      queryClient.invalidateQueries([TasksQueryKey]);
-      onSuccess && onSuccess(response.status);
+    mutationFn: (task: Partial<TaskType> & { id: number }) => updateTask(task),
+    onSuccess: ({ status, data }) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, data.id] });
+      onSuccess?.(status);
     },
     onError: (err: Error) => {
-      onError && onError(err);
+      onError?.(err);
+    },
+  });
+};
+
+export const useCreateTaskMutation = <D, TaskType extends Task<D> = Task<D>>(
+  onSuccess?: (task: TaskType) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (task: New<TaskType>) => createTask(task),
+    onSuccess: (task) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
+    },
+  });
+};
+
+export const useSubmitTaskMutation = <D, TaskType extends Task<D> = Task<D>>(
+  onSuccess?: (task: TaskType) => void,
+  onError?: (err: Error) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (task: TaskType) => submitTask(task),
+    onSuccess: (_, task: TaskType) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [TaskByIDQueryKey, task.id] });
+      onSuccess?.(task);
+    },
+    onError: (err: Error) => {
+      onError?.(err);
     },
   });
 };
@@ -262,7 +312,7 @@ export const useFetchTaskAttachmentById = ({
 }) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskAttachmentByIDQueryKey, attachmentId],
-    queryFn: () => (attachmentId ? getTextFile(attachmentId) : undefined),
+    queryFn: () => (attachmentId ? getTextFileById(attachmentId) : undefined),
     enabled,
   });
 
@@ -274,13 +324,17 @@ export const useFetchTaskAttachmentById = ({
   };
 };
 
-export const useFetchTaskByID = (taskId?: number) => {
+export const useFetchTaskByID = (
+  taskId?: number,
+  refetchInterval: number | false = false
+) => {
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: [TaskByIDQueryKey, taskId],
     queryFn: () => (taskId ? getTaskById(taskId) : null),
-    select: (task: Task | null) =>
+    select: (task: Task<object> | null) =>
       !task ? null : calculateSyntheticTaskState(task),
     enabled: !!taskId,
+    refetchInterval,
   });
 
   return {
@@ -292,11 +346,14 @@ export const useFetchTaskByID = (taskId?: number) => {
 };
 
 /** Fetch the TaskQueue counts. Defaults to `0` for all counts. */
-export const useFetchTaskQueue = (addon?: string) => {
+export const useFetchTaskQueue = (
+  addon?: string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, error, refetch, isFetching } = useQuery({
     queryKey: [TasksQueueKey, addon],
     queryFn: () => getTaskQueue(addon),
-    refetchInterval: 5000,
+    refetchInterval,
     initialData: {
       total: 0,
       ready: 0,

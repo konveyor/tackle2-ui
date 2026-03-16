@@ -1,5 +1,6 @@
 import * as React from "react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
@@ -13,23 +14,23 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import dayjs from "dayjs";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Application, MigrationWave } from "@app/api/models";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { useLocalTableControls } from "@app/hooks/table-controls";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { dedupeFunction } from "@app/utils/utils";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useUpdateMigrationWaveMutation } from "@app/queries/migration-waves";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { dedupeFunction } from "@app/utils/utils";
 
 export interface ManageApplicationsFormProps {
   applications: Application[];
@@ -73,19 +74,17 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     return isArrayDifferent(selectedIds, initialApplicationUsedByMigrationIds);
   };
 
-  const onUpdateMigrationWaveSuccess = (
-    response: AxiosResponse<MigrationWave>
-  ) => {
+  const onUpdateMigrationWaveSuccess = (migrationWave: MigrationWave) => {
     pushNotification({
       title: t("toastr.success.saveWhat", {
-        what: response.data.name,
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
   };
 
-  const onUpdateMigrationWaveError = (error: AxiosError) => {
+  const onUpdateMigrationWaveError = (_error: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.migrationWave").toLowerCase(),
@@ -115,7 +114,6 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     isPaginationEnabled: true,
     isExpansionEnabled: true,
     isSelectionEnabled: true,
-    initialSelected: assignedApplications,
     expandableVariant: "compound",
     hasActionsColumn: true,
     filterCategories: [
@@ -137,15 +135,15 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         type: FilterType.select,
         placeholderText:
           t("actions.filterBy", {
-            what: t("terms.buisnessService").toLowerCase(),
+            what: t("terms.businessService").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
           return item?.businessService?.name || "";
         },
         selectOptions: dedupeFunction(
           applications
-            .filter((app) => !!app.businessService?.name)
             .map((app) => app.businessService?.name)
+            .filter(Boolean)
             .map((name) => ({ key: name, value: name }))
         ),
       },
@@ -162,8 +160,8 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
         },
         selectOptions: dedupeFunction(
           applications
-            .filter((app) => !!app.owner?.name)
             .map((app) => app.owner?.name)
+            .filter(Boolean)
             .map((name) => ({ key: name, value: name }))
         ),
       },
@@ -177,12 +175,11 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     initialSort: { columnKey: "name", direction: "asc" },
   });
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -193,6 +190,16 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     },
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a, b) => a.id === b.id,
+    filteredItems,
+    currentPageItems,
+    initialSelected: assignedApplications,
+  });
 
   const onSubmit = () => {
     const payload: MigrationWave = {
@@ -233,7 +240,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
       </TextContent>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
-          <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+          <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
           <FilterToolbar {...filterToolbarProps} />
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
@@ -279,6 +286,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
                 <Tr {...getTrProps({ item: application })}>
                   <TableRowContentWithControls
                     {...tableControls}
+                    getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                     item={application}
                     rowIndex={rowIndex}
                   >

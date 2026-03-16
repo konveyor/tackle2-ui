@@ -1,3 +1,9 @@
+import { useActiveItemState } from "./active-item";
+import { useColumnState } from "./column/useColumnState";
+import { useExpansionState } from "./expansion";
+import { useFilterState } from "./filtering";
+import { usePaginationState } from "./pagination";
+import { useSortState } from "./sorting";
 import {
   IFeaturePersistenceArgs,
   ITableControlState,
@@ -5,12 +11,6 @@ import {
   IUseTableControlStateArgs,
   TableFeature,
 } from "./types";
-import { useFilterState } from "./filtering";
-import { useSortState } from "./sorting";
-import { usePaginationState } from "./pagination";
-import { useActiveItemState } from "./active-item";
-import { useExpansionState } from "./expansion";
-import { useColumnState } from "./column/useColumnState";
 
 const getPersistTo = ({
   feature,
@@ -28,13 +28,15 @@ const getPersistTo = ({
 });
 
 /**
- * Provides the "source of truth" state for all table features.
+ * Manage a table's features.  Each feature's state, the "source of truth", is provided here.
+ *
+ * The control state is used by `useTableControlProps()` to generate property helpers for
+ * the table components.
+ *
  * - State can be persisted in one or more configurable storage targets, either the same for the entire table or different targets per feature.
  * - "source of truth" (persisted) state and "derived state" are kept separate to prevent out-of-sync duplicated state.
- * - If you aren't using server-side filtering/sorting/pagination, call this via the shorthand hook useLocalTableControls.
- * - If you are using server-side filtering/sorting/pagination, call this first before fetching your API data and then calling useTableControlProps.
- * @param args
- * @returns
+ * - If you are using client-side filtering/sorting/pagination, call this via the shorthand hook `useLocalTableControls()`.
+ * - If you are using server-side filtering/sorting/pagination, call this first before fetching your API data and then calling `useTableControlProps()`.
  */
 export const useTableControlState = <
   TItem,
@@ -88,6 +90,7 @@ export const useTableControlState = <
     initialColumns,
     supportedColumns: columnNames,
   });
+
   return {
     ...args,
     filterState,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const nodeRef = useRef<HTMLDivElement>(null);
@@ -15,7 +15,7 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
     },
     []
   );
-  const setVisibleSafe = useCallback((newValue) => {
+  const setVisibleSafe = useCallback((newValue?: boolean) => {
     if (mounted.current) {
       setVisible(newValue);
     }

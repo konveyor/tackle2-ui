@@ -1,9 +1,13 @@
 import { Location, LocationDescriptor } from "history";
+import { useTranslation } from "react-i18next";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
-  AnalysisIssue,
-  AnalysisIssueReport,
-  AnalysisRuleReport,
+  AnalysisInsight,
   Archetype,
+  UiAnalysisReportApplicationInsight,
+  UiAnalysisReportInsight,
 } from "@app/api/models";
 import {
   FilterCategory,
@@ -15,15 +19,13 @@ import {
   serializeFilterUrlParams,
 } from "@app/hooks/table-controls";
 import { trimAndStringifyUrlParams } from "@app/hooks/useUrlParams";
-import { Paths } from "@app/Paths";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { IssueFilterGroups } from "./issues";
+import { useFetchApplications } from "@app/queries/applications";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import { useFetchBusinessServices } from "@app/queries/businessservices";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
-import { useTranslation } from "react-i18next";
-import { useFetchArchetypes } from "@app/queries/archetypes";
-import { useFetchApplications } from "@app/queries/applications";
 import { universalComparator } from "@app/utils/utils";
+
+import { IssueFilterGroups } from "./issues-page";
 
 // Certain filters are shared between the Issues page and the Affected Applications Page.
 // We carry these filter values between the two pages when determining the URLs to navigate between them.
@@ -41,7 +43,7 @@ export const useSharedAffectedApplicationFilterCategories = <
 >(): FilterCategory<TItem, string>[] => {
   const { t } = useTranslation();
   const { businessServices } = useFetchBusinessServices();
-  const { tagCategories, tags, tagItems } = useFetchTagsWithTagItems();
+  const { tagItems } = useFetchTagsWithTagItems();
   const { archetypes } = useFetchArchetypes();
   const { data: applications } = useFetchApplications();
 
@@ -142,37 +144,6 @@ export const useSharedAffectedApplicationFilterCategories = <
 
 const FROM_ISSUES_PARAMS_KEY = "~fromIssuesParams"; // ~ prefix sorts it at the end of the URL for readability
 
-// URL for Affected Apps page that includes carried filters and a snapshot of original URL params from the Issues page
-export const getAffectedAppsUrl = ({
-  ruleReport,
-  fromFilterValues,
-  fromLocation,
-}: {
-  ruleReport: AnalysisRuleReport;
-  fromFilterValues: IssuesFilterValuesToCarry;
-  fromLocation: Location;
-}) => {
-  // The raw location.search string (already encoded) from the issues page is used as the fromIssuesParams param
-  const fromIssuesParams = fromLocation.search;
-  const toFilterValues: IssuesFilterValuesToCarry = {};
-  filterKeysToCarry.forEach((key) => {
-    if (fromFilterValues[key]) toFilterValues[key] = fromFilterValues[key];
-  });
-  const baseUrl = Paths.issuesAllAffectedApplications
-    .replace("/:ruleset/", `/${encodeURIComponent(ruleReport.ruleset)}/`)
-    .replace("/:rule/", `/${encodeURIComponent(ruleReport.rule)}/`);
-  const prefix = (key: string) =>
-    `${TablePersistenceKeyPrefix.issuesAffectedApps}:${key}`;
-
-  return `${baseUrl}?${trimAndStringifyUrlParams({
-    newPrefixedSerializedParams: {
-      [prefix("filters")]: serializeFilterUrlParams(toFilterValues).filters,
-      [FROM_ISSUES_PARAMS_KEY]: fromIssuesParams,
-      issueTitle: getIssueTitle(ruleReport),
-    },
-  })}`;
-};
-
 // URL for Issues page that restores original URL params and overrides them with any changes to the carried filters.
 export const getBackToAllIssuesUrl = ({
   fromFilterValues,
@@ -242,25 +213,10 @@ export const getIssuesSingleAppSelectedLocation = (
   };
 };
 
-export const parseReportLabels = (
-  ruleReport: AnalysisRuleReport | AnalysisIssueReport
-) => {
-  const sources: string[] = [];
-  const targets: string[] = [];
-  const otherLabels: string[] = [];
-  ruleReport.labels.forEach((label) => {
-    if (label.startsWith("konveyor.io/source=")) {
-      sources.push(label.split("konveyor.io/source=")[1]);
-    } else if (label.startsWith("konveyor.io/target=")) {
-      targets.push(label.split("konveyor.io/target=")[1]);
-    } else {
-      otherLabels.push(label);
-    }
-  });
-  return { sources, targets, otherLabels };
-};
-
 export const getIssueTitle = (
-  issueReport: AnalysisRuleReport | AnalysisIssue | AnalysisIssueReport
+  issueReport:
+    | UiAnalysisReportInsight
+    | AnalysisInsight
+    | UiAnalysisReportApplicationInsight
 ) =>
   issueReport?.description || issueReport?.name?.split("\n")[0] || "*Unnamed*";

@@ -1,14 +1,17 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
+import * as React from "react";
+import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Icon, Radio, Stack, StackItem, Tooltip } from "@patternfly/react-core";
-import InfoCircleIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 
 import { QuestionWithSectionOrder } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { useFormContext } from "react-hook-form";
-import { getQuestionFieldName } from "../../../form-utils";
-import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 import useIsArchetype from "@app/hooks/useIsArchetype";
-import { useTranslation } from "react-i18next";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+import { useWithUiId } from "@app/utils/query-utils";
+
+import { getQuestionFieldName } from "../../../form-utils";
 
 export interface MultiInputSelectionProps {
   question: QuestionWithSectionOrder;
@@ -23,16 +26,21 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
     return (question.answers || []).sort((a, b) => a.order - b.order);
   }, [question]);
 
+  const optionsWithUiId = useWithUiId(
+    sortedOptions,
+    (option) => `${question.order}-${option.order}`
+  );
+
   const questionFieldName = getQuestionFieldName(question, true);
 
   const isArchetype = useIsArchetype();
   const { t } = useTranslation();
   return (
     <Stack>
-      {sortedOptions.map((option, i) => {
-        const answerUniqueId = `${questionFieldName}-${option.text}-${i}`;
+      {optionsWithUiId.map((option) => {
+        const answerUniqueId = `${questionFieldName}-${option._ui_unique_id}`;
         return (
-          <StackItem key={answerUniqueId} className="pf-v5-u-pb-xs">
+          <StackItem key={option._ui_unique_id} className="pf-v5-u-pb-xs">
             <HookFormPFGroupController
               control={control}
               name={questionFieldName as `questions.${string}`}

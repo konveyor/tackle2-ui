@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import yaml from "js-yaml";
+import { saveAs } from "file-saver";
+import * as yaml from "js-yaml";
 
+import { LooseQuestionnaire, Questionnaire } from "@app/api/models";
 import {
   QUESTIONNAIRES,
   createQuestionnaire,
@@ -10,8 +12,6 @@ import {
   getQuestionnaires,
   updateQuestionnaire,
 } from "@app/api/rest";
-import { LooseQuestionnaire, Questionnaire } from "@app/api/models";
-import saveAs from "file-saver";
 
 export const QuestionnairesQueryKey = "questionnaires";
 export const QuestionnaireByIdQueryKey = "questionnaireById";
@@ -33,7 +33,9 @@ export const QuestionnaireByIdQueryKey = "questionnaireById";
 //   return q;
 // }
 
-export const useFetchQuestionnaires = () => {
+export const useFetchQuestionnaires = (
+  refetchInterval: number | false = false
+) => {
   const { isLoading, data, error } = useQuery({
     queryKey: [QuestionnairesQueryKey],
     queryFn: getQuestionnaires,
@@ -42,6 +44,7 @@ export const useFetchQuestionnaires = () => {
     //   questionnaires.forEach((q) => inPlaceSortByOrder(q));
     //   return questionnaires;
     // },
+    refetchInterval,
   });
   return {
     questionnaires: data || [],
@@ -61,7 +64,7 @@ export const useUpdateQuestionnaireMutation = (
 
     onSuccess: () => {
       onSuccess();
-      queryClient.invalidateQueries([QuestionnairesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
     },
     onError: onError,
   });
@@ -79,21 +82,25 @@ export const useDeleteQuestionnaireMutation = (
 
     onSuccess: (_, { questionnaire }) => {
       onSuccess(questionnaire.name);
-      queryClient.invalidateQueries([QuestionnairesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([QuestionnairesQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
     },
   });
 };
 
-export const useFetchQuestionnaireById = (id: number | string) => {
+export const useFetchQuestionnaireById = (
+  id: number | string,
+  refetchInterval: number | false = false
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [QuestionnaireByIdQueryKey, id],
     queryFn: () => getQuestionnaireById<Questionnaire>(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     // select: (q) => inPlaceSortByOrder(q),
+    refetchInterval,
   });
 
   return {
@@ -103,37 +110,25 @@ export const useFetchQuestionnaireById = (id: number | string) => {
   };
 };
 
-// A questionnaire download is triggered on demand using refetch()
-export const useFetchQuestionnaireBlob = (
-  id: number,
-  onError: (err: AxiosError) => void
-) =>
-  useQuery({
-    queryKey: [QuestionnaireByIdQueryKey, id],
-    queryFn: () => getQuestionnaireById<Blob>(id),
-    onError: onError,
-    enabled: false,
-  });
-
 export const useCreateQuestionnaireMutation = (
   onSuccess?: (res: Questionnaire) => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createQuestionnaire,
     onSuccess: (res) => {
-      onSuccess && onSuccess(res);
-      queryClient.invalidateQueries([]);
+      onSuccess?.(res);
+      queryClient.invalidateQueries({ queryKey: [QuestionnairesQueryKey] });
     },
     onError: (err: AxiosError) => {
-      onError && onError(err);
+      onError?.(err);
     },
   });
   return {
     mutate,
     mutateAsync,
-    isLoading,
+    isPending,
     error,
   };
 };

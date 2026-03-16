@@ -1,0 +1,2806 @@
+/*
+Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import { JiraCredentials } from "../e2e/models/administration/credentials/JiraCredentials";
+import { Credentials } from "../e2e/models/administration/credentials/credentials";
+import { CredentialsMaven } from "../e2e/models/administration/credentials/credentialsMaven";
+import { CredentialsProxy } from "../e2e/models/administration/credentials/credentialsProxy";
+import { CredentialsSourceControlKey } from "../e2e/models/administration/credentials/credentialsSourceControlKey";
+import { CredentialsSourceControlUsername } from "../e2e/models/administration/credentials/credentialsSourceControlUsername";
+import { Jira } from "../e2e/models/administration/jira-connection/jira";
+import { AnalysisProfile } from "../e2e/models/migration/analysis-profiles/analysis-profile";
+import { Application } from "../e2e/models/migration/applicationinventory/application";
+import { Archetype } from "../e2e/models/migration/archetypes/archetype";
+import { TargetProfile } from "../e2e/models/migration/archetypes/target-profile";
+import { BusinessServices } from "../e2e/models/migration/controls/businessservices";
+import { Jobfunctions } from "../e2e/models/migration/controls/jobfunctions";
+import { Stakeholdergroups } from "../e2e/models/migration/controls/stakeholdergroups";
+import { Stakeholders } from "../e2e/models/migration/controls/stakeholders";
+import { TagCategory } from "../e2e/models/migration/controls/tagcategory";
+import { Tag } from "../e2e/models/migration/controls/tags";
+import { MigrationWave } from "../e2e/models/migration/migration-waves/migration-wave";
+import {
+  CredentialType,
+  JiraType,
+  MIN,
+  SEC,
+  SortType,
+  TaskKind,
+  TaskStatus,
+  UserCredentials,
+  appInventoryKebab,
+  applicationInventory,
+  button,
+  confidence,
+  criticality,
+  dynamicReportFilter,
+  groupCount,
+  memberCount,
+  migration,
+  priority,
+  rank,
+  save,
+  tagCount,
+  tdTag,
+  trTag,
+} from "../e2e/types/constants";
+import {
+  AppIssue,
+  JiraConnectionData,
+  analysisData,
+  applicationData,
+} from "../e2e/types/types";
+import {
+  codeEditorControls,
+  manageCredentials,
+  mavenCredential,
+  menuList,
+  menuToggle,
+  sourceCredential,
+} from "../e2e/views/analysis.view";
+import {
+  appImportForm,
+  applicationsActionButton,
+  createEntitiesCheckbox,
+  date,
+  manageColumnsModal,
+  sideKebabMenu,
+} from "../e2e/views/applicationinventory.view";
+import { closeModal } from "../e2e/views/assessment.view";
+import {
+  aboutButton,
+  actionMenuItem,
+  appTable,
+  cancelButton,
+  closeAbout,
+  closeSuccessNotification,
+  commonTable,
+  confirmButton,
+  divHeader,
+  downloadFormatDetails,
+  downloadTaskButton,
+  expandRow,
+  expandableRow,
+  filterDropDownContainer,
+  filterInput,
+  filteredBy,
+  firstPageButton,
+  itemsPerPageMenuOptions,
+  itemsPerPageToggleButton,
+  kebabToggleButton,
+  lastPageButton,
+  manageImportsActionsButton,
+  modal,
+  nextPageButton,
+  optionMenu,
+  pageNumInput,
+  prevPageButton,
+  removeButton,
+  searchButton,
+  sideDrawer,
+  span,
+  standardFilter,
+  submitButton,
+  successAlertMessage,
+  taskDetailsEditor,
+} from "../e2e/views/common.view";
+import { filterSelectType } from "../e2e/views/credentials.view";
+import {
+  bsFilterName,
+  searchInput,
+  searchMenuToggle,
+  singleApplicationColumns,
+  tagFilterName,
+} from "../e2e/views/issue.view";
+import * as loginView from "../e2e/views/login.view";
+import { navMenu, navTab } from "../e2e/views/menu.view";
+import { switchToggle } from "../e2e/views/reportsTab.view";
+import { stakeHoldersTable } from "../e2e/views/stakeholders.view";
+import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
+import * as data from "../utils/data_utils";
+
+import {
+  getJiraConnectionData,
+  getJiraCredentialData,
+  getRandomCredentialsData,
+  randomWordGenerator,
+} from "./data_utils";
+
+import Chainable = Cypress.Chainable;
+
+/**
+ * Types text into a field identified by fieldId
+ * @param fieldId - CSS selector for the field
+ * @param text - Text to enter
+ * @param log - Whether to log Cypress commands (default: false)
+ */
+export function inputText(
+  fieldId: string,
+  text: string | string[],
+  log = false
+): void {
+  if (!log) {
+    cy.log(`Type ${text} in ${fieldId}`);
+  }
+  cy.get(fieldId, { log, timeout: 2 * SEC })
+    .clear({ log, timeout: 30 * SEC })
+    .type(Array.isArray(text) ? text.join(" ") : text, { log });
+}
+
+export function clearInput(fieldID: string): void {
+  cy.get(fieldID, { timeout: 2 * SEC }).clear();
+}
+
+export function clickByText(
+  fieldId: string,
+  buttonText: string | RegExp,
+  isForced = true,
+  log = false
+): void {
+  if (!log) {
+    cy.log(`Click by text, id: ${fieldId}, text: ${buttonText}`);
+  }
+  // https://github.com/cypress-io/cypress/issues/2000#issuecomment-561468114
+  cy.contains(fieldId, buttonText, { timeout: 60 * SEC, log }).click({
+    force: isForced,
+    log,
+  });
+}
+
+export function click(
+  fieldId: string,
+  isForced = true,
+  log = false,
+  number = 0
+): void {
+  if (!log) {
+    cy.log(`Click ${fieldId}`);
+  }
+  cy.get(fieldId, { log, timeout: 30 * SEC })
+    .eq(number)
+    .click({ log, force: isForced });
+}
+
+export function clickWithFocus(
+  fieldId: string,
+  isForced = true,
+  log = false,
+  number = 0
+): void {
+  if (!log) {
+    cy.log(`Click ${fieldId}`);
+  }
+  cy.get(fieldId, { log, timeout: 30 * SEC })
+    .eq(number)
+    .focus()
+    .click({ log, force: isForced });
+}
+
+export function clickJs(
+  fieldId: string,
+  _isForced = true,
+  log = false,
+  number = 0
+): void {
+  if (!log) {
+    cy.log(`Click ${fieldId}`);
+  }
+  cy.get(fieldId, { log, timeout: 30 * SEC })
+    .eq(number)
+    .then(($obj) => {
+      $obj[0].click();
+    });
+}
+
+export function submitForm(): void {
+  cy.get(submitButton, { timeout: 10 * SEC }).should("not.be.disabled");
+  cy.get(submitButton).click();
+}
+
+export function cancelForm(): void {
+  clickJs(cancelButton);
+}
+
+export function login(
+  username: string = Cypress.env("user"),
+  password: string = Cypress.env("pass"),
+  firstLogin = false
+): Chainable<null> {
+  /**
+   * The sessionId is used to create a new session or to try to recover a previous one
+   */
+  const sessionId = username + (firstLogin ? "FirstLogin" : "");
+
+  cy.log(
+    `login a new session or grab the currently logged in session [${sessionId}]`
+  );
+  return cy.session(sessionId, () => {
+    cy.visit("/", { timeout: 120 * SEC });
+
+    cy.uiEnvironmentConfig().then((env) => {
+      if (env["AUTH_REQUIRED"] === "true") {
+        cy.log("AUTH is enabled, logging in");
+
+        // Wait up to 30 seconds for the userNameInput field to be visible on the page
+        cy.get(loginView.userNameInput, { timeout: 30 * SEC }).should(
+          "be.visible"
+        );
+
+        // Attempt login
+        inputText(loginView.userNameInput, username);
+        inputText(loginView.userPasswordInput, password);
+        click(loginView.loginButton);
+
+        // If login fails, try the initialPassword
+        cy.get("body").then(($body) => {
+          const txt = $body.find("*:contains('Invalid username or password')");
+          if (txt.length > 0) {
+            cy.log("Try logging in with the initial password");
+            inputText(
+              loginView.userPasswordInput,
+              Cypress.env("initialPassword")
+            );
+            click(loginView.loginButton);
+          }
+        });
+
+        // Update the password if it needs to be updated
+        cy.get("body").then(($body) => {
+          const txt = $body.find(
+            "*:contains('You need to change your password')"
+          );
+          if (txt.length > 0) {
+            cy.log("Attempting to change the password");
+            inputText(loginView.changePasswordInput, password);
+            inputText(loginView.confirmPasswordInput, password);
+            click(loginView.submitButton);
+          }
+        });
+      } else {
+        cy.log("AUTH is disabled, just look for applications page");
+      }
+
+      // Should be past any auth steps needed, so wait for the url to become "/applications
+      cy.url({ timeout: 1 * MIN }).should("eq", Application.fullUrl);
+    });
+  });
+}
+
+export function logout(userName?: string): void {
+  if (!userName) {
+    userName = "admin";
+  }
+  clickByText(button, userName);
+  cy.wait(0.5 * SEC);
+  click("#logout");
+  cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
+}
+
+/**
+ * Return authorization headers for direct API calls (`cy.request`).
+ *
+ * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
+ * and returns `{ Authorization: "Bearer <token>" }`.
+ * Otherwise returns an empty object so callers can always spread/pass headers
+ * without branching.
+ */
+export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
+  return cy.uiEnvironmentConfig().then((env) => {
+    if (env["AUTH_REQUIRED"] === "true") {
+      return cy
+        .request({
+          method: "POST",
+          url: "/hub/auth/login",
+          body: {
+            user: Cypress.env("user"),
+            password: Cypress.env("pass"),
+          },
+          failOnStatusCode: false,
+        })
+        .then((res) => {
+          if (res.status !== 200 && res.status !== 201) {
+            throw new Error(
+              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
+            );
+          }
+          const token = res.body?.token;
+          if (!token) {
+            throw new Error(
+              `Auth login response missing token: ${JSON.stringify(res.body)}`
+            );
+          }
+          return { Authorization: `Bearer ${token}` } as Record<string, string>;
+        });
+    }
+    return cy.wrap({} as Record<string, string>);
+  });
+}
+
+export function resetURL(): void {
+  Application.open(true);
+}
+
+export function selectItemsPerPage(items: number): void {
+  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
+    ($toggleBtn) => {
+      if (!$toggleBtn.eq(0).is(":disabled")) {
+        $toggleBtn.eq(0).trigger("click");
+        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
+        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
+          .contains(`${items}`)
+          .click({
+            force: true,
+            log: false,
+          });
+      }
+    }
+  );
+}
+
+export function selectFromDropList(dropList, item: string) {
+  click(dropList);
+  click(item);
+}
+
+export function selectFromDropListByText(
+  droplistId,
+  itemText: string,
+  itemLocator = button
+) {
+  click(droplistId);
+  clickByText(itemLocator, itemText);
+}
+
+export function selectFormItems(fieldId: string, item: string): void {
+  // PatternFly typeahead selects virtualize the dropdown options, so only
+  // items matching the typed filter are rendered to the DOM.  For plain
+  // toggle-button selects all options are rendered on click.
+  cy.get(fieldId).then(($el) => {
+    if ($el.is("input")) {
+      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      cy.get(fieldId).click().clear().type(item);
+    } else {
+      // Wrapper div or toggle button — click to open
+      cy.get(fieldId).click();
+      // If the wrapper contains a typeahead input, type into it to filter
+      const $input = $el.find("input");
+      if ($input.length > 0) {
+        cy.wrap($input.first()).clear().type(item);
+      }
+    }
+  });
+  cy.contains("button", item, { timeout: 30 * SEC }).click();
+}
+
+export function selectAnalysisMode(fieldId: string, item: string): void {
+  cy.get(fieldId).click();
+  cy.get("button").then(($buttons) => {
+    const match = $buttons
+      .toArray()
+      .find((btn) => btn.textContent?.trim() === item);
+    cy.wrap(match).click();
+  });
+}
+
+export function selectRow(name: string): void {
+  // Clicks on a particular row on any table
+  cy.get(tdTag, { timeout: 10 * SEC })
+    .contains(name)
+    .closest(trTag, { timeout: 10 * SEC })
+    .click();
+}
+
+export function sidedrawerTab(name: string, tab: string): void {
+  selectRow(name);
+  cy.get(sideDrawer.pageDrawerContent, { timeout: 10 * SEC }).within(() => {
+    clickTab(tab);
+  });
+}
+
+export function checkSuccessAlert(
+  fieldId: string,
+  message: string,
+  close = false,
+  timeoutMs?: number
+): void {
+  validateTextPresence(fieldId, message, true, timeoutMs);
+  if (close) {
+    closeSuccessAlert();
+  }
+}
+
+export function checkErrorMessage(
+  fieldId: string,
+  message: string,
+  close = true
+): void {
+  validateTextPresence(fieldId, message);
+  if (close) {
+    closeModalWindow();
+  }
+}
+
+export function validateTextPresence(
+  fieldId: string,
+  message: string,
+  shouldBeFound = true,
+  timeoutMs = 150 * SEC
+): void {
+  if (shouldBeFound) {
+    cy.get(fieldId, { timeout: timeoutMs }).should("contain.text", message);
+  } else {
+    cy.get(fieldId, { timeout: timeoutMs }).should("not.contain.text", message);
+  }
+}
+
+export function validateNumberPresence(fieldId: string, value: number): void {
+  cy.get(fieldId)
+    .invoke("text")
+    .then((text) => {
+      cy.wrap(parseFloat(text)).should("eq", value);
+    });
+}
+
+export function validateAnyNumberPresence(fieldId: string): void {
+  cy.get(fieldId)
+    .invoke("text")
+    .then((text) => {
+      expect(parseFloat(text)).to.not.be.NaN;
+    });
+}
+
+export function closeSuccessAlert(): void {
+  cy.get(closeSuccessNotification, { timeout: 10 * SEC })
+    .first()
+    .click({ force: true, timeout: 5 * SEC });
+}
+
+export function removeMember(memberName: string): void {
+  cy.get("span").contains(memberName).siblings(removeButton).click();
+}
+
+export function exists(value: string, tableSelector = appTable): void {
+  selectItemsPerPage(100);
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if (
+      $table.length &&
+      !$table.text().includes(value) &&
+      !/No \w.* available/.test($table.text())
+    ) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
+    }
+  });
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    expect($table.length, `${tableSelector} to exist`).to.be.greaterThan(0);
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) {
+      throw new Error(`Table shows empty state: "${text}"`);
+    }
+    expect(text).to.include(value);
+  });
+}
+
+export function notExists(value: string, tableSelector = appTable): void {
+  selectItemsPerPage(100);
+  cy.get("body").then(($body) => {
+    const $table = $body.find(tableSelector);
+    if ($table.length && $table.text().includes(value)) {
+      cy.url().then((currentUrl) => {
+        cy.visit("/");
+        cy.visit(currentUrl);
+      });
+    }
+  });
+  cy.get("body").should(($body) => {
+    const $table = $body.find(tableSelector);
+    if (!$table.length) return;
+    const text = $table.text();
+    if (/No \w.* available/.test(text)) return;
+    expect(text).to.not.include(value);
+  });
+}
+
+export function selectFilter(filterName: string, eq = 0): void {
+  if (eq === 0) {
+    cy.get(filteredBy).click();
+    clickWithinByText(
+      'div[class="pf-v5-c-menu__content"]',
+      "button",
+      filterName
+    );
+    return;
+  }
+  cy.get("div.pf-m-filter-group")
+    .eq(eq)
+    .within(() => {
+      cy.get(filteredBy).click();
+      clickWithinByText(
+        'div[class="pf-v5-c-menu__content"]',
+        "button",
+        filterName
+      );
+    });
+}
+
+export function filterInputText(searchTextValue: string, value: number): void {
+  cy.get(filterInput).eq(value).clear().type(searchTextValue);
+  cy.get(searchButton).eq(value).click({ force: true });
+}
+
+export function clearAllFilters(): void {
+  cy.contains(button, "Clear all filters").click({ force: true });
+}
+
+export function filterIssueBy(
+  filterType: dynamicReportFilter,
+  filterValue: string | string[]
+): void {
+  let selector = "";
+  selectFilter(filterType);
+  const isApplicableFilter =
+    filterType === dynamicReportFilter.applicationName ||
+    filterType === dynamicReportFilter.category ||
+    filterType === dynamicReportFilter.source ||
+    filterType === dynamicReportFilter.target;
+
+  if (isApplicableFilter) {
+    if (Array.isArray(filterValue)) {
+      filterValue.forEach((current) => {
+        inputText(searchInput, current);
+        click(searchButton);
+      });
+    } else {
+      inputText(searchInput, filterValue);
+      click(searchButton);
+    }
+  } else {
+    if (filterType == dynamicReportFilter.bs) {
+      selector = bsFilterName;
+    } else if (filterType == dynamicReportFilter.tags) {
+      selector = tagFilterName;
+    }
+    click(selector);
+    if (Array.isArray(filterValue)) {
+      filterValue.forEach((name) => {
+        clickByText(span, name);
+      });
+    } else {
+      clickByText(span, filterValue);
+    }
+    click(selector);
+  }
+}
+
+export function validateSingleApplicationIssue(issue: AppIssue): void {
+  cy.contains(issue.name)
+    .closest(trTag)
+    .within(() => {
+      validateTextPresence(singleApplicationColumns.category, issue.category);
+      validateTextPresence(singleApplicationColumns.source, issue.sources[0]);
+      validateTextPresence(singleApplicationColumns.target, issue.targets[0]);
+      validateNumberPresence(singleApplicationColumns.effort, issue.effort);
+      validateNumberPresence(
+        singleApplicationColumns.files,
+        issue.affectedFiles
+      );
+    });
+}
+
+export function applySelectFilter(
+  filterId: string,
+  filterName,
+  filterText: string,
+  isValid = true
+): void {
+  selectFilter(filterName);
+  click(".pf-v5-c-menu-toggle__button");
+  inputText(".pf-v5-c-text-input-group__text-input", filterText);
+  if (isValid) {
+    clickByText(".pf-v5-c-menu__item", filterText);
+  } else {
+    cy.contains(actionMenuItem, "No results");
+  }
+  click(".pf-v5-c-text-input-group__text-input");
+}
+
+export function applySearchFilter(
+  filterName: string,
+  searchText: string | string[],
+  identifiedRisk = false,
+  eq = 0
+): void {
+  selectFilter(filterName, eq);
+  let filterValue = [];
+  if (!Array.isArray(searchText)) {
+    filterValue = [searchText];
+  } else filterValue = searchText;
+
+  cy.get(filterDropDownContainer).then(($container) => {
+    if ($container.find(searchMenuToggle).length > 0) {
+      cy.get(searchMenuToggle).click();
+      filterValue.forEach((searchTextValue) => {
+        cy.get(standardFilter).contains(searchTextValue).click();
+      });
+    } else {
+      if ($container.find(filterSelectType).length > 0) {
+        cy.get(filterSelectType).click();
+        filterValue.forEach((searchTextValue) => {
+          cy.get(standardFilter).contains(searchTextValue).click();
+        });
+      } else {
+        filterValue.forEach((searchTextValue) => {
+          filterInputText(searchTextValue, +identifiedRisk);
+        });
+      }
+    }
+  });
+}
+
+export function clickOnSortButton(
+  fieldName: string,
+  sortCriteria: string,
+  tableSelector: string = commonTable
+): void {
+  cy.get(tableSelector)
+    .contains("th", fieldName)
+    .then(($tableHeader) => {
+      const sortButton = $tableHeader.find("button");
+      if (
+        $tableHeader.attr("aria-sort") === "none" ||
+        $tableHeader.attr("aria-sort") != sortCriteria
+      ) {
+        sortButton.trigger("click");
+      }
+      cy.wrap($tableHeader).should("have.attr", "aria-sort", sortCriteria);
+    });
+}
+
+export function generateRandomDateRange(
+  minDate?: Date,
+  maxDate?: Date
+): { start: Date; end: Date } {
+  if (!minDate) minDate = new Date();
+
+  // If maxDate is not provided, use one year from now
+  if (!maxDate) {
+    maxDate = new Date(minDate.getTime());
+    maxDate.setFullYear(maxDate.getFullYear() + 1);
+  }
+
+  const dateRangeInMs = maxDate.getTime() - minDate.getTime();
+
+  if (dateRangeInMs <= 0) {
+    throw new Error("Invalid date range");
+  }
+
+  // Calculate start date and end date
+  const startOffset = Math.random() * dateRangeInMs;
+  const startDate = new Date(minDate.getTime() + startOffset);
+
+  const endOffset = Math.random() * (dateRangeInMs - startOffset);
+  const endDate = new Date(startDate.getTime() + endOffset);
+
+  return {
+    start: startDate,
+    end: endDate,
+  };
+}
+
+export function getTableColumnData(columnName: string): Array<string> {
+  selectItemsPerPage(100);
+  const itemList = [];
+  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v5-c-table__expandable-row")
+    .find(`td[data-label="${columnName}"]`)
+    .each(($ele) => {
+      if (
+        columnName === groupCount ||
+        columnName === memberCount ||
+        columnName === tagCount ||
+        columnName === rank ||
+        columnName === criticality ||
+        columnName === priority ||
+        columnName === confidence
+      ) {
+        if ($ele.text() !== "") itemList.push(Number($ele.text()));
+      } else if (columnName === date) {
+        if ($ele.text() !== "")
+          itemList.push(new Date($ele.text().toString()).getTime());
+      } else {
+        if ($ele.text() !== "")
+          itemList.push($ele.text().toString().toLowerCase());
+      }
+    });
+  return itemList;
+}
+
+export function verifySortAsc(
+  listToVerify: unknown[],
+  unsortedList: unknown[]
+): void {
+  cy.wrap(listToVerify).then((capturedList) => {
+    const sortedList = unsortedList.slice().sort((a, b) =>
+      a.toString().localeCompare(b.toString(), "en-us", {
+        numeric: !unsortedList.some(isNaN),
+      })
+    );
+    expect(capturedList).to.be.deep.equal(sortedList);
+  });
+}
+
+export function verifySortDesc(
+  listToVerify: unknown[],
+  unsortedList: unknown[]
+): void {
+  cy.wrap(listToVerify).then((capturedList) => {
+    const reverseSortedList = unsortedList.slice().sort((a, b) =>
+      b.toString().localeCompare(a.toString(), "en-us", {
+        numeric: !unsortedList.some(isNaN),
+      })
+    );
+    expect(capturedList).to.be.deep.equal(reverseSortedList);
+  });
+}
+
+export function verifyDateSortAsc(
+  listToVerify: string[],
+  unsortedList: string[]
+): void {
+  cy.wrap(listToVerify).then((capturedList) => {
+    const sortedList = unsortedList
+      .map((dateStr) => {
+        // Parse the date and store the date object and original string together
+        return {
+          date: new Date(Date.parse(dateStr)),
+          originalString: dateStr,
+        };
+      })
+      .sort((a, b) => a.date.getTime() - b.date.getTime()) // sort the dates
+      .map((item) => {
+        return item.originalString;
+      });
+
+    expect(capturedList).to.be.deep.equal(sortedList);
+  });
+}
+
+export function verifyDateSortDesc(
+  listToVerify: string[],
+  unsortedList: string[]
+): void {
+  cy.wrap(listToVerify).then((capturedList) => {
+    const sortedList = unsortedList
+      .map((dateStr) => {
+        // Parse the date and store the date object and original string together
+        return {
+          date: new Date(Date.parse(dateStr)),
+          originalString: dateStr,
+        };
+      })
+      .sort((a, b) => b.date.getTime() - a.date.getTime()) // sort the dates
+      .map((item) => {
+        return item.originalString;
+      });
+
+    expect(capturedList).to.be.deep.equal(sortedList);
+  });
+}
+
+export function expandRowDetails(rowIdentifier: string): void {
+  // displays row details by clicking on the expand button
+  cy.get(tdTag)
+    .contains(rowIdentifier)
+    .closest(trTag)
+    .within(() => {
+      cy.get(expandRow, { timeout: 10 * SEC }).then(($btn) => {
+        if ($btn.attr("aria-expanded") === "false") {
+          cy.wrap($btn).click();
+        }
+      });
+    });
+}
+
+export function closeRowDetails(rowIdentifier: string): void {
+  // closes row details by clicking on the collapse button
+  cy.get(tdTag)
+    .contains(rowIdentifier)
+    .parent(trTag)
+    .within(() => {
+      if (!button["aria-label=Details"]) {
+        return;
+      }
+      cy.get(expandRow, { timeout: 10 * SEC })
+        .should("be.visible")
+        .should("not.be.disabled")
+        .then(($btn) => {
+          if ($btn.attr("aria-expanded") === "true") {
+            cy.wrap($btn).click();
+          }
+        });
+    });
+}
+
+export function existsWithinRow(
+  rowIdentifier: string,
+  fieldId: string,
+  valueToSearch: string
+): void {
+  // Verifies if the valueToSearch exists within the row
+  cy.get(tdTag)
+    .contains(rowIdentifier)
+    .parent(trTag)
+    .next()
+    .find(fieldId)
+    .should("contain", valueToSearch);
+}
+
+export function notExistsWithinRow(
+  rowIdentifier: string,
+  fieldId: string,
+  valueToSearch: string
+): void {
+  // Verifies if the valueToSearch does not exists within the row
+  cy.get(tdTag)
+    .contains(rowIdentifier)
+    .parent(trTag)
+    .next()
+    .find(fieldId)
+    .should("not.contain", valueToSearch);
+}
+
+export function importApplication(
+  fileName: string,
+  disableAutoCreation?: boolean
+): void {
+  // Performs application import via csv file upload
+  application_inventory_kebab_menu(appInventoryKebab.import);
+  cy.get('input[type="file"]', { timeout: 2 * SEC }).selectFile(
+    `fixtures/${fileName}`,
+    {
+      timeout: 120 * SEC,
+      force: true,
+    }
+  );
+  //Uncheck createEntitiesCheckbox if auto creation of entities is disabled
+  if (disableAutoCreation)
+    cy.get(createEntitiesCheckbox).then((enabled) => {
+      enabled.prop("checked")
+        ? cy.log("Button is disabled")
+        : click(createEntitiesCheckbox);
+    });
+
+  cy.get(appImportForm, { timeout: 5 * SEC })
+    .find("button")
+    .contains("Import")
+    .click();
+  checkSuccessAlert(
+    successAlertMessage,
+    `Success! file saved to be processed.`
+  );
+}
+
+export function uploadApplications(fileName: string): void {
+  cy.get('input[type="file"]', { timeout: 5 * SEC }).selectFile(
+    `fixtures/${fileName}`,
+    {
+      timeout: 120 * SEC,
+      force: true,
+    }
+  );
+}
+
+export function uploadFile(
+  fileName: string,
+  selector = 'input[type="file"]'
+): void {
+  cy.get(selector, { timeout: 5 * SEC }).selectFile(`fixtures/${fileName}`, {
+    timeout: 120 * SEC,
+    force: true,
+  });
+  cy.wait(2000);
+}
+
+export function navigate_to_application_inventory(): void {
+  selectUserPerspective(migration);
+  clickByText(navMenu, applicationInventory);
+}
+
+export function application_inventory_kebab_menu(menu: string): void {
+  // The value for menu could be one of {Import, Manage application imports, Delete, Manage credentials}
+  navigate_to_application_inventory();
+
+  cy.get(applicationsActionButton, { timeout: 60 * SEC })
+    .eq(0)
+    .click({ force: true });
+  if (menu == "Import") {
+    clickByText(button, "Import");
+  } else {
+    cy.get(actionMenuItem)
+      .contains(menu)
+      .then(($menu_item) => {
+        if (!$menu_item.hasClass("pf-m-disabled")) {
+          clickByText(button, menu, true);
+        } else {
+          // close menu if nothing to do
+          cy.get(applicationsActionButton).eq(0).click({ force: true });
+        }
+      });
+  }
+}
+
+export function openManageImportsPage(): void {
+  // Opens the Manage application imports page
+  application_inventory_kebab_menu(appInventoryKebab.manageImports);
+  cy.wait(5 * SEC)
+    .get("h1", { timeout: 5 * SEC })
+    .contains("Application imports");
+}
+
+// Perform edit/delete action on the specified row selector by clicking a text button
+export function performRowAction(itemName: string, action: string): void {
+  // itemName is text to be searched on the screen (like credentials name, stakeholder name, etc)
+  // Action is the name of the action to be applied (usually edit or delete)
+  cy.get(tdTag, { timeout: 120 * SEC })
+    .contains(itemName, { timeout: 120 * SEC })
+    .closest(trTag)
+    .within(() => {
+      clickByText(button, action);
+    });
+}
+
+// Perform edit/delete action on the specified row selector by clicking an icon button
+/* As of Tackle 2.1, this function can be used to click the update button and kebab menu for
+   applications on the Application Inventory page */
+export function performRowActionByIcon(
+  itemName: string,
+  action: string,
+  nthPosition = 0
+): void {
+  // itemName is the text to be searched on the screen (For eg: application name, etc)
+  // Action is the name of the action to be applied (For eg: edit or click kebab menu)
+  cy.contains(itemName, { timeout: 120 * SEC })
+    .closest(trTag)
+    .scrollIntoView()
+    .find(action)
+    .first()
+    .find("button", { log: true, timeout: 30 * SEC })
+    .eq(nthPosition)
+    .click({ force: true });
+}
+
+export function clickItemInKebabMenu(rowItem, itemName: string): void {
+  cy.contains(rowItem)
+    .closest(trTag)
+    .within(() => {
+      click(sideKebabMenu);
+    });
+  cy.get(actionMenuItem, { timeout: 120 * SEC })
+    .contains(itemName, { timeout: 120 * SEC })
+    .click({ force: true });
+}
+
+export function clickKebabMenuOptionArchetype(
+  rowItem: string,
+  itemName: string
+): void {
+  // The clickItemInKebabMenu() fn can't be used on the Archetype page just yet because the
+  // the individual archetypes don't have an id for their kebab menu.
+  cy.contains(rowItem, { timeout: 10 * SEC })
+    .closest(trTag)
+    .within(() => {
+      click(sideKebabMenu);
+    });
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(itemName, { timeout: 10 * SEC })
+    .click({ force: true });
+}
+
+export function createMultipleJiraConnections(
+  numberOfJiras: number,
+  jiraCredential: JiraCredentials,
+  isInsecure = false,
+  useTestingAccount = true
+): Array<Jira> {
+  const jiraList: Array<Jira> = [];
+  let jiraCloudConnectionData: JiraConnectionData;
+  while (jiraList.length < numberOfJiras) {
+    jiraCloudConnectionData = getJiraConnectionData(
+      jiraCredential,
+      JiraType.cloud,
+      isInsecure,
+      useTestingAccount
+    );
+    jiraList.push(new Jira(jiraCloudConnectionData));
+  }
+  return jiraList;
+}
+
+export function createMultipleCredentials(
+  numberOfCredentials: number
+): Array<Credentials> {
+  const newCredentialsList: Array<Credentials> = [];
+  const createdCredentialsList: Array<Credentials> = [];
+  while (newCredentialsList.length < numberOfCredentials) {
+    newCredentialsList.push(
+      new CredentialsProxy(getRandomCredentialsData(CredentialType.proxy))
+    );
+    newCredentialsList.push(
+      new CredentialsMaven(getRandomCredentialsData(CredentialType.maven))
+    );
+    newCredentialsList.push(
+      new CredentialsSourceControlUsername(
+        getRandomCredentialsData(CredentialType.sourceControl)
+      )
+    );
+    newCredentialsList.push(
+      new CredentialsSourceControlKey(
+        getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.sourcePrivateKey
+        )
+      )
+    );
+    newCredentialsList.push(
+      new JiraCredentials(
+        getJiraCredentialData(CredentialType.jiraBasic, false)
+      )
+    );
+    newCredentialsList.push(
+      new JiraCredentials(
+        getJiraCredentialData(CredentialType.jiraToken, false)
+      )
+    );
+  }
+  newCredentialsList.forEach((currentCredential) => {
+    currentCredential.create();
+    createdCredentialsList.push(currentCredential);
+  });
+  return createdCredentialsList;
+}
+
+export function createMultipleStakeholders(
+  numberOfStakeholders: number,
+  jobFunctionList?: Array<Jobfunctions>,
+  stakeholderGroupsList?: Array<Stakeholdergroups>
+): Array<Stakeholders> {
+  const stakeholdersList: Array<Stakeholders> = [];
+  for (let i = 0; i < numberOfStakeholders; i++) {
+    let jobFunction: string;
+    const stakeholderGroupNames: Array<string> = [];
+    if (jobFunctionList) jobFunction = jobFunctionList[i].name;
+    if (stakeholderGroupsList)
+      stakeholderGroupNames.push(stakeholderGroupsList[i].name);
+    // Create new stakeholder
+    const stakeholder = new Stakeholders(
+      data.getEmail(),
+      data.getFullName(),
+      jobFunction,
+      stakeholderGroupNames
+    );
+    stakeholder.create();
+    exists(stakeholder.name);
+    stakeholdersList.push(stakeholder);
+  }
+  return stakeholdersList;
+}
+
+export function createMultipleMigrationWaves(
+  numberOfMigrationWaves: number,
+  stakeholdersList?: Array<Stakeholders>,
+  stakeholderGroupsList?: Array<Stakeholdergroups>
+): Array<MigrationWave> {
+  cy.intercept("GET", "/hub/migrationwaves*").as("getWave");
+  const migrationWaveList: Array<MigrationWave> = [];
+  for (let i = 0; i < numberOfMigrationWaves; i++) {
+    const now = new Date();
+    now.setDate(now.getDate() + 1);
+    const end = new Date(now.getTime());
+    end.setFullYear(end.getFullYear() + 1);
+    // Create new migration wave
+    const migrationWave = new MigrationWave(
+      data.getAppName(),
+      now,
+      end,
+      stakeholdersList,
+      stakeholderGroupsList
+    );
+    migrationWave.create();
+    migrationWaveList.push(migrationWave);
+    cy.wait("@getWave");
+    cy.wait("@getWave", { timeout: 10 * SEC });
+  }
+  return migrationWaveList;
+}
+
+export function createMultipleJobFunctions(num): Array<Jobfunctions> {
+  const jobFunctionsList: Array<Jobfunctions> = [];
+  for (let i = 0; i < num; i++) {
+    const jobFunction = new Jobfunctions(data.getFullName());
+    jobFunction.create();
+    closeSuccessAlert();
+    jobFunctionsList.push(jobFunction);
+  }
+  return jobFunctionsList;
+}
+
+export function createMultipleArchetypes(number, tags?: Tag[]): Archetype[] {
+  const randomTagName = "3rd party / Apache Aries";
+  const archetypesList: Archetype[] = [];
+  for (let i = 0; i < number; i++) {
+    let archetype: Archetype;
+    if (tags)
+      archetype = new Archetype(
+        data.getRandomWord(6),
+        [tags[i].name],
+        [tags[i].name]
+      );
+    else
+      archetype = new Archetype(
+        data.getRandomWord(6),
+        [randomTagName],
+        [randomTagName]
+      );
+    archetype.create();
+    closeSuccessAlert();
+    archetypesList.push(archetype);
+  }
+  return archetypesList;
+}
+
+/**
+ * Creates an archetype with multiple analysis profiles and target profiles
+ * @param archetypeName - Name for the archetype
+ * @param criteriaTags - Tags for archetype criteria
+ * @param archetypeTags - Tags for the archetype itself
+ * @param targetProfileCount - Number of target profiles to create (each with its own analysis profile)
+ * @param profileData - Analysis profile configuration data
+ * @param profileNamePrefix - Optional prefix for analysis profile names (defaults to archetype name)
+ * @returns Object containing the archetype, analysis profiles array, and target profiles array
+ */
+export function createArchetypeWithProfiles(
+  archetypeName: string,
+  criteriaTags: string[],
+  archetypeTags: string[],
+  targetProfileCount: number,
+  profileData: analysisData,
+  profileNamePrefix?: string
+): {
+  archetype: Archetype;
+  analysisProfiles: AnalysisProfile[];
+  targetProfiles: TargetProfile[];
+} {
+  const namePrefix = profileNamePrefix || archetypeName;
+
+  // Create the archetype
+  const archetype = new Archetype(archetypeName, criteriaTags, archetypeTags);
+  archetype.create();
+  closeSuccessAlert();
+
+  const analysisProfiles: AnalysisProfile[] = [];
+  const targetProfiles: TargetProfile[] = [];
+
+  // Create analysis profiles and target profiles
+  for (let i = 0; i < targetProfileCount; i++) {
+    // Create analysis profile
+    const analysisProfile = new AnalysisProfile(
+      `${namePrefix}_analysis_prof_${i + 1}_${data.getRandomNumber()}`,
+      profileData,
+      `Analysis profile ${i + 1} for ${archetypeName}`
+    );
+    analysisProfile.create();
+    closeSuccessAlert();
+    analysisProfiles.push(analysisProfile);
+
+    // Create target profile linked to the analysis profile
+    const targetProfile = new TargetProfile(
+      `${namePrefix}_target_prof_${i + 1}_${data.getRandomNumber()}`,
+      undefined,
+      analysisProfile.name
+    );
+    targetProfile.create(archetype.name);
+    closeSuccessAlert();
+    targetProfiles.push(targetProfile);
+  }
+
+  return {
+    archetype,
+    analysisProfiles,
+    targetProfiles,
+  };
+}
+
+export function createMultipleStakeholderGroups(
+  numberofstakeholdergroup: number,
+  stakeholdersList?: Array<Stakeholders>
+): Array<Stakeholdergroups> {
+  const stakeholdergroupsList: Array<Stakeholdergroups> = [];
+  for (let i = 0; i < numberofstakeholdergroup; i++) {
+    const stakeholders: Array<string> = [];
+    if (stakeholdersList) stakeholders.push(stakeholdersList[i].name);
+    // Create new stakeholder group
+    const stakeholdergroup = new Stakeholdergroups(
+      data.getCompanyName(),
+      data.getDescription(),
+      stakeholders
+    );
+    stakeholdergroup.create();
+    exists(stakeholdergroup.name);
+    stakeholdergroupsList.push(stakeholdergroup);
+  }
+  return stakeholdergroupsList;
+}
+
+export function createMultipleBusinessServices(
+  amount: number,
+  stakeholdersList?: Array<Stakeholders>
+): Array<BusinessServices> {
+  const businessServices: BusinessServices[] = [];
+  for (let i = 0; i < amount; i++) {
+    let stakeholders: string;
+    if (stakeholdersList) stakeholders = stakeholdersList[i].name;
+    // Create new business service
+    const businessService = new BusinessServices(
+      data.getCompanyName(),
+      data.getDescription(),
+      stakeholders
+    );
+    businessService.create();
+    businessServices.push(businessService);
+    cy.contains("New business service").should("not.exist");
+    exists(businessService.name);
+  }
+  return businessServices;
+}
+
+export function createMultipleTags(numberoftags: number): Array<Tag> {
+  const tagList: Array<Tag> = [];
+  for (let i = 0; i < numberoftags; i++) {
+    //Create Tag category
+    const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
+    tagCategory.create();
+    // Create new tag
+    const tag = new Tag(data.getRandomWord(6), tagCategory.name);
+    tag.create();
+    tagList.push(tag);
+  }
+  return tagList;
+}
+
+export function generateMultipleCredentials(amount: number): Credentials[] {
+  cy.pause();
+  const newCredentialsList = [];
+  const createdCredentialsList = [];
+  for (let i = 0; i < Math.ceil((10 - amount) / 4); i++) {
+    newCredentialsList.push(
+      new CredentialsProxy(getRandomCredentialsData(CredentialType.proxy))
+    );
+    newCredentialsList.push(
+      new CredentialsMaven(getRandomCredentialsData(CredentialType.maven))
+    );
+    newCredentialsList.push(
+      new CredentialsSourceControlUsername(
+        getRandomCredentialsData(CredentialType.sourceControl)
+      )
+    );
+    newCredentialsList.push(
+      new CredentialsSourceControlKey(
+        getRandomCredentialsData(CredentialType.sourceControl)
+      )
+    );
+  }
+  cy.pause();
+  newCredentialsList.forEach((currentCredential) => {
+    currentCredential.create();
+    createdCredentialsList.push(currentCredential);
+  });
+  cy.pause();
+  return createdCredentialsList;
+}
+
+export function getRandomApplicationData(
+  appName?,
+  options?: { sourceData?; binaryData? },
+  tags?
+): applicationData {
+  let name = data.getAppName();
+  if (appName) {
+    name = appName + "_" + data.getAppName();
+  }
+
+  const appdata = {
+    name: name,
+    description: data.getDescription(),
+    comment: data.getDescription(),
+  };
+
+  if (options) {
+    if (options.sourceData) {
+      appdata["repoType"] = options.sourceData.repoType;
+      appdata["sourceRepo"] = options.sourceData.sourceRepo;
+      appdata["branch"] = options.sourceData.branch;
+      appdata["rootPath"] = options.sourceData.rootPath;
+    }
+  }
+
+  if (options) {
+    if (options.binaryData) {
+      appdata["group"] = options.binaryData.group;
+      appdata["artifact"] = options.binaryData.artifact;
+      appdata["version"] = options.binaryData.version;
+      appdata["packaging"] = options.binaryData.packaging;
+    }
+  }
+
+  if (tags) appdata["tags"] = tags;
+
+  return appdata;
+}
+
+export function getRandomAnalysisData(analysisdata): analysisData {
+  return {
+    source: analysisdata.source,
+    target: analysisdata.target,
+    binary: analysisdata.binary,
+    customRule: analysisdata.customRule,
+    enableTransaction: analysisdata.enableTransaction,
+    disableTagging: analysisdata.disableTagging,
+    appName: analysisdata.appName,
+    effort: analysisdata.effort,
+    excludePackages: analysisdata.excludePackages,
+    includeRuleLabels: analysisdata.includeRuleLabels,
+    excludeRuleLabels: analysisdata.excludeRuleLabels,
+    manuallyAnalyzePackages: analysisdata.manuallyAnalyzePackages,
+    excludedPackagesList: analysisdata.excludedPackagesList,
+    incidents: analysisdata.incidents,
+    openSourceLibraries: analysisdata.openSourceLibraries,
+    ruleFileToQuantity: analysisdata.ruleFileToQuantity,
+    profileName: analysisdata.profileName,
+  };
+}
+
+export function getProfileNameFromApp(applicationName: string): string {
+  return `profile_${applicationName}`;
+}
+
+export function createMultipleApplications(
+  numberofapplications: number,
+  tags?: string[]
+): Array<Application> {
+  const applicationList: Array<Application> = [];
+  let application: Application;
+  for (let i = 0; i < numberofapplications; i++) {
+    // Navigate to application inventory tab and create new application
+    if (tags)
+      application = new Application(getRandomApplicationData(null, null, tags));
+    else application = new Application(getRandomApplicationData());
+    application.create();
+    applicationList.push(application);
+    cy.wait(2000);
+  }
+  return applicationList;
+}
+
+export function createMultipleApplicationsWithBSandTags(
+  numberofapplications: number,
+  businessservice?: Array<BusinessServices>,
+  tagList?: Array<Tag>,
+  stakeholder?: Array<Stakeholders>
+): Array<Application> {
+  const applicationList: Array<Application> = [];
+  let tags: string[];
+  let business = "";
+  let owner = "";
+  clickByText(navMenu, applicationInventory);
+  for (let i = 0; i < numberofapplications; i++) {
+    if (businessservice) business = businessservice[i].name;
+    if (tagList) tags = [tagList[i].name];
+    if (stakeholder) owner = stakeholder[i].name;
+    const appdata = {
+      name: data.getAppName(),
+      business: business,
+      description: data.getDescription(),
+      tags: tags,
+      comment: data.getDescription(),
+      owner: owner,
+    };
+    const application = new Application(appdata);
+    application.create();
+    applicationList.push(application);
+    cy.wait(2000);
+  }
+  return applicationList;
+}
+
+type Deletable = { delete: () => void };
+
+export function deleteByList<T extends Deletable>(array: T[]): void {
+  cy.wrap(array).each((element: T) => {
+    element.delete();
+  });
+}
+
+type DeletableViaApi = {
+  deleteViaApi: (headers?: Record<string, string>) => void;
+};
+
+export function deleteByListViaAPI<T extends DeletableViaApi>(
+  array: T[],
+  headers?: Record<string, string>
+): void {
+  cy.wrap(array).each((element: T) => {
+    element.deleteViaApi(headers);
+  });
+}
+
+export function deleteAllTagsAndTagCategories(): void {
+  const nonDefaultTagTypes = [];
+  TagCategory.openList();
+
+  cy.get(appTable, { timeout: 2 * SEC })
+    .find(trTag)
+    .not(expandableRow)
+    .each(($rowGroup) => {
+      const typeName = $rowGroup.find(tagLabels.type).text();
+      let isDefault = false;
+      for (const currentType of data.getDefaultTagCategories()) {
+        if (currentType == typeName) {
+          isDefault = true;
+          break; // Exiting from cycle if current tag category belongs to default
+        }
+      }
+      if (!isDefault && typeName !== "") {
+        if ($rowGroup.find(tagLabels.count).text() != "0") {
+          nonDefaultTagTypes.push(typeName);
+          expandRowDetails(typeName);
+        } else {
+          const currentTagType = new TagCategory(typeName, data.getColor());
+          currentTagType.delete();
+        }
+      }
+    })
+    .then(() => {
+      if (nonDefaultTagTypes.length > 0) {
+        for (const currentType of nonDefaultTagTypes) {
+          let tagList = [];
+          cy.contains(tdTag, currentType)
+            .closest("tbody")
+            .within(() => {
+              cy.get(tagLabels.name).each(($tagRow) => {
+                const tagName = $tagRow.text();
+                tagList.push(new Tag(tagName, currentType));
+              });
+            })
+            .then(() => {
+              tagList.forEach((currentTag) => {
+                currentTag.delete();
+                tagList = deleteFromArray(tagList, currentTag);
+              });
+            });
+          const currentTagType = new TagCategory(currentType, data.getColor());
+          currentTagType.delete();
+        }
+      }
+    });
+}
+
+export function isTableEmpty(
+  tableSelector: string = commonTable
+): Cypress.Chainable<boolean> {
+  return cy
+    .get(tableSelector, { timeout: 5 * SEC })
+    .find("div")
+    .should("not.have.descendants", "svg.pf-v5-c-spinner")
+    .then(($element) => {
+      return $element.hasClass("pf-v5-c-empty-state");
+    });
+}
+
+export function deleteAllRows(tableSelector: string = commonTable) {
+  isTableEmpty().then((empty) => {
+    if (!empty) {
+      cy.get(tableSelector)
+        .find(trTag)
+        .then(($rows) => {
+          for (let i = 0; i < $rows.length - 1; i++) {
+            cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
+            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get(confirmButton).click();
+            cy.wait(1 * SEC);
+          }
+        });
+    }
+  });
+}
+
+export function assertSuccessPopupAndClose() {
+  cy.get(successAlertMessage, {
+    timeout: 3 * SEC,
+  })
+    .should("be.visible")
+    .within(() => {
+      cy.get('button[aria-label^="Close"]').click();
+    });
+}
+
+export function checkRowCount(expectedCount: number) {
+  cy.get("td[data-label=Name]").then(($rows) => {
+    cy.wrap($rows.length).should("eq", expectedCount);
+  });
+}
+
+export function deleteAllImports(tableSelector: string = commonTable) {
+  isTableEmpty().then((empty) => {
+    if (!empty) {
+      cy.get(tableSelector)
+        .find(trTag)
+        .then(($rows) => {
+          for (let i = 0; i < $rows.length - 1; i++) {
+            cy.get(manageImportsActionsButton, { timeout: 10000 })
+              .eq(1)
+              .click();
+            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get(confirmButton).click();
+            cy.wait(2 * SEC);
+          }
+        });
+    }
+  });
+}
+
+export function deleteAllItems(tableSelector: string = commonTable) {
+  // This method is for pages like applications that have rows inside tbody
+  isTableEmpty().then((empty) => {
+    if (!empty) {
+      cy.get(`${tableSelector} tbody`)
+        .find(trTag)
+        .then(($rows) => {
+          for (let i = 0; i < $rows.length; i++) {
+            cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
+            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get(confirmButton).click();
+            cy.wait(1 * SEC);
+          }
+        });
+    }
+  });
+}
+
+export function deleteAllBusinessServices() {
+  getAuthHeaders().then((headers) => {
+    BusinessServices.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllStakeholderGroups(_cancel = false): void {
+  getAuthHeaders().then((headers) => {
+    Stakeholdergroups.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllStakeholders(): void {
+  getAuthHeaders().then((headers) => {
+    Stakeholders.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllArchetypes() {
+  getAuthHeaders().then((headers) => {
+    Archetype.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllCredentials() {
+  getAuthHeaders().then((headers) => {
+    Credentials.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAllProfiles() {
+  AnalysisProfile.open();
+  selectItemsPerPage(100);
+  deleteAllRows();
+}
+
+export function deleteApplicationTableRows(): void {
+  getAuthHeaders().then((headers) => {
+    Application.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteBulkApplicationsByApi(appIds: number[]): void {
+  cy.uiEnvironmentConfig().then((env) => {
+    if (env["AUTH_REQUIRED"] === "true") {
+      // Get token via login API
+      cy.request({
+        method: "POST",
+        url: `${getUrl()}/hub/auth/login`,
+        body: {
+          user: Cypress.env("user"),
+          password: Cypress.env("pass"),
+        },
+      }).then((loginResponse) => {
+        const token = loginResponse.body.token;
+        cy.request({
+          method: "DELETE",
+          url: `${getUrl()}/hub/applications`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: appIds,
+          failOnStatusCode: false,
+        }).then((response) => {
+          expect(response.status).to.eq(204);
+        });
+      });
+    } else {
+      // Auth disabled
+      cy.request({
+        method: "DELETE",
+        url: `${getUrl()}/hub/applications`,
+        headers: { "Content-Type": "application/json" },
+        body: appIds,
+        failOnStatusCode: false,
+      }).then((response) => {
+        expect(response.status).to.eq(204);
+      });
+    }
+  });
+}
+
+export function validatePageTitle(pageTitle: string) {
+  return cy.get("h1").then((h1) => {
+    return h1.text().includes(pageTitle);
+  });
+}
+
+export function deleteAllMigrationWaves() {
+  getAuthHeaders().then((headers) => {
+    MigrationWave.deleteAllViaApi(headers);
+  });
+}
+
+export function deleteAppImportsTableRows() {
+  openManageImportsPage();
+  selectItemsPerPage(100);
+  deleteAllImports();
+}
+
+export const deleteFromArray = <T>(array: T[], el: T): T[] => {
+  return array.filter((item) => item !== el);
+};
+
+export const deleteFromArrayByIndex = <T>(array: T[], index: number): T[] => {
+  return array.filter((_, i) => i !== index);
+};
+
+export function goToPage(page: number): void {
+  cy.get(divHeader)
+    .eq(2)
+    .within(() => {
+      cy.get(firstPageButton).then(($firstPageButton) => {
+        cy.get(lastPageButton).then(($lastPageButton) => {
+          if (
+            !$firstPageButton.hasClass(".pf-m-disabled") ||
+            !$lastPageButton.hasClass(".pf-m-disabled")
+          ) {
+            cy.get(pageNumInput, { timeout: 2 * SEC })
+              .clear()
+              .type(page.toString())
+              .type("{enter}");
+          }
+        });
+      });
+    });
+}
+
+export function selectUserPerspective(userType: string): void {
+  cy.get(optionMenu)
+    .find(button, { timeout: 10 * SEC })
+    .click();
+  clickByText(button, userType);
+}
+
+export function selectWithinModal(selector: string): void {
+  clickWithin(modal, selector);
+}
+
+/**
+ * Executes a function inside a specified HTML element
+ * @param selector parent element
+ * @param functionToExec function to execute
+ * @param index selector index
+ */
+export function callWithin(
+  selector: string,
+  functionToExec: () => void,
+  index = 0
+): void {
+  cy.get(selector)
+    .eq(index)
+    .within(() => functionToExec());
+}
+
+export function clickWithin(
+  parent: string,
+  selector: string,
+  isForced = false,
+  log = false
+): void {
+  cy.get(parent, { timeout: 30 * SEC })
+    .eq(0)
+    .within(() => {
+      click(selector, isForced, log);
+    });
+}
+
+export function clickWithinByText(
+  parent: string,
+  selector: string,
+  text: string,
+  isForced = false,
+  log = false
+): void {
+  cy.get(parent, { timeout: 30 * SEC })
+    .eq(0)
+    .within(() => {
+      clickByText(selector, text, isForced, log);
+    });
+}
+
+//function to select checkboxes
+export function selectCheckBox(
+  selector: string,
+  isForced = false,
+  log = false
+): void {
+  cy.get(selector, { timeout: 120 * SEC }).then(($checkbox) => {
+    if (!$checkbox.prop("checked")) {
+      click(selector, isForced, log);
+    }
+  });
+}
+
+//function to unselect checkboxes
+export function unSelectCheckBox(
+  selector: string,
+  isForced = false,
+  log = false
+): void {
+  cy.get(selector, { timeout: 120 * SEC }).then(($checkbox) => {
+    if ($checkbox.prop("checked")) {
+      click(selector, isForced, log);
+    }
+  });
+}
+
+export function applyAction(itemName, action: string): void {
+  cy.contains(tdTag, itemName)
+    .closest(trTag)
+    .within(() => {
+      click(tagMenuButton);
+      clickByText(button, action);
+    });
+}
+
+export function confirm(): void {
+  click(confirmButton);
+}
+
+export function validatePagination(): void {
+  // Verify next buttons are enabled as there are more than 11 rows present
+  cy.get(nextPageButton, { timeout: 10 * SEC })
+    .first()
+    .should("not.be.disabled");
+
+  // Verify that previous buttons are disabled being on the first page
+  cy.get(prevPageButton).each(($previousBtn) => {
+    cy.wrap($previousBtn).should("be.disabled");
+  });
+
+  // Verify that navigation button to last page is enabled
+  cy.get(lastPageButton).should("not.be.disabled");
+
+  // Verify that navigation button to first page is disabled being on the first page
+  cy.get(firstPageButton).should("be.disabled");
+
+  // Navigate to next page
+  cy.get(nextPageButton).eq(0).click({ force: true });
+
+  // Verify that previous buttons are enabled after moving to next page
+  cy.get(prevPageButton).each(($previousBtn) => {
+    cy.wrap($previousBtn).should("not.be.disabled");
+  });
+
+  // Verify that navigation button to first page is enabled after moving to next page
+  cy.get(firstPageButton).should("not.be.disabled");
+
+  // Moving back to the first page
+  cy.get(firstPageButton).eq(0).click();
+}
+
+export function itemsPerPageValidation(
+  tableSelector = appTable,
+  columnName = "Name"
+): void {
+  selectItemsPerPage(10);
+
+  // Verify that only 10 items are displayed (retryable assertion)
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.eq(10);
+  });
+
+  selectItemsPerPage(20);
+
+  // Verify that items less than or equal to 20 and greater than 10 are displayed
+  cy.get(tableSelector).should(($table) => {
+    const rows = $table.find(`td[data-label='${columnName}']`);
+    expect(rows.length).to.be.lte(20).and.be.gt(10);
+  });
+}
+
+export function autoPageChangeValidations(columnName = "Name"): void {
+  selectItemsPerPage(10);
+  goToLastPage();
+  deleteAllRows();
+  // Verify that page is re-directed to previous page
+  cy.get(`td[data-label='${columnName}']`, { timeout: 10000 }).should(
+    "have.length",
+    10
+  );
+}
+
+export function goToLastPage(): void {
+  cy.get(lastPageButton, { timeout: 10 * SEC })
+    .should("not.be.disabled", { timeout: 10 * SEC })
+    .eq(1)
+    .then(($button) => {
+      if (!$button.hasClass(".pf-m-disabled")) {
+        cy.wrap($button).click();
+      }
+    });
+}
+
+export function checkCurrentPageIs(pageNumber: number) {
+  cy.get(".pf-v5-c-pagination__nav-page-select", { timeout: 10 * SEC })
+    .find('input[aria-label="Current page"]')
+    .should("have.value", pageNumber.toString());
+}
+
+export function validateValue(selector, value: string): void {
+  if (!value || value === "") {
+    cy.log("Value is not defined");
+  } else {
+    cy.get(selector)
+      .invoke("val")
+      .then(($input) => {
+        expect($input).eq(value);
+      });
+  }
+}
+
+export function writeMavenSettingsFile(
+  username: string,
+  password: string,
+  url?: string
+): void {
+  cy.readFile("fixtures/xml/settings.xml").then((data) => {
+    // Sometimes the data will be undefined due to access problems in pipelines
+    // When no access, data will be strictly undefined, not an empty string
+    if (data === undefined) {
+      cy.writeFile("fixtures/xml/settings.xml", "");
+      return;
+    }
+    const parser = new DOMParser();
+    const xmlDOM = parser.parseFromString(data.toString(), "text/xml");
+    const serializer = new XMLSerializer();
+
+    xmlDOM.getElementsByTagName("username")[0].childNodes[0].nodeValue =
+      username;
+    xmlDOM.getElementsByTagName("password")[0].childNodes[0].nodeValue =
+      password;
+    if (url) {
+      xmlDOM
+        .getElementsByTagName("repository")[1]
+        .getElementsByTagName("url")[0].childNodes[0].nodeValue = url;
+    }
+
+    cy.writeFile(
+      "fixtures/xml/settings.xml",
+      serializer.serializeToString(xmlDOM)
+    );
+  });
+}
+
+export function writeGpgKey(git_key): void {
+  cy.readFile("fixtures/gpgkey").then(() => {
+    const key = git_key;
+    const beginningKey = "-----BEGIN RSA PRIVATE KEY-----";
+    const endingKey = "-----END RSA PRIVATE KEY-----";
+    const keystring = key.toString().split(" ").join("\n");
+    const gpgkey = beginningKey + "\n" + keystring + "\n" + endingKey;
+    cy.writeFile("fixtures/gpgkey", gpgkey);
+  });
+}
+
+export function doesExistSelector(
+  selector: string,
+  isAccessible: boolean
+): void {
+  cy.get(selector).should(isAccessible ? "exist" : "not.exist");
+}
+
+export function doesExistText(str: string, toBePresent: boolean): void {
+  cy.contains(str).should(toBePresent ? "exist" : "not.exist");
+}
+
+export function doesExistButton(str: string, toBePresent: boolean): void {
+  cy.contains(button, str).should(toBePresent ? "exist" : "not.exist");
+}
+
+/**
+ * Verifies that at least one element matching the selector has the exact expected text.
+ * Unlike doesExistText which uses cy.contains() for partial/regex matching,
+ * this function performs exact text comparison on elements selected by a CSS selector.
+ *
+ * @param expectedText - The exact text to match (after trimming whitespace)
+ * @param selector - CSS selector to find elements
+ * @param shouldExist - true to assert text exists, false to assert it doesn't exist
+ */
+export function verifySelectorText(
+  expectedText: string,
+  selector: string,
+  shouldExist: boolean
+): void {
+  cy.get(selector).should(($elements) => {
+    const texts = Array.from($elements).map(
+      (el) => el.textContent?.trim() ?? ""
+    );
+    const matched = texts.includes(expectedText);
+
+    if (shouldExist) {
+      expect(
+        matched,
+        `Expected one of the elements to have exact text "${expectedText}"`
+      ).to.be.true;
+    } else {
+      expect(
+        matched,
+        `Expected no element to have exact text "${expectedText}"`
+      ).to.be.false;
+    }
+  });
+}
+
+export function enableSwitch(selector: string): void {
+  cy.get(selector)
+    .parent("label")
+    .within(() => {
+      cy.get(".pf-m-on")
+        .invoke("css", "display")
+        .then((display) => {
+          if (display.toString() == "none") {
+            cy.get(switchToggle).click();
+          }
+        });
+    });
+}
+
+export function disableSwitch(selector: string): void {
+  cy.get(selector)
+    .parent("label")
+    .within(() => {
+      cy.get(".pf-m-off")
+        .invoke("css", "display")
+        .then((display) => {
+          if (display.toString() == "none") {
+            cy.get(switchToggle).click();
+          }
+        });
+    });
+}
+
+export function validateTooShortInput(
+  selector,
+  anotherSelector?: string,
+  message?: string
+): void {
+  inputText(selector, "ab");
+  if (anotherSelector) click(anotherSelector);
+  const validationMessage =
+    message || "This field must contain at least 3 characters.";
+  doesExistText(validationMessage, true);
+}
+
+export function validateTooLongInput(
+  selector: string,
+  length = 121,
+  anotherSelector?: string,
+  message?: string
+): void {
+  inputText(selector, randomWordGenerator(length));
+  if (anotherSelector) click(anotherSelector);
+  const validationMessage = message || "This field must contain fewer than";
+  doesExistText(validationMessage, true);
+}
+
+// This method accepts enums or maps and returns list of keys, so you can iterate by keys
+export function enumKeys<O extends object, K extends keyof O = keyof O>(
+  obj: O
+): K[] {
+  return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
+}
+
+export function getUrl(): string {
+  return Cypress.config("baseUrl");
+}
+
+export function getNamespace(): string {
+  // This is regexp pattern to search between first `-` and first `.`
+  const namespacePattern = /-(.*?)\./;
+  // First match, means `-`
+  const match = getUrl().match(namespacePattern);
+  if (match && match[1]) {
+    return match[1].toString();
+  } else {
+    return "konveyor-tackle";
+  }
+}
+
+/**
+ * Determines which Kubernetes CLI to use based on environment
+ * Returns 'oc' for downstream (OpenShift/MTA) or 'kubectl' for upstream (Konveyor)
+ */
+function getKubernetesCLI(): string {
+  const baseUrl = Cypress.config("baseUrl") || "";
+  if (
+    baseUrl.includes("konveyor-tackle") ||
+    baseUrl.includes("mta-openshift")
+  ) {
+    return "oc";
+  }
+  return "kubectl";
+}
+
+export function patchTackleCR(option: string, isEnabled = true): void {
+  const value = isEnabled ? "true" : "false";
+  let command = "";
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+
+  const tackleCr = `tackle=$(${kubeCLI} get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
+  command += tackleCr;
+  command += `${kubeCLI} patch tackle `;
+  command += "$tackle ";
+  command += `-n${namespace} `;
+  command += "--type merge ";
+  if (option == "configureRWX") {
+    command += `--patch '{"spec":{"rwx_supported": ${value}}}'`;
+  } else if (option == "keycloak") {
+    command += `--patch '{"spec":{"feature_auth_required": ${value}}}'`;
+  } else if (option == "metrics") {
+    command += `--patch '{"spec":{"hub_metrics_enabled": ${value}}}'`;
+  }
+
+  cy.exec(command).then((result) => {
+    cy.log(result.stderr);
+  });
+
+  // Timeout as it takes time until pods are starting to reboot
+  cy.wait(180 * SEC);
+  cy.reload();
+}
+
+export function isEnabled(selector: string, toBeEnabled?: boolean): void {
+  if (toBeEnabled) {
+    cy.get(selector).should("not.have.class", "pf-m-aria-disabled");
+  } else {
+    cy.get(selector).should("have.class", "pf-m-aria-disabled");
+  }
+}
+
+export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
+  if (toBeEnabled) {
+    cy.get(selector).should("be.enabled");
+  } else {
+    cy.get(selector).should("not.be.enabled");
+  }
+}
+
+export function clickTab(name: string): void {
+  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+
+  cy.root().then(($root) => {
+    const visibleTab = $root
+      .find(`${navTab}:contains("${name}")`)
+      .filter((_index, el) => {
+        const $el = Cypress.$(el);
+        return (
+          $el.is(":visible") &&
+          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+        );
+      });
+
+    if (visibleTab.length > 0) {
+      clickByText(navTab, name);
+    } else {
+      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
+        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+          force: true,
+        });
+        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
+        clickByText(actionMenuItem, name);
+      } else {
+        clickByText(navTab, name);
+      }
+    }
+  });
+}
+
+export function cleanupDownloads(): void {
+  // This will eliminate content of `downloads` folder
+  const downloadsFolder = Cypress.config("downloadsFolder");
+  cy.exec(
+    `bash -lc 'set -euo pipefail; mkdir -p "$DOWNLOADS_FOLDER"; cd "$DOWNLOADS_FOLDER"; rm -rf -- ./*'`,
+    {
+      env: { DOWNLOADS_FOLDER: String(downloadsFolder) },
+    }
+  ).then((result) => cy.log(result.stdout));
+}
+
+export function selectAssessmentApplications(apps: string): void {
+  clickWithin(modal, "button[aria-label='Select']");
+  clickByText(button, `Select ${apps}`, false, true);
+  clickWithin(modal, "button[aria-label='Select']", false, true);
+  cy.get("div").then(($div) => {
+    if ($div.text().includes("in-progress or complete assessment")) {
+      selectCheckBox("#confirm-copy-checkbox");
+    }
+  });
+}
+
+export function closeModalWindow(): void {
+  click(closeModal, false, true);
+}
+
+export function next(waitForEnabled = true): void {
+  if (waitForEnabled) {
+    cy.contains(button, "Next", { timeout: 10 * SEC })
+      .should("not.be.disabled")
+      .click();
+  } else {
+    clickByText(button, "Next");
+  }
+}
+
+export function performWithin(
+  applicationName: string,
+  actionFunction: () => void
+): void {
+  cy.contains(tdTag, applicationName)
+    .closest(trTag)
+    .within(() => {
+      actionFunction();
+    });
+}
+
+/**
+ * Assigns credential to the list of applications
+ * @param appList is a list of applications where credential will be assigned
+ * @param credential is a credential to assign to those applications
+ */
+export function manageCredentialsForMultipleApplications(
+  appList: Application[],
+  credential: Credentials
+): void {
+  let selector: string;
+  Application.open();
+  appList.forEach((currentApp: Application) => {
+    currentApp.selectApplication();
+  });
+  clickWithin("#toolbar-kebab", button, false, true);
+  clickByText(button, manageCredentials);
+  // TODO: Add validation of application list, should be separated with coma in management's modal
+  if (credential.type == CredentialType.sourceControl) {
+    selector = sourceCredential;
+  } else {
+    selector = mavenCredential;
+  }
+  selectFormItems(selector, credential.name);
+  clickByText(button, save);
+  appList.forEach((currentApp: Application) => {
+    currentApp.selectApplication();
+  });
+}
+
+/**
+ * Applies and validates sorting by particular column
+ * @param sortBy is column title used for sorting
+ * @param tdSelector is an optional parameter that should be equal sortBy if not defined explicitly.
+ */
+export function validateSortBy(sortBy: string, tdSelector?: string) {
+  if (!tdSelector) {
+    tdSelector = sortBy;
+  }
+  const unsortedList = getTableColumnData(tdSelector);
+
+  // Sort the table by column title in ascending order
+  clickOnSortButton(sortBy, SortType.ascending);
+  cy.wait(2 * SEC);
+
+  // Verify that the table rows are displayed in ascending order
+  const afterAscSortList = getTableColumnData(tdSelector);
+  verifySortAsc(afterAscSortList, unsortedList);
+
+  // Sort the table by column title in descending order
+  clickOnSortButton(sortBy, SortType.descending);
+  cy.wait(2 * SEC);
+
+  // Verify that the table rows are displayed in descending order
+  const afterDescSortList = getTableColumnData(tdSelector);
+  verifySortDesc(afterDescSortList, unsortedList);
+}
+
+export function waitUntilSpinnerIsGone(timeout = 300): void {
+  cy.get('[class*="spinner"]', { timeout: timeout * SEC }).should("not.exist");
+}
+
+export function getCommandOutput(
+  command: string
+): Cypress.Chainable<Cypress.Exec> {
+  return cy.exec(command, { timeout: 30 * SEC }).then((result) => {
+    return result;
+  });
+}
+
+export function isRwxEnabled(): Cypress.Chainable<boolean> {
+  let command = "";
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  const tackleCr = `tackle=$(${kubeCLI} get tackle -n${namespace}|grep -iv name|awk '{print $1}'); `;
+  command += tackleCr;
+  command += `${kubeCLI} get tackle $tackle -n${namespace} -o jsonpath='{.spec.rwx_supported}'`;
+  return getCommandOutput(command).then((result) => {
+    if (result.stderr !== "") throw new Error(result.stderr.toString());
+    return result.stdout.trim().toLowerCase() === "true";
+  });
+}
+
+export function seedAnalysisData(applicationId: number): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  cy.log(
+    `seedAnalysisData: hostname=${hostname}, username=${username}, applicationId=${applicationId}`
+  );
+
+  const command = `cd fixtures && chmod +x analysis.sh && ./analysis.sh ${applicationId}`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 120 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    // Log full details for debugging
+    cy.log(`Exit code: ${result.exitCode ?? "n/a"}`);
+    cy.log(`stderr: ${result.stderr ?? "n/a"}`);
+    cy.log(`stdout: ${result.stdout ?? "n/a"}`);
+
+    // Check for success first - the script outputs "Analysis: created." on success
+    const isSuccess = result.stdout.includes("Analysis: created.");
+    if (!isSuccess || result.exitCode !== 0) {
+      // Provide detailed error context for debugging
+      const errorContext = [
+        `seedAnalysisData failed for applicationId: ${applicationId}`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+        `hostname: ${hostname}`,
+        `username: ${username}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "analysis.sh should exit with code 0").to.eq(0);
+    expect(result.stderr, "analysis.sh should not output any errors").to.eq("");
+    expect(
+      result.stdout,
+      "analysis.sh should output 'Analysis: created.'"
+    ).to.include("Analysis: created.");
+  });
+}
+
+export function seedIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues.sh && ./issues.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Issues seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedIssuesData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "issues.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "issues.sh should output 'Issues seeding completed successfully!'"
+    ).to.include("Issues seeding completed successfully!");
+  });
+}
+
+export function cleanupIssuesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x issues-cleanup.sh && ./issues-cleanup.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupIssuesData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
+export function seedInsightsData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x insights.sh && ./insights.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Insights seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedInsightsData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "insights.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "insights.sh should output 'Insights seeding completed successfully!'"
+    ).to.include("Insights seeding completed successfully!");
+  });
+}
+
+export function cleanupInsightsData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x insights-cleanup.sh && ./insights-cleanup.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupInsightsData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
+export function seedDependenciesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x dependencies.sh && ./dependencies.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes(
+      "Dependencies seeding completed successfully!"
+    );
+    if (!isSuccess || result.exitCode !== 0) {
+      const errorContext = [
+        `seedDependenciesData failed`,
+        `Exit code: ${result.exitCode}`,
+        `stdout: ${result.stdout}`,
+        `stderr: ${result.stderr}`,
+      ].join("\n");
+
+      throw new Error(errorContext);
+    }
+
+    expect(result.exitCode, "dependencies.sh should exit with code 0").to.eq(0);
+    expect(
+      result.stdout,
+      "dependencies.sh should output 'Dependencies seeding completed successfully!'"
+    ).to.include("Dependencies seeding completed successfully!");
+  });
+}
+
+export function cleanupDependenciesData(): void {
+  const baseUrl = Cypress.config("baseUrl");
+  const hostname = new URL(baseUrl).origin;
+  const username = Cypress.env("user");
+  const password = Cypress.env("pass");
+
+  const command = `cd fixtures && chmod +x dependencies-cleanup.sh && ./dependencies-cleanup.sh`;
+  cy.exec(command, {
+    env: {
+      HOST: String(hostname),
+      HUB_USER: String(username ?? ""),
+      HUB_PASSWORD: String(password ?? ""),
+    },
+    timeout: 180 * SEC,
+    failOnNonZeroExit: false,
+  }).then((result) => {
+    const isSuccess = result.stdout.includes("Cleanup completed successfully!");
+    if (!isSuccess || result.exitCode !== 0) {
+      cy.log(
+        `WARNING: cleanupDependenciesData had issues (exit code: ${result.exitCode})`
+      );
+    }
+  });
+}
+
+export function getApplicationID(url: string): number | null {
+  const urlObj = new URL(url);
+  const activeItem = urlObj.searchParams.get("activeItem");
+  return activeItem !== null ? Number(activeItem) : null;
+}
+
+export function validateMtaVersionInCLI(expectedMtaVersion: string): void {
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  const podName = `$(${kubeCLI} get pods -n${namespace}| grep ui|cut -d " " -f 1)`;
+  const command = `${kubeCLI} describe pod ${podName} -n${namespace}| grep -i version|awk '{print $2}'`;
+  getCommandOutput(command).then((output) => {
+    if (expectedMtaVersion !== output.stdout) {
+      throw new Error(
+        `Expected version in UI pod: ${expectedMtaVersion}, Actual version in UI pod: ${output.stdout}`
+      );
+    }
+  });
+}
+
+export function validateTackleCr(): void {
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  const command = `${kubeCLI} get tackle -n${namespace} -o json`;
+  getCommandOutput(command).then((result) => {
+    let tackleCr: Record<string, unknown>;
+    try {
+      tackleCr = JSON.parse(result.stdout);
+    } catch {
+      throw new Error("Failed to parse Tackle CR");
+    }
+    const conditions = tackleCr.items?.[0]?.status?.conditions;
+    expect(conditions, "Tackle CR conditions missing").to.be.an("array");
+
+    // Find the condition that has ansibleResult
+    const runningCondition = conditions.find(
+      (c: { type?: string; ansibleResult?: unknown }) =>
+        c.type === "Running" && c.ansibleResult
+    );
+    expect(runningCondition, "ansibleResult condition missing").to.exist;
+    expect(
+      runningCondition!.status,
+      "Running condition status is not True"
+    ).to.equal("True");
+
+    const failures = runningCondition!.ansibleResult!.failures;
+    expect(failures, `Ansible failures detected: ${failures}`).to.eq(0);
+  });
+}
+
+export function validateMtaOperatorLog(): void {
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  cy.wait(30 * SEC);
+  const command = `${kubeCLI} logs $(${kubeCLI} get pods -n${namespace} | grep mta-operator | cut -d " " -f 1) -n${namespace} | grep failed | tail -n 1| awk -F 'failed=' '{print $2}'|cut -d " " -f 1`;
+  getCommandOutput(command).then((result) => {
+    const failedCount = parseInt(result.stdout.trim());
+    expect(failedCount).equal(0);
+  });
+}
+
+export function validateMtaVersionInUI(expectedVersion: string): void {
+  click(aboutButton);
+  cy.contains("dt", "Version")
+    .closest("dl")
+    .within(() => {
+      cy.get("dd").should("contain.text", expectedVersion);
+    });
+  click(closeAbout);
+}
+
+/**
+ * Takes 2 arrays of any type and returns array of elements, unique for a second array
+ * @param arrA is an array of any type
+ * @param arrB is an array of any type
+ * @return result
+ */
+export function getUniqueElementsFromSecondArray<T extends { name: string }>(
+  arrA: T[],
+  arrB: T[]
+): T[] {
+  const result: T[] = [];
+  const namesInArrA = arrA.map((item) => item.name);
+  arrB.forEach((item: T) => {
+    if (!namesInArrA.includes(item.name)) {
+      result.push(item);
+    }
+  });
+  return result;
+}
+
+export function restoreColumnsToDefault(): void {
+  openManageColumns();
+  clickByText(button, "Restore defaults", true);
+  clickByText(button, save, true);
+}
+export function openManageColumns(): void {
+  cy.get(".pf-v5-c-overflow-menu__group.pf-m-button-group")
+    .find("button")
+    .click();
+}
+
+export function validateCheckBoxIsDisabled(
+  checkBoxText: string,
+  isChecked?: boolean
+): void {
+  cy.get(getCheckboxSelector(checkBoxText))
+    .should("be.disabled")
+    .and(`${isChecked ? "" : "not."}be.checked`);
+}
+
+export function getCheckboxSelector(text: string) {
+  const [first, ...rest] = text.split(" ");
+  text = rest.length ? first.toLowerCase() + rest.join("") : text.toLowerCase();
+  return `input[aria-labelledby='check-${text.replace(/\s+/g, "")}']`;
+}
+
+export function selectColumns(
+  selectedColumns: string[],
+  buttonText: string = save
+) {
+  openManageColumns();
+  cy.get(manageColumnsModal)
+    .first()
+    .within(() => {
+      selectedColumns.forEach((column) => {
+        cy.get(getCheckboxSelector(column)).click();
+      });
+      clickByText(button, buttonText, true);
+    });
+}
+
+export function selectLogView(logName: string): void {
+  cy.get(codeEditorControls).within(() => {
+    cy.get(menuToggle).click();
+    cy.get(menuList).within(() => {
+      clickByText(button, logName);
+    });
+  });
+}
+
+/**
+ * This function calculates the number of occurrences for each instance name.
+ * @param instanceArrays - A two-dimensional array, where each element is an array of instances (such as issues or dependencies).
+ * @return A map where the key is the name of each instance and the value is the number of occurrences of that name.
+ *
+ * The function works as follows:
+ * 1. It initializes an empty map to store the instance names and their counts.
+ * 2. It iterates over each array of instances.
+ * 3. For each instance, it checks if the name already exists in the map.
+ *    - If the name exists, it increments the count by 1.
+ *    - If the name does not exist, it initializes the count to 1.
+ * 4. Finally, it returns the map containing the names and their respective counts.
+ */
+export function getUniqueNamesMap<T extends { name: string }>(
+  instanceArrays: T[][]
+) {
+  const instanceMap = {};
+
+  instanceArrays.forEach((instanceArray) => {
+    instanceArray.forEach((instance) => {
+      const name = instance.name;
+      if (!instanceMap[name]) {
+        instanceMap[name] = 0;
+      }
+      instanceMap[name] += 1;
+    });
+  });
+
+  return instanceMap;
+}
+
+/**
+ * Normalizes text by:
+ * - Collapsing all sequences of whitespace into a single space.
+ * - Trimming leading and trailing whitespace.
+ */
+export function normalizeText(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+export function taskDetailsSanity(
+  appName: string,
+  taskKind: TaskKind,
+  taskStatus?: TaskStatus
+) {
+  cy.wait(5 * SEC);
+  cy.get(taskDetailsEditor)
+    .invoke("text")
+    .then((text) => {
+      const normalizedText = normalizeText(text);
+      expect(normalizedText).to.include(`name: ${appName}`);
+      expect(normalizedText).to.include(`kind: ${taskKind}`);
+      if (taskStatus) {
+        expect(normalizedText).to.include(`state: ${taskStatus}`);
+      }
+    });
+}
+
+export function downloadTaskDetails(format = downloadFormatDetails.yaml) {
+  cy.url().should("include", "tasks");
+  cy.url().then((url) => {
+    const taskId = url.split("/").pop();
+    const filePath = `${Cypress.config("downloadsFolder")}/log-${taskId}.${format.key}`;
+    cy.get(format.button).click();
+    cy.get(downloadTaskButton).click();
+    if (format === downloadFormatDetails.json) {
+      cy.readFile(filePath).its("id").should("eq", Number(taskId));
+    } else {
+      cy.readFile(filePath).should("contain", `id: ${taskId}`);
+    }
+  });
+}
+
+export function getNumberOfNonTaskPods(): Cypress.Chainable<number> {
+  let podsNumber: number;
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  const command = `${kubeCLI} get pod --no-headers -n ${namespace} | grep -v task | grep -v Completed | wc -l`;
+  return getCommandOutput(command).then((output) => {
+    podsNumber = Number(output.stdout);
+    return podsNumber;
+  });
+}
+
+export function limitPodsByQuota(podsNumber: number) {
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  cy.fixture("custom-resource").then((cr) => {
+    const manifast = cr["resourceQuota"];
+    const command = `PODS_NUMBER=${podsNumber} envsubst < ${manifast} | ${kubeCLI} apply -f - -n ${namespace}`;
+    getCommandOutput(command).then((output) => {
+      expect(output.stdout).to.equal("resourcequota/task-pods created");
+    });
+  });
+}
+
+export function deleteCustomResource(
+  resourceType: string,
+  resourceName: string,
+  ignoreNotFound = false
+) {
+  const namespace = getNamespace();
+  const kubeCLI = getKubernetesCLI();
+  let command = `${kubeCLI} delete ${resourceType} ${resourceName} -n${namespace}`;
+  if (ignoreNotFound) {
+    command = `${command} --ignore-not-found=true`;
+  }
+  getCommandOutput(command);
+}
+
+export function isElementExpanded(
+  element: string,
+  elementText: string
+): Cypress.Chainable<boolean> {
+  return cy.contains(element, elementText).then(($element) => {
+    return $element.attr("aria-expanded") === "true";
+  });
+}

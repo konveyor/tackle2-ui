@@ -1,47 +1,49 @@
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useState } from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  DropdownItem,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
   Modal,
   PageSection,
+  Popover,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateBody,
-  Title,
-  DropdownItem,
-  Popover,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import CubesIcon from "@patternfly/react-icons/dist/js/icons/cubes-icon";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
 import { Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { FilterType, FilterToolbar } from "@app/components/FilterToolbar";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { IconedStatus } from "@app/components/Icons";
 import { KebabDropdown } from "@app/components/KebabDropdown";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { PageHeader } from "@app/components/PageHeader";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
-  TableHeaderContentWithControls,
   ConditionalTableBody,
+  TableHeaderContentWithControls,
 } from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
-  useFetchImportSummaries,
   useDeleteImportSummaryMutation,
+  useFetchImportSummaries,
 } from "@app/queries/imports";
 import { formatDate, formatPath } from "@app/utils/utils";
+
 import { ImportApplicationsForm } from "../components/import-applications-form";
-import { PageHeader } from "@app/components/PageHeader";
 
 export const ManageImports: React.FC = () => {
   const { t } = useTranslation();
@@ -227,6 +229,7 @@ export const ManageImports: React.FC = () => {
                     <Th {...getThProps({ columnKey: "importStatus" })} />
                     <Th {...getThProps({ columnKey: "validCount" })} />
                     <Th {...getThProps({ columnKey: "invalidCount" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -236,12 +239,13 @@ export const ManageImports: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      {t("composed.noDataStateTitle", {
+                    <EmptyStateHeader
+                      titleText={t("composed.noDataStateTitle", {
                         what: t("terms.importSummary").toLowerCase(),
                       })}
-                    </Title>
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.import"),
@@ -252,7 +256,7 @@ export const ManageImports: React.FC = () => {
                 }
                 numRenderedColumns={numRenderedColumns}
               >
-                {currentPageItems?.map((importSummary, rowIndex) => {
+                {currentPageItems?.map((importSummary, _rowIndex) => {
                   return (
                     <Tbody
                       key={importSummary.id}

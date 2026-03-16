@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useSelectionState, ISelectionState } from "@migtools/lib-ui";
+import { useEffect, useState } from "react";
+import * as React from "react";
+
 import { Application } from "@app/api/models";
+import { ISelectionState, useSelectionState } from "@app/hooks/selection";
 
 interface IApplicationSelectionContext extends ISelectionState<Application> {
   allItems: Application[];
@@ -12,11 +14,9 @@ const defaultState: IApplicationSelectionContext = {
   areAllSelected: false,
   selectedItems: [],
   isItemSelected: () => false,
-  isItemSelectable: () => true,
   selectAll: () => {},
-  selectMultiple: () => {},
-  setSelectedItems: () => {},
-  toggleItemSelected: () => {},
+  selectOnly: () => {},
+  selectItems: () => {},
 };
 
 export const ApplicationSelectionContext =
@@ -26,6 +26,7 @@ export const ApplicationSelectionContext =
 
 export interface IApplicationSelectionContextProviderProps {
   applications: Application[];
+  children: React.ReactNode;
 }
 
 export const ApplicationSelectionContextProvider: React.FC<

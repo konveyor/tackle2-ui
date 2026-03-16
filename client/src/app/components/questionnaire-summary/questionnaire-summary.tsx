@@ -1,31 +1,32 @@
-import React, { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import * as React from "react";
+import { AxiosError } from "axios";
+import { Link } from "react-router-dom";
 import {
-  Tabs,
-  Tab,
-  SearchInput,
-  Toolbar,
-  ToolbarItem,
-  ToolbarContent,
-  TextContent,
-  PageSection,
-  PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
-  Button,
+  PageSection,
+  PageSectionVariants,
+  SearchInput,
+  Tab,
+  Tabs,
   Text,
+  TextContent,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
 } from "@patternfly/react-core";
-import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
-import { Link } from "react-router-dom";
-import { Paths } from "@app/Paths";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import QuestionsTable from "@app/components/questions-table/questions-table";
-import { Assessment, Questionnaire } from "@app/api/models";
-import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
-import { AxiosError } from "axios";
-import { formatPath } from "@app/utils/utils";
-import useIsArchetype from "@app/hooks/useIsArchetype";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { Paths } from "@app/Paths";
+import { Assessment, Questionnaire } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import QuestionsTable from "@app/components/questions-table/questions-table";
+import useIsArchetype from "@app/hooks/useIsArchetype";
+import { formatPath } from "@app/utils/utils";
+
+import QuestionnaireSectionTabTitle from "./components/questionnaire-section-tab-title";
 
 export enum SummaryType {
   Assessment = "Assessment",
@@ -51,10 +52,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     "all"
   );
 
-  const handleTabClick = (
-    _event: React.MouseEvent<any> | React.KeyboardEvent | MouseEvent,
-    tabKey: string | number
-  ) => {
+  const handleTabClick = (_event: unknown, tabKey: string | number) => {
     setActiveSectionIndex(tabKey as "all" | number);
   };
 
@@ -68,8 +66,8 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
       sections: summaryData?.sections?.map((section) => ({
         ...section,
         questions: section.questions.filter(({ text, explanation }) =>
-          [text, explanation].some(
-            (text) => text?.toLowerCase().includes(searchValue.toLowerCase())
+          [text, explanation].some((text) =>
+            text?.toLowerCase().includes(searchValue.toLowerCase())
           )
         ),
       })),
@@ -90,6 +88,16 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
         applicationId: (summaryData as Assessment)?.application?.id,
       });
 
+  // questionnaire is the base definition
+  // assessment is the answers to a questionnaire for an application or archetype
+  const summaryName = !summaryData
+    ? ""
+    : summaryType === SummaryType.Questionnaire
+      ? (summaryData as Questionnaire).name
+      : summaryType === SummaryType.Assessment
+        ? (summaryData as Assessment).questionnaire.name
+        : "";
+
   const BreadcrumbPath =
     summaryType === SummaryType.Assessment ? (
       <Breadcrumb>
@@ -97,7 +105,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
           <Link to={dynamicPath}>Assessment</Link>
         </BreadcrumbItem>
         <BreadcrumbItem to="#" isActive>
-          {summaryData?.name}
+          {summaryName}
         </BreadcrumbItem>
       </Breadcrumb>
     ) : (
@@ -106,7 +114,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
           <Link to={Paths.assessment}>Assessment</Link>
         </BreadcrumbItem>
         <BreadcrumbItem to="#" isActive>
-          {summaryData?.name}
+          {summaryName}
         </BreadcrumbItem>
       </Breadcrumb>
     );
@@ -140,25 +148,6 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                 </ToolbarItem>
               </ToolbarContent>
             </Toolbar>
-
-            <Link
-              to={
-                summaryType === SummaryType.Assessment
-                  ? isArchetype
-                    ? formatPath(Paths.archetypeAssessmentActions, {
-                        archetypeId: (summaryData as Assessment)?.archetype?.id,
-                      })
-                    : formatPath(Paths.applicationAssessmentActions, {
-                        applicationId: (summaryData as Assessment)?.application
-                          ?.id,
-                      })
-                  : Paths.assessment
-              }
-            >
-              <Button variant="link" icon={<AngleLeftIcon />}>
-                Back to {summaryType.toLowerCase()}
-              </Button>
-            </Link>
             <div className="tabs-vertical-container">
               <Tabs
                 activeKey={activeSectionIndex}

@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Th } from "@patternfly/react-table";
 
 export interface ITableHeaderContentWithControlsProps {
@@ -14,13 +14,13 @@ export const TableHeaderContentWithControls: React.FC<
     {Array(numColumnsBeforeData)
       .fill(null)
       .map((_, i) => (
-        <Th key={i} />
+        <Th key={i} aria-label="extra column before table data" />
       ))}
     {children}
     {Array(numColumnsAfterData)
       .fill(null)
       .map((_, i) => (
-        <Th key={i} />
+        <Th key={i} aria-label="extra column after table data" />
       ))}
   </>
 );

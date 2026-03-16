@@ -1,6 +1,7 @@
 import { type RestHandler, rest } from "msw";
 
-import * as AppRest from "@app/api/rest";
+import { hub } from "@app/api/rest";
+
 import data from "./questionnaireData";
 
 /**
@@ -10,7 +11,7 @@ import data from "./questionnaireData";
  *   https://github.com/konveyor/tackle2-hub/blob/main/api/tag.go
  */
 const handlers: RestHandler[] = [
-  rest.get(`${AppRest.QUESTIONNAIRES}/id/:questionnaireId`, (req, res, ctx) => {
+  rest.get(hub`/questionnaires/id/:questionnaireId`, (req, res, ctx) => {
     const { questionnaireId } = req.params;
 
     const id = parseInt(questionnaireId as string);
@@ -24,7 +25,7 @@ const handlers: RestHandler[] = [
       );
     }
   }),
-  rest.get(AppRest.QUESTIONNAIRES, (req, res, ctx) => {
+  rest.get(hub`/questionnaires`, (req, res, ctx) => {
     console.log(
       "%cquestionnaire stub%c \u{1f916} %s",
       "font-weight: bold; color: green;",
@@ -36,7 +37,7 @@ const handlers: RestHandler[] = [
     return res(ctx.json(dataAsList));
   }),
 
-  rest.put(`${AppRest.QUESTIONNAIRES}/:id`, async (req, res, ctx) => {
+  rest.put(hub`/questionnaires/:id`, async (req, res, ctx) => {
     const { id } = req.params;
     const updates = await req.json();
 
@@ -56,7 +57,7 @@ const handlers: RestHandler[] = [
     return res(ctx.status(404));
   }),
 
-  rest.delete(`${AppRest.QUESTIONNAIRES}/:id`, (req, res, ctx) => {
+  rest.delete(hub`/questionnaires/:id`, (req, res, ctx) => {
     const { id } = req.params;
     console.log(
       "%cquestionnaire stub%c \u{1f916} %s",

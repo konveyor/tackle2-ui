@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Button, Modal, ModalProps } from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
+
 import {
   ISimpleDocumentViewerProps,
   SimpleDocumentViewer,

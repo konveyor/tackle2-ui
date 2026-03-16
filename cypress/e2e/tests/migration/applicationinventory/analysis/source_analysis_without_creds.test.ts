@@ -1,0 +1,209 @@
+/*
+Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/// <reference types="cypress" />
+
+import { getRandomCredentialsData } from "../../../../../utils/data_utils";
+import {
+  checkSuccessAlert,
+  deleteBulkApplicationsByApi,
+  exists,
+  getProfileNameFromApp,
+  getRandomAnalysisData,
+  getRandomApplicationData,
+} from "../../../../../utils/utils";
+import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
+import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
+import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
+import {
+  AnalysisStatuses,
+  CredentialType,
+  TaskKind,
+  TaskStatus,
+  UserCredentials,
+} from "../../../../types/constants";
+import { AppIssue } from "../../../../types/types";
+import { infoAlertMessage } from "../../../../views/common.view";
+const applicationIds: number[] = [];
+let application: Analysis;
+const credentialsList: Array<CredentialsSourceControlUsername> = [];
+const profilesToDelete: AnalysisProfile[] = [];
+
+describe(["@tier0"], "Source Analysis without credentials", () => {
+  beforeEach("Load data", function () {
+    cy.fixture("application").then(function (appData) {
+      this.appData = appData;
+    });
+    cy.fixture("analysis").then(function (analysisData) {
+      this.analysisData = analysisData;
+    });
+
+    // Interceptors
+    cy.intercept("POST", "/hub/application*").as("postApplication");
+    cy.intercept("GET", "/hub/application*").as("getApplication");
+    cy.visit("/");
+  });
+
+  it("Creating source control credentials with username/password", function () {
+    const scCredsUsername = new CredentialsSourceControlUsername(
+      getRandomCredentialsData(
+        CredentialType.sourceControl,
+        UserCredentials.usernamePassword
+      )
+    );
+    scCredsUsername.create();
+    credentialsList.push(scCredsUsername);
+  });
+
+  it("Bookserver source analysis - manual and profile mode validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_analysis_on_bookserverapp"]
+    );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
+    application.create();
+    cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
+    application.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
+
+    // Verify results match
+    profileApplication.validateIssues(
+      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
+      (currentIssue: AppIssue) => {
+        profileApplication.validateAffected(currentIssue);
+      }
+    );
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+  });
+
+  it("Validate saved analysis profile details", function () {
+    const profileName = getProfileNameFromApp(application.name);
+    AnalysisProfile.open(true);
+    exists(profileName);
+
+    // Validate profile information in details page
+    const savedProfile = new AnalysisProfile(
+      profileName,
+      getRandomAnalysisData(
+        this.analysisData["source_analysis_on_bookserverapp"]
+      )
+    );
+    savedProfile.validateAnalysisProfileInformation();
+  });
+
+  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
+    const analysisData = getRandomAnalysisData(
+      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+    );
+    analysisData.saveAsProfile = true;
+
+    const applicationData = getRandomApplicationData("Dep_bookserverApp", {
+      sourceData: this.appData["bookserver-app"],
+    });
+
+    application = new Analysis(applicationData, analysisData);
+    application.create();
+    cy.wait("@getApplication");
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
+    application.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    application.verifyAnalysisStatus("Completed");
+
+    // Re-run analysis using the saved profile
+    const profileName = getProfileNameFromApp(application.name);
+    analysisData.profileName = profileName;
+
+    const profileApplication = new Analysis(applicationData, analysisData);
+    profileApplication.name = application.name;
+    profileApplication.analyze();
+    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
+    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
+    profileApplication.verifyAnalysisStatus("Completed");
+
+    // Verify results match
+    profileApplication.validateIssues(
+      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
+    );
+    this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
+      "issues"
+    ].forEach((currentIssue: AppIssue) => {
+      profileApplication.validateAffected(currentIssue);
+    });
+
+    // Store profile for cleanup
+    profilesToDelete.push(
+      new AnalysisProfile(
+        profileName,
+        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
+      )
+    );
+  });
+
+  it("Check the bookserver task status on task manager page", function () {
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.analyzer,
+      TaskStatus.succeeded
+    );
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.techDiscovery,
+      TaskStatus.succeeded
+    );
+    TaskManager.verifyTaskStatus(
+      application.name,
+      TaskKind.languageDiscovery,
+      TaskStatus.succeeded
+    );
+  });
+
+  after("Perform test data clean up", function () {
+    deleteBulkApplicationsByApi(applicationIds);
+    credentialsList.forEach((credential) => credential.delete());
+    profilesToDelete.forEach((profile) => profile.delete());
+  });
+});

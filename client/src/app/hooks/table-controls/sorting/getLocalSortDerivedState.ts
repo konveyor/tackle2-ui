@@ -1,6 +1,7 @@
 import i18n from "@app/i18n";
-import { ISortState } from "./useSortState";
 import { universalComparator } from "@app/utils/utils";
+
+import { ISortState } from "./useSortState";
 
 /**
  * Args for getLocalSortDerivedState

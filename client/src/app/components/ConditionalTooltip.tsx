@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Tooltip, TooltipProps } from "@patternfly/react-core";
 
 export interface IConditionalTooltipProps extends TooltipProps {

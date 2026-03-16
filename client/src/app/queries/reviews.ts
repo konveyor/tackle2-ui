@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { New, Review } from "@app/api/models";
 import {
   createReview,
   deleteReview,
@@ -7,19 +10,21 @@ import {
   getReviews,
   updateReview,
 } from "@app/api/rest";
-import { New, Review } from "@app/api/models";
-import { AxiosError } from "axios";
+
 import { ApplicationsQueryKey } from "./applications";
 
 export const reviewQueryKey = "review";
 export const reviewsByItemIdQueryKey = "reviewsByItemId";
 export const reviewsQueryKey = "reviews";
 
-export const useFetchReviews = () => {
+export const useFetchReviews = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [reviewsQueryKey],
     queryFn: () => getReviews(),
     onError: (error) => console.log("error, ", error),
+    refetchInterval,
   });
   return {
     reviews: data || [],
@@ -37,15 +42,17 @@ export const useCreateReviewMutation = (
   return useMutation({
     mutationFn: (review: New<Review>) => createReview(review),
     onSuccess: (res) => {
-      queryClient.invalidateQueries([
-        reviewsByItemIdQueryKey,
-        res?.application?.id,
-        res?.archetype?.id,
-      ]);
-      onSuccess && onSuccess(res?.application?.name || "");
+      queryClient.invalidateQueries({
+        queryKey: [
+          reviewsByItemIdQueryKey,
+          res?.application?.id,
+          res?.archetype?.id,
+        ],
+      });
+      onSuccess?.(res?.application?.name || "");
     },
     onError: (error) => {
-      onError && onError(error as AxiosError);
+      onError?.(error as AxiosError);
     },
   });
 };
@@ -59,12 +66,14 @@ export const useUpdateReviewMutation = (
   return useMutation({
     mutationFn: (review: Review) => updateReview(review),
     onSuccess: (_, args) => {
-      queryClient.invalidateQueries([
-        reviewsByItemIdQueryKey,
-        _?.application?.id,
-        _.archetype?.id,
-      ]);
-      onSuccess && onSuccess(args?.application?.name || "");
+      queryClient.invalidateQueries({
+        queryKey: [
+          reviewsByItemIdQueryKey,
+          _?.application?.id,
+          _.archetype?.id,
+        ],
+      });
+      onSuccess?.(args?.application?.name || "");
     },
     onError: onError,
   });
@@ -84,21 +93,25 @@ export const useDeleteReviewMutation = (
   return useMutation({
     mutationFn: (args: IReviewMutation) => deleteReview(args.id),
     onSuccess: (_, args) => {
-      onSuccess && onSuccess(args.name);
-      queryClient.invalidateQueries([reviewsQueryKey]);
-      queryClient.invalidateQueries([ApplicationsQueryKey]);
+      onSuccess?.(args.name);
+      queryClient.invalidateQueries({ queryKey: [reviewsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
     },
-    onError: onError && onError,
+    onError,
   });
 };
 
-export const useFetchReviewById = (id?: number | string) => {
+export const useFetchReviewById = (
+  id?: number | string,
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, error, isFetching } = useQuery({
     queryKey: [reviewQueryKey, id],
     queryFn: () =>
       id === undefined ? Promise.resolve(null) : getReviewById(id),
     onError: (error: AxiosError) => console.log("error, ", error),
     enabled: id !== undefined,
+    refetchInterval,
   });
 
   return {

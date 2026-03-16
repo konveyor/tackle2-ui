@@ -1,17 +1,33 @@
-import React, { FC, ReactElement } from "react";
-import { render, RenderOptions } from "@testing-library/react";
+/* eslint-disable import-x/export */
+import { FC, ReactElement, ReactNode, createContext, useContext } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Application, Archetype, Assessment } from "@app/api/models";
-import { RenderHookOptions, renderHook } from "@testing-library/react-hooks";
+import {
+  RenderHookOptions,
+  RenderOptions,
+  render,
+  renderHook,
+} from "@testing-library/react";
 
-import { createContext, useContext } from "react";
+import { Application, Archetype, Assessment } from "@app/api/models";
+import {
+  INotification,
+  NotificationsContext,
+} from "@app/components/NotificationsContext";
 
 const QueryClientContext = createContext<QueryClient | undefined>(undefined);
 
+/** Default mock notification functions for testing */
+export const createMockNotifications = () => ({
+  pushNotification: jest.fn(),
+  dismissNotification: jest.fn(),
+  notifications: [] as INotification[],
+});
+
 const AllTheProviders: FC<{
-  children: React.ReactNode;
+  children: ReactNode;
   queryClient?: QueryClient;
-}> = ({ children, queryClient }) => {
+  notifications?: ReturnType<typeof createMockNotifications>;
+}> = ({ children, queryClient, notifications }) => {
   const internalQueryClient =
     queryClient ||
     new QueryClient({
@@ -22,9 +38,14 @@ const AllTheProviders: FC<{
         },
       },
     });
+
+  const notificationValue = notifications || createMockNotifications();
+
   return (
     <QueryClientProvider client={internalQueryClient}>
-      {children}
+      <NotificationsContext.Provider value={notificationValue}>
+        {children}
+      </NotificationsContext.Provider>
     </QueryClientProvider>
   );
 };
@@ -48,18 +69,20 @@ const customRenderHook = <TProps, TResult>(
   callback: (props: TProps) => TResult,
   options?: Omit<RenderHookOptions<TProps>, "wrapper"> & {
     queryClient?: QueryClient;
+    notifications?: ReturnType<typeof createMockNotifications>;
   }
 ) => {
-  const { queryClient, ...rest } = options || {};
-  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <AllTheProviders queryClient={queryClient}>{children}</AllTheProviders>
+  const { queryClient, notifications, ...rest } = options || {};
+  const Wrapper: FC<{ children: ReactNode }> = ({ children }) => (
+    <AllTheProviders queryClient={queryClient} notifications={notifications}>
+      {children}
+    </AllTheProviders>
   );
 
-  return renderHook(callback, { wrapper: Wrapper as React.FC, ...rest });
+  return renderHook(callback, { wrapper: Wrapper as FC, ...rest });
 };
 
 export * from "@testing-library/react";
-
 export { customRender as render };
 export { customRenderHook as renderHook };
 

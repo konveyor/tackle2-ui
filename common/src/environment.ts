@@ -1,6 +1,6 @@
 /** Define process.env to contain `KonveyorEnvType` */
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+  // eslint-disable-next-line @typescript-eslint/no-namespace -- add KonveyorEnvType to `process.env`
   namespace NodeJS {
     interface ProcessEnv extends Partial<Readonly<KonveyorEnvType>> {}
   }
@@ -15,6 +15,9 @@ export type KonveyorEnvType = {
 
   /** Controls how mock data is injected on the client */
   MOCK: string;
+
+  /** Enable devtools */
+  DEVTOOLS: "on" | "off";
 
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
@@ -40,6 +43,9 @@ export type KonveyorEnvType = {
   /** Target URL for the UI server's `/hub` proxy */
   TACKLE_HUB_URL?: string;
 
+  /** Target URL for the UI server's `/llm-proxy` proxy */
+  KAI_LLM_PROXY_URL?: string;
+
   /** Location of branding files (relative paths computed from the project source root) */
   BRANDING?: string;
 };
@@ -52,6 +58,7 @@ export const SERVER_ENV_KEYS = [
   "PORT",
   "KEYCLOAK_SERVER_URL",
   "TACKLE_HUB_URL",
+  "KAI_LLM_PROXY_URL",
   "BRANDING",
 ];
 
@@ -63,6 +70,7 @@ export const buildKonveyorEnv = ({
   PORT,
   VERSION = "99.0.0",
   MOCK = "off",
+  DEVTOOLS = "off",
 
   KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED = "false",
@@ -72,12 +80,14 @@ export const buildKonveyorEnv = ({
   UI_INGRESS_PROXY_BODY_SIZE = "500m",
   RWX_SUPPORTED = "true",
   TACKLE_HUB_URL,
+  KAI_LLM_PROXY_URL,
   BRANDING,
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
   PORT,
   VERSION,
   MOCK,
+  DEVTOOLS,
 
   KEYCLOAK_SERVER_URL,
   AUTH_REQUIRED,
@@ -87,6 +97,7 @@ export const buildKonveyorEnv = ({
   UI_INGRESS_PROXY_BODY_SIZE,
   RWX_SUPPORTED,
   TACKLE_HUB_URL,
+  KAI_LLM_PROXY_URL,
   BRANDING,
 });
 

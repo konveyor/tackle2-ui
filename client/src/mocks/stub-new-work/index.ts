@@ -1,4 +1,5 @@
 import { type RestHandler } from "msw";
+
 import { config } from "../config";
 
 import applications from "./applications";

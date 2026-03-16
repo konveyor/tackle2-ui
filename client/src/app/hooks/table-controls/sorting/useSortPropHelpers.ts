@@ -1,4 +1,5 @@
 import { ThProps } from "@patternfly/react-table";
+
 import { ISortState } from "./useSortState";
 
 /**

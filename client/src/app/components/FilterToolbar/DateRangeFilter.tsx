@@ -1,21 +1,21 @@
-import React, { FormEvent, useState } from "react";
-
+import { FormEvent, useState } from "react";
 import {
   DatePicker,
   InputGroup,
-  isValidDate as isValidJSDate,
+  InputGroupItem,
   ToolbarChip,
   ToolbarChipGroup,
   ToolbarFilter,
   Tooltip,
+  isValidDate as isValidJSDate,
 } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import {
-  localizeInterval,
   americanDateFormat,
   isValidAmericanShortDate,
   isValidInterval,
+  localizeInterval,
   parseAmericanDate,
   parseInterval,
   toISODateInterval,
@@ -30,16 +30,13 @@ import {
  * 2) setFilterValue - accepts the list of ranges.<br>
  *
  */
-
 export const DateRangeFilter = <TItem,>({
   category,
   filterValue,
   setFilterValue,
   showToolbarItem,
   isDisabled = false,
-}: React.PropsWithChildren<
-  IFilterControlProps<TItem, string>
->): JSX.Element | null => {
+}: IFilterControlProps<TItem, string>): JSX.Element | null => {
   const selectedFilters = filterValue ?? [];
 
   const validFilters =
@@ -103,32 +100,36 @@ export const DateRangeFilter = <TItem,>({
       showToolbarItem={showToolbarItem}
     >
       <InputGroup>
-        <DatePicker
-          value={from ? americanDateFormat(from) : ""}
-          dateFormat={americanDateFormat}
-          dateParse={parseAmericanDate}
-          onChange={onFromDateChange}
-          aria-label="Interval start"
-          placeholder="MM/DD/YYYY"
-          // disable error text (no space in toolbar scenario)
-          invalidFormatText={""}
-          // default value ("parent") creates collision with sticky table header
-          appendTo={document.body}
-          isDisabled={isDisabled}
-        />
-        <DatePicker
-          value={to ? americanDateFormat(to) : ""}
-          onChange={onToDateChange}
-          isDisabled={isDisabled || !isValidJSDate(from)}
-          dateFormat={americanDateFormat}
-          dateParse={parseAmericanDate}
-          // disable error text (no space in toolbar scenario)
-          invalidFormatText={""}
-          rangeStart={from}
-          aria-label="Interval end"
-          placeholder="MM/DD/YYYY"
-          appendTo={document.body}
-        />
+        <InputGroupItem>
+          <DatePicker
+            value={from ? americanDateFormat(from) : ""}
+            dateFormat={americanDateFormat}
+            dateParse={parseAmericanDate}
+            onChange={onFromDateChange}
+            aria-label="Interval start"
+            placeholder="MM/DD/YYYY"
+            // disable error text (no space in toolbar scenario)
+            invalidFormatText={""}
+            // default value ("parent") creates collision with sticky table header
+            appendTo={document.body}
+            isDisabled={isDisabled}
+          />
+        </InputGroupItem>
+        <InputGroupItem>
+          <DatePicker
+            value={to ? americanDateFormat(to) : ""}
+            onChange={onToDateChange}
+            isDisabled={isDisabled || !isValidJSDate(from)}
+            dateFormat={americanDateFormat}
+            dateParse={parseAmericanDate}
+            // disable error text (no space in toolbar scenario)
+            invalidFormatText={""}
+            rangeStart={from}
+            aria-label="Interval end"
+            placeholder="MM/DD/YYYY"
+            appendTo={document.body}
+          />
+        </InputGroupItem>
       </InputGroup>
     </ToolbarFilter>
   );

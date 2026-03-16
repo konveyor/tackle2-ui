@@ -1,5 +1,5 @@
 import { render } from "@app/test-config/test-utils";
-import React from "react";
+
 import { Question } from "../question";
 
 describe("Question", () => {

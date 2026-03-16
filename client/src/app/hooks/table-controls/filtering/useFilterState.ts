@@ -1,10 +1,15 @@
-import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
-import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
-import { usePersistentState } from "@app/hooks/usePersistentState";
-import { serializeFilterUrlParams } from "./helpers";
-import { deserializeFilterUrlParams } from "./helpers";
-import { DiscriminatedArgs } from "@app/utils/type-utils";
 import { useEffect, useState } from "react";
+
+import { FilterCategory, IFilterValues } from "@app/components/FilterToolbar";
+import { usePersistentState } from "@app/hooks/usePersistentState";
+import { DiscriminatedArgs } from "@app/utils/type-utils";
+
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
+
+import {
+  deserializeFilterUrlParams,
+  serializeFilterUrlParams,
+} from "./helpers";
 
 /**
  * The "source of truth" state for the filter feature.
@@ -72,7 +77,7 @@ export const useFilterState = <
 
   if (isInitialLoad) {
     initialFilterValues = isFilterEnabled
-      ? args?.initialFilterValues ?? {}
+      ? (args?.initialFilterValues ?? {})
       : {};
   }
 
@@ -103,16 +108,18 @@ export const useFilterState = <
           deserialize: deserializeFilterUrlParams,
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? { persistTo, key: "filters", defaultValue: initialFilterValues }
-      : isPersistenceProvider(persistTo)
-      ? {
-          persistTo: "provider",
-          serialize: persistTo.write,
-          deserialize: () =>
-            persistTo.read() as IFilterValues<TFilterCategoryKey>,
-          defaultValue: isFilterEnabled ? args?.initialFilterValues ?? {} : {},
-        }
-      : { persistTo: "state", defaultValue: initialFilterValues }),
+        ? { persistTo, key: "filters", defaultValue: initialFilterValues }
+        : isPersistenceProvider(persistTo)
+          ? {
+              persistTo: "provider",
+              serialize: persistTo.write,
+              deserialize: () =>
+                persistTo.read() as IFilterValues<TFilterCategoryKey>,
+              defaultValue: isFilterEnabled
+                ? (args?.initialFilterValues ?? {})
+                : {},
+            }
+          : { persistTo: "state", defaultValue: initialFilterValues }),
   });
   return { filterValues, setFilterValues };
 };

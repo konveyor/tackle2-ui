@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button, Icon } from "@patternfly/react-core";
-import ExternalLinkAltIcon from "@patternfly/react-icons/dist/esm/icons/external-link-alt-icon";
+import { ExternalLinkAltIcon } from "@patternfly/react-icons";
 
 /**
  * Render a link open an external href in another tab with appropriate styling.

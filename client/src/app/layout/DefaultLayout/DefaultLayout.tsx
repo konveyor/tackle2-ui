@@ -1,14 +1,18 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
+import * as React from "react";
 import { Page, SkipToContent } from "@patternfly/react-core";
+
+import { Notifications } from "@app/components/Notifications";
+import { PageContentWithDrawerProvider } from "@app/components/PageDrawerContext";
+import { useTaskManagerContext } from "@app/components/task-manager/TaskManagerContext";
+import { TaskManagerDrawer } from "@app/components/task-manager/TaskManagerDrawer";
 
 import { HeaderApp } from "../HeaderApp";
 import { SidebarApp } from "../SidebarApp";
-import { Notifications } from "@app/components/Notifications";
-import { PageContentWithDrawerProvider } from "@app/components/PageDrawerContext";
-import { TaskManagerDrawer } from "@app/components/task-manager/TaskManagerDrawer";
-import { useTaskManagerContext } from "@app/components/task-manager/TaskManagerContext";
 
-export interface DefaultLayoutProps {}
+export interface DefaultLayoutProps {
+  children?: React.ReactNode;
+}
 
 export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
   const pageId = "main-content-page-layout-horizontal-nav";

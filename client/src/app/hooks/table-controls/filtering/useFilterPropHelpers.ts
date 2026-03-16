@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
+import { ToolbarProps } from "@patternfly/react-core";
+
 import {
   FilterCategory,
   IFilterToolbarProps,
 } from "@app/components/FilterToolbar";
+
 import { IFilterState } from "./useFilterState";
-import { ToolbarProps } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 
 /**
  * Args for useFilterPropHelpers that come from outside useTableControlProps

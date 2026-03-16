@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import {
   ActionsColumn,
@@ -9,15 +10,15 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+
+import { MigrationWave, WaveWithStatus } from "@app/api/models";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { MigrationWave, WaveWithStatus } from "@app/api/models";
-import { useTranslation } from "react-i18next";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useDeleteTicketMutation } from "@app/queries/migration-waves";
 import { useFetchTickets } from "@app/queries/tickets";
 
@@ -97,6 +98,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
               <Th {...getThProps({ columnKey: "description" })} />
               <Th {...getThProps({ columnKey: "businessService" })} />
               <Th {...getThProps({ columnKey: "owner" })} />
+              <Th screenReaderText="row actions" />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -146,8 +148,9 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
                           matchingTicket && {
                             title: t("actions.unlink"),
                             onClick: () => {
-                              matchingTicket?.id &&
-                                deleteTicket(matchingTicket?.id);
+                              if (matchingTicket?.id) {
+                                deleteTicket(matchingTicket.id);
+                              }
                             },
                           },
                         ].filter(Boolean)}

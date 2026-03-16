@@ -1,20 +1,19 @@
-import React from "react";
-
+import * as React from "react";
 import {
+  Button,
+  Chip,
+  ChipGroup,
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
-  MenuToggle,
-  MenuToggleElement,
-  Button,
   SelectOptionProps,
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
-  ChipGroup,
-  Chip,
 } from "@patternfly/react-core";
-import TimesIcon from "@patternfly/react-icons/dist/esm/icons/times-icon";
+import { TimesIcon } from "@patternfly/react-icons";
 
 export interface ISimpleSelectBasicProps {
   onChange: (selection: string | string[]) => void;
@@ -86,7 +85,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     setSelectOptions(newSelectOptions);
     setActiveItem(null);
     setFocusedItemIndex(null);
-  }, [filterValue, options]);
+  }, [filterValue, options, isOpen, noResultsFoundText]);
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -134,8 +133,8 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
             ? selectOptions.length - 1
             : currentIndex - 1
           : currentIndex === null || currentIndex === selectOptions.length - 1
-          ? 0
-          : currentIndex + 1;
+            ? 0
+            : currentIndex + 1;
 
       setFocusedItemIndex(indexToFocus);
       const focusedItem = selectOptions[indexToFocus];
@@ -204,9 +203,11 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           onChange={onTextInputChange}
           onKeyDown={onInputKeyDown}
           onBlur={() => {
-            selectMultiple
-              ? setInputValue("")
-              : setInputValue(selected.toString());
+            if (selectMultiple) {
+              setInputValue("");
+            } else {
+              setInputValue(selected.toString());
+            }
           }}
           id="typeahead-select-input"
           autoComplete="off"

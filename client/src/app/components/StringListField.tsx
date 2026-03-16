@@ -1,15 +1,21 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { InputGroup, TextInput, Button } from "@patternfly/react-core";
+import {
+  Button,
+  InputGroup,
+  InputGroupItem,
+  TextInput,
+} from "@patternfly/react-core";
+import { TimesCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
-import { getValidatedFromErrors } from "@app/utils/utils";
-import { HookFormPFGroupController } from "./HookFormPFFields";
-
 import { Table, Tbody, Td, Tr } from "@patternfly/react-table";
+
+import { getValidatedFromErrors } from "@app/utils/utils";
+
+import { HookFormPFGroupController } from "./HookFormPFFields";
 
 export interface StringListFieldProps {
   listItems: string[];
@@ -20,6 +26,7 @@ export interface StringListFieldProps {
   itemToAddAriaLabel: string;
   itemNotUniqueMessage: string;
   removeItemButtonId: (item: string) => string;
+  addButtonId?: string;
   className?: string;
 }
 
@@ -32,6 +39,7 @@ export const StringListField: React.FC<StringListFieldProps> = ({
   itemToAddAriaLabel,
   itemNotUniqueMessage,
   removeItemButtonId,
+  addButtonId = "add-package-to-include",
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -71,29 +79,33 @@ export const StringListField: React.FC<StringListFieldProps> = ({
           };
           return (
             <InputGroup>
-              <TextInput
-                ref={ref}
-                id={itemToAddFieldId}
-                aria-label={itemToAddAriaLabel}
-                validated={getValidatedFromErrors(error, isDirty, isTouched)}
-                value={value}
-                onChange={(_, value) => onChange(value)}
-                onBlur={onBlur}
-                onKeyUp={(event) => {
-                  if (event.key === "Enter") {
-                    onBlur();
-                    if (isValid) addItem();
-                  }
-                }}
-              />
-              <Button
-                id="add-package-to-include"
-                variant="control"
-                isDisabled={!isValid}
-                onClick={addItem}
-              >
-                {t("terms.add")}
-              </Button>
+              <InputGroupItem isFill>
+                <TextInput
+                  ref={ref}
+                  id={itemToAddFieldId}
+                  aria-label={itemToAddAriaLabel}
+                  validated={getValidatedFromErrors(error, isDirty, isTouched)}
+                  value={value}
+                  onChange={(_, value) => onChange(value)}
+                  onBlur={onBlur}
+                  onKeyUp={(event) => {
+                    if (event.key === "Enter") {
+                      onBlur();
+                      if (isValid) addItem();
+                    }
+                  }}
+                />
+              </InputGroupItem>
+              <InputGroupItem>
+                <Button
+                  id={addButtonId}
+                  variant="control"
+                  isDisabled={!isValid}
+                  onClick={addItem}
+                >
+                  {t("terms.add")}
+                </Button>
+              </InputGroupItem>
             </InputGroup>
           );
         }}

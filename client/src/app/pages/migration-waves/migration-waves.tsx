@@ -1,4 +1,7 @@
 import * as React from "react";
+import { AxiosError } from "axios";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
@@ -6,22 +9,30 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   MenuToggle,
   MenuToggleElement,
   Modal,
   ModalVariant,
+  OverflowMenu,
   PageSection,
   PageSectionVariants,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
+  CubesIcon,
+  EllipsisVIcon,
+  PencilAltIcon,
+} from "@patternfly/react-icons";
+import {
+  ActionsColumn,
   ExpandableRowContent,
   Table,
   Tbody,
@@ -30,46 +41,42 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
-import dayjs from "dayjs";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
 
-import {
-  useDeleteAllMigrationWavesMutation,
-  useDeleteMigrationWaveMutation,
-  useFetchMigrationWaves,
-  useUpdateMigrationWaveMutation,
-} from "@app/queries/migration-waves";
 import { MigrationWave, Ref, Ticket, WaveWithStatus } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { ExportForm } from "./components/export-form";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { useFetchTrackers } from "@app/queries/trackers";
+import { ToolbarBulkExpander } from "@app/components/ToolbarBulkExpander";
+import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
+import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
+import {
+  useDeleteAllMigrationWavesMutation,
+  useDeleteMigrationWaveMutation,
+  useFetchMigrationWaves,
+  useUpdateMigrationWaveMutation,
+} from "@app/queries/migration-waves";
+import { useFetchTickets } from "@app/queries/tickets";
+import { useFetchTrackers } from "@app/queries/trackers";
+import { toRefs } from "@app/utils/model-utils";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import { ExportForm } from "./components/export-form";
+import { ManageApplicationsForm } from "./components/manage-applications-form";
+import { WaveForm } from "./components/migration-wave-form";
 import { WaveStakeholdersTable } from "./components/stakeholders-table";
 import { WaveApplicationsTable } from "./components/wave-applications-table";
 import { WaveStatusTable } from "./components/wave-status-table";
-import { WaveForm } from "./components/migration-wave-form";
-import { ManageApplicationsForm } from "./components/manage-applications-form";
-import { deleteMigrationWave } from "@app/api/rest";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { toRefs } from "@app/utils/model-utils";
-import { useFetchTickets } from "@app/queries/tickets";
-import { isInClosedRange } from "@app/components/FilterToolbar/dateUtils";
 
 export const MigrationWaves: React.FC = () => {
   const { t } = useTranslation();
@@ -84,9 +91,6 @@ export const MigrationWaves: React.FC = () => {
 
   const [isToolbarKebabOpen, setIsToolbarKebabOpen] =
     React.useState<boolean>(false);
-  const [isRowDropdownOpen, setIsRowDropdownOpen] = React.useState<
-    number | null
-  >(null);
 
   const [migrationWaveModalState, setWaveModalState] = React.useState<
     "create" | MigrationWave | null
@@ -104,20 +108,18 @@ export const MigrationWaves: React.FC = () => {
     React.useState<MigrationWave | null>(null);
   const closeWaveModal = () => setWaveModalState(null);
 
-  const [migrationWaveToDelete, setMigrationWaveToDelete] = React.useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [migrationWaveToDelete, setMigrationWaveToDelete] =
+    React.useState<MigrationWave | null>(null);
 
   const [migrationWavesToDelete, setMigrationWavesToDelete] = React.useState<
-    number[] | null
+    MigrationWave[] | null
   >(null);
 
-  const onDeleteWaveSuccess = (name: string) => {
+  const onDeleteWaveSuccess = (migrationWave: MigrationWave) => {
     pushNotification({
       title: t("toastr.success.deletedWhat", {
-        what: name,
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
@@ -135,10 +137,15 @@ export const MigrationWaves: React.FC = () => {
     onError
   );
 
-  const onDeleteAllMigrationWavesSuccess = () => {
+  const onDeleteAllMigrationWavesSuccess = (
+    migrationWaves: MigrationWave[]
+  ) => {
     pushNotification({
-      title: t("toastr.success.deletedAll", {
-        type: t("terms.migrationWave(s)"),
+      title: t("toastr.success.deletedWhat", {
+        count: migrationWaves.length,
+        type: t("terms.migrationWave", {
+          count: migrationWaves.length,
+        }).toLowerCase(),
       }),
       variant: "success",
     });
@@ -150,10 +157,11 @@ export const MigrationWaves: React.FC = () => {
       onError
     );
 
-  const onUpdateMigrationWaveSuccess = (_: AxiosResponse<MigrationWave>) =>
+  const onUpdateMigrationWaveSuccess = (migrationWave: MigrationWave) =>
     pushNotification({
-      title: t("toastr.success.save", {
+      title: t("toastr.success.saveWhat", {
         type: t("terms.migrationWave"),
+        what: migrationWave.name,
       }),
       variant: "success",
     });
@@ -235,12 +243,12 @@ export const MigrationWaves: React.FC = () => {
     isLoading: isFetching,
   });
   const {
+    filteredItems,
     currentPageItems,
     numRenderedColumns,
-    selectionState: { selectedItems },
     propHelpers: {
       toolbarProps,
-      toolbarBulkSelectorProps,
+      toolbarBulkExpanderProps,
       filterToolbarProps,
       paginationToolbarItemProps,
       paginationProps,
@@ -252,6 +260,15 @@ export const MigrationWaves: React.FC = () => {
     },
     expansionDerivedState: { isCellExpanded, setCellExpanded },
   } = tableControls;
+
+  const {
+    selectedItems,
+    propHelpers: { toolbarBulkSelectorProps, getSelectCheckboxTdProps },
+  } = useBulkSelection({
+    isEqual: (a, b) => a.id === b.id,
+    filteredItems,
+    currentPageItems,
+  });
 
   // TODO: Check RBAC access
   const rbacWriteAccess = true; // checkAccess(userScopes, migrationWaveWriteScopes);
@@ -275,7 +292,8 @@ export const MigrationWaves: React.FC = () => {
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
-                <ToolbarBulkSelector {...toolbarBulkSelectorProps} />
+                <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
+                <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   {/* <RBAC
@@ -336,11 +354,7 @@ export const MigrationWaves: React.FC = () => {
                           key="bulk-delete"
                           isDisabled={selectedItems.length === 0}
                           onClick={() =>
-                            setMigrationWavesToDelete(
-                              selectedItems.map(
-                                (migrationWave) => migrationWave.id
-                              )
-                            )
+                            setMigrationWavesToDelete(selectedItems)
                           }
                         >
                           {t("actions.delete")}
@@ -368,6 +382,7 @@ export const MigrationWaves: React.FC = () => {
                     <Th {...getThProps({ columnKey: "applications" })} />
                     <Th {...getThProps({ columnKey: "stakeholders" })} />
                     <Th {...getThProps({ columnKey: "status" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -377,10 +392,11 @@ export const MigrationWaves: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      No migration waves available
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={t("message.noMigrationWavesAvailable")}
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>
@@ -396,6 +412,7 @@ export const MigrationWaves: React.FC = () => {
                     <Tr {...getTrProps({ item: migrationWave })}>
                       <TableRowContentWithControls
                         {...tableControls}
+                        getSelectCheckboxTdProps={getSelectCheckboxTdProps}
                         item={migrationWave}
                         rowIndex={rowIndex}
                       >
@@ -455,102 +472,74 @@ export const MigrationWaves: React.FC = () => {
                             ? migrationWave.status
                             : "--"}
                         </Td>
-                        <Td isActionCell id="row-actions">
-                          <Dropdown
-                            isOpen={isRowDropdownOpen === migrationWave.id}
-                            onSelect={() => setIsRowDropdownOpen(null)}
-                            onOpenChange={(_isOpen) =>
-                              setIsRowDropdownOpen(null)
-                            }
-                            popperProps={{ position: "right" }}
-                            toggle={(
-                              toggleRef: React.Ref<MenuToggleElement>
-                            ) => (
-                              <MenuToggle
-                                ref={toggleRef}
-                                aria-label="row actions dropdown toggle"
-                                variant="plain"
-                                onClick={() => {
-                                  isRowDropdownOpen
-                                    ? setIsRowDropdownOpen(null)
-                                    : setIsRowDropdownOpen(migrationWave.id);
-                                }}
-                                isExpanded={isRowDropdownOpen === rowIndex}
-                              >
-                                <EllipsisVIcon />
-                              </MenuToggle>
-                            )}
-                            shouldFocusToggleOnSelect
-                          >
-                            <DropdownItem
-                              key="edit"
-                              component="button"
-                              onClick={() => setWaveModalState(migrationWave)}
-                            >
-                              {t("actions.edit")}
-                            </DropdownItem>
-                            <ConditionalTooltip
-                              key="manage-app"
-                              isTooltipEnabled={applications.length === 0}
-                              content={
-                                "No applications are available for assignment."
-                              }
-                            >
-                              <DropdownItem
-                                key="manage-app"
-                                isAriaDisabled={applications.length === 0}
-                                onClick={() => {
-                                  setWaveToManageModalState(migrationWave);
-                                }}
-                              >
-                                {t("composed.manage", {
-                                  what: t("terms.applications").toLowerCase(),
-                                })}
-                              </DropdownItem>
-                            </ConditionalTooltip>
-                            <ConditionalTooltip
-                              key="export-to-issue-manager"
-                              isTooltipEnabled={
-                                migrationWave.applications?.length < 1 ||
-                                !hasExportableApplications(
-                                  tickets,
-                                  migrationWave?.applications
-                                )
-                              }
-                              content={
-                                "No applications are available for export."
-                              }
-                            >
-                              <DropdownItem
-                                key="export-to-issue-manager"
-                                isAriaDisabled={
-                                  migrationWave.applications?.length < 1 ||
-                                  !hasExportableApplications(
-                                    tickets,
-                                    migrationWave?.applications
-                                  )
-                                }
-                                onClick={() =>
-                                  setApplicationsToExport(
-                                    migrationWave.fullApplications
-                                  )
-                                }
-                              >
-                                {t("terms.exportToIssue")}
-                              </DropdownItem>
-                            </ConditionalTooltip>
-                            <DropdownItem
-                              key="delete"
-                              onClick={() =>
-                                setMigrationWaveToDelete({
-                                  id: migrationWave.id,
-                                  name: migrationWave.name,
-                                })
-                              }
-                            >
-                              {t("actions.delete")}
-                            </DropdownItem>
-                          </Dropdown>
+                        <Td isActionCell id="action">
+                          {rbacWriteAccess && (
+                            <OverflowMenu breakpoint="sm">
+                              <Tooltip content={t("actions.edit")}>
+                                <Button
+                                  aria-label={t("actions.edit")}
+                                  variant="plain"
+                                  icon={<PencilAltIcon />}
+                                  onClick={() =>
+                                    setWaveModalState(migrationWave)
+                                  }
+                                />
+                              </Tooltip>
+                              <ActionsColumn
+                                items={[
+                                  {
+                                    title: t("composed.manage", {
+                                      what: t(
+                                        "terms.applications"
+                                      ).toLowerCase(),
+                                    }),
+                                    onClick: () => {
+                                      setWaveToManageModalState(migrationWave);
+                                    },
+                                    isAriaDisabled: !applications?.length,
+                                    tooltipProps: !applications?.length
+                                      ? {
+                                          content: t(
+                                            "message.noApplicationsForAssignment"
+                                          ),
+                                        }
+                                      : undefined,
+                                  },
+                                  {
+                                    title: t("terms.exportToIssue"),
+                                    onClick: () =>
+                                      setApplicationsToExport(
+                                        migrationWave.fullApplications
+                                      ),
+                                    isAriaDisabled:
+                                      migrationWave.applications?.length < 1 ||
+                                      !hasExportableApplications(
+                                        tickets,
+                                        migrationWave?.applications
+                                      ),
+                                    tooltipProps:
+                                      migrationWave.applications?.length < 1 ||
+                                      !hasExportableApplications(
+                                        tickets,
+                                        migrationWave?.applications
+                                      )
+                                        ? {
+                                            content: t(
+                                              "message.noApplicationsForExport"
+                                            ),
+                                          }
+                                        : undefined,
+                                  },
+                                  {
+                                    title: t("actions.delete"),
+                                    onClick: () =>
+                                      setMigrationWaveToDelete(migrationWave),
+                                    isDanger: true,
+                                  },
+                                ]}
+                              />
+                            </OverflowMenu>
+                          )}
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
@@ -598,7 +587,13 @@ export const MigrationWaves: React.FC = () => {
           </div>
         </ConditionalRender>
       </PageSection>
+
       <Modal
+        key={
+          migrationWaveModalState === "create"
+            ? 0
+            : (migrationWaveToEdit?.id ?? -1)
+        }
         id="create-edit-migration-wave-modal"
         title={
           migrationWaveToEdit
@@ -618,6 +613,7 @@ export const MigrationWaves: React.FC = () => {
           onClose={closeWaveModal}
         />
       </Modal>
+
       {applicationsToExport !== null && (
         <Modal
           title={t("terms.exportToIssue")}
@@ -632,6 +628,7 @@ export const MigrationWaves: React.FC = () => {
           />
         </Modal>
       )}
+
       <Modal
         title={t("composed.manage", {
           what: t("terms.applications").toLowerCase(),
@@ -649,40 +646,24 @@ export const MigrationWaves: React.FC = () => {
           />
         )}
       </Modal>
-      <ConfirmDialog
-        title={
-          migrationWaveToDelete
-            ? t("dialog.title.deleteWithName", {
-                what: t("terms.migrationWave").toLowerCase(),
-                name: migrationWaveToDelete.name,
-              })
-            : t("dialog.title.delete", {
-                what: t("terms.migrationWave(s)").toLowerCase(),
-              })
-        }
-        isOpen={!!migrationWaveToDelete || !!migrationWavesToDelete}
-        titleIconVariant={"warning"}
-        message={t("dialog.message.delete")}
-        confirmBtnVariant={ButtonVariant.danger}
-        confirmBtnLabel={t("actions.delete")}
-        cancelBtnLabel={t("actions.cancel")}
-        onCancel={() => {
-          setMigrationWaveToDelete(null);
-          setMigrationWavesToDelete(null);
-        }}
-        onClose={() => {
-          setMigrationWaveToDelete(null);
-          setMigrationWavesToDelete(null);
-        }}
+
+      <ConfirmDeleteSingleMigrationWave
+        migrationWaveToDelete={migrationWaveToDelete}
+        onCancel={() => setMigrationWaveToDelete(null)}
         onConfirm={() => {
           if (migrationWaveToDelete) {
             deleteWave(migrationWaveToDelete);
             setMigrationWaveToDelete(null);
           }
+        }}
+      />
+
+      <ConfirmDeleteMultipleMigrationWave
+        migrationWaves={migrationWavesToDelete}
+        onCancel={() => setMigrationWavesToDelete(null)}
+        onConfirm={() => {
           if (migrationWavesToDelete) {
-            deleteAllMigrationWaves(
-              migrationWavesToDelete.map((id) => deleteMigrationWave(id))
-            );
+            deleteAllMigrationWaves(migrationWavesToDelete);
             setMigrationWavesToDelete(null);
           }
         }}
@@ -698,3 +679,65 @@ const hasExportableApplications = (tickets: Ticket[], applicationRefs: Ref[]) =>
         ?.map((ticket) => ticket?.application?.id)
         .includes(applicationRef.id)
   );
+
+const ConfirmDeleteSingleMigrationWave: React.FC<{
+  migrationWaveToDelete: MigrationWave | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}> = ({ migrationWaveToDelete, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
+  if (!migrationWaveToDelete) {
+    return null;
+  }
+
+  return (
+    <ConfirmDialog
+      title={t("dialog.title.deleteWithName", {
+        what: t("terms.migrationWave").toLowerCase(),
+        name: migrationWaveToDelete.name,
+      })}
+      isOpen={true}
+      titleIconVariant={"warning"}
+      message={t("dialog.message.delete")}
+      confirmBtnVariant={ButtonVariant.danger}
+      confirmBtnLabel={t("actions.delete")}
+      cancelBtnLabel={t("actions.cancel")}
+      onCancel={onCancel}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+    />
+  );
+};
+
+const ConfirmDeleteMultipleMigrationWave: React.FC<{
+  migrationWaves: MigrationWave[] | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}> = ({ migrationWaves, onCancel, onConfirm }) => {
+  const { t } = useTranslation();
+
+  if (!migrationWaves || migrationWaves.length === 0) {
+    return null;
+  }
+
+  return (
+    <ConfirmDialog
+      title={t("dialog.title.deleteMultiple", {
+        count: migrationWaves.length,
+        what: t("terms.migrationWave", {
+          count: migrationWaves.length,
+        }).toLowerCase(),
+      })}
+      isOpen={true}
+      titleIconVariant={"warning"}
+      message={t("dialog.message.delete")}
+      confirmBtnVariant={ButtonVariant.danger}
+      confirmBtnLabel={t("actions.delete")}
+      cancelBtnLabel={t("actions.cancel")}
+      onCancel={onCancel}
+      onClose={onCancel}
+      onConfirm={onConfirm}
+    />
+  );
+};

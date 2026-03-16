@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import {
@@ -6,37 +6,40 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   Modal,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { JobFunction } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { getAxiosErrorMessage } from "@app/utils/utils";
-import { JobFunction } from "@app/api/models";
-import { JobFunctionForm } from "./components/job-function-form";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { SimplePagination } from "@app/components/SimplePagination";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteJobFunctionMutation,
   useFetchJobFunctions,
 } from "@app/queries/jobfunctions";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TableHeaderContentWithControls,
-  ConditionalTableBody,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import { CubesIcon } from "@patternfly/react-icons";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
-import { ControlTableActionButtons } from "../ControlTableActionButtons";
+import { getAxiosErrorMessage } from "@app/utils/utils";
+
+import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
+
+import { JobFunctionForm } from "./components/job-function-form";
 
 export const JobFunctions: React.FC = () => {
   const { t } = useTranslation();
@@ -52,8 +55,9 @@ export const JobFunctions: React.FC = () => {
   const jobFunctionToUpdate =
     createUpdateModalState !== "create" ? createUpdateModalState : null;
 
-  const { jobFunctions, isFetching, fetchError, refetch } =
-    useFetchJobFunctions();
+  const { jobFunctions, isFetching, fetchError } = useFetchJobFunctions(
+    DEFAULT_REFETCH_INTERVAL
+  );
 
   const tableControls = useLocalTableControls({
     tableName: "job-functions-table",
@@ -130,7 +134,6 @@ export const JobFunctions: React.FC = () => {
 
   const closeCreateUpdateModal = () => {
     setCreateUpdateModalState(null);
-    refetch();
   };
 
   return (
@@ -175,6 +178,7 @@ export const JobFunctions: React.FC = () => {
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} width={90} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -184,12 +188,17 @@ export const JobFunctions: React.FC = () => {
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
                 <EmptyState variant="sm">
-                  <EmptyStateIcon icon={CubesIcon} />
-                  <Title headingLevel="h2" size="lg">
-                    {t("composed.noDataStateTitle", {
-                      what: t("terms.jobFunction").toLowerCase(),
-                    })}
-                  </Title>
+                  <EmptyStateHeader
+                    titleText={
+                      <>
+                        {t("composed.noDataStateTitle", {
+                          what: t("terms.jobFunction").toLowerCase(),
+                        })}
+                      </>
+                    }
+                    icon={<EmptyStateIcon icon={CubesIcon} />}
+                    headingLevel="h2"
+                  />
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -215,7 +224,7 @@ export const JobFunctions: React.FC = () => {
                         <Td width={90} {...getTdProps({ columnKey: "name" })}>
                           {jobFunction.name}
                         </Td>
-                        <ControlTableActionButtons
+                        <ControlTableActionsColumn
                           isDeleteEnabled={!!jobFunction.stakeholders}
                           deleteTooltipMessage={t(
                             "message.cannotDeleteJobFunctionWithStakeholders"

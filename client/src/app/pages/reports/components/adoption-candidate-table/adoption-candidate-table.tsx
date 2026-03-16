@@ -1,17 +1,19 @@
-import React, { useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
+import * as React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
+import { Application, Review } from "@app/api/models"; // Add the necessary model imports
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { RiskLabel } from "@app/components/RiskLabel";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { Application, Review } from "@app/api/models"; // Add the necessary model imports
-import { ApplicationSelectionContext } from "../../application-selection-context";
+import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchReviews } from "@app/queries/reviews";
-import { RiskLabel } from "@app/components/RiskLabel";
+
+import { ApplicationSelectionContext } from "../../application-selection-context";
 
 interface AdoptionCandidateTableProps {
   allApplications?: Application[];
@@ -25,16 +27,7 @@ export interface TableRowData {
 const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
   const { reviews } = useFetchReviews();
 
-  const {
-    allItems: allApplications,
-    selectedItems: selectedApplications,
-    areAllSelected: areAllApplicationsSelected,
-    isItemSelected: isApplicationSelected,
-    toggleItemSelected: toggleApplicationSelected,
-    selectAll: selectAllApplication,
-    setSelectedItems: setSelectedRows,
-    selectMultiple: selectMultipleApplications,
-  } = useContext(ApplicationSelectionContext);
+  const { allItems: allApplications } = useContext(ApplicationSelectionContext);
 
   const applicationsWithReviews: TableRowData[] = useMemo(() => {
     const combined = allApplications.map((app) => {
@@ -68,7 +61,6 @@ const AdoptionCandidateTable: React.FC<AdoptionCandidateTableProps> = () => {
   const {
     currentPageItems,
     numRenderedColumns,
-    selectionState,
     propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
   } = tableControls;
 

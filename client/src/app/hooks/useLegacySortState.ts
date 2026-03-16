@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ISortBy, SortByDirection } from "@patternfly/react-table";
+
 import i18n from "@app/i18n";
 import { universalComparator } from "@app/utils/utils";
 

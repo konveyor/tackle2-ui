@@ -1,36 +1,33 @@
-import React from "react";
 import "@testing-library/jest-dom";
+import { rest } from "msw";
+
 import {
-  render,
-  waitFor,
-  screen,
   fireEvent,
+  render,
+  screen,
+  waitFor,
 } from "@app/test-config/test-utils";
+import { server } from "@mocks/server";
 
 import { Proxies } from "../proxies";
-import userEvent from "@testing-library/user-event";
-import { server } from "@mocks/server";
-import { rest } from "msw";
 
 describe("Component: proxy-form", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    server.use(
+      rest.get("/hub/proxies", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/identities", (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json([
+            { id: 0, name: "proxy-cred", kind: "proxy" },
+            { id: 1, name: "maven-cred", kind: "maven" },
+            { id: 2, name: "source-cred", kind: "source" },
+          ])
+        );
+      })
+    );
   });
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  server.use(
-    rest.get("/hub/identities", (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json([
-          { id: 0, name: "proxy-cred", kind: "proxy" },
-          { id: 1, name: "maven-cred", kind: "maven" },
-          { id: 2, name: "source-cred", kind: "source" },
-        ])
-      );
-    })
-  );
 
   it("Display switch statements on initial load", async () => {
     render(<Proxies />);
@@ -66,19 +63,6 @@ describe("Component: proxy-form", () => {
   });
 
   it("Select http proxy identity", async () => {
-    server.use(
-      rest.get("/hub/identities", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            { id: 0, name: "proxy-cred", kind: "proxy" },
-            { id: 1, name: "maven-cred", kind: "maven" },
-            { id: 2, name: "source-cred", kind: "source" },
-          ])
-        );
-      })
-    );
-
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
     fireEvent.click(httpProxySwitch);
@@ -86,41 +70,30 @@ describe("Component: proxy-form", () => {
       "HTTP proxy credentials"
     );
     fireEvent.click(httpProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
 
-    await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTP proxy credentials/i },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+    expect(selectToggle).toHaveTextContent("Select...");
+    fireEvent.click(selectToggle);
+
+    const httpOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpOption);
+
+    await waitFor(() => {
+      expect(selectToggle).toHaveTextContent("proxy-cred");
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 
   it("Select https proxy identity", async () => {
-    server.use(
-      rest.get("/hub/identities", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            { id: 0, name: "proxy-cred", kind: "proxy" },
-            { id: 1, name: "maven-cred", kind: "maven" },
-            { id: 2, name: "source-cred", kind: "source" },
-          ])
-        );
-      })
-    );
-
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
     fireEvent.click(httpsProxySwitch);
@@ -128,24 +101,26 @@ describe("Component: proxy-form", () => {
       "HTTPS proxy credentials"
     );
     fireEvent.click(httpsProxyIdentitySwitch);
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /Options menu/i,
-      })
-    );
 
-    await waitFor(
-      () =>
-        userEvent.selectOptions(screen.getByRole("listbox"), ["proxy-cred"]),
-      {
-        timeout: 3000,
-      }
+    const selectToggle = await screen.findByRole(
+      "button",
+      { name: /HTTPS proxy credentials/i },
+      { timeout: 3000 }
     );
-    const proxyCred = screen.getByText("proxy-cred");
-    expect(proxyCred).toBeInTheDocument();
-    const mavenCred = screen.queryByText("maven-cred");
-    const sourceCred = screen.queryByText("source-cred");
-    expect(mavenCred).toBeNull(); // it doesn't exist
-    expect(sourceCred).toBeNull(); // it doesn't exist
+    expect(selectToggle).toHaveTextContent("Select...");
+    fireEvent.click(selectToggle);
+
+    const httpsOption = await screen.findByText(
+      "proxy-cred",
+      {},
+      { timeout: 3000 }
+    );
+    fireEvent.click(httpsOption);
+
+    await waitFor(() => {
+      expect(selectToggle).toHaveTextContent("proxy-cred");
+      expect(screen.queryByText("maven-cred")).toBeNull();
+      expect(screen.queryByText("source-cred")).toBeNull();
+    });
   });
 });

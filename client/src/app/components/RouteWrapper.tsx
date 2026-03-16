@@ -1,11 +1,13 @@
+import * as React from "react";
+import { Redirect, Route } from "react-router-dom";
+
 import { isAuthRequired } from "@app/Constants";
 import keycloak from "@app/keycloak";
-import React from "react";
-import { Redirect, Route } from "react-router-dom";
+
 import { checkAccess } from "../utils/rbac-utils";
 
 interface IRouteWrapperProps {
-  comp: React.ComponentType<any>;
+  comp: React.ComponentType<Record<string, unknown>>;
   roles: string[];
   path: string;
   exact?: boolean;
@@ -18,7 +20,7 @@ export const RouteWrapper = ({
   exact,
 }: IRouteWrapperProps) => {
   const token = keycloak.tokenParsed || undefined;
-  let userRoles = token?.realm_access?.roles || [],
+  const userRoles = token?.realm_access?.roles || [],
     access = checkAccess(userRoles, roles);
 
   if (!token && isAuthRequired) {

@@ -1,5 +1,9 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { HubFile, IReadFile, Target } from "@app/api/models";
+import { AxiosError, AxiosResponse } from "axios";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
+import { HubFile, Target } from "@app/api/models";
 import {
   createFile,
   createTarget,
@@ -7,19 +11,54 @@ import {
   getTargets,
   updateTarget,
 } from "@app/api/rest";
-import { AxiosError } from "axios";
+
+import { useSetting } from "./settings";
 
 export const TargetsQueryKey = "targets";
 
-export const useFetchTargets = () => {
-  const { data, isLoading, isSuccess, error, refetch } = useQuery<Target[]>({
+export const useFetchTargets = (
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
+  const {
+    data: targets,
+    isLoading,
+    isSuccess,
+    error,
+    refetch,
+  } = useQuery<Target[]>({
     queryKey: [TargetsQueryKey],
     queryFn: async () => await getTargets(),
     onError: (err) => console.log(err),
+    refetchInterval,
   });
 
+  const { data: targetOrder = [] } = useSetting("ui.target.order");
+
+  const targetsInOrder = useMemo(
+    () =>
+      !targets
+        ? []
+        : targets
+            .map((target, targetIndex) => {
+              const index = targetOrder.findIndex((id) => id === target.id);
+              return {
+                target,
+                order: index === -1 ? targets.length + targetIndex : index,
+              };
+            })
+            .sort((a, b) => a.order - b.order)
+            .map(({ target }) => target),
+    [targets, targetOrder]
+  );
+
   return {
-    targets: data || [],
+    /** Targets in their original order */
+    targets: targets || [],
+    /**
+     * Targets in the order specified by the setting "ui.target.order" including targets
+     * that are not in the setting at the end of the list.
+     */
+    targetsInOrder,
     isFetching: isLoading,
     isSuccess,
     fetchError: error,
@@ -28,15 +67,15 @@ export const useFetchTargets = () => {
 };
 
 export const useUpdateTargetMutation = (
-  onSuccess: (res: Target) => void,
+  onSuccess: (res: AxiosResponse<Target>) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: updateTarget,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -44,7 +83,7 @@ export const useUpdateTargetMutation = (
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
@@ -55,34 +94,34 @@ export const useDeleteTargetMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, error } = useMutation({
     mutationFn: deleteTarget,
     onSuccess: (res, id) => {
       onSuccess(res, id);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
   });
   return {
     mutate,
-    isLoading,
+    isPending,
     error,
   };
 };
 
 export const useCreateTargetMutation = (
-  onSuccess: (res: Target) => void,
+  onSuccess: (res: AxiosResponse<Target>) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createTarget,
     onSuccess: (res) => {
       onSuccess(res);
-      queryClient.invalidateQueries([TargetsQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
       onError(err);
@@ -90,30 +129,33 @@ export const useCreateTargetMutation = (
   });
   return {
     mutate,
-    isLoading,
+    mutateAsync,
+    isPending,
     error,
   };
 };
 
 export const useCreateFileMutation = (
-  onSuccess?: (data: HubFile, formData: FormData, file: IReadFile) => void,
-  onError?: (err: AxiosError) => void
+  onSuccess?: (data: HubFile, file: File) => void,
+  onError?: (err: AxiosError, file: File) => void
 ) => {
   const queryClient = useQueryClient();
-  const { isLoading, mutate, mutateAsync, error } = useMutation({
+  const { isPending, mutate, mutateAsync, error } = useMutation({
     mutationFn: createFile,
-    onSuccess: (data, { formData, file }) => {
-      onSuccess && onSuccess(data, formData, file);
-      queryClient.invalidateQueries([]);
+    onSuccess: (data, { file }) => {
+      onSuccess?.(data, file);
+      queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
-    onError: (err: AxiosError) => {
-      onError && onError(err);
+    onError: (err: AxiosError, { file }) => {
+      onError?.(err, file);
     },
   });
   return {
     mutate,
     mutateAsync,
-    isLoading,
+    isPending,
     error,
   };
 };
+
+// TODO: Add `useRemoveFileMutation` with id, name, path as the required rest fields

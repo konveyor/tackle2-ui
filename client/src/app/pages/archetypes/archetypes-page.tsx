@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -19,20 +20,27 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import {
+  ActionsColumn,
+  IAction,
   Table,
   Tbody,
+  Td,
   Th,
   Thead,
   Tr,
-  Td,
-  ActionsColumn,
 } from "@patternfly/react-table";
-import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
+
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { Archetype } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { IconedStatus } from "@app/components/Icons";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -42,53 +50,39 @@ import {
   deserializeFilterUrlParams,
   useLocalTableControls,
 } from "@app/hooks/table-controls";
+import keycloak from "@app/keycloak";
+import { useFetchArchetypes } from "@app/queries/archetypes";
 import {
-  ARCHETYPES_QUERY_KEY,
-  ARCHETYPE_QUERY_KEY,
-  useDeleteArchetypeMutation,
-  useFetchArchetypes,
-} from "@app/queries/archetypes";
-
-import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
-import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
-import ArchetypeForm from "./components/archetype-form";
-import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
-import ArchetypeTagsColumn from "./components/archetype-tags-column";
-import { Archetype } from "@app/api/models";
-import { ConfirmDialog } from "@app/components/ConfirmDialog";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { AxiosError } from "axios";
-import { Paths } from "@app/Paths";
-import { SimplePagination } from "@app/components/SimplePagination";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-import { useDeleteAssessmentMutation } from "@app/queries/assessments";
-import { useDeleteReviewMutation } from "@app/queries/reviews";
-import {
+  archetypesWriteScopes,
   assessmentWriteScopes,
   reviewsWriteScopes,
-  archetypesWriteScopes,
 } from "@app/rbac";
+import { filterAndAddSeparator } from "@app/utils/grouping";
 import { checkAccess } from "@app/utils/rbac-utils";
-import keycloak from "@app/keycloak";
-import { IconedStatus } from "@app/components/Icons";
-import { useQueryClient } from "@tanstack/react-query";
+import { formatPath } from "@app/utils/utils";
+
+import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
+import { ArchetypeForm } from "./components/archetype-form";
+import ArchetypeMaintainersColumn from "./components/archetype-maintainers-column";
+import ArchetypeTagsColumn from "./components/archetype-tags-column";
+import LinkToArchetypeApplications from "./components/link-to-archetype-applications";
+import { useArchetypeMutations } from "./hooks/useArchetypeMutations";
 
 const Archetypes: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { pushNotification } = React.useContext(NotificationsContext);
-  const queryClient = useQueryClient();
 
   const [openCreateArchetype, setOpenCreateArchetype] =
     useState<boolean>(false);
 
-  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
-
   const [archetypeToEdit, setArchetypeToEdit] = useState<Archetype | null>(
     null
   );
+
   const [assessmentToDiscard, setAssessmentToDiscard] =
     React.useState<Archetype | null>(null);
+
+  const [reviewToEdit, setReviewToEdit] = React.useState<number | null>(null);
 
   const [reviewToDiscard, setReviewToDiscard] =
     React.useState<Archetype | null>(null);
@@ -96,99 +90,17 @@ const Archetypes: React.FC = () => {
   const [archetypeToDuplicate, setArchetypeToDuplicate] =
     useState<Archetype | null>(null);
 
-  const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
-
-  const onError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-  };
-
   const [archetypeToDelete, setArchetypeToDelete] =
     React.useState<Archetype | null>(null);
-  const { mutate: deleteArchetype } = useDeleteArchetypeMutation(
-    (archetypeDeleted) =>
-      pushNotification({
-        title: t("toastr.success.deletedWhat", {
-          what: archetypeDeleted.name,
-          type: t("terms.archetype"),
-        }),
-        variant: "success",
-      }),
-    onError
-  );
 
-  const { mutateAsync: deleteAssessment } = useDeleteAssessmentMutation();
+  const { deleteArchetype, discardAssessment, discardReview } =
+    useArchetypeMutations();
 
-  const discardAssessment = (archetype: Archetype) => {
-    if (!archetype.assessments) {
-      return;
-    }
-    Promise.all(
-      archetype.assessments.map((assessment) =>
-        deleteAssessment({
-          assessmentId: assessment.id,
-          archetypeId: archetype.id,
-        })
-      )
-    )
-      .then(() => {
-        pushNotification({
-          title: t("toastr.success.assessmentDiscarded", {
-            application: archetype.name,
-          }),
-          variant: "success",
-        });
-        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
-      })
-      .catch((error) => {
-        console.error("Error while deleting assessments:", error);
-        pushNotification({
-          title: getAxiosErrorMessage(error as AxiosError),
-          variant: "danger",
-        });
-      });
-  };
-
-  const onDeleteReviewSuccess = (name: string) => {
-    pushNotification({
-      title: t("toastr.success.reviewDiscarded", {
-        application: name,
-      }),
-      variant: "success",
-    });
-  };
-
-  const { mutateAsync: deleteReview } = useDeleteReviewMutation(
-    onDeleteReviewSuccess
-  );
-
-  const discardReview = (archetype: Archetype) => {
-    if (!archetype.review?.id) {
-      return;
-    }
-    deleteReview({
-      id: archetype.review.id,
-      name: archetype.name,
-    })
-      .then(() => {
-        queryClient.invalidateQueries([ARCHETYPES_QUERY_KEY]);
-        queryClient.invalidateQueries([ARCHETYPE_QUERY_KEY, archetype.id]);
-      })
-      .catch((error) => {
-        console.error("Error while deleting review:", error);
-        pushNotification({
-          title: getAxiosErrorMessage(error as AxiosError),
-          variant: "danger",
-        });
-      });
-  };
   const urlParams = new URLSearchParams(window.location.search);
   const filters = urlParams.get("filters");
-
   const deserializedFilterValues = deserializeFilterUrlParams({ filters });
+
+  const { archetypes, isFetching, error: fetchError } = useFetchArchetypes();
 
   const tableControls = useLocalTableControls({
     tableName: "archetypes-table",
@@ -206,6 +118,7 @@ const Archetypes: React.FC = () => {
       tags: t("terms.tags"),
       maintainers: t("terms.maintainers"),
       applications: t("terms.applications"),
+      profiles: t("terms.profiles"),
       assessment: t("terms.assessment"),
       review: t("terms.review"),
     },
@@ -285,22 +198,6 @@ const Archetypes: React.FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
   } = tableControls;
 
-  // TODO: RBAC access checks need to be added.  Only Architect (and Administrator) personas
-  // TODO: should be able to create/edit archetypes.  Every persona should be able to view
-  // TODO: the archetypes.
-
-  const CreateButton = () => (
-    <Button
-      type="button"
-      id="create-new-archetype"
-      aria-label="Create new archetype"
-      variant={ButtonVariant.primary}
-      onClick={() => setOpenCreateArchetype(true)}
-    >
-      {t("dialog.title.newArchetype")}
-    </Button>
-  );
-  const [isOverrideModalOpen, setOverrideModalOpen] = React.useState(false);
   const [archetypeToAssess, setArchetypeToAssess] =
     React.useState<Archetype | null>(null);
 
@@ -308,15 +205,15 @@ const Archetypes: React.FC = () => {
     // if application/archetype has an assessment, ask if user wants to override it
     const matchingAssessment = false;
     if (matchingAssessment) {
-      setOverrideModalOpen(true);
       setArchetypeToAssess(archetype);
     } else {
-      archetype?.id &&
+      if (archetype?.id) {
         history.push(
           formatPath(Paths.archetypeAssessmentActions, {
-            archetypeId: archetype?.id,
+            archetypeId: archetype.id,
           })
         );
+      }
       setArchetypeToAssess(null);
     }
   };
@@ -369,7 +266,17 @@ const Archetypes: React.FC = () => {
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="button-group">
                   <ToolbarItem>
-                    {archetypeWriteAccess && <CreateButton />}
+                    {archetypeWriteAccess && (
+                      <Button
+                        type="button"
+                        id="create-new-archetype"
+                        aria-label="Create new archetype"
+                        variant={ButtonVariant.primary}
+                        onClick={() => setOpenCreateArchetype(true)}
+                      >
+                        {t("dialog.title.newArchetype")}
+                      </Button>
+                    )}
                   </ToolbarItem>
                 </ToolbarGroup>
                 <ToolbarItem {...paginationToolbarItemProps}>
@@ -395,11 +302,14 @@ const Archetypes: React.FC = () => {
                     <Th {...getThProps({ columnKey: "tags" })} />
                     <Th {...getThProps({ columnKey: "maintainers" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
+                    <Th {...getThProps({ columnKey: "profiles" })} />
                     <Th
                       {...getThProps({ columnKey: "assessment" })}
                       width={10}
                     />
                     <Th {...getThProps({ columnKey: "review" })} width={10} />
+                    <Th screenReaderText="primary action" />
+                    <Th screenReaderText="secondary actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -410,12 +320,12 @@ const Archetypes: React.FC = () => {
                 noDataEmptyState={
                   <EmptyState variant="sm">
                     <EmptyStateHeader
-                      titleText="No archetypes have been created"
+                      titleText={t("message.noArchetypesCreatedTitle")}
                       headingLevel="h2"
                       icon={<EmptyStateIcon icon={CubesIcon} />}
                     />
                     <EmptyStateBody>
-                      Create a new archetype to get started.
+                      {t("message.noArchetypesCreatedDescription")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
@@ -447,6 +357,9 @@ const Archetypes: React.FC = () => {
                         <Td {...getTdProps({ columnKey: "applications" })}>
                           <LinkToArchetypeApplications archetype={archetype} />
                         </Td>
+                        <Td {...getTdProps({ columnKey: "profiles" })}>
+                          <Text>{archetype.profiles?.length || 0}</Text>
+                        </Td>
                         <Td
                           width={15}
                           modifier="truncate"
@@ -457,8 +370,8 @@ const Archetypes: React.FC = () => {
                               archetype.assessed
                                 ? "Completed"
                                 : archetype?.assessments?.length
-                                ? "InProgress"
-                                : "NotStarted"
+                                  ? "InProgress"
+                                  : "NotStarted"
                             }
                           />
                         </Td>
@@ -484,7 +397,7 @@ const Archetypes: React.FC = () => {
                             </Tooltip>
                           </Td>
                         )}
-                        <Td isActionCell>
+                        <Td isActionCell id="row-actions">
                           {(archetypeWriteAccess ||
                             assessmentWriteAccess ||
                             reviewsWriteAccess ||
@@ -492,65 +405,60 @@ const Archetypes: React.FC = () => {
                               assessmentWriteAccess) ||
                             (archetype?.review && reviewsWriteAccess)) && (
                             <ActionsColumn
-                              items={[
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.duplicate"),
-                                        onClick: () =>
-                                          setArchetypeToDuplicate(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(assessmentWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.assess"),
-                                        onClick: () =>
-                                          assessSelectedArchetype(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(reviewsWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.review"),
-                                        onClick: () =>
-                                          reviewSelectedArchetype(archetype),
-                                      },
-                                    ]
-                                  : []),
-                                ...(archetype?.assessments?.length &&
-                                assessmentWriteAccess
-                                  ? [
-                                      {
+                              items={filterAndAddSeparator<IAction>(
+                                (_index) => ({ isSeparator: true }),
+                                [
+                                  [
+                                    archetypeWriteAccess && {
+                                      title: t("actions.manageTargetProfiles"),
+                                      onClick: () =>
+                                        history.push(
+                                          formatPath(
+                                            Paths.archetypeTargetProfiles,
+                                            {
+                                              archetypeId: archetype.id,
+                                            }
+                                          )
+                                        ),
+                                    },
+                                    archetypeWriteAccess && {
+                                      title: t("actions.duplicate"),
+                                      onClick: () =>
+                                        setArchetypeToDuplicate(archetype),
+                                    },
+                                    assessmentWriteAccess && {
+                                      title: t("actions.assess"),
+                                      onClick: () =>
+                                        assessSelectedArchetype(archetype),
+                                    },
+                                    archetype?.assessments?.length &&
+                                      assessmentWriteAccess && {
                                         title: t("actions.discardAssessment"),
                                         onClick: () =>
                                           setAssessmentToDiscard(archetype),
                                       },
-                                    ]
-                                  : []),
-                                ...(archetype?.review && reviewsWriteAccess
-                                  ? [
-                                      {
+                                    reviewsWriteAccess && {
+                                      title: t("actions.review"),
+                                      onClick: () =>
+                                        reviewSelectedArchetype(archetype),
+                                    },
+                                    archetype?.review &&
+                                      reviewsWriteAccess && {
                                         title: t("actions.discardReview"),
                                         onClick: () =>
                                           setReviewToDiscard(archetype),
                                       },
-                                    ]
-                                  : []),
-                                { isSeparator: true },
-                                ...(archetypeWriteAccess
-                                  ? [
-                                      {
-                                        title: t("actions.delete"),
-                                        onClick: () =>
-                                          setArchetypeToDelete(archetype),
-                                        isDanger: true,
-                                      },
-                                    ]
-                                  : []),
-                              ]}
+                                  ],
+                                  [
+                                    archetypeWriteAccess && {
+                                      title: t("actions.delete"),
+                                      onClick: () =>
+                                        setArchetypeToDelete(archetype),
+                                      isDanger: true,
+                                    },
+                                  ],
+                                ]
+                              )}
                             />
                           )}
                         </Td>
@@ -581,7 +489,10 @@ const Archetypes: React.FC = () => {
         isOpen={openCreateArchetype}
         onClose={() => setOpenCreateArchetype(false)}
       >
-        <ArchetypeForm onClose={() => setOpenCreateArchetype(false)} />
+        <ArchetypeForm
+          key={openCreateArchetype ? 1 : 0}
+          onClose={() => setOpenCreateArchetype(false)}
+        />
       </Modal>
 
       {/* Edit modal */}
@@ -612,6 +523,8 @@ const Archetypes: React.FC = () => {
           onClose={() => setArchetypeToDuplicate(null)}
         />
       </Modal>
+
+      {/* Confirm discard assessment modal */}
       <ConfirmDialog
         title={t("dialog.title.discard", {
           what: t("terms.assessment").toLowerCase(),
@@ -625,10 +538,7 @@ const Archetypes: React.FC = () => {
               values={{
                 applicationName: assessmentToDiscard?.name,
               }}
-            >
-              The assessment(s) for <strong>{assessmentToDiscard?.name}</strong>{" "}
-              will be discarded. Do you wish to continue?
-            </Trans>
+            />
           </span>
         }
         confirmBtnVariant={ButtonVariant.primary}
@@ -641,6 +551,8 @@ const Archetypes: React.FC = () => {
           setAssessmentToDiscard(null);
         }}
       />
+
+      {/* Confirm discard review modal */}
       <ConfirmDialog
         title={t("dialog.title.discard", {
           what: t("terms.review").toLowerCase(),
@@ -654,10 +566,7 @@ const Archetypes: React.FC = () => {
               values={{
                 applicationName: reviewToDiscard?.name,
               }}
-            >
-              The review for <strong>{reviewToDiscard?.name}</strong> will be
-              discarded, as well as the review result. Do you wish to continue?
-            </Trans>
+            />
           </span>
         }
         confirmBtnVariant={ButtonVariant.primary}
@@ -671,7 +580,7 @@ const Archetypes: React.FC = () => {
         }}
       />
 
-      {/* Delete confirm modal */}
+      {/* Confirm delete archetype modal */}
       <ConfirmDialog
         title={t("dialog.title.deleteWithName", {
           what: t("terms.archetype").toLowerCase(),
@@ -693,11 +602,11 @@ const Archetypes: React.FC = () => {
         }}
       />
 
-      {/* Override existing assessment confirm modal */}
+      {/* Confirm override existing assessment modal */}
       <ConfirmDialog
         title={t("dialog.title.newAssessment")}
         titleIconVariant={"warning"}
-        isOpen={isOverrideModalOpen}
+        isOpen={archetypeToAssess !== null}
         message={t("message.overrideArchetypeConfirmation")}
         confirmBtnVariant={ButtonVariant.primary}
         confirmBtnLabel={t("actions.accept")}
@@ -705,15 +614,18 @@ const Archetypes: React.FC = () => {
         onCancel={() => setArchetypeToAssess(null)}
         onClose={() => setArchetypeToAssess(null)}
         onConfirm={() => {
-          archetypeToAssess &&
+          if (archetypeToAssess) {
             history.push(
               formatPath(Paths.archetypeAssessmentActions, {
-                archetypeId: archetypeToAssess?.id,
+                archetypeId: archetypeToAssess.id,
               })
             );
+          }
           setArchetypeToAssess(null);
         }}
       />
+
+      {/* Confirm edit review modal */}
       <ConfirmDialog
         title={t("composed.editQuestion", {
           what: t("terms.review").toLowerCase(),

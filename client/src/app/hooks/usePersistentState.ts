@@ -1,11 +1,13 @@
-import React from "react";
-import { IUseUrlParamsArgs, useUrlParams } from "./useUrlParams";
+import { useState } from "react";
+
 import {
   UseStorageTypeOptions,
   useLocalStorage,
   useSessionStorage,
-} from "@migtools/lib-ui";
+} from "@app/hooks/useStorage";
 import { DisallowCharacters } from "@app/utils/type-utils";
+
+import { IUseUrlParamsArgs, useUrlParams } from "./useUrlParams";
 
 type PersistToStateOptions = { persistTo?: "state" };
 
@@ -79,7 +81,7 @@ export const usePersistentState = <
     persistenceKeyPrefix ? `${persistenceKeyPrefix}:${key}` : key;
 
   const persistence = {
-    state: React.useState(defaultValue),
+    state: useState(defaultValue),
     urlParams: useUrlParams(
       isUrlParamsOptions(options)
         ? options
@@ -122,7 +124,7 @@ const usePersistenceProvider = <TValue>({
   deserialize,
   defaultValue,
 }: PersistToProvider<TValue>): [TValue, (val: TValue) => void] => {
-  // use default value if nulish value was deserialized
+  // use default value if nullish value was deserialized
   return [deserialize() ?? defaultValue, serialize];
 };
 

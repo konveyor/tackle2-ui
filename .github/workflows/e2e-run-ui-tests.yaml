@@ -1,0 +1,273 @@
+name: e2e - run UI tests on minikube
+
+on:
+  workflow_call: # call from another workflow
+    inputs:
+      test_tags:
+        type: string
+        default: "@ci,@tier0"
+
+      feature_auth_required:
+        type: boolean
+        default: false
+
+      bundle_image:
+        type: string
+        default: quay.io/konveyor/tackle2-operator-bundle:latest
+
+      ui_image:
+        type: string
+        default: quay.io/konveyor/tackle2-ui:latest
+
+      install_konveyor_version:
+        type: string
+        default: main
+
+      test_ref:
+        type: string
+        default: main
+
+    secrets:
+      GIT_USER:
+        required: false
+      GIT_PASSWORD:
+        required: false
+      SVN_USER:
+        required: false
+      SVN_PASSWORD:
+        required: false
+      JIRA_STAGE_DATACENTER_URL:
+        required: false
+      JIRA_STAGE_BEARER_TOKEN:
+        required: false
+      JIRA_STAGE_BASIC_LOGIN:
+        required: false
+      JIRA_STAGE_BASIC_PASSWORD:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_URL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_EMAIL:
+        required: false
+      JIRA_ATLASSIAN_CLOUD_TOKEN:
+        required: false
+
+  workflow_dispatch: # start from GitHub UI or API
+    inputs:
+      test_tags:
+        description: Comma separated list of test tags to run
+        type: string
+        default: "@ci,@tier0"
+
+      feature_auth_required:
+        description: Enable authentication?
+        type: boolean
+        default: false
+
+      bundle_image:
+        description: Operator bundle image to use
+        type: string
+        default: quay.io/konveyor/tackle2-operator-bundle:latest
+
+      ui_image:
+        description: UI image to use when installing Konveyor
+        type: string
+        default: quay.io/konveyor/tackle2-ui:latest
+
+      install_konveyor_version:
+        description: Ref in operator repo to use for the install-konveyor action
+        type: string
+        default: main
+
+      test_ref:
+        description: Ref in this repo to use for the tests
+        type: string
+        default: main
+
+jobs:
+  run-test:
+    name: "Run tests - ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}, test: ${{ inputs.test_ref }}, tags: ${{ inputs.test_tags }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup minikube
+        uses: konveyor/operator/.github/actions/start-minikube@main
+        with:
+          memory: "max"
+          cpus: "max"
+
+      - name: Checkout the operator so we can pick the install-konveyor version to use dynamically
+        uses: actions/checkout@v6
+        with:
+          repository: konveyor/operator
+          ref: ${{ inputs.install_konveyor_version }}
+          path: konveyor-operator
+
+      - name: "Install konveyor using ${{ inputs.install_konveyor_version }}"
+        uses: ./konveyor-operator/.github/actions/install-konveyor
+        with:
+          bundle_image: ${{ inputs.bundle_image }}
+          tackle_cr: |
+            kind: Tackle
+            apiVersion: tackle.konveyor.io/v1alpha1
+            metadata:
+              name: tackle
+            spec:
+              image_pull_policy: IfNotPresent
+              feature_auth_required: ${{ inputs.feature_auth_required }}
+              ui_image_fqin: ${{ inputs.ui_image }}
+
+      - name: Wait for Ingress
+        run: |
+          kubectl wait \
+            -n konveyor-tackle \
+            ingress/tackle \
+            --timeout=600s \
+            --for=jsonpath='{.status.loadBalancer.ingress[0]}'
+
+          minikube_ip=$(minikube ip)
+          echo "ingress is ready at: ${minikube_ip}"
+          echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
+
+      - name: Get Keycloak admin password
+        if: ${{ inputs.feature_auth_required }}
+        run: |
+          # Wait for Keycloak secret to be created
+          echo "Waiting for tackle-keycloak-sso secret..."
+          secret_found=false
+          for i in {1..30}; do
+            if kubectl get secret tackle-keycloak-sso -n konveyor-tackle &>/dev/null; then
+              echo "Secret found!"
+              secret_found=true
+              break
+            fi
+            echo "Waiting for secret (attempt $i/30)..."
+            sleep 2
+          done
+
+          if [[ "$secret_found" != "true" ]]; then
+            echo "ERROR: tackle-keycloak-sso secret not found after 30 attempts"
+            kubectl get secrets -n konveyor-tackle
+            exit 1
+          fi
+
+          # Fetch Keycloak admin password from the secret
+          KEYCLOAK_PASS=$(kubectl get secret tackle-keycloak-sso \
+            -n konveyor-tackle \
+            -o jsonpath='{.data.password}' | base64 -d)
+
+          echo "Keycloak admin password retrieved"
+          echo "KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_PASS}" >>$GITHUB_ENV
+
+      - name: Expose metrics endpoint
+        run: |
+          # Wait for tackle-hub pod to be ready
+          echo "Waiting for tackle-hub pod to be ready..."
+          kubectl wait --for=condition=ready pod \
+            -n konveyor-tackle \
+            -l app.kubernetes.io/name=tackle-hub \
+            --timeout=600s
+
+          # Find the tackle-hub pod
+          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
+          echo "Hub pod: $HUB_POD"
+
+          # Verify metrics endpoint is available inside the pod first
+          echo "Checking if metrics endpoint is available inside the pod..."
+          for i in {1..30}; do
+            if kubectl exec -n konveyor-tackle "$HUB_POD" -- curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Metrics endpoint is available inside the pod"
+              break
+            fi
+            echo "Waiting for metrics endpoint to be available (attempt $i/30)..."
+            sleep 2
+          done
+
+          # Port-forward metrics endpoint in the background (persistent across steps)
+          nohup kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 > /tmp/port-forward-metrics.log 2>&1 &
+          echo $! > /tmp/port-forward-metrics.pid
+          echo "Port-forward PID: $(cat /tmp/port-forward-metrics.pid)"
+
+          # Wait for port-forward to be ready with retry logic
+          echo "Waiting for port-forward to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+              echo "Port-forward is ready and metrics endpoint is accessible"
+              break
+            fi
+            echo "Waiting for port-forward (attempt $i/30)..."
+            sleep 2
+          done
+
+          # Verify metrics endpoint is accessible
+          echo "Testing metrics endpoint..."
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+            echo "Metrics endpoint test successful"
+          else
+            echo "Failed to access metrics endpoint"
+            kubectl logs -n konveyor-tackle "$HUB_POD" --tail=50
+            exit 1
+          fi
+
+          # Set metrics URL for Cypress tests
+          echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
+
+      - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.test_ref }}
+          path: tackle2-ui
+
+      - name: Verify metrics endpoint is still accessible
+        run: |
+          echo "Verifying port-forward is still running..."
+          if [[ -f /tmp/port-forward-metrics.pid ]]; then
+            PID=$(cat /tmp/port-forward-metrics.pid)
+            if ps -p $PID > /dev/null 2>&1; then
+              echo "✓ Port-forward process is running (PID: $PID)"
+            else
+              echo "✗ Port-forward process is NOT running!"
+              exit 1
+            fi
+          else
+            echo "✗ Port-forward PID file not found!"
+            exit 1
+          fi
+
+          echo "Testing metrics endpoint accessibility..."
+          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
+            echo "✓ Metrics endpoint is accessible"
+          else
+            echo "✗ Metrics endpoint is NOT accessible!"
+            cat /tmp/port-forward-metrics.log
+            exit 1
+          fi
+
+      - name: Sanitize test_ref for artifact name
+        env:
+          TEST_REF: ${{ inputs.test_ref }}
+        run: |
+          SANITIZED_REF="${TEST_REF//\//_}"
+          echo "SANITIZED_TEST_REF=${SANITIZED_REF}" >> $GITHUB_ENV
+
+      - name: "Run UI tests"
+        uses: ./tackle2-ui/.github/actions/run-ui-tests
+        with:
+          test_tags: ${{ inputs.test_tags }}
+          tests_ref: ${{ inputs.test_ref }}
+          base_url: ${{ env.UI_URL }}
+          metrics_url: ${{ env.METRICS_URL }}
+          feature_auth_required: ${{ inputs.feature_auth_required }}
+          report_artifact_name: "ui-test-e2e-reports-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.feature_auth_required && 'auth' || 'noauth' }}-${{ env.SANITIZED_TEST_REF }}"
+          # Pass credentials as inputs
+          keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
+          git_user: ${{ secrets.GIT_USER }}
+          git_password: ${{ secrets.GIT_PASSWORD }}
+          svn_user: ${{ secrets.SVN_USER }}
+          svn_password: ${{ secrets.SVN_PASSWORD }}
+          jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}
+          jira_stage_bearer_token: ${{ secrets.JIRA_STAGE_BEARER_TOKEN }}
+          jira_stage_basic_login: ${{ secrets.JIRA_STAGE_BASIC_LOGIN }}
+          jira_stage_basic_password: ${{ secrets.JIRA_STAGE_BASIC_PASSWORD }}
+          jira_atlassian_cloud_url: ${{ secrets.JIRA_ATLASSIAN_CLOUD_URL }}
+          jira_atlassian_cloud_email: ${{ secrets.JIRA_ATLASSIAN_CLOUD_EMAIL }}
+          jira_atlassian_cloud_token: ${{ secrets.JIRA_ATLASSIAN_CLOUD_TOKEN }}

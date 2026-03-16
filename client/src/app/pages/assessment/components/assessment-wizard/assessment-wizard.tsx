@@ -1,8 +1,12 @@
-import * as yup from "yup";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { FieldErrors, FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 import {
   ButtonVariant,
   Wizard,
@@ -10,6 +14,7 @@ import {
   WizardStep,
 } from "@patternfly/react-core";
 
+import { Paths } from "@app/Paths";
 import {
   Assessment,
   AssessmentStatus,
@@ -19,34 +24,32 @@ import {
   Ref,
   SectionWithQuestionOrder,
 } from "@app/api/models";
-import { CustomWizardFooter } from "../custom-wizard-footer";
 import { getApplicationById, getArchetypeById } from "@app/api/rest";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { QuestionnaireForm } from "../questionnaire-form";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import useIsArchetype from "@app/hooks/useIsArchetype";
+import {
+  assessmentsByItemIdQueryKey,
+  useDeleteAssessmentMutation,
+  useUpdateAssessmentMutation,
+} from "@app/queries/assessments";
+import { useWithUiId } from "@app/utils/query-utils";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+
 import {
   COMMENTS_KEY,
   QUESTIONS_KEY,
   getCommentFieldName,
   getQuestionFieldName,
 } from "../../form-utils";
-import { AxiosError } from "axios";
-import {
-  assessmentsByItemIdQueryKey,
-  useDeleteAssessmentMutation,
-  useUpdateAssessmentMutation,
-} from "@app/queries/assessments";
-import { useQueryClient } from "@tanstack/react-query";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
-import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AssessmentStakeholdersForm,
   combineAndGroupStakeholderRefs,
 } from "../assessment-stakeholders-form/assessment-stakeholders-form";
-import useIsArchetype from "@app/hooks/useIsArchetype";
+import { CustomWizardFooter } from "../custom-wizard-footer";
+import { QuestionnaireForm } from "../questionnaire-form";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 export const SAVE_ACTION_KEY = "saveAction";
 
@@ -103,8 +106,15 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const sortedSections = (assessment ? assessment.sections : []).sort(
-    (a, b) => a.order - b.order
+  const sortedSections = useMemo(() => {
+    return (assessment ? assessment.sections : []).sort(
+      (a, b) => a.order - b.order
+    );
+  }, [assessment]);
+
+  const sectionsWithUiId = useWithUiId(
+    sortedSections,
+    (section) => `section-${section.order}-${section.name}`
   );
 
   const initialComments = useMemo(() => {
@@ -117,8 +127,6 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
     return comments;
   }, [assessment]);
 
-  const initialStakeholders = assessment?.stakeholders ?? [];
-  const initialStakeholderGroups = assessment?.stakeholderGroups ?? [];
   const initialQuestions = useMemo(() => {
     const questions: { [key: string]: string | undefined } = {};
     if (assessment) {
@@ -387,7 +395,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
         variant: "success",
       });
       if (isArchetype) {
-        assessment?.archetype?.id &&
+        if (assessment?.archetype?.id) {
           getArchetypeById(assessment.archetype.id)
             .then((data) => {
               history.push(
@@ -402,8 +410,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                 variant: "danger",
               });
             });
+        }
       } else {
-        assessment?.application?.id &&
+        if (assessment?.application?.id) {
           getApplicationById(assessment.application.id)
             .then((data) => {
               history.push(
@@ -418,6 +427,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                 variant: "danger",
               });
             });
+        }
       }
     } catch (error) {
       pushNotification({
@@ -498,7 +508,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
   const handleCancelAssessment = () => {
     if (assessment) {
       if (isArchetype) {
-        assessment.status === "empty" &&
+        if (assessment.status === "empty") {
           deleteAssessmentMutation({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
@@ -506,8 +516,9 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
+        }
       } else {
-        assessment.status === "empty" &&
+        if (assessment.status === "empty") {
           deleteAssessmentMutation({
             assessmentId: assessment.id,
             applicationName: assessment.application?.name,
@@ -515,6 +526,7 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             archetypeName: assessment.archetype?.name,
             archetypeId: assessment.archetype?.id,
           });
+        }
       }
     }
     setAssessmentToCancel(null);
@@ -532,17 +544,17 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
           section ? shouldNextBtnBeEnabled(section) : isFirstStepValid()
         }
         isFirstStep={step === 0}
-        isLastStep={step === sortedSections.length}
+        isLastStep={step === sectionsWithUiId.length}
         onNext={() => setCurrentStep(step + 1)}
         onBack={() => setCurrentStep(step - 1)}
         isAssessmentChanged={isAssessmentChanged()}
         isDisabled={
           isSubmitting ||
           isValidating ||
-          (step === sortedSections.length &&
-            !shouldNextBtnBeEnabled(sortedSections[step - 1]))
+          (step === sectionsWithUiId.length &&
+            !shouldNextBtnBeEnabled(sectionsWithUiId[step - 1]))
         }
-        isSaveAsDraftDisabled={shouldDisableSaveAsDraft(sortedSections)}
+        isSaveAsDraftDisabled={shouldDisableSaveAsDraft(sectionsWithUiId)}
         isFormInvalid={!isValid}
         onSave={(review) => {
           const saveActionValue = review
@@ -568,19 +580,19 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
       ) : (
         <FormProvider {...methods}>
           <Wizard
-            key={sortedSections.length}
+            key={sectionsWithUiId.length}
             isVisitRequired
             onStepChange={(_e, curr) => {
               setCurrentStep(curr.index);
             }}
             onClose={() => {
-              assessment && setAssessmentToCancel(assessment);
+              if (assessment) setAssessmentToCancel(assessment);
             }}
             header={
               <WizardHeader
                 title={t("terms.assessment")}
                 onClose={() => {
-                  assessment && setAssessmentToCancel(assessment);
+                  if (assessment) setAssessmentToCancel(assessment);
                 }}
               />
             }
@@ -595,11 +607,11 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
             >
               <AssessmentStakeholdersForm />
             </WizardStep>
-            {...sortedSections.map((section, index) => {
+            {...sectionsWithUiId.map((section, index) => {
               const stepIndex = index + 1;
               return (
                 <WizardStep
-                  key={`${index}-${section.name}`}
+                  key={section._ui_unique_id}
                   id={stepIndex}
                   name={section.name}
                   isDisabled={stepIndex !== currentStep && disableNavigation}
@@ -608,7 +620,10 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                   }}
                   footer={getWizardFooter(stepIndex, section)}
                 >
-                  <QuestionnaireForm key={section.name} section={section} />
+                  <QuestionnaireForm
+                    key={section._ui_unique_id}
+                    section={section}
+                  />
                 </WizardStep>
               );
             })}

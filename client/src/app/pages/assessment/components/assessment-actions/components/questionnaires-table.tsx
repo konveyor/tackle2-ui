@@ -1,22 +1,25 @@
 import "./questionnaires-table.css";
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import { useLocalTableControls } from "@app/hooks/table-controls";
-import {
-  ConditionalTableBody,
-  TableHeaderContentWithControls,
-  TableRowContentWithControls,
-} from "@app/components/TableControls";
-import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import {
   Application,
   Archetype,
   AssessmentWithSectionOrder,
   Questionnaire,
 } from "@app/api/models";
-import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import {
+  ConditionalTableBody,
+  TableHeaderContentWithControls,
+  TableRowContentWithControls,
+} from "@app/components/TableControls";
+import { useLocalTableControls } from "@app/hooks/table-controls";
+
 import AssessmentModal from "../../assessment-wizard/assessment-wizard-modal";
+
+import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
 
 interface QuestionnairesTableProps {
   tableName: string;
@@ -50,7 +53,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   const {
     currentPageItems,
     numRenderedColumns,
-    propHelpers: { tableProps, getThProps, getTrProps, getTdProps },
+    propHelpers: { tableProps, getThProps, getTdProps },
   } = tableControls;
 
   const [createdAssessment, setCreatedAssessment] =
@@ -74,6 +77,9 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
           <Tr>
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "questionnaires" })} />
+              {application || archetype ? (
+                <Th screenReaderText="row actions" />
+              ) : null}
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

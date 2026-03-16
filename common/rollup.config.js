@@ -1,15 +1,14 @@
-/* eslint-env node */
-
+/* global process */
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
 import util from "node:util";
 
-import copy from "rollup-plugin-copy";
-import nodeResolve from "@rollup/plugin-node-resolve";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import virtual from "@rollup/plugin-virtual";
-import ejs from "ejs";
+import { render } from "ejs";
+import copy from "rollup-plugin-copy";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathTo = (...relativePath) => path.resolve(__dirname, ...relativePath);
@@ -19,7 +18,7 @@ const brandingPath = pathTo("../", baseBrandingPath);
 const jsonStrings = JSON.parse(
   readFileSync(path.resolve(brandingPath, "./strings.json"), "utf8")
 );
-const stringModule = ejs.render(
+const stringModule = render(
   `
   export const strings = ${util.inspect(jsonStrings)};
   export default strings;
@@ -31,7 +30,10 @@ const stringModule = ejs.render(
 
 console.log("Using branding assets from:", brandingPath);
 
+/** @type {import('rollup').RollupOptions} */
 const config = {
+  strictDeprecations: true,
+
   input: "src/index.ts",
 
   output: [
@@ -53,7 +55,7 @@ const config = {
 
   plugins: [
     copy({
-      targets: [{ src: `${brandingPath}/**/*`, dest: "dist/branding" }],
+      targets: [{ src: `${brandingPath}/*`, dest: "dist/branding" }],
     }),
     nodeResolve(),
     typescript(),

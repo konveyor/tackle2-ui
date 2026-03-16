@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
+
 import { AppAboutModal } from "../AppAboutModal";
 
 export interface ChildrenProps {
@@ -7,7 +9,7 @@ export interface ChildrenProps {
 }
 
 export interface AppAboutModalStateProps {
-  children: (args: ChildrenProps) => any;
+  children: (args: ChildrenProps) => React.ReactNode;
 }
 
 export const AppAboutModalState: React.FC<AppAboutModalStateProps> = ({

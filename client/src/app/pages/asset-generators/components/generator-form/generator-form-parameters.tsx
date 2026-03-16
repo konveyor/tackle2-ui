@@ -1,0 +1,79 @@
+import { useRef, useState } from "react";
+import * as React from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { Button, FormFieldGroupHeader, Label } from "@patternfly/react-core";
+import { PlusCircleIcon } from "@patternfly/react-icons";
+
+import { ControlledFormFieldGroupExpandable } from "@app/components/ControlledFormFieldGroupExpandable";
+
+import { KeyValueFields } from "./generator-fields-mapper";
+
+interface GeneratorFormParametersProps {}
+
+const GeneratorFormParametersComponent: React.FC<
+  GeneratorFormParametersProps
+> = () => {
+  const { t } = useTranslation();
+  const { control } = useFormContext();
+  const params = useWatch({
+    control,
+    name: "params",
+  });
+  const addButtonRef = useRef<{ addField: () => void }>(null);
+  const [isExpanded, setIsExpanded] = useState(params.length > 0);
+
+  const handleAddClick = () => {
+    if (!addButtonRef.current) {
+      setIsExpanded(true);
+      // wait for the next tick to ensure the component is mounted
+      Promise.resolve().then(() => {
+        addButtonRef.current?.addField();
+      });
+    } else {
+      addButtonRef.current?.addField();
+    }
+  };
+
+  return (
+    <ControlledFormFieldGroupExpandable
+      isExpanded={isExpanded}
+      onToggle={() => setIsExpanded(!isExpanded)}
+      toggleAriaLabel="Toggle parameters section"
+      header={
+        <FormFieldGroupHeader
+          titleText={{
+            text: (
+              <>
+                {t("terms.parameters")}{" "}
+                <Label color="blue">{params.length}</Label>
+              </>
+            ),
+            id: "parameters-header",
+          }}
+          actions={
+            <Button
+              icon={<PlusCircleIcon />}
+              id="add-generator-value"
+              variant="link"
+              onClick={handleAddClick}
+            >
+              Add new parameter definition
+            </Button>
+          }
+        />
+      }
+    >
+      <KeyValueFields
+        ref={addButtonRef}
+        noValuesMessage="No parameters to display"
+        removeLabel="Remove this parameter definition"
+        name="params"
+      />
+    </ControlledFormFieldGroupExpandable>
+  );
+};
+
+export const GeneratorFormParameters = React.memo(
+  GeneratorFormParametersComponent
+);

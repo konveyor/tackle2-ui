@@ -10,6 +10,7 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
       >
         <div
           class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
+          tabindex="0"
         >
           <div>
             <svg
@@ -45,6 +46,7 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
     >
       <div
         class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
+        tabindex="0"
       >
         <div>
           <svg

@@ -1,16 +1,20 @@
 import { AxiosError } from "axios";
+
+import { Paths } from "@app/Paths";
+
 import {
+  collapseSpacesAndCompare,
+  extractFirstSha,
+  formatPath,
   getAxiosErrorMessage,
+  getToolbarChipKey,
   getValidatedFromError,
   getValidatedFromErrors,
-  getToolbarChipKey,
-  gitUrlRegex,
-  standardURLRegex,
-  formatPath,
-  extractFirstSha,
-  collapseSpacesAndCompare,
+  intersection,
+  isValidGitUrl,
+  isValidStandardUrl,
+  isValidSvnUrl,
 } from "./utils";
-import { Paths } from "@app/Paths";
 
 describe("utils", () => {
   // getAxiosErrorMessage
@@ -70,68 +74,173 @@ describe("utils", () => {
     const result = getToolbarChipKey({ key: "myKey", node: "myNode" });
     expect(result).toBe("myKey");
   });
+});
 
-  describe("URL Regex tests", () => {
-    // Define your regex patterns here
+describe("URL validation tests", () => {
+  describe("Valid git URLs from various services", () => {
+    const testGitURLs = [
+      "ssh://git@github.com/konveyor/tackle2-ui",
+      "ssh://git@github.com/konveyor/tackle2-ui.git",
+      "ssh://git@github.com/konveyor/tackle2-ui.git/",
+      "ssh://git@github.com:7999/konveyor/tackle2-ui.git",
+      "ssh://user@host.xz/~user/path/to/repo.git/",
+      "git@github.com:konveyor/tackle2-ui",
+      "git@github.com:konveyor/tackle2-ui.git",
+      "git://host.xz/~user/path/to/repo.git/",
+      "https://host.xz/path/to/repo.git/",
+      "http://github.com/konveyor/tackle2-ui",
+      "http://github.com:/konveyor/tackle2-ui", // no port number, ":" is ignored
+      "http://github.com/konveyor/tackle2-ui/",
+      "http://github.com/konveyor/tackle2-ui.git",
+      "http://github.com/konveyor/tackle2-ui.git/",
+      "https://github.com/konveyor/tackle2-ui.git#cafe012e",
+      "https://github.com/konveyor",
+      "https://ssh://git@github.com/konveyor/tackle2-ui", // valid URL, "ssh" is the host
+    ];
 
-    it("Regex should validate git URLs", () => {
-      const testGitURLs = [
-        "git@github.com:konveyor/tackle2-ui.git",
-        "http://github.com/konveyor/tackle2-ui.git",
-      ];
+    for (const url of testGitURLs) {
+      it(`Valid git URL: "${url}"`, () => {
+        const result = isValidGitUrl(url);
+        expect(result).toBe(true);
+      });
+    }
+  });
 
-      for (const url of testGitURLs) {
-        expect(gitUrlRegex.test(url)).toBe(true);
-      }
-    });
+  describe("Invalid git URLs", () => {
+    const testIncorrectGitURLs = [
+      "ssh://git@github.com:konveyor/tackle2-ui.git",
+      "httpsssh://git@github.com/konveyor/tackle2-ui",
+      "https://",
+      "git@",
+      "svn://host.xz/path/to/repo",
+      "ssh:://foo.com/org/repo",
+      "ssh:///foo.com/org/repo",
+      "random text",
+    ];
 
-    it("Regex should fail when validating incorrect git URLs", () => {
-      const testIncorrectGitURLs = [
-        "https://",
-        "git@",
-        "http://github.com/konveyor",
-      ];
-
-      for (const url of testIncorrectGitURLs) {
-        const result = gitUrlRegex.test(url);
-        console.log(`Testing URL: ${url}, Result: ${result}`);
-
+    for (const url of testIncorrectGitURLs) {
+      it(`Invalid git URL: "${url}"`, () => {
+        const result = isValidGitUrl(url);
         expect(result).toBe(false);
-      }
-    });
+      });
+    }
+  });
 
-    it("Regex should validate standard URLs", () => {
-      const testStandardURLs = [
-        "http://www.foo.bar",
-        "www.foo.bar",
-        "https://www.github.com/ibolton336/tackle-testapp.git",
-      ];
+  describe("Valid svn URLs", () => {
+    const testSvnURLs = [
+      "svn://host.testing",
+      "svn://host.testing/",
+      "svn://host.testing:3690",
+      "svn://host.testing:3690/repo",
+      "svn://host.xz/path/to/repo/",
+      "svn://a.b.c.foo",
+      "svn://10.11.12.13",
+      "svn://10.11.12.13/repo",
+      "svn://10.11.12.13/svn/mtage-svn/book-server",
+      "svn://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
+      "http://host.xz/path/to/repo",
+      "http://host.xz/path/to/repo/",
+      "https://host.xz/path/to/repo",
+      "https://host.xz/path/to/repo/",
+      "https://host.xz:/path/to/repo",
+      "https://host.xz:8080/path/to/repo",
+      "http://10.11.12.13",
+      "http://10.11.12.13/repo",
+      "http://10.11.12.13:8080/repo",
+      "https://10.11.12.13/svn/mtage-svn/book-server",
+      "https://10.11.12.13/svn/mtage-svn/bookserver-no-trunk",
+    ];
 
-      for (const url of testStandardURLs) {
-        expect(standardURLRegex.test(url)).toBe(true);
-      }
-    });
+    for (const url of testSvnURLs) {
+      it(`Valid svn URL: "${url}"`, () => {
+        const result = isValidSvnUrl(url);
+        expect(result).toBe(true);
+      });
+    }
+  });
 
-    it("Regex should fail when validating broken standard URLs", () => {
-      const testBrokenURLs = [
-        "",
-        "http://",
-        "https://",
-        "http:",
-        "http://www.foo",
-        "http://wrong",
-        "wwwfoo.bar",
-        "foo.bar",
-        "www.foo.b",
-      ];
+  describe("Invalid svn URLs", () => {
+    const testSvnURLs = [
+      "",
+      "svn:",
+      "svn://",
+      "svn://host", // just a hostname, not FQDN
+      "svn://host/",
+      "svn://-host.testing/", // bad host label
+      "svn://host-.testing/",
+      "svn://host.-testing", // bad tld
+      "svn://host.testing-",
+      "svn://:3690", // no host
+      "svn://10.11.12", // bad IP
+      "svn://-10.11.12.13",
+      "svn://10-.11.12.13/",
+      "svn://foo.bar.ไทย/path", // non latin-1 charset TLD
+    ];
 
-      for (const url of testBrokenURLs) {
-        const result = standardURLRegex.test(url);
-        console.log(`Testing URL: ${url}, Result: ${result}`);
-
+    for (const url of testSvnURLs) {
+      it(`Invalid svn URL: "${url}"`, () => {
+        const result = isValidSvnUrl(url);
         expect(result).toBe(false);
-      }
-    });
+      });
+    }
+  });
+
+  describe("Valid standard URLs", () => {
+    const testStandardURLs = [
+      "https://a.b.c.foo",
+      "http://www.foo",
+      "http://www.foo.bar",
+      "http://www.foo.bar/zig",
+      "http://www.foo.bar:/zig",
+      "http://www.foo.bar:8080",
+      "http://www.foo.bar:8080/zig",
+      "https://www.github.com/ibolton336/tackle-testapp.git",
+      "http://10.11.12.13",
+      "http://10.11.12.13/",
+      "http://10.11.12.13/path",
+      "http://10.11.12.13:8080",
+      "http://10.11.12.13:8080/",
+      "http://10.11.12.13:8080/path",
+    ];
+
+    for (const url of testStandardURLs) {
+      it(`Valid URL: "${url}"`, () => {
+        const result = isValidStandardUrl(url);
+        expect(result).toBe(true);
+      });
+    }
+  });
+
+  describe("Invalid standard URLs", () => {
+    const testBrokenURLs = [
+      "",
+      "http:",
+      "http://",
+      "https://",
+      "http://host", // just a hostname, not a FQDN
+      "http://www-.foo", // bad host label
+      "http://www.-foo", // bad tld
+      "http://www.foo-", // bad tld
+      "http://foo.bar.ไทย/path", // non latin-1 charset TLD
+      "wwwfoo.bar", // no protocol
+      "foo.bar",
+      "www.foo.b",
+      "www.-foo.bar",
+      "www.10",
+      "-www.foo",
+      "www-.foo",
+      "www.foo.bar",
+      "www.foo.bar/zig/zag",
+      "www.foo.bar:8080",
+      "www.foo.bar:8080/zig/zag",
+    ];
+
+    for (const url of testBrokenURLs) {
+      it(`Invalid URL: "${url}"`, () => {
+        const result = isValidStandardUrl(url);
+        expect(result).toBe(false);
+      });
+    }
   });
 
   it("URL should match the same multiple times in a row", () => {
@@ -143,11 +252,11 @@ describe("utils", () => {
 
     const url = "https://github.com/ibolton336/tackle-testapp.git";
 
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
-    expect(standardURLRegex.test(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
+    expect(isValidStandardUrl(url)).toBe(true);
   });
 });
 
@@ -243,4 +352,131 @@ describe("space collapse string compare (using en-US compares)", () => {
       expect(result).toBe(expected);
     }
   );
+});
+
+describe("intersection", () => {
+  it("returns empty array when no arrays are provided", () => {
+    expect(intersection()).toEqual([]);
+  });
+
+  it("returns a copy of the single array when only one array is provided", () => {
+    const arr = [1, 2, 3];
+    expect(intersection([arr])).toEqual([1, 2, 3]);
+  });
+
+  it("returns intersection of two arrays with common elements", () => {
+    expect(
+      intersection([
+        [1, 2, 3],
+        [2, 3, 4],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("returns empty array when there is no intersection", () => {
+    expect(
+      intersection([
+        [1, 2],
+        [3, 4],
+      ])
+    ).toEqual([]);
+  });
+
+  it("returns intersection for more than two arrays", () => {
+    expect(
+      intersection([
+        [1, 2, 3, 4],
+        [2, 3, 5],
+        [2, 6, 3],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("handles arrays with duplicate values", () => {
+    expect(
+      intersection([
+        [1, 2, 2, 3],
+        [2, 2, 3, 4],
+        [2, 3, 3],
+      ])
+    ).toEqual([2, 3]);
+  });
+
+  it("returns empty array if any array is empty", () => {
+    expect(intersection([[1, 2, 3], [], [2, 3]])).toEqual([]);
+  });
+
+  it("works with arrays of strings", () => {
+    expect(
+      intersection([
+        ["a", "b", "c"],
+        ["b", "c", "d"],
+        ["c", "b"],
+      ])
+    ).toEqual(["b", "c"]);
+  });
+
+  it("works with arrays of objects by reference", () => {
+    const a = { id: 1 };
+    const b = { id: 2 };
+    const c = { id: 3 };
+    expect(intersection([[a, b], [b, c], [b]])).toEqual([b]);
+  });
+
+  it("works with arrays of objects using eqTest for deep equality", () => {
+    const a1 = { id: 1 };
+    const a2 = { id: 1 };
+    const b1 = { id: 2 };
+    const b2 = { id: 2 };
+    const c = { id: 3 };
+
+    // eqTest compares by id property
+    const eqTest = (x: { id: number }, y: { id: number }) => x.id === y.id;
+
+    expect(
+      intersection(
+        [
+          [a1, b1, c],
+          [a2, b2],
+          [b2, { id: 4 }],
+        ],
+        eqTest
+      )
+    ).toEqual([b1]);
+  });
+
+  it("returns empty array if no objects match using eqTest", () => {
+    const a = { id: 1 };
+    const b = { id: 2 };
+    const c = { id: 3 };
+    const d = { id: 4 };
+
+    const eqTest = (x: { id: number }, y: { id: number }) => x.id === y.id;
+
+    expect(
+      intersection(
+        [
+          [a, b],
+          [c, d],
+        ],
+        eqTest
+      )
+    ).toEqual([]);
+  });
+
+  it("works with custom eqTest for case-insensitive string comparison", () => {
+    const eqTest = (a: string, b: string) =>
+      a.toLowerCase() === b.toLowerCase();
+
+    expect(
+      intersection(
+        [
+          ["Apple", "Banana", "Cherry"],
+          ["banana", "cherry", "Date"],
+          ["BANANA", "CHERRY"],
+        ],
+        eqTest
+      )
+    ).toEqual(["Banana", "Cherry"]);
+  });
 });

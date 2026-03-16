@@ -1,7 +1,12 @@
-import * as yup from "yup";
 import { AxiosError } from "axios";
-import { ToolbarChip } from "@patternfly/react-core";
-import { AdminPathValues, DevPathValues } from "@app/Paths";
+import gitUrlParse from "git-url-parse";
+import { MenuToggleProps, ToolbarChip } from "@patternfly/react-core";
+
+import {
+  AdminPathValues,
+  DevPathValues,
+  UniversalPathValues,
+} from "@app/Paths";
 import i18n from "@app/i18n";
 
 // Axios error
@@ -61,7 +66,7 @@ export const duplicateNameCheck = <T extends { name?: string }>(
   nameValue: T["name"]
 ) => duplicateFieldCheck("name", itemList, currentItem, nameValue);
 
-export const dedupeFunction = (arr: any[]) =>
+export const dedupeFunction = <T extends { value: unknown }>(arr: T[]) =>
   arr?.filter(
     (value, index, self) =>
       index === self.findIndex((t) => t.value === value.value)
@@ -92,7 +97,7 @@ export const parseMaybeNumericString = (
   return isNaN(num) ? numOrStr : num;
 };
 
-export const objectKeys = <T extends Object>(obj: T) =>
+export const objectKeys = <T extends object>(obj: T) =>
   Object.keys(obj) as (keyof T)[];
 
 export const getValidatedFromErrors = (
@@ -103,39 +108,54 @@ export const getValidatedFromErrors = (
   return error && (dirty || isTouched) ? "error" : "default";
 };
 
+export const getToggleStatusFromErrors = (
+  error: unknown | undefined,
+  dirty: boolean | undefined,
+  isTouched: boolean | undefined
+): MenuToggleProps["status"] => {
+  const validated = getValidatedFromErrors(error, dirty, isTouched);
+  return validated === "error" ? "danger" : undefined;
+};
+
 export const getValidatedFromError = (error: unknown | undefined) => {
   return error ? "error" : "default";
 };
 
-export const standardURLRegex =
-  /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/;
-
-export const gitUrlRegex =
-  /^(https?:\/\/[-\w.]+\/[-\w._]+\/[-\w._]+|git@[-\w.]+:[-\w._]+\/[-\w._]+)(\.git)?(\/?|#[-\d\w._]+)?$/;
-
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
-export const svnUrlRegex = /^svn:\/\/[^\s/$.?#].[^\s]*$/;
+// URLs in Latin-1 (with non-capturing groups)
+//   protocol: https?:\/\/
+//   hostname label: [a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?
+//   hostname labels: [a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])*?
+//   tld: (?:\.[a-zA-Z]{2,}?)
+//   ip address (format but not validate): \d{1,3}(?:\.\d{1,3}){3}
+//   port: (?::\d*)?
+//   path: (?:\/.*)?
+// url: {{protocol}}({{hostname labels}}{{tld}})|{{ip address}}{{port}}{{path}}
+const standardUrlRegex =
+  /^https?:\/\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*?(?:\.[a-zA-Z]{2,}?)|\d{1,3}(?:\.\d{1,3}){3})(?::\d*)?(?:\/.*)?$/;
 
-export const customURLValidation = (schema: yup.StringSchema) => {
-  const containsURL = (string: string) =>
-    gitUrlRegex.test(string) ||
-    standardURLRegex.test(string) ||
-    svnUrlRegex.test(string);
+const svnUrlRegex =
+  /^svn:\/\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*?(?:\.[a-zA-Z]{2,}?)|\d{1,3}(?:\.\d{1,3}){3})(?::\d*)?(?:\/.*)?$/;
 
-  return schema.test("urlValidation", "Must be a valid URL.", (value) => {
-    if (value) {
-      return containsURL(value);
-    } else {
-      return true;
-    }
-  });
+export const isValidStandardUrl = (url: string) => standardUrlRegex.test(url);
+
+export const isValidGitUrl = (url: string): boolean => {
+  try {
+    const r = gitUrlParse(url.at(-1) === "/" ? url.slice(0, -1) : url);
+    return /^(ssh|git|http|https)$/.test(r.protocol) && !!r.host;
+  } catch {
+    return false;
+  }
 };
 
+export const isValidSvnUrl = (url: string) =>
+  svnUrlRegex.test(url) || isValidStandardUrl(url);
+
 export const formatPath = (
-  path: AdminPathValues | DevPathValues,
-  data: any
+  path: AdminPathValues | DevPathValues | UniversalPathValues,
+  data: Record<string, unknown>
 ) => {
   let url = path as string;
 
@@ -215,3 +235,52 @@ export const universalComparator = (
   b: any,
   locale: string = i18n.language
 ) => localeNumericCompare(String(a ?? ""), String(b ?? ""), locale);
+
+export function intersection<T>(
+  arrays?: T[][],
+  eqTest: (a: T, b: T) => boolean = (a, b) => a == b
+): T[] {
+  if (!arrays) return [];
+  if (arrays.length === 0) return [];
+  if (arrays.length === 1) return [...arrays[0]];
+
+  // Deduplicate the first array to ensure unique results
+  const firstArray = arrays[0];
+  const uniqueFirst = firstArray.filter(
+    (item, index) =>
+      !firstArray.slice(0, index).some((prev) => eqTest(item, prev))
+  );
+
+  return arrays
+    .slice(1)
+    .reduce(
+      (acc, current) =>
+        acc.filter((item) =>
+          current.some((currentItem) => eqTest(item, currentItem))
+        ),
+      uniqueFirst
+    );
+}
+
+/**
+ * When working with react-hook-form, we may need to wrap a value in an event object to make
+ * sure it is processed correctly.  The shape of an object __could__ look like an event and
+ * that would cause issues with how react-hook-form handles the value.  Best to remove all
+ * doubt.
+ */
+export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
+  return {
+    target: {
+      name,
+      value,
+    },
+  };
+}
+
+export function isEmptyString(value: string | undefined | null): boolean {
+  return value === undefined || value === null || value.trim() === "";
+}
+
+export function isNotEmptyString(value: string | undefined | null): boolean {
+  return value !== undefined && value !== null && value.trim() !== "";
+}

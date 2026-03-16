@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-
+import { useState } from "react";
+import * as React from "react";
 import {
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
   SelectOptionProps,
-  MenuToggle,
-  MenuToggleElement,
 } from "@patternfly/react-core";
 
 export interface ISimpleSelectBasicProps {
@@ -17,6 +17,7 @@ export interface ISimpleSelectBasicProps {
   selectId?: string;
   toggleId?: string;
   toggleAriaLabel?: string;
+  toggleDataTestId?: string;
 }
 
 export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
@@ -27,6 +28,7 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
   selectId,
   toggleId,
   toggleAriaLabel,
+  toggleDataTestId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,6 +37,7 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
       aria-label={toggleAriaLabel}
       id={toggleId}
       isFullWidth
+      data-testid={toggleDataTestId}
       ref={toggleRef}
       onClick={() => {
         setIsOpen(!isOpen);
@@ -54,6 +57,7 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
       toggle={toggle}
       onOpenChange={(isOpen) => setIsOpen(isOpen)}
       selected={value}
+      isScrollable
       onSelect={(_, selection) => {
         onChange(selection as string);
         setIsOpen(false);

@@ -1,5 +1,5 @@
 import { render, screen } from "@app/test-config/test-utils";
-import React from "react";
+
 import { RiskLabel } from "../RiskLabel";
 
 describe("RiskLabel", () => {

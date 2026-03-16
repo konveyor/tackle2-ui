@@ -1,7 +1,19 @@
-import React from "react";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
+import { Fragment } from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import {
+  Divider,
+  Text,
+  TextContent,
+  Toolbar,
+  ToolbarContent,
+  ToolbarItem,
+} from "@patternfly/react-core";
+import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
+import { Paths } from "@app/Paths";
 import {
   Answer,
   AssessmentWithArchetypeApplications,
@@ -9,30 +21,20 @@ import {
   Question,
   Ref,
 } from "@app/api/models";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
-  TableHeaderContentWithControls,
   ConditionalTableBody,
+  TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import RiskIcon from "@app/components/risk-icon/risk-icon";
 import {
   serializeFilterUrlParams,
   useLocalTableControls,
 } from "@app/hooks/table-controls";
-import { SimplePagination } from "@app/components/SimplePagination";
-import {
-  TextContent,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-  Text,
-  Divider,
-} from "@patternfly/react-core";
-import { Link } from "react-router-dom";
-import { Paths } from "@app/Paths";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import RiskIcon from "@app/components/risk-icon/risk-icon";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 
 export interface IIdentifiedRisksTableProps {
   assessmentRefs?: IdRef[];
@@ -278,7 +280,6 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
       getTdProps,
       getExpandedContentTdProps,
     },
-    sortState,
     expansionDerivedState: { isCellExpanded },
   } = tableControls;
 
@@ -335,8 +336,8 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
           <Tbody>
             {currentPageItems?.map((item, rowIndex) => {
               return (
-                <>
-                  <Tr key={item.questionId} {...getTrProps({ item: item })}>
+                <Fragment key={item.questionId}>
+                  <Tr {...getTrProps({ item: item })}>
                     <TableRowContentWithControls
                       {...tableControls}
                       item={item}
@@ -395,7 +396,7 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                       </Td>
                     </Tr>
                   ) : null}
-                </>
+                </Fragment>
               );
             })}
           </Tbody>

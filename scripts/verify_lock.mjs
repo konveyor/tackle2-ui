@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import process from "node:process";
-import path from "node:path";
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import process from "node:process";
 
 // set the working directory to project root
 // fs.accessSync("./package-lock.json")
@@ -32,8 +32,8 @@ Object.entries(lockFile.packages).forEach(([name, p]) => {
   const bucket = p.name?.startsWith("@konveyor-ui")
     ? results.project
     : p.resolved
-    ? results.resolved
-    : results.unresolved;
+      ? results.resolved
+      : results.unresolved;
 
   bucket.push(
     removeUndefined({

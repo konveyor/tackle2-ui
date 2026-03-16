@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
 import * as yup from "yup";
 import {
   ActionGroup,
@@ -12,32 +15,30 @@ import {
   PopoverPosition,
   Switch,
 } from "@patternfly/react-core";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import "./tracker-form.css";
+import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { IdentityKind, IssueManagerKind, Tracker } from "@app/api/models";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
-import {
-  useCreateTrackerMutation,
-  useFetchTrackers,
-  useUpdateTrackerMutation,
-} from "@app/queries/trackers";
-import { useFetchIdentities } from "@app/queries/identities";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import {
-  duplicateNameCheck,
-  getAxiosErrorMessage,
-  standardStrictURLRegex,
-} from "@app/utils/utils";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
-import { QuestionCircleIcon } from "@patternfly/react-icons";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import { useFetchIdentities } from "@app/queries/identities";
+import {
+  useCreateTrackerMutation,
+  useFetchTrackers,
+  useUpdateTrackerMutation,
+} from "@app/queries/trackers";
+import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import {
+  duplicateNameCheck,
+  getAxiosErrorMessage,
+  standardStrictURLRegex,
+} from "@app/utils/utils";
 
 const supportedIdentityKindByIssueManagerKind: Record<
   IssueManagerKind,
@@ -76,7 +77,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
 
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const onCreateTrackerSuccess = (_: AxiosResponse<Tracker>) => {
+  const onCreateTrackerSuccess = (tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
@@ -84,13 +85,10 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       variant: "success",
     });
 
-    addUpdatingTrackerId(_.data.id);
+    addUpdatingTrackerId(tracker.id);
   };
 
-  const onUpdateTrackerSuccess = (
-    _: AxiosResponse<Tracker>,
-    tracker: Tracker
-  ) => {
+  const onUpdateTrackerSuccess = (_response: unknown, tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
@@ -173,9 +171,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     getValues,
-    setValue,
     control,
-    watch,
   } = useForm<FormValues>({
     defaultValues: {
       name: tracker?.name || "",
@@ -190,7 +186,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   });
 
   const values = getValues();
-  const watchAllFields = watch();
 
   const identityOptions = (kind?: IssueManagerKind) => {
     const identityKinds = kind

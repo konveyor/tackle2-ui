@@ -1,8 +1,8 @@
-import React from "react";
-import AdIcon from "@patternfly/react-icons/dist/esm/icons/ad-icon";
+import { AdIcon } from "@patternfly/react-icons";
+
+import { render } from "@app/test-config/test-utils";
 
 import { SimpleEmptyState } from "../SimpleEmptyState";
-import { render } from "@app/test-config/test-utils";
 
 describe("SimpleEmptyState", () => {
   it("Renders without crashing", () => {

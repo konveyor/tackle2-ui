@@ -1,6 +1,5 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   Button,
   WizardFooterWrapper,
@@ -18,7 +17,7 @@ export interface CustomWizardFooterProps {
   onNext?: () => void;
   onBack?: () => void;
   onSave: (review: boolean) => void;
-  onClose?: () => {};
+  onClose?: () => void;
   onSaveAsDraft: () => void;
 }
 
@@ -76,7 +75,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
               variant="primary"
               onClick={() => {
                 goToNextStep();
-                onNext && onNext();
+                onNext?.();
               }}
               isDisabled={!enableNext || isDisabled || isFormInvalid}
               cy-data="next"
@@ -88,7 +87,7 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
             variant="secondary"
             onClick={() => {
               goToPrevStep();
-              onBack && onBack();
+              onBack?.();
             }}
             isDisabled={isFirstStep || isFormInvalid}
             cy-data="back"
@@ -99,22 +98,20 @@ export const CustomWizardFooter: React.FC<CustomWizardFooterProps> = ({
             variant="link"
             onClick={() => {
               close();
-              onClose && onClose();
+              onClose?.();
             }}
             cy-data="cancel"
           >
             {t("actions.cancel")}
           </Button>
-          {
-            <Button
-              variant="link"
-              onClick={onSaveAsDraft}
-              isDisabled={isFormInvalid || isSaveAsDraftDisabled}
-              cy-data="save-as-draft"
-            >
-              {t("actions.saveAsDraft")}
-            </Button>
-          }
+          <Button
+            variant="link"
+            onClick={onSaveAsDraft}
+            isDisabled={isFormInvalid || isSaveAsDraftDisabled}
+            cy-data="save-as-draft"
+          >
+            {t("actions.saveAsDraft")}
+          </Button>
         </>
       </WizardFooterWrapper>
     </>

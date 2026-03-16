@@ -1,18 +1,127 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: ":ghost: "
-    allow:
-      - dependency-name: "@patternfly/*"
-        dependency-type: "direct"
-
+  # Track Docker image updates
   - package-ecosystem: docker
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
     commit-message:
       prefix: ":seedling: "
+
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+
+  # All npm workspace dependencies (root, client, server, common, cypress)
+  # Uses a single root entry so dependabot can update the shared package-lock.json
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: monday
+    commit-message:
+      prefix: ":ghost: "
+    allow:
+      - dependency-type: direct
+
+    ignore:
+      - dependency-name: "@patternfly/*"
+        update-types:
+          - version-update:semver-major
+
+    groups:
+      "build-tools":
+        patterns:
+          - "@rollup/*"
+          - "rollup*"
+          - "copy*"
+          - "rimraf"
+          - "concurrently"
+          - "wait-on"
+
+      "linting-and-formatting":
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint/*"
+          - "prettier"
+          - "lint-staged"
+          - "husky"
+          - "*eslint-plugin*"
+
+      "typescript-tooling":
+        patterns:
+          - "typescript"
+          - "ts-*"
+          - "@types/*"
+
+      "react-ecosystem":
+        patterns:
+          - "react*"
+          - "@pmmmwh/react-refresh-webpack-plugin"
+          - "react-refresh*"
+
+      "patternfly":
+        patterns:
+          - "@patternfly/*"
+          - "monaco-editor*"
+          - "@monaco-editor/*"
+
+      "data-fetching":
+        patterns:
+          - "@tanstack/*"
+          - "axios"
+
+      "form-handling":
+        patterns:
+          - "react-hook-form"
+          - "@hookform/*"
+          - "yup"
+
+      "webpack-tooling":
+        patterns:
+          - "webpack*"
+          - "*webpack-plugin*"
+          - "*-loader"
+          - "mini-css-extract-plugin"
+
+      "utility-libraries":
+        patterns:
+          - "dayjs"
+          - "classnames"
+          - "radash"
+          - "file-saver"
+          - "tinycolor2"
+
+      "i18n-libraries":
+        patterns:
+          - "i18next*"
+          - "react-i18next"
+
+      "auth-libraries":
+        patterns:
+          - "@react-keycloak/*"
+          - "keycloak-js"
+
+      "xml-yaml-processing":
+        patterns:
+          - "fast-xml-parser"
+          - "js-yaml"
+          - "xmllint-wasm"
+
+      "testing-tools":
+        patterns:
+          - "jest*"
+          - "@types/jest"
+          - "ts-jest"
+          - "@testing-library/*"
+
+      "server-dependencies":
+        patterns:
+          - "cookie"
+          - "http-terminator"

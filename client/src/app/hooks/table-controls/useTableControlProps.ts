@@ -1,13 +1,13 @@
-import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { objectKeys } from "@app/utils/utils";
-import { ITableControls, IUseTableControlPropsArgs } from "./types";
-import { useFilterPropHelpers } from "./filtering";
-import { useSortPropHelpers } from "./sorting";
-import { usePaginationPropHelpers } from "./pagination";
+
 import { useActiveItemPropHelpers } from "./active-item";
 import { useExpansionPropHelpers } from "./expansion";
+import { useFilterPropHelpers } from "./filtering";
+import { usePaginationPropHelpers } from "./pagination";
+import { useSortPropHelpers } from "./sorting";
+import { ITableControls, IUseTableControlPropsArgs } from "./types";
 import { handlePropagatedRowClick } from "./utils";
 
 /**
@@ -50,22 +50,11 @@ export const useTableControlProps = <
     TPersistenceKeyPrefix
   >["propHelpers"];
 
-  const { t } = useTranslation();
-
   // Note: To avoid repetition, not all args are destructured here since the entire
   //       args object is passed to other other helpers which require other parts of it.
   //       For future additions, inspect `args` to see if it has anything more you need.
   const {
-    currentPageItems,
     forceNumRenderedColumns,
-    selectionState: {
-      selectAll,
-      areAllSelected,
-      selectedItems,
-      selectMultiple,
-      toggleItemSelected,
-      isItemSelected,
-    },
     columnNames,
     idProperty,
     dataNameProperty,
@@ -113,14 +102,10 @@ export const useTableControlProps = <
     ...(isFilterEnabled && filterPropsForToolbar),
   };
 
-  // TODO move this to a useSelectionPropHelpers when we move selection from lib-ui
-  const toolbarBulkSelectorProps: PropHelpers["toolbarBulkSelectorProps"] = {
-    onSelectAll: selectAll,
-    areAllSelected,
-    selectedRows: selectedItems,
-    paginationProps,
-    currentPageItems,
-    onSelectMultiple: selectMultiple,
+  const toolbarBulkExpanderProps: PropHelpers["toolbarBulkExpanderProps"] = {
+    // areAllExpanded,
+    // onExpandAll,
+    // isExpandable,
   };
 
   const tableProps: PropHelpers["tableProps"] = {
@@ -164,20 +149,6 @@ export const useTableControlProps = <
     };
   };
 
-  // TODO move this into a useSelectionPropHelpers and make it part of getTdProps once we move selection from lib-ui
-  const getSelectCheckboxTdProps: PropHelpers["getSelectCheckboxTdProps"] = ({
-    item,
-    rowIndex,
-  }) => ({
-    select: {
-      rowIndex,
-      onSelect: (_event, isSelecting) => {
-        toggleItemSelected(item, isSelecting);
-      },
-      isSelected: isItemSelected(item),
-    },
-  });
-
   const getColumnVisibility = (columnKey: TColumnKey) => {
     return columns.find((column) => column.id === columnKey)?.isVisible ?? true;
   };
@@ -198,8 +169,7 @@ export const useTableControlProps = <
       filterToolbarProps: propsForFilterToolbar,
       paginationProps,
       paginationToolbarItemProps,
-      toolbarBulkSelectorProps,
-      getSelectCheckboxTdProps,
+      toolbarBulkExpanderProps,
       getSingleExpandButtonTdProps,
       getExpandedContentTdProps,
       getColumnVisibility,

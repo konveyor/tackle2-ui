@@ -1,243 +1,466 @@
-import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@app/test-config/test-utils";
-import { AnalysisWizard } from "../analysis-wizard";
 import userEvent from "@testing-library/user-event";
-import { server } from "@mocks/server";
 import { rest } from "msw";
 
-const applicationData1 = {
+import { render, screen, waitFor } from "@app/test-config/test-utils";
+import { server } from "@mocks/server";
+
+import { AnalysisWizard } from "../analysis-wizard";
+
+const applicationOnlyName1 = {
   id: 1,
   name: "App1",
   migrationWave: null,
 };
 
-const applicationData2 = {
+const applicationOnlyName2 = {
   id: 2,
   name: "App2",
   migrationWave: null,
 };
 
-const taskgroupData = {
-  addon: "windup",
-  data: {
-    mode: {
-      artifact: "",
-      binary: false,
-      withDeps: false,
-    },
-    output: "/windup/report",
-    scope: {
-      packages: {
-        excluded: [],
-        included: [],
-      },
-      withKnownLibs: false,
-    },
-    sources: [],
-    targets: [],
-  },
-  name: "taskgroup.windup",
-  tasks: [
-    {
-      application: {
-        id: 1,
-        name: "App1",
-      },
-      data: {},
-      name: "App1.1.windup",
-    },
-  ],
+const applicationWithBinary = {
+  id: 10,
+  name: "BinaryApp",
+  migrationWave: null,
+  binary: "com.example:myapp:1.0",
+};
+
+const applicationWithSource = {
+  id: 11,
+  name: "SourceApp",
+  migrationWave: null,
+  repository: { url: "https://github.com/example/repo" },
+};
+
+const mockAnalysisProfile = {
+  id: 1,
+  name: "Test Profile",
+  description: "A test analysis profile",
+  mode: { withDeps: true },
+  scope: { withKnownLibs: false, packages: {} },
+  rules: { labels: {} },
+};
+
+/**
+ * Helper function to navigate from Mode step to Analysis Source step
+ * by clicking Next (manual mode is selected by default)
+ */
+const navigateToAnalysisSourceStep = async () => {
+  // The wizard starts on Mode step with "Manual selection" selected by default
+  // Click Next to proceed to Analysis Source step
+  const nextButton = screen.getByRole("button", { name: /next/i });
+  await userEvent.click(nextButton);
 };
 
 describe("<AnalysisWizard />", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-  afterEach(() => {
-    server.resetHandlers();
+    server.use(
+      rest.get("/hub/identities", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/archetypes", (_, res, ctx) => res(ctx.json([]))),
+      rest.get("/hub/analysis/profiles", (_, res, ctx) => res(ctx.json([])))
+    );
   });
 
   let isAnalyzeModalOpen = true;
   const setAnalyzeModalOpen = (toggle: boolean) =>
     (isAnalyzeModalOpen = toggle);
 
-  it("allows to cancel an analysis wizard", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
+  describe("General wizard behavior", () => {
+    it("allows to cancel an analysis wizard", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    const cancelButton = await screen.findByRole("button", { name: /Cancel/ });
-    expect(cancelButton).toBeEnabled();
-  });
-
-  it("has next button disabled when applications mode have no binary source defined", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
-
-    const alert = screen.getByText(/warning alert:/i);
-    const nextButton = screen.getByRole("button", { name: /next/i });
-
-    await waitFor(() => expect(alert).toBeEnabled());
-    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
-  });
-
-  it("has next button disabled when applications mode have no source code defined", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
-
-    const mode = screen.getByText(/binary|source code/i);
-    await userEvent.click(mode);
-
-    const sourceCode = await screen.findByRole("option", {
-      name: "Source code",
-      hidden: true,
+      const cancelButton = await screen.findByRole("button", {
+        name: /Cancel/,
+      });
+      expect(cancelButton).toBeEnabled();
     });
 
-    await userEvent.click(sourceCode);
+    it("starts on Mode step with manual selection by default if applications are compatible with source analysis modes", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    const alert = screen.getByText(/warning alert:/i);
-    const nextButton = screen.getByRole("button", { name: /next/i });
-    await waitFor(() => expect(alert).toBeEnabled());
-    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
+      // Should see the Mode step content - look for radio by translation key (mock i18n returns keys)
+      const manualRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.manualSelection/i,
+      });
+      expect(manualRadio).toBeChecked();
+
+      const profileRadio = screen.getByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      expect(profileRadio).not.toBeChecked();
+    });
   });
 
-  it("has next button disabled when applications mode have no source code + dependencies defined", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
+  describe("Analysis source pre-selection (compatibleMode)", () => {
+    it("pre-selects source+deps mode when two apps are selected (one binary, one source)", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationWithBinary, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    const mode = screen.getByText(/binary|source code/i);
-    await userEvent.click(mode);
+      await navigateToAnalysisSourceStep();
 
-    const sourceCodePlusDependencies = await screen.findByRole("option", {
-      name: "Source code + dependencies",
-      hidden: true,
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() =>
+        expect(modeDropdown).toHaveTextContent("Source code + dependencies")
+      );
     });
 
-    await userEvent.click(sourceCodePlusDependencies);
+    it("pre-selects binary mode when a single binary-only app is selected", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationWithBinary]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    const alert = screen.getByText(/warning alert:/i);
-    const nextButton = screen.getByRole("button", { name: /next/i });
-    await waitFor(() => expect(alert).toBeEnabled());
-    await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() => expect(modeDropdown).toHaveTextContent("Binary"));
+    });
+    it("pre-selects source+deps mode and displays an error if no compatible mode is found", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      const modeDropdown = await screen.findByTestId(
+        "analysis-source-select-toggle"
+      );
+      await waitFor(() =>
+        expect(modeDropdown).toHaveTextContent("Source code + dependencies")
+      );
+
+      const analysisSourceSelectMessage = await screen.findByTestId(
+        "analysis-source-select-message"
+      );
+      await waitFor(() =>
+        expect(analysisSourceSelectMessage).toHaveTextContent(
+          "wizard.label.notAllCompatible"
+        )
+      );
+    });
   });
 
-  //TODO
-  it.skip("can run analysis on applications with a binary definition using defaults", async () => {
-    const applicationsData = [
-      {
-        ...applicationData1,
-        binary: "io.konveyor.demo:customers-tomcat:0.0.1-SNAPSHOT:war",
-      },
-      {
-        ...applicationData2,
-        binary: "io.konveyor.demo:customers-tomcat:0.0.1-SNAPSHOT:war",
-      },
-    ];
+  describe("Manual mode flow", () => {
+    it("has next button disabled on Analysis Source step when applications have no binary and no source code defined", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    server.use(
-      rest.get("/hub/taskgroups", (req, res, ctx) => {
-        return res(ctx.json([taskgroupData]));
-      })
-    );
+      // Now we should be on Analysis Source step
+      const alert = await screen.findByText(/warning alert:/i);
+      const nextButton = screen.getByRole("button", { name: /next/i });
 
-    render(
-      <AnalysisWizard
-        applications={applicationsData}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
-
-    // set default mode "Binary"
-    const warning = screen.queryByLabelText(/warning alert/i);
-    const nextButton = screen.getByRole("button", { name: /next/i });
-    await waitFor(() => expect(warning).not.toBeInTheDocument());
-    await waitFor(() => expect(nextButton).toBeEnabled());
-
-    // set a target
-    await userEvent.click(nextButton);
-    const target = await screen.findByRole("heading", {
-      name: /containerization/i,
+      await waitFor(() => expect(alert).toBeVisible());
+      await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
     });
-    await userEvent.click(target);
-    await userEvent.click(nextButton);
 
-    // set scope
-    const scope = screen.getByRole("radio", {
-      name: /wizard\.label\.scopealldeps/i,
+    it("has next button disabled on Analysis Source step when applications have no source code defined", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // The analysis source dropdown has toggleAriaLabel="Analysis source dropdown toggle"
+      const modeDropdown = await screen.findByRole("button", {
+        name: /analysis source dropdown toggle/i,
+      });
+      await userEvent.click(modeDropdown);
+
+      // Options are hardcoded, not translated
+      const sourceCode = await screen.findByRole("option", {
+        name: "Source code",
+        hidden: true,
+      });
+      await userEvent.click(sourceCode);
+
+      const alert = screen.getByText(/warning alert:/i);
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(alert).toBeVisible());
+      await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
     });
-    await userEvent.click(scope);
-    await userEvent.click(screen.getByRole("button", { name: /next/i }));
 
-    // no custom rules
-    await userEvent.click(screen.getByRole("button", { name: /next/i }));
+    it("has next button disabled on Analysis Source step when applications have no source code + dependencies defined", async () => {
+      let isOpen = true;
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isOpen}
+          onClose={() => {
+            isOpen = false;
+          }}
+        />
+      );
 
-    // no advanced options
-    await userEvent.click(screen.getByRole("button", { name: /next/i }));
+      // The analysis source dropdown has toggleAriaLabel="Analysis source dropdown toggle"
+      const modeDropdown = await screen.findByRole("button", {
+        name: /analysis source dropdown toggle/i,
+      });
+      await userEvent.click(modeDropdown);
 
-    // review
-    expect(screen.getByText("App1")).toBeInTheDocument();
-    expect(screen.getByText("App2")).toBeInTheDocument();
-    expect(screen.getByText("Binary")).toBeInTheDocument();
-    expect(screen.getByText("cloud-readiness")).toBeInTheDocument();
-    expect(
-      screen.getByText("Application and internal dependencies")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Known Open Source libraries")).toBeInTheDocument();
+      // Options are hardcoded, not translated
+      const sourceCodePlusDependencies = await screen.findByRole("option", {
+        name: "Source code + dependencies",
+        hidden: true,
+      });
+      await userEvent.click(sourceCodePlusDependencies);
 
-    const runButton = await screen.findByRole("button", { name: /run/i });
-    expect(runButton).toBeEnabled();
+      const alert = screen.getByText(/warning alert:/i);
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(alert).toBeVisible());
+      await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
+    });
+
+    it("cannot upload a binary file when analyzing multiple applications", async () => {
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationOnlyName2]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Open the mode dropdown
+      const modeDropdown = await screen.findByRole("button", {
+        name: /analysis source dropdown toggle/i,
+      });
+      await userEvent.click(modeDropdown);
+
+      // "Upload a local binary" should not be available for multiple applications
+      const uploadBinary = screen.queryByRole("option", {
+        name: "Upload a local binary",
+        hidden: true,
+      });
+
+      expect(uploadBinary).not.toBeInTheDocument();
+    });
   });
 
-  it("cannot upload a binary file when analyzing multiple applications", async () => {
-    render(
-      <AnalysisWizard
-        applications={[applicationData1, applicationData2]}
-        isOpen={isAnalyzeModalOpen}
-        onClose={() => {
-          setAnalyzeModalOpen(false);
-        }}
-      />
-    );
+  describe("Profile mode flow", () => {
+    it("shows profile selection when profile mode is selected", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
 
-    const mode = screen.getByText(/binary|source code/i);
-    await userEvent.click(mode);
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
 
-    const uploadBinary = screen.queryByRole("option", {
-      name: "Upload a local binary",
-      hidden: true,
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Should show profile selection dropdown
+      await waitFor(() => {
+        const profileSelect = screen.getByRole("button", {
+          name: /analysis profile selection/i,
+        });
+        expect(profileSelect).toBeInTheDocument();
+      });
     });
 
-    expect(uploadBinary).not.toBeInTheDocument();
+    it("shows empty state when no profiles are available", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) => res(ctx.json([])))
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Should show empty state heading (exact match to avoid matching description)
+      const emptyState = await screen.findByRole("heading", {
+        name: "wizard.label.noProfilesAvailable",
+      });
+      expect(emptyState).toBeInTheDocument();
+    });
+
+    it("disables Next button when profile mode is selected but no profile is chosen", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Next button should be disabled
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
+    });
+
+    it("enables Next button when a profile is selected", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Wait for profile dropdown to appear
+      const profileDropdown = await screen.findByRole("button", {
+        name: /analysis profile selection/i,
+      });
+      await userEvent.click(profileDropdown);
+
+      // Select the profile
+      const profileOption = await screen.findByRole("option", {
+        name: "Test Profile",
+        hidden: true,
+      });
+      await userEvent.click(profileOption);
+
+      // Next button should be enabled
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(nextButton).toBeEnabled());
+    });
+
+    it("switches back to manual mode and hides profile selection", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Verify profile selection is shown
+      await waitFor(() => {
+        const profileSelect = screen.getByRole("button", {
+          name: /analysis profile selection/i,
+        });
+        expect(profileSelect).toBeInTheDocument();
+      });
+
+      // Switch back to manual mode
+      const manualRadio = screen.getByRole("radio", {
+        name: /wizard\.label\.manualSelection/i,
+      });
+      await userEvent.click(manualRadio);
+
+      // Profile selection should be hidden
+      await waitFor(() => {
+        expect(
+          screen.queryByRole("button", { name: /analysis profile selection/i })
+        ).not.toBeInTheDocument();
+      });
+
+      // Next button should be enabled (manual is always valid)
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      expect(nextButton).toBeEnabled();
+    });
   });
 });

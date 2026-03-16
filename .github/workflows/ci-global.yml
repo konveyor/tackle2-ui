@@ -14,6 +14,11 @@ on:
       - "main"
 
   workflow_call:
+    inputs:
+      checkout_ref:
+        type: string
+        description: Git ref to checkout (defaults to the triggering ref)
+        required: false
 
 ###
 # The global CI settings need to be adjusted for the `release-*`` branches such that:
@@ -33,7 +38,7 @@ on:
 ##
 
 concurrency:
-  group: ci-global-${{ github.ref }}
+  group: ci-global-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
 
 jobs:
@@ -42,7 +47,9 @@ jobs:
     outputs:
       IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.checkout_ref }}
 
       - id: container
         name: build the tackle2-ui container
@@ -53,11 +60,25 @@ jobs:
           docker build . -t ${IMG_NAME}
           docker push ${IMG_NAME}
 
+  determine-ui-tests-ref:
+    runs-on: ubuntu-latest
+    outputs:
+      ui_tests_ref: ${{ steps.determine-ref.outputs.ui_tests_ref }}
+    steps:
+      - name: Determine what git ref to use for the UI tests
+        id: determine-ref
+        run: |
+          REF="${{ inputs.checkout_ref || github.ref }}"
+          echo "ui_tests_ref=$REF"
+          echo "ui_tests_ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Using \`ui_tests_ref=$REF\`" >> "$GITHUB_STEP_SUMMARY"
+
   run-global-ci:
-    needs: build-and-upload-for-global-ci
+    needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
       ui_test_tags: "@ci"
+      ui_tests_ref: ${{ needs.determine-ui-tests-ref.outputs.ui_tests_ref }}

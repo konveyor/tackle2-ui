@@ -1,7 +1,8 @@
+import { useEffect } from "react";
+import { useHistory, useLocation } from "react-router-dom";
+
 import { DisallowCharacters } from "@app/utils/type-utils";
 import { objectKeys } from "@app/utils/utils";
-import React from "react";
-import { useLocation, useHistory } from "react-router-dom";
 
 // useUrlParams is a generic hook similar to React.useState which stores its state in the URL search params string.
 // The state is retained on a page reload, when using the browser back/forward buttons, or when bookmarking the page.
@@ -113,7 +114,7 @@ export const useUrlParams = <
     params = allParamsEmpty ? defaultValue : deserialize(serializedParams);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (allParamsEmpty) setParams(defaultValue);
     // Leaving this rule enabled results in a cascade of unnecessary useCallbacks:
     // eslint-disable-next-line react-hooks/exhaustive-deps

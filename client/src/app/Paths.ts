@@ -1,5 +1,6 @@
 export const DevPaths = {
   // Developer perspective
+  analysisProfiles: "/analysis-profiles",
   applications: "/applications",
   applicationsAnalysisDetails:
     "/applications/:applicationId/analysis-details/:taskId",
@@ -24,6 +25,7 @@ export const DevPaths = {
   archetypeReview: "/archetypes/:archetypeId/review",
   applicationsAnalysis: "/applications/analysis",
   archetypes: "/archetypes",
+  archetypeTargetProfiles: "/archetypes/:archetypeId/target-profiles",
   controls: "/controls",
   controlsBusinessServices: "/controls/business-services",
   controlsStakeholders: "/controls/stakeholders",
@@ -33,6 +35,7 @@ export const DevPaths = {
   reports: "/reports",
   migrationWaves: "/migration-waves",
   waves: "/waves",
+
   issues: "/issues",
   issuesAllTab: "/issues/all",
   issuesAllAffectedApplications:
@@ -40,13 +43,27 @@ export const DevPaths = {
   issuesSingleAppTab: "/issues/single-app",
   issuesSingleAppSelected: "/issues/single-app/:applicationId",
 
+  insights: "/insights",
+  insightsAllTab: "/insights/all",
+  insightsAllAffectedApplications:
+    "/insights/all/:ruleset/:rule/affected-applications",
+  insightsSingleAppTab: "/insights/single-app",
+  insightsSingleAppSelected: "/insights/single-app/:applicationId",
+
   dependencies: "/dependencies",
+  migrationTargets: "/migration-targets",
+} as const;
+
+export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
+
+export const UniversalPaths = {
   tasks: "/tasks",
   taskDetails: "/tasks/:taskId",
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
 } as const;
 
-export type DevPathValues = (typeof DevPaths)[keyof typeof DevPaths];
+export type UniversalPathValues =
+  (typeof UniversalPaths)[keyof typeof UniversalPaths];
 
 export const AdminPaths = {
   // Administrator perspective
@@ -57,10 +74,11 @@ export const AdminPaths = {
   repositoriesSvn: "/repositories/svn",
   repositoriesMvn: "/repositories/maven",
   proxies: "/proxies",
-  migrationTargets: "/migration-targets",
   assessment: "/assessment",
   questionnaire: "/questionnaire/:questionnaireId",
   jira: "/jira",
+  sourcePlatforms: "/source-platforms",
+  assetGenerators: "/asset-generators",
 } as const;
 
 export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];
@@ -70,7 +88,19 @@ export const GeneralPaths = {
   notFound: "/not-found",
 } as const;
 
-export const Paths = { ...GeneralPaths, ...AdminPaths, ...DevPaths } as const;
+export const DevtoolPaths = {
+  schemaDefined: "/devtools/schema-defined",
+} as const;
+
+export type DevtoolPathValues =
+  (typeof DevtoolPaths)[keyof typeof DevtoolPaths];
+
+export const Paths = {
+  ...GeneralPaths,
+  ...AdminPaths,
+  ...DevPaths,
+  ...UniversalPaths,
+} as const;
 
 export interface AssessmentRoute {
   assessmentId: string;
@@ -110,4 +140,8 @@ export interface TaskDetailsAttachmentRoute {
   taskId: string;
   attachmentId: string;
   applicationId: string;
+}
+
+export interface ArchetypeTargetProfilesRoute {
+  archetypeId: string;
 }

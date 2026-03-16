@@ -1,10 +1,12 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+
 import { Tag, TagCategory } from "@app/api/models";
 import "./tag-table.css";
 import { universalComparator } from "@app/utils/utils";
-import { ControlTableActionButtons } from "../../ControlTableActionButtons";
+
+import { ControlTableActionsColumn } from "../../ControlTableActionsColumn";
 
 export interface TabTableProps {
   tagCategory: TagCategory;
@@ -24,7 +26,7 @@ export const TagTable: React.FC<TabTableProps> = ({
       <Thead noWrap>
         <Tr>
           <Th>{t("terms.tagName")}</Th>
-          <Td />
+          <Th screenReaderText="row actions" />
         </Tr>
       </Thead>
       <Tbody>
@@ -33,7 +35,7 @@ export const TagTable: React.FC<TabTableProps> = ({
           .map((tag) => (
             <Tr key={tag.name}>
               <Td>{tag.name}</Td>
-              <ControlTableActionButtons
+              <ControlTableActionsColumn
                 onEdit={() => onEdit(tag)}
                 onDelete={() => onDelete(tag)}
               />

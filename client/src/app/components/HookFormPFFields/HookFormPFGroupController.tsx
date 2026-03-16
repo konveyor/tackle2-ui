@@ -1,24 +1,24 @@
 import * as React from "react";
 import {
-  FormGroup,
-  FormGroupProps,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
-} from "@patternfly/react-core";
-import {
   Control,
   Controller,
   ControllerProps,
   FieldValues,
   Path,
 } from "react-hook-form";
+import {
+  FormGroup,
+  FormGroupProps,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+} from "@patternfly/react-core";
 
 // We have separate interfaces for these props with and without `renderInput` for convenience.
 // Generic type params here are the same as the ones used by react-hook-form's <Controller>.
 export interface BaseHookFormPFGroupControllerProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
+  TName extends Path<TFieldValues>,
 > {
   control: Control<TFieldValues>;
   label?: React.ReactNode;
@@ -30,18 +30,19 @@ export interface BaseHookFormPFGroupControllerProps<
   helperText?: React.ReactNode;
   className?: string;
   formGroupProps?: FormGroupProps;
+  helperTextTestId?: string;
 }
 
 export interface HookFormPFGroupControllerProps<
   TFieldValues extends FieldValues,
-  TName extends Path<TFieldValues>
+  TName extends Path<TFieldValues>,
 > extends BaseHookFormPFGroupControllerProps<TFieldValues, TName> {
   renderInput: ControllerProps<TFieldValues, TName>["render"];
 }
 
 export const HookFormPFGroupController = <
   TFieldValues extends FieldValues = FieldValues,
-  TName extends Path<TFieldValues> = Path<TFieldValues>
+  TName extends Path<TFieldValues> = Path<TFieldValues>,
 >({
   control,
   label,
@@ -53,6 +54,7 @@ export const HookFormPFGroupController = <
   helperText,
   className,
   formGroupProps = {},
+  helperTextTestId,
   renderInput,
 }: HookFormPFGroupControllerProps<TFieldValues, TName>) => (
   <Controller<TFieldValues, TName>
@@ -74,9 +76,10 @@ export const HookFormPFGroupController = <
         >
           {renderInput({ field, fieldState, formState })}
           {helperText || shouldDisplayError ? (
-            <FormHelperText>
+            <FormHelperText id={`${fieldId}-helper`}>
               <HelperText>
                 <HelperTextItem
+                  data-testid={helperTextTestId}
                   variant={shouldDisplayError ? "error" : "default"}
                 >
                   {shouldDisplayError ? error.message : helperText}
@@ -94,7 +97,7 @@ export const HookFormPFGroupController = <
 export const extractGroupControllerProps = <
   TFieldValues extends FieldValues,
   TName extends Path<TFieldValues>,
-  TProps extends BaseHookFormPFGroupControllerProps<TFieldValues, TName>
+  TProps extends BaseHookFormPFGroupControllerProps<TFieldValues, TName>,
 >(
   props: TProps
 ): {
@@ -115,6 +118,7 @@ export const extractGroupControllerProps = <
     helperText,
     className,
     formGroupProps,
+    helperTextTestId,
     ...remainingProps
   } = props;
   return {
@@ -129,6 +133,7 @@ export const extractGroupControllerProps = <
       helperText,
       className,
       formGroupProps,
+      helperTextTestId,
     },
     remainingProps,
   };

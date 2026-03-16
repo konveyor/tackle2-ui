@@ -1,10 +1,8 @@
-import React, { ReactNode } from "react";
+import { type FC, type ReactNode } from "react";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   PageSectionVariants,
   Text,
@@ -16,15 +14,21 @@ import {
 import {
   Table,
   Tbody,
+  Td,
   Th,
+  ThProps,
   Thead,
   Tr,
-  Td,
-  ThProps,
 } from "@patternfly/react-table";
-import { CubesIcon } from "@patternfly/react-icons";
 
+import { TablePersistenceKeyPrefix } from "@app/Constants";
+import { Paths } from "@app/Paths";
+import { Task, TaskState } from "@app/api/models";
+import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
@@ -36,18 +40,11 @@ import {
   useTableControlProps,
   useTableControlState,
 } from "@app/hooks/table-controls";
-
-import { SimplePagination } from "@app/components/SimplePagination";
-import { TablePersistenceKeyPrefix } from "@app/Constants";
-
-import { useSelectionState } from "@migtools/lib-ui";
 import { useServerTasks } from "@app/queries/tasks";
-import { Task, TaskState } from "@app/api/models";
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
-import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
-import dayjs from "dayjs";
 import { formatPath } from "@app/utils/utils";
-import { Paths } from "@app/Paths";
+
+import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
+
 import { TaskActionColumn } from "./TaskActionColumn";
 
 export const taskStateToLabel: Record<TaskState, string> = {
@@ -65,7 +62,7 @@ export const taskStateToLabel: Record<TaskState, string> = {
   SucceededWithErrors: "taskState.SucceededWithErrors",
 };
 
-export const TasksPage: React.FC = () => {
+export const TasksPage: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
@@ -87,7 +84,6 @@ export const TasksPage: React.FC = () => {
       state: t("terms.status"),
       kind: t("terms.kind"),
       priority: t("terms.priority"),
-      preemption: t("terms.preemption"),
       createUser: t("terms.createdBy"),
       pod: t("terms.pod"),
       started: t("terms.started"),
@@ -189,10 +185,6 @@ export const TasksPage: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {
@@ -213,7 +205,6 @@ export const TasksPage: React.FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {
     priority: { tooltip: t("tooltip.priority") },
-    preemption: { tooltip: t("tooltip.preemption") },
   };
 
   const clearFilters = () => {
@@ -231,14 +222,13 @@ export const TasksPage: React.FC = () => {
     addon,
     state,
     priority = 0,
-    policy,
     createUser,
     pod,
     started,
     terminated,
-  }: Task) => ({
+  }: Task<unknown>) => ({
     id,
-    application: application.name,
+    application: application?.name ?? <EmptyTextMessage />,
     kind: kind ?? addon,
     state: (
       <IconWithLabel
@@ -255,7 +245,6 @@ export const TasksPage: React.FC = () => {
       />
     ),
     priority,
-    preemption: String(!!policy?.preemptEnabled),
     createUser,
     pod,
     started: started ? dayjs(started).format("YYYY-MM-DD HH:mm:ss") : "",
@@ -308,7 +297,7 @@ export const TasksPage: React.FC = () => {
                         info={tooltips[id]}
                       />
                     ))}
-                  <Th width={10} />
+                  <Th screenReaderText="row actions" />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -317,19 +306,13 @@ export const TasksPage: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={t("message.noResultsFoundTitle")}
-                    headingLevel="h2"
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                  />
-                </EmptyState>
+                <NoDataEmptyState title={t("message.noResultsFoundTitle")} />
               }
               numRenderedColumns={numRenderedColumns}
             >
               <Tbody>
                 {currentPageItems
-                  ?.map((task): [Task, { [p: string]: ReactNode }] => [
+                  ?.map((task): [Task<unknown>, { [p: string]: ReactNode }] => [
                     task,
                     toCells(task),
                   ])

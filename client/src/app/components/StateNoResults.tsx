@@ -1,24 +1,24 @@
-import React from "react";
+import * as React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
-  Title,
 } from "@patternfly/react-core";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { SearchIcon } from "@patternfly/react-icons";
 
 export const StateNoResults: React.FC = () => {
   const { t } = useTranslation();
 
   return (
     <EmptyState variant={EmptyStateVariant.sm}>
-      <EmptyStateIcon icon={SearchIcon} />
-      <Title headingLevel="h2" size="lg">
-        {t("message.noResultsFoundTitle")}
-      </Title>
+      <EmptyStateHeader
+        titleText={t("message.noResultsFoundTitle")}
+        icon={<EmptyStateIcon icon={SearchIcon} />}
+        headingLevel="h2"
+      />
       <EmptyStateBody>{t("message.noResultsFoundBody")}</EmptyStateBody>
     </EmptyState>
   );

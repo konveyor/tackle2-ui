@@ -1,7 +1,7 @@
 import { type RestHandler, rest } from "msw";
 
-import * as AppRest from "@app/api/rest";
 import type { Archetype, Tag, TagCategory } from "@app/api/models";
+import { hub } from "@app/api/rest";
 
 /**
  * Simple stub handlers as place holders until hub API is ready.
@@ -10,7 +10,7 @@ import type { Archetype, Tag, TagCategory } from "@app/api/models";
  *   https://github.com/konveyor/tackle2-hub/blob/main/api/tag.go
  */
 const handlers: RestHandler[] = [
-  rest.get(AppRest.ARCHETYPES, (req, res, ctx) => {
+  rest.get(hub`/archetypes`, (req, res, ctx) => {
     console.log(
       "%c stub %c → %s",
       "font-weight: bold; color: blue; background-color: white;",
@@ -22,7 +22,7 @@ const handlers: RestHandler[] = [
     return res(ctx.json(dataAsList));
   }),
 
-  rest.get(`${AppRest.ARCHETYPES}/:id`, async (req, res, ctx) => {
+  rest.get(hub`/archetypes/:id`, async (req, res, ctx) => {
     const { id } = req.params;
 
     console.log(
@@ -39,7 +39,7 @@ const handlers: RestHandler[] = [
     return res(ctx.status(404));
   }),
 
-  rest.post(AppRest.ARCHETYPES, async (req, res, ctx) => {
+  rest.post(hub`/archetypes`, async (req, res, ctx) => {
     const create = await req.json();
 
     console.log(
@@ -56,7 +56,7 @@ const handlers: RestHandler[] = [
     return res(ctx.status(201), ctx.json(create));
   }),
 
-  rest.put(`${AppRest.ARCHETYPES}/:id`, async (req, res, ctx) => {
+  rest.put(hub`/archetypes/:id`, async (req, res, ctx) => {
     const { id } = req.params;
     const update = await req.json();
 
@@ -76,7 +76,7 @@ const handlers: RestHandler[] = [
     return res(ctx.status(404));
   }),
 
-  rest.delete(`${AppRest.ARCHETYPES}/:id`, (req, res, ctx) => {
+  rest.delete(hub`/archetypes/:id`, (req, res, ctx) => {
     const { id } = req.params;
     console.log(
       "%c✏️ archetype stub%c 🤖 %s",
@@ -98,25 +98,21 @@ const tagCategoryData: Record<string, Omit<TagCategory, "tags">> = {
   A: {
     id: 1,
     name: "Category Alpha",
-    rank: 5,
     colour: "#112233",
   },
   2: {
     id: 2,
     name: "Category Bravo",
-    rank: 7,
     colour: "#113322",
   },
   3: {
     id: 3,
     name: "Category Charlie",
-    rank: 9,
     colour: "#331122",
   },
   4: {
     id: 4,
     name: "Category Delta",
-    rank: 12,
     colour: "#332211",
   },
 };

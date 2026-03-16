@@ -1,41 +1,35 @@
-import React, { useState } from "react";
+import { useContext } from "react";
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
-import { object, string, number } from "yup";
+import { object, string } from "yup";
 import {
   ActionGroup,
-  Alert,
   Button,
   ButtonVariant,
   Form,
-  NumberInput,
 } from "@patternfly/react-core";
 
-import {
-  DEFAULT_SELECT_MAX_HEIGHT,
-  COLOR_HEX_VALUES_BY_NAME,
-} from "@app/Constants";
+import { COLOR_HEX_VALUES_BY_NAME } from "@app/Constants";
 import { New, TagCategory } from "@app/api/models";
-import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
-import { toOptionLike } from "@app/utils/model-utils";
+import { Color } from "@app/components/Color";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import {
+  HookFormPFGroupController,
+  HookFormPFTextInput,
+} from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
+import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
 import {
   useCreateTagCategoryMutation,
   useFetchTagCategories,
   useUpdateTagCategoryMutation,
 } from "@app/queries/tags";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  HookFormPFGroupController,
-  HookFormPFTextInput,
-} from "@app/components/HookFormPFFields";
-import { Color } from "@app/components/Color";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { getTagCategoryFallbackColor } from "@app/components/labels/item-tag-label/item-tag-label";
+import { duplicateNameCheck } from "@app/utils/utils";
+
 export interface FormValues {
   name: string;
-  rank?: number;
   color: string | null;
 }
 
@@ -49,9 +43,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { pushNotification } = React.useContext(NotificationsContext);
-
-  const [error, setError] = useState<AxiosError>();
+  const { pushNotification } = useContext(NotificationsContext);
 
   const { tagCategories: tagCategories } = useFetchTagCategories();
 
@@ -72,13 +64,13 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
           );
         }
       ),
-    rank: number().min(1, t("validation.min", { value: 1 })),
     color: string()
       .trim()
       .nullable()
       .required(t("validation.required"))
       .min(1, t("validation.minLength", { length: 3 })),
   });
+
   const {
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
@@ -86,16 +78,16 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   } = useForm<FormValues>({
     defaultValues: {
       name: tagCategory?.name || "",
-      rank: tagCategory?.rank || 1,
       color: tagCategory
-        ? tagCategory.colour || getTagCategoryFallbackColor(tagCategory)
+        ? tagCategory.colour?.toUpperCase() ||
+          getTagCategoryFallbackColor(tagCategory)
         : null,
     },
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
 
-  const onTagSuccess = (_: AxiosResponse<TagCategory>) =>
+  const onTagSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.tagCategory"),
@@ -103,7 +95,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       variant: "success",
     });
 
-  const onTagError = (error: AxiosError) => {
+  const onTagError = () => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.tagCategory").toLowerCase(),
@@ -117,7 +109,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     onTagError
   );
 
-  const onUpdateTagCategorySuccess = (_: AxiosResponse<TagCategory>) =>
+  const onUpdateTagCategorySuccess = () =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.tagCategory"),
@@ -125,7 +117,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       variant: "success",
     });
 
-  const onUpdateTagCategoryError = (error: AxiosError) => {
+  const onUpdateTagCategoryError = () => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.tagCategory").toLowerCase(),
@@ -141,8 +133,7 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
   const onSubmit = (formValues: FormValues) => {
     const payload: New<TagCategory> = {
       name: formValues.name.trim(),
-      rank: formValues.rank,
-      colour: formValues.color || undefined,
+      colour: formValues.color?.toUpperCase() || undefined,
     };
 
     if (tagCategory) updateTagCategory({ id: tagCategory.id, ...payload });
@@ -150,21 +141,18 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
     onClose();
   };
 
-  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME).map((color) => {
-    return {
-      value: color.toUpperCase(),
-      toString: () => color,
-      props: {
+  const colorOptions = Object.values(COLOR_HEX_VALUES_BY_NAME)
+    .map((color) => color.toUpperCase())
+    .map((color) => ({
+      value: color,
+      label: color,
+      optionProps: {
         children: <Color hex={color} />,
       },
-    };
-  });
+    }));
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      {error && (
-        <Alert variant="danger" isInline title={getAxiosErrorMessage(error)} />
-      )}
       <HookFormPFTextInput
         control={control}
         name="name"
@@ -174,60 +162,24 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
       />
       <HookFormPFGroupController
         control={control}
-        name="rank"
-        label={t("terms.rank")}
-        fieldId="rank"
-        renderInput={({ field: { value, name, onChange } }) => (
-          <NumberInput
-            inputName={name}
-            inputAriaLabel="rank"
-            minusBtnAriaLabel="minus"
-            plusBtnAriaLabel="plus"
-            value={value}
-            min={1}
-            max={10}
-            onMinus={() => {
-              onChange((value || 0) - 1);
-            }}
-            onChange={(event) => {
-              const target = event?.target as HTMLInputElement;
-              if (target) {
-                onChange(target.valueAsNumber);
-              }
-            }}
-            onPlus={() => {
-              onChange((value || 0) + 1);
-            }}
-          />
-        )}
-      />
-      <HookFormPFGroupController
-        control={control}
         name="color"
         label={t("terms.color")}
         fieldId="color"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            variant="single"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            isScrollable
             placeholderText={t("composed.selectOne", {
               what: t("terms.color").toLowerCase(),
             })}
             id="type-select"
+            isFullWidth
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
-            aria-label={name}
-            value={
-              value
-                ? toOptionLike(value.toUpperCase(), colorOptions)
-                : undefined
-            }
+            ariaLabel={name}
+            value={value?.toUpperCase() ?? undefined}
             options={colorOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />

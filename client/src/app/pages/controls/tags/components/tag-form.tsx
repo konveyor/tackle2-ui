@@ -1,7 +1,10 @@
-import React, { useMemo, useState } from "react";
+import { useMemo } from "react";
+import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AxiosError } from "axios";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AxiosError, AxiosResponse } from "axios";
-import { object, string, mixed } from "yup";
+import { mixed, object, string } from "yup";
 import {
   ActionGroup,
   Button,
@@ -11,22 +14,20 @@ import {
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Tag, TagCategory } from "@app/api/models";
-import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
-import { ITagCategoryDropdown } from "@app/utils/model-utils";
-import {
-  useFetchTags,
-  useFetchTagCategories,
-  useCreateTagMutation,
-  useUpdateTagMutation,
-} from "@app/queries/tags";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { NotificationsContext } from "@app/components/NotificationsContext";
+import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  useCreateTagMutation,
+  useFetchTagCategories,
+  useFetchTags,
+  useUpdateTagMutation,
+} from "@app/queries/tags";
+import { ITagCategoryDropdown } from "@app/utils/model-utils";
+import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 
 export interface FormValues {
   name: string;
@@ -42,10 +43,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
 
-  const [error, setError] = useState<AxiosError>();
-
   const { tags } = useFetchTags();
-
   const { tagCategories } = useFetchTagCategories();
 
   const tagCategoryOptions = useMemo(() => {
@@ -93,7 +91,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
     mode: "all",
   });
 
-  const onTagSuccess = (_: AxiosResponse<Tag>) =>
+  const onTagSuccess = () =>
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.tag"),
@@ -101,7 +99,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       variant: "success",
     });
 
-  const onTagError = (error: AxiosError) => {
+  const onTagError = (_: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.create", {
         type: t("terms.tag").toLowerCase(),
@@ -112,7 +110,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
 
   const { mutate: createTag } = useCreateTagMutation(onTagSuccess, onTagError);
 
-  const onUpdateTagSuccess = (_: AxiosResponse<Tag>) =>
+  const onUpdateTagSuccess = () =>
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.tag"),
@@ -120,7 +118,7 @@ export const TagForm: React.FC<TagFormProps> = ({ tag, onClose }) => {
       variant: "success",
     });
 
-  const onUpdateTagError = (error: AxiosError) => {
+  const onUpdateTagError = (_: AxiosError) => {
     pushNotification({
       title: t("toastr.fail.save", {
         type: t("terms.tag").toLowerCase(),

@@ -1,16 +1,16 @@
-import * as React from "react";
+import { useState } from "react";
 import {
   Dropdown,
-  DropdownItem,
   DropdownGroup,
+  DropdownItem,
   DropdownList,
   MenuToggle,
   SelectOptionProps,
-  ToolbarToggleGroup,
   ToolbarItem,
+  ToolbarToggleGroup,
   ToolbarToggleGroupProps,
 } from "@patternfly/react-core";
-import FilterIcon from "@patternfly/react-icons/dist/esm/icons/filter-icon";
+import { FilterIcon } from "@patternfly/react-icons";
 
 import { FilterControl } from "./FilterControl";
 
@@ -122,13 +122,11 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
   showFiltersSideBySide = false,
   isDisabled = false,
   breakpoint = "2xl",
-}: React.PropsWithChildren<
-  IFilterToolbarProps<TItem, TFilterCategoryKey>
->): JSX.Element | null => {
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] =
-    React.useState(false);
-  const [currentFilterCategoryKey, setCurrentFilterCategoryKey] =
-    React.useState(filterCategories[0].categoryKey);
+}: IFilterToolbarProps<TItem, TFilterCategoryKey>): JSX.Element | null => {
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [currentFilterCategoryKey, setCurrentFilterCategoryKey] = useState(
+    filterCategories[0].categoryKey
+  );
 
   const onCategorySelect = (
     category: FilterCategory<TItem, TFilterCategoryKey>

@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError, AxiosResponse } from "axios";
 
+import { Taskgroup } from "@app/api/models";
 import {
   createTaskgroup,
   deleteTaskgroup,
@@ -7,60 +9,65 @@ import {
   submitTaskgroup,
   uploadFileTaskgroup,
 } from "@app/api/rest";
-import { IReadFile, Taskgroup } from "@app/api/models";
-import { AxiosError, AxiosResponse } from "axios";
+
 import { TasksQueryKey } from "./tasks";
 
 export const useCreateTaskgroupMutation = (
-  onSuccess: (data: Taskgroup) => void,
-  onError: (err: Error | unknown) => void
+  onSuccess?: (data: Taskgroup) => void,
+  onError?: (err: Error | unknown) => void
 ) => useMutation({ mutationFn: createTaskgroup, onSuccess, onError });
 
 export const useSubmitTaskgroupMutation = (
-  onSuccess: (data: Taskgroup) => void,
-  onError: (err: Error | unknown) => void
+  onSuccess?: (taskGroup: Taskgroup) => void,
+  onError?: (err: Error | unknown) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: submitTaskgroup,
-    onSuccess: (data) => {
-      onSuccess(data);
-      queryClient.invalidateQueries([TasksQueryKey]);
+    onSuccess: (_, taskGroup) => {
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      onSuccess?.(taskGroup);
     },
     onError: (err) => {
-      onError(err);
-      queryClient.invalidateQueries([TasksQueryKey]);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
+      onError?.(err);
     },
   });
 };
 
-export const useRemoveUploadedFileMutation = (
+export const useRemoveTaskgroupFileMutation = (
   successCallback?: (data: AxiosResponse<Taskgroup>) => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
   return useMutation({
     mutationFn: removeFileTaskgroup,
     onSuccess: (data) => {
-      successCallback && successCallback(data);
+      successCallback?.(data);
     },
     onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
+      errorCallback?.(err);
     },
   });
 };
-export const useUploadFileTaskgroupMutation = (
-  successCallback?: (data: AxiosResponse<Taskgroup>) => void,
-  errorCallback?: (err: AxiosError) => void
+
+export const useUploadTaskgroupFileMutation = (
+  successCallback?: (
+    data: AxiosResponse<void>,
+    params: Parameters<typeof uploadFileTaskgroup>[0]
+  ) => void,
+  errorCallback?: (
+    err: AxiosError,
+    params: Parameters<typeof uploadFileTaskgroup>[0]
+  ) => void
 ) => {
   return useMutation({
     mutationFn: uploadFileTaskgroup,
-    mutationKey: ["upload"],
-    onSuccess: (data) => {
-      successCallback && successCallback(data);
+    onSuccess: (response, params) => {
+      successCallback?.(response, params);
     },
-    onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
+    onError: (err: AxiosError, params) => {
+      errorCallback?.(err, params);
     },
   });
 };
@@ -76,28 +83,7 @@ export const useDeleteTaskgroupMutation = (
     onSuccess,
     onError: (err) => {
       onError(err);
-      queryClient.invalidateQueries([TasksQueryKey]);
-    },
-  });
-};
-
-export const useUploadFileMutation = (
-  onSuccess: (
-    data: AxiosResponse<Taskgroup>,
-    id: number,
-    path: string,
-    formData: any,
-    file: IReadFile
-  ) => void,
-  errorCallback: (err: AxiosError) => void
-) => {
-  return useMutation({
-    mutationFn: uploadFileTaskgroup,
-    onSuccess: (data, { id, path, formData, file }) => {
-      onSuccess(data, id, path, formData, file);
-    },
-    onError: (err: AxiosError) => {
-      errorCallback && errorCallback(err);
+      queryClient.invalidateQueries({ queryKey: [TasksQueryKey] });
     },
   });
 };

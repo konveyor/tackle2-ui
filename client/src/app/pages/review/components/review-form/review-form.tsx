@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { object, string, mixed } from "yup";
+import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-
+import { FieldErrors, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
+import { mixed, number, object, string } from "yup";
 import {
   ActionGroup,
   Button,
@@ -11,8 +12,8 @@ import {
   NumberInput,
 } from "@patternfly/react-core";
 
-import { PROPOSED_ACTION_LIST, EFFORT_ESTIMATE_LIST } from "@app/Constants";
-import { number } from "yup";
+import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
+import { Paths } from "@app/Paths";
 import {
   Application,
   Archetype,
@@ -21,20 +22,17 @@ import {
   ProposedAction,
   Review,
 } from "@app/api/models";
-import { FieldErrors, useForm } from "react-hook-form";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
 } from "@app/components/HookFormPFFields";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import useIsArchetype from "@app/hooks/useIsArchetype";
 import {
   useCreateReviewMutation,
   useUpdateReviewMutation,
 } from "@app/queries/reviews";
-import { useHistory } from "react-router-dom";
-import { Paths } from "@app/Paths";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import useIsArchetype from "@app/hooks/useIsArchetype";
 
 export interface FormValues {
   action: ProposedAction;
@@ -60,14 +58,14 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const isArchetype = useIsArchetype();
 
-  const actionOptions: OptionWithValue<ProposedAction>[] = useMemo(() => {
+  const actionOptions: OptionWithValue<ProposedAction>[] = React.useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
       value: key as ProposedAction,
       toString: () => t(value.i18Key),
     }));
   }, [t]);
 
-  const effortOptions: OptionWithValue<EffortEstimate>[] = useMemo(() => {
+  const effortOptions: OptionWithValue<EffortEstimate>[] = React.useMemo(() => {
     return Object.entries(EFFORT_ESTIMATE_LIST).map(([key, value]) => ({
       value: key as EffortEstimate,
       toString: () => t(value.i18Key),
@@ -126,10 +124,10 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
             archetype: { id: archetype.id, name: archetype.name },
           }
         : application
-        ? {
-            application: { id: application.id, name: application.name },
-          }
-        : undefined),
+          ? {
+              application: { id: application.id, name: application.name },
+            }
+          : undefined),
     };
 
     try {

@@ -1,9 +1,12 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
+import * as React from "react";
 import { ReactKeycloakProvider } from "@react-keycloak/web";
-import keycloak from "@app/keycloak";
-import { AppPlaceholder } from "./AppPlaceholder";
+
 import { initInterceptors } from "@app/axios-config";
-import ENV from "@app/env";
+import { ENV } from "@app/env";
+import keycloak from "@app/keycloak";
+
+import { AppPlaceholder } from "./AppPlaceholder";
 
 interface IKeycloakProviderProps {
   children: React.ReactNode;

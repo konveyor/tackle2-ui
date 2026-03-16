@@ -1,6 +1,6 @@
-import React from "react";
-import { Questionnaire } from "@app/api/models";
+import * as React from "react";
 import { useParams } from "react-router-dom";
+
 import "./questionnaire-page.css";
 import QuestionnaireSummary, {
   SummaryType,
@@ -11,7 +11,7 @@ interface QuestionnairePageParams {
   questionnaireId: string;
 }
 
-const Questionnaire: React.FC = () => {
+const QuestionnairePage: React.FC = () => {
   const { questionnaireId } = useParams<QuestionnairePageParams>();
 
   const {
@@ -30,4 +30,4 @@ const Questionnaire: React.FC = () => {
   );
 };
 
-export default Questionnaire;
+export default QuestionnairePage;

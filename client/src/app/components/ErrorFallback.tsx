@@ -1,19 +1,19 @@
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
-  Title,
-  EmptyStateBody,
-  Button,
-} from "@patternfly/react-core";
-import React, { useEffect, useRef } from "react";
-import UserNinjaIcon from "@patternfly/react-icons/dist/esm/icons/user-ninja-icon";
-import { NotificationsContext } from "@app/components/NotificationsContext";
+import { useContext, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-
+import {
+  Bullseye,
+  Button,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
+} from "@patternfly/react-core";
+import { UserNinjaIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
+import { NotificationsContext } from "@app/components/NotificationsContext";
 
 const usePrevious = <T,>(value: T) => {
   const ref = useRef<T>();
@@ -33,7 +33,7 @@ export const ErrorFallback = ({
   const { t } = useTranslation();
 
   const history = useHistory();
-  const { pushNotification } = React.useContext(NotificationsContext);
+  const { pushNotification } = useContext(NotificationsContext);
   const prevError = usePrevious(error);
 
   if (error.message !== prevError?.message) {
@@ -48,10 +48,11 @@ export const ErrorFallback = ({
   return (
     <Bullseye>
       <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateIcon icon={UserNinjaIcon} />
-        <Title headingLevel="h2" size="lg">
-          {t("dialog.message.pageError")}
-        </Title>
+        <EmptyStateHeader
+          titleText={<>{t("dialog.message.pageError")}</>}
+          icon={<EmptyStateIcon icon={UserNinjaIcon} />}
+          headingLevel="h2"
+        />
         <EmptyStateBody>
           {t("dialog.message.refreshPage")}
           <Button

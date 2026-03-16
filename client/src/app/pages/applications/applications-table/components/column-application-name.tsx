@@ -1,26 +1,26 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import * as React from "react";
 import dayjs from "dayjs";
-
+import { Link } from "react-router-dom";
 import { Icon, Popover, PopoverProps, Tooltip } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
-  TimesCircleIcon,
-  InProgressIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
+  InProgressIcon,
   PendingIcon,
+  TimesCircleIcon,
 } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
 
-import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
 import { Paths } from "@app/Paths";
-import { formatPath, universalComparator } from "@app/utils/utils";
 import { TaskDashboard } from "@app/api/models";
+import { IconWithLabel, TaskStateIcon } from "@app/components/Icons";
+import { formatPath, universalComparator } from "@app/utils/utils";
+
 import {
   ApplicationTasksStatus,
   DecoratedApplication,
-} from "../useDecoratedApplications";
+} from "../../useDecoratedApplications";
 
 interface StatusData {
   popoverVariant: PopoverProps["alertSeverityVariant"];

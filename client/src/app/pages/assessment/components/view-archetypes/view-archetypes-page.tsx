@@ -1,22 +1,25 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import * as React from "react";
+import { Link, useParams } from "react-router-dom";
 import {
-  Text,
-  TextContent,
-  PageSection,
-  PageSectionVariants,
   Breadcrumb,
   BreadcrumbItem,
+  PageSection,
+  PageSectionVariants,
+  Text,
+  TextContent,
 } from "@patternfly/react-core";
-import { Link, useParams } from "react-router-dom";
-import { ViewArchetypesRoute, Paths } from "@app/Paths";
-import { ConditionalRender } from "@app/components/ConditionalRender";
-import { AppPlaceholder } from "@app/components/AppPlaceholder";
-import ViewArchetypesTable from "./components/view-archetypes-table";
-import { useFetchArchetypeById } from "@app/queries/archetypes";
-import { useFetchApplicationById } from "@app/queries/applications";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+
+import { Paths, ViewArchetypesRoute } from "@app/Paths";
 import { Ref } from "@app/api/models";
+import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import { useFetchApplicationById } from "@app/queries/applications";
+import { useFetchArchetypeById } from "@app/queries/archetypes";
 import { formatPath } from "@app/utils/utils";
+
+import ViewArchetypesTable from "./components/view-archetypes-table";
 
 const ViewArchetypes: React.FC = () => {
   const { applicationId, archetypeId } = useParams<ViewArchetypesRoute>();
@@ -35,22 +38,11 @@ const ViewArchetypes: React.FC = () => {
     }
   }, [archetypeId, archetype]);
 
-  function mapRefToOption(ref: Ref | null): OptionWithValue<Ref | null> {
-    if (ref) {
-      return {
-        value: ref,
-        toString: () => ref.name,
-      };
-    } else {
-      return {
-        value: null,
-        toString: () => "All",
-      };
-    }
-  }
-  const options: OptionWithValue<Ref | null>[] = [
-    ...(application?.archetypes?.map(mapRefToOption) || []),
-  ];
+  const archetypeOptions =
+    application?.archetypes?.map((ref) => ({
+      value: String(ref.id),
+      label: ref.name,
+    })) ?? [];
 
   return (
     <>
@@ -81,17 +73,18 @@ const ViewArchetypes: React.FC = () => {
         <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
           {application?.archetypes && application?.archetypes?.length > 1 && (
             <SimpleSelect
-              width={300}
               id="archetype-select"
-              aria-label="Select an archetype"
-              variant="single"
-              value={mapRefToOption(activeArchetype)}
-              onChange={(selection) => {
-                const selectedArchetype =
-                  selection as OptionWithValue<Ref | null>;
-                setActiveArchetype(selectedArchetype.value);
+              isScrollable
+              ariaLabel="Select an archetype"
+              value={activeArchetype ? String(activeArchetype.id) : undefined}
+              options={archetypeOptions}
+              onSelect={(value) => {
+                const ref =
+                  application?.archetypes?.find(
+                    (a) => String(a.id) === value
+                  ) ?? null;
+                setActiveArchetype(ref);
               }}
-              options={options}
             />
           )}
           <TextContent>

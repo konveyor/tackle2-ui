@@ -1,6 +1,7 @@
-import { parseMaybeNumericString } from "@app/utils/utils";
-import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 import { usePersistentState } from "@app/hooks/usePersistentState";
+import { parseMaybeNumericString } from "@app/utils/utils";
+
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 
 /**
  * The "source of truth" state for the active item feature.
@@ -72,17 +73,17 @@ export const useActiveItemState = <
           deserialize: ({ activeItem }) => parseMaybeNumericString(activeItem),
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? {
-          persistTo,
-          key: "activeItem",
-        }
-      : isPersistenceProvider(persistTo)
-      ? {
-          persistTo: "provider",
-          serialize: persistTo.write,
-          deserialize: () => persistTo.read() as string | number | null,
-        }
-      : { persistTo: "state" }),
+        ? {
+            persistTo,
+            key: "activeItem",
+          }
+        : isPersistenceProvider(persistTo)
+          ? {
+              persistTo: "provider",
+              serialize: persistTo.write,
+              deserialize: () => persistTo.read() as string | number | null,
+            }
+          : { persistTo: "state" }),
   });
   return { activeItemId, setActiveItemId };
 };

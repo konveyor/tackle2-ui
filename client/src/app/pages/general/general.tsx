@@ -1,4 +1,5 @@
-import React from "react";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Card,
@@ -10,8 +11,8 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 
 export const General: React.FC = () => {
@@ -40,7 +41,7 @@ export const General: React.FC = () => {
               <Alert
                 variant="danger"
                 isInline
-                title={enableDownloadSetting.error}
+                title={enableDownloadSetting.error as string}
               />
             )}
             <Form className={spacing.mMd}>

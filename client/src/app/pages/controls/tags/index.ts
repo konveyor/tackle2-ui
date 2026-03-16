@@ -1,1 +1,1 @@
-export { Tags as default } from "./tags";
+export { Tags as default } from "./tag-categories-table";

@@ -1,13 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-
 import {
-  TextContent,
-  Text,
-  Title,
-  Tabs,
-  TabTitleText,
   Tab,
+  TabTitleText,
+  Tabs,
+  Text,
+  TextContent,
+  Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -17,6 +16,7 @@ import {
   PageDrawerContent,
 } from "@app/components/PageDrawerContext";
 import { StateNoData } from "@app/components/StateNoData";
+
 import { DependencyAppsTable } from "./dependency-apps-table";
 
 export interface IDependencyAppsDetailDrawerProps

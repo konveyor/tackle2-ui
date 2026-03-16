@@ -1,6 +1,7 @@
 import { usePersistentState } from "@app/hooks/usePersistentState";
-import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 import { DiscriminatedArgs } from "@app/utils/type-utils";
+
+import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 
 /**
  * The currently applied pagination parameters
@@ -112,17 +113,17 @@ export const usePaginationState = <
           },
         }
       : persistTo === "localStorage" || persistTo === "sessionStorage"
-      ? {
-          persistTo,
-          key: "pagination",
-        }
-      : isPersistenceProvider(persistTo)
-      ? {
-          persistTo: "provider",
-          serialize: persistTo.write,
-          deserialize: () => persistTo.read() as IActivePagination,
-        }
-      : { persistTo: "state" }),
+        ? {
+            persistTo,
+            key: "pagination",
+          }
+        : isPersistenceProvider(persistTo)
+          ? {
+              persistTo: "provider",
+              serialize: persistTo.write,
+              deserialize: () => persistTo.read() as IActivePagination,
+            }
+          : { persistTo: "state" }),
   });
   const { pageNumber, itemsPerPage } = paginationState || defaultValue;
   const setPageNumber = (num: number) =>

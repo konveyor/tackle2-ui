@@ -8,6 +8,18 @@ export enum MimeType {
 /** Mark an object as "New" therefore does not have an `id` field. */
 export type New<T extends { id: number }> = Omit<T, "id">;
 
+/**
+ * Mark an object as having a unique client generated id field.  Use this type if
+ * an objects from hub does not have a single field with a unique key AND the object
+ * is to be used in a table.  Our table handlers assume a single field with a unique
+ * value across all objects in a set to properly handle row selections.
+ */
+export type WithUiId<T> = T & { _ui_unique_id: string };
+
+export interface EmptyObject extends Record<string, never> {}
+
+export interface JsonDocument extends Record<string, unknown> {}
+
 export interface HubFilter {
   field: string;
   operator?: "=" | "!=" | "~" | ">" | ">=" | "<" | "<=";
@@ -78,6 +90,10 @@ export interface IdRef {
   id: number;
 }
 
+export interface RefWithRole<RoleType = string> extends Ref {
+  role?: RoleType;
+}
+
 export interface JobFunction {
   id: number;
   name: string;
@@ -87,7 +103,6 @@ export interface JobFunction {
 export interface TagCategory {
   id: number;
   name: string;
-  rank?: number;
   colour?: string;
   tags?: Tag[];
 }
@@ -111,30 +126,44 @@ export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
 
 export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
 
-export interface Repository {
-  kind?: string;
+export interface Repository<Kind = string> {
+  kind?: Kind;
+  url?: string;
   branch?: string;
   path?: string;
-  url?: string;
 }
+
+/** A JSON document with its schema */
+export interface Document {
+  content: JsonDocument;
+  /** name of the schema */ schema: string;
+}
+
+export type ManagedIdentityRole = "source" | "maven" | "asset";
+export type IdentityRole = ManagedIdentityRole | string;
 
 export interface Application {
   id: number;
   name: string;
   description?: string;
+  bucket?: Ref;
+  repository?: Repository;
+  assets?: Repository;
+  binary?: string;
+  coordinates?: Document;
+  review?: Ref;
   comments?: string;
-  businessService?: Ref;
+  identities?: RefWithRole<IdentityRole>[];
   tags?: TagRef[];
+  businessService?: Ref;
   owner?: Ref;
   contributors?: Ref[];
-  review?: Ref;
-  identities?: Ref[];
-  repository?: Repository;
-  binary?: string;
   migrationWave: Ref | null;
-  assessments?: Ref[];
-  assessed?: boolean;
+  platform?: Ref;
   archetypes?: Ref[];
+  assessments?: Ref[];
+  manifests?: Ref[];
+  assessed?: boolean;
   risk?: Risk;
   confidence?: number;
   effort?: number;
@@ -183,12 +212,15 @@ export interface ApplicationImport {
   isValid: boolean;
 }
 
-export type IdentityKind =
-  | "source"
-  | "maven"
-  | "proxy"
-  | "basic-auth"
-  | "bearer";
+export const IdentityKinds = [
+  "source",
+  "maven",
+  "proxy",
+  "basic-auth",
+  "bearer",
+] as const;
+
+export type IdentityKind = (typeof IdentityKinds)[number];
 
 export interface Identity {
   id: number;
@@ -197,6 +229,7 @@ export interface Identity {
   createTime?: string;
 
   kind: IdentityKind;
+  default?: boolean;
   name: string;
   description?: string;
   user?: string;
@@ -206,6 +239,7 @@ export interface Identity {
 }
 
 export interface Proxy {
+  id?: number;
   host: string;
   kind: "http" | "https";
   port: number;
@@ -213,7 +247,6 @@ export interface Proxy {
   identity?: Ref;
   createTime?: string;
   createUser?: string;
-  id: any;
   enabled: boolean;
 }
 
@@ -307,14 +340,14 @@ export type TaskState =
   | "Postponed"
   | "SucceededWithErrors"; // synthetic state for ease-of-use in UI;
 
-export interface Task {
+export interface Task<DataType> {
   id: number;
   createUser?: string;
   updateUser?: string;
   createTime?: string;
 
   name?: string;
-  kind?: string;
+  kind: string;
   addon?: string;
   extensions?: string[];
   state?: TaskState;
@@ -322,8 +355,9 @@ export interface Task {
   priority?: number;
   policy?: TaskPolicy;
   ttl?: TTL;
-  data?: TaskData;
-  application: Ref;
+  data?: DataType;
+  application?: Ref;
+  platform?: Ref;
   bucket?: Ref;
   pod?: string;
   retries?: number;
@@ -333,6 +367,33 @@ export interface Task {
   errors?: TaskError[];
   activity?: string[];
   attached?: TaskAttachment[];
+}
+
+export interface AnalysisTask
+  extends Omit<Task<AnalysisTaskData>, "application" | "platform"> {
+  kind: "analysis";
+  application: Ref;
+}
+
+export interface ApplicationManifestTask
+  extends Omit<Task<EmptyObject>, "application" | "platform"> {
+  kind: "application-manifest";
+  application: Ref;
+}
+
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
+  kind: "asset-generation";
+  application: Ref;
+}
+
+export interface PlatformApplicationImportTask
+  extends Omit<
+    Task<PlatformApplicationImportTaskData>,
+    "application" | "platform"
+  > {
+  kind: "application-import";
+  platform: Ref;
 }
 
 /** A smaller version of `Task` fetched from the report/dashboard endpoint. */
@@ -345,7 +406,8 @@ export interface TaskDashboard {
   kind?: string;
   addon?: string;
   state: TaskState;
-  application: Ref;
+  application?: Ref;
+  platform?: Ref;
   started?: string; // ISO-8601
   terminated?: string; // ISO-8601
 
@@ -355,8 +417,6 @@ export interface TaskDashboard {
 
 export interface TaskPolicy {
   isolated?: boolean;
-  preemptEnabled?: boolean;
-  preemptExempt?: boolean;
 }
 
 export interface TTL {
@@ -385,12 +445,17 @@ export interface TaskAttachment {
   activity?: number;
 }
 
-export interface TaskData {
+export interface AnalysisTaskData {
   tagger: {
     enabled: boolean;
   };
   verbosity: number;
-  mode: {
+
+  // Profile-based analysis (mutually exclusive with mode/scope/rules)
+  profile?: Ref | IdRef;
+
+  // Manual analysis fields (optional when using profile)
+  mode?: {
     binary: boolean;
     withDeps: boolean;
     artifact: string;
@@ -398,7 +463,7 @@ export interface TaskData {
   };
   targets?: string[];
   sources?: string[];
-  scope: {
+  scope?: {
     withKnownLibs: boolean;
     packages: {
       included: string[];
@@ -407,7 +472,7 @@ export interface TaskData {
   };
   rules?: {
     path: string;
-    tags: {
+    tags?: {
       excluded: string[];
     };
     repository?: Repository;
@@ -420,9 +485,19 @@ export interface TaskData {
   };
 }
 
+export interface PlatformApplicationImportTaskData {
+  filter: JsonDocument;
+}
+
+export interface AssetGenerationTaskData {
+  profiles: Ref[];
+  params: JsonDocument;
+  render: boolean;
+}
+
 export interface TaskgroupTask {
   name: string;
-  data: any;
+  data?: unknown;
   application: Ref;
 }
 
@@ -431,7 +506,11 @@ export interface Taskgroup {
   name: string;
   kind?: string;
   addon?: string;
-  data: TaskData;
+  state?: TaskState;
+  priority?: number;
+  policy?: TaskPolicy;
+  data: AnalysisTaskData; // TODO: Make generic if Taskgroup for other task kinds is needed in the future
+  bucket?: Ref;
   tasks: TaskgroupTask[];
 }
 
@@ -470,9 +549,9 @@ export enum RulesetKind {
 }
 
 export interface Ruleset {
-  id?: number;
+  id: number;
   kind?: RulesetKind;
-  name?: string;
+  name: string;
   description?: string;
   rules: Rule[];
   repository?: Repository;
@@ -517,20 +596,24 @@ export interface ParsedRule {
   fileID?: number;
 }
 
-export type FileLoadError = {
-  name?: string;
-  message?: string;
-  stack?: string;
-  cause?: {};
-};
+export const UploadFileStatus = [
+  "exists",
+  "starting",
+  "reading",
+  "read",
+  "validated",
+  "uploaded",
+  "failed",
+] as const;
 
-export interface IReadFile {
+export interface UploadFile {
+  fileId?: number;
   fileName: string;
-  fullFile?: File;
-  loadError?: FileLoadError;
-  loadPercentage?: number;
-  loadResult?: "danger" | "success";
-  data?: string;
+  fullFile: File;
+  uploadProgress: number;
+  status: (typeof UploadFileStatus)[number];
+  contents?: string;
+  loadError?: string;
   responseID?: number;
 }
 
@@ -595,82 +678,105 @@ export interface AnalysisAppDependency {
   };
 }
 
-export interface AnalysisIssueLink {
+export interface AnalysisInsight {
+  id: number;
+  analysis: number;
+  ruleset: string;
+  rule: string;
+  name: string;
+  description?: string;
+  category?: string;
+  effort?: number;
+
+  incidents?: AnalysisIncident[];
+  links?: AnalysisInsightLink[];
+  facts?: AnalysisFacts;
+  labels: string[];
+}
+
+export interface AnalysisIncident {
+  id: number;
+  insight: number;
+  file: string;
+  line: number;
+  message: string;
+  codeSnip: string;
+  facts: AnalysisFacts;
+}
+
+export interface AnalysisInsightLink {
   url: string;
   title: string;
 }
 
-interface AnalysisIssuesCommonFields {
-  name: string;
-  description: string;
+export interface AnalysisFacts extends Record<string, unknown> {}
+
+/** HUB RuleReport - Insight / Ruleset+Rule summary */
+export interface AnalysisReportInsight {
   ruleset: string;
   rule: string;
+  name: string;
+  description: string;
   category: string;
   effort: number;
   labels: string[];
-  links?: AnalysisIssueLink[];
+  links: AnalysisInsightLink[];
+
+  /** count of applications that have this insight */
+  applications: number;
 }
 
-// Hub type: Issue
-export interface AnalysisIssue extends AnalysisIssuesCommonFields {
-  id: number;
-}
+export type UiAnalysisReportInsight = WithUiId<AnalysisReportInsight>;
 
-// Hub type: AppReport - Issues collated by application (but filtered by ruleset/rule)
-// When filtered by ruleset/rule, this object matches exactly one issue and includes that issue's details
-export interface AnalysisAppReport extends AnalysisIssue {
-  id: number; // Application id
+/** HUB InsightReport - Insight / Ruleset+Rule summary, for one application */
+export interface AnalysisReportApplicationInsight {
+  /** insight id */ id: number;
+  ruleset: string;
+  rule: string;
   name: string;
   description: string;
+  category: string;
   effort: number;
-  businessService: string;
+  labels: string[];
+  links: AnalysisInsightLink[];
+
+  /** count of files that have this insight */
+  files: number;
+}
+
+export type UiAnalysisReportApplicationInsight =
+  WithUiId<AnalysisReportApplicationInsight>;
+
+/**
+ * HUB InsightAppReport - Insight for application
+ * When filtered by ruleset/rule, this object matches exactly one insight and includes that insight's details
+ */
+export interface AnalysisReportInsightApplication {
+  /** application id */ id: number;
+  /** application name */ name: string;
+  /** application description */ description: string;
+  /** application business service */ businessService: string;
+
+  effort: number;
   incidents: number;
   files: number;
-  issue: {
+
+  insight: {
     id: number;
     name: string;
+    description: string;
     ruleset: string;
     rule: string;
   };
 }
 
-// Hub type: RuleReport - Issues collated by ruleset/rule
-export interface BaseAnalysisRuleReport extends AnalysisIssuesCommonFields {
-  applications: number;
-}
-
-// Hub type: IssueReport - Issues collated by ruleset/rule, filtered by one application
-export interface BaseAnalysisIssueReport extends AnalysisIssuesCommonFields {
-  id: number; // Issue id
-  files: number;
-}
-
-/**
- * Mark an object as having a unique client generated id field.  Use this type if
- * an objects from hub does not have a single field with a unique key AND the object
- * is to be used in a table.  Our table handlers assume a single field with a unique
- * value across all objects in a set to properly handle row selections.
- */
-export type WithUiId<T> = T & { _ui_unique_id: string };
-
-export type AnalysisRuleReport = WithUiId<BaseAnalysisRuleReport>;
-export type AnalysisIssueReport = WithUiId<BaseAnalysisIssueReport>;
-
-// Hub type: FileReport - Incidents collated by file
-export interface AnalysisFileReport {
-  issueId: number;
+/** HUB FileReport - Insight occurrence in a file summary */
+export interface AnalysisReportFile {
+  insightId: number;
   file: string;
-  incidents: number;
-  effort: number;
-}
 
-export interface AnalysisIncident {
-  id: number;
-  file: string;
-  line: number;
-  message: string;
-  codeSnip: string;
-  facts: Record<string, string>; // TODO what's actually in here?
+  /** count of incidents in the file */ incidents: number;
+  /** total effort of all incidents in the file */ effort: number;
 }
 
 export type TicketStatus = "" | "New" | "In Progress" | "Done" | "Error";
@@ -705,12 +811,12 @@ export interface WaveWithStatus extends MigrationWave {
   fullApplications: Application[];
   allStakeholders: StakeholderWithRole[];
 }
-export type UnstructuredFact = any;
+export type UnstructuredFact = never;
 
 export type Fact = {
   name: string;
-  //TODO: Address this when moving to structured facts api
-  data: any;
+  // TODO: Address this when moving to structured facts api
+  data: unknown;
 };
 
 export type HubFile = {
@@ -720,7 +826,7 @@ export type HubFile = {
 };
 
 export interface LooseQuestionnaire {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface Questionnaire {
@@ -759,8 +865,8 @@ export interface Question {
   text: string;
   order: number;
   explanation?: string;
-  includeFor?: CategorizedTag[];
-  excludeFor?: CategorizedTag[];
+  includeFor?: QuestionnaireTag[];
+  excludeFor?: QuestionnaireTag[];
 }
 
 export interface Answer {
@@ -769,8 +875,8 @@ export interface Answer {
   risk: string;
   rationale?: string;
   mitigation?: string;
-  applyTags?: CategorizedTag[];
-  autoAnswerFor?: CategorizedTag[];
+  applyTags?: QuestionnaireTag[];
+  autoAnswerFor?: QuestionnaireTag[];
   autoAnswered?: boolean;
   selected?: boolean;
 }
@@ -804,9 +910,9 @@ export interface Assessment
   stakeholderGroups?: Ref[];
   required?: boolean;
 }
-export interface CategorizedTag {
-  category: TagCategory;
-  tag: Tag;
+export interface QuestionnaireTag {
+  category: string;
+  tag: string;
 }
 
 //TODO: update to use new api
@@ -829,6 +935,13 @@ export interface AssessmentConfidence {
   confidence: number;
 }
 
+export interface TargetProfile {
+  id: number;
+  name: string;
+  generators: Ref[];
+  analysisProfile?: Ref;
+}
+
 export interface Archetype {
   id: number;
   name: string;
@@ -843,8 +956,8 @@ export interface Archetype {
   assessed?: boolean;
   review?: Ref;
   risk?: Risk;
+  profiles?: TargetProfile[];
 }
-export type ProviderType = "Java" | "Go";
 
 export interface QuestionWithSectionOrder extends Question {
   sectionOrder: number;
@@ -874,4 +987,132 @@ export enum StakeholderType {
 export interface GroupedStakeholderRef extends Ref {
   group: StakeholderType.Stakeholder | StakeholderType.StakeholderGroup;
   uniqueId: string;
+}
+
+export interface SourcePlatform {
+  id: number;
+  kind: string;
+  name: string;
+  url: string;
+  identity?: Ref;
+  applications?: Ref[];
+  coordinates?: JsonDocument;
+  discoverApplicationsState?: TaskState;
+}
+
+export interface Generator {
+  id: number;
+  kind: string;
+  name: string;
+  description?: string;
+  repository?: Repository;
+  params?: JsonDocument;
+  values?: JsonDocument;
+  identity?: Ref;
+  /** all profiles currently referencing this generator */ profiles?: Ref[];
+}
+
+// Could use https://www.npmjs.com/package/@types/json-schema in future if needed
+export interface JsonSchemaObject {
+  $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
+  type: "string" | "integer" | "number" | "boolean" | "object" | "array";
+  title?: string;
+  description?: string;
+
+  /** For type string, RegEx pattern */
+  pattern?: string;
+
+  /** For type string, min length */
+  minLength?: number;
+
+  /** For type string, max length */
+  maxLength?: number;
+
+  /** For type string, enum values */
+  enum?: string[];
+
+  /** For type number, minimum value */
+  minimum?: number;
+
+  /** For type number, maximum value */
+  maximum?: number;
+
+  /** For type array */
+  items?: JsonSchemaObject;
+
+  /** For type array, minimum number of items */
+  minItems?: number;
+
+  /** For type array, maximum number of items */
+  maxItems?: number;
+
+  /** For type object, defined properties */
+  properties?: { [key: string]: JsonSchemaObject };
+
+  /** For type object, what property names are required */
+  required?: string[];
+
+  /** For type object, whether additional properties are allowed */
+  additionalProperties?: boolean;
+}
+
+export interface Schema {
+  name: string;
+  domain: string;
+  variant: string;
+  subject: string;
+  versions: Array<{
+    id: number;
+    definition: JsonSchemaObject;
+  }>;
+}
+
+export interface TargetedSchema {
+  name: string;
+  definition: JsonSchemaObject;
+}
+
+// Analysis Profiles
+// Based on: https://github.com/konveyor/tackle2-hub/blob/main/api/profile.go
+
+export interface AnalysisProfileMode {
+  withDeps: boolean;
+}
+
+export interface AnalysisProfilePackages {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileScope {
+  withKnownLibs: boolean;
+  packages: AnalysisProfilePackages;
+}
+
+export interface AnalysisProfileLabels {
+  included?: string[];
+  excluded?: string[];
+}
+
+export interface AnalysisProfileTarget {
+  id: number;
+  name: string;
+  selection?: string;
+}
+
+export interface AnalysisProfileRules {
+  labels: AnalysisProfileLabels;
+  repository?: Repository;
+  identity?: Ref;
+  targets?: AnalysisProfileTarget[];
+  files?: Ref[];
+}
+
+export interface AnalysisProfile {
+  id: number;
+  name: string;
+  description?: string;
+  mode: AnalysisProfileMode;
+  scope: AnalysisProfileScope;
+  rules: AnalysisProfileRules;
 }

@@ -1,12 +1,12 @@
-import React from "react";
-import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 
 import { Paths, TaskDetailsAttachmentRoute } from "@app/Paths";
 import "@app/components/simple-document-viewer/SimpleDocumentViewer.css";
-import { formatPath } from "@app/utils/utils";
-import { TaskDetailsBase } from "./TaskDetailsBase";
 import { useFetchApplicationById } from "@app/queries/applications";
+import { formatPath } from "@app/utils/utils";
+
+import { TaskDetailsBase } from "./TaskDetailsBase";
 
 export const TaskDetails = () => {
   const { t } = useTranslation();
@@ -17,7 +17,6 @@ export const TaskDetails = () => {
   const { application } = useFetchApplicationById(applicationId);
 
   const appName: string = application?.name ?? t("terms.unknown");
-  console.log(appName);
   const detailsPath = isFromApplication
     ? formatPath(Paths.applicationsTaskDetails, {
         applicationId: applicationId,

@@ -1,5 +1,8 @@
 import * as React from "react";
+import { AxiosError } from "axios";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -7,6 +10,7 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  EmptyStateHeader,
   EmptyStateIcon,
   List,
   MenuToggle,
@@ -18,42 +22,39 @@ import {
   Switch,
   Text,
   TextContent,
-  Title,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { AxiosError } from "axios";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { LockIcon, EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, EllipsisVIcon, LockIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
-import {
-  useDeleteQuestionnaireMutation,
-  useFetchQuestionnaires,
-  useUpdateQuestionnaireMutation,
-} from "@app/queries/questionnaires";
-import { ConditionalRender } from "@app/components/ConditionalRender";
+import { Paths } from "@app/Paths";
+import { Questionnaire } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
+import { ConditionalRender } from "@app/components/ConditionalRender";
+import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
+import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { NotificationsContext } from "@app/components/NotificationsContext";
-import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
-import { Questionnaire } from "@app/api/models";
-import { useHistory } from "react-router-dom";
-import { Paths } from "@app/Paths";
 import { ImportQuestionnaireForm } from "@app/pages/assessment-management/import-questionnaire-form/import-questionnaire-form";
-import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
+import {
+  useDeleteQuestionnaireMutation,
+  useFetchQuestionnaires,
+  useUpdateQuestionnaireMutation,
+} from "@app/queries/questionnaires";
+import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
+
 import { ExportQuestionnaireDropdownItem } from "./components/export-questionnaire-dropdown-item";
-import dayjs from "dayjs";
 import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
 import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresholds-column";
 
@@ -96,7 +97,9 @@ const AssessmentSettings: React.FC = () => {
 
   const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
 
-  const [isKebabOpen, setIsKebabOpen] = React.useState<number | null>(null);
+  const [questionnaireForKebab, setQuestionnaireForKebab] = React.useState<
+    number | null
+  >(null);
 
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
@@ -230,6 +233,7 @@ const AssessmentSettings: React.FC = () => {
                     <Th {...getThProps({ columnKey: "questions" })} />
                     <Th {...getThProps({ columnKey: "rating" })} />
                     <Th {...getThProps({ columnKey: "createTime" })} />
+                    <Th screenReaderText="row actions" />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -239,12 +243,13 @@ const AssessmentSettings: React.FC = () => {
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
                   <EmptyState variant="sm">
-                    <EmptyStateIcon icon={CubesIcon} />
-                    <Title headingLevel="h2" size="lg">
-                      No questionnaire available
-                    </Title>
+                    <EmptyStateHeader
+                      titleText={t("message.noQuestionnairesAvailable")}
+                      icon={<EmptyStateIcon icon={CubesIcon} />}
+                      headingLevel="h2"
+                    />
                     <EmptyStateBody>
-                      Use the import button above to add your questionnaire.
+                      {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>
                   </EmptyState>
                 }
@@ -316,9 +321,13 @@ const AssessmentSettings: React.FC = () => {
                           </Td>
                           <Td width={10}>
                             <Dropdown
-                              isOpen={isKebabOpen === questionnaire.id}
-                              onSelect={() => setIsKebabOpen(null)}
-                              onOpenChange={(_isOpen) => setIsKebabOpen(null)}
+                              isOpen={
+                                questionnaireForKebab === questionnaire.id
+                              }
+                              onSelect={() => setQuestionnaireForKebab(null)}
+                              onOpenChange={() =>
+                                setQuestionnaireForKebab(null)
+                              }
                               toggle={(
                                 toggleRef: React.Ref<MenuToggleElement>
                               ) => (
@@ -327,11 +336,16 @@ const AssessmentSettings: React.FC = () => {
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
                                   onClick={() => {
-                                    isKebabOpen
-                                      ? setIsKebabOpen(null)
-                                      : setIsKebabOpen(questionnaire.id);
+                                    if (
+                                      questionnaireForKebab === questionnaire.id
+                                    ) {
+                                      setQuestionnaireForKebab(null);
+                                    } else {
+                                      setQuestionnaireForKebab(
+                                        questionnaire.id
+                                      );
+                                    }
                                   }}
-                                  isExpanded={isKebabOpen === rowIndex}
                                 >
                                   <EllipsisVIcon />
                                 </MenuToggle>
@@ -409,8 +423,9 @@ const AssessmentSettings: React.FC = () => {
         nameToDelete={questionnaireToDelete?.name}
         onClose={() => setQuestionnaireToDelete(undefined)}
         onConfirmDelete={() => {
-          questionnaireToDelete &&
+          if (questionnaireToDelete) {
             deleteQuestionnaire({ questionnaire: questionnaireToDelete });
+          }
           setQuestionnaireToDelete(undefined);
         }}
         titleWhat={t("terms.questionnaire").toLowerCase()}

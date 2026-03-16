@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 import {
   AggregateTicketStatus,
   Application,
@@ -8,7 +10,6 @@ import {
   TicketStatus,
   WaveWithStatus,
 } from "@app/api/models";
-import dayjs from "dayjs";
 
 export const getWavesWithStatus = (
   waves: MigrationWave[],
@@ -135,7 +136,7 @@ export const getWavesWithStatus = (
   };
   const getApplications = (refs: Ref[]) => {
     const ids = refs.map((ref) => ref.id);
-    return applications.filter((application: any) =>
+    return applications.filter((application: Application) =>
       ids.includes(application.id)
     );
   };

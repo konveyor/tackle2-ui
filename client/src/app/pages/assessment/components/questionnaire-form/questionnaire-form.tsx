@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import * as React from "react";
+import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Popover,
@@ -9,14 +11,17 @@ import {
   Text,
   TextContent,
 } from "@patternfly/react-core";
-import HelpIcon from "@patternfly/react-icons/dist/esm/icons/help-icon";
-import { MultiInputSelection } from "./multi-input-selection";
-import { Question, QuestionHeader, QuestionBody } from "./question";
-import { getCommentFieldName } from "../../form-utils";
-import { useFormContext } from "react-hook-form";
+import { HelpIcon } from "@patternfly/react-icons";
+
 import { SectionWithQuestionOrder } from "@app/api/models";
-import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
+import { AssessmentWizardValues } from "@app/pages/assessment/components/assessment-wizard/assessment-wizard";
+import { useWithUiId } from "@app/utils/query-utils";
+
+import { getCommentFieldName } from "../../form-utils";
+
+import { MultiInputSelection } from "./multi-input-selection";
+import { Question, QuestionBody, QuestionHeader } from "./question";
 
 export interface QuestionnaireFormProps {
   section: SectionWithQuestionOrder;
@@ -42,6 +47,11 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
     return section.questions.sort((a, b) => a.order - b.order);
   }, [section]);
 
+  const questionsWithUiId = useWithUiId(
+    sortedQuestions,
+    (question) => `${section.name}-${question.order || "no-order"}`
+  );
+
   // Comments
 
   const commentFieldName = getCommentFieldName(section, true);
@@ -53,12 +63,9 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
           <Text component="h1">{section.name}</Text>
         </TextContent>
       </StackItem>
-      {sortedQuestions.map((question, i) => {
-        const questionUniqueKey = `${section.name}-${
-          question.order || "no-order"
-        }-${question.text || "no-text"}-${i}`;
+      {questionsWithUiId.map((question) => {
         return (
-          <StackItem key={questionUniqueKey}>
+          <StackItem key={question._ui_unique_id}>
             <Question cy-data="question">
               <QuestionHeader>
                 <Split hasGutter>
@@ -79,7 +86,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
               </QuestionHeader>
               <QuestionBody>
                 <MultiInputSelection
-                  key={questionUniqueKey}
+                  key={question._ui_unique_id}
                   question={question}
                 />
               </QuestionBody>

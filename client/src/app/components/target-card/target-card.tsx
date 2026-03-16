@@ -1,48 +1,47 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
-  EmptyStateIcon,
-  Title,
+  Bullseye,
   Card,
   CardBody,
+  CardHeader,
   DropdownItem,
+  EmptyStateIcon,
   Flex,
   FlexItem,
-  Button,
-  ButtonVariant,
   Label,
-  CardHeader,
+  Panel,
   PanelMain,
   PanelMainBody,
-  Panel,
   Stack,
   StackItem,
-  Bullseye,
+  Title,
 } from "@patternfly/react-core";
-import { GripVerticalIcon, InfoCircleIcon } from "@patternfly/react-icons";
+import { InfoCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { useTranslation } from "react-i18next";
 
-import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 import { Target, TargetLabel } from "@app/api/models";
+import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
+
 import { KebabDropdown } from "../KebabDropdown";
-import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
 import { SimpleSelectBasic } from "../SimpleSelectBasic";
 
+import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
+
 import "./target-card.css";
-import { localeNumericCompare } from "@app/utils/utils";
 
 export interface TargetCardProps {
   item: Target;
-  cardSelected?: boolean;
-  onCardClick?: (
-    isSelecting: boolean,
-    targetLabelName: string,
+  isSelectable?: boolean;
+  isCardSelected?: boolean;
+  onChange?: (
+    isSelected: boolean,
+    selectedLabel: TargetLabel | null,
     target: Target
   ) => void;
-  onSelectedCardTargetChange?: (value: string) => void;
-  formLabels?: TargetLabel[];
-  handleProps?: any;
+  selectedLabel?: TargetLabel | null;
   readOnly?: boolean;
+  dndSortHandle?: React.ReactNode;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -55,48 +54,30 @@ const forceSelect = ["Azure"];
 
 export const TargetCard: React.FC<TargetCardProps> = ({
   item: target,
+  isSelectable = true,
   readOnly = false,
-  cardSelected = false,
-  formLabels,
-  onCardClick,
-  onSelectedCardTargetChange,
-  handleProps,
+  isCardSelected = false,
+  selectedLabel,
+  onChange,
+  dndSortHandle,
   onEdit,
   onDelete,
 }) => {
   const { t } = useTranslation();
   const imageDataUrl = useFetchImageDataUrl(target);
 
-  const targetLabels = (target?.labels ?? []).sort((a, b) =>
-    localeNumericCompare(b.label, a.label)
-  );
-
-  const [selectedLabelName, setSelectedLabelName] = React.useState<string>(
-    () => {
-      const prevSelectedLabel =
-        formLabels?.find((formLabel) => {
-          const labelNames = targetLabels.map((label) => label.name);
-          return labelNames?.includes(formLabel.name);
-        })?.name || "";
-
-      return (
-        prevSelectedLabel ||
-        targetLabels[0]?.name ||
-        `${target?.name || "target"}-Empty`
-      );
-    }
-  );
-
-  const handleCardClick = () => {
-    if (onCardClick && selectedLabelName) {
-      onCardClick(!cardSelected, selectedLabelName, target);
+  const handleToggleSelection = () => {
+    if (onChange) {
+      onChange(!isCardSelected, selectedLabel ?? null, target);
     }
   };
 
-  const handleLabelSelection = (selection: string) => {
-    setSelectedLabelName(selection);
-    if (cardSelected && onSelectedCardTargetChange) {
-      onSelectedCardTargetChange(selection);
+  const handleLabelChange = (labelName: string) => {
+    if (onChange) {
+      const selectedLabel = labelChoices.find(
+        (label) => label.name === labelName
+      );
+      onChange(isCardSelected, selectedLabel ?? null, target);
     }
   };
 
@@ -111,8 +92,18 @@ export const TargetCard: React.FC<TargetCardProps> = ({
     />
   );
 
-  const labelChoices =
-    target.choice || forceSelect.includes(target.name) ? targetLabels : [];
+  const { labelChoices, labelOptions } = React.useMemo(() => {
+    const labelChoices: TargetLabel[] =
+      target.choice || forceSelect.includes(target.name)
+        ? (target.labels ?? [])
+        : [];
+
+    const labelOptions = labelChoices.map((label) => ({
+      children: label.name,
+      value: label.name,
+    }));
+    return { labelChoices, labelOptions };
+  }, [target]);
 
   const idCard = `target-${target.name.replace(/\s/g, "-")}`;
   const idProv = `${idCard}-provider-${target.provider?.replace(/\s/g, "-")}`;
@@ -124,19 +115,19 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       id={idCard}
       data-target-name={target.name}
       data-target-id={target.id}
-      isSelectable={readOnly}
-      isSelected={cardSelected}
+      isSelectable={isSelectable}
+      isSelected={isCardSelected}
       isFullHeight
       isCompact
       isFlat
     >
       <CardHeader
         selectableActions={{
-          isChecked: cardSelected,
+          isChecked: isCardSelected,
           name: `${idCard}-select`,
           selectableActionId: `${idCard}-select`,
           selectableActionAriaLabelledby: idCard,
-          onChange: handleCardClick,
+          onChange: handleToggleSelection,
         }}
       >
         <Label
@@ -149,37 +140,20 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       </CardHeader>
       <CardBody>
         <Flex>
-          <FlexItem>
-            {!readOnly && (
-              <Button
-                className="grabbable"
-                id="drag-button"
-                aria-label="drag button"
-                variant={ButtonVariant.plain}
-                {...handleProps}
-                {...handleProps?.listeners}
-                {...handleProps?.attributes}
-              >
-                <GripVerticalIcon />
-              </Button>
-            )}
-          </FlexItem>
+          <FlexItem>{dndSortHandle}</FlexItem>
           <FlexItem className={spacing.mlAuto}>
-            {readOnly && target.custom ? (
-              <Label color="grey">Custom</Label>
-            ) : (
-              target.custom && (
-                <KebabDropdown
-                  dropdownItems={[
-                    <DropdownItem key="edit-custom-card" onClick={onEdit}>
-                      {t("actions.edit")}
-                    </DropdownItem>,
-                    <DropdownItem key="delete-custom-card" onClick={onDelete}>
-                      {t("actions.delete")}
-                    </DropdownItem>,
-                  ]}
-                />
-              )
+            {target.custom && readOnly && <Label color="grey">Custom</Label>}
+            {target.custom && !readOnly && (
+              <KebabDropdown
+                dropdownItems={[
+                  <DropdownItem key="edit-custom-card" onClick={onEdit}>
+                    {t("actions.edit")}
+                  </DropdownItem>,
+                  <DropdownItem key="delete-custom-card" onClick={onDelete}>
+                    {t("actions.delete")}
+                  </DropdownItem>,
+                ]}
+              />
             )}
           </FlexItem>
         </Flex>
@@ -206,14 +180,11 @@ export const TargetCard: React.FC<TargetCardProps> = ({
                 toggleId={`${target.name}-toggle`}
                 toggleAriaLabel="Select label dropdown target"
                 aria-label="Select Label"
-                value={selectedLabelName}
-                options={labelChoices.map((label) => ({
-                  children: label.name,
-                  value: label.name,
-                }))}
-                onChange={(option) => {
-                  handleLabelSelection(option);
-                }}
+                value={
+                  selectedLabel ? selectedLabel.name : labelChoices[0].name
+                }
+                options={labelOptions}
+                onChange={handleLabelChange}
               />
             </StackItem>
           )}

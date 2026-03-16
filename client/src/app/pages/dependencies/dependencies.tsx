@@ -1,4 +1,6 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router-dom";
 import {
   Label,
   LabelGroup,
@@ -10,28 +12,28 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { useTranslation } from "react-i18next";
-import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import {
-  useTableControlState,
-  useTableControlProps,
-  getHubRequestParams,
-  deserializeFilterUrlParams,
-} from "@app/hooks/table-controls";
+
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
+import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
   ConditionalTableBody,
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import {
+  deserializeFilterUrlParams,
+  getHubRequestParams,
+  useTableControlProps,
+  useTableControlState,
+} from "@app/hooks/table-controls";
 import { useFetchDependencies } from "@app/queries/dependencies";
-import { useSelectionState } from "@migtools/lib-ui";
-import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
-import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
 import { getParsedLabel } from "@app/utils/rules-utils";
-import { useHistory } from "react-router-dom";
+
+import { useSharedAffectedApplicationFilterCategories } from "../issues/helpers";
+
+import { DependencyAppsDetailDrawer } from "./dependency-apps-detail-drawer";
 
 export const Dependencies: React.FC = () => {
   const { t } = useTranslation();
@@ -48,17 +50,17 @@ export const Dependencies: React.FC = () => {
     persistTo: "urlParams",
     persistenceKeyPrefix: TablePersistenceKeyPrefix.dependencies,
     columnNames: {
-      name: "Dependency name",
-      foundIn: "Found in",
-      provider: "Language",
-      labels: "Labels",
+      name: t("terms.dependencyName"),
+      foundIn: t("terms.foundIn"),
+      provider: t("terms.language"),
+      labels: t("terms.labels"),
     },
     initialFilterValues: deserializedFilterValues,
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: true,
-    sortableColumns: ["name", "foundIn", "labels"],
+    sortableColumns: ["name", "foundIn", "provider"],
     initialSort: { columnKey: "name", direction: "asc" },
     filterCategories: [
       ...allAffectedApplicationsFilterCategories,
@@ -84,6 +86,17 @@ export const Dependencies: React.FC = () => {
           }) + "...",
         getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
       },
+      {
+        categoryKey: "labels",
+        title: t("terms.labels"),
+        type: FilterType.search,
+        filterGroup: "Dependency",
+        placeholderText:
+          t("actions.filterBy", {
+            what: t("terms.labels").toLowerCase(),
+          }) + "...",
+        getServerFilterValue: (value) => (value ? [`*${value[0]}*`] : []),
+      },
     ],
     initialItemsPerPage: 10,
   });
@@ -98,7 +111,7 @@ export const Dependencies: React.FC = () => {
       hubSortFieldKeys: {
         name: "name",
         foundIn: "applications",
-        labels: "labels",
+        provider: "provider",
       },
     })
   );
@@ -109,10 +122,6 @@ export const Dependencies: React.FC = () => {
     currentPageItems,
     totalItemCount,
     isLoading: isFetching,
-    selectionState: useSelectionState({
-      items: currentPageItems,
-      isEqual: (a, b) => a.name === b.name,
-    }),
   });
 
   const {

@@ -1,10 +1,17 @@
-import React, { forwardRef, useCallback, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import * as React from "react";
+import { forwardRef, useCallback, useMemo, useState } from "react";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   Dropdown,
   DropdownItem,
   DropdownList,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
   NotificationDrawer,
@@ -15,23 +22,19 @@ import {
   NotificationDrawerListItemBody,
   NotificationDrawerListItemHeader,
   Tooltip,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateBody,
-  EmptyStateVariant,
 } from "@patternfly/react-core";
-import { EllipsisVIcon, CubesIcon } from "@patternfly/react-icons";
+import { CubesIcon, EllipsisVIcon } from "@patternfly/react-icons";
 import { css } from "@patternfly/react-styles";
 
 import { Task, TaskState } from "@app/api/models";
-import { useTaskManagerContext } from "./TaskManagerContext";
+import { useTaskActions } from "@app/pages/tasks/useTaskActions";
 import { useInfiniteServerTasks } from "@app/queries/tasks";
 
 import "./TaskManagerDrawer.css";
 import { TaskStateIcon } from "../Icons";
-import { useTaskActions } from "@app/pages/tasks/useTaskActions";
 import { InfiniteScroller } from "../InfiniteScroller";
+
+import { useTaskManagerContext } from "./TaskManagerContext";
 
 /** A version of `Task` specific for the task manager drawer components */
 interface TaskManagerTask {
@@ -49,93 +52,86 @@ interface TaskManagerTask {
   extensions: string[];
   state: TaskState;
   priority: number;
-  applicationId: number;
-  applicationName: string;
-  preemptEnabled: boolean;
+  applicationName?: string;
+  platformName?: string;
 
   // full object to be used with library functions
-  _: Task;
+  _: Task<unknown>;
 }
 
 const PAGE_SIZE = 20;
 
-interface TaskManagerDrawerProps {
-  ref?: React.ForwardedRef<HTMLElement>;
-}
+export const TaskManagerDrawer = forwardRef((_props, ref) => {
+  const { t } = useTranslation();
+  const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
+  const { tasks, hasNextPage, fetchNextPage, pageSize } = useTaskManagerData();
 
-export const TaskManagerDrawer: React.FC<TaskManagerDrawerProps> = forwardRef(
-  (_props, ref) => {
-    const { isExpanded, setIsExpanded, queuedCount } = useTaskManagerContext();
-    const { tasks, hasNextPage, fetchNextPage, pageSize } =
-      useTaskManagerData();
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
+    number | boolean
+  >(false);
 
-    const [expandedItems, setExpandedItems] = useState<number[]>([]);
-    const [taskWithExpandedActions, setTaskWithExpandedAction] = useState<
-      number | boolean
-    >(false);
+  const closeDrawer = () => {
+    setIsExpanded(!isExpanded);
+    setExpandedItems([]);
+  };
 
-    const closeDrawer = () => {
-      setIsExpanded(!isExpanded);
-      setExpandedItems([]);
-    };
-
-    return (
-      <NotificationDrawer ref={ref}>
-        <NotificationDrawerHeader
-          title="Task Manager"
-          customText={`${queuedCount} queued`}
-          onClose={closeDrawer}
-        >
-          <Link to="/tasks">View All Tasks</Link>
-        </NotificationDrawerHeader>
-        <NotificationDrawerBody>
-          {tasks.length == 0 ? (
-            <EmptyState variant={EmptyStateVariant.full}>
-              <EmptyStateHeader
-                headingLevel="h2"
-                titleText="There are no queued tasks"
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-              />
-              <EmptyStateBody>
-                No tasks are currently ready, postponed, blocked, pending or
-                running. Completed and cancelled tasks may be viewed on the full
-                task list.
-              </EmptyStateBody>
-            </EmptyState>
-          ) : (
-            <InfiniteScroller
-              fetchMore={fetchNextPage}
-              hasMore={hasNextPage}
-              itemCount={tasks?.length ?? 0}
-              pageSize={pageSize}
-            >
-              <NotificationDrawerList>
-                {tasks.map((task) => (
-                  <TaskItem
-                    key={task.id}
-                    task={task}
-                    expanded={expandedItems.includes(task.id)}
-                    onExpandToggle={(expand) => {
-                      setExpandedItems(
-                        expand
-                          ? [...expandedItems, task.id]
-                          : expandedItems.filter((i) => i !== task.id)
-                      );
-                    }}
-                    actionsExpanded={task.id === taskWithExpandedActions}
-                    onActionsExpandToggle={(flag: boolean) =>
-                      setTaskWithExpandedAction(flag && task.id)
-                    }
-                  />
-                ))}
-              </NotificationDrawerList>
-            </InfiniteScroller>
-          )}
-        </NotificationDrawerBody>
-      </NotificationDrawer>
-    );
-  }
-);
+  return (
+    <NotificationDrawer ref={ref}>
+      <NotificationDrawerHeader
+        title="Task Manager"
+        customText={`${queuedCount} queued`}
+        onClose={closeDrawer}
+      >
+        <Link to="/tasks">View All Tasks</Link>
+      </NotificationDrawerHeader>
+      <NotificationDrawerBody>
+        {tasks.length == 0 ? (
+          <EmptyState variant={EmptyStateVariant.full}>
+            <EmptyStateHeader
+              headingLevel="h2"
+              titleText={t("message.noQueuedTasksTitle")}
+              icon={<EmptyStateIcon icon={CubesIcon} />}
+            />
+            <EmptyStateBody>
+              No tasks are currently ready, postponed, blocked, pending or
+              running. Completed and cancelled tasks may be viewed on the full
+              task list.
+            </EmptyStateBody>
+          </EmptyState>
+        ) : (
+          <InfiniteScroller
+            fetchMore={fetchNextPage}
+            hasMore={hasNextPage}
+            itemCount={tasks?.length ?? 0}
+            pageSize={pageSize}
+          >
+            <NotificationDrawerList>
+              {tasks.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  expanded={expandedItems.includes(task.id)}
+                  onExpandToggle={(expand) => {
+                    setExpandedItems(
+                      expand
+                        ? [...expandedItems, task.id]
+                        : expandedItems.filter((i) => i !== task.id)
+                    );
+                  }}
+                  actionsExpanded={task.id === taskWithExpandedActions}
+                  onActionsExpandToggle={(flag: boolean) =>
+                    setTaskWithExpandedAction(flag && task.id)
+                  }
+                />
+              ))}
+            </NotificationDrawerList>
+          </InfiniteScroller>
+        )}
+      </NotificationDrawerBody>
+    </NotificationDrawer>
+  );
+});
 TaskManagerDrawer.displayName = "TaskManagerDrawer";
 
 const TaskStateToIcon: React.FC<{ taskState: TaskState }> = ({ taskState }) => (
@@ -159,8 +155,8 @@ const TaskItem: React.FC<{
 }) => {
   const starttime = dayjs(task.started ?? task.createTime);
   const title = expanded
-    ? `${task.id} (${task.addon})`
-    : `${task.id} (${task.addon}) - ${task.applicationName} - ${
+    ? `${task.id} (${task.kind})`
+    : `${task.id} (${task.kind}) - ${task.applicationName} - ${
         task.priority ?? 0
       }`;
 
@@ -222,10 +218,12 @@ const TaskItem: React.FC<{
             </Tooltip>
           }
         >
-          <div>{task.applicationName}</div>
-          {/* TODO: Link to /applications with filter applied? */}
-          <div>Priority {task.priority}</div>
+          {/* TODO: Link to /applications or /platforms with filter applied? */}
+          {task.applicationName && <div>{task.applicationName}</div>}
+          {task.platformName && <div>{task.platformName}</div>}
+
           {/* TODO: Bucket to Low, Medium, High? */}
+          <div>Priority {task.priority}</div>
         </NotificationDrawerListItemBody>
       ) : undefined}
     </NotificationDrawerListItem>
@@ -273,15 +271,13 @@ const useTaskManagerData = () => {
               extensions: task.extensions,
               state: task.state ?? "",
               priority: task.priority ?? 0,
-              applicationId: task.application.id,
-              applicationName: task.application.name,
-              preemptEnabled: task?.policy?.preemptEnabled ?? false,
+              applicationName: task.application?.name,
+              platformName: task.platform?.name,
 
               _: task,
 
               // TODO: Add any checks that could be needed later...
               //  - isCancelable (does the current user own the task? other things to check?)
-              //  - isPreemptionToggleAllowed
             }) as TaskManagerTask
         ) ?? [],
     [data]

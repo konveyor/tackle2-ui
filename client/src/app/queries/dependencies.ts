@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+
+import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import {
   AnalysisDependency,
   HubPaginatedResult,
@@ -11,7 +13,10 @@ import { useWithUiId } from "@app/utils/query-utils";
 export const DependenciesQueryKey = "dependencies";
 export const AppDependenciesQueryKey = "appDependencies";
 
-export const useFetchDependencies = (params: HubRequestParams = {}) => {
+export const useFetchDependencies = (
+  params: HubRequestParams = {},
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const {
     data: dependencies,
     isLoading,
@@ -22,6 +27,7 @@ export const useFetchDependencies = (params: HubRequestParams = {}) => {
     queryFn: async () => await getDependencies(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
 
   const withUiId = useWithUiId(
@@ -40,12 +46,16 @@ export const useFetchDependencies = (params: HubRequestParams = {}) => {
   };
 };
 
-export const useFetchAppDependencies = (params: HubRequestParams = {}) => {
+export const useFetchAppDependencies = (
+  params: HubRequestParams = {},
+  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
+) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [AppDependenciesQueryKey, params],
     queryFn: async () => await getAppDependencies(params),
     onError: (error) => console.log("error, ", error),
     keepPreviousData: true,
+    refetchInterval,
   });
   return {
     result: data || { data: [], total: 0, params },

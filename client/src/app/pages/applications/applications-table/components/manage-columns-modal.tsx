@@ -1,6 +1,6 @@
 import "./manage-columns-modal.css";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Button,
   DataList,
@@ -15,6 +15,7 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
+
 import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
 
 export interface ManagedColumnsProps<TColumnKey extends string> {
