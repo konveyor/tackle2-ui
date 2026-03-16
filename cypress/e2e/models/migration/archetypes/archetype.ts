@@ -52,6 +52,7 @@ export class Archetype {
   stakeholders?: Stakeholders[];
   stakeholderGroups?: Stakeholdergroups[];
   comments?: string;
+  id?: number;
 
   constructor(
     name: string,
@@ -443,5 +444,39 @@ export class Archetype {
   verifyStatus(column, status): void {
     Archetype.open();
     Assessment.verifyStatus(this.name, column, status);
+  }
+
+  /** Delete an archetype via the API (no UI interaction). */
+  deleteViaApi(headers?: Record<string, string>): void {
+    if (this.id) {
+      cy.request({
+        method: "DELETE",
+        url: `/hub/archetypes/${this.id}`,
+        ...(headers && { headers }),
+        failOnStatusCode: false,
+      });
+    }
+  }
+
+  /** Delete all archetypes via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/archetypes",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/archetypes/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
   }
 }

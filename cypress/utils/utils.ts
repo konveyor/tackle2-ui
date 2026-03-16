@@ -109,7 +109,6 @@ import {
   pageNumInput,
   prevPageButton,
   removeButton,
-  rowActionsKebabToggle,
   searchButton,
   sideDrawer,
   span,
@@ -1024,12 +1023,14 @@ export function clickKebabMenuOptionArchetype(
 ): void {
   // The clickItemInKebabMenu() fn can't be used on the Archetype page just yet because the
   // the individual archetypes don't have an id for their kebab menu.
-  cy.contains(rowItem)
+  cy.contains(rowItem, { timeout: 10 * SEC })
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
     });
-  cy.get(actionMenuItem).contains(itemName).click({ force: true });
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(itemName, { timeout: 10 * SEC })
+    .click({ force: true });
 }
 
 export function createMultipleJiraConnections(
@@ -1603,30 +1604,33 @@ export function deleteAllItems(tableSelector: string = commonTable) {
 }
 
 export function deleteAllBusinessServices() {
-  BusinessServices.openList();
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    BusinessServices.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllStakeholderGroups(_cancel = false): void {
-  Stakeholdergroups.openList();
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Stakeholdergroups.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllStakeholders(): void {
-  Stakeholders.openList();
-  deleteAllRows(stakeHoldersTable);
+  getAuthHeaders().then((headers) => {
+    Stakeholders.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllArchetypes() {
-  Archetype.open();
-  selectItemsPerPage(100);
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Archetype.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllCredentials() {
-  Credentials.openList();
-  selectItemsPerPage(100);
-  deleteAllRows();
+  getAuthHeaders().then((headers) => {
+    Credentials.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteAllProfiles() {
@@ -1636,8 +1640,9 @@ export function deleteAllProfiles() {
 }
 
 export function deleteApplicationTableRows(): void {
-  Application.open();
-  deleteAllItems();
+  getAuthHeaders().then((headers) => {
+    Application.deleteAllViaApi(headers);
+  });
 }
 
 export function deleteBulkApplicationsByApi(appIds: number[]): void {
@@ -1688,24 +1693,8 @@ export function validatePageTitle(pageTitle: string) {
 }
 
 export function deleteAllMigrationWaves() {
-  MigrationWave.open();
-  selectItemsPerPage(100);
-  // This method if for pages that have delete button inside Kebab menu
-  // like Applications and Imports page
-  isTableEmpty().then((empty) => {
-    if (!empty) {
-      cy.get("tbody tr").then(($rows) => {
-        for (let i = 0; i < $rows.length - 1; i++) {
-          cy.get(rowActionsKebabToggle, { timeout: 10000 }).first().click();
-          cy.contains("Delete").click();
-          cy.get(confirmButton).click();
-          cy.wait(2 * SEC);
-          isTableEmpty().then((empty) => {
-            if (empty) return;
-          });
-        }
-      });
-    }
+  getAuthHeaders().then((headers) => {
+    MigrationWave.deleteAllViaApi(headers);
   });
 }
 
