@@ -67,6 +67,8 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
         ariaLabel={category.title}
         isDisabled={isDisabled}
         placeholderText="Any"
+        toggleId="select-filter-value-select"
+        toggleAriaLabel="Select"
       />
     </ToolbarFilter>
   );
