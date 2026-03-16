@@ -37,7 +37,6 @@ export interface GitHubConfig {
 export interface GitHubIssueOptions {
   issueNumber: number;
   repo: string;
-  failOnError?: boolean;
 }
 
 const githubConfig: GitHubConfig = {

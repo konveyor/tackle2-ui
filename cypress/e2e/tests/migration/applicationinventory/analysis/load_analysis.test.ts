@@ -17,7 +17,6 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import { getRulesData } from "../../../../../utils/data_utils";
-import { checkGitHubInTest } from "../../../../../utils/github_utils";
 import {
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
@@ -86,28 +85,19 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
 
   it("Bug Tackle-3002: Source Analysis on Nexus app", function () {
     // https://github.com/konveyor/tackle2-ui/issues/3002
-    checkGitHubInTest({ issueNumber: 3002, repo: "tackle2-ui" }).then(
-      (isOpen) => {
-        if (isOpen) {
-          this.skip();
-        }
-        const application = new Analysis(
-          getRandomApplicationData("Nexus Source", {
-            sourceData: this.appData["nexus"],
-          }),
-          getRandomAnalysisData(
-            this.analysisData["source_analysis_on_nexus_app"]
-          )
-        );
-        application.create();
-        application.extractIDfromName().then((id) => {
-          applicationIds.push(id);
-        });
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
-      }
+    const application = new Analysis(
+      getRandomApplicationData("Nexus Source", {
+        sourceData: this.appData["nexus"],
+      }),
+      getRandomAnalysisData(this.analysisData["source_analysis_on_nexus_app"])
     );
+    application.create();
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
   });
 
   it("Source Analysis on OpenMRS app", function () {
@@ -128,32 +118,25 @@ describe(["@tier1"], "Source Analysis of big applications", () => {
 
   it("Bug Tackle-3002: Source + dependency Analysis on Nexus app", function () {
     // https://github.com/konveyor/tackle2-ui/issues/3002
-    checkGitHubInTest({ issueNumber: 3002, repo: "tackle2-ui" }).then(
-      (isOpen) => {
-        if (isOpen) {
-          this.skip();
-        }
-        const application = new Analysis(
-          getRandomApplicationData("Nexus Source+dep", {
-            sourceData: this.appData["nexus"],
-          }),
-          getRandomAnalysisData(
-            this.analysisData["source_plus_dependency_analysis_on_nexus_app"]
-          )
-        );
-        application.create();
-        application.extractIDfromName().then((id) => {
-          applicationIds.push(id);
-        });
-        cy.wait("@getApplication");
-        application.analyze();
-        application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
-        application.verifyEffort(
-          this.analysisData["source_plus_dependency_analysis_on_nexus_app"][
-            "effort"
-          ]
-        );
-      }
+    const application = new Analysis(
+      getRandomApplicationData("Nexus Source+dep", {
+        sourceData: this.appData["nexus"],
+      }),
+      getRandomAnalysisData(
+        this.analysisData["source_plus_dependency_analysis_on_nexus_app"]
+      )
+    );
+    application.create();
+    application.extractIDfromName().then((id) => {
+      applicationIds.push(id);
+    });
+    cy.wait("@getApplication");
+    application.analyze();
+    application.verifyAnalysisStatus(AnalysisStatuses.completed, 60 * MIN);
+    application.verifyEffort(
+      this.analysisData["source_plus_dependency_analysis_on_nexus_app"][
+        "effort"
+      ]
     );
   });
 
