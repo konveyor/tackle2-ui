@@ -18,11 +18,15 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { TargetLabel, Taskgroup, UploadFile } from "@app/api/models";
 import { TargetLabelSchema, UploadFileSchema } from "@app/api/schemas";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
+import {
+  OptionWithValue,
+  SimpleSelect as DeprecatedSimpleSelect,
+} from "@app/components/SimpleSelect";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchIdentities } from "@app/queries/identities";
 import { toOptionLike } from "@app/utils/model-utils";
@@ -171,15 +175,9 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
     setValue("customLabels", uniqueNewTargetLabels);
   };
 
-  const repositoryTypeOptions: OptionWithValue<string>[] = [
-    {
-      value: "git",
-      toString: () => `Git`,
-    },
-    {
-      value: "svn",
-      toString: () => `Subversion`,
-    },
+  const repositoryTypeOptions = [
+    { value: "git", label: "Git" },
+    { value: "svn", label: "Subversion" },
   ];
 
   const { identitiesByKind } = useFetchIdentities();
@@ -256,16 +254,13 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
                   id="repo-type-select"
                   toggleId="repo-type-select-toggle"
                   toggleAriaLabel="Repository type select dropdown toggle"
-                  aria-label={name}
-                  value={
-                    value
-                      ? toOptionLike(value, repositoryTypeOptions)
-                      : undefined
-                  }
+                  isScrollable
+                  ariaLabel={name}
+                  isFullWidth
+                  value={value ?? undefined}
                   options={repositoryTypeOptions}
-                  onChange={(selection) => {
-                    const selectionValue = selection as OptionWithValue<string>;
-                    onChange(selectionValue.value);
+                  onSelect={(selection) => {
+                    onChange(selection);
                     trigger("sourceRepository");
                   }}
                 />
@@ -296,7 +291,7 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               label={t("analysisSteps.labels.associatedCredentials")}
               fieldId="credentials-select"
               renderInput={({ field: { value, name, onChange } }) => (
-                <SimpleSelect
+                <DeprecatedSimpleSelect
                   id="associated-credentials-select"
                   toggleId="associated-credentials-select-toggle"
                   toggleAriaLabel="Associated credentials dropdown toggle"
