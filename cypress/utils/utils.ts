@@ -354,10 +354,11 @@ export function resetURL(): void {
 }
 
 export function selectItemsPerPage(items: number): void {
+  waitUntilSpinnerIsGone();
   cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
+        cy.wrap($toggleBtn.eq(0)).click();
         cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
         cy.get(`li[data-action="per-page-${items}"]`, { log: false })
           .contains(`${items}`)
