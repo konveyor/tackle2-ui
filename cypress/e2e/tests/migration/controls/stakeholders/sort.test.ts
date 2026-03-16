@@ -30,6 +30,7 @@ import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import {
+  SEC,
   SortType,
   displayName,
   email,
@@ -60,11 +61,13 @@ describe(["@tier3"], "Stakeholder sort validations", function () {
 
     // Sort the stakeholders by email in ascending order
     clickOnSortButton(email, SortType.ascending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterAscSortList = getTableColumnData(email);
     verifySortAsc(afterAscSortList, unsortedList);
 
     // Sort the stakeholders by email in descending order
     clickOnSortButton(email, SortType.descending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterDescSortList = getTableColumnData(email);
     verifySortDesc(afterDescSortList, unsortedList);
   });
@@ -75,11 +78,13 @@ describe(["@tier3"], "Stakeholder sort validations", function () {
 
     // Sort the stakeholders by display name in ascending order
     clickOnSortButton(displayName, SortType.ascending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterAscSortList = getTableColumnData(displayName);
     verifySortAsc(afterAscSortList, unsortedList);
 
     // Sort the stakeholders by display name in descending order
     clickOnSortButton(displayName, SortType.descending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterDescSortList = getTableColumnData(displayName);
     verifySortDesc(afterDescSortList, unsortedList);
   });
@@ -90,11 +95,13 @@ describe(["@tier3"], "Stakeholder sort validations", function () {
 
     // Sort the stakeholders by Job function in ascending order
     clickOnSortButton(jobFunction, SortType.ascending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterAscSortList = getTableColumnData(jobFunction);
     verifySortAsc(afterAscSortList, unsortedList);
 
     // Sort the stakeholders by Job function in descending order
     clickOnSortButton(jobFunction, SortType.descending, stakeHoldersTable);
+    cy.wait(2 * SEC);
     const afterDescSortList = getTableColumnData(jobFunction);
     verifySortDesc(afterDescSortList, unsortedList);
   });

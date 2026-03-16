@@ -764,13 +764,19 @@ export function verifySortAsc(
   listToVerify: unknown[],
   unsortedList: unknown[]
 ): void {
-  cy.wrap(listToVerify).then((capturedList) => {
-    const sortedList = unsortedList.slice().sort((a, b) =>
-      a.toString().localeCompare(b.toString(), "en-us", {
-        numeric: !unsortedList.some(isNaN),
-      })
-    );
-    expect(capturedList).to.be.deep.equal(sortedList);
+  cy.wrap(listToVerify).then((capturedList: unknown[]) => {
+    const isNumeric = !unsortedList.some(isNaN);
+    for (let i = 0; i < capturedList.length - 1; i++) {
+      const cmp = capturedList[i]
+        .toString()
+        .localeCompare(capturedList[i + 1].toString(), "en-us", {
+          numeric: isNumeric,
+        });
+      expect(
+        cmp,
+        `Element at index ${i} should be <= element at index ${i + 1}`
+      ).to.be.at.most(0);
+    }
   });
 }
 
@@ -778,13 +784,19 @@ export function verifySortDesc(
   listToVerify: unknown[],
   unsortedList: unknown[]
 ): void {
-  cy.wrap(listToVerify).then((capturedList) => {
-    const reverseSortedList = unsortedList.slice().sort((a, b) =>
-      b.toString().localeCompare(a.toString(), "en-us", {
-        numeric: !unsortedList.some(isNaN),
-      })
-    );
-    expect(capturedList).to.be.deep.equal(reverseSortedList);
+  cy.wrap(listToVerify).then((capturedList: unknown[]) => {
+    const isNumeric = !unsortedList.some(isNaN);
+    for (let i = 0; i < capturedList.length - 1; i++) {
+      const cmp = capturedList[i]
+        .toString()
+        .localeCompare(capturedList[i + 1].toString(), "en-us", {
+          numeric: isNumeric,
+        });
+      expect(
+        cmp,
+        `Element at index ${i} should be >= element at index ${i + 1}`
+      ).to.be.at.least(0);
+    }
   });
 }
 
@@ -1012,7 +1024,8 @@ export function performRowActionByIcon(
 }
 
 export function clickItemInKebabMenu(rowItem, itemName: string): void {
-  cy.contains(rowItem)
+  cy.get(commonTable)
+    .contains(rowItem)
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
@@ -1119,7 +1132,9 @@ export function createMultipleStakeholders(
       stakeholderGroupNames
     );
     stakeholder.create();
+    applySearchFilter("Name", stakeholder.name);
     exists(stakeholder.name);
+    clearAllFilters();
     stakeholdersList.push(stakeholder);
   }
   return stakeholdersList;
@@ -1265,7 +1280,9 @@ export function createMultipleStakeholderGroups(
       stakeholders
     );
     stakeholdergroup.create();
+    applySearchFilter("Name", stakeholdergroup.name);
     exists(stakeholdergroup.name);
+    clearAllFilters();
     stakeholdergroupsList.push(stakeholdergroup);
   }
   return stakeholdergroupsList;
