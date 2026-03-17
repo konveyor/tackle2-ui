@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -86,6 +86,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     addUpdatingTrackerId(tracker.id);
+    onClose();
   };
 
   const onUpdateTrackerSuccess = (_response: unknown, tracker: Tracker) => {
@@ -97,6 +98,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     });
 
     addUpdatingTrackerId(tracker.id);
+    onClose();
   };
 
   const onCreateUpdatetrackerError = (error: AxiosError) => {
@@ -137,7 +139,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     } else {
       createTracker(payload);
     }
-    onClose();
   };
 
   const standardStrictURL = new RegExp(standardStrictURLRegex);
@@ -167,12 +168,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     insecure: yup.boolean().required(),
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    getValues,
-    control,
-  } = useForm<FormValues>({
+  const { handleSubmit, control } = useForm<FormValues>({
     defaultValues: {
       name: tracker?.name || "",
       url: tracker?.url || "",
@@ -185,7 +181,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     mode: "all",
   });
 
-  const values = getValues();
+  const kind = useWatch({ control, name: "kind" });
 
   const identityOptions = (kind?: IssueManagerKind) => {
     const identityKinds = kind
@@ -270,11 +266,9 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
             toggleAriaLabel="Credentials select dropdown toggle"
             aria-label={name}
             value={
-              value
-                ? toOptionLike(value, identityOptions(values.kind))
-                : undefined
+              value ? toOptionLike(value, identityOptions(kind)) : undefined
             }
-            options={identityOptions(values.kind)}
+            options={identityOptions(kind)}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
@@ -310,27 +304,32 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
         )}
       />
 
-      <ActionGroup>
-        <Button
-          type="submit"
-          aria-label="submit"
-          id="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-        >
-          {!tracker ? "Create" : "Save"}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          Cancel
-        </Button>
-      </ActionGroup>
+      <FormStateSubscribe
+        control={control}
+        render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+          <ActionGroup>
+            <Button
+              type="submit"
+              aria-label="submit"
+              id="submit"
+              variant={ButtonVariant.primary}
+              isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+            >
+              {!tracker ? "Create" : "Save"}
+            </Button>
+            <Button
+              type="button"
+              id="cancel"
+              aria-label="cancel"
+              variant={ButtonVariant.link}
+              isDisabled={isSubmitting || isValidating}
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+          </ActionGroup>
+        )}
+      />
     </Form>
   );
 };

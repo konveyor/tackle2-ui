@@ -25,7 +25,18 @@ export const KindSourceForm: React.FC<{
 }> = ({ identity, defaultIdentities }) => {
   const { t } = useTranslation();
   const { control, setValue, resetField } = useFormContext();
-  const values = useWatch({ control });
+  const [userCredentials, password, key, kind, isDefault, keyFilename] =
+    useWatch({
+      control,
+      name: [
+        "userCredentials",
+        "password",
+        "key",
+        "kind",
+        "default",
+        "keyFilename",
+      ],
+    });
 
   const [isKeyFileRejected, setIsKeyFileRejected] = useState(false);
 
@@ -36,13 +47,11 @@ export const KindSourceForm: React.FC<{
     setIsPasswordHidden(!isPasswordHidden);
   };
 
-  const isPasswordEncrypted = identity?.password === values.password;
-  const isKeyEncrypted = identity?.key === values.key;
-  const kindDefault = defaultIdentities?.[values.kind as IdentityKind];
+  const isPasswordEncrypted = identity?.password === password;
+  const isKeyEncrypted = identity?.key === key;
+  const kindDefault = defaultIdentities?.[kind as IdentityKind];
   const isReplacingDefault =
-    values.default &&
-    kindDefault &&
-    (!identity || kindDefault.id !== identity.id);
+    isDefault && kindDefault && (!identity || kindDefault.id !== identity.id);
 
   return (
     <>
@@ -107,7 +116,7 @@ export const KindSourceForm: React.FC<{
         )}
       />
 
-      {values?.userCredentials === "userpass" && (
+      {userCredentials === "userpass" && (
         <KindSimpleUsernamePasswordForm
           identity={identity}
           usernameLabel="Username"
@@ -115,7 +124,7 @@ export const KindSourceForm: React.FC<{
         />
       )}
 
-      {values?.userCredentials === "source" && (
+      {userCredentials === "source" && (
         <>
           <HookFormPFGroupController
             control={control}
@@ -130,7 +139,7 @@ export const KindSourceForm: React.FC<{
                 name={name}
                 type="text"
                 value={isKeyEncrypted ? "[Encrypted]" : (value ?? "")}
-                filename={values.keyFilename}
+                filename={keyFilename}
                 filenamePlaceholder="Drag and drop a file or upload one"
                 dropzoneProps={{
                   onDropRejected: () => setIsKeyFileRejected(true),

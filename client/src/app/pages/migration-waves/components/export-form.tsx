@@ -1,7 +1,7 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
-import { useForm } from "react-hook-form";
+import { FormStateSubscribe, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -50,13 +50,15 @@ export const ExportForm: React.FC<ExportFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const { tickets } = useFetchTickets();
 
-  const onExportSuccess = () =>
+  const onExportSuccess = () => {
     pushNotification({
       title: t("toastr.success.create", {
         type: t("terms.exportToIssue"),
       }),
       variant: "success",
     });
+    onClose();
+  };
 
   const onExportError = (error: AxiosError) =>
     pushNotification({
@@ -78,13 +80,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     kind: yup.string().required("Issue type is a required field"),
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, isValidating, isValid, isDirty },
-    watch,
-    setValue,
-    control,
-  } = useForm<FormValues>({
+  const { handleSubmit, setValue, control } = useForm<FormValues>({
     defaultValues: {
       issueManager: undefined,
       tracker: "",
@@ -95,16 +91,18 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     mode: "all",
   });
 
-  const values = watch();
+  const [issueManager, tracker, project, kind] = useWatch({
+    control,
+    name: ["issueManager", "tracker", "project", "kind"],
+  });
 
-  const matchingProject = useTrackerProjectsByTracker(values.tracker).find(
-    (project) => values.project === project.name
+  const matchingProject = useTrackerProjectsByTracker(tracker).find(
+    (p) => project === p.name
   );
 
-  const matchingKind = useTrackerTypesByProjectName(
-    values.tracker,
-    values.project
-  ).find((type) => values.kind === type.name);
+  const matchingKind = useTrackerTypesByProjectName(tracker, project).find(
+    (type) => kind === type.name
+  );
 
   const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
@@ -130,7 +128,6 @@ export const ExportForm: React.FC<ExportFormProps> = ({
         applications: applicationsWithNoAssociatedTickets,
       });
     }
-    onClose();
   };
 
   return (
@@ -179,21 +176,18 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.instance").toLowerCase(),
             })}
-            isDisabled={!values.issueManager}
+            isDisabled={!issueManager}
             toggleAriaLabel="tracker select dropdown toggle"
             aria-label={name}
             value={value}
             options={
-              values.issueManager
-                ? getTrackersByKind(
-                    trackers,
-                    values.issueManager?.toString()
-                  ).map((tracker) => {
-                    return {
-                      value: tracker.name,
-                      toString: () => tracker.name,
-                    };
-                  })
+              issueManager
+                ? getTrackersByKind(trackers, issueManager.toString()).map(
+                    (t) => ({
+                      value: t.name,
+                      toString: () => t.name,
+                    })
+                  )
                 : []
             }
             onChange={(selection) => {
@@ -221,18 +215,16 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectOne", {
               what: t("terms.project").toLowerCase(),
             })}
-            isDisabled={!values.tracker}
+            isDisabled={!tracker}
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={useTrackerProjectsByTracker(values.tracker).map(
-              (project) => {
-                return {
-                  value: project.name,
-                  toString: () => project.name,
-                };
-              }
-            )}
+            options={useTrackerProjectsByTracker(tracker).map((project) => {
+              return {
+                value: project.name,
+                toString: () => project.name,
+              };
+            })}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               setValue("kind", "");
@@ -257,19 +249,18 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             placeholderText={t("composed.selectAn", {
               what: t("terms.issueType").toLowerCase(),
             })}
-            isDisabled={!values.project}
+            isDisabled={!project}
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
-            options={useTrackerTypesByProjectName(
-              values.tracker,
-              values.project
-            ).map((issueType) => {
-              return {
-                value: issueType.name,
-                toString: () => issueType.name,
-              };
-            })}
+            options={useTrackerTypesByProjectName(tracker, project).map(
+              (issueType) => {
+                return {
+                  value: issueType.name,
+                  toString: () => issueType.name,
+                };
+              }
+            )}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               onChange(selectionValue.value);
@@ -278,27 +269,32 @@ export const ExportForm: React.FC<ExportFormProps> = ({
           />
         )}
       />
-      <ActionGroup>
-        <Button
-          type="submit"
-          aria-label="submit"
-          id="submit"
-          variant={ButtonVariant.primary}
-          isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-        >
-          {t("actions.export")}
-        </Button>
-        <Button
-          type="button"
-          id="cancel"
-          aria-label="cancel"
-          variant={ButtonVariant.link}
-          isDisabled={isSubmitting || isValidating}
-          onClick={onClose}
-        >
-          {t("actions.cancel")}
-        </Button>
-      </ActionGroup>
+      <FormStateSubscribe
+        control={control}
+        render={({ isSubmitting, isValidating, isValid, isDirty }) => (
+          <ActionGroup>
+            <Button
+              type="submit"
+              aria-label="submit"
+              id="submit"
+              variant={ButtonVariant.primary}
+              isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+            >
+              {t("actions.export")}
+            </Button>
+            <Button
+              type="button"
+              id="cancel"
+              aria-label="cancel"
+              variant={ButtonVariant.link}
+              isDisabled={isSubmitting || isValidating}
+              onClick={onClose}
+            >
+              {t("actions.cancel")}
+            </Button>
+          </ActionGroup>
+        )}
+      />
     </Form>
   );
 };
