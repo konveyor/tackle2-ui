@@ -15,7 +15,7 @@
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint:fix": "eslint --max-warnings=24 --fix .",
     "tsc": "tsc -p ./tsconfig.json"
   },
   "dependencies": {

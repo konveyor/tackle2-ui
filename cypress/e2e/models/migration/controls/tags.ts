@@ -235,7 +235,7 @@ export class Tag {
   ): Cypress.Chainable<Tag[]> {
     const tags: Tag[] = [];
     const timestamp = Date.now();
-    let chain: Cypress.Chainable<any> = cy.wrap(null);
+    let chain: Cypress.Chainable<unknown> = cy.wrap(null);
 
     for (let i = 0; i < count; i++) {
       const color = `#${Math.floor(Math.random() * 0xffffff)

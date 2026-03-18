@@ -15,7 +15,7 @@
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-path .gitignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-path .gitignore --ignore-unknown --check .",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint:fix": "eslint --max-warnings=0 --fix .",
     "tsc": "tsc -p ./tsconfig.json --noEmit",
     "mergereports": "npx jrm ./run/report/junitreport.xml ./run/report/junit/*.xml"
   },
