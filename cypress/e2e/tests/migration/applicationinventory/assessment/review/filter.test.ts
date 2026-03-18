@@ -44,7 +44,7 @@ let archetype: Archetype;
 
 // Polarion TC 495 and TC 541
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_B"],
   "Review Identified Risks filter validations for assessments",
   function () {
     before("Login and Create Test Data", function () {

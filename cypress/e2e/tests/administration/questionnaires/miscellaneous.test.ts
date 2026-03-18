@@ -25,7 +25,7 @@ const cloudNativePath = "questionnaire_import/cloud-native.yaml";
 
 const cloudNativeDownloadPath = `${Cypress.config("downloadsFolder")}/`;
 
-describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
+describe(["@tier3", "@tier3_A"], "Miscellaneous Questionnaire tests", () => {
   it("Download YAML template", function () {
     // Polarion TC MTA-397
     AssessmentQuestionnaire.open();

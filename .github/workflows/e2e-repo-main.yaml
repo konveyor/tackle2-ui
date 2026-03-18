@@ -3,13 +3,13 @@ name: e2e - run cypress tests for PRs/pushes
 on:
   push:
     branches:
-      - main
+      - none
     paths:
       - "cypress/**"
 
   pull_request:
     branches:
-      - main
+      - none
     paths:
       - "cypress/**"
       - ".github/workflows/e2e*.yaml"

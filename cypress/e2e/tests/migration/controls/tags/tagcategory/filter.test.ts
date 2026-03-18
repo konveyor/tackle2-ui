@@ -24,26 +24,30 @@ import {
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
 import { button, clearAllFilters, color } from "../../../../../types/constants";
 
-describe(["@tier3"], "Tag tagCategory filter validations", function () {
-  beforeEach("Login", function () {
-    cy.intercept("GET", "/hub/tag-category*").as("getTagCategories");
-  });
+describe(
+  ["@tier3", "@tier3_C"],
+  "Tag tagCategory filter validations",
+  function () {
+    beforeEach("Login", function () {
+      cy.intercept("GET", "/hub/tag-category*").as("getTagCategories");
+    });
 
-  it("Tag category color filter validations", function () {
-    TagCategory.openList();
+    it("Tag category color filter validations", function () {
+      TagCategory.openList();
 
-    // Enter an existing tag category color substring and apply it as search filter
-    const validSearchInput = data.getColor();
-    applySearchFilter(color, validSearchInput);
-    exists(validSearchInput);
+      // Enter an existing tag category color substring and apply it as search filter
+      const validSearchInput = data.getColor();
+      applySearchFilter(color, validSearchInput);
+      exists(validSearchInput);
 
-    clickByText(button, clearAllFilters);
-    cy.get("@getTagCategories");
+      clickByText(button, clearAllFilters);
+      cy.get("@getTagCategories");
 
-    // Enter a non-existing tag type color substring and apply it as search filter
-    const invalidSearchInput = String(data.getRandomWord(3));
-    applySearchFilter(color, invalidSearchInput);
-    cy.get("h2").contains("No tags available");
-    clickByText(button, clearAllFilters);
-  });
-});
+      // Enter a non-existing tag type color substring and apply it as search filter
+      const invalidSearchInput = String(data.getRandomWord(3));
+      applySearchFilter(color, invalidSearchInput);
+      cy.get("h2").contains("No tags available");
+      clickByText(button, clearAllFilters);
+    });
+  }
+);

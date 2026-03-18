@@ -32,66 +32,70 @@ import { TaskStatus } from "../../../types/constants";
 import * as commonView from "../../../views/common.view";
 import { TaskManagerColumns } from "../../../views/taskmanager.view";
 
-describe(["@tier2"], "Actions in Task Manager Page", function () {
-  let bookServerApp: Analysis;
+describe(
+  ["@tier2", "@taskManager"],
+  "Actions in Task Manager Page",
+  function () {
+    let bookServerApp: Analysis;
 
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    deleteApplicationTableRows();
-  });
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      deleteApplicationTableRows();
+    });
 
-  beforeEach("Load data", function () {
-    cy.fixture("application").then(function (appData) {
-      this.appData = appData;
-    });
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
-    });
-  });
-
-  it("Cancel Task", function () {
-    getNumberOfNonTaskPods().then((podsNum) => {
-      limitPodsByQuota(podsNum + 1);
-    });
-    for (let i = 0; i < 2; i++) {
-      bookServerApp = new Analysis(
-        getRandomApplicationData("TaskApp1_", {
-          sourceData: this.appData["bookserver-app"],
-        }),
-        getRandomAnalysisData(
-          this.analysisData["analysis_for_openSourceLibraries"]
-        )
-      );
-      bookServerApp.create();
-    }
-    const statusToTest = [
-      TaskStatus.pending,
-      TaskStatus.running,
-      TaskStatus.quotaBlocked,
-    ];
-    Analysis.analyzeAll(bookServerApp);
-    TaskManager.open();
-    statusToTest.forEach((status) => {
-      // Ensure a task with the desired status exists
-      cy.get(TaskManagerColumns.status).then(($elements) => {
-        const matchingElements = $elements.filter(`:contains("${status}")`);
-        if (matchingElements.length) {
-          TaskManager.cancelTask(status);
-          checkSuccessAlert(
-            commonView.infoAlertMessage,
-            "Cancelation request submitted"
-          );
-          validateTextPresence(TaskManagerColumns.status, "Canceled");
-        } else {
-          cy.log(`Task with status ${status} does not exist`);
-        }
+    beforeEach("Load data", function () {
+      cy.fixture("application").then(function (appData) {
+        this.appData = appData;
+      });
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
       });
     });
-  });
 
-  after("Perform test data clean up", function () {
-    deleteCustomResource("quota", "task-pods");
-    deleteApplicationTableRows();
-  });
-});
+    it("Cancel Task", function () {
+      getNumberOfNonTaskPods().then((podsNum) => {
+        limitPodsByQuota(podsNum + 1);
+      });
+      for (let i = 0; i < 2; i++) {
+        bookServerApp = new Analysis(
+          getRandomApplicationData("TaskApp1_", {
+            sourceData: this.appData["bookserver-app"],
+          }),
+          getRandomAnalysisData(
+            this.analysisData["analysis_for_openSourceLibraries"]
+          )
+        );
+        bookServerApp.create();
+      }
+      const statusToTest = [
+        TaskStatus.pending,
+        TaskStatus.running,
+        TaskStatus.quotaBlocked,
+      ];
+      Analysis.analyzeAll(bookServerApp);
+      TaskManager.open();
+      statusToTest.forEach((status) => {
+        // Ensure a task with the desired status exists
+        cy.get(TaskManagerColumns.status).then(($elements) => {
+          const matchingElements = $elements.filter(`:contains("${status}")`);
+          if (matchingElements.length) {
+            TaskManager.cancelTask(status);
+            checkSuccessAlert(
+              commonView.infoAlertMessage,
+              "Cancelation request submitted"
+            );
+            validateTextPresence(TaskManagerColumns.status, "Canceled");
+          } else {
+            cy.log(`Task with status ${status} does not exist`);
+          }
+        });
+      });
+    });
+
+    after("Perform test data clean up", function () {
+      deleteCustomResource("quota", "task-pods");
+      deleteApplicationTableRows();
+    });
+  }
+);

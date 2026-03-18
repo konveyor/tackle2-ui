@@ -36,7 +36,7 @@ let applicationsList: Array<Application> = [];
 const riskType = ["high", "medium", "low", "unknown"];
 
 // Automates Polarion TCs 429 & 430
-describe(["@tier3"], "Reports tab links validation tests", () => {
+describe(["@tier3", "@tier3_E"], "Reports tab links validation tests", () => {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");

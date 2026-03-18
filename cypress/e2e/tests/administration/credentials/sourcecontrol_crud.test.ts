@@ -22,7 +22,7 @@ import { CredentialsSourceControlUsername } from "../../../models/administration
 import { CredentialType, UserCredentials } from "../../../types/constants";
 
 describe(
-  ["@tier2", "@dc", "@interop"],
+  ["@tier2", "@tier2_B", "@dc", "@interop"],
   "Validation of Source Control Credentials",
   () => {
     let scCredsUsername: CredentialsSourceControlUsername;

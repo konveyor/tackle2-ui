@@ -22,43 +22,47 @@ import { Analysis } from "../../../models/migration/applicationinventory/analysi
 let application: Analysis;
 const tasksKindsList = ["language-discovery", "tech-discovery", "analyzer"];
 
-describe(["@tier2"], "Verify 'Tasks' Tab Displays Expected Task Kinds", () => {
-  before("Login", function () {
-    login();
-    cy.fixture("application").then(function (appData) {
-      this.appData = appData;
+describe(
+  ["@tier2", "@taskManager"],
+  "Verify 'Tasks' Tab Displays Expected Task Kinds",
+  () => {
+    before("Login", function () {
+      login();
+      cy.fixture("application").then(function (appData) {
+        this.appData = appData;
+      });
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
+      });
     });
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
+
+    it("opens the Tasks tab and verifies all expected task kinds are present", function () {
+      // Polarion TC MTA-624
+      application = new Analysis(
+        getRandomApplicationData("bookserverApp", {
+          sourceData: this.appData["bookserver-app"],
+        }),
+        getRandomAnalysisData(
+          this.analysisData["source_analysis_on_bookserverapp"]
+        )
+      );
+
+      application.create();
+      application.analyze();
+
+      sidedrawerTab(application.name, "Tasks");
+
+      cy.get("[data-label='Task Kind']").should((tasks) => {
+        const foundTasksList = tasks.toArray().map((task) => task.innerText);
+        expect(
+          foundTasksList,
+          `Expected task kinds not found. Found: [${foundTasksList.join(", ")}]`
+        ).to.include.members(tasksKindsList);
+      });
     });
-  });
 
-  it("opens the Tasks tab and verifies all expected task kinds are present", function () {
-    // Polarion TC MTA-624
-    application = new Analysis(
-      getRandomApplicationData("bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
-    );
-
-    application.create();
-    application.analyze();
-
-    sidedrawerTab(application.name, "Tasks");
-
-    cy.get("[data-label='Task Kind']").should((tasks) => {
-      const foundTasksList = tasks.toArray().map((task) => task.innerText);
-      expect(
-        foundTasksList,
-        `Expected task kinds not found. Found: [${foundTasksList.join(", ")}]`
-      ).to.include.members(tasksKindsList);
+    after("Perform test data clean up", function () {
+      application.delete();
     });
-  });
-
-  after("Perform test data clean up", function () {
-    application.delete();
-  });
-});
+  }
+);

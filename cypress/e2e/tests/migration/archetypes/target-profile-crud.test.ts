@@ -34,77 +34,81 @@ let tags: Tag[];
 let archetype: Archetype;
 let analysisProfile: AnalysisProfile;
 
-describe(["@tier3"], "CRUD operations on Archetype target profile", () => {
-  before("Login", function () {
-    login();
-    cy.visit("/");
+describe(
+  ["@tier3", "@tier3_A"],
+  "CRUD operations on Archetype target profile",
+  () => {
+    before("Login", function () {
+      login();
+      cy.visit("/");
 
-    tags = createMultipleTags(2);
+      tags = createMultipleTags(2);
 
-    archetype = new Archetype(
-      `test-arch-${getRandomWord(8)}`,
-      [tags[0].name],
-      [tags[1].name]
-    );
-    archetype.create();
-
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
-      analysisProfile = new AnalysisProfile(
-        `test-profile-${getRandomWord(8)}`,
-        getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
-        "Analysis profile for target profile testing"
+      archetype = new Archetype(
+        `test-arch-${getRandomWord(8)}`,
+        [tags[0].name],
+        [tags[1].name]
       );
-      analysisProfile.create();
+      archetype.create();
+
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
+        analysisProfile = new AnalysisProfile(
+          `test-profile-${getRandomWord(8)}`,
+          getRandomAnalysisData(this.analysisData["eap8_bookserverApp"]),
+          "Analysis profile for target profile testing"
+        );
+        analysisProfile.create();
+      });
     });
-  });
 
-  it("Scenario 1: Create target profile with only generator", function () {
-    // Automates Polarion MTA-786
-    const targetProfile = new TargetProfile(
-      `test-profile-generator-${getRandomWord(8)}`,
-      [defaultGenerator]
-    );
-    targetProfile.create(archetype.name);
-    checkSuccessAlert(
-      successAlertMessage,
-      `Success alert:Target profile was successfully created.`,
-      true
-    );
+    it("Scenario 1: Create target profile with only generator", function () {
+      // Automates Polarion MTA-786
+      const targetProfile = new TargetProfile(
+        `test-profile-generator-${getRandomWord(8)}`,
+        [defaultGenerator]
+      );
+      targetProfile.create(archetype.name);
+      checkSuccessAlert(
+        successAlertMessage,
+        `Success alert:Target profile was successfully created.`,
+        true
+      );
 
-    targetProfile.delete();
-    checkSuccessAlert(
-      successAlertMessage,
-      `Success alert:Target profile was successfully deleted.`,
-      true
-    );
-  });
+      targetProfile.delete();
+      checkSuccessAlert(
+        successAlertMessage,
+        `Success alert:Target profile was successfully deleted.`,
+        true
+      );
+    });
 
-  it("Scenario 2: While creating target profile with only analysis profile, \
+    it("Scenario 2: While creating target profile with only analysis profile, \
     verify create button is enabled", function () {
-    const targetProfile = new TargetProfile(
-      `test-profile-analysis-${getRandomWord(8)}`,
-      undefined,
-      analysisProfile.name
-    );
-    targetProfile.create(archetype.name);
-    targetProfile.delete();
-  });
+      const targetProfile = new TargetProfile(
+        `test-profile-analysis-${getRandomWord(8)}`,
+        undefined,
+        analysisProfile.name
+      );
+      targetProfile.create(archetype.name);
+      targetProfile.delete();
+    });
 
-  it("Scenario 3: While creating target profile with both generator and analysis profile, \
+    it("Scenario 3: While creating target profile with both generator and analysis profile, \
     verify create button is enabled", function () {
-    const targetProfile = new TargetProfile(
-      `test-profile-both-${getRandomWord(8)}`,
-      [defaultGenerator],
-      analysisProfile.name
-    );
-    targetProfile.create(archetype.name);
-    targetProfile.delete();
-  });
+      const targetProfile = new TargetProfile(
+        `test-profile-both-${getRandomWord(8)}`,
+        [defaultGenerator],
+        analysisProfile.name
+      );
+      targetProfile.create(archetype.name);
+      targetProfile.delete();
+    });
 
-  after("Clear test data", function () {
-    analysisProfile.delete();
-    archetype.delete();
-    deleteByList(tags);
-  });
-});
+    after("Clear test data", function () {
+      analysisProfile.delete();
+      archetype.delete();
+      deleteByList(tags);
+    });
+  }
+);

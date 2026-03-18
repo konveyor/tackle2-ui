@@ -64,7 +64,7 @@ let archetypeList: Archetype[];
 const yamlFile = "questionnaire_import/cloud-native.yaml";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_F"],
   "Tests related to application assessment and review",
   () => {
     before("Perform application assessment and review", function () {

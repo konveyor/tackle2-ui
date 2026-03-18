@@ -33,7 +33,7 @@ import {
 import * as commonView from "../../../../views/common.view";
 import { jobfunctionNameInput } from "../../../../views/jobfunctions.view";
 
-describe(["@tier2"], "Job Function Validations", () => {
+describe(["@tier2", "@tier2_B"], "Job Function Validations", () => {
   const jobfunction = new Jobfunctions(data.getJobTitle());
 
   beforeEach("Interceptors", function () {

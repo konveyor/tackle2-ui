@@ -26,42 +26,46 @@ import { MigrationWaveView } from "../../../views/migration-wave.view";
 
 let migrationWavesList: Array<MigrationWave> = [];
 //Automates Polarion TC 343
-describe(["@tier3"], "Migration waves filter validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    migrationWavesList = createMultipleMigrationWaves(2);
-  });
+describe(
+  ["@tier3", "@tier3_D"],
+  "Migration waves filter validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      migrationWavesList = createMultipleMigrationWaves(2);
+    });
 
-  it("Name filter validations", function () {
-    MigrationWave.open();
+    it("Name filter validations", function () {
+      MigrationWave.open();
 
-    // Enter an existing display name substring and assert
-    const validSearchInput = migrationWavesList[0].name.substring(0, 3);
-    applySearchFilter(name, validSearchInput);
-    cy.get("td").should("contain", migrationWavesList[0].name);
-    if (migrationWavesList[1].name.indexOf(validSearchInput) >= 0) {
+      // Enter an existing display name substring and assert
+      const validSearchInput = migrationWavesList[0].name.substring(0, 3);
+      applySearchFilter(name, validSearchInput);
+      cy.get("td").should("contain", migrationWavesList[0].name);
+      if (migrationWavesList[1].name.indexOf(validSearchInput) >= 0) {
+        cy.get("td").should("contain", migrationWavesList[1].name);
+      }
+      clickByText(button, clearAllFilters);
+
+      // Enter an existing exact name and assert
+      applySearchFilter(name, migrationWavesList[1].name);
       cy.get("td").should("contain", migrationWavesList[1].name);
-    }
-    clickByText(button, clearAllFilters);
+      cy.get("td").should("not.contain", migrationWavesList[0].name);
+      clickByText(button, clearAllFilters);
 
-    // Enter an existing exact name and assert
-    applySearchFilter(name, migrationWavesList[1].name);
-    cy.get("td").should("contain", migrationWavesList[1].name);
-    cy.get("td").should("not.contain", migrationWavesList[0].name);
-    clickByText(button, clearAllFilters);
+      // Enter a non-existing name substring and apply it as search filter
+      applySearchFilter(name, String(data.getRandomNumber()));
 
-    // Enter a non-existing name substring and apply it as search filter
-    applySearchFilter(name, String(data.getRandomNumber()));
+      // Assert that no search results are found
+      cy.get(MigrationWaveView.migrationWavesTable)
+        .find("h2")
+        .should("contain", "No migration waves available");
+      clickByText(button, clearAllFilters);
+    });
 
-    // Assert that no search results are found
-    cy.get(MigrationWaveView.migrationWavesTable)
-      .find("h2")
-      .should("contain", "No migration waves available");
-    clickByText(button, clearAllFilters);
-  });
-
-  after("Perform test data clean up", function () {
-    deleteByList(migrationWavesList);
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteByList(migrationWavesList);
+    });
+  }
+);

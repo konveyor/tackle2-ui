@@ -25,7 +25,7 @@ import {
   manageImportsActionsButton,
 } from "../../../../views/common.view";
 
-describe(["@tier3"], "Manage imports tests", function () {
+describe(["@tier3", "@tier3_B"], "Manage imports tests", function () {
   before("Login", function () {
     login();
     cy.visit("/");
