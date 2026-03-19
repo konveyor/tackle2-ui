@@ -20,7 +20,7 @@
     "clean": "rimraf ./dist",
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings=0 .",
     "lint:fix": "eslint --max-warnings=0 --fix .",
     "prebuild": "npm run clean",
     "build": "NODE_ENV=production rollup -c",
