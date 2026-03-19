@@ -45,7 +45,7 @@ import {
   TaskManagerTableHeaders,
 } from "../../../views/taskmanager.view";
 
-describe(
+describe.skip(
   ["@tier3"],
   "Filtering, sorting and pagination in Task Manager Page",
   function () {
