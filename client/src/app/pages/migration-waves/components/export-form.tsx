@@ -97,14 +97,17 @@ export const ExportForm: React.FC<ExportFormProps> = ({
 
   const values = watch();
 
-  const matchingProject = useTrackerProjectsByTracker(values.tracker).find(
+  const projectsByTracker = useTrackerProjectsByTracker(values.tracker);
+
+  const matchingProject = projectsByTracker.find(
     (project) => values.project === project.name
   );
 
-  const matchingKind = useTrackerTypesByProjectName(
+  const typesByProject = useTrackerTypesByProjectName(
     values.tracker,
     values.project
-  ).find((type) => values.kind === type.name);
+  );
+  const matchingKind = typesByProject.find((type) => values.kind === type.name);
 
   const onSubmit = (formValues: FormValues) => {
     const matchingtracker = trackers.find(
@@ -225,14 +228,12 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="project select dropdown toggle"
             aria-label={name}
             value={value}
-            options={useTrackerProjectsByTracker(values.tracker).map(
-              (project) => {
-                return {
-                  value: project.name,
-                  toString: () => project.name,
-                };
-              }
-            )}
+            options={projectsByTracker.map((project) => {
+              return {
+                value: project.name,
+                toString: () => project.name,
+              };
+            })}
             onChange={(selection) => {
               const selectionValue = selection as OptionWithValue<string>;
               setValue("kind", "");
@@ -261,10 +262,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
             toggleAriaLabel="issue-type select dropdown toggle"
             aria-label={name}
             value={value}
-            options={useTrackerTypesByProjectName(
-              values.tracker,
-              values.project
-            ).map((issueType) => {
+            options={typesByProject.map((issueType) => {
               return {
                 value: issueType.name,
                 toString: () => issueType.name,

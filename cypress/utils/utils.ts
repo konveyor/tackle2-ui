@@ -100,7 +100,6 @@ import {
   firstPageButton,
   itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
-  kebabToggleButton,
   lastPageButton,
   manageImportsActionsButton,
   modal,
@@ -128,7 +127,6 @@ import {
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
-import { stakeHoldersTable } from "../e2e/views/stakeholders.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
 import * as data from "../utils/data_utils";
 

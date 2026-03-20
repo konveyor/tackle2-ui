@@ -8,4 +8,4 @@ for ws in $WORKSPACES; do
   IGNORE_ESLINT+=(--ignore-pattern "${ws}/**")
 done
 
-(set -x; npx eslint "${IGNORE_ESLINT[@]}" "$@")
+(set -x; npx eslint --max-warnings=0 "${IGNORE_ESLINT[@]}" "$@")

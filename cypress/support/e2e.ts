@@ -84,7 +84,7 @@ if (Cypress.env("TRACE_COMMANDS")) {
     });
   });
 
-  Cypress.on("command:end", (cmd) => {
+  Cypress.on("command:end", (_cmd) => {
     const entry = cmdStack.pop();
     if (!entry) return;
     // Skip task commands to prevent recursive tracing (cy.task fires command:end)
