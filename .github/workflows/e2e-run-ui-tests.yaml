@@ -1,6 +1,11 @@
 name: e2e - run UI tests on minikube
 
 on:
+  # TEMPORARY: For testing bug-skipping feature on PR
+  pull_request:
+    branches:
+      - skip_tests_marked_with_bugs_in_nightly
+
   workflow_call: # call from another workflow
     inputs:
       test_tags:

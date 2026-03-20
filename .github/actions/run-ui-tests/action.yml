@@ -133,10 +133,21 @@ runs:
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
-        GIT_USER: ${{ inputs.git_user }}
-        GIT_PASSWORD: ${{ inputs.git_password }}
+        GITHUB_TOKEN: ${{ github.token }}
       run: |
         cd ui-tests/cypress
+
+        # TEMPORARY: Verify GITHUB_TOKEN is available for bug-skipping
+        echo "========================================="
+        if [[ -n "$GITHUB_TOKEN" ]]; then
+          echo "✓ GITHUB_TOKEN is available (length: ${#GITHUB_TOKEN} chars)"
+          echo "✓ Bug-skipping will be enabled"
+        else
+          echo "✗ GITHUB_TOKEN is NOT available"
+          echo "✗ Bug-skipping will be disabled"
+        fi
+        echo "========================================="
+
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
         # Exclude rbac tests if auth is not required

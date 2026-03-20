@@ -22,10 +22,9 @@ const rootDir = resolve("e2e/tests");
 const GITHUB_OWNER = "konveyor";
 const GITHUB_REPO = "tackle2-ui";
 const GITHUB_API_URL = "https://api.github.com";
-const GIT_USER = process.env.GIT_USER || "";
-const GIT_PASSWORD = process.env.GIT_PASSWORD || "";
-// Skip bug tests by default if credentials are available
-const SKIP_BUG_TESTS = GIT_USER && GIT_PASSWORD;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
+// Skip bug tests by default if token is available
+const SKIP_BUG_TESTS = !!GITHUB_TOKEN;
 
 // Bug pattern matching MTA-XXXX, TACKLE-XXXX, Tackle-XXXX
 const bugPattern = /Bug\s+((?:MTA|Tackle|TACKLE)-\d+)/gi;
@@ -52,21 +51,20 @@ function extractBugIds(filePath) {
  * Check if a GitHub issue is open
  */
 async function isGitHubIssueOpen(issueNumber) {
-  if (!GIT_USER || !GIT_PASSWORD) {
+  if (!GITHUB_TOKEN) {
     console.error(
-      "Warning: GIT_USER or GIT_PASSWORD not set. Cannot check GitHub issue status."
+      "Warning: GITHUB_TOKEN not set. Cannot check GitHub issue status."
     );
     return false;
   }
 
   const url = `${GITHUB_API_URL}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}`;
-  const credentials = btoa(`${GIT_USER}:${GIT_PASSWORD}`);
 
   try {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        Authorization: `Basic ${credentials}`,
+        Authorization: `Bearer ${GITHUB_TOKEN}`,
         Accept: "application/vnd.github.v3+json",
         "User-Agent": "Cypress-GitHub-Utils",
       },
@@ -128,7 +126,7 @@ async function main() {
   );
 
   if (!SKIP_BUG_TESTS) {
-    console.error("Bug-skipping disabled (no GitHub credentials)");
+    console.error("Bug-skipping disabled (no GITHUB_TOKEN)");
     console.log(tierFiles.join(","));
     return;
   }
