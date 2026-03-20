@@ -133,6 +133,8 @@ runs:
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
+        GIT_USER: ${{ inputs.git_user }}
+        GIT_PASSWORD: ${{ inputs.git_password }}
       run: |
         cd ui-tests/cypress
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
