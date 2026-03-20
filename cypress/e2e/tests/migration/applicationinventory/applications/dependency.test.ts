@@ -18,7 +18,7 @@ limitations under the License.
 import {
   click,
   createMultipleApplications,
-  deleteAppImportsTableRows,
+  deleteApplicationTableRows,
   login,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -84,6 +84,6 @@ describe(["@tier3"], "Manage application dependencies", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteAppImportsTableRows();
+    deleteApplicationTableRows();
   });
 });
