@@ -1086,7 +1086,7 @@ export class Application {
     ownerId?: number,
     headers?: Record<string, string>
   ): Cypress.Chainable<Application> {
-    const body: any = { name };
+    const body: Record<string, unknown> = { name };
 
     if (businessServiceId) body.businessService = { id: businessServiceId };
     if (tagIds && tagIds.length > 0) {
@@ -1118,7 +1118,7 @@ export class Application {
   ): Cypress.Chainable<Application[]> {
     const applications: Application[] = [];
     const timestamp = Date.now();
-    let chain: Cypress.Chainable<any> = cy.wrap(null);
+    let chain: Cypress.Chainable<unknown> = cy.wrap(null);
 
     for (let i = 0; i < count; i++) {
       const appData: applicationData = {

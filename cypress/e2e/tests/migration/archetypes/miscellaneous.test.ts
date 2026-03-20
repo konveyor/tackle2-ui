@@ -24,7 +24,6 @@ import {
   deleteAllArchetypes,
   deleteAllStakeholders,
   deleteApplicationTableRows,
-  exists,
   getAuthHeaders,
   login,
 } from "../../../../utils/utils";
@@ -37,8 +36,6 @@ import {
   cloudReadinessFilePath,
   cloudReadinessQuestionnaire,
   legacyPathfinder,
-  tdTag,
-  trTag,
 } from "../../../types/constants";
 import { questionBlock } from "../../../views/assessment.view";
 import {
@@ -55,7 +52,6 @@ import {
 
 let stakeholderList: Stakeholders[];
 let archetype: Archetype;
-let applications: Application[];
 
 describe(["@tier3"], "Miscellaneous Archetype tests", () => {
   before(
@@ -104,10 +100,7 @@ describe(["@tier3"], "Miscellaneous Archetype tests", () => {
 
   it("Verify associated application count and link", function () {
     // Automates Polarion MTA-529
-    applications = createMultipleApplications(2, [
-      "Language / Java",
-      "Runtime / Spring Boot",
-    ]);
+    createMultipleApplications(2, ["Language / Java", "Runtime / Spring Boot"]);
     Archetype.verifyColumnValue(
       archetype.name,
       "Applications",
