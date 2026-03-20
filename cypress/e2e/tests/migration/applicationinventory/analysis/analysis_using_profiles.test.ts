@@ -15,8 +15,11 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
+import { GeneralConfig } from "e2e/models/administration/general/generalConfig";
+
 import * as data from "../../../../../utils/data_utils";
 import {
+  cleanupDownloads,
   deleteBulkApplicationsByApi,
   getRandomAnalysisData,
   getRandomApplicationData,
@@ -24,7 +27,11 @@ import {
 } from "../../../../../utils/utils";
 import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
-import { AnalysisStatuses, MIN } from "../../../../types/constants";
+import {
+  AnalysisStatuses,
+  MIN,
+  ReportTypeSelectors,
+} from "../../../../types/constants";
 
 const applicationIds: number[] = [];
 let analysisProfile: AnalysisProfile;
@@ -33,6 +40,7 @@ describe(["@tier1"], "Analysis using profiles", () => {
   before("Login", function () {
     login();
     cy.visit("/");
+    GeneralConfig.enableDownloadReport();
   });
 
   beforeEach("Load data", function () {
@@ -77,6 +85,7 @@ describe(["@tier1"], "Analysis using profiles", () => {
     application.analyze();
     application.waitStatusChange(AnalysisStatuses.scheduled);
     application.verifyAnalysisStatus(AnalysisStatuses.completed, 30 * MIN);
+    application.downloadReport(ReportTypeSelectors.YAML);
   });
 
   after("Perform test data clean up", function () {
@@ -84,5 +93,6 @@ describe(["@tier1"], "Analysis using profiles", () => {
     if (analysisProfile) {
       analysisProfile.delete();
     }
+    cleanupDownloads();
   });
 });

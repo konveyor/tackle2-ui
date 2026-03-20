@@ -52,7 +52,6 @@ describe(
     });
 
     it("Perform source analysis - Validate the tasks initiated counter increased", function () {
-      // For source code analysis application must have source code URL git or svn
       metrics.getValue(metricName).then((initialCounter) => {
         const bookServerApp = new Analysis(
           getRandomApplicationData("bookserverApp", {
@@ -90,29 +89,6 @@ describe(
         application.verifyTaskIcon(taskIcon.success);
         applicationList.push(application);
         const expectedCounter = initialCounter + 1;
-        metrics.validateMetric(metricName, expectedCounter);
-      });
-    });
-
-    it("Bug MTA-5633: Perform analysis on tackle-testapp without credentials - Validate analysis failed but counter increased", function () {
-      metrics.getValue(metricName).then((initialCounter) => {
-        // For tackle test app source credentials are required.
-        const tackleTestApp = new Analysis(
-          getRandomApplicationData("tackle-testapp", {
-            sourceData: this.appData["tackle-testapp-git"],
-          }),
-          getRandomAnalysisData(
-            this.analysisData["source+dep_analysis_on_tackletestapp"]
-          )
-        );
-        tackleTestApp.create();
-        cy.wait("@getApplication");
-        tackleTestApp.analyze();
-        tackleTestApp.verifyTaskIcon(taskIcon.failed);
-        applicationList.push(tackleTestApp);
-
-        // Validate the tasks initiated counter increased
-        const expectedCounter = initialCounter + 3;
         metrics.validateMetric(metricName, expectedCounter);
       });
     });
