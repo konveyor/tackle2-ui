@@ -33,3 +33,30 @@ jobs:
       install_konveyor_version: release-0.9
       test_ref: release-0.9
     secrets: inherit
+
+  slack-notification:
+    name: "Send Slack notification"
+    runs-on: ubuntu-latest
+    needs: [nightly-auth, nightly-noauth]
+    if: always()
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          if [[ "${{ needs.nightly-auth.result }}" == "success" && "${{ needs.nightly-noauth.result }}" == "success" ]]; then
+            echo "status=passed" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+          else
+            echo "status=failed" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2.0.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          payload: |
+            {
+              "text": "${{ steps.status.outputs.emoji }} CI nightly UI e2e tests ${{ steps.status.outputs.status }} on release-0.9\nFailed run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
