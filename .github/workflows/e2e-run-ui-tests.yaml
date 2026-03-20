@@ -1,11 +1,6 @@
 name: e2e - run UI tests on minikube
 
 on:
-  # TEMPORARY: For testing bug-skipping feature on PR
-  pull_request:
-    branches:
-      - skip_tests_marked_with_bugs_in_nightly
-
   workflow_call: # call from another workflow
     inputs:
       test_tags:
@@ -33,10 +28,6 @@ on:
         default: main
 
     secrets:
-      GIT_USER:
-        required: false
-      GIT_PASSWORD:
-        required: false
       SVN_USER:
         required: false
       SVN_PASSWORD:
@@ -265,8 +256,6 @@ jobs:
           report_artifact_name: "ui-test-e2e-reports-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.feature_auth_required && 'auth' || 'noauth' }}-${{ env.SANITIZED_TEST_REF }}"
           # Pass credentials as inputs
           keycloak_admin_password: ${{ env.KEYCLOAK_ADMIN_PASSWORD }}
-          git_user: ${{ secrets.GIT_USER }}
-          git_password: ${{ secrets.GIT_PASSWORD }}
           svn_user: ${{ secrets.SVN_USER }}
           svn_password: ${{ secrets.SVN_PASSWORD }}
           jira_stage_datacenter_url: ${{ secrets.JIRA_STAGE_DATACENTER_URL }}

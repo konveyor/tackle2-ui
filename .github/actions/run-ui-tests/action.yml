@@ -34,16 +34,6 @@ inputs:
     required: false
     default: ""
 
-  git_user:
-    description: Git username
-    required: false
-    default: ""
-
-  git_password:
-    description: Git password
-    required: false
-    default: ""
-
   svn_user:
     description: SVN username
     required: false
@@ -137,7 +127,7 @@ runs:
       run: |
         cd ui-tests/cypress
 
-        # TEMPORARY: Verify GITHUB_TOKEN is available for bug-skipping
+        # Verify GITHUB_TOKEN is available for bug-skipping
         echo "========================================="
         if [[ -n "$GITHUB_TOKEN" ]]; then
           echo "✓ GITHUB_TOKEN is available (length: ${#GITHUB_TOKEN} chars)"
@@ -169,8 +159,6 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
-        CYPRESS_GIT_USER: ${{ inputs.git_user }}
-        CYPRESS_GIT_PASSWORD: ${{ inputs.git_password }}
         CYPRESS_SVN_USER: ${{ inputs.svn_user }}
         CYPRESS_SVN_PASSWORD: ${{ inputs.svn_password }}
         CYPRESS_jira_stage_datacenter_url: ${{ inputs.jira_stage_datacenter_url }}
