@@ -18,31 +18,65 @@ limitations under the License.
 import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
+  cleanupDownloads,
+  deleteAllAnalysisProfiles,
+  deleteApplicationTableRows,
   deleteBulkApplicationsByApi,
   exists,
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
+  validateTextPresence,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { GeneralConfig } from "../../../../models/administration/general/generalConfig";
 import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
   AnalysisStatuses,
   CredentialType,
+  ReportTypeSelectors,
   TaskKind,
   TaskStatus,
   UserCredentials,
+  tdTag,
 } from "../../../../types/constants";
 import { AppIssue } from "../../../../types/types";
-import { infoAlertMessage } from "../../../../views/common.view";
+import {
+  dependencies,
+  infoAlertMessage,
+  issues,
+  technologies,
+} from "../../../../views/common.view";
 const applicationIds: number[] = [];
 let application: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
 const profilesToDelete: AnalysisProfile[] = [];
+const staticReportAppName = "bookserver-static-report-test";
+
+// Helper function for static report pagination
+const selectItemsPerPageInReport = (items: number) => {
+  cy.get("#pagination-options-menu-bottom-toggle", { log: false }).then(
+    ($toggleBtn) => {
+      if ($toggleBtn.eq(0).is(":disabled")) {
+        return;
+      }
+      $toggleBtn.eq(0).trigger("click");
+      cy.get(`li > button`, { log: false }).contains(`${items}`).click({
+        force: true,
+        log: false,
+      });
+    }
+  );
+};
 
 describe(["@tier0"], "Source Analysis without credentials", () => {
+  before("Clean up pre-existing test data", function () {
+    // Delete any existing applications and profiles to avoid conflicts
+    deleteApplicationTableRows();
+    deleteAllAnalysisProfiles();
+  });
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
       this.appData = appData;
@@ -79,6 +113,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     });
 
     application = new Analysis(applicationData, analysisData);
+    application.name = staticReportAppName;
     application.create();
     cy.wait("@getApplication");
     application.extractIDfromName().then((id) => {
@@ -201,9 +236,86 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     );
   });
 
+  it("Download static HTML report", function () {
+    cy.visit("/");
+    cleanupDownloads();
+    GeneralConfig.enableDownloadReport();
+    application.downloadReport(ReportTypeSelectors.HTML);
+    application.extractHTMLReport();
+  });
+
   after("Perform test data clean up", function () {
     deleteBulkApplicationsByApi(applicationIds);
     credentialsList.forEach((credential) => credential.delete());
     profilesToDelete.forEach((profile) => profile.delete());
   });
 });
+
+describe(
+  ["@tier0"],
+  "Validate Static Report UI",
+  { baseUrl: null },
+  function () {
+    const reportData = {
+      name: "Adopt Maven Surefire plugin",
+      category: "mandatory",
+      target: "quarkus",
+      dependency: "com.fasterxml.jackson.core.jackson-databind",
+      technology: "Spring DI",
+    };
+
+    beforeEach("Open static report", function () {
+      // Visit file by using the relative path from rootDir
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html`
+      );
+    });
+
+    it("Validate Application Menu", function () {
+      cy.get(tdTag).eq(0).should("have.text", staticReportAppName);
+      cy.get(tdTag).eq(1).click(); // tags
+      validateTextPresence(tdTag, reportData.technology);
+      cy.get(tdTag).eq(2).invoke("text").then(parseInt).should("be.gte", 0);
+    });
+
+    it("Validate Issues Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", issues).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.name);
+      validateTextPresence(tdTag, reportData.category);
+      validateTextPresence(tdTag, reportData.target);
+    });
+
+    it("Validate Dependencies Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", dependencies).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.dependency);
+    });
+
+    it("Validate Technologies Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", technologies).click();
+      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+    });
+
+    it("Validate Issues Menu", function () {
+      cy.contains("nav > ul > a", issues).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.name);
+      validateTextPresence(tdTag, reportData.category);
+      validateTextPresence(tdTag, reportData.target);
+    });
+
+    it("Validate Dependencies Menu", function () {
+      cy.contains("nav > ul > a", dependencies).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.dependency);
+    });
+
+    after("Cleanup downloads", function () {
+      cleanupDownloads();
+    });
+  }
+);

@@ -147,7 +147,7 @@ describe(
             data.getRandomCredentialsData(
               CredentialType.sourceControl,
               UserCredentials.usernamePassword,
-              Cypress.env("git_password") && Cypress.env("git_user")
+              false // Use random credentials since we only validate they exist on the target
             )
           );
 

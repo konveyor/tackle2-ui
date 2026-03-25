@@ -99,8 +99,8 @@ if (Cypress.env("TRACE_COMMANDS")) {
 }
 
 beforeEach(() => {
-  // Disable for static report test as it need to open local files
-  if (Cypress.spec.name === "static_report.test.ts") {
+  // Disable for static report tests as they need to open local files
+  if (Cypress.config("baseUrl") === null) {
     return;
   }
 
