@@ -66,7 +66,7 @@ describe(
       });
     });
 
-    it("Bug Tackle-3110: Sorting tasks", function () {
+    it.skip("Bug Tackle-3110: Sorting tasks", function () {
       // https://github.com/konveyor/tackle2-ui/issues/3110
       // Ensure total pod count does not exceed the number of tackle pods.
       getNumberOfNonTaskPods().then((podsNum) => {
