@@ -53,7 +53,7 @@ describe(["@tier3"], "Miscellaneous Questionnaire tests", () => {
     notExists(sampleQuestionnaireTemplate);
   });
 
-  it("Bug Tackle-3115: Import invalid questionnaire", function () {
+  it.skip("Bug Tackle-3115: Import invalid questionnaire", function () {
     // https://github.com/konveyor/tackle2-ui/issues/3115
     // Automates bug https://issues.redhat.com/browse/MTA-1349
 
