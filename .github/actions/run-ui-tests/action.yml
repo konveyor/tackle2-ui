@@ -133,10 +133,8 @@ runs:
       env:
         TEST_TAGS: ${{ inputs.test_tags }}
         AUTH_REQUIRED: ${{ inputs.feature_auth_required }}
-        GITHUB_TOKEN: ${{ github.token }}
       run: |
         cd ui-tests/cypress
-
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
         # Exclude rbac tests if auth is not required
@@ -152,7 +150,7 @@ runs:
       uses: cypress-io/github-action@v6
       env:
         CYPRESS_INCLUDE_TAGS: "${{ inputs.test_tags }}"
-        CYPRESS_EXCLUDE_TAGS: "cf,downstream"
+        CYPRESS_EXCLUDE_TAGS: "cf"
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
