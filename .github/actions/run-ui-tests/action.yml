@@ -26,7 +26,7 @@ inputs:
 
   report_artifact_name:
     description: The name of the artifact to upload.
-    default: "ui-test-reports"
+    default: ""
 
   # Credentials passed from secrets or environment
   keycloak_admin_password:
@@ -93,7 +93,7 @@ runs:
   using: "composite"
   steps:
     - name: "Checkout the tests (ref: ${{ inputs.tests_ref }})"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: "${{ inputs.tests_ref }}"
         repository: konveyor/tackle2-ui
@@ -110,7 +110,8 @@ runs:
       shell: bash
       run: |
         cd ui-tests
-        npm clean-install --no-audit
+        npm clean-install --ignore-scripts --no-audit
+        npx cypress install
 
     - name: Run login tests
       uses: cypress-io/github-action@v6
@@ -121,7 +122,7 @@ runs:
         CYPRESS_INITIAL_PASSWORD: Passw0rd!
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
       with:
-        install: true
+        install: false
         working-directory: ./ui-tests
         project: ./cypress
         spec: "**/e2e/tests/login.test.ts"
@@ -145,6 +146,22 @@ runs:
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"
+    - name: Sanitize and generate report artifact name if missing
+      if: always()
+      env:
+        TEST_REF: ${{ inputs.tests_ref }}
+        TEST_TAGS: ${{ inputs.test_tags }}
+        REPORT_ARTIFACT_NAME: ${{ inputs.report_artifact_name }}
+        RUN_ID: ${{ github.run_id }}
+        RUN_ATTEMPT: ${{ github.run_attempt }}
+        AUTH_LABEL: ${{ case(inputs.feature_auth_required == 'true', 'auth', 'noauth') }}
+      shell: bash
+      run: |
+        GENERATED="ui-test-reports-${RUN_ID}-${RUN_ATTEMPT}-${AUTH_LABEL}-${TEST_REF}-${TEST_TAGS}"
+        FINAL="${REPORT_ARTIFACT_NAME:-$GENERATED}"
+        SAFE_FINAL="${FINAL//[!A-Za-z0-9_.-]/_}"
+        echo "SANITIZED_REPORT_ARTIFACT_NAME=${SAFE_FINAL}" >> "$GITHUB_ENV"
+        echo "Using report artifact name: ${SAFE_FINAL}"
 
     - name: "Run UI tests (${{ inputs.test_tags }})"
       uses: cypress-io/github-action@v6
@@ -211,9 +228,9 @@ runs:
 
     - name: Upload cypress report data as artifact
       uses: actions/upload-artifact@v4
-      if: always() && inputs.report_artifact_name != ''
+      if: always()
       with:
         overwrite: true
-        name: ${{ inputs.report_artifact_name }}
+        name: ${{ env.SANITIZED_REPORT_ARTIFACT_NAME || 'ui-test-reports' }}
         path: |
           ./ui-tests/cypress/run
