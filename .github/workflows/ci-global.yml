@@ -78,17 +78,15 @@ jobs:
       fail-fast: false
       matrix:
         test_tags:
-          [
-            "@tier0",
-            "@ci,@tier2_A",
-            "@tier2_B",
-            "@tier3_A",
-            "@tier3_B",
-            "@tier3_C",
-            "@tier3_D",
-            "@tier3_E",
-            "@tier3_F",
-          ]
+          - "@tier0"
+          - "@ci,@tier2_A"
+          - "@tier2_B"
+          - "@tier3_A"
+          - "@tier3_B"
+          - "@tier3_C"
+          - "@tier3_D"
+          - "@tier3_E"
+          - "@tier3_F"
     needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
