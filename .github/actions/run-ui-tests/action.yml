@@ -29,6 +29,16 @@ inputs:
     default: "ui-test-reports"
 
   # Credentials passed from secrets or environment
+  git_user:
+    description: Git username
+    required: false
+    default: ""
+
+  git_password:
+    description: Git password
+    required: false
+    default: ""
+
   keycloak_admin_password:
     description: Keycloak admin password
     required: false
@@ -159,6 +169,8 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
+        CYPRESS_git_user: ${{ inputs.git_user }}
+        CYPRESS_git_password: ${{ inputs.git_password }}
         CYPRESS_SVN_USER: ${{ inputs.svn_user }}
         CYPRESS_SVN_PASSWORD: ${{ inputs.svn_password }}
         CYPRESS_jira_stage_datacenter_url: ${{ inputs.jira_stage_datacenter_url }}

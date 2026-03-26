@@ -18,17 +18,6 @@ const tierTags = tierArg.split(",").map((t) => t.trim().replace(/^@/, ""));
 
 const rootDir = resolve("e2e/tests");
 
-// GitHub configuration
-const GITHUB_OWNER = "konveyor";
-const GITHUB_REPO = "tackle2-ui";
-const GITHUB_API_URL = "https://api.github.com";
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
-// Skip bug tests by default if token is available
-const SKIP_BUG_TESTS = !!GITHUB_TOKEN;
-
-// Bug pattern matching MTA-XXXX, TACKLE-XXXX, Tackle-XXXX
-const bugPattern = /Bug\s+((?:MTA|Tackle|TACKLE)-\d+)/gi;
-
 function getAllTestFiles(dir) {
   return globSync("**/*.{ts,js}", { cwd: dir, absolute: true });
 }
@@ -38,119 +27,9 @@ function fileContainsAnyTier(file, tags) {
   return tags.some((tag) => new RegExp(`@${tag}\\b`, "i").test(content));
 }
 
-/**
- * Extract bug IDs from a test file
- */
-function extractBugIds(filePath) {
-  const content = readFileSync(filePath, "utf-8");
-  const matches = [...content.matchAll(bugPattern)];
-  return [...new Set(matches.map((m) => m[1]))]; // Unique bug IDs
-}
+const allFiles = getAllTestFiles(rootDir);
+const tierFiles = allFiles.filter((file) =>
+  fileContainsAnyTier(file, tierTags)
+);
 
-/**
- * Check if a GitHub issue is open
- */
-async function isGitHubIssueOpen(issueNumber) {
-  if (!GITHUB_TOKEN) {
-    console.error(
-      "Warning: GITHUB_TOKEN not set. Cannot check GitHub issue status."
-    );
-    return false;
-  }
-
-  const url = `${GITHUB_API_URL}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues/${issueNumber}`;
-
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "Cypress-GitHub-Utils",
-      },
-    });
-
-    if (!response.ok) {
-      console.error(
-        `Failed to fetch GitHub issue #${issueNumber}: ${response.status} ${response.statusText}`
-      );
-      return false;
-    }
-
-    const issue = await response.json();
-    return issue.state === "open";
-  } catch (error) {
-    console.error(
-      `Error checking GitHub issue #${issueNumber}:`,
-      error.message
-    );
-    return false;
-  }
-}
-
-/**
- * Check if a file should be skipped based on open bug issues
- */
-async function shouldSkipFileWithBugs(filePath) {
-  if (!SKIP_BUG_TESTS) {
-    return false;
-  }
-
-  const bugIds = extractBugIds(filePath);
-  if (bugIds.length === 0) {
-    return false;
-  }
-
-  // Extract issue numbers from bug IDs (e.g., "MTA-2782" -> "2782")
-  const issueNumbers = bugIds.map((id) => id.split("-")[1]);
-
-  // Check if any of the issues are open
-  for (const issueNum of issueNumbers) {
-    const isOpen = await isGitHubIssueOpen(issueNum);
-    if (isOpen) {
-      console.error(
-        `Skipping ${filePath.split("/").pop()} - contains open bug: ${bugIds.find((id) => id.includes(issueNum))}`
-      );
-      return true;
-    }
-  }
-
-  return false;
-}
-
-// Main execution
-async function main() {
-  const allFiles = getAllTestFiles(rootDir);
-  const tierFiles = allFiles.filter((file) =>
-    fileContainsAnyTier(file, tierTags)
-  );
-
-  if (!SKIP_BUG_TESTS) {
-    console.error("Bug-skipping disabled (no GITHUB_TOKEN)");
-    console.log(tierFiles.join(","));
-    return;
-  }
-
-  console.error("Bug-skipping enabled - checking GitHub issue status...");
-
-  // Filter out files with open bugs
-  const filteredFiles = [];
-  for (const file of tierFiles) {
-    const shouldSkip = await shouldSkipFileWithBugs(file);
-    if (!shouldSkip) {
-      filteredFiles.push(file);
-    }
-  }
-
-  const skippedCount = tierFiles.length - filteredFiles.length;
-  if (skippedCount > 0) {
-    console.error(`Skipped ${skippedCount} test file(s) with open bugs`);
-  }
-
-  console.log(filteredFiles.join(","));
-}
-
-main().catch((error) => {
-  console.error("Error:", error);
-  process.exit(1);
-});
+console.log(tierFiles.join(","));
