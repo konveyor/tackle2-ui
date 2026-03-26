@@ -29,6 +29,11 @@ inputs:
     default: "ui-test-reports"
 
   # Credentials passed from secrets or environment
+  keycloak_admin_password:
+    description: Keycloak admin password
+    required: false
+    default: ""
+
   git_user:
     description: Git username
     required: false
@@ -36,11 +41,6 @@ inputs:
 
   git_password:
     description: Git password
-    required: false
-    default: ""
-
-  keycloak_admin_password:
-    description: Keycloak admin password
     required: false
     default: ""
 
@@ -137,17 +137,6 @@ runs:
       run: |
         cd ui-tests/cypress
 
-        # Verify GITHUB_TOKEN is available for bug-skipping
-        echo "========================================="
-        if [[ -n "$GITHUB_TOKEN" ]]; then
-          echo "✓ GITHUB_TOKEN is available (length: ${#GITHUB_TOKEN} chars)"
-          echo "✓ Bug-skipping will be enabled"
-        else
-          echo "✗ GITHUB_TOKEN is NOT available"
-          echo "✗ Bug-skipping will be disabled"
-        fi
-        echo "========================================="
-
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
         # Exclude rbac tests if auth is not required
@@ -169,8 +158,8 @@ runs:
         CYPRESS_USER: admin
         CYPRESS_PASSWORD: Dog8code
         CYPRESS_KEYCLOAK_ADMIN_PASSWORD: ${{ inputs.keycloak_admin_password }}
-        CYPRESS_git_user: ${{ inputs.git_user }}
-        CYPRESS_git_password: ${{ inputs.git_password }}
+        CYPRESS_GIT_USER: ${{ inputs.git_user }}
+        CYPRESS_GIT_PASSWORD: ${{ inputs.git_password }}
         CYPRESS_SVN_USER: ${{ inputs.svn_user }}
         CYPRESS_SVN_PASSWORD: ${{ inputs.svn_password }}
         CYPRESS_jira_stage_datacenter_url: ${{ inputs.jira_stage_datacenter_url }}
