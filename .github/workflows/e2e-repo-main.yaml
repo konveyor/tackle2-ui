@@ -1,18 +1,23 @@
-name: e2e - run cypress tests for PRs/pushes
+name: e2e - run cypress tests
 
 on:
-  push:
-    branches:
-      - none
-    paths:
-      - "cypress/**"
-
-  pull_request:
-    branches:
-      - none
-    paths:
-      - "cypress/**"
-      - ".github/workflows/e2e*.yaml"
+  workflow_dispatch:
+    inputs:
+      test_tags:
+        type: string
+        default: "@ci,@tier0"
+      feature_auth_required:
+        type: boolean
+        default: false
+      bundle_image:
+        type: string
+        default: quay.io/konveyor/tackle2-operator-bundle:latest
+      install_konveyor_version:
+        type: string
+        default: main
+      test_ref:
+        type: string
+        default: main
 
 concurrency:
   group: e2e-repo-main-${{ github.ref }}
@@ -40,10 +45,10 @@ jobs:
     needs: build-ui-image-if-needed
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      test_tags: "@ci,@tier0"
-      feature_auth_required: false
-      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      install_konveyor_version: ${{ github.base_ref || github.ref_name }}
-      test_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      test_tags: ${{ inputs.test_tags }}
+      feature_auth_required: ${{ inputs.feature_auth_required }}
+      bundle_image: ${{ inputs.bundle_image }}
+      install_konveyor_version: ${{ inputs.install_konveyor_version }}
+      test_ref: ${{ inputs.test_ref }}
       ui_image: ${{ needs.build-ui-image-if-needed.outputs.ui_image }}
     secrets: inherit
