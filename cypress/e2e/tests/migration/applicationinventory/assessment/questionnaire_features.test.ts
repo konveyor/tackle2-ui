@@ -98,7 +98,8 @@ describe(["@tier3"], "Tests for application questionnaire features", () => {
     Assessment.verifyButtonEnabled("Take");
   });
 
-  it.skip("Bug MTA-3417: 1) Test auto answer feature of questionnaires; 2) Save assessment", function () {
+  it.skip("Bug Tackle-3112: 1) Test auto answer feature of questionnaires; 2) Save assessment", function () {
+    // https://github.com/konveyor/tackle2-ui/issues/3112
     //Automates Polarion MTA-388: Auto answer
     Application.open();
     clickItemInKebabMenu(application.name, "Assess");

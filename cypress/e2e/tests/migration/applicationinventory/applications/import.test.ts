@@ -89,7 +89,7 @@ describe(["@tier3"], "Application import operations", () => {
     ManageImports.open();
     imports.verifyAppImport(fileName, "Completed", 2, "-");
 
-    // Automate bug MTA-4257, Polarion TC MTA-609
+    // Automate Polarion TC MTA-609
     const fileName2 = "lantik_bug.csv";
     importApplication(filePath + fileName2, true);
     ManageImports.open();
