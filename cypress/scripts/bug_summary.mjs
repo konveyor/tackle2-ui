@@ -151,17 +151,7 @@ for (const test of failedTests) {
 }
 
 const rows = [
-  [
-    "Spec",
-    "Tests",
-    "Passing",
-    "Failing",
-    "Known",
-    "Unknown",
-    "Pending",
-    "Skipped",
-    "Bug IDs",
-  ],
+  ["Spec", "Tests", "Passing", "Failing", "Pending", "Skipped", "Bug IDs"],
 ];
 
 Object.keys(specs)
@@ -175,8 +165,6 @@ Object.keys(specs)
       s.total,
       green(s.passing),
       s.failing > 0 ? red(s.failing) : s.failing,
-      s.knownFailures > 0 ? yellow(s.knownFailures) : s.knownFailures,
-      s.unknownFailures > 0 ? red(s.unknownFailures) : s.unknownFailures,
       s.pending,
       s.skipped,
       bugList.join("\n"),
@@ -233,12 +221,6 @@ rows.push([
   totals.total,
   green(totals.passing),
   totals.failing > 0 ? red(totals.failing) : totals.failing,
-  totals.knownFailures > 0
-    ? yellow(totals.knownFailures)
-    : totals.knownFailures,
-  totals.unknownFailures > 0
-    ? red(totals.unknownFailures)
-    : totals.unknownFailures,
   totals.pending,
   totals.skipped,
   "-",
@@ -248,7 +230,7 @@ console.log(
   table(rows, {
     columns: {
       0: { wrapWord: true, width: SPEC_COL_WIDTH },
-      8: { wrapWord: true, width: 22 },
+      6: { wrapWord: true, width: 22 },
     },
     drawHorizontalLine: () => true,
   })
