@@ -18,7 +18,7 @@ limitations under the License.
 import {
   click,
   createMultipleApplications,
-  deleteByList,
+  deleteApplicationTableRows,
   login,
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
@@ -32,7 +32,7 @@ import { helper } from "../../../../views/common.view";
 
 let applicationsList: Array<Application> = [];
 
-describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
+describe(["@tier3"], "Manage application dependencies", () => {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");
@@ -56,7 +56,8 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     applicationsList[1].removeDependencies(northboundApps, southboundApps);
   });
 
-  it("Bug MTA-2789: Cyclic dependencies for applications", function () {
+  it.skip("Bug Tackle-3113: Cyclic dependencies for applications", function () {
+    // https://github.com/konveyor/tackle2-ui/issues/3113
     const northboundApps: Array<string> = [applicationsList[0].name];
     const southboundApps: Array<string> = [applicationsList[2].name];
 
@@ -82,8 +83,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     click(closeForm);
   });
 
-  after("Bug MTA-2789: Perform test data clean up", function () {
-    Application.open(true);
-    deleteByList(applicationsList);
+  after("Perform test data clean up", function () {
+    deleteApplicationTableRows();
   });
 });

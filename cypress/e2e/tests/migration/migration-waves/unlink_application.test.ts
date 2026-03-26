@@ -51,7 +51,7 @@ let migrationWave: MigrationWave;
 let projectName = "";
 
 describe(
-  ["@tier3", "@secretsNeeded"],
+  ["@tier3"],
   "Unlink application from exported migration waves",
   function () {
     before("Create test data", function () {
@@ -117,7 +117,8 @@ describe(
     });
 
     // Automates Polarion TC 415
-    it("Bug MTA-5930: Export to Jira Cloud and unlink applications from App Inventory", function () {
+    it.skip("Bug Tackle-3111: Export to Jira Cloud and unlink applications from App Inventory", function () {
+      // https://github.com/konveyor/tackle2-ui/issues/3111
       exportWave().then(() => {
         Application.open(true);
         applications.forEach((app) => app.unlinkJiraTicket());

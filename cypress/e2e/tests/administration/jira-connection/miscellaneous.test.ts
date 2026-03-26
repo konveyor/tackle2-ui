@@ -110,7 +110,8 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
     });
   });
 
-  it("Validating error when Jira Stage Instance is not connected", () => {
+  it.skip("Bug Tackle-3116: Validating error when Jira Stage Instance is not connected", () => {
+    // https://github.com/konveyor/tackle2-ui/issues/3116
     /**
          Implements MTA-362 - Add JIRA instance with invalid credentials
          Automates https://issues.redhat.com/browse/MTA-991
