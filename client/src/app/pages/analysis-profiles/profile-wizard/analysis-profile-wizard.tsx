@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Icon,
   Modal,
+  ModalBody,
   ModalVariant,
   Wizard,
   WizardHeader,
@@ -63,12 +64,13 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
     return (
       <Modal
         isOpen={isOpen}
-        showClose={false}
         aria-label="Analysis profile wizard modal"
         onEscapePress={onClose}
         variant={ModalVariant.large}
       >
-        <AppPlaceholder />
+        <ModalBody>
+          <AppPlaceholder />
+        </ModalBody>
       </Modal>
     );
   }
@@ -136,13 +138,12 @@ const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      showClose={false}
       aria-label="Analysis profile wizard modal"
-      hasNoBodyWrapper
       onEscapePress={handleCancel}
       variant={ModalVariant.large}
     >
-      <Wizard
+      <ModalBody>
+        <Wizard
         data-testid="analysis-profile-wizard"
         onClose={handleCancel}
         header={
@@ -310,6 +311,7 @@ const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
           <Review state={state} />
         </WizardStep>
       </Wizard>
+      </ModalBody>
     </Modal>
   );
 };

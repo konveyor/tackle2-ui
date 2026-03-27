@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Radio, Switch, Text, Title } from "@patternfly/react-core";
+import { Content, Form, Radio, Switch, Title } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { StringListField } from "@app/components/StringListField";
@@ -98,7 +98,7 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
       <Title headingLevel="h3" size="xl">
         Scope
       </Title>
-      <Text>{t("wizard.label.scope")}</Text>
+      <Content component="p">{t("wizard.label.scope")}</Content>
 
       <Radio
         id="app"

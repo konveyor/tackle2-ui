@@ -6,9 +6,9 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   Toolbar,
   ToolbarContent,
@@ -249,7 +249,7 @@ export const Tags: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <RBAC
                   allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
@@ -302,18 +302,14 @@ export const Tags: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.tags").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  variant="sm"
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.tags").toLowerCase(),
+                  })}
+                  icon={CubesIcon}
+                  headingLevel="h2"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -378,14 +374,12 @@ export const Tags: React.FC = () => {
                                 onDelete={setTagToDelete}
                               />
                             ) : (
-                              <EmptyState variant="sm">
-                                <EmptyStateHeader
-                                  titleText={
-                                    <>{t("message.noTagsAvailable")}</>
-                                  }
-                                  icon={<EmptyStateIcon icon={CubesIcon} />}
-                                  headingLevel="h4"
-                                />
+                              <EmptyState
+                                variant="sm"
+                                titleText={t("message.noTagsAvailable")}
+                                icon={CubesIcon}
+                                headingLevel="h4"
+                              >
                                 <EmptyStateBody>
                                   {t("message.noAssociatedTags")}
                                 </EmptyStateBody>
@@ -410,44 +404,52 @@ export const Tags: React.FC = () => {
 
       <Modal
         id="create-edit-tag-category-modal"
-        title={
-          tagCategoryToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.tagCategory").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.tagCategory").toLowerCase(),
-              })
-        }
         variant={ModalVariant.medium}
         isOpen={isTagCategoryModalOpen}
         onClose={() => setTagCategoryModalState(null)}
       >
-        <TagCategoryForm
-          tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
-          onClose={() => setTagCategoryModalState(null)}
+        <ModalHeader
+          title={
+            tagCategoryToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.tagCategory").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.tagCategory").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TagCategoryForm
+            tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
+            onClose={() => setTagCategoryModalState(null)}
+          />
+        </ModalBody>
       </Modal>
 
       <Modal
         id="create-edit-tag-modal"
-        title={
-          tagToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.tag").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.tag").toLowerCase(),
-              })
-        }
         variant={ModalVariant.medium}
         isOpen={isTagModalOpen}
         onClose={() => setTagModalState(null)}
       >
-        <TagForm
-          tag={tagToUpdate ? tagToUpdate : undefined}
-          onClose={() => setTagModalState(null)}
+        <ModalHeader
+          title={
+            tagToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.tag").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.tag").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TagForm
+            tag={tagToUpdate ? tagToUpdate : undefined}
+            onClose={() => setTagModalState(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {!!tagToDelete && (

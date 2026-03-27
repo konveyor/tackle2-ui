@@ -175,9 +175,6 @@ export const ColumnPlatformName: React.FC<{
       className="platform-name-popover"
       triggerAction="hover"
       aria-label="application task information popover"
-      // alertSeverityVariant={status.popoverVariant}
-      // headerIcon={<StatusIcon />}
-      // headerContent={status.headerText}
       headerContent={platform.name}
       hasAutoWidth
       bodyContent={bodyContent}

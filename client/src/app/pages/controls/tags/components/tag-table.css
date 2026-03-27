@@ -1,3 +1,3 @@
 .columnPadding {
-  --pf-v5-c-table--cell--PaddingLeft: 5.2rem !important;
+  --pf-c-table--cell--PaddingInlineStart: 5.2rem !important;
 }

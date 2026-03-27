@@ -10,9 +10,9 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   Toolbar,
   ToolbarContent,
@@ -198,7 +198,7 @@ export const StakeholderGroups: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <RBAC
                     allowedPermissions={controlsWriteScopes}
@@ -244,18 +244,14 @@ export const StakeholderGroups: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.stakeholderGroup").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  variant="sm"
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.stakeholderGroup").toLowerCase(),
+                  })}
+                  icon={CubesIcon}
+                  headingLevel="h2"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.add"),
@@ -342,25 +338,29 @@ export const StakeholderGroups: React.FC = () => {
       </ConditionalRender>
       <Modal
         id="create-edit-stakeholder-group-modal"
-        title={
-          stakeholderGroupToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.stakeholderGroup").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.stakeholderGroup").toLowerCase(),
-              })
-        }
         variant={ModalVariant.medium}
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <StakeholderGroupForm
-          stakeholderGroup={
-            stakeholderGroupToUpdate ? stakeholderGroupToUpdate : undefined
+        <ModalHeader
+          title={
+            stakeholderGroupToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.stakeholderGroup").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.stakeholderGroup").toLowerCase(),
+                })
           }
-          onClose={closeCreateUpdateModal}
         />
+        <ModalBody>
+          <StakeholderGroupForm
+            stakeholderGroup={
+              stakeholderGroupToUpdate ? stakeholderGroupToUpdate : undefined
+            }
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!stakeholderGroupToDelete && (

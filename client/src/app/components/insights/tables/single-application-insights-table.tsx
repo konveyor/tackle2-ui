@@ -5,8 +5,6 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -273,12 +271,12 @@ export const SingleApplicationInsightsTable: React.FC<
           isError={!!fetchError}
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
-            <EmptyState variant="sm">
-              <EmptyStateHeader
-                titleText={t("message.selectApplicationFromFilterMenu")}
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-                headingLevel="h2"
-              />
+            <EmptyState
+              variant="sm"
+              titleText={t("message.selectApplicationFromFilterMenu")}
+              icon={CubesIcon}
+              headingLevel="h2"
+            >
               <EmptyStateBody>
                 {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>

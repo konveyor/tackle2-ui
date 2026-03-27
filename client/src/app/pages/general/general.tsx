@@ -4,12 +4,11 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   Form,
   PageSection,
   PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -29,10 +28,8 @@ export const General: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.generalConfig")}</Text>
-        </TextContent>
+      <PageSection variant={PageSectionVariants.default}>
+        <Content component="h1">{t("terms.generalConfig")}</Content>
       </PageSection>
       <PageSection>
         <Card>

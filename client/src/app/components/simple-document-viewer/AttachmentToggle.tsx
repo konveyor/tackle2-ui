@@ -6,6 +6,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  SelectOptionProps,
 } from "@patternfly/react-core";
 
 import { Document } from "./SimpleDocumentViewer";
@@ -24,8 +25,8 @@ export const AttachmentToggle: FC<{
     <div className="simple-task-viewer-attachment-toggle">
       <Select
         isOpen={isOpen}
-        onSelect={(_event, selectedId: string | number | undefined) => {
-          if (selectedId) {
+        onSelect={(_event, selectedId: SelectOptionProps["value"]) => {
+          if (selectedId !== undefined && (typeof selectedId === "string" || typeof selectedId === "number")) {
             onSelect(selectedId);
           }
           onToggle();

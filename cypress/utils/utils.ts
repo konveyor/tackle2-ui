@@ -540,7 +540,7 @@ export function selectFilter(filterName: string, eq = 0): void {
   if (eq === 0) {
     cy.get(filteredBy).click();
     clickWithinByText(
-      'div[class="pf-v5-c-menu__content"]',
+      'div[class="pf-v6-c-menu__content"]',
       "button",
       filterName
     );
@@ -551,7 +551,7 @@ export function selectFilter(filterName: string, eq = 0): void {
     .within(() => {
       cy.get(filteredBy).click();
       clickWithinByText(
-        'div[class="pf-v5-c-menu__content"]',
+        'div[class="pf-v6-c-menu__content"]',
         "button",
         filterName
       );
@@ -629,14 +629,14 @@ export function applySelectFilter(
   isValid = true
 ): void {
   selectFilter(filterName);
-  click(".pf-v5-c-menu-toggle__button");
-  inputText(".pf-v5-c-text-input-group__text-input", filterText);
+  click(".pf-v6-c-menu-toggle__button");
+  inputText(".pf-v6-c-text-input-group__text-input", filterText);
   if (isValid) {
-    clickByText(".pf-v5-c-menu__item", filterText);
+    clickByText(".pf-v6-c-menu__item", filterText);
   } else {
     cy.contains(actionMenuItem, "No results");
   }
-  click(".pf-v5-c-text-input-group__text-input");
+  click(".pf-v6-c-text-input-group__text-input");
 }
 
 export function applySearchFilter(
@@ -1525,9 +1525,9 @@ export function isTableEmpty(
   return cy
     .get(tableSelector, { timeout: 5 * SEC })
     .find("div")
-    .should("not.have.descendants", "svg.pf-v5-c-spinner")
+    .should("not.have.descendants", "svg.pf-v6-c-spinner")
     .then(($element) => {
-      return $element.hasClass("pf-v5-c-empty-state");
+      return $element.hasClass("pf-v6-c-empty-state");
     });
 }
 
@@ -2161,9 +2161,9 @@ export function clickTab(name: string): void {
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      const overflowItem = $root.find("li.pf-v6-c-tabs__item.pf-m-overflow");
       if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+        cy.root().find("li.pf-v6-c-tabs__item.pf-m-overflow > button").click({
           force: true,
         });
         cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");

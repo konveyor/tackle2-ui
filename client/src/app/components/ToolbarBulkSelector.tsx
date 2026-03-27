@@ -110,6 +110,7 @@ export const ToolbarBulkSelector = ({
             ref={toggleRef}
             onClick={() => setIsOpen(!isOpen)}
             splitButtonOptions={{
+              variant: "checkbox",
               items: [
                 <MenuToggleCheckbox
                   id="bulk-selected-items-checkbox"

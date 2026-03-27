@@ -105,7 +105,7 @@ const QuestionsTable: React.FC<{
             const getConditionalTooltipContent = (question: Question) => {
               return (
                 <div
-                  className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                  className="pf-v6-c-tooltip__content pf-m-text-align-left"
                   id="conditional-tooltip-content"
                 >
                   <div>{t("message.dependentQuestionTooltip")}</div>

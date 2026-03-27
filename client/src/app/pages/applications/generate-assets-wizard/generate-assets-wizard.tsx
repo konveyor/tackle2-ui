@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   ModalVariant,
   Wizard,
   WizardHeader,
@@ -119,15 +122,17 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
       <Modal
         isOpen={isOpen}
         variant={ModalVariant.medium}
-        title={t("generateAssetsWizard.title")}
         onClose={handleCancel}
-        actions={[
+      >
+        <ModalHeader title={t("generateAssetsWizard.title")} />
+        <ModalBody>
+          {t("generateAssetsWizard.noApplicationsReady")}
+        </ModalBody>
+        <ModalFooter>
           <Button key="cancel" variant="link" onClick={handleCancel}>
             {t("actions.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("generateAssetsWizard.noApplicationsReady")}
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }
@@ -136,100 +141,100 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
     <Modal
       isOpen={isOpen}
       variant={ModalVariant.large}
-      showClose={false}
-      hasNoBodyWrapper
       aria-label={t("generateAssetsWizard.title")}
       onClose={handleCancel}
     >
-      <Wizard
-        onClose={handleCancel}
-        header={
-          <WizardHeader
-            onClose={handleCancel}
-            title={t("generateAssetsWizard.title")}
-            description={t("generateAssetsWizard.description", {
-              count: ready.length,
-              first: ready?.[0].name ?? "",
-            })}
-          />
-        }
-        isVisitRequired
-      >
-        <WizardStep
-          id="select-target-profile"
-          name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
-          footer={{
-            nextButtonText: t("actions.next"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !state.profile,
-          }}
-        >
-          <SelectTargetProfile
-            applications={ready}
-            onTargetProfileChanged={setProfile}
-            initialTargetProfile={state.profile}
-          />
-        </WizardStep>
-
-        {/* TODO: Restore with #2498
-        <WizardStep
-          id="capture-parameters"
-          name={t("generateAssetsWizard.captureParameters.stepTitle")}
-          footer={{
-            nextButtonText: t("actions.next"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !state.parameters.isValid,
-          }}
-        >
-          <CaptureParameters
-            targetProfile={state.profile}
-            onParametersChanged={setParameters}
-            initialParameters={state.parameters}
-          />
-        </WizardStep>
-        */}
-
-        <WizardStep
-          id="advanced-options"
-          name={t("generateAssetsWizard.advancedOptions.stepTitle")}
-          footer={{
-            nextButtonText: t("actions.next"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !state.advancedOptions.isValid,
-          }}
-        >
-          <AdvancedOptions
-            onStateChanged={setAdvancedOptions}
-            initialState={state.advancedOptions}
-          />
-        </WizardStep>
-
-        <WizardStep
-          id="review"
-          name={t("generateAssetsWizard.review.stepTitle")}
-          footer={{
-            nextButtonText: results
-              ? t("actions.close")
-              : t("actions.generateAssets"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !state.isReady && !results,
-            isBackDisabled: !!results,
-            isCancelHidden: !!results,
-            onNext: results ? handleCancel : submitTasksAndSaveResults,
-          }}
-        >
-          {!results ? (
-            <Review
-              applications={ready}
-              targetProfile={state.profile!}
-              parameters={state.parameters}
-              advancedOptions={state.advancedOptions}
+      <ModalBody>
+        <Wizard
+          onClose={handleCancel}
+          header={
+            <WizardHeader
+              onClose={handleCancel}
+              title={t("generateAssetsWizard.title")}
+              description={t("generateAssetsWizard.description", {
+                count: ready.length,
+                first: ready?.[0].name ?? "",
+              })}
             />
-          ) : (
-            <Results results={results} />
-          )}
-        </WizardStep>
-      </Wizard>
+          }
+          isVisitRequired
+        >
+          <WizardStep
+            id="select-target-profile"
+            name={t("generateAssetsWizard.selectTargetProfile.stepTitle")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: !state.profile,
+            }}
+          >
+            <SelectTargetProfile
+              applications={ready}
+              onTargetProfileChanged={setProfile}
+              initialTargetProfile={state.profile}
+            />
+          </WizardStep>
+
+          {/* TODO: Restore with #2498
+          <WizardStep
+            id="capture-parameters"
+            name={t("generateAssetsWizard.captureParameters.stepTitle")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: !state.parameters.isValid,
+            }}
+          >
+            <CaptureParameters
+              targetProfile={state.profile}
+              onParametersChanged={setParameters}
+              initialParameters={state.parameters}
+            />
+          </WizardStep>
+          */}
+
+          <WizardStep
+            id="advanced-options"
+            name={t("generateAssetsWizard.advancedOptions.stepTitle")}
+            footer={{
+              nextButtonText: t("actions.next"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: !state.advancedOptions.isValid,
+            }}
+          >
+            <AdvancedOptions
+              onStateChanged={setAdvancedOptions}
+              initialState={state.advancedOptions}
+            />
+          </WizardStep>
+
+          <WizardStep
+            id="review"
+            name={t("generateAssetsWizard.review.stepTitle")}
+            footer={{
+              nextButtonText: results
+                ? t("actions.close")
+                : t("actions.generateAssets"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: !state.isReady && !results,
+              isBackDisabled: !!results,
+              isCancelHidden: !!results,
+              onNext: results ? handleCancel : submitTasksAndSaveResults,
+            }}
+          >
+            {!results ? (
+              <Review
+                applications={ready}
+                targetProfile={state.profile!}
+                parameters={state.parameters}
+                advancedOptions={state.advancedOptions}
+              />
+            ) : (
+              <Results results={results} />
+            )}
+          </WizardStep>
+        </Wizard>
+      </ModalBody>
     </Modal>
   );
 };

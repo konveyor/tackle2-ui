@@ -103,7 +103,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBasicExpanded(!isBasicExpanded)}
         isExpanded={isBasicExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFTextInput
             control={control}
             name="name"
@@ -259,7 +259,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
         isExpanded={isSourceCodeExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <RepositoryFields
             form={form}
             prefix="source"
@@ -289,7 +289,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
         isExpanded={isBinaryExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFTextInput
             control={control}
             name="group"
@@ -320,7 +320,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 bodyContent={t("message.binaryPackaging")}
                 className="popover"
               >
-                <span className="pf-v5-c-icon pf-m-info">
+                <span className="pf-v6-c-icon pf-m-info">
                   <QuestionCircleIcon />
                 </span>
               </Popover>
@@ -335,7 +335,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setSourcePlatformExpanded(!isSourcePlatformExpanded)}
         isExpanded={isSourcePlatformExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <HookFormPFGroupController
             control={control}
             name="sourcePlatform"
@@ -409,7 +409,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
         onToggle={() => setAssetRepositoryExpanded(!isAssetRepositoryExpanded)}
         isExpanded={isAssetRepositoryExpanded}
       >
-        <div className="pf-v5-c-form">
+        <div className="pf-v6-c-form">
           <RepositoryFields
             form={form}
             prefix="assets"

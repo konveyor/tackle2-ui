@@ -3,8 +3,6 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -50,14 +48,14 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <div>
+          <small className={spacing.mb_0}>
             Issue
-          </Text>
+          </small>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {issue ? getIssueTitle(issue) : ""}
           </Title>
-        </TextContent>
+        </div>
       }
     >
       {isFetching ? (

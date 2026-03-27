@@ -6,16 +6,14 @@ import {
   ButtonVariant,
   Card,
   CardBody,
+  Content,
   Form,
   FormGroup,
   Grid,
   GridItem,
   PageSection,
-  PageSectionVariants,
   Spinner,
   Switch,
-  Text,
-  TextContent,
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
@@ -75,10 +73,10 @@ export const RepositoriesMvn: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.mavenConfig")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <Content component="h1">{t("terms.mavenConfig")}</Content>
+        </Content>
       </PageSection>
 
       <PageSection>
@@ -112,14 +110,14 @@ export const RepositoriesMvn: React.FC = () => {
                         onClick={() => setIsConfirmDialogOpen(true)}
                       >
                         {isFetching ? (
-                          <Text>
+                          <span>
                             Loading...
                             <Spinner
                               className={spacing.mlMd}
                               isInline
                               aria-label="Spinner of clear repository button"
                             />
-                          </Text>
+                          </span>
                         ) : (
                           "Clear repository"
                         )}

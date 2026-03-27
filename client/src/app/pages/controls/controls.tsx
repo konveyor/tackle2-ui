@@ -12,7 +12,6 @@ import {
   Level,
   LevelItem,
   PageSection,
-  PageSectionVariants,
   Tab,
   TabTitleText,
   Tabs,
@@ -62,7 +61,7 @@ export const Controls: React.FC = () => {
   }, [location.pathname]);
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
+      <PageSection variant="secondary" className={spacing.pb_0}>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">{t("terms.controls")}</Title>

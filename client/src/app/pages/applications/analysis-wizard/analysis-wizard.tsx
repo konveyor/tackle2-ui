@@ -2,6 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
+  ModalBody,
   ModalVariant,
   Truncate,
   Wizard,
@@ -112,13 +113,12 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   return (
     <Modal
       isOpen={isOpen}
-      showClose={false}
       aria-label="Application analysis wizard modal"
-      hasNoBodyWrapper
       onEscapePress={handleCancel}
       variant={ModalVariant.large}
     >
-      <Wizard
+      <ModalBody>
+        <Wizard
         data-testid="analysis-wizard"
         onClose={handleCancel}
         header={
@@ -298,7 +298,8 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
             options={state.options}
           />
         </WizardStep>
-      </Wizard>
+        </Wizard>
+      </ModalBody>
     </Modal>
   );
 };

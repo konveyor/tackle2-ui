@@ -5,15 +5,14 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
+  ContentVariants,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -193,10 +192,10 @@ export const SourcePlatforms: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.sourcePlatforms")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <Content component={ContentVariants.h1}>{t("terms.sourcePlatforms")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -211,7 +210,7 @@ export const SourcePlatforms: React.FC = () => {
             <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -255,12 +254,12 @@ export const SourcePlatforms: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noPlatformsCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noPlatformsCreatedTitle")}
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                  >
                     <EmptyStateBody>
                       Create a new platform to get started.
                     </EmptyStateBody>
@@ -337,26 +336,30 @@ export const SourcePlatforms: React.FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newPlatform")}
         variant="medium"
         isOpen={openCreatePlatform}
         onClose={() => setOpenCreatePlatform(false)}
       >
-        <PlatformForm onClose={() => setOpenCreatePlatform(false)} />
+        <ModalHeader title={t("dialog.title.newPlatform")} />
+        <ModalBody>
+          <PlatformForm onClose={() => setOpenCreatePlatform(false)} />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updatePlatform")}
         variant="medium"
         isOpen={!!platformToEdit}
         onClose={() => setPlatformToEdit(null)}
       >
-        <PlatformForm
-          key={platformToEdit?.id ?? -1}
-          platform={platformToEdit}
-          onClose={() => setPlatformToEdit(null)}
-        />
+        <ModalHeader title={t("dialog.title.updatePlatform")} />
+        <ModalBody>
+          <PlatformForm
+            key={platformToEdit?.id ?? -1}
+            platform={platformToEdit}
+            onClose={() => setPlatformToEdit(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Platform Discover Import Wizard */}

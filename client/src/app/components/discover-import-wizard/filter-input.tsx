@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { UseFormReturn, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Text, TextContent } from "@patternfly/react-core";
+import { Content, Form } from "@patternfly/react-core";
 
 import { JsonDocument, SourcePlatform, TargetedSchema } from "@app/api/models";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
@@ -114,27 +114,27 @@ export const FilterInput: React.FC<{
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("platformDiscoverWizard.filterInput.title")}
-        </Text>
-        <Text component="p">
+        </Content>
+        <Content component="p">
           {t("platformDiscoverWizard.filterInput.description", {
             platformName: platform?.name,
             platformKind: getDisplayLabel(platform?.kind),
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       {/* TODO: Show a loading state while the filter schema is loading */}
 
       {!filtersSchema ? (
         <div style={{ padding: "20px" }}>
-          <Text>
+          <Content component="p">
             {t("platformDiscoverWizard.filterInput.noFiltersAvailable", {
               platformKind: getDisplayLabel(platform?.kind),
             })}
-          </Text>
+          </Content>
         </div>
       ) : (
         <Form>

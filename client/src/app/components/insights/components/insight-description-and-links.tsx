@@ -1,6 +1,6 @@
 import * as React from "react";
 import ReactMarkdown from "react-markdown";
-import { List, ListItem, TextContent } from "@patternfly/react-core";
+import { Content, List, ListItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisInsightLink } from "@app/api/models";
@@ -17,11 +17,11 @@ export const InsightDescriptionAndLinks: React.FC<
   IInsightDescriptionAndLinksProps
 > = ({ description, links, className = "" }) => (
   <div className={className}>
-    <TextContent className={spacing.mbMd}>
+    <Content className={spacing.mbMd}>
       <ReactMarkdown components={markdownPFComponents}>
         {description}
       </ReactMarkdown>
-    </TextContent>
+    </Content>
     {links?.length ? (
       <List isPlain>
         {links.map((link) => (

@@ -4,6 +4,9 @@ import {
   Button,
   ButtonVariant,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   ModalProps,
   ModalVariant,
 } from "@patternfly/react-core";
@@ -91,17 +94,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <Modal
       id="confirm-dialog"
       variant={ModalVariant.small}
-      title={title}
-      titleIconVariant={titleIconVariant}
       isOpen={isOpen}
       onClose={onClose}
       aria-label="Confirm dialog"
-      actions={actions}
     >
-      {alertMessage ? (
-        <Alert variant="warning" isInline title={alertMessage} />
-      ) : null}
-      {message}
+      <ModalHeader title={title} titleIconVariant={titleIconVariant} />
+      <ModalBody>
+        {alertMessage ? (
+          <Alert variant="warning" isInline title={alertMessage} />
+        ) : null}
+        {message}
+      </ModalBody>
+      <ModalFooter>{actions}</ModalFooter>
     </Modal>
   );
 };

@@ -8,9 +8,9 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Popover,
   Toolbar,
@@ -151,7 +151,7 @@ export const ManageImports: React.FC = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection variant="secondary">
         <PageHeader
           title={t("terms.applicationImports")}
           breadcrumbs={[
@@ -179,7 +179,7 @@ export const ManageImports: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -238,14 +238,14 @@ export const ManageImports: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("composed.noDataStateTitle", {
-                        what: t("terms.importSummary").toLowerCase(),
-                      })}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.importSummary").toLowerCase(),
+                    })}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.import"),
@@ -373,15 +373,17 @@ export const ManageImports: React.FC = () => {
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
-            refetch();
-          }}
-        />
+        <ModalHeader title={t("dialog.title.importApplicationFile")} />
+        <ModalBody>
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              refetch();
+            }}
+          />
+        </ModalBody>
       </Modal>
       {!!importSummaryToDelete && (
         <ConfirmDialog

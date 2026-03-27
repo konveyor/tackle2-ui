@@ -6,9 +6,9 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -186,7 +186,7 @@ export const BusinessServices: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <RBAC
                     allowedPermissions={controlsWriteScopes}
@@ -229,18 +229,14 @@ export const BusinessServices: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.businessService").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  variant="sm"
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.businessService").toLowerCase(),
+                  })}
+                  icon={CubesIcon}
+                  headingLevel="h2"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -305,20 +301,24 @@ export const BusinessServices: React.FC = () => {
 
       <Modal
         id="create-edit-business-service-modal"
-        title={t(
-          businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
-          {
-            what: t("terms.businessService").toLowerCase(),
-          }
-        )}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <BusinessServiceForm
-          businessService={businessServiceToUpdate}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={t(
+            businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: t("terms.businessService").toLowerCase(),
+            }
+          )}
         />
+        <ModalBody>
+          <BusinessServiceForm
+            businessService={businessServiceToUpdate}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
       {isConfirmDialogOpen && (
         <ConfirmDialog

@@ -10,9 +10,9 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   Toolbar,
   ToolbarContent,
@@ -212,7 +212,7 @@ export const Stakeholders: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <RBAC
                   allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
@@ -259,18 +259,14 @@ export const Stakeholders: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.stakeholder").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  variant="sm"
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.stakeholder").toLowerCase(),
+                  })}
+                  icon={CubesIcon}
+                  headingLevel="h2"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.add"),
@@ -364,23 +360,27 @@ export const Stakeholders: React.FC = () => {
 
       <Modal
         id="create-edit-stakeholder-modal"
-        title={
-          stakeholderToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.stakeholder").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.stakeholder").toLowerCase(),
-              })
-        }
         variant={ModalVariant.medium}
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <StakeholderForm
-          stakeholder={stakeholderToUpdate ? stakeholderToUpdate : undefined}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={
+            stakeholderToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.stakeholder").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.stakeholder").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <StakeholderForm
+            stakeholder={stakeholderToUpdate ? stakeholderToUpdate : undefined}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!stakeholderToDelete && (

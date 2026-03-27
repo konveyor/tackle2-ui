@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Label, List, ListItem, Text, Tooltip } from "@patternfly/react-core";
+import { Content, Label, List, ListItem, Tooltip } from "@patternfly/react-core";
 import {
   InfoCircleIcon,
   TimesCircleIcon,
@@ -62,10 +62,10 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                 info={{
                   tooltip: (
                     <>
-                      <Text>
+                      <Content>
                         This column shows the associated risk weight of an
                         answered question.
-                      </Text>
+                      </Content>
                       <List isPlain className={spacing.mtLg}>
                         <ListItem>
                           <IconedStatus
@@ -126,9 +126,9 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                               >
                                 {!!answer?.autoAnswerFor?.length && (
                                   <>
-                                    <Text>
+                                    <Content>
                                       {t("message.autoSelectTooltip")}
-                                    </Text>
+                                    </Content>
                                     <List isPlain>
                                       {answer.autoAnswerFor.map(
                                         (tag, index) => (
@@ -144,7 +144,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                                 )}
                                 {!!answer?.applyTags?.length && (
                                   <>
-                                    <Text>{t("message.autoTagTooltip")}</Text>
+                                    <Content>{t("message.autoTagTooltip")}</Content>
                                     <List isPlain>
                                       {answer.applyTags.map((tag, index) => (
                                         <ListItem key={index}>

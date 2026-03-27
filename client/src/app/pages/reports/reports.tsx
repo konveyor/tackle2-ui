@@ -5,17 +5,16 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Content,
   Flex,
   FlexItem,
   MenuToggle,
   PageSection,
-  PageSectionVariants,
   Select,
+  SelectList,
   SelectOption,
   Stack,
   StackItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";
@@ -71,10 +70,10 @@ export const Reports: React.FC = () => {
     React.useState<number>(ALL_QUESTIONNAIRES);
 
   const pageHeaderSection = (
-    <PageSection variant={PageSectionVariants.light}>
-      <TextContent>
-        <Text component="h1">{t("terms.reports")}</Text>
-      </TextContent>
+    <PageSection>
+      <Content>
+        <h1>{t("terms.reports")}</h1>
+      </Content>
     </PageSection>
   );
 
@@ -150,12 +149,10 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card isClickable isSelectable>
                   <CardHeader>
-                    <TextContent>
+                    <Content>
                       <Flex>
                         <FlexItem>
-                          <Text component="h3">
-                            {t("terms.currentLandscape")}
-                          </Text>
+                          <h3>{t("terms.currentLandscape")}</h3>
                         </FlexItem>
                         <FlexItem>
                           <Select
@@ -185,26 +182,28 @@ export const Reports: React.FC = () => {
                             )}
                             shouldFocusToggleOnSelect
                           >
-                            <SelectOption
-                              key={ALL_QUESTIONNAIRES}
-                              value={ALL_QUESTIONNAIRES}
-                            >
-                              All questionnaires
-                            </SelectOption>
-                            {...answeredQuestionnaires.map(
-                              (answeredQuestionnaire) => (
-                                <SelectOption
-                                  key={answeredQuestionnaire.id}
-                                  value={answeredQuestionnaire.id}
-                                >
-                                  {answeredQuestionnaire.name}
-                                </SelectOption>
-                              )
-                            )}
+                            <SelectList>
+                              <SelectOption
+                                key={ALL_QUESTIONNAIRES}
+                                value={ALL_QUESTIONNAIRES}
+                              >
+                                All questionnaires
+                              </SelectOption>
+                              {answeredQuestionnaires.map(
+                                (answeredQuestionnaire) => (
+                                  <SelectOption
+                                    key={answeredQuestionnaire.id}
+                                    value={answeredQuestionnaire.id}
+                                  >
+                                    {answeredQuestionnaire.name}
+                                  </SelectOption>
+                                )
+                              )}
+                            </SelectList>
                           </Select>
                         </FlexItem>
                       </Flex>
-                    </TextContent>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <ApplicationLandscape
@@ -217,9 +216,9 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <TextContent>
-                      <Text component="h3">{t("terms.identifiedRisks")}</Text>
-                    </TextContent>
+                    <Content>
+                      <h3>{t("terms.identifiedRisks")}</h3>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <IdentifiedRisksTable />

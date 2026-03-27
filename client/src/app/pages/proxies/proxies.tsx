@@ -3,14 +3,10 @@ import { useTranslation } from "react-i18next";
 import {
   Card,
   CardBody,
+  Content,
   EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
   Spinner,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -34,23 +30,22 @@ export const Proxies: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.proxyConfig")}</Text>
-          <Text>{t("terms.proxyConfigDetails")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <h1>{t("terms.proxyConfig")}</h1>
+          <p>{t("terms.proxyConfigDetails")}</p>
+        </Content>
       </PageSection>
       <PageSection>
         <Card>
           <CardBody>
             {isFetching ? (
-              <EmptyState className={spacing.mtXl}>
-                <EmptyStateHeader
-                  titleText={t("message.loadingTripleDot")}
-                  icon={<EmptyStateIcon icon={Spinner} />}
-                  headingLevel="h4"
-                />
-              </EmptyState>
+              <EmptyState
+                className={spacing.mtXl}
+                titleText={t("message.loadingTripleDot")}
+                icon={Spinner}
+                headingLevel="h4"
+              />
             ) : (
               <ProxyForm
                 httpProxy={existingHttpProxy}

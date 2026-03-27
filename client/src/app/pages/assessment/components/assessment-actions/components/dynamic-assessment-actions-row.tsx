@@ -248,6 +248,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           <Button
             type="button"
             variant="plain"
+            icon={<TrashIcon />}
             onClick={() => {
               deleteAssessment({
                 assessmentId: assessment.id,
@@ -257,9 +258,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 archetypeId: archetype?.id,
               });
             }}
-          >
-            <TrashIcon />
-          </Button>
+          />
         </Td>
       ) : null}
     </>

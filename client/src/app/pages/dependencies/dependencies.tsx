@@ -2,12 +2,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
+  Content,
   Label,
   LabelGroup,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -150,10 +148,10 @@ export const Dependencies: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.dependencies")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <h1>{t("terms.dependencies")}</h1>
+        </Content>
       </PageSection>
       <PageSection>
         <div
