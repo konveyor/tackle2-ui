@@ -13,7 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const sourceDropdown = "#analysis-source-toggle";
+export const sourceDropdown =
+  '[data-ouia-component-id="analysis-source-toggle"]';
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";
@@ -28,7 +29,8 @@ export const reportStoryPoints =
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
-export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const analysisProfileSelect =
+  '[data-ouia-component-id="analysis-profile-select-toggle"]';
 export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
 export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";

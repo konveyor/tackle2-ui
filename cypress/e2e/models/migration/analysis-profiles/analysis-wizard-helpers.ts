@@ -67,7 +67,10 @@ export class AnalysisWizardHelpers {
    * @param source - Source to select (e.g., "Source code", "Binary")
    */
   static selectSourceofAnalysis(source: string): void {
-    selectAnalysisMode("#analysis-source-toggle", source);
+    selectAnalysisMode(
+      '[data-ouia-component-id="analysis-source-toggle"]',
+      source
+    );
   }
 
   /**
