@@ -147,7 +147,7 @@ describe(
             data.getRandomCredentialsData(
               CredentialType.sourceControl,
               UserCredentials.usernamePassword,
-              false // Use random credentials since we only validate they exist on the target
+              false
             )
           );
 
