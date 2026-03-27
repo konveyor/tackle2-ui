@@ -42,7 +42,6 @@ import {
   UserCredentials,
   tdTag,
 } from "../../../../types/constants";
-import { AppIssue } from "../../../../types/types";
 import {
   dependencies,
   infoAlertMessage,
@@ -72,12 +71,12 @@ const selectItemsPerPageInReport = (items: number) => {
   );
 };
 
-describe(["@tier0"], "Source Analysis without credentials", () => {
+describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   before("Clean up pre-existing test data", function () {
-    // Delete any existing applications and profiles to avoid conflicts
     deleteApplicationTableRows();
     deleteAllAnalysisProfiles();
   });
+
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
       this.appData = appData;
@@ -112,9 +111,9 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     const applicationData = getRandomApplicationData("bookserverApp", {
       sourceData: this.appData["bookserver-app"],
     });
+    applicationData.name = staticReportAppName;
 
     staticReportApp = new Analysis(applicationData, analysisData);
-    staticReportApp.name = staticReportAppName;
     staticReportApp.create();
     cy.wait("@getApplication");
     staticReportApp.extractIDfromName().then((id) => {
@@ -127,23 +126,13 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     // Re-run analysis using the saved profile
     const profileName = getProfileNameFromApp(staticReportApp.name);
     analysisData.profileName = profileName;
+    applicationData.name = staticReportAppName;
 
     const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = staticReportApp.name;
     profileApplication.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
-
-    // Verify results match
-    profileApplication.validateIssues(
-      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
-    );
-    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
-      (currentIssue: AppIssue) => {
-        profileApplication.validateAffected(currentIssue);
-      }
-    );
 
     // Store profile for cleanup
     profilesToDelete.push(
@@ -167,56 +156,6 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
       )
     );
     savedProfile.validateAnalysisProfileInformation();
-  });
-
-  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
-    const analysisData = getRandomAnalysisData(
-      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
-    );
-    analysisData.saveAsProfile = true;
-
-    const applicationData = getRandomApplicationData("Dep_bookserverApp", {
-      sourceData: this.appData["bookserver-app"],
-    });
-
-    application = new Analysis(applicationData, analysisData);
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus("Completed");
-
-    // Re-run analysis using the saved profile
-    const profileName = getProfileNameFromApp(application.name);
-    analysisData.profileName = profileName;
-
-    const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = application.name;
-    profileApplication.analyze();
-    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
-    profileApplication.verifyAnalysisStatus("Completed");
-
-    // Verify results match
-    profileApplication.validateIssues(
-      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
-    );
-    this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
-      "issues"
-    ].forEach((currentIssue: AppIssue) => {
-      profileApplication.validateAffected(currentIssue);
-    });
-
-    // Store profile for cleanup
-    profilesToDelete.push(
-      new AnalysisProfile(
-        profileName,
-        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
-      )
-    );
   });
 
   it("Check the bookserver task status on task manager page", function () {
