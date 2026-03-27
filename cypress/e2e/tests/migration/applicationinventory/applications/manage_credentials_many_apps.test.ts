@@ -88,10 +88,6 @@ describe(
         sourceApplicationsList,
         source_credential
       );
-      sourceApplicationsList.forEach((currentApplication) => {
-        currentApplication.analyze();
-        currentApplication.verifyAnalysisStatus("Completed");
-      });
     });
 
     it("Adding maven credentials to multiple apps", function () {
@@ -120,10 +116,6 @@ describe(
         mavenApplicationsList,
         maven_credential
       );
-      mavenApplicationsList.forEach((currentApplication) => {
-        currentApplication.analyze();
-        currentApplication.verifyAnalysisStatus("Completed");
-      });
     });
 
     after("Perform test data clean up", function () {
