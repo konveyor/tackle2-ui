@@ -45,7 +45,7 @@ const useTestingAccount = true;
 const isInsecure = true;
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_A"],
   "Field validations for Jira Server connection instance",
   () => {
     before("Login", function () {

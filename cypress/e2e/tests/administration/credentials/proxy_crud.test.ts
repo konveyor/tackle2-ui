@@ -19,7 +19,7 @@ import { getRandomCredentialsData } from "../../../../utils/data_utils";
 import { CredentialsProxy } from "../../../models/administration/credentials/credentialsProxy";
 import { CredentialType } from "../../../types/constants";
 
-describe(["@tier2"], "Validation of proxy credentials", () => {
+describe(["@tier2", "@tier2_A"], "Validation of proxy credentials", () => {
   const proxyCreds = new CredentialsProxy(
     getRandomCredentialsData(CredentialType.proxy)
   );

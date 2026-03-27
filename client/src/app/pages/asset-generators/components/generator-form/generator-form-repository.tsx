@@ -6,13 +6,12 @@ import {
   FormFieldGroupHeader,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { SimpleSelect as DeprecatedSimpleSelect } from "@app/components/SimpleSelect";
 import { useFetchIdentities } from "@app/queries/identities";
 
 const REPOSITORY_KIND_OPTIONS = [
@@ -29,7 +28,7 @@ export const GeneratorFormRepository: React.FC = () => {
     () =>
       identities
         .filter(({ kind }) => kind === "source")
-        .map(({ name }) => name),
+        .map(({ name }) => ({ value: name, label: name })),
     [identities]
   );
 
@@ -96,25 +95,19 @@ export const GeneratorFormRepository: React.FC = () => {
         label={t("terms.credentials")}
         fieldId="credentials"
         renderInput={({ field: { value, name, onChange } }) => (
-          <>
-            <DeprecatedSimpleSelect
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              placeholderText={t("composed.selectOne", {
-                what: t("terms.credentials").toLowerCase(),
-              })}
-              variant="typeahead"
-              toggleId="credentials-toggle"
-              id="credentials-select"
-              toggleAriaLabel="Credentials select dropdown toggle"
-              aria-label={name}
-              value={value}
-              options={identitiesOptions}
-              onChange={(selection) => {
-                onChange(selection);
-              }}
-              onClear={() => onChange("")}
-            />
-          </>
+          <TypeaheadSelect
+            placeholderText={t("composed.selectOne", {
+              what: t("terms.credentials").toLowerCase(),
+            })}
+            toggleId="credentials-toggle"
+            id="credentials-select"
+            toggleAriaLabel="Credentials select dropdown toggle"
+            ariaLabel={name}
+            categoryKey="credentials"
+            value={value}
+            options={identitiesOptions}
+            onSelect={(selection) => onChange(selection ?? "")}
+          />
         )}
       />
     </FormFieldGroupExpandable>

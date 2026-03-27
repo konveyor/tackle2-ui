@@ -23,20 +23,24 @@ import {
 } from "../../../../utils/utils";
 import { Credentials } from "../../../models/administration/credentials/credentials";
 
-describe(["@tier3"], "Tag type pagination validations", function () {
-  let createdCredentialsList: Array<Credentials> = [];
-  before("Login and Create Test Data", () => {
-    login();
-    cy.visit("/");
-    createdCredentialsList = createMultipleCredentials(12);
-  });
+describe(
+  ["@tier3", "@tier3_A"],
+  "Tag type pagination validations",
+  function () {
+    let createdCredentialsList: Array<Credentials> = [];
+    before("Login and Create Test Data", () => {
+      login();
+      cy.visit("/");
+      createdCredentialsList = createMultipleCredentials(12);
+    });
 
-  it("Navigation button validations", function () {
-    Credentials.openList(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      Credentials.openList(10);
+      validatePagination();
+    });
 
-  after("Removing credentials, created earlier", () => {
-    deleteByList(createdCredentialsList);
-  });
-});
+    after("Removing credentials, created earlier", () => {
+      deleteByList(createdCredentialsList);
+    });
+  }
+);

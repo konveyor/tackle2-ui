@@ -25,7 +25,7 @@ import {
 import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
 import * as commonView from "../../../views/common.view";
 
-describe(["@tier2"], "Analysis Profile CRUD operations", () => {
+describe(["@tier2", "@tier2_B"], "Analysis Profile CRUD operations", () => {
   beforeEach("Login", function () {
     cy.fixture("analysis").then(function (analysisData) {
       this.analysisData = analysisData;

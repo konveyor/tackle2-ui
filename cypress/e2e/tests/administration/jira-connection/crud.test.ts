@@ -25,138 +25,152 @@ import { Jira } from "../../../models/administration/jira-connection/jira";
 import { CredentialType, JiraType } from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
 
-describe(["@tier2"], "CRUD operations for Jira Cloud instance", () => {
-  const toBeCanceled = true;
-  const expectedToFail = true;
-  const useTestingAccount = true;
-  const isSecure = false;
-  const isStage = true;
-  let jiraBasicCredential: JiraCredentials;
-  let jiraBasicStageCredential: JiraCredentials;
-  let jiraCloudConnectionData: JiraConnectionData;
-  let jiraStageConnectionData: JiraConnectionData;
-  let jiraCloudConnectionDataIncorrect: JiraConnectionData;
-  let jiraStageConnectionDataIncorrect: JiraConnectionData;
-  let jiraCloudConnection: Jira;
-  let jiraStageConnection: Jira;
+describe(
+  ["@tier2", "@secretsNeeded"],
+  "CRUD operations for Jira Cloud instance",
+  () => {
+    const toBeCanceled = true;
+    const expectedToFail = true;
+    const useTestingAccount = true;
+    const isSecure = false;
+    const isStage = true;
+    let jiraBasicCredential: JiraCredentials;
+    let jiraBasicStageCredential: JiraCredentials;
+    let jiraCloudConnectionData: JiraConnectionData;
+    let jiraStageConnectionData: JiraConnectionData;
+    let jiraCloudConnectionDataIncorrect: JiraConnectionData;
+    let jiraStageConnectionDataIncorrect: JiraConnectionData;
+    let jiraCloudConnection: Jira;
+    let jiraStageConnection: Jira;
 
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    // Defining and creating credentials to be used in test
-    jiraBasicCredential = new JiraCredentials(
-      getJiraCredentialData(CredentialType.jiraBasic, useTestingAccount)
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      // Defining and creating credentials to be used in test
+      jiraBasicCredential = new JiraCredentials(
+        getJiraCredentialData(CredentialType.jiraBasic, useTestingAccount)
+      );
+
+      jiraBasicStageCredential = new JiraCredentials(
+        getJiraCredentialData(
+          CredentialType.jiraToken,
+          useTestingAccount,
+          isStage
+        )
+      );
+
+      jiraBasicCredential.create();
+      jiraBasicStageCredential.create();
+
+      // Defining correct data to create new Jira Cloud connection
+      jiraCloudConnectionData = getJiraConnectionData(
+        jiraBasicCredential,
+        JiraType.cloud,
+        isSecure,
+        useTestingAccount
+      );
+
+      // Defining correct data to create new Jira Stage connection
+      jiraStageConnectionData = getJiraConnectionData(
+        jiraBasicStageCredential,
+        JiraType.server,
+        isSecure,
+        useTestingAccount
+      );
+
+      // Defining dummy data to edit Jira Cloud connection
+      jiraCloudConnectionDataIncorrect = getJiraConnectionData(
+        jiraBasicCredential,
+        JiraType.cloud,
+        isSecure,
+        !useTestingAccount
+      );
+
+      // Defining dummy data to edit Jira Stage connection
+      jiraStageConnectionDataIncorrect = getJiraConnectionData(
+        jiraBasicCredential,
+        JiraType.server,
+        isSecure,
+        !useTestingAccount
+      );
+
+      jiraCloudConnection = new Jira(jiraCloudConnectionData);
+      jiraStageConnection = new Jira(jiraStageConnectionData);
+    });
+
+    it("Creating Jira Cloud connection and cancelling without saving", () => {
+      jiraCloudConnection.create(toBeCanceled);
+    });
+
+    it("Creating Jira Cloud connection", () => {
+      jiraCloudConnection.create();
+      jiraCloudConnection.validateState(!expectedToFail);
+    });
+
+    it("Editing Jira Cloud connection and cancelling without saving", () => {
+      jiraCloudConnection.edit(jiraCloudConnectionDataIncorrect, toBeCanceled);
+    });
+
+    it("Editing Jira Cloud connection with incorrect data, then configuring back with correct", () => {
+      jiraCloudConnection.edit(jiraCloudConnectionDataIncorrect, !toBeCanceled);
+      jiraCloudConnection.validateState(expectedToFail);
+      jiraCloudConnection.edit(jiraCloudConnectionData);
+    });
+
+    it("Delete Jira Cloud connection and cancel deletion", () => {
+      jiraCloudConnection.delete(toBeCanceled);
+    });
+
+    it("Creating Jira stage connection and cancelling without saving", () => {
+      jiraStageConnection.create(toBeCanceled);
+    });
+
+    it(
+      ["@tier2", "@tier2_A", "downstream"],
+      "Creating Jira Stage connection",
+      () => {
+        jiraStageConnection.create();
+        jiraStageConnection.validateState(!expectedToFail);
+      }
     );
 
-    jiraBasicStageCredential = new JiraCredentials(
-      getJiraCredentialData(
-        CredentialType.jiraToken,
-        useTestingAccount,
-        isStage
-      )
+    it(
+      ["@tier2", "@tier2_A", "downstream"],
+      "Editing Jira Stage connection and cancelling without saving",
+      () => {
+        jiraStageConnection.edit(
+          jiraStageConnectionDataIncorrect,
+          toBeCanceled
+        );
+      }
     );
 
-    jiraBasicCredential.create();
-    jiraBasicStageCredential.create();
-
-    // Defining correct data to create new Jira Cloud connection
-    jiraCloudConnectionData = getJiraConnectionData(
-      jiraBasicCredential,
-      JiraType.cloud,
-      isSecure,
-      useTestingAccount
+    it(
+      ["@tier2", "@tier2_A", "downstream"],
+      "Editing Jira Stage connection with incorrect data, then configuring back with correct",
+      () => {
+        jiraStageConnection.edit(
+          jiraStageConnectionDataIncorrect,
+          !toBeCanceled
+        );
+        jiraStageConnection.validateState(expectedToFail);
+        jiraStageConnection.edit(jiraStageConnectionData);
+      }
     );
 
-    // Defining correct data to create new Jira Stage connection
-    jiraStageConnectionData = getJiraConnectionData(
-      jiraBasicStageCredential,
-      JiraType.server,
-      isSecure,
-      useTestingAccount
+    it(
+      ["@tier2", "@tier2_A", "downstream"],
+      "Delete Jira Stage connection and cancel deletion",
+      () => {
+        jiraStageConnection.delete(toBeCanceled);
+        jiraStageConnection.delete();
+      }
     );
 
-    // Defining dummy data to edit Jira Cloud connection
-    jiraCloudConnectionDataIncorrect = getJiraConnectionData(
-      jiraBasicCredential,
-      JiraType.cloud,
-      isSecure,
-      !useTestingAccount
-    );
-
-    // Defining dummy data to edit Jira Stage connection
-    jiraStageConnectionDataIncorrect = getJiraConnectionData(
-      jiraBasicCredential,
-      JiraType.server,
-      isSecure,
-      !useTestingAccount
-    );
-
-    jiraCloudConnection = new Jira(jiraCloudConnectionData);
-    jiraStageConnection = new Jira(jiraStageConnectionData);
-  });
-
-  it("Creating Jira Cloud connection and cancelling without saving", () => {
-    jiraCloudConnection.create(toBeCanceled);
-  });
-
-  it("Creating Jira Cloud connection", () => {
-    jiraCloudConnection.create();
-    jiraCloudConnection.validateState(!expectedToFail);
-  });
-
-  it("Editing Jira Cloud connection and cancelling without saving", () => {
-    jiraCloudConnection.edit(jiraCloudConnectionDataIncorrect, toBeCanceled);
-  });
-
-  it("Editing Jira Cloud connection with incorrect data, then configuring back with correct", () => {
-    jiraCloudConnection.edit(jiraCloudConnectionDataIncorrect, !toBeCanceled);
-    jiraCloudConnection.validateState(expectedToFail);
-    jiraCloudConnection.edit(jiraCloudConnectionData);
-  });
-
-  it("Delete Jira Cloud connection and cancel deletion", () => {
-    jiraCloudConnection.delete(toBeCanceled);
-  });
-
-  it("Creating Jira stage connection and cancelling without saving", () => {
-    jiraStageConnection.create(toBeCanceled);
-  });
-
-  it(["@tier2", "downstream"], "Creating Jira Stage connection", () => {
-    jiraStageConnection.create();
-    jiraStageConnection.validateState(!expectedToFail);
-  });
-
-  it(
-    ["@tier2", "downstream"],
-    "Editing Jira Stage connection and cancelling without saving",
-    () => {
-      jiraStageConnection.edit(jiraStageConnectionDataIncorrect, toBeCanceled);
-    }
-  );
-
-  it(
-    ["@tier2", "downstream"],
-    "Editing Jira Stage connection with incorrect data, then configuring back with correct",
-    () => {
-      jiraStageConnection.edit(jiraStageConnectionDataIncorrect, !toBeCanceled);
-      jiraStageConnection.validateState(expectedToFail);
-      jiraStageConnection.edit(jiraStageConnectionData);
-    }
-  );
-
-  it(
-    ["@tier2", "downstream"],
-    "Delete Jira Stage connection and cancel deletion",
-    () => {
-      jiraStageConnection.delete(toBeCanceled);
-      jiraStageConnection.delete();
-    }
-  );
-
-  after("Cleanup", () => {
-    jiraCloudConnection.delete();
-    jiraBasicCredential.delete();
-    jiraBasicStageCredential.delete();
-  });
-});
+    after("Cleanup", () => {
+      jiraCloudConnection.delete();
+      jiraBasicCredential.delete();
+      jiraBasicStageCredential.delete();
+    });
+  }
+);

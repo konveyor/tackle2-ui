@@ -37,7 +37,7 @@ import {
   tagsHelper,
 } from "../../../../../views/tags.view";
 
-describe(["@tier2"], "Tag category validations", () => {
+describe(["@tier2", "@tier2_A"], "Tag category validations", () => {
   it("Tag type field validations", function () {
     TagCategory.openList();
     clickByText(button, createTagCategoryButton);

@@ -50,7 +50,7 @@ let tagList: Array<Tag> = [];
 let businessServicesList: Array<BusinessServices> = [];
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_C"],
   "Applications interlinked to tags and business service",
   () => {
     before("Login and Create Test Data", function () {

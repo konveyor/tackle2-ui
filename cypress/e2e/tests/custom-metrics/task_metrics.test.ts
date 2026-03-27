@@ -30,7 +30,7 @@ const metricName = "konveyor_tasks_initiated_total";
 const applicationList: Array<Application> = [];
 
 describe(
-  ["@tier2"],
+  ["@tier2", "@secretsNeeded"],
   "Custom Metrics - Count the total number of initiated tasks",
   function () {
     before("Log in and clear state", function () {

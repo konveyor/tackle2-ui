@@ -38,7 +38,7 @@ import {
 
 const applicationsList: Array<Application> = [];
 
-describe(["@tier2"], "Task Manager", () => {
+describe(["@tier2", "@tier2_A"], "Task Manager", () => {
   before("Login", function () {
     login();
     cy.visit("/");

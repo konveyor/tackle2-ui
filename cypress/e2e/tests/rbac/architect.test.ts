@@ -65,7 +65,7 @@ let targetProfile3: TargetProfile;
 let appWithArchetype: Analysis;
 
 describe(
-  ["@tier3", "@rhsso", "@rhbk"],
+  ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
   "Architect RBAC operations",
   function () {
     // https://issues.redhat.com/browse/MTA-5631

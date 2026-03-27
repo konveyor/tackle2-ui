@@ -25,32 +25,36 @@ import {
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
 
-describe(["@tier3"], "Job functions pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
+describe(
+  ["@tier3", "@tier3_C"],
+  "Job functions pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
 
-    getAuthHeaders().then((headers) => {
-      for (let i = 0; i < 11; i++) {
-        Jobfunctions.createViaApi(data.getFullName(), headers);
-      }
+      getAuthHeaders().then((headers) => {
+        for (let i = 0; i < 11; i++) {
+          Jobfunctions.createViaApi(data.getFullName(), headers);
+        }
+      });
     });
-  });
 
-  it("Navigation button validations", function () {
-    Jobfunctions.openList();
-    selectItemsPerPage(10);
-    validatePagination();
-  });
-
-  it("Items per page validations", function () {
-    Jobfunctions.openList();
-    selectItemsPerPage(10);
-    itemsPerPageValidation();
-  });
-
-  after("Perform test data clean up", function () {
-    getAuthHeaders().then((headers) => {
-      Jobfunctions.deleteAllViaApi(headers);
+    it("Navigation button validations", function () {
+      Jobfunctions.openList();
+      selectItemsPerPage(10);
+      validatePagination();
     });
-  });
-});
+
+    it("Items per page validations", function () {
+      Jobfunctions.openList();
+      selectItemsPerPage(10);
+      itemsPerPageValidation();
+    });
+
+    after("Perform test data clean up", function () {
+      getAuthHeaders().then((headers) => {
+        Jobfunctions.deleteAllViaApi(headers);
+      });
+    });
+  }
+);

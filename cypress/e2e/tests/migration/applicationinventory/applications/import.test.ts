@@ -31,7 +31,7 @@ import { ManageImports } from "../../../../models/migration/applicationinventory
 const imports = new ManageImports();
 const filePath = "app_import/csv/";
 
-describe(["@tier3"], "Application import operations", () => {
+describe(["@tier3", "@tier3_B"], "Application import operations", () => {
   before("Login and create test data", function () {
     login();
     cy.visit("/");

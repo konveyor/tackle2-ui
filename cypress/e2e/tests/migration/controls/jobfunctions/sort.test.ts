@@ -29,7 +29,7 @@ import { SortType, name } from "../../../../types/constants";
 
 const jobFunctionsList: Array<Jobfunctions> = [];
 
-describe(["@tier3"], "Job function sorting", function () {
+describe(["@tier3", "@tier3_C"], "Job function sorting", function () {
   before("Login and Create Test Data", function () {
     login();
 

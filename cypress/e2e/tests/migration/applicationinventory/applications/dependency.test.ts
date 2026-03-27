@@ -32,7 +32,7 @@ import { helper } from "../../../../views/common.view";
 
 let applicationsList: Array<Application> = [];
 
-describe(["@tier3"], "Manage application dependencies", () => {
+describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");

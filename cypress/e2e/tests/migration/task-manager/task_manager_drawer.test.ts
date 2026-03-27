@@ -57,7 +57,7 @@ function validateTasks(taskType: string, expectedTasks: string[]) {
   });
 }
 
-describe(["@tier2"], "Task Manager Drawer validation", () => {
+describe(["@tier2", "@tier2_B"], "Task Manager Drawer validation", () => {
   before("Login", function () {
     login();
     cy.visit("/");
