@@ -45,7 +45,7 @@ export class CredentialsSourceControlUsername extends CredentialsSourceControl {
   }
 
   protected selectCredType() {
-    click("#user-credentials-select-toggle");
+    click('[data-ouia-component-id="user-credentials-select-toggle"]');
     clickByText(button, "Username/Password");
   }
 
@@ -111,7 +111,7 @@ export class CredentialsSourceControlUsername extends CredentialsSourceControl {
     super.validateFields();
     click(selectType);
     clickByText(button, "Source Control");
-    click("#user-credentials-select-toggle");
+    click('[data-ouia-component-id="user-credentials-select-toggle"]');
     clickByText(button, "Username/Password");
     this.fillUsernameTooShort();
     this.fillUsernameTooLong();

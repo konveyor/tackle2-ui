@@ -34,6 +34,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
   value,
   placeholderText = "Select...",
   toggleAriaLabel,
+  toggleId,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +54,8 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
           }
         }}
         selections={value}
+        toggleId={toggleId}
+        ouiaId={toggleId}
         {...props}
       >
         {options.map((option, index) => (
