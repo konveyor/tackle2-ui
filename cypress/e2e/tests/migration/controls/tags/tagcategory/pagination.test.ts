@@ -28,49 +28,53 @@ import { SEC } from "../../../../../types/constants";
 import { appTable } from "../../../../../views/common.view";
 import { tagCategory } from "../../../../../views/tags.view";
 
-describe(["@tier3"], "Tag category pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    TagCategory.openList();
-    let rowsToCreate = 0;
+describe(
+  ["@tier3", "@tier3_C"],
+  "Tag category pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      TagCategory.openList();
+      let rowsToCreate = 0;
 
-    // Get the current table row count for tag category and create appropriate test data rows
-    cy.get(appTable, { timeout: 2 * SEC })
-      .next()
-      .then(($div) => {
-        if (!$div.hasClass("pf-c-empty-state")) {
-          cy.get(tagCategory).then(($rows) => {
-            const rowCount = $rows.length;
-            if (rowCount <= 10) {
-              rowsToCreate = 11 - rowCount;
-            }
-            if (rowsToCreate > 0) {
-              // Create multiple tag categories
-              createMultipleTags(rowsToCreate);
-            }
-          });
-        } else {
-          rowsToCreate = 11;
-          // Create multiple tag categories
-          createMultipleTags(rowsToCreate);
-        }
-      });
-  });
+      // Get the current table row count for tag category and create appropriate test data rows
+      cy.get(appTable, { timeout: 2 * SEC })
+        .next()
+        .then(($div) => {
+          if (!$div.hasClass("pf-c-empty-state")) {
+            cy.get(tagCategory).then(($rows) => {
+              const rowCount = $rows.length;
+              if (rowCount <= 10) {
+                rowsToCreate = 11 - rowCount;
+              }
+              if (rowsToCreate > 0) {
+                // Create multiple tag categories
+                createMultipleTags(rowsToCreate);
+              }
+            });
+          } else {
+            rowsToCreate = 11;
+            // Create multiple tag categories
+            createMultipleTags(rowsToCreate);
+          }
+        });
+    });
 
-  it("Navigation button validations", function () {
-    TagCategory.openList();
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      TagCategory.openList();
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    TagCategory.openList();
-    selectItemsPerPage(10);
-    itemsPerPageValidation(appTable, "Tag category");
-  });
+    it("Items per page validations", function () {
+      TagCategory.openList();
+      selectItemsPerPage(10);
+      itemsPerPageValidation(appTable, "Tag category");
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllTagsAndTagCategories();
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllTagsAndTagCategories();
+    });
+  }
+);

@@ -31,7 +31,7 @@ import { Application } from "../../../models/migration/applicationinventory/appl
 import { CredentialType, JiraType, button } from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
 
-describe(["@tier3"], "Jira connection negative tests", () => {
+describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
   const expectedToFail = true;
   const useTestingAccount = true;
   const isSecure = false;

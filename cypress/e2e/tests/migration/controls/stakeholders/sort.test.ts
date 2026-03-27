@@ -41,7 +41,7 @@ let stakeholdersList: Array<Stakeholders> = [];
 let jobFunctionsList: Array<Jobfunctions> = [];
 let stakeholderGroupList: Array<Stakeholdergroups> = [];
 
-describe(["@tier3"], "Stakeholder sort validations", function () {
+describe(["@tier3", "@tier3_C"], "Stakeholder sort validations", function () {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");

@@ -27,7 +27,7 @@ import { Application } from "../../../../models/migration/applicationinventory/a
 import { AnalysisStatuses, TaskKind } from "../../../../types/constants";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_B"],
   "Validate task links from application popover",
   function () {
     let bookServerApp: Analysis;

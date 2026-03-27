@@ -23,7 +23,7 @@ import {
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 
-describe(["@tier2"], "Application crud operations", () => {
+describe(["@tier2", "@tier2_B"], "Application crud operations", () => {
   beforeEach("Login", function () {
     cy.intercept("POST", "/hub/application*").as("postApplication");
     cy.intercept("GET", "/hub/application*").as("getApplication");

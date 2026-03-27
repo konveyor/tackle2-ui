@@ -9,7 +9,7 @@ import {
 import { Insights } from "../../../../models/migration/dynamic-report/insights/insights";
 import { dynamicReportFilter } from "../../../../types/constants";
 
-describe(["@tier3"], "Filtering in Insights", function () {
+describe(["@tier3", "@tier3_D"], "Filtering in Insights", function () {
   // Application names created by seedInsightsData
   const bookserverAppNames = ["InsightsFilteringApp1_0"];
 

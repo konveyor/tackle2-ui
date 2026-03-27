@@ -57,7 +57,7 @@ let projectName = "";
  * The only difference is that this test doesn't remove/archive the issues created since the token doesn't have enough permissions
  */
 describe(
-  ["@tier2", "downstream"],
+  ["@tier2", "@tier2_B", "downstream"],
   "Export Migration Wave to Jira Datacenter",
   function () {
     before("Create test data", function () {

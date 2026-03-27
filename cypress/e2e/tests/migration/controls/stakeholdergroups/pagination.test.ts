@@ -26,38 +26,42 @@ import {
 } from "../../../../../utils/utils";
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
 
-describe(["@tier3"], "Stakeholder groups pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    createMultipleStakeholderGroups(11);
-  });
+describe(
+  ["@tier3", "@tier3_C"],
+  "Stakeholder groups pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      createMultipleStakeholderGroups(11);
+    });
 
-  beforeEach("Interceptors", function () {
-    cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
-  });
+    beforeEach("Interceptors", function () {
+      cy.intercept("GET", "/hub/stakeholdergroups*").as("getStakeholdergroups");
+    });
 
-  it("Navigation button validations", function () {
-    Stakeholdergroups.openList();
-    cy.get("@getStakeholdergroups");
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      Stakeholdergroups.openList();
+      cy.get("@getStakeholdergroups");
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    Stakeholdergroups.openList();
-    cy.get("@getStakeholdergroups");
-    itemsPerPageValidation();
-  });
+    it("Items per page validations", function () {
+      Stakeholdergroups.openList();
+      cy.get("@getStakeholdergroups");
+      itemsPerPageValidation();
+    });
 
-  it("Last page item(s) deletion, impact on page reload validation", function () {
-    Stakeholdergroups.openList();
-    cy.get("@getStakeholdergroups");
-    selectItemsPerPage(10);
-    autoPageChangeValidations(undefined);
-  });
+    it("Last page item(s) deletion, impact on page reload validation", function () {
+      Stakeholdergroups.openList();
+      cy.get("@getStakeholdergroups");
+      selectItemsPerPage(10);
+      autoPageChangeValidations(undefined);
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllStakeholderGroups();
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllStakeholderGroups();
+    });
+  }
+);

@@ -51,7 +51,7 @@ let migrationWave: MigrationWave;
 let projectName = "";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@secretsNeeded"],
   "Unlink application from exported migration waves",
   function () {
     before("Create test data", function () {

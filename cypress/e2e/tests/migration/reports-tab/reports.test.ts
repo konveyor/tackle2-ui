@@ -39,7 +39,7 @@ const unknownRiskApps = 2;
 
 const riskType = ["low", "medium", "high", "low", "high", "high"];
 
-describe(["@tier3"], "Reports tests", () => {
+describe(["@tier3", "@tier3_E"], "Reports tests", () => {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");

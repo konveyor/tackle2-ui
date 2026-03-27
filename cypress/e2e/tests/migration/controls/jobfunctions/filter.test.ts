@@ -29,42 +29,46 @@ import { button, clearAllFilters, name } from "../../../../types/constants";
 const jobFunctionsList: Array<Jobfunctions> = [];
 const invalidSearchInput = String(data.getRandomNumber());
 
-describe(["@tier2"], "Job function filter validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
+describe(
+  ["@tier2", "@tier2_B"],
+  "Job function filter validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
 
-    getAuthHeaders().then((headers) => {
-      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
-        jobFunctionsList.push(jf)
-      );
-      Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
-        jobFunctionsList.push(jf)
-      );
+      getAuthHeaders().then((headers) => {
+        Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+          jobFunctionsList.push(jf)
+        );
+        Jobfunctions.createViaApi(data.getFullName(), headers).then((jf) =>
+          jobFunctionsList.push(jf)
+        );
+      });
     });
-  });
 
-  it("Name filter validations", function () {
-    Jobfunctions.openList();
+    it("Name filter validations", function () {
+      Jobfunctions.openList();
 
-    // Enter an existing display name substring and assert
-    const validSearchInput = jobFunctionsList[0].name.substring(0, 3);
-    applySearchFilter(name, validSearchInput);
-    exists(jobFunctionsList[0].name);
-    clickByText(button, clearAllFilters);
+      // Enter an existing display name substring and assert
+      const validSearchInput = jobFunctionsList[0].name.substring(0, 3);
+      applySearchFilter(name, validSearchInput);
+      exists(jobFunctionsList[0].name);
+      clickByText(button, clearAllFilters);
 
-    applySearchFilter(name, jobFunctionsList[1].name);
-    exists(jobFunctionsList[1].name);
-    clickByText(button, clearAllFilters);
+      applySearchFilter(name, jobFunctionsList[1].name);
+      exists(jobFunctionsList[1].name);
+      clickByText(button, clearAllFilters);
 
-    // Enter a non-existing display name substring and apply it as search filter
-    applySearchFilter(name, invalidSearchInput);
-    cy.get("h2").contains("No job function available");
-    clickByText(button, clearAllFilters);
-  });
-
-  after("Perform test data clean up", function () {
-    getAuthHeaders().then((headers) => {
-      jobFunctionsList.forEach((jf) => jf.deleteViaApi(headers));
+      // Enter a non-existing display name substring and apply it as search filter
+      applySearchFilter(name, invalidSearchInput);
+      cy.get("h2").contains("No job function available");
+      clickByText(button, clearAllFilters);
     });
-  });
-});
+
+    after("Perform test data clean up", function () {
+      getAuthHeaders().then((headers) => {
+        jobFunctionsList.forEach((jf) => jf.deleteViaApi(headers));
+      });
+    });
+  }
+);

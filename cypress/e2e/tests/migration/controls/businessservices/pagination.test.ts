@@ -26,32 +26,36 @@ import {
 } from "../../../../../utils/utils";
 import { BusinessServices } from "../../../../models/migration/controls/businessservices";
 
-describe(["@tier3"], "Business services pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    createMultipleBusinessServices(11);
-  });
+describe(
+  ["@tier3", "@tier3_C"],
+  "Business services pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      createMultipleBusinessServices(11);
+    });
 
-  it("Navigation button validations", function () {
-    BusinessServices.openList();
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      BusinessServices.openList();
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    BusinessServices.openList();
-    selectItemsPerPage(10);
-    itemsPerPageValidation();
-  });
+    it("Items per page validations", function () {
+      BusinessServices.openList();
+      selectItemsPerPage(10);
+      itemsPerPageValidation();
+    });
 
-  it("Last page item(s) deletion, impact on page reload validation", function () {
-    BusinessServices.openList();
-    selectItemsPerPage(10);
-    autoPageChangeValidations(undefined);
-  });
+    it("Last page item(s) deletion, impact on page reload validation", function () {
+      BusinessServices.openList();
+      selectItemsPerPage(10);
+      autoPageChangeValidations(undefined);
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllBusinessServices();
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllBusinessServices();
+    });
+  }
+);
