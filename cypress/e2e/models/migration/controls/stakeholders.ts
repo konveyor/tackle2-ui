@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import {
+  applySearchFilter,
   cancelForm,
   click,
   clickByText,
@@ -42,6 +43,7 @@ import {
   groupInput,
   jobfunctionInput,
   removeJobFunction,
+  stakeHoldersTable,
   stakeholderEmailInput,
   stakeholderNameInput,
 } from "../../../views/stakeholders.view";
@@ -84,6 +86,7 @@ export class Stakeholders {
         clickByText(navMenu, controls);
         cy.get("h1", { timeout: 60 * SEC }).should("contain", "Controls");
         clickByText(navTab, stakeholders);
+        cy.get(stakeHoldersTable, { timeout: 30 * SEC }).should("be.visible");
       }
     });
     cy.get("h1", { timeout: 30 * SEC }).should("contain.text", "Controls");
@@ -179,6 +182,7 @@ export class Stakeholders {
 
   delete(cancel = false): void {
     Stakeholders.openList();
+    applySearchFilter("Email", this.email);
     cy.intercept("DELETE", "/hub/stakeholders/*").as("deleteStakeholder");
     clickItemInKebabMenu(this.email, deleteAction);
     if (cancel) {

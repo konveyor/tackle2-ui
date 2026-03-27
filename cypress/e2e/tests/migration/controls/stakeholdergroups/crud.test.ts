@@ -17,12 +17,20 @@ limitations under the License.
 
 import * as data from "../../../../../utils/data_utils";
 import {
+  applySearchFilter,
+  clickByText,
   exists,
   expandRowDetails,
   notExists,
 } from "../../../../../utils/utils";
 import { Stakeholdergroups } from "../../../../models/migration/controls/stakeholdergroups";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
+import {
+  button,
+  clearAllFilters,
+  email,
+  name,
+} from "../../../../types/constants";
 import { stakeHoldersTable } from "../../../../views/stakeholders.view";
 
 describe(["@tier2", "@tier2_B"], "Stakeholder group CRUD operations", () => {
@@ -40,11 +48,15 @@ describe(["@tier2", "@tier2_B"], "Stakeholder group CRUD operations", () => {
     );
     stakeholdergroup.create();
     cy.wait("@postStakeholdergroups");
-    exists(stakeholdergroup.name);
+    applySearchFilter(name, stakeholdergroup.name);
+    cy.get(".pf-v5-c-table").should("contain", stakeholdergroup.name);
+    clickByText(button, clearAllFilters);
     const updateStakeholdergroupName = data.getCompanyName();
     stakeholdergroup.edit({ name: updateStakeholdergroupName });
     cy.wait("@getStakeholdergroups");
-    exists(updateStakeholdergroupName);
+    applySearchFilter(name, updateStakeholdergroupName);
+    cy.get(".pf-v5-c-table").should("contain", updateStakeholdergroupName);
+    clickByText(button, clearAllFilters);
 
     stakeholdergroup.delete();
     cy.wait("@getStakeholdergroups");
@@ -53,7 +65,9 @@ describe(["@tier2", "@tier2_B"], "Stakeholder group CRUD operations", () => {
 
   it("Stakeholder group CRUD with stakeholder member attached", function () {
     stakeholder.create();
+    applySearchFilter(email, stakeholder.email);
     exists(stakeholder.email, stakeHoldersTable);
+    clickByText(button, clearAllFilters);
     const memberStakeholderName = stakeholder.name;
     const stakeholdergroup = new Stakeholdergroups(
       data.getCompanyName(),
@@ -63,9 +77,12 @@ describe(["@tier2", "@tier2_B"], "Stakeholder group CRUD operations", () => {
 
     stakeholdergroup.create();
     cy.wait("@postStakeholdergroups");
-    exists(stakeholdergroup.name);
+    applySearchFilter(name, stakeholdergroup.name);
+    cy.wait("@getStakeholdergroups");
+    cy.get(".pf-v5-c-table").should("contain", stakeholdergroup.name);
     expandRowDetails(stakeholdergroup.name);
-    exists(memberStakeholderName);
+    cy.get(".pf-v5-c-table").should("contain", memberStakeholderName);
+    clickByText(button, clearAllFilters);
 
     stakeholdergroup.edit({
       name: data.getCompanyName(),
