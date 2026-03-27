@@ -10,7 +10,8 @@ export const ProxyViewSelectorsByType = {
     port: '[name="httpPort"]',
     enabledSwitch: "#httpProxy",
     identityRequired: "#http-identity-required",
-    credentialsSelectToggle: "#http-proxy-credentials-select-toggle",
+    credentialsSelectToggle:
+      '[data-ouia-component-id="http-proxy-credentials-select-toggle"]',
     hostHelper: "#httpHost-helper",
   },
   [ProxyType.https]: {
@@ -18,7 +19,8 @@ export const ProxyViewSelectorsByType = {
     port: '[name="httpsPort"]',
     enabledSwitch: "#httpsProxy",
     identityRequired: "#https-identity-required",
-    credentialsSelectToggle: "#https-proxy-credentials-select-toggle",
+    credentialsSelectToggle:
+      '[data-ouia-component-id="https-proxy-credentials-select-toggle"]',
     hostHelper: "#httpsHost-helper",
   },
 };
