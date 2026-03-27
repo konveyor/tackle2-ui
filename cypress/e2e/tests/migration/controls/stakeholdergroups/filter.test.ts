@@ -70,7 +70,7 @@ describe(
       applySearchFilter(name, validSearchInput);
       exists(stakeholderGroupsList[0].name);
       if (stakeholderGroupsList[1].name.indexOf(validSearchInput) >= 0) {
-        exists(stakeholdersList[1].name);
+        exists(stakeholderGroupsList[1].name);
       }
 
       clickByText(button, clearAllFilters);

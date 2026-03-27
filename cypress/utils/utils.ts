@@ -1444,6 +1444,12 @@ export function deleteAllBusinessServices() {
   deleteAllRows();
 }
 
+export function deleteAllAnalysisProfiles(): void {
+  getAuthHeaders().then((headers) => {
+    AnalysisProfile.deleteAllViaApi(headers);
+  });
+}
+
 export function deleteAllStakeholderGroups(_cancel = false): void {
   Stakeholdergroups.openList();
   deleteAllRows();
