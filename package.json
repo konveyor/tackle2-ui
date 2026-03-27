@@ -38,7 +38,7 @@
     "cypress"
   ],
   "engines": {
-    "node": ">=20.12.2",
+    "node": ">=22.22.0",
     "npm": "^9.5.0 || ^10.5.2 || >=11"
   },
   "devDependencies": {

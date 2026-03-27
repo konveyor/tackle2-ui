@@ -1,5 +1,15 @@
+# NOTE: Since the `:latest` tag can have npm version changes, we are using
+#       a specific version tag. Container build errors have come up locally
+#       and via github action workflow when `:latest` is updated.
+#
+# Image info: https://catalog.redhat.com/en/software/containers/ubi10/nodejs-22/677d3d3e5fdd0fab2f7ad136
+# Red Hat Container Catalog: https://catalog.redhat.com/en/search?searchType=containers
+# Relevant PRs:
+#   - https://github.com/konveyor/tackle2-ui/pull/1746
+#   - https://github.com/konveyor/tackle2-ui/pull/1781
+
 # Builder image
-FROM registry.access.redhat.com/ubi10/nodejs-22:latest AS builder
+FROM registry.access.redhat.com/ubi10/nodejs-22:10.1-1774310729 AS builder
 
 USER 1001
 COPY --chown=1001 . .
@@ -12,7 +22,7 @@ RUN \
   npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:latest
+FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:10.1-1774255249
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
