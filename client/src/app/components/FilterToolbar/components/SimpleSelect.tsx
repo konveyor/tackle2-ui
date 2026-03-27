@@ -53,7 +53,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
     return (
       <MenuToggle
         aria-label={toggleAriaLabel ?? ariaLabel}
-        id={toggleId}
+        ouiaId={toggleId}
         ref={toggleRef}
         onClick={() => {
           setIsFilterDropdownOpen(!isFilterDropdownOpen);

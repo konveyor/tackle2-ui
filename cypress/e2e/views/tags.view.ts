@@ -16,8 +16,10 @@ limitations under the License.
 export const createTagButton = "Create tag";
 export const createTagCategoryButton = "Create tag category";
 export const colorHelper = "div[id=color-helper]";
-export const dropdownMenuToggle = "button[id='tag-type-select-toggle']";
-export const dropdownMenuTypeToggle = "#type-select-toggle";
+export const dropdownMenuToggle =
+  '[data-ouia-component-id="tag-type-select-toggle"] [data-ouia-component-type="PF5/TextInput"]';
+export const dropdownMenuTypeToggle =
+  '[data-ouia-component-id="type-select-toggle"]';
 export const tagsHelper = "div.pf-v5-c-helper-text";
 export const nameInput = "input[name=name]";
 export const tagMenuButton = 'button[aria-label="Kebab toggle"]';
@@ -27,4 +29,4 @@ export enum tagLabels {
   type = 'td[data-label="Tag type"]',
   count = 'td[data-label="Tag count"]',
 }
-export const colorMenuToggle = "button[id='type-select-toggle']";
+export const colorMenuToggle = '[data-ouia-component-id="type-select-toggle"]';

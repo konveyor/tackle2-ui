@@ -17,7 +17,6 @@ export interface ISimpleSelectBasicProps {
   selectId?: string;
   toggleId?: string;
   toggleAriaLabel?: string;
-  toggleDataTestId?: string;
 }
 
 export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
@@ -28,16 +27,14 @@ export const SimpleSelectBasic: React.FC<ISimpleSelectBasicProps> = ({
   selectId,
   toggleId,
   toggleAriaLabel,
-  toggleDataTestId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       aria-label={toggleAriaLabel}
-      id={toggleId}
       isFullWidth
-      data-testid={toggleDataTestId}
+      ouiaId={toggleId}
       ref={toggleRef}
       onClick={() => {
         setIsOpen(!isOpen);

@@ -13,12 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const sourceDropdown = "#analysis-source-toggle";
+export const sourceDropdown =
+  '[data-ouia-component-id="analysis-source-toggle"]';
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";
-export const sourceCredential = "#source-credentials-toggle-select-typeahead";
-export const mavenCredential = "#maven-settings-toggle-select-typeahead";
+export const sourceCredential =
+  '[data-ouia-component-id="source-credentials-toggle"]';
+export const mavenCredential =
+  '[data-ouia-component-id="maven-settings-toggle"]';
 export const nextButton = "button[type=submit]";
 export const addRules =
   "div > footer[class='pf-v5-c-modal-box__footer'] > button";
@@ -28,7 +31,8 @@ export const reportStoryPoints =
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
-export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const analysisProfileSelect =
+  '[data-ouia-component-id="analysis-profile-select-toggle"]';
 export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
 export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";
