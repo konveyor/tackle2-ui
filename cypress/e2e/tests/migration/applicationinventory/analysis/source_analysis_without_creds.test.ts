@@ -51,6 +51,7 @@ import {
 } from "../../../../views/common.view";
 const applicationIds: number[] = [];
 let application: Analysis;
+let staticReportApp: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
 const profilesToDelete: AnalysisProfile[] = [];
 const staticReportAppName = "bookserver-static-report-test";
@@ -112,23 +113,23 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
       sourceData: this.appData["bookserver-app"],
     });
 
-    application = new Analysis(applicationData, analysisData);
-    application.name = staticReportAppName;
-    application.create();
+    staticReportApp = new Analysis(applicationData, analysisData);
+    staticReportApp.name = staticReportAppName;
+    staticReportApp.create();
     cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
+    staticReportApp.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    application.analyze();
+    staticReportApp.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    staticReportApp.verifyAnalysisStatus(AnalysisStatuses.completed);
 
     // Re-run analysis using the saved profile
-    const profileName = getProfileNameFromApp(application.name);
+    const profileName = getProfileNameFromApp(staticReportApp.name);
     analysisData.profileName = profileName;
 
     const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = application.name;
+    profileApplication.name = staticReportApp.name;
     profileApplication.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
@@ -154,7 +155,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   });
 
   it("Validate saved analysis profile details", function () {
-    const profileName = getProfileNameFromApp(application.name);
+    const profileName = getProfileNameFromApp(staticReportApp.name);
     AnalysisProfile.open(true);
     exists(profileName);
 
@@ -240,8 +241,8 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     cy.visit("/");
     cleanupDownloads();
     GeneralConfig.enableDownloadReport();
-    application.downloadReport(ReportTypeSelectors.HTML);
-    application.extractHTMLReport();
+    staticReportApp.downloadReport(ReportTypeSelectors.HTML);
+    staticReportApp.extractHTMLReport();
   });
 
   after("Perform test data clean up", function () {
