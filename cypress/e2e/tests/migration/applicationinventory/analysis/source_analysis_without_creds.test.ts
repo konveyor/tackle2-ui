@@ -49,7 +49,6 @@ import {
   technologies,
 } from "../../../../views/common.view";
 const applicationIds: number[] = [];
-let application: Analysis;
 let staticReportApp: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
 const profilesToDelete: AnalysisProfile[] = [];
@@ -160,17 +159,17 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
 
   it("Check the bookserver task status on task manager page", function () {
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.analyzer,
       TaskStatus.succeeded
     );
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.techDiscovery,
       TaskStatus.succeeded
     );
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.languageDiscovery,
       TaskStatus.succeeded
     );
