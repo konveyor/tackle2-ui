@@ -40,7 +40,7 @@ const filesToImport = [
 const invalidSearchInput = String(data.getRandomNumber());
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_B"],
   "Manage applications import filter validations",
   function () {
     before("Login and create test data", function () {

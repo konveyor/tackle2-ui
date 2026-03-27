@@ -21,7 +21,7 @@ import { TagCategory } from "../../../../../models/migration/controls/tagcategor
 import { Tag } from "../../../../../models/migration/controls/tags";
 import { color, tagCount } from "../../../../../types/constants";
 
-describe(["@tier2"], "Tag tagCategory CRUD operations", () => {
+describe(["@tier2", "@tier2_B"], "Tag tagCategory CRUD operations", () => {
   it("Tag Category CRUD", function () {
     const tagCategory = new TagCategory(data.getRandomWord(8), data.getColor());
     tagCategory.create();

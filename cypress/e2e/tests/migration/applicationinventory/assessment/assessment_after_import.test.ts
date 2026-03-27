@@ -35,49 +35,53 @@ const filePath = "app_import/csv/";
 let stakeholders: Stakeholders[];
 const appdata = { name: "Customers" };
 
-describe(["@tier3", "@dc"], "Operations after application import", () => {
-  before("Login and create test data", function () {
-    login();
-    cy.visit("/");
-    // This test will fail if there are preexisting questionnaire.
-    AssessmentQuestionnaire.deleteAllQuestionnaires();
-    AssessmentQuestionnaire.enable(legacyPathfinder);
-    stakeholders = createMultipleStakeholders(1);
+describe(
+  ["@tier3", "@tier3_E", "@dc"],
+  "Operations after application import",
+  () => {
+    before("Login and create test data", function () {
+      login();
+      cy.visit("/");
+      // This test will fail if there are preexisting questionnaire.
+      AssessmentQuestionnaire.deleteAllQuestionnaires();
+      AssessmentQuestionnaire.enable(legacyPathfinder);
+      stakeholders = createMultipleStakeholders(1);
 
-    // Import applications through valid .CSV file
-    const fileName = "template_application_import.csv";
-    importApplication(filePath + fileName);
+      // Import applications through valid .CSV file
+      const fileName = "template_application_import.csv";
+      importApplication(filePath + fileName);
 
-    // Verify imported apps are visible in table
-    exists("Customers");
-    exists("Inventory");
-    exists("Gateway");
-  });
+      // Verify imported apps are visible in table
+      exists("Customers");
+      exists("Inventory");
+      exists("Gateway");
+    });
 
-  it("Perform application assessment after a successful application import", function () {
-    const application = new Application(appdata);
+    it("Perform application assessment after a successful application import", function () {
+      const application = new Application(appdata);
 
-    // Perform assessment of application
-    application.perform_assessment("low", stakeholders);
-    cy.wait(2000);
-    application.verifyStatus("assessment", "Completed");
-  });
+      // Perform assessment of application
+      application.perform_assessment("low", stakeholders);
+      cy.wait(2000);
+      application.verifyStatus("assessment", "Completed");
+    });
 
-  it("Perform application review after a successful application import", function () {
-    // Automates Polarion TC MTA-295
-    const application = new Application(appdata);
+    it("Perform application review after a successful application import", function () {
+      // Automates Polarion TC MTA-295
+      const application = new Application(appdata);
 
-    application.perform_review("low");
-    application.verifyStatus("review", "Completed");
+      application.perform_review("low");
+      application.verifyStatus("review", "Completed");
 
-    application.delete();
-    notExists(application.name);
-  });
+      application.delete();
+      notExists(application.name);
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllMigrationWaves();
-    deleteApplicationTableRows();
-    deleteAppImportsTableRows();
-    deleteByList(stakeholders);
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+      deleteAppImportsTableRows();
+      deleteByList(stakeholders);
+    });
+  }
+);

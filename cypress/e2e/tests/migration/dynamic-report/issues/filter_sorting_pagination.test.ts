@@ -40,7 +40,7 @@ import { AppIssue } from "../../../../types/types";
 import { rightSideBar } from "../../../../views/issue.view";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_A"],
   "Filtering, sorting and pagination in Issues",
   function () {
     // Application names created by seedIssuesData

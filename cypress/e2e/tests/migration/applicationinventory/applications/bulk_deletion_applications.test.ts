@@ -30,7 +30,7 @@ import {
 } from "../../../../views/applicationinventory.view";
 import * as commonView from "../../../../views/common.view";
 
-describe(["@tier3"], "Bulk deletion of applications", () => {
+describe(["@tier3", "@tier3_E"], "Bulk deletion of applications", () => {
   before("Login", function () {
     login();
     cy.visit("/");

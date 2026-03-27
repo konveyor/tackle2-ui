@@ -46,7 +46,7 @@ import {
 } from "../../../views/taskmanager.view";
 
 describe.skip(
-  ["@tier3"],
+  ["@tier3", "@tier3_A"],
   "Filtering, sorting and pagination in Task Manager Page",
   function () {
     const applicationsList: Analysis[] = [];

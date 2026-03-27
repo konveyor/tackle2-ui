@@ -43,7 +43,7 @@ const allArchetypes: Archetype[] = [];
 const allTags: Tag[] = [];
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_C"],
   "Tests related to application-archetype association ",
   () => {
     before("Login and setup", function () {

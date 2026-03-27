@@ -35,48 +35,52 @@ import { sideKebabMenu } from "../../../views/applicationinventory.view";
 let source_credential: CredentialsSourceControlUsername;
 let application: Analysis;
 
-describe(["@tier3"], "Validation of credentials being used by app", () => {
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    source_credential = new CredentialsSourceControlUsername(
-      getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword
-      )
-    );
+describe(
+  ["@tier3", "@tier3_A"],
+  "Validation of credentials being used by app",
+  () => {
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      source_credential = new CredentialsSourceControlUsername(
+        getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword
+        )
+      );
 
-    source_credential.create();
-  });
-
-  beforeEach("Load data", function () {
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
+      source_credential.create();
     });
-  });
 
-  it("Validating cred used by app can't be deleted", function () {
-    application = new Analysis(
-      getRandomApplicationData(),
-      getRandomAnalysisData(this.analysisData)
-    );
-    application.create();
-    application.manageCredentials(source_credential.name);
-    Credentials.openList();
-
-    cy.contains(source_credential.name)
-      .closest(trTag)
-      .within(() => {
-        click(sideKebabMenu);
+    beforeEach("Load data", function () {
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
       });
-    cy.get("ul")
-      .contains("span", "Delete")
-      .closest("li")
-      .should("have.class", "pf-m-aria-disabled");
-  });
+    });
 
-  after("Cleanup", () => {
-    application.delete();
-    source_credential.delete();
-  });
-});
+    it("Validating cred used by app can't be deleted", function () {
+      application = new Analysis(
+        getRandomApplicationData(),
+        getRandomAnalysisData(this.analysisData)
+      );
+      application.create();
+      application.manageCredentials(source_credential.name);
+      Credentials.openList();
+
+      cy.contains(source_credential.name)
+        .closest(trTag)
+        .within(() => {
+          click(sideKebabMenu);
+        });
+      cy.get("ul")
+        .contains("span", "Delete")
+        .closest("li")
+        .should("have.class", "pf-m-aria-disabled");
+    });
+
+    after("Cleanup", () => {
+      application.delete();
+      source_credential.delete();
+    });
+  }
+);

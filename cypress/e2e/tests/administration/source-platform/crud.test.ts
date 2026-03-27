@@ -32,7 +32,7 @@ import * as selectors from "../../../views/source-platform.view";
 const cloudFoundryCreds: Array<CredentialsSourceControlUsername> = [];
 
 describe(
-  ["@tier2", "cf"],
+  ["@tier2", "@tier2_B", "cf"],
   "CRUD operations on Cloud Foundry Source platform",
   () => {
     before("Verify Cloud Foundry env variables are present", function () {

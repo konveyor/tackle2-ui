@@ -21,7 +21,7 @@ const metrics = new Metrics();
 let metricsEnabled: boolean;
 
 describe(
-  ["@tier3", "downstream"],
+  ["@tier3", "@tier3_A", "downstream"],
   "Custom Metrics - Disable metrics",
   function () {
     it("Disable metrics in Tackle CR - Validate service is unavailable", function () {

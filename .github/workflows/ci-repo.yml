@@ -146,7 +146,7 @@ jobs:
       - name: Install
         run: |
           npm version
-          npm clean-install --ignore-scripts
+          npm clean-install --ignore-scripts --no-audit
 
       - name: Lint sources
         run: |

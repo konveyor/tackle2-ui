@@ -29,36 +29,40 @@ import {
 } from "../../../../utils/utils";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 
-describe(["@tier3"], "Archetypes pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    createMultipleArchetypes(11);
-  });
+describe(
+  ["@tier3", "@tier3_E"],
+  "Archetypes pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      createMultipleArchetypes(11);
+    });
 
-  it("Navigation button validations", function () {
-    Archetype.open();
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      Archetype.open();
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    Archetype.open();
-    itemsPerPageValidation();
-  });
+    it("Items per page validations", function () {
+      Archetype.open();
+      itemsPerPageValidation();
+    });
 
-  it("Last page item(s) deletion, impact on page reload validation", function () {
-    Archetype.open();
-    selectItemsPerPage(10);
-    goToLastPage();
-    checkCurrentPageIs(2);
-    deleteAllRows();
-    // assert that the page is redirected to the previous page, in this case the first page
-    checkCurrentPageIs(1);
-    checkRowCount(10);
-  });
+    it("Last page item(s) deletion, impact on page reload validation", function () {
+      Archetype.open();
+      selectItemsPerPage(10);
+      goToLastPage();
+      checkCurrentPageIs(2);
+      deleteAllRows();
+      // assert that the page is redirected to the previous page, in this case the first page
+      checkCurrentPageIs(1);
+      checkRowCount(10);
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllArchetypes();
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllArchetypes();
+    });
+  }
+);

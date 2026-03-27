@@ -32,84 +32,88 @@ const gitConfiguration = new GitConfiguration();
 let source_credential: CredentialsSourceControlUsername;
 const applicationsList: Analysis[] = [];
 
-describe(["@tier2"], "Test secure and insecure git repository analysis", () => {
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    source_credential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        true
-      )
-    );
-    source_credential.create();
-  });
-
-  beforeEach("Load data", function () {
-    cy.fixture("application").then(function (appData) {
-      this.appData = appData;
-    });
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
+describe(
+  ["@tier2", "@secretsNeeded"],
+  "Test secure and insecure git repository analysis",
+  () => {
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      source_credential = new CredentialsSourceControlUsername(
+        data.getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword,
+          true
+        )
+      );
+      source_credential.create();
     });
 
-    // Interceptors
-    cy.intercept("POST", "/hub/application*").as("postApplication");
-    cy.intercept("GET", "/hub/application*").as("getApplication");
-  });
+    beforeEach("Load data", function () {
+      cy.fixture("application").then(function (appData) {
+        this.appData = appData;
+      });
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
+      });
 
-  it("Analysis on insecure git Repository(http) for tackle test app when insecure repository is allowed", function () {
-    // test that when the insecure repository is enabled the analysis on a http repo should be completed successfully
+      // Interceptors
+      cy.intercept("POST", "/hub/application*").as("postApplication");
+      cy.intercept("GET", "/hub/application*").as("getApplication");
+    });
 
-    gitConfiguration.enableInsecureGitRepositories();
+    it("Analysis on insecure git Repository(http) for tackle test app when insecure repository is allowed", function () {
+      // test that when the insecure repository is enabled the analysis on a http repo should be completed successfully
 
-    // For tackle test app source credentials are required.
-    const application = new Analysis(
-      getRandomApplicationData("Insecure_enabled_tackle_test_app", {
-        sourceData: this.appData["tackle-testapp"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
-    );
+      gitConfiguration.enableInsecureGitRepositories();
 
-    application.create();
-    applicationsList.push(application);
-    cy.wait("@getApplication");
-    application.manageCredentials(source_credential.name);
-    application.analyze();
-    application.verifyAnalysisStatus("Completed");
-    application.openReport();
-  });
+      // For tackle test app source credentials are required.
+      const application = new Analysis(
+        getRandomApplicationData("Insecure_enabled_tackle_test_app", {
+          sourceData: this.appData["tackle-testapp"],
+        }),
+        getRandomAnalysisData(
+          this.analysisData["source_analysis_on_bookserverapp"]
+        )
+      );
 
-  it("Analysis on insecure git Repository(http) for tackle test app when insecure repository is not allowed", function () {
-    // Negative test case, when the insecure repository is disabled the analysis on a http repo should fail
+      application.create();
+      applicationsList.push(application);
+      cy.wait("@getApplication");
+      application.manageCredentials(source_credential.name);
+      application.analyze();
+      application.verifyAnalysisStatus("Completed");
+      application.openReport();
+    });
 
-    gitConfiguration.disableInsecureGitRepositories();
+    it("Analysis on insecure git Repository(http) for tackle test app when insecure repository is not allowed", function () {
+      // Negative test case, when the insecure repository is disabled the analysis on a http repo should fail
 
-    // For tackle test app source credentials are required.
-    const application = new Analysis(
-      getRandomApplicationData("Insecure_disabled_tackle_test_app", {
-        sourceData: this.appData["tackle-testapp"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
-    );
+      gitConfiguration.disableInsecureGitRepositories();
 
-    application.create();
-    applicationsList.push(application);
-    cy.wait("@getApplication");
-    application.manageCredentials(source_credential.name);
-    application.analyze();
-    application.verifyAnalysisStatus("Failed");
-    application.openAnalysisDetails();
-  });
+      // For tackle test app source credentials are required.
+      const application = new Analysis(
+        getRandomApplicationData("Insecure_disabled_tackle_test_app", {
+          sourceData: this.appData["tackle-testapp"],
+        }),
+        getRandomAnalysisData(
+          this.analysisData["source_analysis_on_bookserverapp"]
+        )
+      );
 
-  after("Perform test data clean up", () => {
-    deleteByList(applicationsList);
-    source_credential.delete();
-    writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
-  });
-});
+      application.create();
+      applicationsList.push(application);
+      cy.wait("@getApplication");
+      application.manageCredentials(source_credential.name);
+      application.analyze();
+      application.verifyAnalysisStatus("Failed");
+      application.openAnalysisDetails();
+    });
+
+    after("Perform test data clean up", () => {
+      deleteByList(applicationsList);
+      source_credential.delete();
+      writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
+    });
+  }
+);

@@ -35,7 +35,7 @@ import {
 } from "../../types/constants";
 import { RulesRepositoryFields } from "../../types/types";
 
-describe(["@tier2"], "Custom Rules RBAC operations", function () {
+describe(["@tier2", "@tier2_B"], "Custom Rules RBAC operations", function () {
   // Polarion TC 318
 
   /**

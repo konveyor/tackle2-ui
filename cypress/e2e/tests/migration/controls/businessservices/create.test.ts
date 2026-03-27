@@ -43,7 +43,7 @@ import {
 import * as commonView from "../../../../views/common.view";
 import { stakeHoldersTable } from "../../../../views/stakeholders.view";
 
-describe(["@tier2"], "Business service validations", () => {
+describe(["@tier2", "@tier2_B"], "Business service validations", () => {
   it("Business service field validations", function () {
     BusinessServices.openList();
     clickByText(button, createNewButton);
