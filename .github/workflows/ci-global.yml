@@ -74,11 +74,24 @@ jobs:
           echo "Using \`ui_tests_ref=$REF\`" >> "$GITHUB_STEP_SUMMARY"
 
   run-global-ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        test_tags:
+          - "@tier0"
+          - "@ci,@tier2_A"
+          - "@tier2_B"
+          - "@tier3_A"
+          - "@tier3_B"
+          - "@tier3_C"
+          - "@tier3_D"
+          - "@tier3_E"
+          - "@tier3_F"
     needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       run_api_tests: false
       run_ui_tests: true
-      ui_test_tags: "@ci"
+      ui_test_tags: ${{ matrix.test_tags }}
       ui_tests_ref: ${{ needs.determine-ui-tests-ref.outputs.ui_tests_ref }}

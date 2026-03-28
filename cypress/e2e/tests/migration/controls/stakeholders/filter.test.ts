@@ -48,7 +48,7 @@ let jobFunctionsList: Array<Jobfunctions> = [];
 let stakeholderGroupsList: Array<Stakeholdergroups> = [];
 const invalidSearchInput = "SomeInvalidInput";
 
-describe(["@tier3"], "Stakeholder filter validations", function () {
+describe(["@tier3", "@tier3_C"], "Stakeholder filter validations", function () {
   before("Login and Create Test Data", function () {
     login();
     cy.visit("/");

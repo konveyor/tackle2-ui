@@ -35,105 +35,113 @@ import {
 const jobFunctionsList: Array<Jobfunctions> = [];
 const stakeholderGroupList: Array<Stakeholdergroups> = [];
 
-describe(["@tier2", "@interop"], "Stakeholder CRUD operations", () => {
-  beforeEach("Interceptors", function () {
-    cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
-    cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
-    cy.intercept("DELETE", "/hub/stakeholder*/*").as("deleteStakeholder");
-  });
-
-  it("Stakeholder CRUD", function () {
-    const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
-    stakeholder.create();
-    cy.wait("@postStakeholder");
-    exists(stakeholder.email, stakeHoldersTable);
-
-    const updatedStakeholderName = data.getFullName();
-    stakeholder.edit({ name: updatedStakeholderName });
-    cy.wait("@getStakeholders");
-    exists(updatedStakeholderName, stakeHoldersTable);
-
-    stakeholder.delete();
-    cy.wait("@deleteStakeholder");
-    cy.wait("@getStakeholders");
-    notExists(stakeholder.email, stakeHoldersTable);
-  });
-
-  it("Stakeholder CRUD cancel", function () {
-    const initialStakeholderName = data.getFullName();
-    const stakeholder = new Stakeholders(
-      data.getEmail(),
-      initialStakeholderName
-    );
-    stakeholder.create(true);
-    notExists(stakeholder.email, stakeHoldersTable);
-
-    stakeholder.create();
-    cy.wait("@postStakeholder");
-    exists(stakeholder.email, stakeHoldersTable);
-
-    stakeholder.edit({}, true);
-    exists(initialStakeholderName, stakeHoldersTable);
-
-    stakeholder.delete(true);
-    exists(stakeholder.email, stakeHoldersTable);
-
-    stakeholder.delete();
-    cy.wait("@deleteStakeholder");
-    cy.wait("@getStakeholders");
-  });
-
-  it("Stakeholder CRUD operations with members (jobfunction and groups)", function () {
-    const stakeHolderGroupNameList: Array<string> = [];
-    for (let i = 0; i < 2; i++) {
-      const jobfunction = new Jobfunctions(data.getJobTitle());
-      jobfunction.create();
-      jobFunctionsList.push(jobfunction);
-
-      const stakeholderGroup = new Stakeholdergroups(
-        data.getCompanyName(),
-        data.getDescription()
-      );
-      stakeholderGroup.create();
-      stakeholderGroupList.push(stakeholderGroup);
-      stakeHolderGroupNameList.push(stakeholderGroup.name);
-    }
-
-    const stakeholder = new Stakeholders(
-      data.getEmail(),
-      data.getFullName(),
-      jobFunctionsList[0].name,
-      [stakeHolderGroupNameList[0]]
-    );
-
-    stakeholder.create();
-    cy.wait("@postStakeholder");
-    exists(stakeholder.email, stakeHoldersTable);
-
-    stakeholder.edit({
-      name: data.getFullName(),
-      jobfunction: jobFunctionsList[1].name,
-      groups: stakeHolderGroupNameList,
+describe(
+  ["@tier2", "@tier2_B", "@interop"],
+  "Stakeholder CRUD operations",
+  () => {
+    beforeEach("Interceptors", function () {
+      cy.intercept("POST", "/hub/stakeholder*").as("postStakeholder");
+      cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
+      cy.intercept("DELETE", "/hub/stakeholder*/*").as("deleteStakeholder");
     });
-    cy.wait("@postStakeholder");
-    cy.wait("@getStakeholders");
 
-    expandRowDetails(stakeholder.email);
-    existsWithinRow(stakeholder.email, "div > dd", stakeHolderGroupNameList[1]);
-    closeRowDetails(stakeholder.email);
-    cy.get(tdTag)
-      .contains(stakeholder.email)
-      .siblings(groupsCount)
-      .should("contain", "1");
+    it("Stakeholder CRUD", function () {
+      const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
+      stakeholder.create();
+      cy.wait("@postStakeholder");
+      exists(stakeholder.email, stakeHoldersTable);
 
-    stakeholder.delete();
-    cy.wait("@deleteStakeholder");
-    cy.wait("@getStakeholders");
-    notExists(stakeholder.email, stakeHoldersTable);
-  });
+      const updatedStakeholderName = data.getFullName();
+      stakeholder.edit({ name: updatedStakeholderName });
+      cy.wait("@getStakeholders");
+      exists(updatedStakeholderName, stakeHoldersTable);
 
-  after("Perform test data clean up", function () {
-    deleteByList(jobFunctionsList);
-    deleteByList(stakeholderGroupList);
-  });
-});
+      stakeholder.delete();
+      cy.wait("@deleteStakeholder");
+      cy.wait("@getStakeholders");
+      notExists(stakeholder.email, stakeHoldersTable);
+    });
+
+    it("Stakeholder CRUD cancel", function () {
+      const initialStakeholderName = data.getFullName();
+      const stakeholder = new Stakeholders(
+        data.getEmail(),
+        initialStakeholderName
+      );
+      stakeholder.create(true);
+      notExists(stakeholder.email, stakeHoldersTable);
+
+      stakeholder.create();
+      cy.wait("@postStakeholder");
+      exists(stakeholder.email, stakeHoldersTable);
+
+      stakeholder.edit({}, true);
+      exists(initialStakeholderName, stakeHoldersTable);
+
+      stakeholder.delete(true);
+      exists(stakeholder.email, stakeHoldersTable);
+
+      stakeholder.delete();
+      cy.wait("@deleteStakeholder");
+      cy.wait("@getStakeholders");
+    });
+
+    it("Stakeholder CRUD operations with members (jobfunction and groups)", function () {
+      const stakeHolderGroupNameList: Array<string> = [];
+      for (let i = 0; i < 2; i++) {
+        const jobfunction = new Jobfunctions(data.getJobTitle());
+        jobfunction.create();
+        jobFunctionsList.push(jobfunction);
+
+        const stakeholderGroup = new Stakeholdergroups(
+          data.getCompanyName(),
+          data.getDescription()
+        );
+        stakeholderGroup.create();
+        stakeholderGroupList.push(stakeholderGroup);
+        stakeHolderGroupNameList.push(stakeholderGroup.name);
+      }
+
+      const stakeholder = new Stakeholders(
+        data.getEmail(),
+        data.getFullName(),
+        jobFunctionsList[0].name,
+        [stakeHolderGroupNameList[0]]
+      );
+
+      stakeholder.create();
+      cy.wait("@postStakeholder");
+      exists(stakeholder.email, stakeHoldersTable);
+
+      stakeholder.edit({
+        name: data.getFullName(),
+        jobfunction: jobFunctionsList[1].name,
+        groups: stakeHolderGroupNameList,
+      });
+      cy.wait("@postStakeholder");
+      cy.wait("@getStakeholders");
+
+      expandRowDetails(stakeholder.email);
+      existsWithinRow(
+        stakeholder.email,
+        "div > dd",
+        stakeHolderGroupNameList[1]
+      );
+      closeRowDetails(stakeholder.email);
+      cy.get(tdTag)
+        .contains(stakeholder.email)
+        .siblings(groupsCount)
+        .should("contain", "1");
+
+      stakeholder.delete();
+      cy.wait("@deleteStakeholder");
+      cy.wait("@getStakeholders");
+      notExists(stakeholder.email, stakeHoldersTable);
+    });
+
+    after("Perform test data clean up", function () {
+      deleteByList(jobFunctionsList);
+      deleteByList(stakeholderGroupList);
+    });
+  }
+);

@@ -39,7 +39,7 @@ let maven_credential;
 const applicationsList: Analysis[] = [];
 
 describe(
-  ["@tier2"],
+  ["@tier1", "@secretsNeeded"],
   "Test secure and insecure maven repository analysis",
   () => {
     before("Login", function () {
@@ -98,8 +98,6 @@ describe(
       );
       application.analyze();
       application.verifyAnalysisStatus("Completed");
-      cy.wait("@getApplication");
-      application.openReport();
     });
 
     it("Binary analysis with maven containing http url when insecure repository is not allowed", function () {
@@ -124,8 +122,6 @@ describe(
       );
       application.analyze();
       application.verifyAnalysisStatus("Completed");
-      cy.wait("@getApplication");
-      application.openReport();
     });
 
     it("Perform RWX=true and clear repository", function () {

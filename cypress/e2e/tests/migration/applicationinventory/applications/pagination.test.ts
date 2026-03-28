@@ -28,7 +28,7 @@ import { Application } from "../../../../models/migration/applicationinventory/a
 let applicationsList: Array<Application> = [];
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_C"],
   "Application inventory pagination validations",
   function () {
     before("Login and Create Test Data", function () {

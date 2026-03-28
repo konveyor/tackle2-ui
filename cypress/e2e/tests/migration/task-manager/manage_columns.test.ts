@@ -29,7 +29,7 @@ import { tableHead } from "../../../views/common.view";
 import { TaskManagerTableHeaders } from "../../../views/taskmanager.view";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_A"],
   "Task manager - table column management validation",
   function () {
     const taskManagerDefaultColumns = Object.values(

@@ -31,7 +31,7 @@ import { ManageImports } from "../../../../models/migration/applicationinventory
 const imports = new ManageImports();
 const filePath = "app_import/csv/";
 
-describe(["@tier3"], "Application import operations", () => {
+describe(["@tier3", "@tier3_B"], "Application import operations", () => {
   before("Login and create test data", function () {
     login();
     cy.visit("/");
@@ -89,7 +89,7 @@ describe(["@tier3"], "Application import operations", () => {
     ManageImports.open();
     imports.verifyAppImport(fileName, "Completed", 2, "-");
 
-    // Automate bug MTA-4257, Polarion TC MTA-609
+    // Automate Polarion TC MTA-609
     const fileName2 = "lantik_bug.csv";
     importApplication(filePath + fileName2, true);
     ManageImports.open();

@@ -29,61 +29,65 @@ import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../models/migration/task-manager/task-manager";
 import { TaskStatus } from "../../types/constants";
 
-describe(["@tier3"], "Cancel task created by another user", function () {
-  const userMigrator = new UserMigrator(getRandomUserData());
-  const userArchitect = new UserArchitect(getRandomUserData());
-  const applicationsList: Array<Analysis> = [];
+describe(
+  ["@tier3", "@tier3_A"],
+  "Cancel task created by another user",
+  function () {
+    const userMigrator = new UserMigrator(getRandomUserData());
+    const userArchitect = new UserArchitect(getRandomUserData());
+    const applicationsList: Array<Analysis> = [];
 
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    deleteApplicationTableRows();
-    cy.fixture("application").then((appData) => {
-      cy.fixture("analysis").then((analysisData) => {
-        for (let i = 0; i < 3; i++) {
-          const bookServerApp = new Analysis(
-            getRandomApplicationData("bookserverApp", {
-              sourceData: appData["bookserver-app"],
-            }),
-            getRandomAnalysisData(
-              analysisData["source_analysis_on_bookserverapp"]
-            )
-          );
-          applicationsList.push(bookServerApp);
-        }
-        applicationsList.forEach((application) => application.create());
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      deleteApplicationTableRows();
+      cy.fixture("application").then((appData) => {
+        cy.fixture("analysis").then((analysisData) => {
+          for (let i = 0; i < 3; i++) {
+            const bookServerApp = new Analysis(
+              getRandomApplicationData("bookserverApp", {
+                sourceData: appData["bookserver-app"],
+              }),
+              getRandomAnalysisData(
+                analysisData["source_analysis_on_bookserverapp"]
+              )
+            );
+            applicationsList.push(bookServerApp);
+          }
+          applicationsList.forEach((application) => application.create());
+        });
+      });
+
+      // Creating RBAC users
+      User.loginKeycloakAdmin();
+      userMigrator.create();
+      userArchitect.create();
+    });
+
+    beforeEach("Load data", function () {
+      cy.fixture("application").then(function (appData) {
+        this.appData = appData;
+      });
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
       });
     });
 
-    // Creating RBAC users
-    User.loginKeycloakAdmin();
-    userMigrator.create();
-    userArchitect.create();
-  });
+    it("Run analysis by architect and cancel by admin user - should be allowed", function () {
+      userArchitect.login();
+      applicationsList[2].analyze();
+      userArchitect.logout();
 
-  beforeEach("Load data", function () {
-    cy.fixture("application").then(function (appData) {
-      this.appData = appData;
+      login();
+      cy.visit("/");
+      TaskManager.cancelAnalysisByStatus(
+        applicationsList[2].name,
+        TaskStatus.running
+      );
     });
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
+
+    after("Perform test data clean up", function () {
+      deleteApplicationTableRows();
     });
-  });
-
-  it("Run analysis by architect and cancel by admin user - should be allowed", function () {
-    userArchitect.login();
-    applicationsList[2].analyze();
-    userArchitect.logout();
-
-    login();
-    cy.visit("/");
-    TaskManager.cancelAnalysisByStatus(
-      applicationsList[2].name,
-      TaskStatus.running
-    );
-  });
-
-  after("Perform test data clean up", function () {
-    deleteApplicationTableRows();
-  });
-});
+  }
+);

@@ -27,56 +27,60 @@ import { AnalysisProfile } from "../../models/migration/analysis-profiles/analys
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
 
-describe(["@tier3", "@rhsso", "@rhbk"], "Migrator RBAC operations", () => {
-  const userMigrator = new UserMigrator(getRandomUserData());
-  const application = new Application(getRandomApplicationData());
+describe(
+  ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
+  "Migrator RBAC operations",
+  () => {
+    const userMigrator = new UserMigrator(getRandomUserData());
+    const application = new Application(getRandomApplicationData());
 
-  before("Creating RBAC users, adding roles for them", () => {
-    login();
-    cy.visit("/");
+    before("Creating RBAC users, adding roles for them", () => {
+      login();
+      cy.visit("/");
 
-    application.create();
-    application.perform_review("low");
-    User.loginKeycloakAdmin();
-    userMigrator.create();
-  });
-
-  beforeEach("Persist session", function () {
-    cy.fixture("rbac").then(function (rbacRules) {
-      this.rbacRules = rbacRules["migrator"];
+      application.create();
+      application.perform_review("low");
+      User.loginKeycloakAdmin();
+      userMigrator.create();
     });
-    userMigrator.login();
-  });
 
-  it("Migrator, validate create application button", function () {
-    Application.validateCreateAppButton(this.rbacRules);
-  });
+    beforeEach("Persist session", function () {
+      cy.fixture("rbac").then(function (rbacRules) {
+        this.rbacRules = rbacRules["migrator"];
+      });
+      userMigrator.login();
+    });
 
-  it("Migrator, validate top action menu", function () {
-    Analysis.validateTopActionMenu(this.rbacRules);
-  });
+    it("Migrator, validate create application button", function () {
+      Application.validateCreateAppButton(this.rbacRules);
+    });
 
-  it("Migrator, validate analyze button", function () {
-    Analysis.validateAnalyzeButton(this.rbacRules);
-  });
+    it("Migrator, validate top action menu", function () {
+      Analysis.validateTopActionMenu(this.rbacRules);
+    });
 
-  it("Migrator, validate application context menu", function () {
-    application.validateAppContextMenu(this.rbacRules);
-  });
+    it("Migrator, validate analyze button", function () {
+      Analysis.validateAnalyzeButton(this.rbacRules);
+    });
 
-  it("Migrator, validate ability to upload binary", function () {
-    application.validateUploadBinary(this.rbacRules);
-  });
+    it("Migrator, validate application context menu", function () {
+      application.validateAppContextMenu(this.rbacRules);
+    });
 
-  it("Migrator, validate Analysis Profiles create button", function () {
-    AnalysisProfile.validateCreateButton(this.rbacRules);
-  });
+    it("Migrator, validate ability to upload binary", function () {
+      application.validateUploadBinary(this.rbacRules);
+    });
 
-  after("", () => {
-    login();
-    cy.visit("/");
-    deleteApplicationTableRows();
-    User.loginKeycloakAdmin();
-    userMigrator.delete();
-  });
-});
+    it("Migrator, validate Analysis Profiles create button", function () {
+      AnalysisProfile.validateCreateButton(this.rbacRules);
+    });
+
+    after("", () => {
+      login();
+      cy.visit("/");
+      deleteApplicationTableRows();
+      User.loginKeycloakAdmin();
+      userMigrator.delete();
+    });
+  }
+);

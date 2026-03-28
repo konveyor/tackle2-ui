@@ -23,7 +23,7 @@ import { checkSuccessAlert, exists, notExists } from "../../../../utils/utils";
 import { AssetGenerator } from "../../../models/administration/asset-generators/asset-generator";
 import { successAlertMessage } from "../../../views/common.view";
 
-describe(["@tier2"], "CRUD operations on Asset Generators", () => {
+describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
   before("Load fixture data", function () {
     cy.fixture("generator").then((generatorFixture) => {
       this.generatorFixture = generatorFixture;

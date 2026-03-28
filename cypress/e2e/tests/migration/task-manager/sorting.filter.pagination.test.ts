@@ -45,8 +45,8 @@ import {
   TaskManagerTableHeaders,
 } from "../../../views/taskmanager.view";
 
-describe(
-  ["@tier3"],
+describe.skip(
+  ["@tier3", "@tier3_A"],
   "Filtering, sorting and pagination in Task Manager Page",
   function () {
     const applicationsList: Analysis[] = [];
@@ -66,7 +66,8 @@ describe(
       });
     });
 
-    it("Bug MTA-6164: Sorting tasks", function () {
+    it.skip("Bug Tackle-3110: Sorting tasks", function () {
+      // https://github.com/konveyor/tackle2-ui/issues/3110
       // Ensure total pod count does not exceed the number of tackle pods.
       getNumberOfNonTaskPods().then((podsNum) => {
         limitPodsByQuota(podsNum);

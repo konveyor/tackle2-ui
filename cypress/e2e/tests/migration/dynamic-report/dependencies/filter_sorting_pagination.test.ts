@@ -63,7 +63,7 @@ let tags: Tag[];
 let tagNames: string[];
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_D"],
   "Filtering, sorting and pagination in Dependencies",
   () => {
     const sortByList = ["Dependency name", "Language", "Found in"];

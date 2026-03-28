@@ -27,27 +27,31 @@ import { MigrationWave } from "../../../models/migration/migration-waves/migrati
 
 let migrationWavesList: MigrationWave[] = [];
 
-describe(["@tier3"], "Migration Waves pagination validations", function () {
-  //Automates Polarion TC 357
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    migrationWavesList = createMultipleMigrationWaves(11);
-  });
+describe(
+  ["@tier3", "@tier3_D"],
+  "Migration Waves pagination validations",
+  function () {
+    //Automates Polarion TC 357
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      migrationWavesList = createMultipleMigrationWaves(11);
+    });
 
-  it("Navigation button validations", function () {
-    MigrationWave.open();
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      MigrationWave.open();
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    MigrationWave.open();
-    selectItemsPerPage(10);
-    itemsPerPageValidation();
-  });
+    it("Items per page validations", function () {
+      MigrationWave.open();
+      selectItemsPerPage(10);
+      itemsPerPageValidation();
+    });
 
-  after("Perform test data clean up", function () {
-    deleteByList(migrationWavesList);
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteByList(migrationWavesList);
+    });
+  }
+);

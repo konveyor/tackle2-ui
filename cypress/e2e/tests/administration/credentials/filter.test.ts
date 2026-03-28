@@ -33,7 +33,7 @@ import {
   UserCredentials,
 } from "../../../types/constants";
 
-describe(["@tier3"], "Credentials filter validations", function () {
+describe(["@tier3", "@tier3_A"], "Credentials filter validations", function () {
   const adminUserName = Cypress.env("user");
   let credentialsListByDefaultAdmin: Array<Credentials> = [];
   const invalidSearchInput = String(data.getRandomNumber());

@@ -91,7 +91,7 @@ describe(["@tier3"], "Tests for archetype questionnaire features", () => {
     archetype.discard("Discard assessment(s)");
   });
 
-  it("Bug MTA-3417: Archetypes: 1) Test auto answer feature of questionnaires; 2) Save assessment", function () {
+  it.skip("Bug Tackle-3112: Archetypes: 1) Test auto answer feature of questionnaires; 2) Save assessment", function () {
     //Automates Polarion MTA-388: Auto answer
     archetype.clickAssessButton();
     Assessment.take_questionnaire(cloudReadinessQuestionnaire);

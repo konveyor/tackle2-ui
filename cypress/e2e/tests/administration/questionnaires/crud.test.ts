@@ -15,7 +15,7 @@ const yamlFileName = "questionnaire_import/cloud-native.yaml";
 const importedQuestionnaire = "Cloud Native";
 const legacyQuestionnaire = "Legacy Pathfinder";
 
-describe(["@tier2"], "Questionnaire CRUD operations", () => {
+describe(["@tier2", "@tier2_B"], "Questionnaire CRUD operations", () => {
   before("Login", function () {
     login();
     cy.visit("/");

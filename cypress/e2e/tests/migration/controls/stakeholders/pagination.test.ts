@@ -27,39 +27,43 @@ import {
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { appTable } from "../../../../views/common.view";
 
-describe(["@tier3"], "Stakeholder pagination validations", function () {
-  before("Login and Create Test Data", function () {
-    login();
-    cy.visit("/");
-    createMultipleStakeholders(11);
-  });
+describe(
+  ["@tier3", "@tier3_C"],
+  "Stakeholder pagination validations",
+  function () {
+    before("Login and Create Test Data", function () {
+      login();
+      cy.visit("/");
+      createMultipleStakeholders(11);
+    });
 
-  beforeEach("Interceptors", function () {
-    cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
-  });
+    beforeEach("Interceptors", function () {
+      cy.intercept("GET", "/hub/stakeholder*").as("getStakeholders");
+    });
 
-  it("Navigation button validations", function () {
-    Stakeholders.openList();
-    cy.get("@getStakeholders");
-    selectItemsPerPage(10);
-    validatePagination();
-  });
+    it("Navigation button validations", function () {
+      Stakeholders.openList();
+      cy.get("@getStakeholders");
+      selectItemsPerPage(10);
+      validatePagination();
+    });
 
-  it("Items per page validations", function () {
-    Stakeholders.openList();
-    cy.get("@getStakeholders");
-    selectItemsPerPage(10);
-    itemsPerPageValidation(appTable, "Email");
-  });
+    it("Items per page validations", function () {
+      Stakeholders.openList();
+      cy.get("@getStakeholders");
+      selectItemsPerPage(10);
+      itemsPerPageValidation(appTable, "Email");
+    });
 
-  it("Last page item(s) deletion, impact on page reload validation", function () {
-    Stakeholders.openList();
-    cy.get("@getStakeholders");
-    selectItemsPerPage(10);
-    autoPageChangeValidations("Email");
-  });
+    it("Last page item(s) deletion, impact on page reload validation", function () {
+      Stakeholders.openList();
+      cy.get("@getStakeholders");
+      selectItemsPerPage(10);
+      autoPageChangeValidations("Email");
+    });
 
-  after("Perform test data clean up", function () {
-    deleteAllRows();
-  });
-});
+    after("Perform test data clean up", function () {
+      deleteAllRows();
+    });
+  }
+);
