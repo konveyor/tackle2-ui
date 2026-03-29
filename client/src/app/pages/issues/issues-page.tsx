@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { useLocation, useMatch, useNavigate } from "react-router-dom";
 import {
   ButtonVariant,
   PageSection,
@@ -39,9 +39,9 @@ export type IssuesTabPath =
 export const Issues: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const history = useHistory();
-  const singleAppTabMatch = useRouteMatch(Paths.issuesSingleAppTab);
-  const singleAppSelectedMatch = useRouteMatch(Paths.issuesSingleAppSelected);
+  const navigate = useNavigate();
+  const singleAppTabMatch = useMatch(Paths.issuesSingleAppTab);
+  const singleAppSelectedMatch = useMatch(Paths.issuesSingleAppSelected);
 
   const activeTabPath =
     singleAppTabMatch || singleAppSelectedMatch
@@ -73,7 +73,7 @@ export const Issues: React.FC = () => {
             if (pageHasFilters) {
               setNavConfirmPath(tabPath as IssuesTabPath);
             } else {
-              history.push(tabPath as IssuesTabPath);
+              navigate(tabPath as IssuesTabPath);
             }
           }}
         >
@@ -138,7 +138,7 @@ export const Issues: React.FC = () => {
         cancelBtnLabel="Cancel"
         confirmBtnVariant={ButtonVariant.primary}
         onConfirm={() => {
-          history.push(navConfirmPath!);
+          navigate(navConfirmPath!);
           setNavConfirmPath(null);
         }}
         onCancel={() => setNavConfirmPath(null)}

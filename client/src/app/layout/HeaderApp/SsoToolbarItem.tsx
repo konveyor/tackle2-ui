@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as React from "react";
 import { useKeycloak } from "@react-keycloak/web";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Dropdown,
   DropdownGroup,
@@ -22,7 +22,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
   const { t } = useTranslation();
 
   const { keycloak } = useKeycloak();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const onDropdownSelect = () => {
@@ -70,11 +70,11 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
                   keycloak
                     .logout()
                     .then(() => {
-                      history.push("/");
+                      navigate("/");
                     })
                     .catch((err) => {
                       console.error("Logout failed:", err);
-                      history.push("/");
+                      navigate("/");
                     });
                 }
               }}
