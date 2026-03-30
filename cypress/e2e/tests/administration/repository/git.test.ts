@@ -33,7 +33,7 @@ let source_credential: CredentialsSourceControlUsername;
 const applicationsList: Analysis[] = [];
 
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier1", "@secretsNeeded"],
   "Test secure and insecure git repository analysis",
   () => {
     before("Login", function () {

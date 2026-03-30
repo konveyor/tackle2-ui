@@ -668,6 +668,152 @@ esac
 # Clean up manifest file
 rm -f "$manifest_file" "${tmp}"
 
+#
+# Create tackle-testapp with custom rule insights for custom_rules.test.ts
+#
+app_name="tackleTestApp_CustomRule"
+
+echo ""
+echo "Creating application: $app_name"
+
+app_response=$(curl -kSs -X POST \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"${app_name}\",\"description\":\"Tackle-testapp for custom rules test\",\"repository\":{\"kind\":\"git\",\"url\":\"https://github.com/konveyor/tackle-testapp\"}}" \
+  "${host}/applications")
+
+app_id=$(echo $app_response | jq -r '.id')
+
+if [[ -z "$app_id" || "$app_id" == "null" ]]; then
+  echo "ERROR: Failed to create application $app_name"
+  echo "Response: $app_response"
+  exit 1
+fi
+
+app_ids+=($app_id)
+echo "Created application: $app_name (ID: $app_id)"
+
+# Create custom rule insights manifest (no need to upload custom rule separately - we seed the data directly)
+manifest_file="/tmp/custom_rule_insights_manifest.yaml"
+printf '\x1DBEGIN-MAIN\x1D\n' > "$manifest_file"
+cat >> "$manifest_file" << 'EOF'
+---
+commit: "1234"
+EOF
+printf '\x1DEND-MAIN\x1D\n\x1DBEGIN-INSIGHTS\x1D\n' >> "$manifest_file"
+cat >> "$manifest_file" << 'EOF'
+---
+ruleset: files
+rule: discover-properties-file-TC0
+name: Properties file (Insights TC0)
+description: Properties file (Insights TC0)
+category:
+effort: 0
+labels:
+- konveyor.io/target=custom-rule-tc0
+- konveyor.io/include=always
+- tag=Properties File (Insights TC0)
+incidents:
+- file: /src/main/resources/application.properties
+  line: 1
+---
+ruleset: files
+rule: discover-properties-file-TC1
+name: Properties file (Insights TC1)
+description: Properties file (Insights TC1)
+category:
+effort: 0
+labels:
+- konveyor.io/target=custom-rule-tc1
+- konveyor.io/include=always
+- tag=Properties File (Insights TC1)
+incidents:
+- file: /src/main/resources/application.properties
+  message: Found properties file
+  line: 1
+---
+ruleset: files
+rule: discover-properties-file-TC2
+name: Properties file (Insights TC2)
+description: Properties file (Insights TC2)
+category:
+effort: 0
+labels:
+- konveyor.io/target=custom-rule-tc2
+- konveyor.io/include=always
+incidents:
+- file: /src/main/resources/application.properties
+  message: Found properties file
+  line: 1
+---
+ruleset: files
+rule: discover-properties-file-TC3
+name: Properties file (Insights TC3)
+description: Properties file (Insights TC3)
+category: potential
+effort: 1
+labels:
+- konveyor.io/target=custom-rule-tc3
+- konveyor.io/include=always
+- tag=Properties File (Insights TC3)
+incidents:
+- file: /src/main/resources/application.properties
+  message: Found properties file, Insight must not be created
+  line: 1
+EOF
+printf '\x1DEND-INSIGHTS\x1D\n\x1DBEGIN-DEPS\x1D\n\x1DEND-DEPS\x1D\n\x1DBEGIN-TAGS\x1D\n\x1DEND-TAGS\x1D\n' >> "$manifest_file"
+
+# Upload analysis manifest
+echo "Uploading analysis for $app_name..."
+tmp="/tmp/analysis-response-customrule.json"
+code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -F "file=@${manifest_file};type=application/x-yaml" \
+  -H 'Accept:application/json' \
+  "${host}/applications/${app_id}/analyses")
+
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to upload analysis for $app_name"
+  exit 1
+fi
+
+case ${code} in
+  201)
+    echo "Analysis created for $app_name"
+
+    # Extract task ID from the response
+    taskId=$(cat ${tmp} | jq -r '.tasks[0].id // empty')
+
+    if [[ -n "$taskId" && "$taskId" != "null" ]]; then
+      echo "Updating task ${taskId} to Succeeded state..."
+
+      # Update task state to Succeeded
+      update_code=$(curl -kSs -o /dev/null -w "%{http_code}" \
+        -X PUT \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d '{"state":"Succeeded"}' \
+        "${host}/tasks/${taskId}")
+
+      if [[ "$update_code" == "200" || "$update_code" == "204" ]]; then
+        echo "Task state updated to Succeeded."
+      else
+        echo "WARNING: Failed to update task state (HTTP ${update_code})."
+      fi
+    else
+      echo "WARNING: No task ID found in response, skipping task state update."
+    fi
+    ;;
+  *)
+    echo "ERROR: Analysis creation failed with code ${code}"
+    cat ${tmp}
+    exit 1
+    ;;
+esac
+
+# Clean up manifest file
+rm -f "$manifest_file" "${tmp}"
+
 echo ""
 echo "================================================================"
 echo "Insights seeding completed successfully!"
@@ -678,4 +824,5 @@ echo "Applications created:"
 echo "  - InsightsFilteringApp1_0"
 echo "  - InsightsFilteringApp1_1"
 echo "  - InsightsFilteringApp2_0"
+echo "  - tackleTestApp_CustomRule"
 echo ""

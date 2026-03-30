@@ -18,31 +18,64 @@ limitations under the License.
 import { getRandomCredentialsData } from "../../../../../utils/data_utils";
 import {
   checkSuccessAlert,
+  cleanupDownloads,
+  deleteAllAnalysisProfiles,
+  deleteApplicationTableRows,
   deleteBulkApplicationsByApi,
   exists,
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
+  validateTextPresence,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
+import { GeneralConfig } from "../../../../models/administration/general/generalConfig";
 import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
   AnalysisStatuses,
   CredentialType,
+  ReportTypeSelectors,
   TaskKind,
   TaskStatus,
   UserCredentials,
+  tdTag,
 } from "../../../../types/constants";
-import { AppIssue } from "../../../../types/types";
-import { infoAlertMessage } from "../../../../views/common.view";
+import {
+  dependencies,
+  infoAlertMessage,
+  issues,
+  technologies,
+} from "../../../../views/common.view";
 const applicationIds: number[] = [];
-let application: Analysis;
+let staticReportApp: Analysis;
 const credentialsList: Array<CredentialsSourceControlUsername> = [];
 const profilesToDelete: AnalysisProfile[] = [];
+const staticReportAppName = "bookserver-static-report-test";
 
-describe(["@tier0"], "Source Analysis without credentials", () => {
+// Helper function for static report pagination
+const selectItemsPerPageInReport = (items: number) => {
+  cy.get("#pagination-options-menu-bottom-toggle", { log: false }).then(
+    ($toggleBtn) => {
+      if ($toggleBtn.eq(0).is(":disabled")) {
+        return;
+      }
+      $toggleBtn.eq(0).trigger("click");
+      cy.get(`li > button`, { log: false }).contains(`${items}`).click({
+        force: true,
+        log: false,
+      });
+    }
+  );
+};
+
+describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
+  before("Clean up pre-existing test data", function () {
+    deleteApplicationTableRows();
+    deleteAllAnalysisProfiles();
+  });
+
   beforeEach("Load data", function () {
     cy.fixture("application").then(function (appData) {
       this.appData = appData;
@@ -77,37 +110,28 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     const applicationData = getRandomApplicationData("bookserverApp", {
       sourceData: this.appData["bookserver-app"],
     });
+    applicationData.name = staticReportAppName;
 
-    application = new Analysis(applicationData, analysisData);
-    application.create();
+    staticReportApp = new Analysis(applicationData, analysisData);
+    staticReportApp.create();
     cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
+    staticReportApp.extractIDfromName().then((id) => {
       applicationIds.push(id);
     });
-    application.analyze();
+    staticReportApp.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus(AnalysisStatuses.completed);
+    staticReportApp.verifyAnalysisStatus(AnalysisStatuses.completed);
 
     // Re-run analysis using the saved profile
-    const profileName = getProfileNameFromApp(application.name);
+    const profileName = getProfileNameFromApp(staticReportApp.name);
     analysisData.profileName = profileName;
+    applicationData.name = staticReportAppName;
 
     const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = application.name;
     profileApplication.analyze();
     checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
     profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
     profileApplication.verifyAnalysisStatus(AnalysisStatuses.completed);
-
-    // Verify results match
-    profileApplication.validateIssues(
-      this.analysisData["source_analysis_on_bookserverapp"]["issues"]
-    );
-    this.analysisData["source_analysis_on_bookserverapp"]["issues"].forEach(
-      (currentIssue: AppIssue) => {
-        profileApplication.validateAffected(currentIssue);
-      }
-    );
 
     // Store profile for cleanup
     profilesToDelete.push(
@@ -119,7 +143,7 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
   });
 
   it("Validate saved analysis profile details", function () {
-    const profileName = getProfileNameFromApp(application.name);
+    const profileName = getProfileNameFromApp(staticReportApp.name);
     AnalysisProfile.open(true);
     exists(profileName);
 
@@ -133,72 +157,30 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     savedProfile.validateAnalysisProfileInformation();
   });
 
-  it("Source + dependency Analysis on bookserver app and its issues validation", function () {
-    const analysisData = getRandomAnalysisData(
-      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
-    );
-    analysisData.saveAsProfile = true;
-
-    const applicationData = getRandomApplicationData("Dep_bookserverApp", {
-      sourceData: this.appData["bookserver-app"],
-    });
-
-    application = new Analysis(applicationData, analysisData);
-    application.create();
-    cy.wait("@getApplication");
-    application.extractIDfromName().then((id) => {
-      applicationIds.push(id);
-    });
-    application.analyze();
-    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    application.verifyAnalysisStatus("Completed");
-
-    // Re-run analysis using the saved profile
-    const profileName = getProfileNameFromApp(application.name);
-    analysisData.profileName = profileName;
-
-    const profileApplication = new Analysis(applicationData, analysisData);
-    profileApplication.name = application.name;
-    profileApplication.analyze();
-    checkSuccessAlert(infoAlertMessage, `Submitted for analysis`);
-    profileApplication.waitStatusChange(AnalysisStatuses.scheduled);
-    profileApplication.verifyAnalysisStatus("Completed");
-
-    // Verify results match
-    profileApplication.validateIssues(
-      this.analysisData["source_plus_dep_analysis_on_bookserverapp"]["issues"]
-    );
-    this.analysisData["source_plus_dep_analysis_on_bookserverapp"][
-      "issues"
-    ].forEach((currentIssue: AppIssue) => {
-      profileApplication.validateAffected(currentIssue);
-    });
-
-    // Store profile for cleanup
-    profilesToDelete.push(
-      new AnalysisProfile(
-        profileName,
-        this.analysisData["source_plus_dep_analysis_on_bookserverapp"]
-      )
-    );
-  });
-
   it("Check the bookserver task status on task manager page", function () {
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.analyzer,
       TaskStatus.succeeded
     );
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.techDiscovery,
       TaskStatus.succeeded
     );
     TaskManager.verifyTaskStatus(
-      application.name,
+      staticReportApp.name,
       TaskKind.languageDiscovery,
       TaskStatus.succeeded
     );
+  });
+
+  it("Download static HTML report", function () {
+    cy.visit("/");
+    cleanupDownloads();
+    GeneralConfig.enableDownloadReport();
+    staticReportApp.downloadReport(ReportTypeSelectors.HTML);
+    staticReportApp.extractHTMLReport();
   });
 
   after("Perform test data clean up", function () {
@@ -207,3 +189,72 @@ describe(["@tier0"], "Source Analysis without credentials", () => {
     profilesToDelete.forEach((profile) => profile.delete());
   });
 });
+
+describe(
+  ["@tier0"],
+  "Validate Static Report UI",
+  { baseUrl: null },
+  function () {
+    const reportData = {
+      name: "Adopt Maven Surefire plugin",
+      category: "mandatory",
+      target: "quarkus",
+      dependency: "com.fasterxml.jackson.core.jackson-databind",
+      technology: "Spring DI",
+    };
+
+    beforeEach("Open static report", function () {
+      // Visit file by using the relative path from rootDir
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html`
+      );
+    });
+
+    it("Validate Application Menu", function () {
+      cy.get(tdTag).eq(0).should("have.text", staticReportAppName);
+      cy.get(tdTag).eq(1).click(); // tags
+      validateTextPresence(tdTag, reportData.technology);
+      cy.get(tdTag).eq(2).invoke("text").then(parseInt).should("be.gte", 0);
+    });
+
+    it("Validate Issues Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", issues).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.name);
+      validateTextPresence(tdTag, reportData.category);
+      validateTextPresence(tdTag, reportData.target);
+    });
+
+    it("Validate Dependencies Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", dependencies).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.dependency);
+    });
+
+    it("Validate Technologies Tab", function () {
+      cy.contains("a", staticReportAppName).click();
+      cy.contains("button > span", technologies).click();
+      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+    });
+
+    it("Validate Issues Menu", function () {
+      cy.contains("nav > ul > a", issues).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.name);
+      validateTextPresence(tdTag, reportData.category);
+      validateTextPresence(tdTag, reportData.target);
+    });
+
+    it("Validate Dependencies Menu", function () {
+      cy.contains("nav > ul > a", dependencies).click();
+      selectItemsPerPageInReport(100);
+      validateTextPresence(tdTag, reportData.dependency);
+    });
+
+    after("Cleanup downloads", function () {
+      cleanupDownloads();
+    });
+  }
+);

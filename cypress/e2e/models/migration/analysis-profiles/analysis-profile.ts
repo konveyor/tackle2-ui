@@ -387,4 +387,26 @@ export class AnalysisProfile {
       }
     });
   }
+
+  /** Delete all analysis profiles via the API. */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/analysis/profiles",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((profile: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/analysis/profiles/${profile.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
 }
