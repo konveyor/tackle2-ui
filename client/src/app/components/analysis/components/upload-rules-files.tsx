@@ -1,6 +1,12 @@
 import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Button, Modal } from "@patternfly/react-core";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "@patternfly/react-core";
 
 import { UploadFile } from "@app/api/models";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";
@@ -64,12 +70,33 @@ export const UploadRulesFiles: React.FC<UploadRulesFilesProps> = ({
     fields.length === 0 || !fields.every(({ status }) => status === "uploaded");
 
   return (
-    <Modal
-      isOpen={show}
-      variant="medium"
-      title="Add rules"
-      onClose={onCloseCancel}
-      actions={[
+    <Modal isOpen={show} variant="medium" onClose={onCloseCancel}>
+      <ModalHeader title="Add rules" />
+      <ModalBody>
+        <CustomRuleFilesUpload
+          taskgroupId={taskgroupId}
+          fileExists={doesFileAlreadyExist}
+          ruleFiles={fields}
+          onAddRuleFiles={(ruleFiles) => {
+            append(ruleFiles);
+          }}
+          onRemoveRuleFiles={(ruleFiles) => {
+            const indexesToRemove = filesToFieldsIndex(ruleFiles);
+            if (indexesToRemove.length > 0) {
+              remove(indexesToRemove);
+            }
+          }}
+          onChangeRuleFile={(ruleFile) => {
+            const index = fields.findIndex(
+              (f) => f.fileName === ruleFile.fileName
+            );
+            if (index >= 0) {
+              update(index, ruleFile);
+            }
+          }}
+        />
+      </ModalBody>
+      <ModalFooter>
         <Button
           key="add"
           variant="primary"
@@ -77,34 +104,11 @@ export const UploadRulesFiles: React.FC<UploadRulesFilesProps> = ({
           onClick={onAdd}
         >
           Add
-        </Button>,
+        </Button>
         <Button key="cancel" variant="link" onClick={onCloseCancel}>
           Cancel
-        </Button>,
-      ]}
-    >
-      <CustomRuleFilesUpload
-        taskgroupId={taskgroupId}
-        fileExists={doesFileAlreadyExist}
-        ruleFiles={fields}
-        onAddRuleFiles={(ruleFiles) => {
-          append(ruleFiles);
-        }}
-        onRemoveRuleFiles={(ruleFiles) => {
-          const indexesToRemove = filesToFieldsIndex(ruleFiles);
-          if (indexesToRemove.length > 0) {
-            remove(indexesToRemove);
-          }
-        }}
-        onChangeRuleFile={(ruleFile) => {
-          const index = fields.findIndex(
-            (f) => f.fileName === ruleFile.fileName
-          );
-          if (index >= 0) {
-            update(index, ruleFile);
-          }
-        }}
-      />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

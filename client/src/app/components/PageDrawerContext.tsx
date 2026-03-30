@@ -173,9 +173,11 @@ export const PageDrawerContent: React.FC<IPageDrawerContentProps> = ({
     setDrawerPanelContent(
       <>
         <DrawerHead>
-          <span tabIndex={isExpanded ? 0 : -1} ref={drawerFocusRef}>
-            {drawerHead}
-          </span>
+          <DrawerPanelBody>
+            <span tabIndex={isExpanded ? 0 : -1} ref={drawerFocusRef}>
+              {drawerHead}
+            </span>
+          </DrawerPanelBody>
           <DrawerActions>
             <DrawerCloseButton
               // We call onCloseClick here instead of setIsDrawerExpanded

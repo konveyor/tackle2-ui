@@ -44,10 +44,9 @@ export const TargetItem = React.forwardRef<HTMLDivElement, TargetItemProps>(
                 id={`target-${target.id}-drag-button`}
                 aria-label={`target ${target.name} drag button`}
                 variant={ButtonVariant.plain}
+                icon={<GripVerticalIcon />}
                 {...draggableProps}
-              >
-                <GripVerticalIcon />
-              </Button>
+              />
             )
           }
           onEdit={onEdit}

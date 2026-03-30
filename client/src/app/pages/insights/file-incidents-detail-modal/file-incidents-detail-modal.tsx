@@ -3,13 +3,15 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
+  Content,
   Grid,
   GridItem,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Tab,
   Tabs,
-  Text,
-  TextContent,
   Truncate,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -65,87 +67,89 @@ export const FileIncidentsDetailModal: React.FC<
 
   return (
     <Modal
-      title={fileReport.file}
       variant="large"
       isOpen
       onClose={onClose}
-      actions={[
+    >
+      <ModalHeader title={fileReport.file} />
+      <ModalBody>
+        {isLoadingState ? (
+          <AppPlaceholder />
+        ) : fetchError ? (
+          <StateError />
+        ) : firstFiveIncidents.length === 0 ? (
+          <NoDataEmptyState
+            title={t("composed.noDataStateTitle", {
+              what: t("terms.incidents"),
+            })}
+          />
+        ) : (
+          <Tabs
+            activeKey={activeTabIncidentId}
+            onSelect={(_event, tabKey) =>
+              setActiveTabIncidentId(tabKey as IncidentIdOrAll)
+            }
+          >
+            {[
+              firstFiveIncidents.map((incident, index) => (
+                <Tab
+                  key={incident.id}
+                  eventKey={incident.id}
+                  title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
+                >
+                  {/* Only mount CodeEditor and ReactMarkdown for the active tab for perf reasons */}
+                  {activeTabIncidentId === incident.id ? (
+                    <Grid hasGutter className={spacing.mtLg}>
+                      <GridItem span={6}>
+                        <IncidentCodeSnipViewer
+                          key={incident.id}
+                          markerMessage={insightTitle}
+                          incident={incident}
+                        />
+                      </GridItem>
+                      <GridItem span={6} className={spacing.plSm}>
+                        <Content>
+                          <Content component="h2">
+                            <Truncate content={insightTitle} />
+                          </Content>
+                          <Content component="small">Line {incident.line}</Content>
+                        </Content>
+                        <InsightDescriptionAndLinks
+                          className={spacing.mtLg}
+                          description={incident.message}
+                          links={insight.links}
+                        />
+                      </GridItem>
+                    </Grid>
+                  ) : null}
+                </Tab>
+              )),
+              totalNumIncidents > 5 && [
+                <Tab
+                  key="all"
+                  eventKey="all"
+                  title={`All incidents (${totalNumIncidents})`} // TODO i18n
+                >
+                  <Alert
+                    isInline
+                    variant="info"
+                    className={spacing.mtMd}
+                    title="Highlights available for the first 5 incidents per file to enhance system performance." // TODO i18n
+                  />
+                  <FileAllIncidentsTable fileReport={fileReport} />
+                </Tab>,
+              ],
+            ]
+              .flat(1)
+              .filter(Boolean)}
+          </Tabs>
+        )}
+      </ModalBody>
+      <ModalFooter>
         <Button key="close" variant="primary" onClick={onClose}>
           Close
-        </Button>,
-      ]}
-    >
-      {isLoadingState ? (
-        <AppPlaceholder />
-      ) : fetchError ? (
-        <StateError />
-      ) : firstFiveIncidents.length === 0 ? (
-        <NoDataEmptyState
-          title={t("composed.noDataStateTitle", {
-            what: t("terms.incidents"),
-          })}
-        />
-      ) : (
-        <Tabs
-          activeKey={activeTabIncidentId}
-          onSelect={(_event, tabKey) =>
-            setActiveTabIncidentId(tabKey as IncidentIdOrAll)
-          }
-        >
-          {[
-            firstFiveIncidents.map((incident, index) => (
-              <Tab
-                key={incident.id}
-                eventKey={incident.id}
-                title={`Incident #${index + 1}: Line ${incident.line}`} // TODO i18n
-              >
-                {/* Only mount CodeEditor and ReactMarkdown for the active tab for perf reasons */}
-                {activeTabIncidentId === incident.id ? (
-                  <Grid hasGutter className={spacing.mtLg}>
-                    <GridItem span={6}>
-                      <IncidentCodeSnipViewer
-                        key={incident.id}
-                        markerMessage={insightTitle}
-                        incident={incident}
-                      />
-                    </GridItem>
-                    <GridItem span={6} className={spacing.plSm}>
-                      <TextContent>
-                        <Text component="h2">
-                          <Truncate content={insightTitle} />
-                        </Text>
-                        <Text component="small">Line {incident.line}</Text>
-                      </TextContent>
-                      <InsightDescriptionAndLinks
-                        className={spacing.mtLg}
-                        description={incident.message}
-                        links={insight.links}
-                      />
-                    </GridItem>
-                  </Grid>
-                ) : null}
-              </Tab>
-            )),
-            totalNumIncidents > 5 && [
-              <Tab
-                key="all"
-                eventKey="all"
-                title={`All incidents (${totalNumIncidents})`} // TODO i18n
-              >
-                <Alert
-                  isInline
-                  variant="info"
-                  className={spacing.mtMd}
-                  title="Highlights available for the first 5 incidents per file to enhance system performance." // TODO i18n
-                />
-                <FileAllIncidentsTable fileReport={fileReport} />
-              </Tab>,
-            ],
-          ]
-            .flat(1)
-            .filter(Boolean)}
-        </Tabs>
-      )}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

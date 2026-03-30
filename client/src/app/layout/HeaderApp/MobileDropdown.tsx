@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
-import { DropdownItem } from "@patternfly/react-core";
+import { DropdownItem } from "@patternfly/react-core/deprecated";
 import { HelpIcon } from "@patternfly/react-icons";
 
 import { KebabDropdown } from "@app/components/KebabDropdown";

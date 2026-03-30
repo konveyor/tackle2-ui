@@ -2,6 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Modal,
+  ModalBody,
   ModalVariant,
   Wizard,
   WizardHeader,
@@ -98,89 +99,89 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
       variant={ModalVariant.large}
       aria-label={t("platformDiscoverWizard.title")}
       isOpen={isOpen}
-      showClose={false}
-      hasNoBodyWrapper
       onEscapePress={handleCancel}
     >
-      <Wizard
-        onClose={handleCancel}
-        header={
-          <WizardHeader
-            onClose={handleCancel}
-            title={t("platformDiscoverWizard.title")}
-            description={t("platformDiscoverWizard.description")}
-          />
-        }
-        isVisitRequired
-      >
-        {!initialPlatform ? (
+      <ModalBody>
+        <Wizard
+          onClose={handleCancel}
+          header={
+            <WizardHeader
+              onClose={handleCancel}
+              title={t("platformDiscoverWizard.title")}
+              description={t("platformDiscoverWizard.description")}
+            />
+          }
+          isVisitRequired
+        >
+          {!initialPlatform ? (
+            <WizardStep
+              id="platform"
+              name={t("platformDiscoverWizard.platformSelect.stepTitle")}
+              footer={{
+                nextButtonText: t("actions.next"),
+                backButtonText: t("actions.back"),
+                isNextDisabled: platform === null,
+              }}
+            >
+              <SelectPlatform
+                platform={platform}
+                onPlatformSelected={setPlatform}
+              />
+            </WizardStep>
+          ) : null}
+
           <WizardStep
-            id="platform"
-            name={t("platformDiscoverWizard.platformSelect.stepTitle")}
+            id="filter-input"
+            name={t("platformDiscoverWizard.filterInput.stepTitle")}
+            isDisabled={!platform}
             footer={{
               nextButtonText: t("actions.next"),
               backButtonText: t("actions.back"),
-              isNextDisabled: platform === null,
+              isNextDisabled: !filters.isValid,
             }}
           >
-            <SelectPlatform
-              platform={platform}
-              onPlatformSelected={setPlatform}
-            />
+            {!platform ? (
+              <SourcePlatformRequired
+                title={t("platformDiscoverWizard.filterInput.title")}
+              />
+            ) : (
+              <FilterInput
+                platform={platform}
+                onFiltersChanged={setFilters}
+                initialFilters={filters}
+              />
+            )}
           </WizardStep>
-        ) : null}
 
-        <WizardStep
-          id="filter-input"
-          name={t("platformDiscoverWizard.filterInput.stepTitle")}
-          isDisabled={!platform}
-          footer={{
-            nextButtonText: t("actions.next"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !filters.isValid,
-          }}
-        >
-          {!platform ? (
-            <SourcePlatformRequired
-              title={t("platformDiscoverWizard.filterInput.title")}
-            />
-          ) : (
-            <FilterInput
-              platform={platform}
-              onFiltersChanged={setFilters}
-              initialFilters={filters}
-            />
-          )}
-        </WizardStep>
+          <WizardStep
+            id="review"
+            name={t("platformDiscoverWizard.review.stepTitle")}
+            isDisabled={!platform || !filters.isValid}
+            footer={{
+              nextButtonText: results
+                ? t("actions.close")
+                : t("actions.discoverApplications"),
+              backButtonText: t("actions.back"),
+              isNextDisabled: !isReady && !results,
+              isBackDisabled: !!results,
+              isCancelHidden: !!results,
+              onNext: results ? handleCancel : onSubmitTask,
+            }}
+          >
+            {!platform ? (
+              <SourcePlatformRequired
+                title={t("platformDiscoverWizard.review.title")}
+              />
+            ) : null}
 
-        <WizardStep
-          id="review"
-          name={t("platformDiscoverWizard.review.stepTitle")}
-          isDisabled={!platform || !filters.isValid}
-          footer={{
-            nextButtonText: results
-              ? t("actions.close")
-              : t("actions.discoverApplications"),
-            backButtonText: t("actions.back"),
-            isNextDisabled: !isReady && !results,
-            isBackDisabled: !!results,
-            isCancelHidden: !!results,
-            onNext: results ? handleCancel : onSubmitTask,
-          }}
-        >
-          {!platform ? (
-            <SourcePlatformRequired
-              title={t("platformDiscoverWizard.review.title")}
-            />
-          ) : null}
+            {platform && !results ? (
+              <Review platform={platform} filters={filters} />
+            ) : null}
 
-          {platform && !results ? (
-            <Review platform={platform} filters={filters} />
-          ) : null}
-
-          {platform && results ? <Results results={results} /> : null}
-        </WizardStep>
-      </Wizard>
+            {platform && results ? <Results results={results} /> : null}
+          </WizardStep>
+        </Wizard>
+      </ModalBody>
     </Modal>
   );
 };

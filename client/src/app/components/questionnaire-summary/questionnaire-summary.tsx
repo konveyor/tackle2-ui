@@ -5,13 +5,13 @@ import { Link } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Content,
+  ContentVariants,
   PageSection,
-  PageSectionVariants,
   SearchInput,
   Tab,
   Tabs,
-  Text,
-  TextContent,
+  TabProps,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -52,7 +52,10 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     "all"
   );
 
-  const handleTabClick = (_event: unknown, tabKey: string | number) => {
+  const handleTabClick = (
+    _event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabKey: TabProps["eventKey"]
+  ) => {
     setActiveSectionIndex(tabKey as "all" | number);
   };
 
@@ -120,10 +123,10 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     );
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{summaryType}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content>
+          <Content component={ContentVariants.h1}>{summaryType}</Content>
+        </Content>
         {BreadcrumbPath}
       </PageSection>
       <PageSection>
@@ -135,7 +138,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
           >
             <Toolbar>
               <ToolbarContent>
-                <ToolbarItem widths={{ default: "300px" }}>
+                <ToolbarItem style={{ width: "300px" }}>
                   <SearchInput
                     placeholder="Search questions"
                     value={searchValue}
@@ -203,12 +206,12 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                           hideAnswerKey={summaryType === SummaryType.Assessment}
                         />
                         {section?.comment && (
-                          <TextContent className={spacing.myMd}>
-                            <Text component="h4">Section comments</Text>
-                            <Text key={index} component="p">
+                          <Content className={spacing.myMd}>
+                            <Content component={ContentVariants.h4}>Section comments</Content>
+                            <Content key={index} component={ContentVariants.p}>
                               {section.comment}
-                            </Text>
-                          </TextContent>
+                            </Content>
+                          </Content>
                         )}
                       </Tab>
                     );

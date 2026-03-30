@@ -6,6 +6,8 @@ import {
   CodeBlock,
   CodeBlockCode,
   Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -216,16 +218,20 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         </ConditionalTableBody>
       </Table>
       <Modal
-        title={t("composed.error", {
-          what: t("terms.issue"),
-        })}
         width="50%"
         isOpen={!!codeModalState}
         onClose={() => setCodeModalState(null)}
       >
-        <CodeBlock>
-          <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
-        </CodeBlock>
+        <ModalHeader
+          title={t("composed.error", {
+            what: t("terms.issue"),
+          })}
+        />
+        <ModalBody>
+          <CodeBlock>
+            <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
+          </CodeBlock>
+        </ModalBody>
       </Modal>
     </>
   );

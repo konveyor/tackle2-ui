@@ -1,11 +1,10 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -45,15 +44,15 @@ export const DependencyAppsDetailDrawer: React.FC<
       pageKey="analysis-app-dependencies"
       drawerPanelContentProps={{ defaultSize: "600px" }}
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             Dependency / Language
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {dependency?.name || ""} /{" "}
             {dependency?.provider || t("terms.none").toLocaleLowerCase()}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       {!dependency ? (

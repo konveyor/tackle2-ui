@@ -5,7 +5,6 @@ import {
   Level,
   LevelItem,
   PageSection,
-  PageSectionVariants,
   Title,
 } from "@patternfly/react-core";
 
@@ -16,7 +15,7 @@ export const Applications: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">

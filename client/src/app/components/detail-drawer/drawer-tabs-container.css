@@ -7,13 +7,13 @@
   flex-direction: column;
 }
 
-.drawer-tabs-container .pf-v5-c-tabs {
-  --pf-v5-c-tabs__scroll-button--Width: 2.5rem;
+.drawer-tabs-container .pf-c-tabs {
+  --pf-c-tabs__scroll-button--Width: 2.5rem;
   flex-grow: 0;
   flex-shrink: 0;
 }
 
-.drawer-tabs-container > :not(.pf-v5-c-tabs) {
+.drawer-tabs-container > :not(.pf-c-tabs) {
   flex-grow: 1;
   position: relative;
   min-height: 0; /* keep the content from growing beyond the .drawer-tabs-container */
@@ -25,10 +25,10 @@
 }
 
 .drawer-tab-content__section-label {
-  padding-block-start: var(--pf-v5-global--spacer--md);
-  margin-block-end: var(--pf-v5-global--spacer--xs);
+  padding-block-start: var(--pf-global--spacer--md);
+  margin-block-end: var(--pf-global--spacer--xs);
 }
 
 .drawer-tab-content__section-content {
-  padding-left: var(--pf-v5-global--spacer--xs);
+  padding-left: var(--pf-global--spacer--xs);
 }

@@ -5,14 +5,10 @@ import { Trans, useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -180,10 +176,10 @@ export const Identities: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.credentials")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content>
+          <Content component="h1">{t("terms.credentials")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -198,7 +194,7 @@ export const Identities: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       size="sm"
@@ -249,18 +245,14 @@ export const Identities: React.FC = () => {
                 isError={!!fetchErrorIdentities}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={
-                        <>
-                          {t("composed.noDataStateTitle", {
-                            what: t("terms.credential").toLowerCase(),
-                          })}
-                        </>
-                      }
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.credential").toLowerCase(),
+                    })}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),

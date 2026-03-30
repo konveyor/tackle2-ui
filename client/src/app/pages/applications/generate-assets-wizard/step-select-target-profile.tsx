@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TextContent } from "@patternfly/react-core";
+import { Content } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Archetype, TargetProfile } from "@app/api/models";
@@ -62,23 +62,23 @@ export const SelectTargetProfile: React.FC<{
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("generateAssetsWizard.selectTargetProfile.title")}
-        </Text>
-        <Text component="p">
+        </Content>
+        <Content component="p">
           {t("generateAssetsWizard.selectTargetProfile.description", {
             count: applications.length,
             first: applications?.[0].name ?? "",
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       {availableProfiles.length === 0 ? (
         <div style={{ padding: "20px" }}>
-          <Text>
+          <Content component="p">
             {t("generateAssetsWizard.selectTargetProfile.noProfilesAvailable")}
-          </Text>
+          </Content>
         </div>
       ) : (
         <Table aria-label="available target profiles">

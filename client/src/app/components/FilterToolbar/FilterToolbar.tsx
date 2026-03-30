@@ -176,15 +176,19 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         </DropdownGroup>
       ));
     } else {
-      return filterCategories.map((category) => (
-        <DropdownItem
-          id={`filter-category-${category.categoryKey}`}
-          key={category.categoryKey}
-          onClick={() => onCategorySelect(category)}
-        >
-          {category.title}
-        </DropdownItem>
-      ));
+      return (
+        <DropdownList>
+          {filterCategories.map((category) => (
+            <DropdownItem
+              id={`filter-category-${category.categoryKey}`}
+              key={category.categoryKey}
+              onClick={() => onCategorySelect(category)}
+            >
+              {category.title}
+            </DropdownItem>
+          ))}
+        </DropdownList>
+      );
     }
   };
 
@@ -194,9 +198,6 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
         variant="filter-group"
         toggleIcon={<FilterIcon />}
         breakpoint={breakpoint}
-        spaceItems={
-          showFiltersSideBySide ? { default: "spaceItemsMd" } : undefined
-        }
       >
         {!showFiltersSideBySide && (
           <ToolbarItem>
@@ -210,8 +211,9 @@ export const FilterToolbar = <TItem, TFilterCategoryKey extends string>({
                     setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
                   }
                   isDisabled={isDisabled}
+                  icon={<FilterIcon />}
                 >
-                  <FilterIcon /> {currentFilterCategory?.title}
+                  {currentFilterCategory?.title}
                 </MenuToggle>
               )}
               isOpen={isCategoryDropdownOpen}

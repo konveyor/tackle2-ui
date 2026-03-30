@@ -1,5 +1,5 @@
 export const sourcesToggle = "#sources-toggle";
-export const sourcesList = "ul#formSources-id.pf-v5-c-select__menu";
+export const sourcesList = "ul#formSources-id.pf-c-select__menu";
 export enum CustomMigrationTargetView {
   createSubmitButton = "button[id='identity-form-submit']:contains('Create')",
   editSubmitButton = "button[id='identity-form-submit']:contains('Save')",

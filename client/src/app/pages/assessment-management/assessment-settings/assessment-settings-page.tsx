@@ -6,22 +6,22 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
+  ContentVariants,
   Dropdown,
   DropdownItem,
+  DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   List,
   MenuToggle,
   MenuToggleElement,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -160,10 +160,10 @@ const AssessmentSettings: React.FC = () => {
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.assessmentQuestionnaires")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <Content component={ContentVariants.h1}>{t("terms.assessmentQuestionnaires")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -178,7 +178,7 @@ const AssessmentSettings: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                         allowedPermissions={[]}
                         rbacType={RBAC_TYPE.Scope}
@@ -242,12 +242,12 @@ const AssessmentSettings: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noQuestionnairesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noQuestionnairesAvailable")}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>
@@ -335,6 +335,7 @@ const AssessmentSettings: React.FC = () => {
                                   ref={toggleRef}
                                   aria-label="kebab dropdown toggle"
                                   variant="plain"
+                                  icon={<EllipsisVIcon />}
                                   onClick={() => {
                                     if (
                                       questionnaireForKebab === questionnaire.id
@@ -346,49 +347,49 @@ const AssessmentSettings: React.FC = () => {
                                       );
                                     }
                                   }}
-                                >
-                                  <EllipsisVIcon />
-                                </MenuToggle>
+                                />
                               )}
                               shouldFocusToggleOnSelect
                             >
-                              <ExportQuestionnaireDropdownItem
-                                id={questionnaire.id}
-                              />
-                              <DropdownItem
-                                key="view"
-                                component="button"
-                                onClick={() => {
-                                  history.push(
-                                    formatPath(Paths.questionnaire, {
-                                      questionnaireId: questionnaire.id,
-                                    })
-                                  );
-                                }}
-                              >
-                                {t("actions.view")}
-                              </DropdownItem>
-                              <ConditionalTooltip
-                                key="system-questionnaire"
-                                isTooltipEnabled={
-                                  questionnaire.builtin === true
-                                }
-                                content={
-                                  "Disabled because it is a system questionnaire."
-                                }
-                              >
+                              <DropdownList>
+                                <ExportQuestionnaireDropdownItem
+                                  id={questionnaire.id}
+                                />
                                 <DropdownItem
-                                  key="delete"
-                                  isAriaDisabled={
+                                  key="view"
+                                  component="button"
+                                  onClick={() => {
+                                    history.push(
+                                      formatPath(Paths.questionnaire, {
+                                        questionnaireId: questionnaire.id,
+                                      })
+                                    );
+                                  }}
+                                >
+                                  {t("actions.view")}
+                                </DropdownItem>
+                                <ConditionalTooltip
+                                  key="system-questionnaire"
+                                  isTooltipEnabled={
                                     questionnaire.builtin === true
                                   }
-                                  onClick={() =>
-                                    setQuestionnaireToDelete(questionnaire)
+                                  content={
+                                    "Disabled because it is a system questionnaire."
                                   }
                                 >
-                                  {t("actions.delete")}
-                                </DropdownItem>
-                              </ConditionalTooltip>
+                                  <DropdownItem
+                                    key="delete"
+                                    isAriaDisabled={
+                                      questionnaire.builtin === true
+                                    }
+                                    onClick={() =>
+                                      setQuestionnaireToDelete(questionnaire)
+                                    }
+                                  >
+                                    {t("actions.delete")}
+                                  </DropdownItem>
+                                </ConditionalTooltip>
+                              </DropdownList>
                             </Dropdown>
                           </Td>
                         </TableRowContentWithControls>
@@ -408,14 +409,18 @@ const AssessmentSettings: React.FC = () => {
       </PageSection>
       <Modal
         id="import.modal"
-        title={t("dialog.title.import", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
         variant={ModalVariant.medium}
         isOpen={isImportModal}
         onClose={() => setIsImportModal(false)}
       >
-        <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
+        <ModalHeader
+          title={t("dialog.title.import", {
+            what: t("terms.questionnaire").toLowerCase(),
+          })}
+        />
+        <ModalBody>
+          <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
+        </ModalBody>
       </Modal>
       <ConfirmDeleteDialog
         deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}

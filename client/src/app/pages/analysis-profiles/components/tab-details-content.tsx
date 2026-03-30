@@ -2,11 +2,11 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Text,
 } from "@patternfly/react-core";
 
 import { AnalysisProfile, AnalysisProfileTarget, Ref } from "@app/api/models";
@@ -111,7 +111,7 @@ export const TabDetailsContent: React.FC<{
     <DrawerTabContent>
       {/* Description */}
       <DrawerTabContentSection label={t("terms.description")}>
-        <Text>{analysisProfile.description || <EmptyTextMessage />}</Text>
+        <Content component="p">{analysisProfile.description || <EmptyTextMessage />}</Content>
       </DrawerTabContentSection>
 
       {/* Mode */}

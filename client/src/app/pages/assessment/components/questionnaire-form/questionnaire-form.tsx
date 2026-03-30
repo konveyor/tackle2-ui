@@ -3,13 +3,12 @@ import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Popover,
   Split,
   SplitItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons";
 
@@ -36,7 +35,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   // Force the wizard parent to reset the scroll
   useEffect(() => {
     const parentWizardBody = document.getElementsByClassName(
-      "pf-v5-c-wizard__main-body"
+      "pf-c-wizard__main-body"
     );
     if (parentWizardBody && parentWizardBody[0]) {
       parentWizardBody[0].scrollIntoView();
@@ -59,9 +58,9 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   return (
     <Stack hasGutter>
       <StackItem>
-        <TextContent>
-          <Text component="h1">{section.name}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{section.name}</Content>
+        </Content>
       </StackItem>
       {questionsWithUiId.map((question) => {
         return (
@@ -76,7 +75,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
                         type="button"
                         aria-label="More info"
                         onClick={(e) => e.preventDefault()}
-                        className="pf-v5-c-form__group-label-help"
+                        className="pf-c-form__group-label-help"
                       >
                         <HelpIcon />
                       </button>

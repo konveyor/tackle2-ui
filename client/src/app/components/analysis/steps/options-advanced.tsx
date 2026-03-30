@@ -6,20 +6,20 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Checkbox,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Text,
-  TextContent,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core/deprecated";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -175,12 +175,12 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}
         </Title>
-        <Text>{t("wizard.label.advancedOptions")}</Text>
-      </TextContent>
+        <Content component={ContentVariants.p}>{t("wizard.label.advancedOptions")}</Content>
+      </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
       <FormGroup
@@ -225,13 +225,9 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
           return (
             <Select
               id="additional-target-labels"
-              toggleId="additional-target-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select targets"
-              selections={selections}
               isOpen={isSelectTargetsOpen}
-              onSelect={(_, selection) => {
+              selected={selections}
+              onSelect={(_event, selection) => {
                 const selectedLabel = availableTargetLabels.find(
                   (label) => label.value === selection
                 );
@@ -247,17 +243,32 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
-              onToggle={() => {
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              onOpenChange={(isOpen) => setSelectTargetsOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  id="additional-target-labels-toggle"
+                  onClick={() => setSelectTargetsOpen(!isSelectTargetsOpen)}
+                  isExpanded={isSelectTargetsOpen}
+                  style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT }}
+                >
+                  {selections.length > 0
+                    ? `${selections.length} selected`
+                    : "Select targets"}
+                </MenuToggle>
+              )}
             >
-              {availableTargetLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {availableTargetLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}
@@ -306,13 +317,9 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
           return (
             <Select
               id="additional-source-labels"
-              toggleId="additional-source-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select sources"
-              selections={selections}
               isOpen={isSelectSourcesOpen}
-              onSelect={(_, selection) => {
+              selected={selections}
+              onSelect={(_event, selection) => {
                 const selectedLabel = availableSourceLabels.find(
                   (label) => label.value === selection
                 );
@@ -328,17 +335,32 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                 onBlur();
                 setSelectSourcesOpen(!isSelectSourcesOpen);
               }}
-              onToggle={() => {
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              onOpenChange={(isOpen) => setSelectSourcesOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  id="additional-source-labels-toggle"
+                  onClick={() => setSelectSourcesOpen(!isSelectSourcesOpen)}
+                  isExpanded={isSelectSourcesOpen}
+                  style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT }}
+                >
+                  {selections.length > 0
+                    ? `${selections.length} selected`
+                    : "Select sources"}
+                </MenuToggle>
+              )}
             >
-              {availableSourceLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {availableSourceLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}

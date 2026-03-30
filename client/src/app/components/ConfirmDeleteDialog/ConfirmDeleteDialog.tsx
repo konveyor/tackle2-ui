@@ -4,9 +4,11 @@ import {
   Button,
   ButtonVariant,
   Modal,
-  ModalProps,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalHeaderProps,
   ModalVariant,
-  Text,
   TextInput,
 } from "@patternfly/react-core";
 
@@ -23,7 +25,7 @@ type ConfirmDeleteDialogProps = {
   onClose: () => void;
   onConfirmDelete: () => void;
   titleWhat: string;
-  titleIconVariant?: ModalProps["titleIconVariant"];
+  titleIconVariant?: ModalHeaderProps["titleIconVariant"];
 };
 
 const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
@@ -89,28 +91,35 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
     <Modal
       id="confirm-delete-dialog"
       variant={ModalVariant.small}
-      titleIconVariant={titleIconVariant}
       isOpen={isOpen}
       onClose={handleClose}
       aria-label="Confirm delete dialog"
-      actions={[confirmBtn, cancelBtn]}
-      title={t("dialog.title.delete", {
-        what: titleWhat,
-      })}
     >
-      <Text component="p">{deleteObjectMessage}</Text>
-      <Text component="p">{t("dialog.message.delete")}</Text>
-      <Text component="p" className="confirm-deletion">
-        <Trans
-          i18nKey="dialog.message.confirmDeletion"
-          values={{ nameToDelete }}
-        />
-      </Text>
-      <TextInput
-        id="confirm-deletion-input"
-        value={nameToDeleteInput}
-        onChange={(_, value) => setNameToDeleteInput(value)}
+      <ModalHeader
+        title={t("dialog.title.delete", {
+          what: titleWhat,
+        })}
+        titleIconVariant={titleIconVariant}
       />
+      <ModalBody>
+        <p>{deleteObjectMessage}</p>
+        <p>{t("dialog.message.delete")}</p>
+        <p className="confirm-deletion">
+          <Trans
+            i18nKey="dialog.message.confirmDeletion"
+            values={{ nameToDelete }}
+          />
+        </p>
+        <TextInput
+          id="confirm-deletion-input"
+          value={nameToDeleteInput}
+          onChange={(_, value) => setNameToDeleteInput(value)}
+        />
+      </ModalBody>
+      <ModalFooter>
+        {confirmBtn}
+        {cancelBtn}
+      </ModalFooter>
     </Modal>
   );
 };

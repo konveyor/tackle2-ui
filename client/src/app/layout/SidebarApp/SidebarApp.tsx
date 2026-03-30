@@ -22,7 +22,6 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import keycloak from "@app/keycloak";
 import { checkAccess } from "@app/utils/rbac-utils";
 
-import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
 
 const PersonaDefinition = {
@@ -109,7 +108,7 @@ const PersonaSidebar: FC<{
 
   const history = useHistory();
   return (
-    <PageSidebar theme={LayoutTheme}>
+    <PageSidebar>
       <div className="perspective">
         <SimpleSelectBasic
           value={selectedPersona}
@@ -127,7 +126,7 @@ const PersonaSidebar: FC<{
         />
       </div>
       <PageSidebarBody>
-        <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <Nav id="nav-primary" aria-label="Nav">
           {children}
         </Nav>
       </PageSidebarBody>

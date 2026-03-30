@@ -11,8 +11,8 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
-  ToolbarChip,
   ToolbarFilter,
+  ToolbarLabel,
 } from "@patternfly/react-core";
 import { TimesIcon } from "@patternfly/react-icons";
 
@@ -80,8 +80,8 @@ export const MultiselectFilterControl = <TItem,>({
         .filter(([, groupLabel]) => groupLabel != groupName)
         .map(([filter]) => filter)
     );
-  const onFilterClear = (chip: string | ToolbarChip) => {
-    const value = typeof chip === "string" ? chip : chip.key;
+  const onFilterClear = (label: string | ToolbarLabel) => {
+    const value = typeof label === "string" ? label : label.key;
 
     if (value) {
       const newValue = filterValue?.filter((val) => val !== value) ?? [];
@@ -90,9 +90,9 @@ export const MultiselectFilterControl = <TItem,>({
   };
 
   /*
-   * Note: Create chips only as `ToolbarChip` (no plain string)
+   * Note: Create labels only as `ToolbarLabel` (no plain string)
    */
-  const chipsFor = (groupName: string) =>
+  const labelsFor = (groupName: string) =>
     filterValue
       ?.map((filter) =>
         category.selectOptions.find(
@@ -192,7 +192,7 @@ export const MultiselectFilterControl = <TItem,>({
           onKeyDown={onInputKeyDown}
           id={withPrefix("typeahead-select-input")}
           autoComplete="off"
-          innerRef={textInputRef}
+          ref={textInputRef}
           placeholder={category.placeholderText}
           aria-activedescendant={
             getFocusedItem()
@@ -213,9 +213,8 @@ export const MultiselectFilterControl = <TItem,>({
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+              icon={<TimesIcon aria-hidden />}
+            />
           )}
           {filterValue?.length ? (
             <Badge isRead>{filterValue.length}</Badge>
@@ -233,9 +232,9 @@ export const MultiselectFilterControl = <TItem,>({
       {
         <ToolbarFilter
           id={`${idPrefix}-${firstGroup}`}
-          chips={chipsFor(firstGroup)}
-          deleteChip={(_, chip) => onFilterClear(chip)}
-          deleteChipGroup={() => onFilterClearGroup(firstGroup)}
+          labels={labelsFor(firstGroup)}
+          deleteLabel={(_, label) => onFilterClear(label)}
+          deleteLabelGroup={() => onFilterClearGroup(firstGroup)}
           categoryName={{ name: firstGroup, key: withGroupPrefix(firstGroup) }}
           key={withGroupPrefix(firstGroup)}
           showToolbarItem={showToolbarItem}
@@ -284,9 +283,9 @@ export const MultiselectFilterControl = <TItem,>({
       {otherGroups.map((groupName) => (
         <ToolbarFilter
           id={`${idPrefix}-${groupName}`}
-          chips={chipsFor(groupName)}
-          deleteChip={(_, chip) => onFilterClear(chip)}
-          deleteChipGroup={() => onFilterClearGroup(groupName)}
+          labels={labelsFor(groupName)}
+          deleteLabel={(_, label) => onFilterClear(label)}
+          deleteLabelGroup={() => onFilterClearGroup(groupName)}
           categoryName={{ name: groupName, key: withGroupPrefix(groupName) }}
           key={withGroupPrefix(groupName)}
           showToolbarItem={false}

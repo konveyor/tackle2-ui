@@ -53,7 +53,7 @@ export const SimpleSelectCheckbox: React.FC<ISimpleSelectBasicProps> = ({
 
   const onSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    selectionValue: string | number | undefined
+    selectionValue: SelectOptionProps["value"]
   ) => {
     if (!value || !selectionValue) {
       return;

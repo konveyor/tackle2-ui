@@ -1,12 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { SourcePlatform } from "@app/api/models";
@@ -35,14 +34,14 @@ export const Review: React.FC<{
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">{t("platformDiscoverWizard.review.title")}</Text>
-        <Text component="p">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">{t("platformDiscoverWizard.review.title")}</Content>
+        <Content component="p">
           {t("platformDiscoverWizard.review.description", {
             platformName: platform?.name,
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <DescriptionList isHorizontal>
         <DescriptionListGroup>

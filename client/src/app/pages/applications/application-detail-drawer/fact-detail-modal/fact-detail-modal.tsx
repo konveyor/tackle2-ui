@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Modal } from "@patternfly/react-core";
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@patternfly/react-core";
 
 import { Fact } from "@app/api/models";
 
@@ -16,17 +16,19 @@ export const FactDetailModal: React.FC<IFactDetailModalProps> = ({
 }) => {
   return (
     <Modal
-      title={fact.name}
       variant="large"
       isOpen
       onClose={onClose}
-      actions={[
+    >
+      <ModalHeader title={fact.name} />
+      <ModalBody>
+        <FactCodeSnipViewer fact={fact}></FactCodeSnipViewer>
+      </ModalBody>
+      <ModalFooter>
         <Button key="close" variant="primary" onClick={onClose}>
           Close
-        </Button>,
-      ]}
-    >
-      <FactCodeSnipViewer fact={fact}></FactCodeSnipViewer>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

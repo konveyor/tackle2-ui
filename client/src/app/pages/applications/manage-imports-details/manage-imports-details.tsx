@@ -7,8 +7,6 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   Toolbar,
   ToolbarContent,
@@ -120,7 +118,7 @@ export const ManageImportsDetails: React.FC = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection variant="default">
         <PageHeader
           title={t("terms.errorReport")}
           breadcrumbs={[
@@ -152,7 +150,7 @@ export const ManageImportsDetails: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -181,14 +179,14 @@ export const ManageImportsDetails: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("composed.noDataStateTitle", {
-                        what: t("terms.imports").toLowerCase(),
-                      })}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.imports").toLowerCase(),
+                    })}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),

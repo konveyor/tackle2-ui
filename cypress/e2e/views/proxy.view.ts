@@ -23,6 +23,6 @@ export const ProxyViewSelectorsByType = {
   },
 };
 
-export const navLink = "a.pf-v5-c-nav__link";
+export const navLink = "a.pf-v6-c-nav__link";
 export const port = "#port";
-export const helper = 'span[class="pf-v5-c-helper-text__item-text"]';
+export const helper = 'span[class="pf-v6-c-helper-text__item-text"]';

@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
+  ContentVariants,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -60,14 +60,14 @@ export const ApplicationDetailDrawer: React.FC<
       focusKey={application?.id}
       pageKey="app-inventory"
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component={ContentVariants.small} className={spacing.mb_0}>
             {t("terms.name")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {application?.name}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       {application ? (

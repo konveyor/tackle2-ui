@@ -20,12 +20,12 @@ import { unique } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Content,
   Gallery,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -245,13 +245,13 @@ export const MigrationTargets: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.customTargets")}</Text>
-        </TextContent>
-        <TextContent>
-          <Text>{t("terms.customTargetsDetails")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content>
+          <Content component="h1">{t("terms.customTargets")}</Content>
+        </Content>
+        <Content>
+          <Content component="p">{t("terms.customTargetsDetails")}</Content>
+        </Content>
       </PageSection>
 
       <PageSection>
@@ -262,7 +262,7 @@ export const MigrationTargets: FC = () => {
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} breakpoint="md" />
             {targetsWriteAccess && (
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <Button
                     id="create-target"
@@ -330,19 +330,23 @@ export const MigrationTargets: FC = () => {
 
       <Modal
         id="create-edit-custom-target-modal"
-        title={t(targetToUpdate ? "dialog.title.update" : "dialog.title.new", {
-          what: `${t("terms.customTarget")}`,
-        })}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={() => setCreateUpdateModalState(null)}
       >
-        <CustomTargetForm
-          target={targetToUpdate}
-          targetOrder={targetOrderSetting.data ?? []}
-          onSaved={onCustomTargetModalSaved}
-          onCancel={() => setCreateUpdateModalState(null)}
+        <ModalHeader
+          title={t(targetToUpdate ? "dialog.title.update" : "dialog.title.new", {
+            what: `${t("terms.customTarget")}`,
+          })}
         />
+        <ModalBody>
+          <CustomTargetForm
+            target={targetToUpdate}
+            targetOrder={targetOrderSetting.data ?? []}
+            onSaved={onCustomTargetModalSaved}
+            onCancel={() => setCreateUpdateModalState(null)}
+          />
+        </ModalBody>
       </Modal>
     </>
   );

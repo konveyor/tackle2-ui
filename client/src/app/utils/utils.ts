@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
-import { MenuToggleProps, ToolbarChip } from "@patternfly/react-core";
+import { MenuToggleProps, ToolbarLabel } from "@patternfly/react-core";
 
 import {
   AdminPathValues,
@@ -19,9 +19,9 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
   }
 };
 
-// ToolbarChip
+// ToolbarLabel
 
-export const getToolbarChipKey = (value: string | ToolbarChip) => {
+export const getToolbarChipKey = (value: string | ToolbarLabel) => {
   return typeof value === "string" ? value : value.key;
 };
 

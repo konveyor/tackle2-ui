@@ -8,8 +8,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Divider,
-  Text,
-  TextContent,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
@@ -71,25 +69,25 @@ export const TabReportsContent: React.FC<{
 
   return (
     <>
-      <TextContent className={spacing.mtMd}>
+      <div className={spacing.mtMd}>
         <Title headingLevel="h3" size="md">
           Credentials
         </Title>
         {matchingSourceCredsRef && matchingMavenCredsRef ? (
-          <Text component="small">
+          <span>
             <CheckCircleIcon color="green" />
             <span className={spacing.mlSm}>Source and Maven</span>
-          </Text>
+          </span>
         ) : matchingMavenCredsRef ? (
-          <Text component="small">
+          <span>
             <CheckCircleIcon color="green" />
             <span className={spacing.mlSm}>Maven</span>
-          </Text>
+          </span>
         ) : matchingSourceCredsRef ? (
-          <Text component="small">
+          <span>
             <CheckCircleIcon color="green" />
             <span className={spacing.mlSm}>Source</span>
-          </Text>
+          </span>
         ) : (
           notAvailable
         )}
@@ -215,7 +213,7 @@ export const TabReportsContent: React.FC<{
             )}
           </>
         )}
-      </TextContent>
+      </div>
 
       {!isFetching && !!facts.length && <ApplicationFacts facts={facts} />}
     </>

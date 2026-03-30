@@ -144,7 +144,9 @@ export const TabTasksContent: React.FC<{
         clearAllFilters={clearFilters}
       >
         <ToolbarContent>
-          <FilterToolbar {...filterToolbarProps} />
+          <ToolbarItem>
+            <FilterToolbar {...filterToolbarProps} />
+          </ToolbarItem>
           <ToolbarItem {...paginationToolbarItemProps}>
             <SimplePagination
               idPrefix="task-apps-table"

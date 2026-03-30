@@ -5,11 +5,9 @@ import { useTranslation } from "react-i18next";
 import {
   ActionGroup,
   Button,
+  Content,
   Form,
-  Text,
-  TextContent,
   TextInput,
-  TextVariants,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -223,21 +221,19 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
 
   return (
     <Form onSubmit={onSubmit}>
-      <TextContent>
-        <Text component={TextVariants.h5}>Selected wave</Text>
-        <TextInput
-          value={
-            !migrationWave?.name
-              ? `${dayjs(migrationWave.startDate).format(
-                  "MM/DD/YYYY"
-                )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`
-              : migrationWave.name
-          }
-          type="text"
-          aria-label="wave-name"
-          isDisabled={true}
-        />
-      </TextContent>
+      <Content component="h5">Selected wave</Content>
+      <TextInput
+        value={
+          !migrationWave?.name
+            ? `${dayjs(migrationWave.startDate).format(
+                "MM/DD/YYYY"
+              )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`
+            : migrationWave.name
+        }
+        type="text"
+        aria-label="wave-name"
+        isDisabled={true}
+      />
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />

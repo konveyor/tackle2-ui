@@ -53,7 +53,7 @@ export const TaskDetailsBase: FC<{
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection>
         <PageHeader
           title={formatTitle(taskName)}
           breadcrumbs={[

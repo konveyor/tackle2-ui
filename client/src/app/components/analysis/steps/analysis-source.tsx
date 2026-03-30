@@ -7,7 +7,6 @@ import {
   Alert,
   Form,
   SelectOptionProps,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 
@@ -255,11 +254,9 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
-        <Title headingLevel="h3" size="xl">
-          {t("wizard.terms.analysisSource")}
-        </Title>
-      </TextContent>
+      <Title headingLevel="h3" size="xl">
+        {t("wizard.terms.analysisSource")}
+      </Title>
       <HookFormPFGroupController
         control={control}
         name="mode"

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TextContent } from "@patternfly/react-core";
+import { Content } from "@patternfly/react-core";
 
 export const SourcePlatformRequired: React.FC<{
   title: string;
@@ -9,12 +9,12 @@ export const SourcePlatformRequired: React.FC<{
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">{title}</Text>
-        <Text component="p">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">{title}</Content>
+        <Content component="p">
           {t("platformDiscoverWizard.noPlatformSelectedDescription")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
     </div>
   );
 };

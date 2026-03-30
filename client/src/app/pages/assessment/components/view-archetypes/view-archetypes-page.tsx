@@ -5,9 +5,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Paths, ViewArchetypesRoute } from "@app/Paths";
@@ -46,10 +43,10 @@ const ViewArchetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">View Archetypes</Text>
-        </TextContent>
+      <PageSection>
+        <div>
+          <h1>View Archetypes</h1>
+        </div>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link to={Paths.applications}>Applications</Link>
@@ -87,9 +84,9 @@ const ViewArchetypes: React.FC = () => {
               }}
             />
           )}
-          <TextContent>
+          <div>
             {<ViewArchetypesTable archetypeRef={activeArchetype} />}
-          </TextContent>
+          </div>
         </ConditionalRender>
       </PageSection>
     </>

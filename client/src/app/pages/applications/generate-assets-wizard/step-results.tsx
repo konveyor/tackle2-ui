@@ -6,12 +6,11 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
+  ContentVariants,
   Grid,
   GridItem,
   Icon,
-  Text,
-  TextContent,
-  TextVariants,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
@@ -45,14 +44,14 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
   if (!results) {
     return (
       <div>
-        <TextContent>
-          <Text component={TextVariants.h3}>
+        <Content>
+          <Content component={ContentVariants.h3}>
             {t("generateAssetsWizard.results.title")}
-          </Text>
-          <Text component={TextVariants.p}>
+          </Content>
+          <Content component={ContentVariants.p}>
             {t("generateAssetsWizard.results.noResults")}
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </div>
     );
   }
@@ -61,21 +60,21 @@ export const Results: React.FC<ResultsProps> = ({ results }) => {
 
   return (
     <>
-      <TextContent>
-        <Text component={TextVariants.h3}>
+      <Content>
+        <Content component={ContentVariants.h3}>
           {t("generateAssetsWizard.results.title")}
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           {t("generateAssetsWizard.results.summary")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Grid hasGutter>
         {success.length === 0 && failure.length === 0 && (
           <GridItem span={12}>
             <Card>
               <CardBody>
-                <Text>{t("generateAssetsWizard.noTasksSubmitted")}</Text>
+                <Content>{t("generateAssetsWizard.noTasksSubmitted")}</Content>
               </CardBody>
             </Card>
           </GridItem>

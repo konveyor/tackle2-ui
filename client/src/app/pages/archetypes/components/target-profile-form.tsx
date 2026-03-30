@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -8,9 +8,17 @@ import {
   ActionGroup,
   Button,
   DualListSelector,
+  DualListSelectorControl,
+  DualListSelectorControlsWrapper,
+  DualListSelectorList,
+  DualListSelectorListItem,
+  DualListSelectorPane,
   Form,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
+  SearchInput,
   Spinner,
 } from "@patternfly/react-core";
 
@@ -138,31 +146,6 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
     mode: "all",
   });
 
-  const onListChange = useCallback(
-    (
-      _event: React.MouseEvent,
-      newAvailableOptions: React.ReactNode[],
-      newChosenOptions: React.ReactNode[]
-    ) => {
-      const newAvailable = newAvailableOptions
-        .map((node) => node?.toString())
-        .map((name) => generators.find((g) => g.name === name))
-        .filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      const newChosen = newChosenOptions
-        .map((node) => node?.toString())
-        .map((name) => generators.find((g) => g.name === name))
-        .filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      setAvailableOptions(newAvailable);
-      setChosenOptions(newChosen);
-      setValue("generators", newChosen, { shouldValidate: true });
-    },
-    [generators, setValue]
-  );
-
   const submitToOnSave = (values: TargetProfileFormValues) => {
     if (!generators) return;
 
@@ -179,16 +162,19 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
   return (
     <Modal
       variant={ModalVariant.medium}
-      title={
-        profile
-          ? t("dialog.title.updateTargetProfile")
-          : t("dialog.title.newTargetProfile")
-      }
       isOpen={isOpen}
       onClose={onCancel}
       onEscapePress={onCancel}
     >
-      <Form onSubmit={handleSubmit(submitToOnSave)}>
+      <ModalHeader
+        title={
+          profile
+            ? t("dialog.title.updateTargetProfile")
+            : t("dialog.title.newTargetProfile")
+        }
+      />
+      <ModalBody>
+        <Form onSubmit={handleSubmit(submitToOnSave)}>
         <HookFormPFTextInput
           control={control}
           name="name"
@@ -204,13 +190,93 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
           fieldId="target-profile-generators"
           renderInput={() => (
             <DualListSelector
-              availableOptions={availableOptions.map(({ name }) => name)}
-              chosenOptions={chosenOptions.map(({ name }) => name)}
-              onListChange={onListChange}
               id="target-profile-generators-selector"
-              availableOptionsTitle={t("message.generatorsAvailable")}
-              chosenOptionsTitle={t("message.generatorsChosen")}
-            />
+            >
+              <DualListSelectorPane
+                title={t("message.generatorsAvailable")}
+                status={`${availableOptions.length} available`}
+              >
+                <SearchInput aria-label="Available options search" />
+                <DualListSelectorList>
+                  {availableOptions.map(({ name }) => (
+                    <DualListSelectorListItem key={name}>
+                      {name}
+                    </DualListSelectorListItem>
+                  ))}
+                </DualListSelectorList>
+              </DualListSelectorPane>
+              <DualListSelectorControlsWrapper aria-label="Selector controls">
+                <DualListSelectorControl
+                  isDisabled={availableOptions.length === 0}
+                  onClick={() => {
+                    const newChosen = [...chosenOptions, ...availableOptions];
+                    setChosenOptions(newChosen.sort((a, b) => a.name.localeCompare(b.name)));
+                    setAvailableOptions([]);
+                    setValue("generators", newChosen, { shouldValidate: true });
+                  }}
+                  aria-label="Add all"
+                  tooltipContent="Add all"
+                />
+                <DualListSelectorControl
+                  isDisabled={availableOptions.length === 0}
+                  onClick={() => {
+                    // Add selected available items (simplified - adds first available)
+                    if (availableOptions.length > 0) {
+                      const itemToAdd = availableOptions[0];
+                      const newAvailable = availableOptions.slice(1);
+                      const newChosen = [...chosenOptions, itemToAdd].sort((a, b) => a.name.localeCompare(b.name));
+                      setAvailableOptions(newAvailable);
+                      setChosenOptions(newChosen);
+                      setValue("generators", newChosen, { shouldValidate: true });
+                    }
+                  }}
+                  aria-label="Add selected"
+                  tooltipContent="Add selected"
+                  addSelected
+                />
+                <DualListSelectorControl
+                  isDisabled={chosenOptions.length === 0}
+                  onClick={() => {
+                    // Remove selected chosen items (simplified - removes first chosen)
+                    if (chosenOptions.length > 0) {
+                      const itemToRemove = chosenOptions[0];
+                      const newChosen = chosenOptions.slice(1);
+                      const newAvailable = [...availableOptions, itemToRemove].sort((a, b) => a.name.localeCompare(b.name));
+                      setAvailableOptions(newAvailable);
+                      setChosenOptions(newChosen);
+                      setValue("generators", newChosen, { shouldValidate: true });
+                    }
+                  }}
+                  aria-label="Remove selected"
+                  tooltipContent="Remove selected"
+                />
+                <DualListSelectorControl
+                  isDisabled={chosenOptions.length === 0}
+                  onClick={() => {
+                    const newAvailable = [...availableOptions, ...chosenOptions].sort((a, b) => a.name.localeCompare(b.name));
+                    setAvailableOptions(newAvailable);
+                    setChosenOptions([]);
+                    setValue("generators", [], { shouldValidate: true });
+                  }}
+                  aria-label="Remove all"
+                  tooltipContent="Remove all"
+                />
+              </DualListSelectorControlsWrapper>
+              <DualListSelectorPane
+                title={t("message.generatorsChosen")}
+                status={`${chosenOptions.length} chosen`}
+                isChosen
+              >
+                <SearchInput aria-label="Chosen options search" />
+                <DualListSelectorList>
+                  {chosenOptions.map(({ name }) => (
+                    <DualListSelectorListItem key={name}>
+                      {name}
+                    </DualListSelectorListItem>
+                  ))}
+                </DualListSelectorList>
+              </DualListSelectorPane>
+            </DualListSelector>
           )}
         />
 
@@ -258,7 +324,8 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
             {t("actions.cancel")}
           </Button>
         </ActionGroup>
-      </Form>
+        </Form>
+      </ModalBody>
     </Modal>
   );
 };

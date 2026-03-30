@@ -10,7 +10,7 @@ import {
   PendingIcon,
   TimesCircleIcon,
 } from "@patternfly/react-icons";
-import { Table, Tbody, Td, Thead, Tr } from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
 import { TaskDashboard } from "@app/api/models";
@@ -115,9 +115,9 @@ export const ColumnApplicationName: React.FC<{
       <Table variant="compact" borders={false}>
         <Thead>
           <Tr>
-            <Td>Id</Td>
-            <Td>Kind</Td>
-            <Td>Started</Td>
+            <Th>Id</Th>
+            <Th>Kind</Th>
+            <Th>Started</Th>
           </Tr>
         </Thead>
         <Tbody>

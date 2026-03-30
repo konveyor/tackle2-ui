@@ -7,8 +7,8 @@ export interface HorizontalNavProps {
 
 export const HorizontalNav: React.FC<HorizontalNavProps> = ({ navItems }) => {
   return (
-    <div className="pf-v5-c-tabs">
-      <ul className="pf-v5-c-tabs__list">
+    <div className="pf-v6-c-tabs">
+      <ul className="pf-v6-c-tabs__list">
         {navItems.map((f, index) => (
           <NavLink
             key={index}

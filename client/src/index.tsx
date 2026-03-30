@@ -1,4 +1,5 @@
 import "@patternfly/react-core/dist/styles/base.css";
+import "@patternfly/patternfly/utilities/_index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
