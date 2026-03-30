@@ -1867,8 +1867,11 @@ export function applyAction(itemName, action: string): void {
     .closest(trTag)
     .within(() => {
       click(tagMenuButton);
-      clickByText(button, action);
     });
+  // PF v6: kebab menu items render in a portal outside the <tr>
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(action)
+    .click({ force: true });
 }
 
 export function confirm(): void {
