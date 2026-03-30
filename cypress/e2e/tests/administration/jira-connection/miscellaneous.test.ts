@@ -23,8 +23,8 @@ import {
   clickByText,
   createMultipleApplications,
   deleteAllCredentials,
+  deleteAllJiraConnections,
   deleteApplicationTableRows,
-  deleteByList,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
@@ -132,8 +132,7 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
   });
 
   after("Clean up data", () => {
-    login();
-    cy.visit("/", { timeout: 60 * SEC });
+    deleteAllJiraConnections();
     deleteAllCredentials();
     deleteApplicationTableRows();
   });

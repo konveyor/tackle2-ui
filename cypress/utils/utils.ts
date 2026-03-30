@@ -1637,6 +1637,12 @@ export function deleteAllCredentials() {
   });
 }
 
+export function deleteAllJiraConnections() {
+  getAuthHeaders().then((headers) => {
+    Jira.deleteAllViaApi(headers);
+  });
+}
+
 export function deleteAllProfiles() {
   AnalysisProfile.open();
   selectItemsPerPage(100);

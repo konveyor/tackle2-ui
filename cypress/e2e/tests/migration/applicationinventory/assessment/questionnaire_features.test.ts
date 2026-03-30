@@ -22,6 +22,8 @@ import {
   clickItemInKebabMenu,
   clickJs,
   createMultipleStakeholders,
+  deleteAllStakeholders,
+  deleteApplicationTableRows,
   deleteByList,
   login,
 } from "../../../../../utils/utils";
@@ -137,10 +139,8 @@ describe(
 
     after("Perform test data clean up", function () {
       login();
-      Application.open(true);
-      application.delete();
-      Stakeholders.openList(true);
-      deleteByList(stakeholderList);
+      deleteApplicationTableRows();
+      deleteAllStakeholders();
       AssessmentQuestionnaire.open(true);
       AssessmentQuestionnaire.deleteAllQuestionnaires();
     });
