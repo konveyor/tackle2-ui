@@ -97,17 +97,15 @@ export class AssessmentQuestionnaire {
   public static enable(fileName: string, enable = true) {
     AssessmentQuestionnaire.open();
     cy.wait(3 * SEC);
-    const selector = enable ? ".pf-m-on" : ".pf-m-off";
     cy.contains(fileName, { timeout: 2 * SEC })
       .closest("tr")
       .within(() => {
-        cy.get(selector)
-          .invoke("css", "display")
-          .then((display) => {
-            if (display.toString() == "none") {
-              cy.get(switchToggle, { timeout: 2 * SEC }).click();
-            }
-          });
+        cy.get("input[type='checkbox']").then(($input) => {
+          const isChecked = $input.is(":checked");
+          if ((enable && !isChecked) || (!enable && isChecked)) {
+            cy.get(switchToggle, { timeout: 2 * SEC }).click();
+          }
+        });
       });
   }
 
@@ -115,7 +113,7 @@ export class AssessmentQuestionnaire {
     AssessmentQuestionnaire.open();
     selectItemsPerPage(100);
     cy.get(commonView.commonTable)
-      .find('tbody[class="pf-v5-c-table__tbody"]')
+      .find('tbody[class="pf-v6-c-table__tbody"]')
       .find(trTag)
       .then(($rows) => {
         if ($rows.length === 1) {
@@ -128,7 +126,7 @@ export class AssessmentQuestionnaire {
             continue;
           }
           cy.wrap($rows.eq(i).find(actionButton)).click({ force: true });
-          cy.get("li.pf-v5-c-menu__list-item")
+          cy.get("li.pf-v6-c-menu__list-item")
             .contains("Delete")
             .then(($delete_btn) => {
               if (!$delete_btn.parent().hasClass("pf-m-aria-disabled")) {
@@ -154,7 +152,7 @@ export class AssessmentQuestionnaire {
   }
 
   public static searchQuestions(inputText: string): void {
-    cy.get(".pf-v5-c-text-input-group__text-input")
+    cy.get(".pf-v6-c-text-input-group__text-input")
       .dblclick() // Double-clicks the input field
       .clear()
       .type(inputText, { force: true })
@@ -177,10 +175,10 @@ export class AssessmentQuestionnaire {
     section: string,
     expectedMatches: number
   ): void {
-    cy.get(".pf-v5-c-tabs__item-text")
+    cy.get(".pf-v6-c-tabs__item-text")
       .contains(section)
       .parent()
-      .find("span.pf-v5-c-badge")
+      .find("span.pf-v6-c-badge")
       .then(($badge) => {
         const text = $badge.text();
         const match = text.match(/(\d+) match(es)?/);
@@ -190,8 +188,8 @@ export class AssessmentQuestionnaire {
   }
 
   static validateNoMatchesFound(): void {
-    cy.get(".pf-v5-c-empty-state__content")
-      .find("h2.pf-v5-c-empty-state__title-text")
+    cy.get(".pf-v6-c-empty-state__content")
+      .find("h2.pf-v6-c-empty-state__title-text")
       .invoke("text")
       .then((text) => {
         expect(text.trim()).to.match(/^No questions match your search/);
@@ -200,7 +198,7 @@ export class AssessmentQuestionnaire {
 
   static backToQuestionnaire(): void {
     cy.get(QuestionnaireBreadcrumb).contains("Assessment").click();
-    cy.get(".pf-v5-c-content > h1")
+    cy.get(".pf-v6-c-content > h1")
       .invoke("text")
       .should("equal", "Assessment questionnaires");
   }
@@ -209,7 +207,7 @@ export class AssessmentQuestionnaire {
     const lowerCaseInput = textInput.toLowerCase();
 
     cy.get(
-      ".pf-v5-c-table > tbody > tr:not(.pf-v5-c-table__expandable-row):visible"
+      ".pf-v6-c-table > tbody > tr:not(.pf-v6-c-table__expandable-row):visible"
     ).each(($row) => {
       cy.wrap($row)
         .find('td[data-label="Name"]')
@@ -219,8 +217,8 @@ export class AssessmentQuestionnaire {
             cy.wrap($row).find("td:first button").click();
 
             cy.wrap($row)
-              .next("tr.pf-v5-c-table__expandable-row")
-              .find(".pf-v5-c-table__expandable-row-content")
+              .next("tr.pf-v6-c-table__expandable-row")
+              .find(".pf-v6-c-table__expandable-row-content")
               .invoke("text")
               .then((expandedText) => {
                 expect(expandedText.toLowerCase()).to.include(lowerCaseInput);

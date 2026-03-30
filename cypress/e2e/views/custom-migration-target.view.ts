@@ -21,7 +21,7 @@ export enum CustomMigrationTargetView {
   credentialsInput = "#associated-credentials-select-toggle-select-typeahead",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
-  card = ".pf-v5-c-card",
+  card = ".pf-v6-c-card",
   cardContainer = 'div[class*="gallery"][class*="gutter"]',
   filterLanguageDropdown = "#filter-control-provider-Languages",
   formLanguageDropdown = "#provider-type-select-toggle",

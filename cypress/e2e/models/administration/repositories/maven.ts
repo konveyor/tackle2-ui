@@ -15,7 +15,7 @@ import {
 export class MavenConfiguration {
   static open() {
     selectUserPerspective(administration);
-    clickByText("a.pf-v5-c-nav__link", "Maven");
+    clickByText("a.pf-v6-c-nav__link", "Maven");
     cy.contains("h1", "Maven configuration", { timeout: 5000 });
   }
 
@@ -39,7 +39,7 @@ export class MavenConfiguration {
         cy.log(disabled);
         if (disabled == "false") {
           clickByText(clearRepository, "Clear repository");
-          cy.get(".pf-v5-c-modal-box__title-text").contains("Clear repository");
+          cy.get(".pf-v6-c-modal-box__title-text").contains("Clear repository");
           click(confirmClear);
         }
       });

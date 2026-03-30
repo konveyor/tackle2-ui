@@ -78,7 +78,7 @@ describe(["@tier3", "@tier3_E"], "Bulk deletion of applications", () => {
     cy.get(appSelectionButton).eq(0).click();
     cy.get("ul[role=menu] > li").contains("Select all").click();
     cy.get(applicationsActionButton).eq(0).click({ force: true });
-    cy.get("li.pf-v5-c-menu__list-item")
+    cy.get("li.pf-v6-c-menu__list-item")
       .contains("Delete")
       .then(($deleteButton) => {
         if ($deleteButton.parent().hasClass("pf-m-aria-disabled")) {

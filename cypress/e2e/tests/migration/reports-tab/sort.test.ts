@@ -114,10 +114,10 @@ describe(["@tier3", "@tier3_E"], "Reports tab sort tests", () => {
 const getRiskIconColumnSortableData = (): string[] => {
   const itemList = [];
 
-  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-    .not(".pf-v5-c-table__expandable-row")
+  cy.get(".pf-v6-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v6-c-table__expandable-row")
     .find(
-      `td[data-label="${IdentifiedRiskTableHeaders.risk}"] span.pf-v5-c-icon__content`
+      `td[data-label="${IdentifiedRiskTableHeaders.risk}"] span.pf-v6-c-icon__content`
     )
     .each(($ele) => {
       let letter = "a";

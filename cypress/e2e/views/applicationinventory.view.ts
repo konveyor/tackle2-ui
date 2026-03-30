@@ -78,10 +78,10 @@ export const createEntitiesCheckbox = "#create-entities-checkbox";
 
 //Fields related to application details page
 export enum appDetailsView {
-  applicationTag = "span.pf-v5-c-label__content",
+  applicationTag = "span.pf-v6-c-label__content",
   closeDetailsPage = "button[aria-label='Close drawer panel']",
   tagFilter = "#filter-control-source-typeahead-select-input",
-  tagCategory = "div[class='pf-v5-c-content'] > h4",
+  tagCategory = "div[class='pf-v6-c-content'] > h4",
   tagCategoryFilter = "#filter-control-tagCategory-typeahead-select-input",
 }
 

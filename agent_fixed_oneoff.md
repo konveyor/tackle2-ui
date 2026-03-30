@@ -191,6 +191,81 @@ PF v6 `Content` does not accept `component="span"`.
 
 ---
 
+## 8. Unit Test Fixes
+
+### Jest snapshot updates (22 snapshots across 19 test suites)
+
+All snapshot failures were CSS class prefix changes (`pf-v5-c-*` -> `pf-v6-c-*`),
+OUIA component type changes (`PF5/*` -> `PF6/*`), and minor DOM structure differences
+(button text wrappers, empty state actions div). Updated via `jest --updateSnapshot`.
+
+### application-form test fix (1 file)
+
+| File                                                                                     | Change                                                                                                                                                                                                                     |
+| ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `client/src/app/pages/applications/application-form/__tests__/application-form.test.tsx` | Replaced `userEvent.selectOptions(screen.getByRole("listbox"), [...])` with `fireEvent.click(screen.getByRole("option", { name: ... }))` — PF v6 Select renders button-based options instead of native `<option>` elements |
+
+---
+
+## 9. Cypress E2E Test Fixes
+
+### CSS class prefix updates (18 files, 50 occurrences)
+
+All `pf-v5` CSS class selectors in Cypress tests updated to `pf-v6`. Affected files:
+
+**Models:**
+
+- `e2e/models/administration/assessment_questionnaire/assessment_questionnaire.ts`
+- `e2e/models/administration/repositories/maven.ts`
+- `e2e/models/migration/analysis-profiles/analysis-wizard-helpers.ts`
+- `e2e/models/migration/applicationinventory/analysis.ts`
+- `e2e/models/migration/applicationinventory/application.ts`
+- `e2e/models/migration/applicationinventory/assessment.ts`
+- `e2e/models/migration/custom-migration-targets/custom-migration-target.ts`
+
+**Tests:**
+
+- `e2e/tests/migration/applicationinventory/analysis/source_analysis_without_creds.test.ts`
+- `e2e/tests/migration/applicationinventory/applications/bulk_deletion_applications.test.ts`
+- `e2e/tests/migration/custom-migration-targets/crud.test.ts`
+- `e2e/tests/migration/dynamic-report/issues/filter_sorting_pagination.test.ts`
+- `e2e/tests/migration/reports-tab/sort.test.ts`
+- `e2e/tests/migration/task-manager/task_manager.test.ts`
+- `e2e/tests/rbac/custom-migration-target.test.ts`
+
+**Views:**
+
+- `e2e/views/applicationinventory.view.ts`
+- `e2e/views/custom-migration-target.view.ts`
+- `e2e/views/migration-wave.view.ts`
+
+**Utils:**
+
+- `utils/utils.ts`
+
+### Switch toggle state detection (2 files)
+
+PF v6 Switch no longer uses `.pf-m-on`/`.pf-m-off` CSS modifier classes for state
+detection. Updated to check `input[type='checkbox']` checked state instead.
+
+| File                                                                                        | Change                                                                                           |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `utils/utils.ts` (`enableSwitch`/`disableSwitch`)                                           | Replaced `.pf-m-on`/`.pf-m-off` visibility checks with `input[type='checkbox']` `:checked` state |
+| `e2e/models/administration/assessment_questionnaire/assessment_questionnaire.ts` (`enable`) | Same pattern — check `input[type='checkbox']` checked state                                      |
+
+### Select toggle ID selectors (2 files)
+
+PF v6 Select uses `MenuToggle` which does not render the v5-style `#<id>-toggle` IDs.
+Updated selectors to use `aria-label` attributes instead.
+
+| File                                                | Old Selector                             | New Selector                                         |
+| --------------------------------------------------- | ---------------------------------------- | ---------------------------------------------------- |
+| `e2e/views/review.view.ts` (`proposedActionSelect`) | `#action-select-toggle`                  | `button[aria-label='Action select dropdown toggle']` |
+| `e2e/views/review.view.ts` (`effortEstimateSelect`) | `#effort-select-toggle-select-typeahead` | `button[aria-label='Effort select dropdown toggle']` |
+| `e2e/views/issue.view.ts` (`singleAppDropList`)     | `#application-select`                    | `button[aria-label='application-select']`            |
+
+---
+
 ## Summary
 
 | Category                          | Errors Fixed |
@@ -205,4 +280,6 @@ PF v6 `Content` does not accept `component="span"`.
 | Removed components                | 7            |
 | Type fixes                        | 3            |
 | CSS / Build                       | 2            |
-| **Total**                         | **~87**      |
+| Unit test fixes                   | 23           |
+| Cypress e2e test fixes            | 55           |
+| **Total**                         | **~165**     |

@@ -1,7 +1,7 @@
 import { MigrationWave } from "../models/migration/migration-waves/migration-wave";
 
 export enum MigrationWaveView {
-  generalDatePicker = ".pf-v5-c-date-picker",
+  generalDatePicker = ".pf-v6-c-date-picker",
   calendarButton = "[aria-label='Toggle date picker']",
   submitButton = "#migration-wave-form-submit",
   nameInput = "#name",
@@ -19,8 +19,8 @@ export enum MigrationWaveView {
   issueTypeSelectToggle = "#issue-type-select-toggle-select-typeahead",
   createTrackerButton = "#create-tracker",
   waveExpanded = "pf-m-expanded",
-  removeApplicationButton = ".pf-v5-u-text-align-right > button.pf-m-plain",
-  unlinkApplicationButton = ".pf-v5-u-text-align-right button.pf-m-link",
+  removeApplicationButton = ".pf-v6-u-text-align-right > button.pf-m-plain",
+  unlinkApplicationButton = ".pf-v6-u-text-align-right button.pf-m-link",
 }
 
 export enum MigrationWavesSpecialColumns {

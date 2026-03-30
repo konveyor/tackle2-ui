@@ -725,8 +725,8 @@ export function generateRandomDateRange(
 export function getTableColumnData(columnName: string): Array<string> {
   selectItemsPerPage(100);
   const itemList = [];
-  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-    .not(".pf-v5-c-table__expandable-row")
+  cy.get(".pf-v6-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v6-c-table__expandable-row")
     .find(`td[data-label="${columnName}"]`)
     .each(($ele) => {
       if (
@@ -1905,7 +1905,7 @@ export function goToLastPage(): void {
 }
 
 export function checkCurrentPageIs(pageNumber: number) {
-  cy.get(".pf-v5-c-pagination__nav-page-select", { timeout: 10 * SEC })
+  cy.get(".pf-v6-c-pagination__nav-page-select", { timeout: 10 * SEC })
     .find('input[aria-label="Current page"]')
     .should("have.value", pageNumber.toString());
 }
@@ -2019,13 +2019,11 @@ export function enableSwitch(selector: string): void {
   cy.get(selector)
     .parent("label")
     .within(() => {
-      cy.get(".pf-m-on")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
+      cy.get("input[type='checkbox']").then(($input) => {
+        if (!$input.is(":checked")) {
+          cy.get(switchToggle).click();
+        }
+      });
     });
 }
 
@@ -2033,13 +2031,11 @@ export function disableSwitch(selector: string): void {
   cy.get(selector)
     .parent("label")
     .within(() => {
-      cy.get(".pf-m-off")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
+      cy.get("input[type='checkbox']").then(($input) => {
+        if ($input.is(":checked")) {
+          cy.get(switchToggle).click();
+        }
+      });
     });
 }
 
@@ -2160,7 +2156,7 @@ export function clickTab(name: string): void {
         const $el = Cypress.$(el);
         return (
           $el.is(":visible") &&
-          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+          $el.closest("li.pf-v6-c-tabs__item.pf-m-overflow").length === 0
         );
       });
 
@@ -2646,7 +2642,7 @@ export function restoreColumnsToDefault(): void {
   clickByText(button, save, true);
 }
 export function openManageColumns(): void {
-  cy.get(".pf-v5-c-overflow-menu__group.pf-m-button-group")
+  cy.get(".pf-v6-c-overflow-menu__group.pf-m-button-group")
     .find("button")
     .click();
 }
