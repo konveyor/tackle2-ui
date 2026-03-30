@@ -83,6 +83,7 @@ export const useFilterState = <
 
   useEffect(() => {
     if (isInitialLoad) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time initialization flag
       setIsInitialLoad(false);
     }
   }, [isInitialLoad]);

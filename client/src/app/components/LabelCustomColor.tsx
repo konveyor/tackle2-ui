@@ -51,6 +51,7 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
         textColorObj.lighten(5);
       }
     }
+    // eslint-disable-next-line react-hooks/immutability -- module-level cache, intentional mutation
     globalColorCache[color] = {
       borderColor: color,
       backgroundColor: bgColorObj.toString(),

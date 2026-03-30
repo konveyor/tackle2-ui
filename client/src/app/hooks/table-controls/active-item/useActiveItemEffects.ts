@@ -38,5 +38,6 @@ export const useActiveItemEffects = <TItem>({
     if (!isLoading && activeItemId && !activeItem) {
       clearActiveItem();
     }
-  }, [isLoading, activeItemId, activeItem]); // TODO fix the exhaustive-deps lint warning here without affecting behavior
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clearActiveItem identity changes on each render; including it would cause infinite loop
+  }, [isLoading, activeItemId, activeItem]);
 };

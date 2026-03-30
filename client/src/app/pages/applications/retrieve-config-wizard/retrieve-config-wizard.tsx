@@ -119,6 +119,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     }
   };
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form watch() API
   const readyApplications = watch("ready");
   if (readyApplications.length === 0) {
     return (

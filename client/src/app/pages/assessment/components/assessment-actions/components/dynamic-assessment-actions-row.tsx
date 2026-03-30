@@ -119,6 +119,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const [action, setAction] = useState(determineAction());
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from assessment changes
     setAction(determineAction());
   }, [determineAction, assessment]);
 

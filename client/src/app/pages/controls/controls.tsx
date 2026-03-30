@@ -44,6 +44,7 @@ export const Controls: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- sync tab state from URL */
     switch (location.pathname) {
       case "/controls/stakeholders":
         return setActiveTabKey(0);
@@ -58,6 +59,7 @@ export const Controls: React.FC = () => {
       default:
         return setActiveTabKey(0);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [location.pathname]);
   return (
     <>

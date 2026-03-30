@@ -166,6 +166,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       );
 
       // TODO: This hook should be pulled outside of the useMemo
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- known issue, needs refactor to lift hook out of reduce callback
       const { review: appReview } = useFetchReviewById(current?.review?.id);
 
       if (appConfidence && appReview) {

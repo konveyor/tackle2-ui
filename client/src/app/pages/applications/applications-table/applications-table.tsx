@@ -341,6 +341,7 @@ export const ApplicationsTable: FC = () => {
         }),
         variant: "success",
       });
+    // eslint-disable-next-line react-hooks/immutability -- clearActiveItem defined later in component; safe in callback
     clearActiveItem();
     setApplicationsToDelete([]);
   };

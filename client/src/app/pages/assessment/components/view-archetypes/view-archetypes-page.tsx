@@ -28,6 +28,7 @@ const ViewArchetypes: React.FC = () => {
   );
   useEffect(() => {
     if (archetypeId && archetype) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync state from URL param
       setActiveArchetype({
         id: parseInt(archetypeId, 10),
         name: archetype.name,

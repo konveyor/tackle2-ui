@@ -80,6 +80,7 @@ const useImmerInitialState = (
     });
   }
 
+  // eslint-disable-next-line react-hooks/refs -- intentional: lazy initialization pattern
   return initialRef.current;
 };
 

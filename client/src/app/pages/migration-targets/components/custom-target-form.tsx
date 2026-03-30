@@ -293,6 +293,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync form state from prop
     setTarget(initialTarget);
     if (initialTarget?.image?.id === 1) {
       setImageFilename("default.png");

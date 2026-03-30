@@ -159,6 +159,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         <Stack hasGutter>
           <StackItem>
             <Bullseye>
+              {/* eslint-disable-next-line react-hooks/static-components -- simple image wrapper, no hooks */}
               <TargetLogo />
             </Bullseye>
           </StackItem>

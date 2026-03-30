@@ -19,6 +19,7 @@ const usePrevious = <T,>(value: T) => {
   useEffect(() => {
     ref.current = value;
   }, [value]);
+  // eslint-disable-next-line react-hooks/refs -- intentional: return previous value pattern
   return ref.current;
 };
 

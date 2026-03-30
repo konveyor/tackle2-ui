@@ -61,6 +61,7 @@ export const ApplicationDependenciesForm: React.FC<
       const north = northboundDependencies
         .filter((f) => f.to.id === application.id)
         .map((f) => dependencyToOption(f, northToStringFn));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from query result
       setNorthboundDependenciesOptions(north);
     }
   }, [application, northboundDependencies]);
@@ -70,6 +71,7 @@ export const ApplicationDependenciesForm: React.FC<
       const south = southboundDependencies
         .filter((f) => f.from.id === application.id)
         .map((f) => dependencyToOption(f, southToStringFn));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from query result
       setSouthboundDependenciesOptions(south);
     }
   }, [application, southboundDependencies]);

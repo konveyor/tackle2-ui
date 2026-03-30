@@ -95,6 +95,7 @@ export const ExportForm: React.FC<ExportFormProps> = ({
     mode: "all",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form watch() API
   const values = watch();
 
   const projectsByTracker = useTrackerProjectsByTracker(values.tracker);

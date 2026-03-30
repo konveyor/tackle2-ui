@@ -35,7 +35,7 @@ import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
-import { duplicateNameCheck, getValidatedFromErrors } from "@app/utils/utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
 import { useSourceLabels } from "../hooks/useSourceLabels";
@@ -221,7 +221,11 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         fieldId="additional-target-labels"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isDirty, error, isTouched },
+          fieldState: {
+            isDirty: _isDirty,
+            error: _error,
+            isTouched: _isTouched,
+          },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (
@@ -314,7 +318,11 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         fieldId="additional-source-labels"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isDirty, error, isTouched },
+          fieldState: {
+            isDirty: _isDirty2,
+            error: _error2,
+            isTouched: _isTouched2,
+          },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (

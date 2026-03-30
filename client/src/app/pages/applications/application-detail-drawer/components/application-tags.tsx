@@ -57,6 +57,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
   useEffect(() => {
     if (application.tags) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- loading state for manual Promise.all fetch
       setIsFetching(true);
 
       Promise.all(
