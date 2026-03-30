@@ -136,7 +136,8 @@ export class Assessment {
       .children("div")
       .eq(optionToSelect)
       .find(radioInput)
-      .check();
+      .parent("label")
+      .click();
   }
 
   public static selectAnswers(risk: string, saveAndReview = false): void {

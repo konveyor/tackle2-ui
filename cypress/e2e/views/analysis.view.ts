@@ -29,7 +29,7 @@ export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
 export const analysisProfileSelect =
-  "button[aria-label='Analysis profile select']";
+  "button[aria-label='Analysis profile selection dropdown toggle']";
 export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
 export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";

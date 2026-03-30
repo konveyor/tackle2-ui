@@ -78,7 +78,7 @@ export class AssessmentQuestionnaire {
 
   public static delete(fileName: string) {
     AssessmentQuestionnaire.operation(fileName, deleteAction);
-    cy.get(confirmDeletion).click().focused().clear().type(fileName);
+    cy.get(confirmDeletion).clear().type(fileName);
     clickByText(button, deleteAction);
   }
 
@@ -130,17 +130,10 @@ export class AssessmentQuestionnaire {
             .contains("Delete")
             .then(($delete_btn) => {
               if (!$delete_btn.parent().hasClass("pf-m-aria-disabled")) {
-                const row_name = $delete_btn
-                  .closest("td")
-                  .parent(trTag)
-                  .find('td[data-label="Name"]')
-                  .text();
+                // Use rowName captured from the table row before opening the
+                // kebab menu — PF v6 menus render in portals outside the <tr>.
                 clickByText(button, "Delete", true);
-                cy.get(confirmDeletion)
-                  .click()
-                  .focused()
-                  .clear()
-                  .type(row_name);
+                cy.get(confirmDeletion).clear().type(rowName);
                 clickByText(button, deleteAction);
               } else {
                 // close menu if nothing to do

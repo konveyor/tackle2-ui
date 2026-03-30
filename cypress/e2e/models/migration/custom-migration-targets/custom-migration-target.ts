@@ -170,8 +170,7 @@ export class CustomMigrationTarget {
     cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
       .contains(Languages.Java)
       .closest(".pf-v6-c-menu__list-item")
-      .find("input[type=checkbox]")
-      .check();
+      .click();
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
     clickByText("button", clearAllFilters);
 
@@ -180,8 +179,7 @@ export class CustomMigrationTarget {
     cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
       .contains(language)
       .closest(".pf-v6-c-menu__list-item")
-      .find("input[type=checkbox]")
-      .check();
+      .click();
 
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
   }
