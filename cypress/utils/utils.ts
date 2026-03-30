@@ -1607,6 +1607,12 @@ export function deleteAllBusinessServices() {
   });
 }
 
+export function deleteAllAnalysisProfiles(): void {
+  getAuthHeaders().then((headers) => {
+    AnalysisProfile.deleteAllViaApi(headers);
+  });
+}
+
 export function deleteAllStakeholderGroups(_cancel = false): void {
   getAuthHeaders().then((headers) => {
     Stakeholdergroups.deleteAllViaApi(headers);

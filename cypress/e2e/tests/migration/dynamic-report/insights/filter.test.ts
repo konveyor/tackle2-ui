@@ -7,9 +7,11 @@ import {
   seedInsightsData,
 } from "../../../../../utils/utils";
 import { Insights } from "../../../../models/migration/dynamic-report/insights/insights";
+import { Issues } from "../../../../models/migration/dynamic-report/issues/issues";
 import { dynamicReportFilter } from "../../../../types/constants";
+import { AppInsight, AppIssue } from "../../../../types/types";
 
-describe(["@tier3", "@tier3_D"], "Filtering in Insights", function () {
+describe(["@tier3", "@tier3_D"], "Insights and custom rules", function () {
   // Application names created by seedInsightsData
   const bookserverAppNames = ["InsightsFilteringApp1_0"];
 
@@ -43,6 +45,45 @@ describe(["@tier3", "@tier3_D"], "Filtering in Insights", function () {
       bookServerInsights,
       coolstoreInsights
     );
+
+    clearAllFilters();
+  });
+
+  it("Generate and validate Insights with effort 0 in custom rules", function () {
+    const tackleTestAppInsights =
+      this.analysisData["source_analysis_tackle_testapp_custom_rule"][
+        "insights"
+      ];
+
+    Insights.openList();
+
+    Insights.applyAndValidateFilter(
+      dynamicReportFilter.applicationName,
+      ["tackleTestApp_CustomRule"],
+      tackleTestAppInsights
+    );
+
+    tackleTestAppInsights.forEach((insight: AppInsight) => {
+      Insights.validateAllFields(insight);
+    });
+
+    clearAllFilters();
+  });
+
+  it("Generate and validate Issues with effort > 0 in custom rules", function () {
+    const tackleTestAppIssues =
+      this.analysisData["source_analysis_tackle_testapp_custom_rule"]["issues"];
+
+    Issues.openList();
+    Issues.applyAndValidateFilter(
+      dynamicReportFilter.applicationName,
+      ["tackleTestApp_CustomRule"],
+      tackleTestAppIssues
+    );
+
+    tackleTestAppIssues.forEach((issue: AppIssue) => {
+      Issues.validateAllFields(issue);
+    });
 
     clearAllFilters();
   });

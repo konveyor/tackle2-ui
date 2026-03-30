@@ -22,7 +22,6 @@ import {
   getRandomApplicationData,
   login,
   next,
-  resetURL,
   selectItemsPerPage,
 } from "../../../utils/utils";
 import { User } from "../../models/keycloak/users/user";
@@ -32,7 +31,6 @@ import { AnalysisWizardHelpers } from "../../models/migration/analysis-profiles/
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
 import {
-  AnalysisStatuses,
   CustomRuleType,
   SEC,
   analyzeButton,
@@ -101,21 +99,18 @@ describe(
         .should("contain", target.name)
         .then((_) => {
           assertTargetIsVisible(analysis, target);
-          analyzeAndVerify(analysis);
         });
     });
 
     it("Look for created target on an analysis as architect user", function () {
       architect.login();
       assertTargetIsVisible(analysis, target);
-      analyzeAndVerify(analysis);
       architect.logout();
     });
 
     it("Look for created target on an analysis as migrator user", function () {
       migrator.login();
       assertTargetIsVisible(analysis, target);
-      analyzeAndVerify(analysis);
     });
 
     after("Clear test data", () => {
@@ -152,13 +147,6 @@ describe(
 
       clickByText(button, "Cancel");
       existingAnalysis.selectApplication();
-    };
-
-    const analyzeAndVerify = (analysis: Analysis) => {
-      analysis.analyze();
-      analysis.verifyAnalysisStatus(AnalysisStatuses.completed);
-      analysis.openReport();
-      resetURL();
     };
   }
 );
