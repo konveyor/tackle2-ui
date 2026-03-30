@@ -21,12 +21,7 @@ export const IdentityFormModal: React.FC<IdentityFormModalProps> = ({
   }
 
   return (
-    <Modal
-      id="credential.modal"
-      isOpen
-      variant="medium"
-      onClose={onClose}
-    >
+    <Modal id="credential.modal" isOpen variant="medium" onClose={onClose}>
       <ModalHeader
         title={
           identity

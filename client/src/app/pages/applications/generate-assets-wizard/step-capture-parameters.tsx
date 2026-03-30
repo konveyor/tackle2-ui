@@ -141,9 +141,7 @@ export const CaptureParameters: React.FC<{
   return (
     <>
       <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
-        <h3>
-          {t("generateAssetsWizard.captureParameters.title")}
-        </h3>
+        <h3>{t("generateAssetsWizard.captureParameters.title")}</h3>
 
         {targetProfile ? (
           <p>

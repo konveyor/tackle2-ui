@@ -335,9 +335,12 @@ export const MigrationTargets: FC = () => {
         onClose={() => setCreateUpdateModalState(null)}
       >
         <ModalHeader
-          title={t(targetToUpdate ? "dialog.title.update" : "dialog.title.new", {
-            what: `${t("terms.customTarget")}`,
-          })}
+          title={t(
+            targetToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: `${t("terms.customTarget")}`,
+            }
+          )}
         />
         <ModalBody>
           <CustomTargetForm

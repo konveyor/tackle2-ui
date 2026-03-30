@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  Tab,
-  TabTitleText,
-  Tabs,
-  Title,
-} from "@patternfly/react-core";
+import { Tab, TabTitleText, Tabs, Title } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -49,9 +44,7 @@ export const IssueDetailDrawer: React.FC<IIssueDetailDrawerProps> = ({
       drawerPanelContentProps={{ defaultSize: "600px" }}
       header={
         <div>
-          <small className={spacing.mb_0}>
-            Issue
-          </small>
+          <small className={spacing.mb_0}>Issue</small>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {issue ? getIssueTitle(issue) : ""}
           </Title>

@@ -343,7 +343,9 @@ export const MigrationWaves: React.FC = () => {
                             component="button"
                             onClick={() =>
                               setApplicationsToExport(
-                                selectedItems.flatMap((item) => item.applications)
+                                selectedItems.flatMap(
+                                  (item) => item.applications
+                                )
                               )
                             }
                           >
@@ -612,7 +614,9 @@ export const MigrationWaves: React.FC = () => {
         />
         <ModalBody>
           <WaveForm
-            migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}
+            migrationWave={
+              migrationWaveToEdit ? migrationWaveToEdit : undefined
+            }
             onClose={closeWaveModal}
           />
         </ModalBody>

@@ -111,7 +111,9 @@ export const TabDetailsContent: React.FC<{
     <DrawerTabContent>
       {/* Description */}
       <DrawerTabContentSection label={t("terms.description")}>
-        <Content component="p">{analysisProfile.description || <EmptyTextMessage />}</Content>
+        <Content component="p">
+          {analysisProfile.description || <EmptyTextMessage />}
+        </Content>
       </DrawerTabContentSection>
 
       {/* Mode */}

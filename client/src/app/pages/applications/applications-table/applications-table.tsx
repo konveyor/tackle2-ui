@@ -1636,7 +1636,9 @@ export const ApplicationsTable: FC = () => {
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
       >
-        <ModalHeader title={t("actions.download", { what: "analysis details" })} />
+        <ModalHeader
+          title={t("actions.download", { what: "analysis details" })}
+        />
         <ModalBody>
           <Content>{"Select format"}</Content>
           <FormSelect

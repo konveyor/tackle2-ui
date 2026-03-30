@@ -57,10 +57,13 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
             id="platform-select"
             toggleAriaLabel="Platform select dropdown toggle"
             aria-label="platform-select"
-            value={platform ? toOptionLike(platform, platformOptions) : undefined}
+            value={
+              platform ? toOptionLike(platform, platformOptions) : undefined
+            }
             options={platformOptions}
             onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<SourcePlatform>;
+              const selectionValue =
+                selection as OptionWithValue<SourcePlatform>;
               onPlatformSelected(selectionValue.value);
             }}
             onClear={() => onPlatformSelected(null)}

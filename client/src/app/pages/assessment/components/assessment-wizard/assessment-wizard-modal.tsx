@@ -27,7 +27,10 @@ const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
           variant={ModalVariant.large}
         >
           <ModalBody>
-            <AssessmentWizard assessment={assessment} onClose={onRequestClose} />
+            <AssessmentWizard
+              assessment={assessment}
+              onClose={onRequestClose}
+            />
           </ModalBody>
         </Modal>
       )}

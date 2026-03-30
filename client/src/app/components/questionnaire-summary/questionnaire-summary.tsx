@@ -10,8 +10,8 @@ import {
   PageSection,
   SearchInput,
   Tab,
-  Tabs,
   TabProps,
+  Tabs,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -207,7 +207,9 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                         />
                         {section?.comment && (
                           <Content className={spacing.myMd}>
-                            <Content component={ContentVariants.h4}>Section comments</Content>
+                            <Content component={ContentVariants.h4}>
+                              Section comments
+                            </Content>
                             <Content key={index} component={ContentVariants.p}>
                               {section.comment}
                             </Content>

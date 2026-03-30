@@ -16,7 +16,9 @@ export const Review: React.FC<DetailsContentProps> = ({ state }) => {
         <Title headingLevel="h3" size="xl">
           {t("analysisProfileWizard.steps.review.title")}
         </Title>
-        <Content component="p">{t("analysisProfileWizard.steps.review.description")}</Content>
+        <Content component="p">
+          {t("analysisProfileWizard.steps.review.description")}
+        </Content>
       </Content>
 
       <DetailsContent state={state} />

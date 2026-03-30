@@ -1,10 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Bullseye,
-  Content,
-  Spinner,
-} from "@patternfly/react-core";
+import { Bullseye, Content, Spinner } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DecoratedApplication } from "../useDecoratedApplications";

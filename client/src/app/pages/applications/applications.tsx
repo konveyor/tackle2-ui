@@ -1,12 +1,7 @@
 import { lazy } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Level,
-  LevelItem,
-  PageSection,
-  Title,
-} from "@patternfly/react-core";
+import { Level, LevelItem, PageSection, Title } from "@patternfly/react-core";
 
 const ApplicationsTable = lazy(() => import("./applications-table"));
 

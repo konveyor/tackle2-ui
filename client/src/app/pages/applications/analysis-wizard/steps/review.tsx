@@ -104,7 +104,9 @@ const ReviewProfile: React.FC<ReviewProfileProps> = ({
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.review.title")}
         </Title>
-        <Content component="p">{t("analysisSteps.review.analysisDescription")}</Content>
+        <Content component="p">
+          {t("analysisSteps.review.analysisDescription")}
+        </Content>
       </Content>
 
       <DescriptionList isHorizontal className={spacing.mtMd}>
@@ -194,7 +196,9 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.review.title")}
         </Title>
-        <Content component="p">{t("analysisSteps.review.analysisDescription")}</Content>
+        <Content component="p">
+          {t("analysisSteps.review.analysisDescription")}
+        </Content>
       </Content>
 
       <DescriptionList isHorizontal className={spacing.mtMd}>

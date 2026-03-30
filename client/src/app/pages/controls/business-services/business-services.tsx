@@ -307,7 +307,9 @@ export const BusinessServices: React.FC = () => {
       >
         <ModalHeader
           title={t(
-            businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
+            businessServiceToUpdate
+              ? "dialog.title.update"
+              : "dialog.title.new",
             {
               what: t("terms.businessService").toLowerCase(),
             }

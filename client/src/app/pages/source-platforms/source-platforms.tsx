@@ -194,7 +194,9 @@ export const SourcePlatforms: React.FC = () => {
     <>
       <PageSection>
         <Content>
-          <Content component={ContentVariants.h1}>{t("terms.sourcePlatforms")}</Content>
+          <Content component={ContentVariants.h1}>
+            {t("terms.sourcePlatforms")}
+          </Content>
         </Content>
       </PageSection>
       <PageSection>

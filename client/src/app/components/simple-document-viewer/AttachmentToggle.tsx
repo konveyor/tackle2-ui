@@ -26,7 +26,10 @@ export const AttachmentToggle: FC<{
       <Select
         isOpen={isOpen}
         onSelect={(_event, selectedId: SelectOptionProps["value"]) => {
-          if (selectedId !== undefined && (typeof selectedId === "string" || typeof selectedId === "number")) {
+          if (
+            selectedId !== undefined &&
+            (typeof selectedId === "string" || typeof selectedId === "number")
+          ) {
             onSelect(selectedId);
           }
           onToggle();

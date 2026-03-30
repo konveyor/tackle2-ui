@@ -66,11 +66,7 @@ export const FileIncidentsDetailModal: React.FC<
   const insightTitle = getInsightTitle(insight);
 
   return (
-    <Modal
-      variant="large"
-      isOpen
-      onClose={onClose}
-    >
+    <Modal variant="large" isOpen onClose={onClose}>
       <ModalHeader title={fileReport.file} />
       <ModalBody>
         {isLoadingState ? (
@@ -112,7 +108,9 @@ export const FileIncidentsDetailModal: React.FC<
                           <Content component="h2">
                             <Truncate content={insightTitle} />
                           </Content>
-                          <Content component="small">Line {incident.line}</Content>
+                          <Content component="small">
+                            Line {incident.line}
+                          </Content>
                         </Content>
                         <InsightDescriptionAndLinks
                           className={spacing.mtLg}

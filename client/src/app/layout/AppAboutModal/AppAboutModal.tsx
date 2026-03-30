@@ -4,8 +4,8 @@ import {
   AboutModal,
   Content,
   DescriptionList,
-  DescriptionListTerm,
   DescriptionListDescription,
+  DescriptionListTerm,
 } from "@patternfly/react-core";
 
 import { ENV } from "@app/env";
@@ -90,7 +90,9 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
         <Content>
           <DescriptionList>
             <DescriptionListTerm>{t("terms.version")}</DescriptionListTerm>
-            <DescriptionListDescription>{ENV.VERSION}</DescriptionListDescription>
+            <DescriptionListDescription>
+              {ENV.VERSION}
+            </DescriptionListDescription>
           </DescriptionList>
         </Content>
       </Content>

@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  Flex,
-  FlexItem,
-  Label,
-  LabelGroup,
-} from "@patternfly/react-core";
+import { Flex, FlexItem, Label, LabelGroup } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { ExpandableRowContent } from "@patternfly/react-table";

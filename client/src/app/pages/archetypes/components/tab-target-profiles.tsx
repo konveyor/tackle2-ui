@@ -1,10 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateBody,
-} from "@patternfly/react-core";
+import { Bullseye, EmptyState, EmptyStateBody } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";

@@ -80,7 +80,9 @@ export const ApplicationDependenciesForm: React.FC<
 
   return (
     <Form>
-      <Content component="p">{t("message.manageDependenciesInstructions")}</Content>
+      <Content component="p">
+        {t("message.manageDependenciesInstructions")}
+      </Content>
 
       <FormGroup
         // t("terms.northboundDependencies")

@@ -1,4 +1,11 @@
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalProps } from "@patternfly/react-core";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalProps,
+} from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
 
 import {
@@ -57,7 +64,9 @@ export const SimpleDocumentViewerModal = ({
       variant="large"
       position={position === "top" ? "top" : undefined}
     >
-      <ModalHeader title={title ?? `Analysis details for task instance ${documentId}`} />
+      <ModalHeader
+        title={title ?? `Analysis details for task instance ${documentId}`}
+      />
       <ModalBody>
         <SimpleDocumentViewer
           taskId={documentId}

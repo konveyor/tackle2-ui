@@ -212,9 +212,7 @@ export const SchemaDefinedPage: React.FC = () => {
             <Grid hasGutter style={{ height: "100%" }}>
               <GridItem span={12}>
                 <Card isFullHeight isCompact>
-                  <CardHeader>
-                    Current Document
-                  </CardHeader>
+                  <CardHeader>Current Document</CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
                       <EmptyState

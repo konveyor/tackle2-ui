@@ -84,9 +84,7 @@ const ViewArchetypes: React.FC = () => {
               }}
             />
           )}
-          <div>
-            {<ViewArchetypesTable archetypeRef={activeArchetype} />}
-          </div>
+          <div>{<ViewArchetypesTable archetypeRef={activeArchetype} />}</div>
         </ConditionalRender>
       </PageSection>
     </>

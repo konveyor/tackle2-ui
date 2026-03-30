@@ -14,14 +14,13 @@ export const ApplicationIdentityModal: React.FC<{
   }
 
   return (
-    <Modal
-      isOpen={true}
-      variant="medium"
-      onClose={onClose}
-    >
+    <Modal isOpen={true} variant="medium" onClose={onClose}>
       <ModalHeader title="Manage credentials" />
       <ModalBody>
-        <ApplicationIdentityForm applications={applications} onClose={onClose} />
+        <ApplicationIdentityForm
+          applications={applications}
+          onClose={onClose}
+        />
       </ModalBody>
     </Modal>
   );

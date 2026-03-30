@@ -66,11 +66,7 @@ export const FileIncidentsDetailModal: React.FC<
   const issueTitle = getIssueTitle(issue);
 
   return (
-    <Modal
-      variant="large"
-      isOpen
-      onClose={onClose}
-    >
+    <Modal variant="large" isOpen onClose={onClose}>
       <ModalHeader title={fileReport.file} />
       <ModalBody>
         {isLoadingState ? (

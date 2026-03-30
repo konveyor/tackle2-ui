@@ -63,11 +63,7 @@ export const ManageColumnsModal = <TColumnKey extends string>({
   };
 
   return (
-    <Modal
-      isOpen={true}
-      variant="small"
-      onClose={onClose}
-    >
+    <Modal isOpen={true} variant="small" onClose={onClose}>
       <ModalHeader
         title={title}
         description={

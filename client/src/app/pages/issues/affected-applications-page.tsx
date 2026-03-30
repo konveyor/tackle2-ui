@@ -127,7 +127,9 @@ export const AffectedApplicationsPage: React.FC = () => {
   return (
     <>
       <PageSection variant="default">
-        <Content component={ContentVariants.h1}>{t("terms.affectedApplications")}</Content>
+        <Content component={ContentVariants.h1}>
+          {t("terms.affectedApplications")}
+        </Content>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link
