@@ -6,12 +6,16 @@ exports[`WizardStepNavDescription Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-content"
+        class="pf-v6-c-content"
+        data-ouia-component-id="OUIA-Generated-Content-2"
+        data-ouia-component-type="PF6/Content"
+        data-ouia-safe="true"
+        data-pf-content="true"
       >
         <small
-          class=""
-          data-ouia-component-id="OUIA-Generated-Text-2"
-          data-ouia-component-type="PF5/Text"
+          class="pf-v6-c-content--small"
+          data-ouia-component-id="OUIA-Generated-Content-4"
+          data-ouia-component-type="PF6/Content"
           data-ouia-safe="true"
           data-pf-content="true"
         >
@@ -22,12 +26,16 @@ exports[`WizardStepNavDescription Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-content"
+      class="pf-v6-c-content"
+      data-ouia-component-id="OUIA-Generated-Content-2"
+      data-ouia-component-type="PF6/Content"
+      data-ouia-safe="true"
+      data-pf-content="true"
     >
       <small
-        class=""
-        data-ouia-component-id="OUIA-Generated-Text-2"
-        data-ouia-component-type="PF5/Text"
+        class="pf-v6-c-content--small"
+        data-ouia-component-id="OUIA-Generated-Content-4"
+        data-ouia-component-type="PF6/Content"
         data-ouia-safe="true"
         data-pf-content="true"
       >

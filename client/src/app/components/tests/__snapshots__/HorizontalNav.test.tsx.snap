@@ -6,10 +6,10 @@ exports[`HorizontalNav Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-tabs"
+        class="pf-v6-c-tabs"
       >
         <ul
-          class="pf-v5-c-tabs__list"
+          class="pf-v6-c-tabs__list"
         >
           <a
             class="pf-v5-c-tabs__item"
@@ -71,10 +71,10 @@ exports[`HorizontalNav Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-tabs"
+      class="pf-v6-c-tabs"
     >
       <ul
-        class="pf-v5-c-tabs__list"
+        class="pf-v6-c-tabs__list"
       >
         <a
           class="pf-v5-c-tabs__item"

@@ -6,16 +6,16 @@ exports[`StatusIcon Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-l-flex pf-m-space-items-sm pf-m-nowrap"
+        class="pf-v6-l-flex pf-m-space-items-sm pf-m-nowrap"
       >
         <div
           class=""
         >
           <span
-            class="pf-v5-c-icon"
+            class="pf-v6-c-icon"
           >
             <span
-              class="pf-v5-c-icon__content"
+              class="pf-v6-c-icon__content"
             >
               <test-file-stub />
             </span>
@@ -31,16 +31,16 @@ exports[`StatusIcon Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-l-flex pf-m-space-items-sm pf-m-nowrap"
+      class="pf-v6-l-flex pf-m-space-items-sm pf-m-nowrap"
     >
       <div
         class=""
       >
         <span
-          class="pf-v5-c-icon"
+          class="pf-v6-c-icon"
         >
           <span
-            class="pf-v5-c-icon__content"
+            class="pf-v6-c-icon__content"
           >
             <test-file-stub />
           </span>

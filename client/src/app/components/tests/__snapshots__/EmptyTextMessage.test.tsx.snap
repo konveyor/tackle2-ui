@@ -5,31 +5,23 @@ exports[`EmptyTextMessage Renders without crashing 1`] = `
   "asFragment": [Function],
   "baseElement": <body>
     <div>
-      <p
-        class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-        data-ouia-component-id="OUIA-Generated-Text-2"
-        data-ouia-component-type="PF5/Text"
-        data-ouia-safe="true"
-        data-pf-content="true"
+      <span
+        class="pf-u-color-200 pf-u-font-weight-light"
       >
         <i>
           my custom message
         </i>
-      </p>
+      </span>
     </div>
   </body>,
   "container": <div>
-    <p
-      class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-      data-ouia-component-id="OUIA-Generated-Text-2"
-      data-ouia-component-type="PF5/Text"
-      data-ouia-safe="true"
-      data-pf-content="true"
+    <span
+      class="pf-u-color-200 pf-u-font-weight-light"
     >
       <i>
         my custom message
       </i>
-    </p>
+    </span>
   </div>,
   "debug": [Function],
   "findAllByAltText": [Function],

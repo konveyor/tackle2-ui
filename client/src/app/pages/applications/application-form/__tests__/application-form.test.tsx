@@ -60,9 +60,11 @@ describe("Component: application-form", () => {
         })
       );
     });
-    await userEvent.selectOptions(screen.getByRole("listbox"), [
-      data.businessService,
-    ]);
+    await waitFor(() => {
+      fireEvent.click(
+        screen.getByRole("option", { name: data.businessService })
+      );
+    });
 
     // open the source code section if it's closed
     const sourceCodeToggle = screen.getByRole("button", {

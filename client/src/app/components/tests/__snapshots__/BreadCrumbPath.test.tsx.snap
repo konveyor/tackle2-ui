@@ -7,17 +7,17 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
     <div>
       <nav
         aria-label="Breadcrumb"
-        class="pf-v5-c-breadcrumb"
+        class="pf-v6-c-breadcrumb"
         data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
-        data-ouia-component-type="PF5/Breadcrumb"
+        data-ouia-component-type="PF6/Breadcrumb"
         data-ouia-safe="true"
       >
         <ol
-          class="pf-v5-c-breadcrumb__list"
+          class="pf-v6-c-breadcrumb__list"
           role="list"
         >
           <li
-            class="pf-v5-c-breadcrumb__item"
+            class="pf-v6-c-breadcrumb__item"
           >
             <a
               class="pf-v5-c-breadcrumb__link"
@@ -27,10 +27,10 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
             </a>
           </li>
           <li
-            class="pf-v5-c-breadcrumb__item"
+            class="pf-v6-c-breadcrumb__item"
           >
             <span
-              class="pf-v5-c-breadcrumb__item-divider"
+              class="pf-v6-c-breadcrumb__item-divider"
             >
               <test-file-stub />
             </span>
@@ -42,10 +42,10 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
             </a>
           </li>
           <li
-            class="pf-v5-c-breadcrumb__item"
+            class="pf-v6-c-breadcrumb__item"
           >
             <span
-              class="pf-v5-c-breadcrumb__item-divider"
+              class="pf-v6-c-breadcrumb__item-divider"
             >
               <test-file-stub />
             </span>
@@ -58,17 +58,17 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
   "container": <div>
     <nav
       aria-label="Breadcrumb"
-      class="pf-v5-c-breadcrumb"
+      class="pf-v6-c-breadcrumb"
       data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
-      data-ouia-component-type="PF5/Breadcrumb"
+      data-ouia-component-type="PF6/Breadcrumb"
       data-ouia-safe="true"
     >
       <ol
-        class="pf-v5-c-breadcrumb__list"
+        class="pf-v6-c-breadcrumb__list"
         role="list"
       >
         <li
-          class="pf-v5-c-breadcrumb__item"
+          class="pf-v6-c-breadcrumb__item"
         >
           <a
             class="pf-v5-c-breadcrumb__link"
@@ -78,10 +78,10 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
           </a>
         </li>
         <li
-          class="pf-v5-c-breadcrumb__item"
+          class="pf-v6-c-breadcrumb__item"
         >
           <span
-            class="pf-v5-c-breadcrumb__item-divider"
+            class="pf-v6-c-breadcrumb__item-divider"
           >
             <test-file-stub />
           </span>
@@ -93,10 +93,10 @@ exports[`BreadCrumbPath Renders without crashing 1`] = `
           </a>
         </li>
         <li
-          class="pf-v5-c-breadcrumb__item"
+          class="pf-v6-c-breadcrumb__item"
         >
           <span
-            class="pf-v5-c-breadcrumb__item-divider"
+            class="pf-v6-c-breadcrumb__item-divider"
           >
             <test-file-stub />
           </span>

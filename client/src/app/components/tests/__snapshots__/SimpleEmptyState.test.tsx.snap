@@ -6,64 +6,72 @@ exports[`SimpleEmptyState Renders with description 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v6-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-v5-c-empty-state__content"
+          class="pf-v6-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__header"
+            class="pf-v6-c-empty-state__header"
           >
             <div
-              class="pf-v5-c-empty-state__title"
+              class="pf-v6-c-empty-state__title"
             >
               <h2
-                class="pf-v5-c-empty-state__title-text"
+                class="pf-v6-c-empty-state__title-text"
               >
                 my title
               </h2>
             </div>
           </div>
           <div
-            class="pf-v5-c-empty-state__body"
+            class="pf-v6-c-empty-state__body"
           >
             my description
           </div>
           <div
-            class="pf-v5-c-empty-state__footer"
-          />
+            class="pf-v6-c-empty-state__footer"
+          >
+            <div
+              class="pf-v6-c-empty-state__actions"
+            />
+          </div>
         </div>
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v6-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h2
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               my title
             </h2>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__body"
+          class="pf-v6-c-empty-state__body"
         >
           my description
         </div>
         <div
-          class="pf-v5-c-empty-state__footer"
-        />
+          class="pf-v6-c-empty-state__footer"
+        >
+          <div
+            class="pf-v6-c-empty-state__actions"
+          />
+        </div>
       </div>
     </div>
   </div>,
@@ -127,68 +135,76 @@ exports[`SimpleEmptyState Renders with icon 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v6-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-v5-c-empty-state__content"
+          class="pf-v6-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__header"
+            class="pf-v6-c-empty-state__header"
           >
             <div
-              class="pf-v5-c-empty-state__icon"
+              class="pf-v6-c-empty-state__icon"
             >
               <test-file-stub
                 aria-hidden="true"
               />
             </div>
             <div
-              class="pf-v5-c-empty-state__title"
+              class="pf-v6-c-empty-state__title"
             >
               <h2
-                class="pf-v5-c-empty-state__title-text"
+                class="pf-v6-c-empty-state__title-text"
               >
                 my title
               </h2>
             </div>
           </div>
           <div
-            class="pf-v5-c-empty-state__footer"
-          />
+            class="pf-v6-c-empty-state__footer"
+          >
+            <div
+              class="pf-v6-c-empty-state__actions"
+            />
+          </div>
         </div>
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v6-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__icon"
+            class="pf-v6-c-empty-state__icon"
           >
             <test-file-stub
               aria-hidden="true"
             />
           </div>
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h2
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               my title
             </h2>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__footer"
-        />
+          class="pf-v6-c-empty-state__footer"
+        >
+          <div
+            class="pf-v6-c-empty-state__actions"
+          />
+        </div>
       </div>
     </div>
   </div>,
@@ -252,35 +268,39 @@ exports[`SimpleEmptyState Renders with primaryAction 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v6-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-v5-c-empty-state__content"
+          class="pf-v6-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__header"
+            class="pf-v6-c-empty-state__header"
           >
             <div
-              class="pf-v5-c-empty-state__title"
+              class="pf-v6-c-empty-state__title"
             >
               <h2
-                class="pf-v5-c-empty-state__title-text"
+                class="pf-v6-c-empty-state__title-text"
               >
                 my title
               </h2>
             </div>
           </div>
           <div
-            class="pf-v5-c-empty-state__body"
+            class="pf-v6-c-empty-state__body"
           >
             my description
           </div>
           <div
-            class="pf-v5-c-empty-state__footer"
+            class="pf-v6-c-empty-state__footer"
           >
-            <button>
-              My action
-            </button>
+            <div
+              class="pf-v6-c-empty-state__actions"
+            >
+              <button>
+                My action
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -288,35 +308,39 @@ exports[`SimpleEmptyState Renders with primaryAction 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v6-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h2
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               my title
             </h2>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__body"
+          class="pf-v6-c-empty-state__body"
         >
           my description
         </div>
         <div
-          class="pf-v5-c-empty-state__footer"
+          class="pf-v6-c-empty-state__footer"
         >
-          <button>
-            My action
-          </button>
+          <div
+            class="pf-v6-c-empty-state__actions"
+          >
+            <button>
+              My action
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -381,54 +405,62 @@ exports[`SimpleEmptyState Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v6-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-v5-c-empty-state__content"
+          class="pf-v6-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__header"
+            class="pf-v6-c-empty-state__header"
           >
             <div
-              class="pf-v5-c-empty-state__title"
+              class="pf-v6-c-empty-state__title"
             >
               <h2
-                class="pf-v5-c-empty-state__title-text"
+                class="pf-v6-c-empty-state__title-text"
               >
                 my title
               </h2>
             </div>
           </div>
           <div
-            class="pf-v5-c-empty-state__footer"
-          />
+            class="pf-v6-c-empty-state__footer"
+          >
+            <div
+              class="pf-v6-c-empty-state__actions"
+            />
+          </div>
         </div>
       </div>
     </div>
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v6-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h2
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               my title
             </h2>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__footer"
-        />
+          class="pf-v6-c-empty-state__footer"
+        >
+          <div
+            class="pf-v6-c-empty-state__actions"
+          />
+        </div>
       </div>
     </div>
   </div>,
