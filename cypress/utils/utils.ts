@@ -98,7 +98,6 @@ import {
   filterInput,
   filteredBy,
   firstPageButton,
-  itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
   lastPageButton,
   manageImportsActionsButton,
@@ -379,9 +378,11 @@ export function selectItemsPerPage(items: number): void {
   cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
+        cy.wrap($toggleBtn.eq(0)).click({ log: false });
+        cy.get(`li[data-action="per-page-${items}"]`, {
+          log: false,
+          timeout: 60 * SEC,
+        })
           .contains(`${items}`)
           .click({
             force: true,
@@ -1772,10 +1773,18 @@ export function goToPage(page: number): void {
 }
 
 export function selectUserPerspective(userType: string): void {
-  cy.get(optionMenu)
-    .find(button, { timeout: 10 * SEC })
-    .click();
-  clickByText(button, userType);
+  cy.get("body").then(($body) => {
+    if ($body.find(optionMenu).length > 0) {
+      cy.get(optionMenu)
+        .find(button, { timeout: 10 * SEC })
+        .click();
+      clickByText(button, userType);
+    } else {
+      cy.log(
+        `Perspective selector not found — skipping (auth may be disabled)`
+      );
+    }
+  });
 }
 
 export function selectWithinModal(selector: string): void {
