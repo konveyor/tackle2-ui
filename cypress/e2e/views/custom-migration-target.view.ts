@@ -13,7 +13,7 @@ export enum CustomMigrationTargetView {
   ruleHelper = "h4[class*='alert__title']",
   ruleFilesToggle = "button[aria-expanded='true']",
   takeMeThereNotification = "Take me there",
-  repositoryTypeDropdown = "#repo-type-select-toggle",
+  repositoryTypeDropdown = "button[aria-label='Repository type select dropdown toggle']",
   repositoryUrl = "#sourceRepository",
   branch = "#branch",
   rootPath = "#rootPath",
@@ -23,6 +23,6 @@ export enum CustomMigrationTargetView {
   card = ".pf-v6-c-card",
   cardContainer = 'div[class*="gallery"][class*="gutter"]',
   filterLanguageDropdown = "#filter-control-provider-Languages",
-  formLanguageDropdown = "#provider-type-select-toggle",
+  formLanguageDropdown = "button[aria-label='Provider type select dropdown toggle']",
   formLanguageDropdownOptions = "#provider-type-select",
 }

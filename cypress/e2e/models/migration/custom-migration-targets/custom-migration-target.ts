@@ -118,7 +118,7 @@ export class CustomMigrationTarget {
   }
 
   public static uploadImage(imagePath: string) {
-    cy.get("div[class='pf-v6-c-file-upload__file-details']")
+    cy.get("div.pf-v6-c-file-upload__file-details")
       .next('input[type="file"]', { timeout: 2 * SEC })
       .selectFile(`fixtures/${imagePath}`, {
         timeout: 120 * SEC,
@@ -235,7 +235,7 @@ export class CustomMigrationTarget {
       .within(() => {
         cy.get(CustomMigrationTargetView.actionsButton).then(($btn) => {
           if ($btn.attr("aria-expanded") === "false") {
-            $btn.trigger("click");
+            cy.wrap($btn).click();
           }
         });
       });

@@ -61,7 +61,7 @@ const selectItemsPerPageInReport = (items: number) => {
       if ($toggleBtn.eq(0).is(":disabled")) {
         return;
       }
-      $toggleBtn.eq(0).trigger("click");
+      cy.wrap($toggleBtn.eq(0)).click();
       cy.get(`li > button`, { log: false }).contains(`${items}`).click({
         force: true,
         log: false,

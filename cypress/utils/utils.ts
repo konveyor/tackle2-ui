@@ -577,22 +577,14 @@ export function notExists(value: string, tableSelector = appTable): void {
 export function selectFilter(filterName: string, eq = 0): void {
   if (eq === 0) {
     cy.get(filteredBy).click();
-    clickWithinByText(
-      'div[class="pf-v6-c-menu__content"]',
-      "button",
-      filterName
-    );
+    clickWithinByText("div.pf-v6-c-menu__content", "button", filterName);
     return;
   }
   cy.get("div.pf-m-filter-group")
     .eq(eq)
     .within(() => {
       cy.get(filteredBy).click();
-      clickWithinByText(
-        'div[class="pf-v6-c-menu__content"]',
-        "button",
-        filterName
-      );
+      clickWithinByText("div.pf-v6-c-menu__content", "button", filterName);
     });
 }
 
@@ -723,7 +715,7 @@ export function clickOnSortButton(
         $tableHeader.attr("aria-sort") === "none" ||
         $tableHeader.attr("aria-sort") != sortCriteria
       ) {
-        sortButton.trigger("click");
+        cy.wrap(sortButton).click();
       }
       cy.wrap($tableHeader).should("have.attr", "aria-sort", sortCriteria);
     });
@@ -1014,11 +1006,24 @@ export function openManageImportsPage(): void {
 export function performRowAction(itemName: string, action: string): void {
   // itemName is text to be searched on the screen (like credentials name, stakeholder name, etc)
   // Action is the name of the action to be applied (usually edit or delete)
+  // PF v6: action buttons in table rows may be direct <button> children (inline)
+  // or portaled kebab menu items. Try inline first, fall back to kebab.
   cy.get(tdTag, { timeout: 120 * SEC })
     .contains(itemName, { timeout: 120 * SEC })
     .closest(trTag)
-    .within(() => {
-      clickByText(button, action);
+    .then(($tr) => {
+      const $inlineBtn = $tr.find(`button:contains("${action}")`);
+      if ($inlineBtn.length > 0) {
+        cy.wrap($inlineBtn.first()).click();
+      } else {
+        // Click kebab menu inside the row, then find action in portaled menu
+        cy.wrap($tr).within(() => {
+          click(sideKebabMenu);
+        });
+        cy.get(actionMenuItem, { timeout: 15 * SEC })
+          .contains(action)
+          .click({ force: true });
+      }
     });
 }
 

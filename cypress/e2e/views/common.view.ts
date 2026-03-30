@@ -53,7 +53,7 @@ export const closeSuccessNotification =
   "button[aria-label^='Close Success alert:']";
 export const divHeader = "[id^=pf-random-id-]";
 export const itemsSelectInsideDialog =
-  "div[role='dialog'] button[class='pf-v6-c-menu-toggle__button']";
+  "div[role='dialog'] button.pf-v6-c-menu-toggle__button";
 export const helperBusiness = 'span[class*="helper-text__item"]';
 export const stakeHolderGroupHelper = "div.pf-v6-c-helper-text";
 export const actionMenuItem = "span.pf-v6-c-menu__item-text";
@@ -61,7 +61,7 @@ export const kebabMenuItem = "a.pf-v6-c-dropdown__menu-item";
 export const kebabActionButton = "li.pf-v6-c-menu__list-item";
 export const commonTable = "table.pf-v6-c-table.pf-m-grid-md";
 export const tableRowActions = ".pf-v6-c-table__tr.actions-row";
-export const tableHead = "thead[class='pf-v6-c-table__thead']";
+export const tableHead = "thead.pf-v6-c-table__thead";
 export const plainButton = "button.pf-v6-c-button.pf-m-plain";
 export const dropdownClearSelection = "button[aria-label='Clear input value']";
 export const footer = "footer";
@@ -109,7 +109,7 @@ export const pencilIcon = "#action";
 export const pencilAction = "#pencil-action";
 
 // Task details page
-export const taskDetailsEditor = "div[class='pf-v6-c-code-editor__code']";
+export const taskDetailsEditor = "div.pf-v6-c-code-editor__code";
 export const downloadFormatDetails = {
   yaml: {
     key: "yaml",

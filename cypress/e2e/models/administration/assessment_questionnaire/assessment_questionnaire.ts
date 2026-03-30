@@ -113,7 +113,7 @@ export class AssessmentQuestionnaire {
     AssessmentQuestionnaire.open();
     selectItemsPerPage(100);
     cy.get(commonView.commonTable)
-      .find('tbody[class="pf-v6-c-table__tbody"]')
+      .find("tbody.pf-v6-c-table__tbody")
       .find(trTag)
       .then(($rows) => {
         if ($rows.length === 1) {

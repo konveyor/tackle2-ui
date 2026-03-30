@@ -20,8 +20,7 @@ export const manageCredentials = "Manage credentials";
 export const sourceCredential = "button[aria-label='Source credentials']";
 export const mavenCredential = "button[aria-label='Maven settings']";
 export const nextButton = "button[type=submit]";
-export const addRules =
-  "div > footer[class='pf-v6-c-modal-box__footer'] > button";
+export const addRules = "div > footer.pf-v6-c-modal-box__footer > button";
 export const fileName = "div[class='fileName']";
 export const reportStoryPoints =
   "div[class='effortPoints total'] > span[class='points']";
