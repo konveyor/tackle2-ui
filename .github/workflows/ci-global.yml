@@ -3,7 +3,7 @@ name: CI (global konveyor CI)
 on:
   push:
     branches:
-      - "main"
+      - "release-0.9"
 
   pull_request:
     paths-ignore:
@@ -11,7 +11,7 @@ on:
       - "hack/**"
       - "*.md"
     branches:
-      - "main"
+      - "release-0.9"
 
   workflow_call:
     inputs:
