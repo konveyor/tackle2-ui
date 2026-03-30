@@ -6,6 +6,8 @@ import {
   Form,
   FormGroup,
   FormHelperText,
+  HelperText,
+  HelperTextItem,
   Radio,
   Title,
 } from "@patternfly/react-core";
@@ -158,7 +160,11 @@ export const WizardMode: React.FC<WizardModeProps> = ({
               />
               {selectedProfile?.description && (
                 <FormHelperText className={spacing.mtSm}>
-                  {selectedProfile.description}
+                  <HelperText>
+                    <HelperTextItem>
+                      {selectedProfile.description}
+                    </HelperTextItem>
+                  </HelperText>
                 </FormHelperText>
               )}
             </FormGroup>

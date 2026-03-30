@@ -105,7 +105,7 @@ export const AdvancedOptions: React.FC<{
                       "generateAssetsWizard.advancedOptions.renderTemplatesPopover"
                     )}
                   >
-                    <Icon isInline size="md">
+                    <Icon isInline>
                       <QuestionCircleIcon />
                     </Icon>
                   </Popover>

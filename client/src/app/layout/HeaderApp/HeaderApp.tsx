@@ -97,7 +97,9 @@ export const HeaderApp: React.FC = () => {
             md: "visible",
           }}
         >
-          <SsoToolbarItem />
+          <ToolbarItem>
+            <SsoToolbarItem />
+          </ToolbarItem>
         </ToolbarGroup>
 
         {rightBrand ? (

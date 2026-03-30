@@ -11,7 +11,7 @@ import {
   ChartScatter,
   ChartThemeColor,
   ChartTooltip,
-} from "@patternfly/react-charts";
+} from "@patternfly/react-charts/victory";
 import {
   Bullseye,
   Checkbox,
@@ -21,8 +21,8 @@ import {
 } from "@patternfly/react-core";
 import {
   chart_color_green_100 as green,
-  global_palette_black_800 as black,
-  global_palette_white as white,
+  t_color_gray_80 as black,
+  t_color_white as white,
 } from "@patternfly/react-tokens";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -343,13 +343,13 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           key={"scatter-1"}
                           name={"scatter-1"}
                           data={bubblePoints}
-                          labels={({ datum }) => {
+                          labels={({ datum }: { datum: any }) => {
                             const point = datum as BubblePoint;
                             return point.application.name;
                           }}
                           labelComponent={
                             <ChartTooltip
-                              dy={({ datum }) => {
+                              dy={({ datum }: { datum?: any }) => {
                                 const point = datum as BubblePoint;
                                 return 0 - point.size;
                               }}
@@ -357,7 +357,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           }
                           style={{
                             data: {
-                              fill: ({ datum }) => {
+                              fill: ({ datum }: { datum?: any }) => {
                                 const point = datum as BubblePoint;
                                 return point.legend.hexColor;
                               },

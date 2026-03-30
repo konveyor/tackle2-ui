@@ -6,7 +6,6 @@ import {
   Content,
   ContentVariants,
   PageSection,
-  PageSectionVariants,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -255,9 +254,11 @@ export const TasksPage: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.default}>
+      <PageSection variant="default">
         <Content>
-          <Content component={ContentVariants.h1}>{t("titles.taskManager")}</Content>
+          <Content component={ContentVariants.h1}>
+            {t("titles.taskManager")}
+          </Content>
         </Content>
       </PageSection>
       <PageSection>

@@ -35,10 +35,12 @@ export const TagTable: React.FC<TabTableProps> = ({
           .map((tag) => (
             <Tr key={tag.name}>
               <Td>{tag.name}</Td>
-              <ControlTableActionsColumn
-                onEdit={() => onEdit(tag)}
-                onDelete={() => onDelete(tag)}
-              />
+              <Td isActionCell>
+                <ControlTableActionsColumn
+                  onEdit={() => onEdit(tag)}
+                  onDelete={() => onDelete(tag)}
+                />
+              </Td>
             </Tr>
           ))}
       </Tbody>

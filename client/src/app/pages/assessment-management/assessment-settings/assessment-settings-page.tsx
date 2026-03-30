@@ -162,7 +162,9 @@ const AssessmentSettings: React.FC = () => {
     <>
       <PageSection>
         <Content>
-          <Content component={ContentVariants.h1}>{t("terms.assessmentQuestionnaires")}</Content>
+          <Content component={ContentVariants.h1}>
+            {t("terms.assessmentQuestionnaires")}
+          </Content>
         </Content>
       </PageSection>
       <PageSection>
@@ -278,8 +280,7 @@ const AssessmentSettings: React.FC = () => {
                             {questionnaire.required}
                             <Switch
                               id={`required-switch-${questionnaire.id}`}
-                              label="Yes"
-                              labelOff="No"
+                              label={questionnaire.required ? "Yes" : "No"}
                               isChecked={questionnaire.required}
                               onChange={() => {
                                 updateQuestionnaire({

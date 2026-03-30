@@ -7,7 +7,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  ModalProps,
+  ModalHeaderProps,
   ModalVariant,
 } from "@patternfly/react-core";
 
@@ -15,7 +15,7 @@ export interface ConfirmDialogProps {
   isOpen: boolean;
 
   title: string;
-  titleIconVariant?: ModalProps["titleIconVariant"];
+  titleIconVariant?: ModalHeaderProps["titleIconVariant"];
   message: string | React.ReactNode;
 
   confirmBtnLabel: string;

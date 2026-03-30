@@ -1,0 +1,208 @@
+# Agent-Applied One-Off Fixes: PatternFly v5 to v6 Migration
+
+This document records all manual fixes applied by the AI agent to resolve PF v5-to-v6
+breaking changes in tackle2-ui. These are one-off fixes that were not covered by the
+semver-analyzer's automated rule generation or fix engine.
+
+**Starting state:** ~80 TypeScript build errors after PF dependency update to v6.4.x
+**Final state:** 0 TypeScript errors, 0 webpack errors, clean build
+
+---
+
+## 1. Token Renames (18 changes across 8 files)
+
+All `@patternfly/react-tokens` imports updated from removed v5 global tokens to v6 equivalents.
+See `token_map.md` for the full mapping table.
+
+### Files changed:
+
+- `client/src/app/Constants.ts` (8 token imports)
+- `client/src/app/components/StatusIcon.tsx` (6 token imports)
+- `client/src/app/components/StateError.tsx` (1 token import)
+- `client/src/app/components/application-assessment-donut-chart/application-assessment-donut-chart.tsx` (1)
+- `client/src/app/pages/review/components/application-assessment-donut-chart/application-assessment-donut-chart.tsx` (1)
+- `client/src/app/pages/reports/components/adoption-candidate-graph/adoption-candidate-graph.tsx` (2)
+- `client/src/app/pages/reports/components/adoption-candidate-graph/arrow.tsx` (1)
+- `client/src/app/pages/reports/components/donut/donut.tsx` (1)
+
+### Notable decisions:
+
+- `global_palette_gold_300` mapped to `chart_color_yellow_200` (no gold family in v6)
+- Info color tokens follow PF v6 semantics (blue changed to purple)
+- `cyan` renamed to `teal` throughout
+
+---
+
+## 2. React Charts Import Path Change (6 files)
+
+`@patternfly/react-charts` -> `@patternfly/react-charts/victory`
+
+In PF v6, Victory chart components moved to the `/victory` subpath export.
+
+### Files changed:
+
+- `client/src/app/components/application-assessment-donut-chart/application-assessment-donut-chart.tsx`
+- `client/src/app/pages/review/components/application-assessment-donut-chart/application-assessment-donut-chart.tsx`
+- `client/src/app/pages/reports/components/adoption-candidate-graph/adoption-candidate-graph.tsx`
+- `client/src/app/pages/reports/components/adoption-candidate-graph/cartesian-square.tsx`
+- `client/src/app/pages/reports/components/adoption-plan/adoption-plan.tsx`
+- `client/src/app/pages/reports/components/donut/donut.tsx`
+
+### Victory peer dependencies installed:
+
+All victory-\* peer deps added to package.json (victory-core, victory-line, victory-chart,
+victory-area, victory-axis, victory-bar, victory-box-plot, victory-create-container,
+victory-cursor-container, victory-group, victory-legend, victory-pie, victory-scatter,
+victory-stack, victory-tooltip, victory-voronoi-container, victory-zoom-container).
+
+---
+
+## 3. Chart Callback Datum Types (5 files, 8 occurrences)
+
+Added explicit type annotations to `{ datum }` destructuring in chart callback props
+(`labels`, `dy`, `fill`) to satisfy `noImplicitAny` with PF v6's updated Victory types.
+
+- `{ datum }` -> `{ datum }: { datum: Record<string, string> }` (for labels)
+- `{ datum }` -> `{ datum }: { datum?: any }` (for style callbacks where CallbackArgs has optional datum)
+
+---
+
+## 4. Prop Changes
+
+### SimpleSelect variant type (`SimpleSelect.tsx`)
+
+- Extended `ISimpleSelectProps` to accept `"typeahead"` and `"typeaheadmulti"` variants
+- Omitted `variant` from SelectProps extension to avoid type conflict with PF v6
+- Added missing compat props: `toggleId`, `maxHeight`, `onClear`, `hasInlineFilter`,
+  `isDisabled`, `menuAppendTo`, `loadingVariant`, `noResultsFoundText`, `width`
+- **Impact:** Fixed ~30 errors across the codebase
+
+### Prop value renames:
+
+| File                              | Old Value        | New Value      |
+| --------------------------------- | ---------------- | -------------- |
+| `Constants.ts` (type defs + data) | `"cyan"`         | `"teal"`       |
+| `usePaginationPropHelpers.ts`     | `"alignRight"`   | `"alignEnd"`   |
+| `wave-status-table.tsx`           | `textAlignRight` | `textAlignEnd` |
+
+### Prop renames:
+
+| File                                     | Old Prop     | New Prop                 |
+| ---------------------------------------- | ------------ | ------------------------ |
+| `kind-bearer-token-form.tsx`             | `labelIcon`  | `labelHelp`              |
+| `kind-simple-username-password-form.tsx` | `labelIcon`  | `labelHelp`              |
+| `kind-source-form.tsx`                   | `labelIcon`  | `labelHelp`              |
+| `generate-assets-wizard.tsx`             | `titleLabel` | `title` (on ModalHeader) |
+
+### Removed props:
+
+| File                                    | Removed Prop                             | Fix                      |
+| --------------------------------------- | ---------------------------------------- | ------------------------ |
+| `assessment-settings-page.tsx`          | `labelOff` on Switch                     | Conditional `label` prop |
+| `target-profile-form.tsx`               | `addSelected` on DualListSelectorControl | Removed                  |
+| `single-application-insights-table.tsx` | `toggleId` on SimpleSelect               | Removed                  |
+| `ToolbarBulkSelector.tsx`               | `splitButtonVariant` on MenuToggle       | `splitButtonItems` array |
+
+---
+
+## 5. Removed Components / API Changes
+
+### EmptyState restructuring (2 files)
+
+PF v6 removed `EmptyStateHeader` and `EmptyStateIcon` as separate components.
+Their props (`titleText`, `headingLevel`, `icon`) moved directly onto `EmptyState`.
+
+| File                      | Change                                                                     |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `StateError.tsx`          | Removed EmptyStateHeader/EmptyStateIcon imports, moved props to EmptyState |
+| `tab-target-profiles.tsx` | Same restructuring                                                         |
+
+### Text/TextContent/TextVariants removal (2 files)
+
+PF v6 replaced `Text`, `TextContent`, `TextVariants` with `Content`, `ContentVariants`.
+
+| File             | Change                                                             |
+| ---------------- | ------------------------------------------------------------------ |
+| `donut.tsx`      | `Text`/`TextContent`/`TextVariants` -> `Content`/`ContentVariants` |
+| `StatusIcon.tsx` | `TextContent` -> `Content`                                         |
+
+### Icon rename (1 file)
+
+| File                  | Change                                 |
+| --------------------- | -------------------------------------- |
+| `StringListField.tsx` | `XmarkCircleIcon` -> `TimesCircleIcon` |
+
+### CodeEditorControl (1 file)
+
+| File                        | Change                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `fact-code-snip-viewer.tsx` | Removed empty `<CodeEditorControl />` (v6 requires `icon` and `onClick` props) |
+
+### Pagination compact style (1 file)
+
+| File                   | Change                                                                 |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `SimplePagination.tsx` | `styles.modifiers.compact` CSS class -> `isCompact` prop on Pagination |
+
+---
+
+## 6. Type Fixes
+
+### useRef initialization (2 files)
+
+PF v6 / React 19 types require `useRef<HTMLInputElement>(null)` instead of `useRef<HTMLInputElement>()`.
+
+| File                           | Change                                                           |
+| ------------------------------ | ---------------------------------------------------------------- |
+| `MultiselectFilterControl.tsx` | `useRef<HTMLInputElement>()` -> `useRef<HTMLInputElement>(null)` |
+| `SimpleSelectTypeahead.tsx`    | Same                                                             |
+
+### FormGroupLabelHelp aria-label (1 file)
+
+PF v6 `FormGroupLabelHelp` now requires `aria-label`.
+
+| File                            | Change                                               |
+| ------------------------------- | ---------------------------------------------------- |
+| `HookFormPFGroupController.tsx` | Added `aria-label="More info"` to FormGroupLabelHelp |
+
+### Content component prop (1 file)
+
+PF v6 `Content` does not accept `component="span"`.
+
+| File                  | Change                                |
+| --------------------- | ------------------------------------- |
+| `archetypes-page.tsx` | `component="span"` -> `component="p"` |
+
+---
+
+## 7. CSS / Build Fixes
+
+### Removed CSS import (1 file)
+
+| File                   | Change                                                                                    |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `client/src/index.tsx` | Removed `@patternfly/patternfly/utilities/_index.css` import (included in base CSS in v6) |
+
+### CSS class prefix updates (1 file)
+
+| File        | Change                                                                                                                                                             |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `donut.tsx` | `pf-v5-u-text-align-center` -> `pf-v6-u-text-align-center`, `pf-v5-u-color-200` -> `pf-v6-u-color-200`, `pf-v5-u-font-weight-light` -> `pf-v6-u-font-weight-light` |
+
+---
+
+## Summary
+
+| Category                          | Errors Fixed |
+| --------------------------------- | ------------ |
+| Token renames                     | 19           |
+| React Charts import path          | 6            |
+| Chart datum types                 | 8            |
+| SimpleSelect variant (root cause) | ~30          |
+| Prop value renames                | 4            |
+| Prop renames                      | 4            |
+| Removed props                     | 4            |
+| Removed components                | 7            |
+| Type fixes                        | 3            |
+| CSS / Build                       | 2            |
+| **Total**                         | **~87**      |

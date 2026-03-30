@@ -3,7 +3,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Content, Form, Radio, Switch, Title } from "@patternfly/react-core";
+import {
+  Content,
+  Form,
+  FormGroup,
+  Radio,
+  Switch,
+  Title,
+} from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { StringListField } from "@app/components/StringListField";
@@ -100,76 +107,80 @@ export const AnalysisScope: React.FC<AnalysisScopeProps> = ({
       </Title>
       <Content component="p">{t("wizard.label.scope")}</Content>
 
-      <Radio
-        id="app"
-        name="app"
-        isChecked={withKnownLibs === "app"}
-        onChange={() => {
-          setValue("withKnownLibs", "app");
-        }}
-        label={t("wizard.label.scopeInternalDeps")}
-        className={spacing.mbXs}
-      />
-      <Radio
-        id="oss"
-        name="oss"
-        isChecked={withKnownLibs === "app,oss"}
-        onChange={() => {
-          setValue("withKnownLibs", "app,oss");
-        }}
-        label={t("wizard.label.scopeAllDeps")}
-        className={spacing.mbXs}
-      />
-      <Radio
-        id="select"
-        name="select"
-        isChecked={withKnownLibs === "app,oss,select"}
-        onChange={() => {
-          setValue("withKnownLibs", "app,oss,select");
-        }}
-        label={t("wizard.label.scopeSelectDeps")}
-        className="scope-select-radio-button"
-        body={
-          withKnownLibs?.includes("select") ? (
-            <StringListField
-              listItems={includedPackages ?? []}
-              setListItems={(items) => setValue("includedPackages", items)}
-              itemToAddSchema={packageNameSchema}
-              itemToAddFieldId="packageToInclude"
-              itemToAddAriaLabel={t("wizard.label.packageToInclude")}
-              itemNotUniqueMessage={t("wizard.label.packageIncluded")}
-              removeItemButtonId={(pkg) =>
-                `remove-${pkg}-from-included-packages`
-              }
-              addButtonId="add-package-to-include"
-              className={spacing.mtMd}
-            />
-          ) : null
-        }
-      />
-
-      <Switch
-        id="excludedPackages"
-        label={t("wizard.label.excludePackages")}
-        isChecked={hasExcludedPackages}
-        onChange={(_event, checked) => {
-          setValue("hasExcludedPackages", checked);
-        }}
-        className={spacing.mtMd}
-      />
-      {hasExcludedPackages ? (
-        <StringListField
-          listItems={excludedPackages ?? []}
-          setListItems={(items) => setValue("excludedPackages", items)}
-          itemToAddSchema={packageNameSchema}
-          itemToAddFieldId="packageToExclude"
-          itemToAddAriaLabel={t("wizard.label.packageToExclude")}
-          itemNotUniqueMessage={t("wizard.label.packageExcluded")}
-          removeItemButtonId={(pkg) => `remove-${pkg}-from-excluded-packages`}
-          addButtonId="add-package-to-exclude"
-          className={`${spacing.mtSm} ${spacing.mlLg}`}
+      <FormGroup role="radiogroup" fieldId="withKnownLibs">
+        <Radio
+          id="app"
+          name="app"
+          isChecked={withKnownLibs === "app"}
+          onChange={() => {
+            setValue("withKnownLibs", "app");
+          }}
+          label={t("wizard.label.scopeInternalDeps")}
+          className={spacing.mbXs}
         />
-      ) : null}
+        <Radio
+          id="oss"
+          name="oss"
+          isChecked={withKnownLibs === "app,oss"}
+          onChange={() => {
+            setValue("withKnownLibs", "app,oss");
+          }}
+          label={t("wizard.label.scopeAllDeps")}
+          className={spacing.mbXs}
+        />
+        <Radio
+          id="select"
+          name="select"
+          isChecked={withKnownLibs === "app,oss,select"}
+          onChange={() => {
+            setValue("withKnownLibs", "app,oss,select");
+          }}
+          label={t("wizard.label.scopeSelectDeps")}
+          className="scope-select-radio-button"
+          body={
+            withKnownLibs?.includes("select") ? (
+              <StringListField
+                listItems={includedPackages ?? []}
+                setListItems={(items) => setValue("includedPackages", items)}
+                itemToAddSchema={packageNameSchema}
+                itemToAddFieldId="packageToInclude"
+                itemToAddAriaLabel={t("wizard.label.packageToInclude")}
+                itemNotUniqueMessage={t("wizard.label.packageIncluded")}
+                removeItemButtonId={(pkg) =>
+                  `remove-${pkg}-from-included-packages`
+                }
+                addButtonId="add-package-to-include"
+                className={spacing.mtMd}
+              />
+            ) : null
+          }
+        />
+      </FormGroup>
+
+      <FormGroup fieldId="excludedPackages">
+        <Switch
+          id="excludedPackages"
+          label={t("wizard.label.excludePackages")}
+          isChecked={hasExcludedPackages}
+          onChange={(_event, checked) => {
+            setValue("hasExcludedPackages", checked);
+          }}
+          className={spacing.mtMd}
+        />
+        {hasExcludedPackages ? (
+          <StringListField
+            listItems={excludedPackages ?? []}
+            setListItems={(items) => setValue("excludedPackages", items)}
+            itemToAddSchema={packageNameSchema}
+            itemToAddFieldId="packageToExclude"
+            itemToAddAriaLabel={t("wizard.label.packageToExclude")}
+            itemNotUniqueMessage={t("wizard.label.packageExcluded")}
+            removeItemButtonId={(pkg) => `remove-${pkg}-from-excluded-packages`}
+            addButtonId="add-package-to-exclude"
+            className={`${spacing.mtSm} ${spacing.mlLg}`}
+          />
+        ) : null}
+      </FormGroup>
     </Form>
   );
 };

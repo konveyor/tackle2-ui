@@ -168,7 +168,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         ticket={getTicketByApplication(tickets, app.id)}
                       />
                     </Td>
-                    <Td className={alignment.textAlignRight}>
+                    <Td className={alignment.textAlignEnd}>
                       {ticket?.id && (
                         <Tooltip
                           content={t("message.unlinkTicket")}

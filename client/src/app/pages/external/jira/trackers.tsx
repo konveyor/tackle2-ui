@@ -168,7 +168,8 @@ export const JiraTrackers: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>

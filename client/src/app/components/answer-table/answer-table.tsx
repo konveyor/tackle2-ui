@@ -1,6 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Content, Label, List, ListItem, Tooltip } from "@patternfly/react-core";
+import {
+  Content,
+  Label,
+  List,
+  ListItem,
+  Tooltip,
+} from "@patternfly/react-core";
 import {
   InfoCircleIcon,
   TimesCircleIcon,
@@ -121,7 +127,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                           <Tooltip
                             content={
                               <div
-                                className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                                className="pf-v6-c-tooltip__content pf-m-text-align-left"
                                 id="conditional-tooltip-content"
                               >
                                 {!!answer?.autoAnswerFor?.length && (
@@ -144,7 +150,9 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                                 )}
                                 {!!answer?.applyTags?.length && (
                                   <>
-                                    <Content>{t("message.autoTagTooltip")}</Content>
+                                    <Content>
+                                      {t("message.autoTagTooltip")}
+                                    </Content>
                                     <List isPlain>
                                       {answer.applyTags.map((tag, index) => (
                                         <ListItem key={index}>

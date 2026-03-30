@@ -34,8 +34,10 @@ export const Review: React.FC<{
 
   return (
     <div>
-      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Content component="h3">{t("platformDiscoverWizard.review.title")}</Content>
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
+        <Content component="h3">
+          {t("platformDiscoverWizard.review.title")}
+        </Content>
         <Content component="p">
           {t("platformDiscoverWizard.review.description", {
             platformName: platform?.name,
@@ -82,7 +84,8 @@ export const Review: React.FC<{
             <DescriptionListDescription>
               <div
                 style={{
-                  border: "1px solid var(--pf-v5-global--BorderColor--100)",
+                  border:
+                    "1px solid var(--pf-t--global--border--color--default)",
                   borderRadius: "3px",
                   padding: "16px",
                 }}

@@ -356,7 +356,9 @@ const Archetypes: React.FC = () => {
                           <LinkToArchetypeApplications archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "profiles" })}>
-                          <Content component="span">{archetype.profiles?.length || 0}</Content>
+                          <Content component="p">
+                            {archetype.profiles?.length || 0}
+                          </Content>
                         </Td>
                         <Td
                           width={15}

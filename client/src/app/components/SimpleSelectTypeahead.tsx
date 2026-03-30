@@ -54,7 +54,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     null
   );
   const [activeItem, setActiveItem] = React.useState<string | null>(null);
-  const textInputRef = React.useRef<HTMLInputElement>();
+  const textInputRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     let newSelectOptions: SelectOptionProps[] = options;
 
@@ -93,7 +93,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
 
   const onSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: SelectOptionProps['value'] | undefined
+    value: SelectOptionProps["value"] | undefined
   ) => {
     value = value as string;
     if (value && value !== "no results") {

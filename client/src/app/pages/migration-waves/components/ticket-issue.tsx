@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Content, ContentVariants } from "@patternfly/react-core";
+import { Content } from "@patternfly/react-core";
 
 import { Ticket } from "@app/api/models";
 import { ExternalLink } from "@app/components/ExternalLink";
@@ -15,7 +15,7 @@ export const TicketIssue: React.FC<ITicketIssueProps> = ({ ticket }) => {
   const ticketIssue = useTicketIssue(ticket);
 
   return (
-    <Content component={ContentVariants.p}>
+    <Content component="p">
       {ticket?.link ? (
         <ExternalLink isInline href={ticket.link}>
           {ticketIssue}

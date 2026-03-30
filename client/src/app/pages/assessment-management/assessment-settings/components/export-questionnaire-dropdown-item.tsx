@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { DropdownItem } from "@patternfly/react-core/deprecated";
+import { DropdownItem } from "@patternfly/react-core";
 
 import { useDownloadQuestionnaire } from "@app/queries/questionnaires";
 
@@ -18,7 +18,7 @@ export const ExportQuestionnaireDropdownItem: React.FC<
   };
 
   return (
-    <DropdownItem key="export" component="button" onClick={handleDownload}>
+    <DropdownItem key="export" onClick={handleDownload}>
       {t("actions.export")}
     </DropdownItem>
   );

@@ -42,7 +42,7 @@ export const MultiselectFilterControl = <TItem,>({
 }: IMultiselectFilterControlProps<TItem>): JSX.Element | null => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState<string>("");
-  const textInputRef = React.useRef<HTMLInputElement>();
+  const textInputRef = React.useRef<HTMLInputElement>(null);
 
   const idPrefix = `filter-control-${category.categoryKey}`;
   const withPrefix = (id: string) => `${idPrefix}-${id}`;

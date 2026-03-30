@@ -4,6 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Content,
+  FormGroup,
   FormSection,
   Grid,
   GridItem,
@@ -35,26 +36,34 @@ export const AssessmentStakeholdersForm: React.FC = () => {
             what: t("terms.stakeholders").toLowerCase(),
           })}
         </Content>
-        <Content component="p">{t("message.assessmentStakeholderHeader")}</Content>
+        <Content component="p">
+          {t("message.assessmentStakeholderHeader")}
+        </Content>
       </Content>
 
       <Grid className="pf-v6-c-form__section">
         <GridItem md={6} className="pf-v6-c-form">
           <FormSection>
-            <HookFormAutocomplete<AssessmentWizardValues>
-              isGrouped
-              groupedItems={stakeholdersAndGroupsItems}
-              control={control}
-              name="stakeholdersAndGroupsRefs"
+            <FormGroup
               label="Stakeholder(s) and Stakeholder Group(s)"
               fieldId="stakeholdersAndGroups"
-              noResultsMessage={t("message.noResultsFoundTitle")}
-              placeholderText={t("composed.selectMany", {
-                what: t("terms.stakeholder(s)").toLowerCase(),
-              })}
               isRequired
-              searchInputAriaLabel="stakeholders-and-groups-select-toggle"
-            />
+            >
+              <HookFormAutocomplete<AssessmentWizardValues>
+                isGrouped
+                groupedItems={stakeholdersAndGroupsItems}
+                control={control}
+                name="stakeholdersAndGroupsRefs"
+                label="Stakeholder(s) and Stakeholder Group(s)"
+                fieldId="stakeholdersAndGroups"
+                noResultsMessage={t("message.noResultsFoundTitle")}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.stakeholder(s)").toLowerCase(),
+                })}
+                isRequired
+                searchInputAriaLabel="stakeholders-and-groups-select-toggle"
+              />
+            </FormGroup>
           </FormSection>
         </GridItem>
       </Grid>

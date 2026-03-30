@@ -179,7 +179,9 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}
         </Title>
-        <Content component={ContentVariants.p}>{t("wizard.label.advancedOptions")}</Content>
+        <Content component={ContentVariants.p}>
+          {t("wizard.label.advancedOptions")}
+        </Content>
       </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
@@ -228,8 +230,9 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
               isOpen={isSelectTargetsOpen}
               selected={selections}
               onSelect={(_event, selection) => {
+                const selectionValue = selection as string;
                 const selectedLabel = availableTargetLabels.find(
-                  (label) => label.value === selection
+                  (label) => label.value === selectionValue
                 );
                 if (selectedLabel) {
                   onChange(
@@ -320,8 +323,9 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
               isOpen={isSelectSourcesOpen}
               selected={selections}
               onSelect={(_event, selection) => {
+                const selectionValue = selection as string;
                 const selectedLabel = availableSourceLabels.find(
-                  (label) => label.value === selection
+                  (label) => label.value === selectionValue
                 );
                 if (selectedLabel) {
                   onChange(

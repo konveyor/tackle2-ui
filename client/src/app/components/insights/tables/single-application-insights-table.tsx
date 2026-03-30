@@ -204,7 +204,6 @@ export const SingleApplicationInsightsTable: React.FC<
             >
               <SimpleSelect
                 toggleAriaLabel="application-select"
-                toggleId="application-select"
                 width={220}
                 aria-label="Select application"
                 placeholderText="Select application..."

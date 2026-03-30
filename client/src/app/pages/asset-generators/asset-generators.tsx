@@ -13,7 +13,6 @@ import {
   ModalBody,
   ModalHeader,
   PageSection,
-  PageSectionVariants,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -209,8 +208,10 @@ const AssetGenerators: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.default}>
-        <Content component={ContentVariants.h1}>{t("terms.generators")}</Content>
+      <PageSection variant="default">
+        <Content component={ContentVariants.h1}>
+          {t("terms.generators")}
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

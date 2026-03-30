@@ -3,11 +3,10 @@ import { useTranslation } from "react-i18next";
 import {
   Checkbox,
   Content,
+  ContentVariants,
   Flex,
   FlexItem,
   Form,
-  FormGroup,
-  Title,
   Tooltip,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
@@ -53,51 +52,49 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
       }}
     >
       <Content>
-        <Title headingLevel="h3" size="xl">
+        <Content component={ContentVariants.h3}>
           {t("wizard.terms.options")}
-        </Title>
-        <p>{t("wizard.label.profileOptionsDescription")}</p>
+        </Content>
+        <Content component="p">
+          {t("wizard.label.profileOptionsDescription")}
+        </Content>
       </Content>
 
-      <FormGroup>
-        <Checkbox
-          className={spacing.mtLg}
-          label={t("wizard.composed.enable", {
-            what: t("wizard.terms.autoTagging").toLowerCase(),
-          })}
-          isChecked={state.autoTaggingEnabled}
-          onChange={() => setAutoTaggingEnabled(!state.autoTaggingEnabled)}
-          id="enable-auto-tagging-checkbox"
-          name="autoTaggingEnabled"
-        />
-      </FormGroup>
+      <Checkbox
+        className={spacing.mtLg}
+        label={t("wizard.composed.enable", {
+          what: t("wizard.terms.autoTagging").toLowerCase(),
+        })}
+        isChecked={state.autoTaggingEnabled}
+        onChange={() => setAutoTaggingEnabled(!state.autoTaggingEnabled)}
+        id="enable-auto-tagging-checkbox"
+        name="autoTaggingEnabled"
+      />
 
-      <FormGroup>
-        <Flex>
-          <FlexItem>
-            <Checkbox
-              className={spacing.mtMd}
-              label={t("wizard.composed.enable", {
-                what: t("wizard.terms.advancedAnalysisDetails").toLowerCase(),
-              })}
-              isChecked={state.advancedAnalysisEnabled}
-              onChange={() =>
-                setAdvancedAnalysisEnabled(!state.advancedAnalysisEnabled)
-              }
-              id="enable-advanced-analysis-details-checkbox"
-              name="advancedAnalysisEnabled"
-            />
-          </FlexItem>
-          <FlexItem>
-            <Tooltip
-              position="right"
-              content={t("wizard.tooltip.advancedAnalysisDetails")}
-            >
-              <QuestionCircleIcon className={spacing.mlSm} />
-            </Tooltip>
-          </FlexItem>
-        </Flex>
-      </FormGroup>
+      <Flex>
+        <FlexItem>
+          <Checkbox
+            className={spacing.mtMd}
+            label={t("wizard.composed.enable", {
+              what: t("wizard.terms.advancedAnalysisDetails").toLowerCase(),
+            })}
+            isChecked={state.advancedAnalysisEnabled}
+            onChange={() =>
+              setAdvancedAnalysisEnabled(!state.advancedAnalysisEnabled)
+            }
+            id="enable-advanced-analysis-details-checkbox"
+            name="advancedAnalysisEnabled"
+          />
+        </FlexItem>
+        <FlexItem>
+          <Tooltip
+            position="right"
+            content={t("wizard.tooltip.advancedAnalysisDetails")}
+          >
+            <QuestionCircleIcon className={spacing.mlSm} />
+          </Tooltip>
+        </FlexItem>
+      </Flex>
     </Form>
   );
 };

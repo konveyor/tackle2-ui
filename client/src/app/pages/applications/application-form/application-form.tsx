@@ -100,7 +100,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
       <ExpandableSection
         toggleText={"Basic information"}
         className="toggle"
-        onToggle={() => setBasicExpanded(!isBasicExpanded)}
+        onToggle={(_event, isExpanded) => setBasicExpanded(isExpanded)}
         isExpanded={isBasicExpanded}
       >
         <div className="pf-v6-c-form">
@@ -256,7 +256,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
       <ExpandableSection
         toggleText={t("terms.sourceCode")}
         className="toggle"
-        onToggle={() => setSourceCodeExpanded(!isSourceCodeExpanded)}
+        onToggle={(_event, isExpanded) => setSourceCodeExpanded(isExpanded)}
         isExpanded={isSourceCodeExpanded}
       >
         <div className="pf-v6-c-form">
@@ -286,7 +286,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
       <ExpandableSection
         toggleText={t("terms.binary")}
         className="toggle"
-        onToggle={() => setBinaryExpanded(!isBinaryExpanded)}
+        onToggle={(_event, isExpanded) => setBinaryExpanded(isExpanded)}
         isExpanded={isBinaryExpanded}
       >
         <div className="pf-v6-c-form">
@@ -332,7 +332,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
       <ExpandableSection
         toggleText={t("terms.sourcePlatform")}
         className="toggle"
-        onToggle={() => setSourcePlatformExpanded(!isSourcePlatformExpanded)}
+        onToggle={(_event, isExpanded) => setSourcePlatformExpanded(isExpanded)}
         isExpanded={isSourcePlatformExpanded}
       >
         <div className="pf-v6-c-form">
@@ -406,7 +406,9 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
       <ExpandableSection
         toggleText={t("terms.assetRepository")}
         className="toggle"
-        onToggle={() => setAssetRepositoryExpanded(!isAssetRepositoryExpanded)}
+        onToggle={(_event, isExpanded) =>
+          setAssetRepositoryExpanded(isExpanded)
+        }
         isExpanded={isAssetRepositoryExpanded}
       >
         <div className="pf-v6-c-form">

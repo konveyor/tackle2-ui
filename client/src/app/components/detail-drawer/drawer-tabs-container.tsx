@@ -36,11 +36,7 @@ export const DrawerTabContentSection: React.FC<{
   return (
     <div className="drawer-tab-content__section">
       {label && (
-        <Title
-          headingLevel="h4"
-          size="md"
-          className="drawer-tab-content__section-label"
-        >
+        <Title headingLevel="h4" className="drawer-tab-content__section-label">
           {label}
         </Title>
       )}

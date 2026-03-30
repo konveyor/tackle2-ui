@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Content,
   Tab,
+  type TabProps,
   TabTitleText,
   Tabs,
   Title,
@@ -61,7 +62,9 @@ export const DependencyAppsDetailDrawer: React.FC<
         <div>
           <Tabs
             activeKey={activeTabKey}
-            onSelect={(_event, tabKey) => setActiveTabKey(tabKey as TabKey)}
+            onSelect={(_event, tabKey: TabProps["eventKey"]) =>
+              setActiveTabKey(tabKey as TabKey)
+            }
           >
             <Tab
               eventKey={TabKey.Applications}

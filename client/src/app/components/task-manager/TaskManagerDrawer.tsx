@@ -179,7 +179,7 @@ const TaskItem: React.FC<{
           onSelect={() => onActionsExpandToggle(false)}
           isOpen={actionsExpanded}
           onOpenChange={() => onActionsExpandToggle(false)}
-          popperProps={{ position: "right" }}
+          popperProps={{ placement: "right-start" }}
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <MenuToggle
               ref={toggleRef}

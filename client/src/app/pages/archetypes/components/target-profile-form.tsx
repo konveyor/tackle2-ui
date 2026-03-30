@@ -175,155 +175,175 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
       />
       <ModalBody>
         <Form onSubmit={handleSubmit(submitToOnSave)}>
-        <HookFormPFTextInput
-          control={control}
-          name="name"
-          label={t("terms.name")}
-          fieldId="target-profile-name"
-          isRequired
-        />
+          <HookFormPFTextInput
+            control={control}
+            name="name"
+            label={t("terms.name")}
+            fieldId="target-profile-name"
+            isRequired
+          />
 
-        <HookFormPFGroupController
-          control={control}
-          name="generators"
-          label={t("terms.generators")}
-          fieldId="target-profile-generators"
-          renderInput={() => (
-            <DualListSelector
-              id="target-profile-generators-selector"
+          <HookFormPFGroupController
+            control={control}
+            name="generators"
+            label={t("terms.generators")}
+            fieldId="target-profile-generators"
+            renderInput={() => (
+              <DualListSelector id="target-profile-generators-selector">
+                <DualListSelectorPane
+                  title={t("message.generatorsAvailable")}
+                  status={`${availableOptions.length} available`}
+                  searchInput={
+                    <SearchInput aria-label="Available options search" />
+                  }
+                >
+                  <DualListSelectorList>
+                    {availableOptions.map(({ name }) => (
+                      <DualListSelectorListItem key={name}>
+                        {name}
+                      </DualListSelectorListItem>
+                    ))}
+                  </DualListSelectorList>
+                </DualListSelectorPane>
+                <DualListSelectorControlsWrapper aria-label="Selector controls">
+                  <DualListSelectorControl
+                    isDisabled={availableOptions.length === 0}
+                    onClick={() => {
+                      const newChosen = [...chosenOptions, ...availableOptions];
+                      setChosenOptions(
+                        newChosen.sort((a, b) => a.name.localeCompare(b.name))
+                      );
+                      setAvailableOptions([]);
+                      setValue("generators", newChosen, {
+                        shouldValidate: true,
+                      });
+                    }}
+                    aria-label="Add all"
+                    tooltipContent="Add all"
+                  />
+                  <DualListSelectorControl
+                    isDisabled={availableOptions.length === 0}
+                    onClick={() => {
+                      // Add selected available items (simplified - adds first available)
+                      if (availableOptions.length > 0) {
+                        const itemToAdd = availableOptions[0];
+                        const newAvailable = availableOptions.slice(1);
+                        const newChosen = [...chosenOptions, itemToAdd].sort(
+                          (a, b) => a.name.localeCompare(b.name)
+                        );
+                        setAvailableOptions(newAvailable);
+                        setChosenOptions(newChosen);
+                        setValue("generators", newChosen, {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                    aria-label="Add selected"
+                    tooltipContent="Add selected"
+                  />
+                  <DualListSelectorControl
+                    isDisabled={chosenOptions.length === 0}
+                    onClick={() => {
+                      // Remove selected chosen items (simplified - removes first chosen)
+                      if (chosenOptions.length > 0) {
+                        const itemToRemove = chosenOptions[0];
+                        const newChosen = chosenOptions.slice(1);
+                        const newAvailable = [
+                          ...availableOptions,
+                          itemToRemove,
+                        ].sort((a, b) => a.name.localeCompare(b.name));
+                        setAvailableOptions(newAvailable);
+                        setChosenOptions(newChosen);
+                        setValue("generators", newChosen, {
+                          shouldValidate: true,
+                        });
+                      }
+                    }}
+                    aria-label="Remove selected"
+                    tooltipContent="Remove selected"
+                  />
+                  <DualListSelectorControl
+                    isDisabled={chosenOptions.length === 0}
+                    onClick={() => {
+                      const newAvailable = [
+                        ...availableOptions,
+                        ...chosenOptions,
+                      ].sort((a, b) => a.name.localeCompare(b.name));
+                      setAvailableOptions(newAvailable);
+                      setChosenOptions([]);
+                      setValue("generators", [], { shouldValidate: true });
+                    }}
+                    aria-label="Remove all"
+                    tooltipContent="Remove all"
+                  />
+                </DualListSelectorControlsWrapper>
+                <DualListSelectorPane
+                  title={t("message.generatorsChosen")}
+                  status={`${chosenOptions.length} chosen`}
+                  isChosen
+                  searchInput={
+                    <SearchInput aria-label="Chosen options search" />
+                  }
+                >
+                  <DualListSelectorList>
+                    {chosenOptions.map(({ name }) => (
+                      <DualListSelectorListItem key={name}>
+                        {name}
+                      </DualListSelectorListItem>
+                    ))}
+                  </DualListSelectorList>
+                </DualListSelectorPane>
+              </DualListSelector>
+            )}
+          />
+
+          <HookFormPFGroupController
+            control={control}
+            name="analysisProfile"
+            label={t("terms.analysisProfile")}
+            fieldId="target-profile-analysis-profile"
+            renderInput={({ field: { value, onChange } }) => (
+              <SimpleSelect
+                id="analysis-profile-select"
+                toggleId="analysis-profile-select-toggle"
+                variant="typeahead"
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.analysisProfile").toLowerCase(),
+                })}
+                toggleAriaLabel="Analysis profile select"
+                aria-label="Select analysis profile"
+                value={
+                  value
+                    ? analysisProfileOptions.find(
+                        (o) => o.value.id === value.id
+                      )
+                    : undefined
+                }
+                options={analysisProfileOptions}
+                onChange={(selection) => {
+                  const selected =
+                    selection as OptionWithValue<AnalysisProfile>;
+                  onChange(selected?.value ?? null);
+                }}
+                onClear={() => onChange(null)}
+              />
+            )}
+          />
+
+          <ActionGroup>
+            <Button
+              type="button"
+              id="submit"
+              variant="primary"
+              isDisabled={!isValid}
+              onClick={handleSubmit(submitToOnSave)}
             >
-              <DualListSelectorPane
-                title={t("message.generatorsAvailable")}
-                status={`${availableOptions.length} available`}
-              >
-                <SearchInput aria-label="Available options search" />
-                <DualListSelectorList>
-                  {availableOptions.map(({ name }) => (
-                    <DualListSelectorListItem key={name}>
-                      {name}
-                    </DualListSelectorListItem>
-                  ))}
-                </DualListSelectorList>
-              </DualListSelectorPane>
-              <DualListSelectorControlsWrapper aria-label="Selector controls">
-                <DualListSelectorControl
-                  isDisabled={availableOptions.length === 0}
-                  onClick={() => {
-                    const newChosen = [...chosenOptions, ...availableOptions];
-                    setChosenOptions(newChosen.sort((a, b) => a.name.localeCompare(b.name)));
-                    setAvailableOptions([]);
-                    setValue("generators", newChosen, { shouldValidate: true });
-                  }}
-                  aria-label="Add all"
-                  tooltipContent="Add all"
-                />
-                <DualListSelectorControl
-                  isDisabled={availableOptions.length === 0}
-                  onClick={() => {
-                    // Add selected available items (simplified - adds first available)
-                    if (availableOptions.length > 0) {
-                      const itemToAdd = availableOptions[0];
-                      const newAvailable = availableOptions.slice(1);
-                      const newChosen = [...chosenOptions, itemToAdd].sort((a, b) => a.name.localeCompare(b.name));
-                      setAvailableOptions(newAvailable);
-                      setChosenOptions(newChosen);
-                      setValue("generators", newChosen, { shouldValidate: true });
-                    }
-                  }}
-                  aria-label="Add selected"
-                  tooltipContent="Add selected"
-                  addSelected
-                />
-                <DualListSelectorControl
-                  isDisabled={chosenOptions.length === 0}
-                  onClick={() => {
-                    // Remove selected chosen items (simplified - removes first chosen)
-                    if (chosenOptions.length > 0) {
-                      const itemToRemove = chosenOptions[0];
-                      const newChosen = chosenOptions.slice(1);
-                      const newAvailable = [...availableOptions, itemToRemove].sort((a, b) => a.name.localeCompare(b.name));
-                      setAvailableOptions(newAvailable);
-                      setChosenOptions(newChosen);
-                      setValue("generators", newChosen, { shouldValidate: true });
-                    }
-                  }}
-                  aria-label="Remove selected"
-                  tooltipContent="Remove selected"
-                />
-                <DualListSelectorControl
-                  isDisabled={chosenOptions.length === 0}
-                  onClick={() => {
-                    const newAvailable = [...availableOptions, ...chosenOptions].sort((a, b) => a.name.localeCompare(b.name));
-                    setAvailableOptions(newAvailable);
-                    setChosenOptions([]);
-                    setValue("generators", [], { shouldValidate: true });
-                  }}
-                  aria-label="Remove all"
-                  tooltipContent="Remove all"
-                />
-              </DualListSelectorControlsWrapper>
-              <DualListSelectorPane
-                title={t("message.generatorsChosen")}
-                status={`${chosenOptions.length} chosen`}
-                isChosen
-              >
-                <SearchInput aria-label="Chosen options search" />
-                <DualListSelectorList>
-                  {chosenOptions.map(({ name }) => (
-                    <DualListSelectorListItem key={name}>
-                      {name}
-                    </DualListSelectorListItem>
-                  ))}
-                </DualListSelectorList>
-              </DualListSelectorPane>
-            </DualListSelector>
-          )}
-        />
-
-        <HookFormPFGroupController
-          control={control}
-          name="analysisProfile"
-          label={t("terms.analysisProfile")}
-          fieldId="target-profile-analysis-profile"
-          renderInput={({ field: { value, onChange } }) => (
-            <SimpleSelect
-              id="analysis-profile-select"
-              toggleId="analysis-profile-select-toggle"
-              variant="typeahead"
-              placeholderText={t("composed.selectOne", {
-                what: t("terms.analysisProfile").toLowerCase(),
-              })}
-              toggleAriaLabel="Analysis profile select"
-              aria-label="Select analysis profile"
-              value={
-                value
-                  ? analysisProfileOptions.find((o) => o.value.id === value.id)
-                  : undefined
-              }
-              options={analysisProfileOptions}
-              onChange={(selection) => {
-                const selected = selection as OptionWithValue<AnalysisProfile>;
-                onChange(selected?.value ?? null);
-              }}
-              onClear={() => onChange(null)}
-            />
-          )}
-        />
-
-        <ActionGroup>
-          <Button
-            type="button"
-            id="submit"
-            variant="primary"
-            isDisabled={!isValid}
-            onClick={handleSubmit(submitToOnSave)}
-          >
-            {profile ? t("actions.save") : t("actions.create")}
-          </Button>
-          <Button variant="link" onClick={onCancel}>
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
+              {profile ? t("actions.save") : t("actions.create")}
+            </Button>
+            <Button variant="link" onClick={onCancel}>
+              {t("actions.cancel")}
+            </Button>
+          </ActionGroup>
         </Form>
       </ModalBody>
     </Modal>

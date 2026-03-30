@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Pagination, PaginationVariant } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import styles from "@patternfly/react-styles/css/components/Pagination/pagination";
+// PF v6 removed styles.modifiers.compact — use isCompact prop directly
 
 import { PaginationStateProps } from "@app/hooks/useLegacyPaginationState";
 
@@ -26,7 +26,8 @@ export const SimplePagination: React.FC<SimplePaginationProps> = ({
         isTop ? "top" : "bottom"
       }`}
       variant={isTop ? PaginationVariant.top : PaginationVariant.bottom}
-      className={`${isTop || noMargin ? "" : spacing.mtMd}${isCompact ? ` ${styles.modifiers.compact}` : ""}`}
+      isCompact={isCompact}
+      className={isTop || noMargin ? "" : spacing.mtMd}
       {...paginationProps}
       widgetId="pagination-id"
     />

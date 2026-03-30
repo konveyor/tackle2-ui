@@ -109,24 +109,24 @@ const PersonaSidebar: FC<{
   const history = useHistory();
   return (
     <PageSidebar>
-      <div className="perspective">
-        <SimpleSelectBasic
-          value={selectedPersona}
-          options={personaOptions.map((value) => ({
-            value,
-            children: PersonaDefinition[value]?.label,
-          }))}
-          onChange={(value) => {
-            const startPath =
-              PersonaDefinition[value as PersonaType]?.startPath;
-            if (value !== selectedPersona && startPath) {
-              history.push(startPath);
-            }
-          }}
-        />
-      </div>
       <PageSidebarBody>
-        <Nav id="nav-primary" aria-label="Nav">
+        <div className="perspective">
+          <SimpleSelectBasic
+            value={selectedPersona}
+            options={personaOptions.map((value) => ({
+              value,
+              children: PersonaDefinition[value]?.label,
+            }))}
+            onChange={(value) => {
+              const startPath =
+                PersonaDefinition[value as PersonaType]?.startPath;
+              if (value !== selectedPersona && startPath) {
+                history.push(startPath);
+              }
+            }}
+          />
+        </div>
+        <Nav id="nav-primary" aria-label="Global">
           {children}
         </Nav>
       </PageSidebarBody>

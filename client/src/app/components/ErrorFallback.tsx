@@ -6,6 +6,7 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
+  EmptyStateFooter,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { UserNinjaIcon } from "@patternfly/react-icons";
@@ -51,8 +52,8 @@ export const ErrorFallback = ({
         icon={UserNinjaIcon}
         headingLevel="h2"
       >
-        <EmptyStateBody>
-          {t("dialog.message.refreshPage")}
+        <EmptyStateBody>{t("dialog.message.refreshPage")}</EmptyStateBody>
+        <EmptyStateFooter>
           <Button
             variant="primary"
             className={spacing.mtSm}
@@ -63,7 +64,7 @@ export const ErrorFallback = ({
           >
             {t("terms.refresh")}
           </Button>
-        </EmptyStateBody>
+        </EmptyStateFooter>
       </EmptyState>
     </Bullseye>
   );

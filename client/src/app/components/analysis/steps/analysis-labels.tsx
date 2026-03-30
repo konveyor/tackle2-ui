@@ -5,23 +5,24 @@ import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
+  Button,
+  Content,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Content,
-  Title,
+  Label,
+  LabelGroup,
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
-  MenuToggle,
-  MenuToggleElement,
+  SelectOptionProps,
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
-  Button,
-  Label,
-  LabelGroup,
+  Title,
 } from "@patternfly/react-core";
 import { TimesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -172,12 +173,14 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
           const filteredTargetLabels = availableTargetLabels.filter(
             (label) =>
               !targetFilterValue ||
-              label.value.toLowerCase().includes(targetFilterValue.toLowerCase())
+              label.value
+                .toLowerCase()
+                .includes(targetFilterValue.toLowerCase())
           );
 
           const onTargetSelect = (
             _event: React.MouseEvent<Element, MouseEvent> | undefined,
-            selection: string | number | undefined
+            selection: SelectOptionProps["value"]
           ) => {
             const selectedLabel = availableTargetLabels.find(
               (label) => label.value === selection
@@ -203,7 +206,11 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
               onClick={() => setSelectTargetsOpen(!isSelectTargetsOpen)}
               isExpanded={isSelectTargetsOpen}
               isFullWidth
-              status={getValidatedFromErrors(error, isDirty, isTouched) === "error" ? "danger" : undefined}
+              status={
+                getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                  ? "danger"
+                  : undefined
+              }
             >
               <TextInputGroup isPlain>
                 <TextInputGroupMain
@@ -227,7 +234,8 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
                             onChange(
                               value.filter(
                                 (label: TargetLabel) =>
-                                  label.label !== labelToRemove.targetLabel.label
+                                  label.label !==
+                                  labelToRemove.targetLabel.label
                               )
                             );
                           }
@@ -247,9 +255,8 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
                         setTargetFilterValue("");
                       }}
                       aria-label="Clear selections"
-                    >
-                      <TimesIcon />
-                    </Button>
+                      icon={<TimesIcon />}
+                    />
                   )}
                 </TextInputGroupUtilities>
               </TextInputGroup>
@@ -325,12 +332,14 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
           const filteredSourceLabels = availableSourceLabels.filter(
             (label) =>
               !sourceFilterValue ||
-              label.value.toLowerCase().includes(sourceFilterValue.toLowerCase())
+              label.value
+                .toLowerCase()
+                .includes(sourceFilterValue.toLowerCase())
           );
 
           const onSourceSelect = (
             _event: React.MouseEvent<Element, MouseEvent> | undefined,
-            selection: string | number | undefined
+            selection: SelectOptionProps["value"]
           ) => {
             const selectedLabel = availableSourceLabels.find(
               (label) => label.value === selection
@@ -356,7 +365,11 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
               onClick={() => setSelectSourcesOpen(!isSelectSourcesOpen)}
               isExpanded={isSelectSourcesOpen}
               isFullWidth
-              status={getValidatedFromErrors(error, isDirty, isTouched) === "error" ? "danger" : undefined}
+              status={
+                getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                  ? "danger"
+                  : undefined
+              }
             >
               <TextInputGroup isPlain>
                 <TextInputGroupMain
@@ -380,7 +393,8 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
                             onChange(
                               value.filter(
                                 (label: TargetLabel) =>
-                                  label.label !== labelToRemove.targetLabel.label
+                                  label.label !==
+                                  labelToRemove.targetLabel.label
                               )
                             );
                           }
@@ -400,9 +414,8 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
                         setSourceFilterValue("");
                       }}
                       aria-label="Clear selections"
-                    >
-                      <TimesIcon />
-                    </Button>
+                      icon={<TimesIcon />}
+                    />
                   )}
                 </TextInputGroupUtilities>
               </TextInputGroup>

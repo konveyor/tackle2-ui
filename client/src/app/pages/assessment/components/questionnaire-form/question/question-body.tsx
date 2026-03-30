@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StackItem } from "@patternfly/react-core";
+import { FlexItem } from "@patternfly/react-core";
 
 export interface QuestionBodyProps {
   children?: React.ReactNode;
@@ -8,5 +8,5 @@ export interface QuestionBodyProps {
 export const QuestionBody: React.FC<QuestionBodyProps> = ({
   children = null,
 }) => {
-  return <StackItem>{children}</StackItem>;
+  return <FlexItem>{children}</FlexItem>;
 };

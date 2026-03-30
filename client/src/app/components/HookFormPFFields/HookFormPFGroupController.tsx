@@ -67,7 +67,13 @@ export const HookFormPFGroupController = <
         error?.message && (isDirty || isTouched) && !errorsSuppressed;
       return (
         <FormGroup
-          labelHelp={labelIcon ? <FormGroupLabelHelp>{labelIcon}</FormGroupLabelHelp> : undefined}
+          labelHelp={
+            labelIcon ? (
+              <FormGroupLabelHelp aria-label="More info">
+                {labelIcon}
+              </FormGroupLabelHelp>
+            ) : undefined
+          }
           label={label}
           fieldId={fieldId}
           className={className}

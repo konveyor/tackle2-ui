@@ -1,13 +1,13 @@
 import { useState } from "react";
 import * as React from "react";
 import {
+  MenuToggle,
+  MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
   SelectOptionProps,
   SelectProps,
-  MenuToggle,
-  MenuToggleElement,
 } from "@patternfly/react-core";
 
 export interface SelectOptionObject {
@@ -24,7 +24,7 @@ type OptionLike = string | SelectOptionObject | OptionWithValue;
 export interface ISimpleSelectProps
   extends Omit<
     SelectProps,
-    "toggle" | "isOpen" | "onSelect" | "onOpenChange"
+    "toggle" | "isOpen" | "onSelect" | "onOpenChange" | "variant"
   > {
   "aria-label": string;
   onChange: (selection: OptionLike) => void;
@@ -32,7 +32,17 @@ export interface ISimpleSelectProps
   value?: OptionLike | OptionLike[];
   placeholderText?: string;
   toggleAriaLabel?: string;
-  variant?: "single" | "checkbox";
+  variant?: "single" | "checkbox" | "typeahead" | "typeaheadmulti";
+  // Props carried over from PF v5 Select API for compatibility
+  toggleId?: string;
+  maxHeight?: number | string;
+  onClear?: () => void;
+  hasInlineFilter?: boolean;
+  isDisabled?: boolean;
+  menuAppendTo?: HTMLElement | (() => HTMLElement) | "inline" | "parent";
+  loadingVariant?: string;
+  noResultsFoundText?: string;
+  width?: number | string;
 }
 
 // TODO we can probably add a type param here so we can render e.g. <SimpleSelect<AnalysisMode> ... /> and infer OptionWithValue<AnalysisMode>
@@ -81,7 +91,7 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
     <>
       <Select
         isOpen={isOpen}
-        onSelect={(_, selection) => {
+        onSelect={(_, selection: SelectOptionProps["value"]) => {
           onChange(selection as OptionLike);
           if (variant !== "checkbox") {
             setIsOpen(false);
@@ -89,7 +99,6 @@ export const SimpleSelect: React.FC<ISimpleSelectProps> = ({
         }}
         onOpenChange={(isOpen) => setIsOpen(isOpen)}
         toggle={toggle}
-        popperProps={{ appendTo: "inline" }}
         {...props}
       >
         <SelectList>

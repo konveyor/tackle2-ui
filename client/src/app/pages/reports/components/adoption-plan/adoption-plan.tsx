@@ -10,7 +10,7 @@ import {
   ChartGroup,
   ChartThemeColor,
   ChartVoronoiContainer,
-} from "@patternfly/react-charts";
+} from "@patternfly/react-charts/victory";
 import { Bullseye, Skeleton } from "@patternfly/react-core";
 
 import { PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -108,7 +108,7 @@ export const AdoptionPlan: React.FC = () => {
                   themeColor={ChartThemeColor.multiOrdered}
                   containerComponent={
                     <ChartVoronoiContainer
-                      labels={({ datum }) =>
+                      labels={({ datum }: { datum: Record<string, string> }) =>
                         `${t("terms.effort")}: ${datum.effort}`
                       }
                       constrainToVisibleArea

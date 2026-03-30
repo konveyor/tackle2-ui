@@ -311,7 +311,10 @@ export const ApplicationIdentityForm: React.FC<
 
       {existingIdentitiesError && (
         <Content component="p">
-          <WarningTriangleIcon className={spacing.mrSm} color="orange" />
+          <WarningTriangleIcon
+            className={spacing.mrSm}
+            style={{ color: "orange" }}
+          />
           One or more of the selected applications have already been assigned
           credentials. Any changes made will override the existing values.
         </Content>

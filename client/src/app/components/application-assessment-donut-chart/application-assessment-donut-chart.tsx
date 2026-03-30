@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ChartDonut, ChartLegend } from "@patternfly/react-charts";
-import { global_palette_blue_300 as defaultColor } from "@patternfly/react-tokens";
+import { ChartDonut, ChartLegend } from "@patternfly/react-charts/victory";
+import { t_global_color_nonstatus_blue_300 as defaultColor } from "@patternfly/react-tokens";
 
 import { RISK_LIST } from "@app/Constants";
 import {
@@ -150,7 +150,9 @@ export const ApplicationAssessmentDonutChart: React.FC<
         ariaDesc="risk-donut-chart"
         constrainToVisibleArea={true}
         data={chartDefinition.map((elem) => ({ x: elem.x, y: elem.y }))}
-        labels={({ datum }) => `${datum.x}: ${datum.y}`}
+        labels={({ datum }: { datum: Record<string, string> }) =>
+          `${datum.x}: ${datum.y}`
+        }
         colorScale={chartDefinition.map(
           (elem) => elem.color || defaultColor.value
         )}

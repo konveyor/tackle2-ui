@@ -6,6 +6,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  CardTitle,
   Content,
   ContentVariants,
   FormSection,
@@ -69,7 +70,9 @@ const ReviewPage: React.FC = () => {
           <PageHeader
             title={t("terms.review")}
             description={
-              <Content component={ContentVariants.p}>{t("message.reviewInstructions")}</Content>
+              <Content component={ContentVariants.p}>
+                {t("message.reviewInstructions")}
+              </Content>
             }
             breadcrumbs={breadcrumbs}
           />
@@ -92,7 +95,9 @@ const ReviewPage: React.FC = () => {
         <PageHeader
           title={t("terms.review")}
           description={
-            <Content component={ContentVariants.p}>{t("message.reviewInstructions")}</Content>
+            <Content component={ContentVariants.p}>
+              {t("message.reviewInstructions")}
+            </Content>
           }
           breadcrumbs={breadcrumbs}
         />
@@ -104,7 +109,6 @@ const ReviewPage: React.FC = () => {
               <Grid hasGutter>
                 <GridItem md={5}>
                   <div className="pf-v6-c-form">
-                    <FormSection></FormSection>
                     <FormSection>
                       <ReviewForm
                         review={review}
@@ -133,7 +137,9 @@ const ReviewPage: React.FC = () => {
         <PageSection>
           <Card>
             <CardHeader>
-              <Content component="h3">{t("terms.assessmentSummary")}</Content>
+              <CardTitle>
+                <Content component="h3">{t("terms.assessmentSummary")}</Content>
+              </CardTitle>
             </CardHeader>
             <CardBody>
               <IdentifiedRisksTable

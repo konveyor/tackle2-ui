@@ -125,9 +125,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
         onClose={handleCancel}
       >
         <ModalHeader title={t("generateAssetsWizard.title")} />
-        <ModalBody>
-          {t("generateAssetsWizard.noApplicationsReady")}
-        </ModalBody>
+        <ModalBody>{t("generateAssetsWizard.noApplicationsReady")}</ModalBody>
         <ModalFooter>
           <Button key="cancel" variant="link" onClick={handleCancel}>
             {t("actions.cancel")}
@@ -138,12 +136,8 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      variant={ModalVariant.large}
-      aria-label={t("generateAssetsWizard.title")}
-      onClose={handleCancel}
-    >
+    <Modal isOpen={isOpen} variant={ModalVariant.large} onClose={handleCancel}>
+      <ModalHeader title={t("generateAssetsWizard.title")} />
       <ModalBody>
         <Wizard
           onClose={handleCancel}

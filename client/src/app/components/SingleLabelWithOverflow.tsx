@@ -34,7 +34,7 @@ export const SingleLabelWithOverflow: React.FC<
           }
         >
           <Label
-            variant="outline"
+            variant="overflow"
             render={({ className, content }) => (
               <a
                 href="#"

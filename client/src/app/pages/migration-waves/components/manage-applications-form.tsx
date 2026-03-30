@@ -7,6 +7,7 @@ import {
   Button,
   Content,
   Form,
+  FormGroup,
   TextInput,
   Toolbar,
   ToolbarContent,
@@ -221,19 +222,21 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
 
   return (
     <Form onSubmit={onSubmit}>
-      <Content component="h5">Selected wave</Content>
-      <TextInput
-        value={
-          !migrationWave?.name
-            ? `${dayjs(migrationWave.startDate).format(
-                "MM/DD/YYYY"
-              )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`
-            : migrationWave.name
-        }
-        type="text"
-        aria-label="wave-name"
-        isDisabled={true}
-      />
+      <FormGroup label="Selected wave" fieldId="wave-name">
+        <TextInput
+          id="wave-name"
+          value={
+            !migrationWave?.name
+              ? `${dayjs(migrationWave.startDate).format(
+                  "MM/DD/YYYY"
+                )} - ${dayjs(migrationWave.endDate).format("MM/DD/YYYY")}`
+              : migrationWave.name
+          }
+          type="text"
+          aria-label="wave-name"
+          isDisabled={true}
+        />
+      </FormGroup>
       <Toolbar {...toolbarProps}>
         <ToolbarContent>
           <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />

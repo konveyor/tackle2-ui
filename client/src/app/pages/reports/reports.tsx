@@ -13,6 +13,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  SelectOptionProps,
   Stack,
   StackItem,
 } from "@patternfly/react-core";
@@ -94,7 +95,7 @@ export const Reports: React.FC = () => {
 
   const onSelectQuestionnaire = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined
+    value: SelectOptionProps["value"]
   ) => {
     setSelectedQuestionnaireId(value as number);
     setIsQuestionnaireSelectOpen(false);
@@ -147,8 +148,13 @@ export const Reports: React.FC = () => {
           >
             <Stack hasGutter>
               <StackItem>
-                <Card isClickable isSelectable>
-                  <CardHeader>
+                <Card>
+                  <CardHeader
+                    selectableActions={{
+                      selectableActionId: "current-landscape-card",
+                      name: "current-landscape-card",
+                    }}
+                  >
                     <Content>
                       <Flex>
                         <FlexItem>

@@ -96,7 +96,7 @@ export const Review: React.FC<{
                       <div
                         style={{
                           border:
-                            "1px solid var(--pf-v5-global--BorderColor--100)",
+                            "1px solid var(--pf-t--global--border--color--default)",
                           borderRadius: "3px",
                           padding: "16px",
                         }}
