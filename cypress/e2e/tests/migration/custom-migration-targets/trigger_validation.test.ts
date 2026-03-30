@@ -28,7 +28,7 @@ import { CustomMigrationTarget } from "../../../models/migration/custom-migratio
 import { AnalysisStatuses, Languages } from "../../../types/constants";
 import { RulesRepositoryFields } from "../../../types/types";
 
-// Automates Bug MTA-3330 | Polarion TC MTA-597
+// Automates Polarion TC MTA-597
 describe(
   ["@tier1"],
   "Custom Migration Targets rules trigger validation",

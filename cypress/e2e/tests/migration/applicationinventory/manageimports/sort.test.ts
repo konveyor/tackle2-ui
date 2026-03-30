@@ -45,7 +45,7 @@ import { navMenu } from "../../../../views/menu.view";
 const filePath = "app_import/csv/";
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_B"],
   "Manage applications import sort validations",
   function () {
     before("Login and create test data", function () {

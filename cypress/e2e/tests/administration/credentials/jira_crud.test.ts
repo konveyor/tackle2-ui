@@ -22,7 +22,7 @@ import { CredentialType } from "../../../types/constants";
 import { CredentialsData } from "../../../types/types";
 
 // Commented Token tests as now they can't be run because of missing environment.
-describe(["@tier2"], "Validation of jira credentials", () => {
+describe(["@tier2", "@secretsNeeded"], "Validation of jira credentials", () => {
   const toBeCanceled = true;
   let validJiraBasicCredentials: CredentialsData;
   let randomJiraBasicCredentials: CredentialsData;

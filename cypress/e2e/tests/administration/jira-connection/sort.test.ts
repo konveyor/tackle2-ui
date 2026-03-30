@@ -33,77 +33,81 @@ import {
 } from "../../../types/constants";
 import { jiraTable } from "../../../views/jira.view";
 
-describe(["@tier3"], "Jira connections sort validations", function () {
-  const useTestingAccount = true;
-  let jiraBasicCredential: JiraCredentials;
-  let jiraConnectionList: Jira[];
-  const isInsecure = false;
+describe(
+  ["@tier3", "@tier3_A"],
+  "Jira connections sort validations",
+  function () {
+    const useTestingAccount = true;
+    let jiraBasicCredential: JiraCredentials;
+    let jiraConnectionList: Jira[];
+    const isInsecure = false;
 
-  before("", () => {
-    login();
-    cy.visit("/");
-    // Defining and creating credentials to be used in test
-    jiraBasicCredential = new JiraCredentials(
-      getJiraCredentialData(CredentialType.jiraBasic, !useTestingAccount)
-    );
+    before("", () => {
+      login();
+      cy.visit("/");
+      // Defining and creating credentials to be used in test
+      jiraBasicCredential = new JiraCredentials(
+        getJiraCredentialData(CredentialType.jiraBasic, !useTestingAccount)
+      );
 
-    jiraBasicCredential.create();
+      jiraBasicCredential.create();
 
-    jiraConnectionList = createMultipleJiraConnections(
-      5,
-      jiraBasicCredential,
-      isInsecure,
-      !useTestingAccount
-    );
-    jiraConnectionList.forEach((jira) => {
-      jira.create();
+      jiraConnectionList = createMultipleJiraConnections(
+        5,
+        jiraBasicCredential,
+        isInsecure,
+        !useTestingAccount
+      );
+      jiraConnectionList.forEach((jira) => {
+        jira.create();
+      });
     });
-  });
 
-  it("Name sort validations", function () {
-    Jira.openList();
-    // get unsorted list when page loads
-    const unsortedList = getTableColumnData(instanceName);
+    it("Name sort validations", function () {
+      Jira.openList();
+      // get unsorted list when page loads
+      const unsortedList = getTableColumnData(instanceName);
 
-    // Sort the Jira instances by Name in ascending order
-    clickOnSortButton(instanceName, SortType.ascending, jiraTable);
+      // Sort the Jira instances by Name in ascending order
+      clickOnSortButton(instanceName, SortType.ascending, jiraTable);
 
-    // Verify that the Jira instances table rows are displayed in ascending order
-    const afterAscSortList = getTableColumnData(instanceName);
-    verifySortAsc(afterAscSortList, unsortedList);
+      // Verify that the Jira instances table rows are displayed in ascending order
+      const afterAscSortList = getTableColumnData(instanceName);
+      verifySortAsc(afterAscSortList, unsortedList);
 
-    // Sort the Jira instances by Name in descending order
-    clickOnSortButton(instanceName, SortType.descending, jiraTable);
+      // Sort the Jira instances by Name in descending order
+      clickOnSortButton(instanceName, SortType.descending, jiraTable);
 
-    // Verify that the Jira instances table rows are displayed in descending order
-    const afterDescSortList = getTableColumnData(instanceName);
-    verifySortDesc(afterDescSortList, unsortedList);
-  });
-
-  it("URL sort validations", function () {
-    Jira.openList();
-    // get unsorted list when page loads
-    const unsortedList = getTableColumnData("URL");
-
-    // Sort the Jira instances by URL in ascending order
-    clickOnSortButton("URL", SortType.ascending, jiraTable);
-
-    // Verify that the Jira instances table rows are displayed in ascending order
-    const afterAscSortList = getTableColumnData("URL");
-    verifySortAsc(afterAscSortList, unsortedList);
-
-    // Sort the Jira instances by URL in descending order
-    clickOnSortButton("URL", SortType.descending, jiraTable);
-
-    // Verify that the Jira instances table rows are displayed in descending order
-    const afterDescSortList = getTableColumnData("URL");
-    verifySortDesc(afterDescSortList, unsortedList);
-  });
-
-  after("Clean up", () => {
-    jiraConnectionList.forEach((current_connection) => {
-      current_connection.delete();
+      // Verify that the Jira instances table rows are displayed in descending order
+      const afterDescSortList = getTableColumnData(instanceName);
+      verifySortDesc(afterDescSortList, unsortedList);
     });
-    jiraBasicCredential.delete();
-  });
-});
+
+    it("URL sort validations", function () {
+      Jira.openList();
+      // get unsorted list when page loads
+      const unsortedList = getTableColumnData("URL");
+
+      // Sort the Jira instances by URL in ascending order
+      clickOnSortButton("URL", SortType.ascending, jiraTable);
+
+      // Verify that the Jira instances table rows are displayed in ascending order
+      const afterAscSortList = getTableColumnData("URL");
+      verifySortAsc(afterAscSortList, unsortedList);
+
+      // Sort the Jira instances by URL in descending order
+      clickOnSortButton("URL", SortType.descending, jiraTable);
+
+      // Verify that the Jira instances table rows are displayed in descending order
+      const afterDescSortList = getTableColumnData("URL");
+      verifySortDesc(afterDescSortList, unsortedList);
+    });
+
+    after("Clean up", () => {
+      jiraConnectionList.forEach((current_connection) => {
+        current_connection.delete();
+      });
+      jiraBasicCredential.delete();
+    });
+  }
+);

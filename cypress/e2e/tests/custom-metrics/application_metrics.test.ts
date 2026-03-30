@@ -23,7 +23,7 @@ let applicationList: Array<Application> = [];
 let count = 0;
 
 describe(
-  ["@tier2"],
+  ["@tier2", "@secretsNeeded"],
   "Custom Metrics - Count the current number of applications in inventory",
   function () {
     beforeEach("Get the current gauge value", function () {

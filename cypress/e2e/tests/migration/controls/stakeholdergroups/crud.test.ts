@@ -25,7 +25,7 @@ import { Stakeholdergroups } from "../../../../models/migration/controls/stakeho
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
 import { stakeHoldersTable } from "../../../../views/stakeholders.view";
 
-describe(["@tier2"], "Stakeholder group CRUD operations", () => {
+describe(["@tier2", "@tier2_B"], "Stakeholder group CRUD operations", () => {
   const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
 
   beforeEach("Interceptors", function () {

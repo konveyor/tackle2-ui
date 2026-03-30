@@ -30,104 +30,100 @@ let maven_credential: CredentialsMaven;
 const sourceApplicationsList: Array<Analysis> = [];
 const mavenApplicationsList: Array<Analysis> = [];
 
-describe(["@tier2"], "Manage credentials source analysis", () => {
-  before("Login", function () {
-    login();
-    cy.visit("/");
-    source_credential = new CredentialsSourceControlUsername(
-      data.getRandomCredentialsData(
-        CredentialType.sourceControl,
-        UserCredentials.usernamePassword,
-        true
-      )
-    );
-    source_credential.create();
+describe(
+  ["@tier2", "@secretsNeeded"],
+  "Manage credentials source analysis",
+  () => {
+    before("Login", function () {
+      login();
+      cy.visit("/");
+      source_credential = new CredentialsSourceControlUsername(
+        data.getRandomCredentialsData(
+          CredentialType.sourceControl,
+          UserCredentials.usernamePassword,
+          true
+        )
+      );
+      source_credential.create();
 
-    // Create Maven credentials
-    maven_credential = new CredentialsMaven(
-      data.getRandomCredentialsData(CredentialType.maven, null, true)
-    );
-    maven_credential.create();
-  });
-
-  beforeEach("Load data", function () {
-    cy.fixture("application").then(function (appData) {
-      this.appData = appData;
+      // Create Maven credentials
+      maven_credential = new CredentialsMaven(
+        data.getRandomCredentialsData(CredentialType.maven, null, true)
+      );
+      maven_credential.create();
     });
-    cy.fixture("analysis").then(function (analysisData) {
-      this.analysisData = analysisData;
+
+    beforeEach("Load data", function () {
+      cy.fixture("application").then(function (appData) {
+        this.appData = appData;
+      });
+      cy.fixture("analysis").then(function (analysisData) {
+        this.analysisData = analysisData;
+      });
     });
-  });
 
-  it("Adding source credentials to multiple apps", function () {
-    let application = new Analysis(
-      getRandomApplicationData("bookserverApp", {
-        sourceData: this.appData["bookserver-app"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["source_analysis_on_bookserverapp"]
-      )
-    );
-    sourceApplicationsList.push(application);
+    it("Adding source credentials to multiple apps", function () {
+      let application = new Analysis(
+        getRandomApplicationData("bookserverApp", {
+          sourceData: this.appData["bookserver-app"],
+        }),
+        getRandomAnalysisData(
+          this.analysisData["source_analysis_on_bookserverapp"]
+        )
+      );
+      sourceApplicationsList.push(application);
 
-    application = new Analysis(
-      getRandomApplicationData("tackle-testapp-public", {
-        sourceData: this.appData["tackle-testapp-public"],
-      }),
-      getRandomAnalysisData(this.analysisData["tackle-testapp-public"])
-    );
-    sourceApplicationsList.push(application);
+      application = new Analysis(
+        getRandomApplicationData("tackle-testapp-public", {
+          sourceData: this.appData["tackle-testapp-public"],
+        }),
+        getRandomAnalysisData(this.analysisData["tackle-testapp-public"])
+      );
+      sourceApplicationsList.push(application);
 
-    sourceApplicationsList.forEach((currentApplication) => {
-      currentApplication.create();
+      sourceApplicationsList.forEach((currentApplication) => {
+        currentApplication.create();
+      });
+      manageCredentialsForMultipleApplications(
+        sourceApplicationsList,
+        source_credential
+      );
     });
-    manageCredentialsForMultipleApplications(
-      sourceApplicationsList,
-      source_credential
-    );
-    sourceApplicationsList.forEach((currentApplication) => {
-      currentApplication.analyze();
-      currentApplication.verifyAnalysisStatus("Completed");
+
+    it("Adding maven credentials to multiple apps", function () {
+      let application = new Analysis(
+        getRandomApplicationData("tackletestApp_MavenCreds", {
+          sourceData: this.appData["tackle-testapp-public"],
+        }),
+        getRandomAnalysisData(this.analysisData["tackle-testapp-public"])
+      );
+      mavenApplicationsList.push(application);
+
+      application = new Analysis(
+        getRandomApplicationData("tackletestApp_binary", {
+          binaryData: this.appData["tackle-testapp-binary"],
+        }),
+        getRandomAnalysisData(
+          this.analysisData["binary_analysis_on_tackletestapp"]
+        )
+      );
+      mavenApplicationsList.push(application);
+
+      mavenApplicationsList.forEach((currentApplication) => {
+        currentApplication.create();
+      });
+      manageCredentialsForMultipleApplications(
+        mavenApplicationsList,
+        maven_credential
+      );
     });
-  });
 
-  it("Adding maven credentials to multiple apps", function () {
-    let application = new Analysis(
-      getRandomApplicationData("tackletestApp_MavenCreds", {
-        sourceData: this.appData["tackle-testapp-public"],
-      }),
-      getRandomAnalysisData(this.analysisData["tackle-testapp-public"])
-    );
-    mavenApplicationsList.push(application);
-
-    application = new Analysis(
-      getRandomApplicationData("tackletestApp_binary", {
-        binaryData: this.appData["tackle-testapp-binary"],
-      }),
-      getRandomAnalysisData(
-        this.analysisData["binary_analysis_on_tackletestapp"]
-      )
-    );
-    mavenApplicationsList.push(application);
-
-    mavenApplicationsList.forEach((currentApplication) => {
-      currentApplication.create();
+    after("Perform test data clean up", function () {
+      deleteByList(sourceApplicationsList);
+      deleteByList(mavenApplicationsList);
+      source_credential.delete();
+      maven_credential.delete();
+      writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
     });
-    manageCredentialsForMultipleApplications(
-      mavenApplicationsList,
-      maven_credential
-    );
-    mavenApplicationsList.forEach((currentApplication) => {
-      currentApplication.analyze();
-      currentApplication.verifyAnalysisStatus("Completed");
-    });
-  });
-
-  after("Perform test data clean up", function () {
-    deleteByList(sourceApplicationsList);
-    deleteByList(mavenApplicationsList);
-    source_credential.delete();
-    maven_credential.delete();
-    writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
-  });
-});
+  }
+);

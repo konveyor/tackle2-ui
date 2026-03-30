@@ -30,7 +30,7 @@ import {
 import { cancelButton, submitButton } from "../../../views/common.view";
 import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
 
-describe(["@tier3"], "Custom Migration Target Validations", () => {
+describe(["@tier3", "@tier3_A"], "Custom Migration Target Validations", () => {
   /**
    * Validations for Polarion TCs 299, 301, 303, 304 & 305
    * This suite is only for fields validations, see crud.test.ts for CRUD operations

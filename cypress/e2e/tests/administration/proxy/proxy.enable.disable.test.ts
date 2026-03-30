@@ -32,7 +32,7 @@ import {
   port,
 } from "../../../views/proxy.view";
 
-describe(["@tier3"], "Proxy operations", () => {
+describe(["@tier3", "@tier3_A"], "Proxy operations", () => {
   const httpsProxy = new Proxy(getRandomProxyData(), ProxyType.https);
   const httpProxy = new Proxy(getRandomProxyData(), ProxyType.http);
   const httpProxyCredentials = new CredentialsProxy(

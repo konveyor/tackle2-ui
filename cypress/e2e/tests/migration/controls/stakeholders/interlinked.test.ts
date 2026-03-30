@@ -35,7 +35,7 @@ const stakeholdergroupsList: Array<Stakeholdergroups> = [];
 const stakeholdergroupNames: Array<string> = [];
 
 describe(
-  ["@tier3"],
+  ["@tier3", "@tier3_C"],
   "Stakeholder linked to stakeholder groups and job function",
   () => {
     beforeEach("Interceptors", function () {

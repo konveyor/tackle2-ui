@@ -40,7 +40,7 @@ import {
   stakeholderNameInput,
 } from "../../../../views/stakeholders.view";
 
-describe(["@tier2"], "Stakeholder validations", () => {
+describe(["@tier2", "@tier2_B"], "Stakeholder validations", () => {
   const stakeholder = new Stakeholders(data.getEmail(), data.getFullName());
 
   beforeEach("Interceptors", function () {
