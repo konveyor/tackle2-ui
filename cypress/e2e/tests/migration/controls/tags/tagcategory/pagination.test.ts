@@ -42,7 +42,7 @@ describe(
       cy.get(appTable, { timeout: 2 * SEC })
         .next()
         .then(($div) => {
-          if (!$div.hasClass("pf-c-empty-state")) {
+          if (!$div.hasClass("pf-v6-c-empty-state")) {
             cy.get(tagCategory).then(($rows) => {
               const rowCount = $rows.length;
               if (rowCount <= 10) {

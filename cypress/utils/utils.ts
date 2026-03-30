@@ -954,7 +954,7 @@ export function application_inventory_kebab_menu(menu: string): void {
     cy.get(actionMenuItem)
       .contains(menu)
       .then(($menu_item) => {
-        if (!$menu_item.hasClass("pf-m-disabled")) {
+        if (!$menu_item.is(":disabled") && !$menu_item.attr("aria-disabled")) {
           clickByText(button, menu, true);
         } else {
           // close menu if nothing to do
@@ -1723,8 +1723,8 @@ export function goToPage(page: number): void {
       cy.get(firstPageButton).then(($firstPageButton) => {
         cy.get(lastPageButton).then(($lastPageButton) => {
           if (
-            !$firstPageButton.hasClass(".pf-m-disabled") ||
-            !$lastPageButton.hasClass(".pf-m-disabled")
+            !$firstPageButton.is(":disabled") ||
+            !$lastPageButton.is(":disabled")
           ) {
             cy.get(pageNumInput, { timeout: 2 * SEC })
               .clear()
@@ -1898,7 +1898,7 @@ export function goToLastPage(): void {
     .should("not.be.disabled", { timeout: 10 * SEC })
     .eq(1)
     .then(($button) => {
-      if (!$button.hasClass(".pf-m-disabled")) {
+      if (!$button.is(":disabled")) {
         cy.wrap($button).click();
       }
     });

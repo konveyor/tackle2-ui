@@ -43,7 +43,7 @@ export class CredentialsSourceControlKey extends CredentialsSourceControl {
   }
 
   protected selectCredType() {
-    click("#user-credentials-select-toggle");
+    click("button[aria-label='User credentials select dropdown toggle']");
     clickByText(button, "Source Private Key/Passphrase");
   }
 

@@ -22,7 +22,7 @@ export const keyInput = "#key";
 export const privatePassphraseInput =
   "input[aria-label='Private Key Passphrase']";
 export const createBtn = "#create-credential-button";
-export const selectType = "#type-select-toggle";
+export const selectType = "button[aria-label='Type select dropdown toggle']";
 export const filteredBy = "#filtered-by";
 export const filterCategory = "#filter-category-name";
 export const filterCatType = "#filter-category-type";

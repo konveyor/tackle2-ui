@@ -24,7 +24,7 @@ export const deleteButton = "button[aria-label=delete]";
 export const removeButton = "button[aria-label='Remove']";
 export const clearAllButton = "button[aria-label='Clear all']";
 export const controlsForm = "form.pf-v6-c-form";
-export const itemsPerPageMenu = "div.pf-c-options-menu";
+export const itemsPerPageMenu = "div.pf-v6-c-options-menu";
 export const filteredBy = "#filtered-by";
 export const itemsPerPageMenuOptions = "ul.pf-v6-c-menu__list";
 export const expandRow = "button[aria-label=Details]";
@@ -36,7 +36,7 @@ export const infoAlertMessage = ".pf-m-info";
 export const alertBody = 'div[id*="pf-modal-part"]';
 export const alertTitle = "h4[class*='alert__title']";
 export const appTable = ".pf-v6-c-table";
-export const expandableRow = ".pf-c-expandable-row";
+export const expandableRow = ".pf-v6-c-expandable-row";
 export const helper = "span.pf-v6-c-helper-text__item-text";
 export const filterInput = "input[type='search']";
 export const inputText = "input[type='text']";
@@ -57,7 +57,7 @@ export const itemsSelectInsideDialog =
 export const helperBusiness = 'span[class*="helper-text__item"]';
 export const stakeHolderGroupHelper = "div.pf-v6-c-helper-text";
 export const actionMenuItem = "span.pf-v6-c-menu__item-text";
-export const kebabMenuItem = "a.pf-c-dropdown__menu-item";
+export const kebabMenuItem = "a.pf-v6-c-dropdown__menu-item";
 export const kebabActionButton = "li.pf-v6-c-menu__list-item";
 export const commonTable = "table.pf-v6-c-table.pf-m-grid-md";
 export const tableRowActions = ".pf-v6-c-table__tr.actions-row";
@@ -79,7 +79,7 @@ export const dependencies = "Dependencies";
 export const technologies = "Technologies";
 /**
  * ul[role=listbox] > li is for the Application Inventory page.
- * span.pf-c-check__label is for the Copy assessment page.
+ * span.pf-v6-c-check__label is for the Copy assessment page.
  */
 export const standardFilter =
   "ul[role=listbox] > li, span.pf-v6-c-check__label";
@@ -97,7 +97,7 @@ export const kebabToggleButton = 'button[aria-label="Kebab toggle"]';
 
 // Application/Archetype side drawer
 export enum sideDrawer {
-  risk = "h4.pf-v6-c-title.pf-m-md",
+  risk = "h4",
   labelContent = "span.pf-v6-c-label__content",
   closeDrawer = "button[aria-label='Close drawer panel']",
   pageDrawerContent = "#page-drawer-content",

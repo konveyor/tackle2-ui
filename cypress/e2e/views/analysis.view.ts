@@ -17,8 +17,8 @@ export const sourceDropdown = "#analysis-source-toggle";
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";
-export const sourceCredential = "#source-credentials-toggle-select-typeahead";
-export const mavenCredential = "#maven-settings-toggle-select-typeahead";
+export const sourceCredential = "button[aria-label='Source credentials']";
+export const mavenCredential = "button[aria-label='Maven settings']";
 export const nextButton = "button[type=submit]";
 export const addRules =
   "div > footer[class='pf-v6-c-modal-box__footer'] > button";
@@ -28,7 +28,8 @@ export const reportStoryPoints =
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
-export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const analysisProfileSelect =
+  "button[aria-label='Analysis profile select']";
 export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
 export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";

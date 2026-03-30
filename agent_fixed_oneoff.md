@@ -347,6 +347,60 @@ Changed `client/package.json` lint scripts from `--max-warnings=24` to `--max-wa
 
 ---
 
+## 11. Cypress E2E CI Failure Fixes (19 files, ~50 selectors)
+
+Comprehensive fix for selectors that caused failures in the `@ci`, `@tier0`, `@tier2_A`,
+`@tier3_B`, and `@tier3_F` CI tiers.
+
+### Unversioned `pf-c-*` CSS class selectors (17 occurrences)
+
+Replaced remaining unversioned `pf-c-*` class selectors with `pf-v6-c-*` across view
+files, model files, and utils. These were missed in the initial `pf-v5` → `pf-v6` pass
+because they used the unversioned v4 format.
+
+**Files:** `applicationinventory.view.ts`, `common.view.ts`, `custom-migration-target.view.ts`,
+`reportsTab.view.ts`, `jira.view.ts`, `pagination.test.ts`
+
+### Select toggle ID selectors → aria-label selectors (~30 selectors, 15 files)
+
+PF v6's `MenuToggle` does not render v5-style `#<toggleId>` DOM IDs. All `#*-toggle*`
+and `#*-typeahead` selectors converted to `button[aria-label='...']` using the
+`toggleAriaLabel` values from the source React components.
+
+| View File                         | Selectors Fixed                                                                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `applicationinventory.view.ts`    | `contributorsInput`, `ownerInput`, `appContributorSelect`                                                                                         |
+| `stakeholders.view.ts`            | `jobfunctionInput`, `groupInput`                                                                                                                  |
+| `credentials.view.ts`             | `selectType`                                                                                                                                      |
+| `analysis.view.ts`                | `sourceCredential`, `mavenCredential`, `analysisProfileSelect`                                                                                    |
+| `migration-wave.view.ts`          | `stakeHoldersInput`, `stakeHolderGroupsInput`, `issueManagerSelectToggle`, `instanceSelectToggle`, `projectSelectToggle`, `issueTypeSelectToggle` |
+| `custom-migration-target.view.ts` | `credentialsDropdown`, `credentialsInput`                                                                                                         |
+| `source-platform.view.ts`         | `type`, `credentials`                                                                                                                             |
+| `businessservices.view.ts`        | `businessServiceOwnerSelect`                                                                                                                      |
+| `jira.view.ts`                    | `selectTypeToggle`, `selectCredentialToggle`                                                                                                      |
+| `tags.view.ts`                    | `dropdownMenuToggle`, `dropdownMenuTypeToggle`, `colorMenuToggle`                                                                                 |
+| `target-profile.view.ts`          | `analysisProfileToggle`                                                                                                                           |
+| `asset-generators.view.ts`        | `generatorTypeSelect`                                                                                                                             |
+
+**Model files:** `credentialsSourceControlUsername.ts` (×2), `credentialsSourceControlKey.ts`
+
+### `pf-m-disabled` class checks → native disabled checks (3 occurrences)
+
+PF v6 uses the native `disabled` attribute instead of the `pf-m-disabled` CSS class.
+
+| File               | Change                                                                     |
+| ------------------ | -------------------------------------------------------------------------- |
+| `analysis.ts` (×2) | `have.class pf-m-disabled` → `be.disabled` / `not.be.disabled`             |
+| `utils.ts` (×3)    | `hasClass("pf-m-disabled")` → `is(":disabled")` or `attr("aria-disabled")` |
+
+### Title selector simplification (1 occurrence)
+
+| File                                 | Change                                                                                   |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `common.view.ts` (`sideDrawer.risk`) | `h4.pf-v6-c-title.pf-m-md` → `h4` (simplified — PF v6 Title class varies by CSS package) |
+
+---
+
 ## Summary
 
 | Category                          | Errors Fixed |
@@ -364,4 +418,5 @@ Changed `client/package.json` lint scripts from `--max-warnings=24` to `--max-wa
 | Unit test fixes                   | 23           |
 | Cypress e2e test fixes            | 55           |
 | ESLint warning fixes              | 32           |
-| **Total**                         | **~197**     |
+| Cypress CI tier failure fixes     | ~50          |
+| **Total**                         | **~247**     |

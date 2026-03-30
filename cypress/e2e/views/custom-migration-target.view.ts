@@ -1,5 +1,5 @@
 export const sourcesToggle = "#sources-toggle";
-export const sourcesList = "ul#formSources-id.pf-c-select__menu";
+export const sourcesList = "ul#formSources-id.pf-v6-c-select__menu";
 export enum CustomMigrationTargetView {
   createSubmitButton = "button[id='identity-form-submit']:contains('Create')",
   editSubmitButton = "button[id='identity-form-submit']:contains('Save')",
@@ -17,8 +17,8 @@ export enum CustomMigrationTargetView {
   repositoryUrl = "#sourceRepository",
   branch = "#branch",
   rootPath = "#rootPath",
-  credentialsDropdown = "#associated-credentials-select-toggle",
-  credentialsInput = "#associated-credentials-select-toggle-select-typeahead",
+  credentialsDropdown = "button[aria-label='Associated credentials dropdown toggle']",
+  credentialsInput = "input[aria-label='Associated credentials dropdown toggle']",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
   card = ".pf-v6-c-card",

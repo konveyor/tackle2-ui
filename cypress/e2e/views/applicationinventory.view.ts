@@ -24,12 +24,13 @@ export const applicationBusinessServiceSelect =
 export const tagsColumnSelector = "td[data-label='Tags']";
 
 export const applicationContributorsInput =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
-export const applicationContributorsText = ".pf-c-chip__text";
-export const applicationContributorsAction = ".pf-c-chip__actions";
-export const applicationOwnerInput = "#owner-toggle-select-typeahead";
+  "button[aria-label='contributors dropdown toggle']";
+export const applicationContributorsText = ".pf-v6-c-chip__text";
+export const applicationContributorsAction = ".pf-v6-c-chip__actions";
+export const applicationOwnerInput =
+  "button[aria-label='Owner select dropdown toggle']";
 export const modalBoxDialog = "#confirm-dialog";
-export const modalBoxMessage = ".pf-c-modal-box__body";
+export const modalBoxMessage = ".pf-v6-c-modal-box__body";
 export const reviewConfirmationText =
   "This application has already been reviewed. Do you want to continue?";
 export const repoTypeSelect = "button[id='repo-type-toggle']";
@@ -55,10 +56,10 @@ export const kebabMenuAction = "#action";
 export const topKebabMenu = "#toolbar-kebab";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
-export const profileEdit = ".pf-m-1-col > .pf-c-button";
+export const profileEdit = ".pf-m-1-col > .pf-v6-c-button";
 export const appContributorSelect =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
-export const appSelectionButton = "button.pf-c-menu-toggle__button";
+  "button[aria-label='contributors dropdown toggle']";
+export const appSelectionButton = "button.pf-v6-c-menu-toggle__button";
 // This is on the Application imports page.
 export const sideKebabMenu = "button[aria-label='Kebab toggle']";
 
@@ -90,14 +91,14 @@ export const copyAssessmentTableTd = ".pf-m-compact> tbody > tr > td";
 export const copyAssessmentTableTr = ".pf-m-compact> tbody > tr";
 export const copyAssessmentPagination =
   "#bulk-copy-assessment-review-pagination-top";
-export const copyAssessmentModal = "div.pf-c-modal-box";
+export const copyAssessmentModal = "div.pf-v6-c-modal-box";
 
 // Fields related to application import
-export const appImportForm = "form.pf-c-form";
+export const appImportForm = "form.pf-v6-c-form";
 export const ViewArchetypes = "View archetypes";
 export const customActionButton = "#custom-action-button";
 export const manageColumnsModal = "[id*='pf-modal-part']";
-export const labelTagText = ".pf-c-label__text";
+export const labelTagText = ".pf-v6-c-label__text";
 
 export enum taskIcon {
   success = "span.pf-m-success",
