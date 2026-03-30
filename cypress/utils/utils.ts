@@ -2169,7 +2169,9 @@ export function clickTab(name: string): void {
     } else {
       const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
       if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+        cy.get("li.pf-v5-c-tabs__item.pf-m-overflow > button", {
+          timeout: 5 * SEC,
+        }).click({
           force: true,
         });
         cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");

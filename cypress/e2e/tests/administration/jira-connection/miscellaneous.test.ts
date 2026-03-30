@@ -22,13 +22,20 @@ import {
 import {
   clickByText,
   createMultipleApplications,
+  deleteAllCredentials,
+  deleteApplicationTableRows,
   deleteByList,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import { Application } from "../../../models/migration/applicationinventory/application";
-import { CredentialType, JiraType, button } from "../../../types/constants";
+import {
+  CredentialType,
+  JiraType,
+  SEC,
+  button,
+} from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
 
 describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
@@ -89,10 +96,6 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
     applicationList = createMultipleApplications(2);
   });
 
-  beforeEach("Interceptors", function () {
-    cy.intercept("DELETE", "/hub/migrationwaves*/*").as("deleteWave");
-  });
-
   it("Validating error when Jira Cloud Instance is not connected", () => {
     /**
          Implements MTA-362 - Add JIRA instance with invalid credentials
@@ -129,8 +132,9 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
   });
 
   after("Clean up data", () => {
-    jiraCloudConnectionIncorrect.delete();
-    jiraBasicCredentialInvalid.delete();
-    deleteByList(applicationList);
+    login();
+    cy.visit("/", { timeout: 60 * SEC });
+    deleteAllCredentials();
+    deleteApplicationTableRows();
   });
 });

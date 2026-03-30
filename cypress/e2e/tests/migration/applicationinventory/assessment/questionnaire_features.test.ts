@@ -136,6 +136,7 @@ describe(
     });
 
     after("Perform test data clean up", function () {
+      login();
       Application.open(true);
       application.delete();
       Stakeholders.openList(true);
