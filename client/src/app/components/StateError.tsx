@@ -6,7 +6,6 @@ import {
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
-import { t_global_color_status_danger_200 as globalDangerColor200 } from "@patternfly/react-tokens";
 
 export const StateError: React.FC = () => {
   const { t } = useTranslation();

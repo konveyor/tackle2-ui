@@ -343,23 +343,20 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           key={"scatter-1"}
                           name={"scatter-1"}
                           data={bubblePoints}
-                          labels={({ datum }: { datum: any }) => {
-                            const point = datum as BubblePoint;
-                            return point.application.name;
+                          labels={({ datum }: { datum: BubblePoint }) => {
+                            return datum.application.name;
                           }}
                           labelComponent={
                             <ChartTooltip
-                              dy={({ datum }: { datum?: any }) => {
-                                const point = datum as BubblePoint;
-                                return 0 - point.size;
+                              dy={({ datum }: { datum?: BubblePoint }) => {
+                                return 0 - (datum?.size ?? 0);
                               }}
                             />
                           }
                           style={{
                             data: {
-                              fill: ({ datum }: { datum?: any }) => {
-                                const point = datum as BubblePoint;
-                                return point.legend.hexColor;
+                              fill: ({ datum }: { datum?: BubblePoint }) => {
+                                return datum?.legend.hexColor ?? "";
                               },
                             },
                           }}

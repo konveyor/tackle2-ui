@@ -1,4 +1,4 @@
-import { ToolbarLabel, ToolbarFilter } from "@patternfly/react-core";
+import { ToolbarFilter, ToolbarLabel } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";

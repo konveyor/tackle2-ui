@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+
 import { Paths } from "@app/Paths";
 import type { SourcePlatform } from "@app/api/models";
 import { serializeFilterUrlParams } from "@app/hooks/table-controls";
