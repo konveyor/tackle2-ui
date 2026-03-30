@@ -21,5 +21,5 @@ export const groupInput =
   "button[aria-label='Stakeholder groups select dropdown toggle']";
 export const groupsCount = "td[data-label='Group count']";
 export const stakeholderHelper = "div.pf-v6-c-helper-text";
-export const removeJobFunction = ".pf-v6-c-select__toggle-clear";
+export const removeJobFunction = "button[aria-label='Clear input value']";
 export const stakeHoldersTable = "table[aria-label='Stakeholders table']";

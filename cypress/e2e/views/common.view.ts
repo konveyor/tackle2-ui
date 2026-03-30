@@ -63,7 +63,7 @@ export const commonTable = "table.pf-v6-c-table.pf-m-grid-md";
 export const tableRowActions = ".pf-v6-c-table__tr.actions-row";
 export const tableHead = "thead[class='pf-v6-c-table__thead']";
 export const plainButton = "button.pf-v6-c-button.pf-m-plain";
-export const dropdownClearSelection = "pf-v6-c-select__toggle-clear";
+export const dropdownClearSelection = "button[aria-label='Clear input value']";
 export const footer = "footer";
 export const manageImportsActionsButton =
   "button[aria-label='Table toolbar actions kebab toggle']";

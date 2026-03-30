@@ -150,12 +150,17 @@ export function inputText(
   text: string | string[],
   log = false
 ): void {
+  const value = Array.isArray(text) ? text.join(" ") : text;
+  if (!value) {
+    cy.log(`inputText: skipping empty text for fieldId="${fieldId}"`);
+    return;
+  }
   if (!log) {
-    cy.log(`Type ${text} in ${fieldId}`);
+    cy.log(`Type ${value} in ${fieldId}`);
   }
   cy.get(fieldId, { log, timeout: 2 * SEC })
     .clear({ log, timeout: 30 * SEC })
-    .type(Array.isArray(text) ? text.join(" ") : text, { log });
+    .type(value, { log });
 }
 
 export function clearInput(fieldID: string): void {
@@ -383,12 +388,16 @@ export function selectFromDropListByText(
 }
 
 export function selectFormItems(fieldId: string, item: string): void {
+  if (!item) {
+    cy.log(`selectFormItems: skipping empty item for fieldId="${fieldId}"`);
+    return;
+  }
   // PatternFly typeahead selects virtualize the dropdown options, so only
   // items matching the typed filter are rendered to the DOM.  For plain
   // toggle-button selects all options are rendered on click.
   cy.get(fieldId).then(($el) => {
     if ($el.is("input")) {
-      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      // Direct input element
       cy.get(fieldId).click().clear().type(item);
     } else {
       // Wrapper div or toggle button — click to open
@@ -1539,7 +1548,7 @@ export function deleteAllRows(tableSelector: string = commonTable) {
         .then(($rows) => {
           for (let i = 0; i < $rows.length - 1; i++) {
             cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(1 * SEC);
           }
@@ -1574,7 +1583,7 @@ export function deleteAllImports(tableSelector: string = commonTable) {
             cy.get(manageImportsActionsButton, { timeout: 10000 })
               .eq(1)
               .click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(2 * SEC);
           }
@@ -1592,7 +1601,7 @@ export function deleteAllItems(tableSelector: string = commonTable) {
         .then(($rows) => {
           for (let i = 0; i < $rows.length; i++) {
             cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(1 * SEC);
           }

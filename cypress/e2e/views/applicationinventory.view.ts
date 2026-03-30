@@ -20,7 +20,7 @@ export const applicationsActionButton =
 export const applicationNameInput = "input[name=name]";
 export const applicationDescriptionInput = "input[name=description]";
 export const applicationBusinessServiceSelect =
-  "[placeholder='Select a business service']";
+  "button[aria-label='Business service select dropdown toggle']";
 export const tagsColumnSelector = "td[data-label='Tags']";
 
 export const applicationContributorsInput =

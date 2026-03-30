@@ -401,6 +401,53 @@ PF v6 uses the native `disabled` attribute instead of the `pf-m-disabled` CSS cl
 
 ---
 
+## 12. Cypress E2E CI Failure Fixes — Round 2 (13 files)
+
+Fixes for failures identified in the `@ci`, `@tier0`, `@tier2_A`, `@tier2_B`, `@tier3_*`
+CI workflow runs.
+
+### `cy.type()` empty string guard (2 functions in `utils/utils.ts`)
+
+Added early-return guards to `selectFormItems()` and `inputText()` to handle empty/undefined
+values gracefully instead of crashing with "cy.type() cannot accept an empty string".
+This was the root cause of cascading failures across ~15 tests in tier3_D, tier3_E, tier3_F.
+
+### Select toggle ID selectors — additional fixes
+
+| File                           | Old Selector                                | New Selector                                                   |
+| ------------------------------ | ------------------------------------------- | -------------------------------------------------------------- |
+| `stakeholdergroups.view.ts`    | `#stakeholders-toggle`                      | `button[aria-label='Stakeholders select dropdown toggle']`     |
+| `applicationinventory.view.ts` | `[placeholder='Select a business service']` | `button[aria-label='Business service select dropdown toggle']` |
+
+### PF v6 menu structure — `ul[role=menu] > li` (6 occurrences)
+
+PF v6 menus use `<span class="pf-v6-c-menu__item-text">` instead of `<ul role="menu"> > <li>`.
+Fixed in `utils.ts` (`deleteAllRows`, `deleteAllImports`, `deleteAllItems`) and
+`bulk_deletion_applications.test.ts`.
+
+### `View error report` kebab menu portaling (`manageImports.ts`)
+
+PF v6 dropdown menus are portaled outside the table row. Changed from
+`.find(button).contains("View error report")` scoped to `<tr>` to
+`cy.get("span.pf-v6-c-menu__item-text").contains("View error report")`.
+
+### Removed PF v5 class selectors
+
+| File                   | Old Selector                    | New Selector                             |
+| ---------------------- | ------------------------------- | ---------------------------------------- |
+| `credentials.view.ts`  | `svg.pf-svg`                    | `svg`                                    |
+| `common.view.ts`       | `pf-v6-c-select__toggle-clear`  | `button[aria-label='Clear input value']` |
+| `stakeholders.view.ts` | `.pf-v6-c-select__toggle-clear` | `button[aria-label='Clear input value']` |
+
+### Analysis profile label selector (`analysis-profile.view.ts`)
+
+| Old                                                                          | New                                |
+| ---------------------------------------------------------------------------- | ---------------------------------- |
+| `input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]` | `#additional-source-labels-toggle` |
+| `.pf-v6-c-select__menu-item`                                                 | `.pf-v6-c-menu__list-item`         |
+
+---
+
 ## Summary
 
 | Category                          | Errors Fixed |
@@ -419,4 +466,5 @@ PF v6 uses the native `disabled` attribute instead of the `pf-m-disabled` CSS cl
 | Cypress e2e test fixes            | 55           |
 | ESLint warning fixes              | 32           |
 | Cypress CI tier failure fixes     | ~50          |
-| **Total**                         | **~247**     |
+| Cypress CI round 2 fixes          | ~25          |
+| **Total**                         | **~272**     |
