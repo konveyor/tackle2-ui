@@ -420,17 +420,19 @@ export function selectFormItems(fieldId: string, item: string): void {
       // Direct input element
       cy.get(fieldId).click().clear().type(item);
     } else {
-      // Wrapper div or toggle button — click to open
+      // Wrapper div or toggle button — click to open, then find the input.
       cy.get(fieldId).click();
-      // PF v6: the typeahead input may be a sibling (inside the same
-      // MenuToggle wrapper) rather than a child of the toggle button.
-      // Search the closest parent wrapper for an input.
-      const $wrapper = $el.closest(
-        ".pf-v6-c-select, [data-ouia-component-type]"
-      );
-      const $input = $wrapper.length
-        ? $wrapper.find("input[type='text'], input[type='search']")
-        : $el.find("input");
+      // First check for inputs within the element itself (Autocomplete/SearchInput)
+      let $input = $el.find("input[type='text'], input[type='search'], input");
+      if ($input.length === 0) {
+        // PF v6 Select: the typeahead input is a sibling inside the same wrapper
+        const $wrapper = $el.closest(
+          ".pf-v6-c-select, [data-ouia-component-type]"
+        );
+        if ($wrapper.length) {
+          $input = $wrapper.find("input[type='text'], input[type='search']");
+        }
+      }
       if ($input.length > 0) {
         cy.wrap($input.first()).clear().type(item);
       }
