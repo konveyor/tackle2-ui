@@ -236,7 +236,7 @@ describe(
       appWithArchetype.selectApplication();
       cy.contains(button, "Analyze").should("be.enabled").click();
 
-      cy.get(analysisProfileMode).parent("label").click();
+      cy.get(`label[for='wizard-mode-profile']`).click();
       cy.get(analysisProfileMode).should("be.checked");
       cy.get(analysisProfileSelect).click();
 
@@ -266,7 +266,7 @@ describe(
       // Verify analysis profile (not linked to archetype) is NOT visible
       appWithArchetype.selectApplication();
       cy.contains(button, "Analyze").click();
-      cy.get(analysisProfileMode).parent("label").click();
+      cy.get(`label[for='wizard-mode-profile']`).click();
       cy.get(analysisProfileMode).should("be.checked");
       cy.get(analysisProfileSelect).click();
       cy.get(actionMenuItem).should("not.contain", adminAnalysisProfile.name);

@@ -119,7 +119,11 @@ export class AnalysisWizardHelpers {
       .then((checked) => {
         checked
           ? cy.log("Box is already checked")
-          : cy.get(enableTransactionAnalysis).parent("label").click();
+          : cy
+              .get(enableTransactionAnalysis)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click();
       });
   }
 
@@ -132,7 +136,11 @@ export class AnalysisWizardHelpers {
       .then((checked) => {
         checked
           ? cy.log("Box is already checked")
-          : cy.get(enableEnhancedAnalysisDetails).parent("label").click();
+          : cy
+              .get(enableEnhancedAnalysisDetails)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click();
       });
   }
 
@@ -144,7 +152,11 @@ export class AnalysisWizardHelpers {
       .invoke("is", ":checked")
       .then((checked) => {
         checked
-          ? cy.get(enableAutomatedTagging).parent("label").click()
+          ? cy
+              .get(enableAutomatedTagging)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click()
           : cy.log("Box is already unchecked");
       });
   }

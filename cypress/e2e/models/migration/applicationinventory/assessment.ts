@@ -136,7 +136,8 @@ export class Assessment {
       .children("div")
       .eq(optionToSelect)
       .find(radioInput)
-      .parent("label")
+      .closest(".pf-v6-c-radio")
+      .find("label")
       .click();
   }
 

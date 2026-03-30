@@ -182,7 +182,9 @@ export class Analysis extends Application {
   ) {
     const modeId =
       mode === "profile" ? "#wizard-mode-profile" : "#wizard-mode-manual";
-    cy.get(modeId).parent("label").click();
+    cy.get(
+      `label[for='${mode === "profile" ? "wizard-mode-profile" : "wizard-mode-manual"}']`
+    ).click();
     cy.get(modeId).should("be.checked");
 
     if (mode === "profile") {
@@ -228,7 +230,7 @@ export class Analysis extends Application {
       .invoke("is", ":checked")
       .then((checked) => {
         if (!checked) {
-          cy.get(saveAsProfileCheckbox).parent("label").click();
+          cy.get(`label[for='save-as-profile-checkbox']`).click();
         }
       });
 
