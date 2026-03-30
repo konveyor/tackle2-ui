@@ -158,9 +158,28 @@ export function inputText(
   if (!log) {
     cy.log(`Type ${value} in ${fieldId}`);
   }
-  cy.get(fieldId, { log, timeout: 2 * SEC })
-    .clear({ log, timeout: 30 * SEC })
-    .type(value, { log });
+  cy.get(fieldId, { log, timeout: 2 * SEC }).then(($el) => {
+    if ($el.is("input") || $el.is("textarea")) {
+      // Direct input/textarea element
+      cy.wrap($el, { log })
+        .clear({ log, timeout: 30 * SEC })
+        .type(value, { log });
+    } else {
+      // PF v6 MenuToggle button — click to open, then find and type in the input
+      cy.wrap($el, { log }).click({ log });
+      const $wrapper = $el.closest(
+        ".pf-v6-c-select, [data-ouia-component-type]"
+      );
+      const $input = $wrapper.length
+        ? $wrapper.find("input[type='text'], input[type='search']")
+        : $el.parent().find("input");
+      if ($input.length > 0) {
+        cy.wrap($input.first(), { log })
+          .clear({ log, timeout: 30 * SEC })
+          .type(value, { log });
+      }
+    }
+  });
 }
 
 export function clearInput(fieldID: string): void {
@@ -402,8 +421,15 @@ export function selectFormItems(fieldId: string, item: string): void {
     } else {
       // Wrapper div or toggle button — click to open
       cy.get(fieldId).click();
-      // If the wrapper contains a typeahead input, type into it to filter
-      const $input = $el.find("input");
+      // PF v6: the typeahead input may be a sibling (inside the same
+      // MenuToggle wrapper) rather than a child of the toggle button.
+      // Search the closest parent wrapper for an input.
+      const $wrapper = $el.closest(
+        ".pf-v6-c-select, [data-ouia-component-type]"
+      );
+      const $input = $wrapper.length
+        ? $wrapper.find("input[type='text'], input[type='search']")
+        : $el.find("input");
       if ($input.length > 0) {
         cy.wrap($input.first()).clear().type(item);
       }

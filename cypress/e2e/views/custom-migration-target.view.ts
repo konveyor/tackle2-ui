@@ -18,7 +18,6 @@ export enum CustomMigrationTargetView {
   branch = "#branch",
   rootPath = "#rootPath",
   credentialsDropdown = "button[aria-label='Associated credentials dropdown toggle']",
-  credentialsInput = "input[aria-label='Associated credentials dropdown toggle']",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
   card = ".pf-v6-c-card",

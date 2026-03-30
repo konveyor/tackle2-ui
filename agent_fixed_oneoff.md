@@ -448,6 +448,29 @@ PF v6 dropdown menus are portaled outside the table row. Changed from
 
 ---
 
+## 13. Cypress E2E CI Failure Fixes — Round 3 (4 files)
+
+### `selectFormItems()` — PF v6 MenuToggle button handling (`utils/utils.ts`)
+
+When `fieldId` matches a `<button>` (PF v6 MenuToggle), the function now searches
+the closest PF v6 Select wrapper (`pf-v6-c-select`) for a typeahead input instead
+of searching child elements of the button (which has no children in PF v6).
+
+### `inputText()` — button element support (`utils/utils.ts`)
+
+Added branch to handle `<button>` elements: click to open dropdown, then find and
+type in the typeahead input within the closest PF v6 Select wrapper. Previously
+called `.clear().type()` directly on the button, which throws `cy.clear() requires
+a valid clearable element`.
+
+### `credentialsInput` duplicate fix (`custom-migration-target.view.ts`)
+
+Removed duplicate `credentialsInput` enum value (identical to `credentialsDropdown`).
+Updated `crud.test.ts` to use `credentialsDropdown` and changed assertion from
+`have.value` (only works on `<input>`) to `contain.text` (works on `<button>`).
+
+---
+
 ## Summary
 
 | Category                          | Errors Fixed |
@@ -467,4 +490,5 @@ PF v6 dropdown menus are portaled outside the table row. Changed from
 | ESLint warning fixes              | 32           |
 | Cypress CI tier failure fixes     | ~50          |
 | Cypress CI round 2 fixes          | ~25          |
-| **Total**                         | **~272**     |
+| Cypress CI round 3 fixes          | ~10          |
+| **Total**                         | **~282**     |

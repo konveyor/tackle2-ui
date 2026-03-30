@@ -179,8 +179,8 @@ describe(
 
           // TC MTA-403
           target.openEditDialog();
-          cy.get(CustomMigrationTargetView.credentialsInput).should(
-            "have.value",
+          cy.get(CustomMigrationTargetView.credentialsDropdown).should(
+            "contain.text",
             sourceCredential.name
           );
           click(cancelButton);
