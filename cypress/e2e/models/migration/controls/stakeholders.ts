@@ -256,7 +256,7 @@ export class Stakeholders {
   ): Cypress.Chainable<Stakeholders[]> {
     const timestamp = Date.now();
     const stakeholders: Stakeholders[] = [];
-    let chain: Cypress.Chainable<any> = cy.wrap(null);
+    let chain: Cypress.Chainable<unknown> = cy.wrap(null);
 
     for (let i = 0; i < count; i++) {
       chain = chain.then(() =>

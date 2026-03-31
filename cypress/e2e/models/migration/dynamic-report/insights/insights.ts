@@ -9,7 +9,7 @@ import {
   dynamicReportFilter,
   trTag,
 } from "../../../../types/constants";
-import { AppInsight, AppIssue } from "../../../../types/types";
+import { AppInsight } from "../../../../types/types";
 import { div, liTag, span } from "../../../../views/common.view";
 import { insightColumns } from "../../../../views/insights.view";
 import { singleApplicationColumns } from "../../../../views/issue.view";

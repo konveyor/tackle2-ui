@@ -191,7 +191,7 @@ export class AssessmentQuestionnaire {
 
   static validateNoMatchesFound(): void {
     cy.get(".pf-v5-c-empty-state__content")
-      .find("h2.pf-v5-c-title.pf-m-lg")
+      .find("h2.pf-v5-c-empty-state__title-text")
       .invoke("text")
       .then((text) => {
         expect(text.trim()).to.match(/^No questions match your search/);

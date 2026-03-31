@@ -21,7 +21,6 @@ import {
   clearAllFilters,
   createMultipleJiraConnections,
   deleteAllCredentials,
-  deleteByList,
   exists,
   login,
   notExists,
