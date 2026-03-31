@@ -438,7 +438,13 @@ export function selectFormItems(fieldId: string, item: string): void {
       }
     }
   });
-  cy.contains("button", item, { timeout: 30 * SEC }).click();
+  // PF v6: dropdown options render as menu items in a portal. Target them
+  // specifically to avoid matching the toggle button itself.
+  cy.get("span.pf-v6-c-menu__item-text, button.pf-v6-c-select__option", {
+    timeout: 30 * SEC,
+  })
+    .contains(item)
+    .click();
 }
 
 export function selectAnalysisMode(fieldId: string, item: string): void {
