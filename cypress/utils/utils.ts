@@ -415,6 +415,14 @@ export function selectFormItems(fieldId: string, item: string): void {
   // PatternFly typeahead selects virtualize the dropdown options, so only
   // items matching the typed filter are rendered to the DOM.  For plain
   // toggle-button selects all options are rendered on click.
+  // Wait for the element (or its MenuToggle wrapper) to not be disabled
+  cy.get(fieldId, { timeout: 30 * SEC }).should(($el) => {
+    const isDisabled =
+      $el.is(":disabled") ||
+      $el.closest(".pf-m-disabled").length > 0 ||
+      $el.attr("aria-disabled") === "true";
+    expect(isDisabled, `${fieldId} should not be disabled`).to.be.false;
+  });
   cy.get(fieldId).then(($el) => {
     if ($el.is("input")) {
       // Direct input element
