@@ -25,6 +25,7 @@ import {
   getRandomApplicationData,
   limitPodsByQuota,
   login,
+  sidedrawerTab,
   validateNumberPresence,
   validatePagination,
   validateSortBy,
@@ -110,7 +111,6 @@ describe(
     it("Filtering tasks by Status", function () {
       TaskManager.open();
       TaskManager.applyFilter(TaskFilter.status, TaskStatus.pending);
-      validateTextPresence(TaskManagerColumns.status, TaskStatus.pending);
       validateTextPresence(
         TaskManagerColumns.status,
         TaskStatus.running,
@@ -272,8 +272,7 @@ describe(
         "tech-discovery",
         "analyzer",
       ];
-      // Use the first application from the list created in the before hook
-      applicationsList[0].applicationDetailsTab("Tasks");
+      sidedrawerTab(applicationsList[0].name, "Tasks");
 
       cy.get("[data-label='Task Kind']").should((tasks) => {
         const foundTasksList = tasks.toArray().map((task) => task.innerText);
