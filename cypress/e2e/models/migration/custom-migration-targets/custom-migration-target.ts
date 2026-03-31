@@ -162,25 +162,17 @@ export class CustomMigrationTarget {
 
   public static selectLanguage(language: Languages) {
     CustomMigrationTarget.open();
-    cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-    /**
-     * There may be a pre-selected filter so
-     * the only deterministic way to eliminate pre-selected filters is to make sure there is one
-     */
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-      .contains(Languages.Java)
-      .closest(".pf-v6-c-menu__list-item")
-      .click();
-    cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-    clickByText("button", clearAllFilters);
 
+    // Clear any pre-existing filters first
+    cy.get("body").then(($body) => {
+      if ($body.find(`button:contains("${clearAllFilters}")`).length > 0) {
+        clickByText("button", clearAllFilters);
+      }
+    });
+
+    // Open the language filter dropdown and select the desired language
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-      .contains(language)
-      .closest(".pf-v6-c-menu__list-item")
-      .click();
-
+    cy.get(".pf-v6-c-menu__list-item").contains(language).click();
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
   }
 
