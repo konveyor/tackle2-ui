@@ -31,7 +31,7 @@ import { analysisDetailsEditor } from "../../../views/analysis.view";
 // Skipping until bug https://github.com/konveyor/tackle2-hub/issues/988  is fixed.
 
 describe.skip(
-  ["@tier1", "@secretsNeeded"],
+  ["@tier1", "@tier1_secretsNeeded"],
   "Bug MTA-988: Test secure and insecure svn repository analysis",
   () => {
     const subversionConfiguration = new SubversionConfiguration();

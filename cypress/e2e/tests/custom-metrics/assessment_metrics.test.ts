@@ -32,7 +32,7 @@ let counter: number;
 const fileName = "Legacy Pathfinder";
 
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "Custom Metrics - The total number of initiated assessments",
   function () {
     before("Login and create test data", function () {

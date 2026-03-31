@@ -57,7 +57,7 @@ let projectName = "";
  * This suite is almost identical to jira_datacenter but putting both tests in the same suite would make the code harder to read
  */
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "Export Migration Wave to Jira Cloud",
   function () {
     before("Create test data", function () {
