@@ -24,7 +24,6 @@ import {
   createMultipleStakeholders,
   deleteAllStakeholders,
   deleteApplicationTableRows,
-  deleteByList,
   login,
 } from "../../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../../models/administration/assessment_questionnaire/assessment_questionnaire";

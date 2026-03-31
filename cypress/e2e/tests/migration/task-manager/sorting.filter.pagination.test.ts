@@ -15,13 +15,10 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { Application } from "e2e/models/migration/applicationinventory/application";
-
 import { randomWordGenerator } from "../../../../utils/data_utils";
 import {
   clearAllFilters,
   deleteApplicationTableRows,
-  deleteByList,
   deleteCustomResource,
   getNumberOfNonTaskPods,
   getRandomAnalysisData,
@@ -36,7 +33,6 @@ import {
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../models/migration/task-manager/task-manager";
 import {
-  SEC,
   TaskFilter,
   TaskKind,
   TaskStatus,
