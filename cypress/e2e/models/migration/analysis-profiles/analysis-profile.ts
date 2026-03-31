@@ -182,8 +182,11 @@ export class AnalysisProfile {
   }
 
   protected labelsToInclude(label: string) {
+    cy.get(includeLabelsInput, { timeout: 30 * SEC }).should("be.visible");
     click(includeLabelsInput);
-    cy.get(includeLabelsMenuItem).contains(label).click();
+    cy.get(includeLabelsMenuItem, { timeout: 30 * SEC })
+      .contains(label)
+      .click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {
