@@ -21,13 +21,13 @@ import {
 } from "../../../../utils/data_utils";
 import {
   clickByText,
-  createMultipleApplications,
-  deleteByList,
+  deleteAllCredentials,
+  deleteAllJiraConnections,
+  deleteApplicationTableRows,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
-import { Application } from "../../../models/migration/applicationinventory/application";
 import { CredentialType, JiraType, button } from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
 
@@ -40,14 +40,8 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
   let jiraBearerCredentialInvalid: JiraCredentials;
   let jiraStageConnectionDataIncorrect: JiraConnectionData;
   let jiraCloudConnectionDataIncorrect: JiraConnectionData;
-  let _jiraCloudConnection: Jira;
   let jiraCloudConnectionIncorrect: Jira;
   let jiraStageConnectionIncorrect: Jira;
-  let applicationList: Array<Application> = [];
-  const now = new Date();
-  now.setDate(now.getDate() + 1);
-  const end = new Date(now.getTime());
-  end.setFullYear(end.getFullYear() + 1);
 
   before("Login and create required credentials", function () {
     login();
@@ -85,12 +79,6 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
       useTestingAccount
     );
     jiraStageConnectionIncorrect = new Jira(jiraStageConnectionDataIncorrect);
-
-    applicationList = createMultipleApplications(2);
-  });
-
-  beforeEach("Interceptors", function () {
-    cy.intercept("DELETE", "/hub/migrationwaves*/*").as("deleteWave");
   });
 
   it("Validating error when Jira Cloud Instance is not connected", () => {
@@ -129,8 +117,8 @@ describe(["@tier3", "@secretsNeeded"], "Jira connection negative tests", () => {
   });
 
   after("Clean up data", () => {
-    jiraCloudConnectionIncorrect.delete();
-    jiraBasicCredentialInvalid.delete();
-    deleteByList(applicationList);
+    deleteAllJiraConnections();
+    deleteAllCredentials();
+    deleteApplicationTableRows();
   });
 });

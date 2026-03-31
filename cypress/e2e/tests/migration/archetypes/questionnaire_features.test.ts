@@ -144,6 +144,7 @@ describe(
     });
 
     after("Perform test data clean up", function () {
+      login();
       Archetype.open(true);
       archetype.delete();
       Stakeholders.openList(true);
