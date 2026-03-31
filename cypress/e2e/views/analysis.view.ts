@@ -51,7 +51,8 @@ export const closeWizard = ".pf-v6-c-wizard__close > .pf-v6-c-button";
 export const codeEditorControls = "div.pf-v6-c-code-editor__controls";
 export const menuToggle = "button.pf-v6-c-menu-toggle";
 export const menuList = "div.pf-v6-c-menu";
-export const languageSelectionDropdown = "#filter-control-provider-Languages";
+export const languageSelectionDropdown =
+  "#filter-control-provider-Languages button.pf-v6-c-menu-toggle";
 export const numberOfRulesColumn = "td[data-label='Number of rules']";
 export const logFilter = "span.pf-v6-c-menu-toggle__toggle-icon";
 export const analysisProfileMode = "#wizard-mode-profile";
