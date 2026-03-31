@@ -22,7 +22,7 @@ export enum CustomMigrationTargetView {
   dragButton = 'button[id*="drag-button"]',
   card = ".pf-v6-c-card",
   cardContainer = 'div[class*="gallery"][class*="gutter"]',
-  filterLanguageDropdown = "#filter-control-provider-Languages",
+  filterLanguageDropdown = "#filter-control-provider-Languages button.pf-v6-c-menu-toggle",
   formLanguageDropdown = "button[aria-label='Provider type select dropdown toggle']",
   formLanguageDropdownOptions = "#provider-type-select",
 }
