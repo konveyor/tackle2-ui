@@ -379,11 +379,11 @@ export function selectItemsPerPage(items: number): void {
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
         cy.wrap($toggleBtn.eq(0)).click({ log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, {
+        cy.get(`[data-action="per-page-${items}"]`, {
           log: false,
           timeout: 60 * SEC,
         })
-          .contains(`${items}`)
+          .first()
           .click({
             force: true,
             log: false,
