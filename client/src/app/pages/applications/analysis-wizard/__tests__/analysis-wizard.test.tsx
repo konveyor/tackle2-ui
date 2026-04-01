@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import { configure } from "@testing-library/dom";
 import userEvent from "@testing-library/user-event";
 import { rest } from "msw";
 
@@ -54,6 +55,7 @@ const navigateToAnalysisSourceStep = async () => {
 };
 
 describe("<AnalysisWizard />", () => {
+  configure({ testIdAttribute: "data-ouia-component-id" });
   beforeEach(() => {
     jest.clearAllMocks();
     server.use(
@@ -123,9 +125,7 @@ describe("<AnalysisWizard />", () => {
 
       await navigateToAnalysisSourceStep();
 
-      const modeDropdown = await screen.findByTestId(
-        "analysis-source-select-toggle"
-      );
+      const modeDropdown = await screen.findByTestId("analysis-source-toggle");
       await waitFor(() =>
         expect(modeDropdown).toHaveTextContent("Source code + dependencies")
       );
@@ -142,9 +142,7 @@ describe("<AnalysisWizard />", () => {
         />
       );
 
-      const modeDropdown = await screen.findByTestId(
-        "analysis-source-select-toggle"
-      );
+      const modeDropdown = await screen.findByTestId("analysis-source-toggle");
       await waitFor(() => expect(modeDropdown).toHaveTextContent("Binary"));
     });
     it("pre-selects source+deps mode and displays an error if no compatible mode is found", async () => {
@@ -158,9 +156,7 @@ describe("<AnalysisWizard />", () => {
         />
       );
 
-      const modeDropdown = await screen.findByTestId(
-        "analysis-source-select-toggle"
-      );
+      const modeDropdown = await screen.findByTestId("analysis-source-toggle");
       await waitFor(() =>
         expect(modeDropdown).toHaveTextContent("Source code + dependencies")
       );
