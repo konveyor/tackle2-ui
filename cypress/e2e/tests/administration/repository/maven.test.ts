@@ -39,7 +39,7 @@ let maven_credential;
 const applicationsList: Analysis[] = [];
 
 describe(
-  ["@tier1", "@secretsNeeded"],
+  ["@tier1", "@tier1_secretsNeeded"],
   "Test secure and insecure maven repository analysis",
   () => {
     before("Login", function () {

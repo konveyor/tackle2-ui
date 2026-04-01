@@ -31,7 +31,7 @@ import { CredentialType } from "../../../types/constants";
 import { jiraTable } from "../../../views/jira.view";
 
 describe(
-  ["@tier3", "@secretsNeeded"],
+  ["@tier3", "@tier3_secretsNeeded"],
   "Jira connection filter validations",
   () => {
     const useTestingAccount = true;

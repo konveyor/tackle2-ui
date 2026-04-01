@@ -31,7 +31,7 @@ const sourceApplicationsList: Array<Analysis> = [];
 const mavenApplicationsList: Array<Analysis> = [];
 
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "Manage credentials source analysis",
   () => {
     before("Login", function () {
