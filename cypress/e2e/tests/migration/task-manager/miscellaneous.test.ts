@@ -33,7 +33,7 @@ import * as commonView from "../../../views/common.view";
 import { TaskManagerColumns } from "../../../views/taskmanager.view";
 
 describe(
-  ["@tier2", "@taskManager"],
+  ["@tier2", "@tier2_taskManager"],
   "Actions in Task Manager Page",
   function () {
     let bookServerApp: Analysis;
