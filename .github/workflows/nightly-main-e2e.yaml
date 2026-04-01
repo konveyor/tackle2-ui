@@ -34,3 +34,61 @@ jobs:
       install_konveyor_version: main
       test_ref: main
     secrets: inherit
+
+  slack-notification:
+    name: Send Slack notification
+    runs-on: ubuntu-latest
+    needs: [nightly-e2e]
+    if: always()
+    steps:
+      - name: Determine workflow status
+        id: status
+        run: |
+          if [[ "${{ needs.nightly-e2e.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.nightly-e2e.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+            echo "emoji=:warning:" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "title": "${{ steps.status.outputs.emoji }} Nightly E2E Tests (@main) - ${{ steps.status.outputs.status }}",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "${{ needs.nightly-e2e.result }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "main",
+                      "short": true
+                    },
+                    {
+                      "title": "Workflow",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
+                      "short": false
+                    }
+                  ],
+                  "footer": "tackle2-ui",
+                  "footer_icon": "https://github.com/konveyor.png",
+                  "ts": ${{ github.event.repository.updated_at }}
+                }
+              ]
+            }
