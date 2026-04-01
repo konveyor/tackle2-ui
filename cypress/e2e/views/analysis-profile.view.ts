@@ -18,24 +18,23 @@ export const description = "#analysis-profile-description";
 export const profileNameColumn = "td[data-label='Name']";
 export const profileDescriptionColumn = "td[data-label='Description']";
 export const createProfileButton = "#create-analysis-profile";
-export const cancelButton = "div.pf-v5-c-wizard__footer-cancel";
+export const cancelButton = "div.pf-v6-c-wizard__footer-cancel";
 export const submitButton = 'button[type="submit"]';
 export const pencilAction = '[id^="pencil-action"]';
 
 // Language and target selectors
 export const languageListbox =
   "#filter-control-provider-select-typeahead-listbox > li";
-export const menuListItem = ".pf-v5-c-menu__list-item";
+export const menuListItem = ".pf-v6-c-menu__list-item";
 export const checkboxInput = "input[type=checkbox]";
-export const wizardMainBody = ".pf-v5-c-wizard__main-body";
+export const wizardMainBody = ".pf-v6-c-wizard__main-body";
 export const targetOpenJDKSelect = "#target-OpenJDK-select";
 export const targetCamelSelect = "#target-Camel-select";
 export const fileInput = "input[type=file]";
-export const progressMeasure = "span.pf-v5-c-progress__measure";
+export const progressMeasure = "span.pf-v6-c-progress__measure";
 export const ossCheckbox = "#oss";
 export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
 export const addPackageToExclude = "#add-package-to-exclude";
-export const includeLabelsInput =
-  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
-export const includeLabelsMenuItem = ".pf-v5-c-select__menu-item";
+export const includeLabelsInput = "#additional-source-labels-toggle";
+export const includeLabelsMenuItem = ".pf-v6-c-menu__list-item";

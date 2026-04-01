@@ -5,21 +5,20 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   Dropdown,
   DropdownItem,
+  DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   MenuToggle,
   MenuToggleElement,
   Modal,
+  ModalBody,
+  ModalHeader,
   ModalVariant,
   OverflowMenu,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -275,10 +274,10 @@ export const MigrationWaves: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.migrationWaves")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content>
+          <h1>{t("terms.migrationWaves")}</h1>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -295,7 +294,7 @@ export const MigrationWaves: React.FC = () => {
                 <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}
@@ -327,38 +326,41 @@ export const MigrationWaves: React.FC = () => {
                               setIsToolbarKebabOpen(!isToolbarKebabOpen)
                             }
                             isExpanded={isToolbarKebabOpen}
-                          >
-                            <EllipsisVIcon />
-                          </MenuToggle>
+                            icon={<EllipsisVIcon />}
+                          />
                         )}
                         shouldFocusToggleOnSelect
                       >
-                        <DropdownItem
-                          isDisabled={
-                            selectedItems.filter(
-                              (migrationWave) =>
-                                !!migrationWave.applications.length
-                            ).length < 1
-                          }
-                          key="bulk-export-to-issue-manager"
-                          component="button"
-                          onClick={() =>
-                            setApplicationsToExport(
-                              selectedItems.flatMap((item) => item.applications)
-                            )
-                          }
-                        >
-                          {t("terms.exportToIssue")}
-                        </DropdownItem>
-                        <DropdownItem
-                          key="bulk-delete"
-                          isDisabled={selectedItems.length === 0}
-                          onClick={() =>
-                            setMigrationWavesToDelete(selectedItems)
-                          }
-                        >
-                          {t("actions.delete")}
-                        </DropdownItem>
+                        <DropdownList>
+                          <DropdownItem
+                            isDisabled={
+                              selectedItems.filter(
+                                (migrationWave) =>
+                                  !!migrationWave.applications.length
+                              ).length < 1
+                            }
+                            key="bulk-export-to-issue-manager"
+                            component="button"
+                            onClick={() =>
+                              setApplicationsToExport(
+                                selectedItems.flatMap(
+                                  (item) => item.applications
+                                )
+                              )
+                            }
+                          >
+                            {t("terms.exportToIssue")}
+                          </DropdownItem>
+                          <DropdownItem
+                            key="bulk-delete"
+                            isDisabled={selectedItems.length === 0}
+                            onClick={() =>
+                              setMigrationWavesToDelete(selectedItems)
+                            }
+                          >
+                            {t("actions.delete")}
+                          </DropdownItem>
+                        </DropdownList>
                       </Dropdown>
                     </ToolbarItem>
                   ) : null}
@@ -391,12 +393,12 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noMigrationWavesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noMigrationWavesAvailable")}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>
@@ -595,56 +597,68 @@ export const MigrationWaves: React.FC = () => {
             : (migrationWaveToEdit?.id ?? -1)
         }
         id="create-edit-migration-wave-modal"
-        title={
-          migrationWaveToEdit
-            ? t("dialog.title.update", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-        }
         variant={ModalVariant.medium}
         isOpen={isWaveModalOpen}
         onClose={closeWaveModal}
       >
-        <WaveForm
-          migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}
-          onClose={closeWaveModal}
+        <ModalHeader
+          title={
+            migrationWaveToEdit
+              ? t("dialog.title.update", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <WaveForm
+            migrationWave={
+              migrationWaveToEdit ? migrationWaveToEdit : undefined
+            }
+            onClose={closeWaveModal}
+          />
+        </ModalBody>
       </Modal>
 
       {applicationsToExport !== null && (
         <Modal
-          title={t("terms.exportToIssue")}
           variant="medium"
           isOpen={true}
           onClose={() => setApplicationsToExport(null)}
         >
-          <ExportForm
-            applications={applicationsToExport}
-            trackers={trackers}
-            onClose={() => setApplicationsToExport(null)}
-          />
+          <ModalHeader title={t("terms.exportToIssue")} />
+          <ModalBody>
+            <ExportForm
+              applications={applicationsToExport}
+              trackers={trackers}
+              onClose={() => setApplicationsToExport(null)}
+            />
+          </ModalBody>
         </Modal>
       )}
 
       <Modal
-        title={t("composed.manage", {
-          what: t("terms.applications").toLowerCase(),
-        })}
         width="50%"
         isOpen={!!waveToManageModalState}
         onClose={() => setWaveToManageModalState(null)}
       >
-        {waveToManageModalState && (
-          <ManageApplicationsForm
-            applications={applications}
-            migrationWave={waveToManageModalState}
-            migrationWaves={migrationWaves}
-            onClose={() => setWaveToManageModalState(null)}
-          />
-        )}
+        <ModalHeader
+          title={t("composed.manage", {
+            what: t("terms.applications").toLowerCase(),
+          })}
+        />
+        <ModalBody>
+          {waveToManageModalState && (
+            <ManageApplicationsForm
+              applications={applications}
+              migrationWave={waveToManageModalState}
+              migrationWaves={migrationWaves}
+              onClose={() => setWaveToManageModalState(null)}
+            />
+          )}
+        </ModalBody>
       </Modal>
 
       <ConfirmDeleteSingleMigrationWave

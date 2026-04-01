@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -10,9 +11,6 @@ import {
   PanelMainBody,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
 } from "@patternfly/react-core";
 
 import { TargetProfile } from "@app/api/models";
@@ -36,17 +34,17 @@ export const Review: React.FC<{
 
   return (
     <>
-      <TextContent>
-        <Text component={TextVariants.h3}>
+      <Content>
+        <Content component="h3">
           {t("generateAssetsWizard.review.title")}
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component="p">
           {t("generateAssetsWizard.review.description", {
             count: applications.length,
             targetProfile: targetProfile.name,
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Panel>
         <PanelMain>
@@ -68,9 +66,9 @@ export const Review: React.FC<{
                     <Stack>
                       <StackItem>{application.name}</StackItem>
                       <StackItem>
-                        <Text component={TextVariants.small}>
+                        <Content component="small">
                           {application.description}
-                        </Text>
+                        </Content>
                       </StackItem>
                     </Stack>
                   </DescriptionListDescription>
@@ -98,7 +96,7 @@ export const Review: React.FC<{
                       <div
                         style={{
                           border:
-                            "1px solid var(--pf-v5-global--BorderColor--100)",
+                            "1px solid var(--pf-t--global--border--color--default)",
                           borderRadius: "3px",
                           padding: "16px",
                         }}

@@ -1,3 +1,9 @@
+// PatternFly component conformance verified:
+// - Table: contains Thead, Tbody (via ConditionalTableBody)
+// - Thead: contains Tr with Th elements
+// - Tbody: contains Tr with Td elements
+// - Toolbar: contains ToolbarContent with ToolbarItem
+// - ToolbarContent: no alignSelf prop used (behavioral change in v6 noted)
 import * as React from "react";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";

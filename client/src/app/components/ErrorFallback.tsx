@@ -6,8 +6,7 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
+  EmptyStateFooter,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { UserNinjaIcon } from "@patternfly/react-icons";
@@ -20,6 +19,7 @@ const usePrevious = <T,>(value: T) => {
   useEffect(() => {
     ref.current = value;
   }, [value]);
+  // eslint-disable-next-line react-hooks/refs -- intentional: return previous value pattern
   return ref.current;
 };
 
@@ -47,14 +47,14 @@ export const ErrorFallback = ({
 
   return (
     <Bullseye>
-      <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateHeader
-          titleText={<>{t("dialog.message.pageError")}</>}
-          icon={<EmptyStateIcon icon={UserNinjaIcon} />}
-          headingLevel="h2"
-        />
-        <EmptyStateBody>
-          {t("dialog.message.refreshPage")}
+      <EmptyState
+        variant={EmptyStateVariant.sm}
+        titleText={<>{t("dialog.message.pageError")}</>}
+        icon={UserNinjaIcon}
+        headingLevel="h2"
+      >
+        <EmptyStateBody>{t("dialog.message.refreshPage")}</EmptyStateBody>
+        <EmptyStateFooter>
           <Button
             variant="primary"
             className={spacing.mtSm}
@@ -65,7 +65,7 @@ export const ErrorFallback = ({
           >
             {t("terms.refresh")}
           </Button>
-        </EmptyStateBody>
+        </EmptyStateFooter>
       </EmptyState>
     </Bullseye>
   );

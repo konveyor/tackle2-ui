@@ -124,6 +124,7 @@ export const ColumnPlatformName: React.FC<{
 
   const bodyContent = (
     <div>
+      {/* Alert used for display only - no action buttons needed */}
       <Alert
         title={status.headerText}
         variant={status.popoverVariant}
@@ -134,6 +135,7 @@ export const ColumnPlatformName: React.FC<{
       {platform.tasks.tasksStatus === "None" ? (
         <></>
       ) : (
+        // Table structure follows PatternFly composition pattern: Table > Thead/Tbody > Tr > Th/Td
         <Table variant="compact" borders={false}>
           <Thead>
             <Tr>
@@ -175,9 +177,6 @@ export const ColumnPlatformName: React.FC<{
       className="platform-name-popover"
       triggerAction="hover"
       aria-label="application task information popover"
-      // alertSeverityVariant={status.popoverVariant}
-      // headerIcon={<StatusIcon />}
-      // headerContent={status.headerText}
       headerContent={platform.name}
       hasAutoWidth
       bodyContent={bodyContent}

@@ -9,8 +9,6 @@ import {
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
@@ -87,12 +85,12 @@ export const TaskManagerDrawer = forwardRef((_props, ref) => {
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         {tasks.length == 0 ? (
-          <EmptyState variant={EmptyStateVariant.full}>
-            <EmptyStateHeader
-              headingLevel="h2"
-              titleText={t("message.noQueuedTasksTitle")}
-              icon={<EmptyStateIcon icon={CubesIcon} />}
-            />
+          <EmptyState
+            variant={EmptyStateVariant.full}
+            headingLevel="h2"
+            titleText={t("message.noQueuedTasksTitle")}
+            icon={CubesIcon}
+          >
             <EmptyStateBody>
               No tasks are currently ready, postponed, blocked, pending or
               running. Completed and cancelled tasks may be viewed on the full
@@ -181,7 +179,7 @@ const TaskItem: React.FC<{
           onSelect={() => onActionsExpandToggle(false)}
           isOpen={actionsExpanded}
           onOpenChange={() => onActionsExpandToggle(false)}
-          popperProps={{ position: "right" }}
+          popperProps={{ placement: "right-start" }}
           toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
             <MenuToggle
               ref={toggleRef}
@@ -192,9 +190,8 @@ const TaskItem: React.FC<{
               onClick={() => onActionsExpandToggle(!actionsExpanded)}
               variant="plain"
               aria-label={`Actions for task ${task.name}`}
-            >
-              <EllipsisVIcon aria-hidden="true" />
-            </MenuToggle>
+              icon={<EllipsisVIcon aria-hidden="true" />}
+            />
           )}
         >
           <DropdownList>

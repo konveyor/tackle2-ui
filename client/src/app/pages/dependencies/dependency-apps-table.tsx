@@ -1,13 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import {
-  Text,
-  TextContent,
-  Toolbar,
-  ToolbarContent,
-  ToolbarItem,
-} from "@patternfly/react-core";
+import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -270,7 +264,7 @@ const DependencyManagementColumn = ({
   const isJavaFile = appDependency.dependency.name.endsWith(".jar");
   const isJavaDependency = hasJavaLabel && isJavaFile;
 
-  return <TextContent>{isJavaDependency ? "Embedded" : "Managed"}</TextContent>;
+  return <span>{isJavaDependency ? "Embedded" : "Managed"}</span>;
 };
 
 const DependencyVersionColumn = ({
@@ -297,14 +291,14 @@ const DependencyVersionColumn = ({
   }
 
   return (
-    <TextContent>
+    <span>
       {mavenCentralLink ? (
         <ExternalLink isInline href={mavenCentralLink}>
           {version}
         </ExternalLink>
       ) : (
-        <Text>{version}</Text>
+        <span>{version}</span>
       )}
-    </TextContent>
+    </span>
   );
 };

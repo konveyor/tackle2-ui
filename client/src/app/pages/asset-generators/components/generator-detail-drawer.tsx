@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -8,8 +9,6 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -50,14 +49,14 @@ const GeneratorDetailDrawer: React.FC<IGeneratorDetailDrawerProps> = ({
       focusKey={generator?.id}
       pageKey="generator-details"
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             {t("titles.generatorDrawer")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {generator?.name}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       <div>
@@ -104,7 +103,7 @@ const DetailsTab: React.FC<{ generator: Generator | null }> = ({
 
   return (
     <DescriptionList>
-      <Text component="small">{generator.description}</Text>
+      <Content component="small">{generator.description}</Content>
 
       <DescriptionListGroup>
         <DescriptionListTerm>{t("terms.providerType")}</DescriptionListTerm>

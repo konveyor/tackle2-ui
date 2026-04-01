@@ -45,7 +45,7 @@ export class CredentialsSourceControlUsername extends CredentialsSourceControl {
   }
 
   protected selectCredType() {
-    click("#user-credentials-select-toggle");
+    click("button[aria-label='User credentials select dropdown toggle']");
     clickByText(button, "Username/Password");
   }
 
@@ -111,7 +111,7 @@ export class CredentialsSourceControlUsername extends CredentialsSourceControl {
     super.validateFields();
     click(selectType);
     clickByText(button, "Source Control");
-    click("#user-credentials-select-toggle");
+    click("button[aria-label='User credentials select dropdown toggle']");
     clickByText(button, "Username/Password");
     this.fillUsernameTooShort();
     this.fillUsernameTooLong();

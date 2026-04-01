@@ -5,15 +5,14 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
+  ContentVariants,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -209,10 +208,10 @@ const AssetGenerators: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.generators")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content component={ContentVariants.h1}>
+          {t("terms.generators")}
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -227,7 +226,7 @@ const AssetGenerators: FC = () => {
             <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -272,12 +271,12 @@ const AssetGenerators: FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noGeneratorsCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noGeneratorsCreatedTitle")}
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                  >
                     <EmptyStateBody>
                       {t("message.noGeneratorsCreatedTitleDescription")}
                     </EmptyStateBody>
@@ -356,29 +355,33 @@ const AssetGenerators: FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newGenerator")}
         variant="medium"
         isOpen={openCreateGenerator}
         onClose={handleCloseCreateGenerator}
       >
-        <GeneratorForm
-          key={openCreateGenerator ? 1 : 0}
-          onClose={handleCloseCreateGenerator}
-        />
+        <ModalHeader title={t("dialog.title.newGenerator")} />
+        <ModalBody>
+          <GeneratorForm
+            key={openCreateGenerator ? 1 : 0}
+            onClose={handleCloseCreateGenerator}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updateGenerator")}
         variant="medium"
         isOpen={!!generatorToEdit}
         onClose={handleCloseEditGenerator}
       >
-        <GeneratorForm
-          key={generatorToEdit?.id ?? -1}
-          generator={generatorToEdit}
-          onClose={handleCloseEditGenerator}
-        />
+        <ModalHeader title={t("dialog.title.updateGenerator")} />
+        <ModalBody>
+          <GeneratorForm
+            key={generatorToEdit?.id ?? -1}
+            generator={generatorToEdit}
+            onClose={handleCloseEditGenerator}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Delete confirm modal */}

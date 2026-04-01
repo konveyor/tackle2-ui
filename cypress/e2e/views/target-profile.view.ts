@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 export const addSelectedItems = "button[aria-label='Add selected']";
-export const generatorListItem = "span.pf-v5-c-dual-list-selector__item-text";
+export const generatorListItem = "span.pf-v6-c-dual-list-selector__item-text";
 export const analysisProfileToggle =
-  "#analysis-profile-select-toggle-select-typeahead";
+  "button[aria-label='Analysis profile select']";
 export const targetProfileName = "#target-profile-name";

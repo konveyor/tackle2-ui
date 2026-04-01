@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Modal } from "@patternfly/react-core";
+import { Modal, ModalBody, ModalHeader } from "@patternfly/react-core";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
@@ -14,13 +14,14 @@ export const ApplicationIdentityModal: React.FC<{
   }
 
   return (
-    <Modal
-      isOpen={true}
-      variant="medium"
-      title="Manage credentials"
-      onClose={onClose}
-    >
-      <ApplicationIdentityForm applications={applications} onClose={onClose} />
+    <Modal isOpen={true} variant="medium" onClose={onClose}>
+      <ModalHeader title="Manage credentials" />
+      <ModalBody>
+        <ApplicationIdentityForm
+          applications={applications}
+          onClose={onClose}
+        />
+      </ModalBody>
     </Modal>
   );
 };

@@ -4,7 +4,10 @@ import {
   Button,
   ButtonVariant,
   Modal,
-  ModalProps,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalHeaderProps,
   ModalVariant,
 } from "@patternfly/react-core";
 
@@ -12,7 +15,7 @@ export interface ConfirmDialogProps {
   isOpen: boolean;
 
   title: string;
-  titleIconVariant?: ModalProps["titleIconVariant"];
+  titleIconVariant?: ModalHeaderProps["titleIconVariant"];
   message: string | React.ReactNode;
 
   confirmBtnLabel: string;
@@ -91,17 +94,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <Modal
       id="confirm-dialog"
       variant={ModalVariant.small}
-      title={title}
-      titleIconVariant={titleIconVariant}
       isOpen={isOpen}
       onClose={onClose}
       aria-label="Confirm dialog"
-      actions={actions}
     >
-      {alertMessage ? (
-        <Alert variant="warning" isInline title={alertMessage} />
-      ) : null}
-      {message}
+      <ModalHeader title={title} titleIconVariant={titleIconVariant} />
+      <ModalBody>
+        {alertMessage ? (
+          <Alert variant="warning" isInline title={alertMessage} />
+        ) : null}
+        {message}
+      </ModalBody>
+      <ModalFooter>{actions}</ModalFooter>
     </Modal>
   );
 };

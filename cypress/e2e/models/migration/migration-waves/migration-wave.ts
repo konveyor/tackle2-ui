@@ -124,7 +124,7 @@ export class MigrationWave {
         $btn,
         `Project name ${project} not found in the dropdown. This could be due to the Jira instance being down or other external issues.`
       ).to.exist;
-      $btn.trigger("click");
+      cy.wrap($btn).click();
     });
 
     cy.get(MigrationWaveView.issueTypeSelectToggle).click({
@@ -297,9 +297,7 @@ export class MigrationWave {
       cy.contains(targetName)
         .parents("tr")
         .within(() => {
-          cy.get(kebabToggleButton).then(($btn) => {
-            $btn.trigger("click");
-          });
+          cy.get(kebabToggleButton).click();
         });
     } else {
       const targetStartDate = MigrationWave.formatDateMMddYYYY(this.startDate);
@@ -317,7 +315,7 @@ export class MigrationWave {
             .find(kebabToggleButton)
             .then(($btn) => {
               if ($btn.attr("aria-expanded") === "false") {
-                $btn.trigger("click");
+                cy.wrap($btn).click();
               }
             });
         }

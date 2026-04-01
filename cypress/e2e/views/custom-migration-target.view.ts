@@ -1,5 +1,5 @@
 export const sourcesToggle = "#sources-toggle";
-export const sourcesList = "ul#formSources-id.pf-v5-c-select__menu";
+export const sourcesList = "ul#formSources-id.pf-v6-c-select__menu";
 export enum CustomMigrationTargetView {
   createSubmitButton = "button[id='identity-form-submit']:contains('Create')",
   editSubmitButton = "button[id='identity-form-submit']:contains('Save')",
@@ -13,17 +13,16 @@ export enum CustomMigrationTargetView {
   ruleHelper = "h4[class*='alert__title']",
   ruleFilesToggle = "button[aria-expanded='true']",
   takeMeThereNotification = "Take me there",
-  repositoryTypeDropdown = "#repo-type-select-toggle",
+  repositoryTypeDropdown = "button[aria-label='Repository type select dropdown toggle']",
   repositoryUrl = "#sourceRepository",
   branch = "#branch",
   rootPath = "#rootPath",
-  credentialsDropdown = "#associated-credentials-select-toggle",
-  credentialsInput = "#associated-credentials-select-toggle-select-typeahead",
+  credentialsDropdown = "button[aria-label='Associated credentials dropdown toggle']",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
-  card = ".pf-v5-c-card",
+  card = ".pf-v6-c-card",
   cardContainer = 'div[class*="gallery"][class*="gutter"]',
-  filterLanguageDropdown = "#filter-control-provider-Languages",
-  formLanguageDropdown = "#provider-type-select-toggle",
+  filterLanguageDropdown = "#filter-control-provider-Languages button.pf-v6-c-menu-toggle",
+  formLanguageDropdown = "button[aria-label='Provider type select dropdown toggle']",
   formLanguageDropdownOptions = "#provider-type-select",
 }

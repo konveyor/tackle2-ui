@@ -11,7 +11,7 @@ import {
   ChartScatter,
   ChartThemeColor,
   ChartTooltip,
-} from "@patternfly/react-charts";
+} from "@patternfly/react-charts/victory";
 import {
   Bullseye,
   Checkbox,
@@ -21,8 +21,8 @@ import {
 } from "@patternfly/react-core";
 import {
   chart_color_green_100 as green,
-  global_palette_black_800 as black,
-  global_palette_white as white,
+  t_color_gray_80 as black,
+  t_color_white as white,
 } from "@patternfly/react-tokens";
 
 import { EFFORT_ESTIMATE_LIST, PROPOSED_ACTION_LIST } from "@app/Constants";
@@ -166,6 +166,7 @@ export const AdoptionCandidateGraph: React.FC = () => {
       );
 
       // TODO: This hook should be pulled outside of the useMemo
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- known issue, needs refactor to lift hook out of reduce callback
       const { review: appReview } = useFetchReviewById(current?.review?.id);
 
       if (appConfidence && appReview) {
@@ -343,23 +344,20 @@ export const AdoptionCandidateGraph: React.FC = () => {
                           key={"scatter-1"}
                           name={"scatter-1"}
                           data={bubblePoints}
-                          labels={({ datum }) => {
-                            const point = datum as BubblePoint;
-                            return point.application.name;
+                          labels={({ datum }: { datum: BubblePoint }) => {
+                            return datum.application.name;
                           }}
                           labelComponent={
                             <ChartTooltip
-                              dy={({ datum }) => {
-                                const point = datum as BubblePoint;
-                                return 0 - point.size;
+                              dy={({ datum }: { datum?: BubblePoint }) => {
+                                return 0 - (datum?.size ?? 0);
                               }}
                             />
                           }
                           style={{
                             data: {
-                              fill: ({ datum }) => {
-                                const point = datum as BubblePoint;
-                                return point.legend.hexColor;
+                              fill: ({ datum }: { datum?: BubblePoint }) => {
+                                return datum?.legend.hexColor ?? "";
                               },
                             },
                           }}

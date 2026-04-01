@@ -1,13 +1,7 @@
 import { lazy } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Level,
-  LevelItem,
-  PageSection,
-  PageSectionVariants,
-  Title,
-} from "@patternfly/react-core";
+import { Level, LevelItem, PageSection, Title } from "@patternfly/react-core";
 
 const ApplicationsTable = lazy(() => import("./applications-table"));
 
@@ -16,7 +10,7 @@ export const Applications: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">

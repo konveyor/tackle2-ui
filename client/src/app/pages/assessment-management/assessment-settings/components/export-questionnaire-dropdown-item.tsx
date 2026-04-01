@@ -18,7 +18,7 @@ export const ExportQuestionnaireDropdownItem: React.FC<
   };
 
   return (
-    <DropdownItem key="export" component="button" onClick={handleDownload}>
+    <DropdownItem key="export" onClick={handleDownload}>
       {t("actions.export")}
     </DropdownItem>
   );

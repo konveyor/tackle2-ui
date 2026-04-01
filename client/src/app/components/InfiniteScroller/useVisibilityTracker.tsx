@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export function useVisibilityTracker({ enable }: { enable: boolean }) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState<boolean | undefined>(false);
+  // eslint-disable-next-line react-hooks/refs -- intentional: read ref to pass to IntersectionObserver
   const node = nodeRef.current;
 
   // state is set from IntersectionObserver callbacks which may not align with React lifecycle
@@ -52,6 +53,7 @@ export function useVisibilityTracker({ enable }: { enable: boolean }) {
       observer.disconnect();
       setVisibleSafe(false);
     };
+    // eslint-disable-next-line react-hooks/refs -- node read during render is intentional for observer setup
   }, [enable, node, setVisibleSafe]);
 
   return {

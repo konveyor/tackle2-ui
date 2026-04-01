@@ -1,25 +1,25 @@
 /* Make our document viewer modal height the maximum height (assuming Modal position="top") */
 .simple-task-viewer.full-height-top {
-  height: var(--pf-v5-c-modal-box--m-align-top--MaxHeight);
+  height: var(--pf-v6-c-modal-box--m-align-top--MaxHeight);
 }
 
 .simple-task-viewer.full-height {
-  height: var(--pf-v5-c-modal-box--MaxHeight);
+  height: var(--pf-v6-c-modal-box--MaxHeight);
 }
 
 /* Match empty state layout to the editor layout so they take up exactly the same space */
 .simple-task-viewer-code .simple-task-viewer-empty-state {
-  padding: var(--pf-v5-c-code-editor__code--PaddingTop)
-    var(--pf-v5-c-code-editor__code--PaddingRight)
-    var(--pf-v5-c-code-editor__code--PaddingBottom)
-    var(--pf-v5-c-code-editor__code--PaddingLeft);
+  padding: var(--pf-v6-c-code-editor__code--PaddingBlockStart)
+    var(--pf-v6-c-code-editor__code--PaddingInlineEnd)
+    var(--pf-v6-c-code-editor__code--PaddingBlockEnd)
+    var(--pf-v6-c-code-editor__code--PaddingInlineStart);
 }
 
 /*
   Make all of the containers of the MonacoEditor component take the maximum height so the
   editor can always be as tall as possible.
  */
-.simple-task-viewer[class*="full-height"] .pf-v5-c-modal-box__body,
+.simple-task-viewer[class*="full-height"] .pf-v6-c-modal-box__body,
 .simple-task-viewer-container {
   display: flex;
   flex-direction: column;
@@ -31,18 +31,18 @@
   height: 100%;
 }
 
-.simple-task-viewer-code .pf-v5-c-file-upload {
+.simple-task-viewer-code .pf-v6-c-file-upload {
   height: 100%;
 }
 
-.simple-task-viewer-code .pf-v5-c-file-upload .pf-v5-c-code-editor__main {
+.simple-task-viewer-code .pf-v6-c-file-upload .pf-v6-c-code-editor__main {
   flex-grow: 1;
 }
 
 .simple-task-viewer-code
-  .pf-v5-c-file-upload
-  .pf-v5-c-code-editor__main
-  .pf-v5-c-code-editor__code {
+  .pf-v6-c-file-upload
+  .pf-v6-c-code-editor__main
+  .pf-v6-c-code-editor__code {
   height: 100%;
 }
 
@@ -50,26 +50,26 @@
   Tweak the code editor so we can put the language selection toggle group in the
   "Language Label" location
 */
-.simple-task-viewer-code .pf-v5-c-code-editor__controls {
+.simple-task-viewer-code .pf-v6-c-code-editor__controls {
   flex-grow: 1;
 }
 
-.simple-task-viewer-code .pf-v5-c-code-editor__controls > * {
+.simple-task-viewer-code .pf-v6-c-code-editor__controls > * {
   display: flex;
 }
 
-.simple-task-viewer-code .pf-v5-c-code-editor__header-main {
+.simple-task-viewer-code .pf-v6-c-code-editor__header-main {
   display: none;
 }
 
 .simple-task-viewer-code
-  .pf-v5-c-code-editor__tab.language-toggle-group-container {
+  .pf-v6-c-code-editor__tab.language-toggle-group-container {
   padding: 0;
   border: none;
 }
 
 .simple-task-viewer-code .language-toggle-group {
-  --pf-v5-c-toggle-group__button--FontSize: var(--pf-v5-global--FontSize--md);
+  --pf-v6-c-toggle-group__button--FontSize: var(--pf-v6-global--FontSize--md);
 }
 
 .simple-task-viewer-attachment-toggle {

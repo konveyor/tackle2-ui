@@ -4,6 +4,7 @@ import { UseFormReturn, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
+  Content,
   Form,
   Icon,
   Panel,
@@ -11,8 +12,6 @@ import {
   PanelMainBody,
   Popover,
   Radio,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 
@@ -77,15 +76,15 @@ export const AdvancedOptions: React.FC<{
 
   return (
     <>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
+        <Content component="h3">
           {t("generateAssetsWizard.advancedOptions.title")}
-        </Text>
+        </Content>
 
-        <Text component="p">
+        <Content component="p">
           {t("generateAssetsWizard.advancedOptions.description")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Panel>
         <PanelMain>
@@ -106,7 +105,7 @@ export const AdvancedOptions: React.FC<{
                       "generateAssetsWizard.advancedOptions.renderTemplatesPopover"
                     )}
                   >
-                    <Icon isInline size="md">
+                    <Icon isInline>
                       <QuestionCircleIcon />
                     </Icon>
                   </Popover>

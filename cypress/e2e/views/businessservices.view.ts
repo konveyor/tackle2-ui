@@ -15,7 +15,8 @@ limitations under the License.
 */
 export const businessServiceNameInput = "input[name=name]";
 export const businessServiceDescriptionInput = "textarea[name=description]";
-export const businessServiceOwnerSelect = "#action-select-toggle";
+export const businessServiceOwnerSelect =
+  "button[aria-label='Action select dropdown toggle']";
 export enum buzinessServiceLabels {
   name = 'td[data-label="Name"]',
   description = 'td[data-label="Description"]',

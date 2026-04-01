@@ -236,7 +236,8 @@ describe(
       appWithArchetype.selectApplication();
       cy.contains(button, "Analyze").should("be.enabled").click();
 
-      cy.get(analysisProfileMode).check().should("be.checked");
+      cy.get(`label[for='wizard-mode-profile']`).click();
+      cy.get(analysisProfileMode).should("be.checked");
       cy.get(analysisProfileSelect).click();
 
       // Verify admin analysis profile (not linked to archetype) is visible
@@ -265,7 +266,8 @@ describe(
       // Verify analysis profile (not linked to archetype) is NOT visible
       appWithArchetype.selectApplication();
       cy.contains(button, "Analyze").click();
-      cy.get(analysisProfileMode).check().should("be.checked");
+      cy.get(`label[for='wizard-mode-profile']`).click();
+      cy.get(analysisProfileMode).should("be.checked");
       cy.get(analysisProfileSelect).click();
       cy.get(actionMenuItem).should("not.contain", adminAnalysisProfile.name);
 

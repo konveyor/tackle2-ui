@@ -5,9 +5,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Paths, ViewArchetypesRoute } from "@app/Paths";
@@ -31,6 +28,7 @@ const ViewArchetypes: React.FC = () => {
   );
   useEffect(() => {
     if (archetypeId && archetype) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync state from URL param
       setActiveArchetype({
         id: parseInt(archetypeId, 10),
         name: archetype.name,
@@ -46,10 +44,10 @@ const ViewArchetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">View Archetypes</Text>
-        </TextContent>
+      <PageSection>
+        <div>
+          <h1>View Archetypes</h1>
+        </div>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link to={Paths.applications}>Applications</Link>
@@ -87,9 +85,7 @@ const ViewArchetypes: React.FC = () => {
               }}
             />
           )}
-          <TextContent>
-            {<ViewArchetypesTable archetypeRef={activeArchetype} />}
-          </TextContent>
+          <div>{<ViewArchetypesTable archetypeRef={activeArchetype} />}</div>
         </ConditionalRender>
       </PageSection>
     </>

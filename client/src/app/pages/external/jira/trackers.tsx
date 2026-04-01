@@ -4,15 +4,13 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -158,10 +156,10 @@ export const JiraTrackers: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.jiraConfig")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <h1>{t("terms.jiraConfig")}</h1>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -170,13 +168,14 @@ export const JiraTrackers: React.FC = () => {
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}
@@ -229,18 +228,14 @@ export const JiraTrackers: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={
-                        <>
-                          {t("composed.noDataStateTitle", {
-                            what: t("terms.jiraConfig").toLowerCase(),
-                          })}
-                        </>
-                      }
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.jiraConfig").toLowerCase(),
+                    })}
+                    icon={CubesIcon}
+                    headingLevel="h2"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.create"),
@@ -309,26 +304,30 @@ export const JiraTrackers: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <Modal
-        title={
-          trackerToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.instance").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.instance").toLowerCase(),
-              })
-        }
         variant="medium"
         isOpen={isTrackerModalOpen}
         onClose={() => {
           setTrackerModalState(null);
         }}
       >
-        <TrackerForm
-          tracker={trackerToUpdate ? trackerToUpdate : undefined}
-          addUpdatingTrackerId={addUpdatingTrackerId}
-          onClose={() => setTrackerModalState(null)}
+        <ModalHeader
+          title={
+            trackerToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.instance").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.instance").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TrackerForm
+            tracker={trackerToUpdate ? trackerToUpdate : undefined}
+            addUpdatingTrackerId={addUpdatingTrackerId}
+            onClose={() => setTrackerModalState(null)}
+          />
+        </ModalBody>
       </Modal>
       {!!trackerToDelete && (
         <ConfirmDialog

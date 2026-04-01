@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Spinner,
-} from "@patternfly/react-core";
+import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
 
 import "./SimpleDocumentViewer.css";
 import { TaskAttachment } from "@app/api/models";
@@ -203,15 +197,12 @@ export const SimpleDocumentViewer = ({
             variant={EmptyStateVariant.sm}
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
-          >
-            <EmptyStateHeader
-              titleText={t("message.loadingCurrentLanguage", {
-                currentLanguage,
-              })}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
+            titleText={t("message.loadingCurrentLanguage", {
+              currentLanguage,
+            })}
+            icon={Spinner}
+            headingLevel="h4"
+          />
         </div>
       }
       customControls={[

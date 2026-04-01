@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import * as React from "react";
-import { Page, SkipToContent } from "@patternfly/react-core";
+import { Page, PageSection, SkipToContent } from "@patternfly/react-core";
 
 import { Notifications } from "@app/components/Notifications";
 import { PageContentWithDrawerProvider } from "@app/components/PageDrawerContext";
@@ -36,7 +36,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
 
   return (
     <Page
-      header={<HeaderApp />}
+      masthead={<HeaderApp />}
       sidebar={<SidebarApp />}
       isManagedSidebar
       skipToContent={PageSkipToContent}
@@ -45,10 +45,12 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
       notificationDrawer={<TaskManagerDrawer ref={drawerRef} />}
       onNotificationDrawerExpand={() => focusDrawer()}
     >
-      <PageContentWithDrawerProvider>
-        {children}
-        <Notifications />
-      </PageContentWithDrawerProvider>
+      <PageSection>
+        <PageContentWithDrawerProvider>
+          {children}
+          <Notifications />
+        </PageContentWithDrawerProvider>
+      </PageSection>
     </Page>
   );
 };

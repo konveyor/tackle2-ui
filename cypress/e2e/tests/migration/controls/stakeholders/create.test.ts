@@ -69,7 +69,7 @@ describe(["@tier2", "@tier2_B"], "Stakeholder validations", () => {
     inputText(stakeholderEmailInput, data.getEmail());
     inputText(stakeholderNameInput, data.getFullName());
     cy.get(commonView.submitButton).should("not.be.disabled");
-    cy.get(commonView.cancelButton).trigger("click");
+    cy.get(commonView.cancelButton).click();
   });
 
   it("Stakholder button validations", function () {

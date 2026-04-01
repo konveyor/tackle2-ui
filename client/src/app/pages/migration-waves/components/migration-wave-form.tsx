@@ -213,6 +213,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     resolver: yupResolver(validationSchema),
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form watch() API
   const startDateStr = watch("startDateStr");
   const endDateStr = watch("endDateStr");
   const startDate = dateStrFormatValidator(startDateStr)

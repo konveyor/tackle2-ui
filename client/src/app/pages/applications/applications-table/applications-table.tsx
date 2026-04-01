@@ -5,18 +5,21 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
+  Divider,
   DropdownItem,
   FormSelect,
   FormSelectOption,
   Modal,
-  TextContent,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { DropdownSeparator } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,
@@ -338,6 +341,7 @@ export const ApplicationsTable: FC = () => {
         }),
         variant: "success",
       });
+    // eslint-disable-next-line react-hooks/immutability -- clearActiveItem defined later in component; safe in callback
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -705,7 +709,7 @@ export const ApplicationsTable: FC = () => {
     reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
-    (index) => <DropdownSeparator key={`breakpoint-${index}`} />,
+    (index) => <Divider key={`breakpoint-${index}`} component="li" />,
     [
       [
         importWriteAccess && (
@@ -964,7 +968,7 @@ export const ApplicationsTable: FC = () => {
             <FilterToolbar<DecoratedApplication, string>
               {...filterToolbarProps}
             />
-            <ToolbarGroup variant="button-group">
+            <ToolbarGroup variant="action-group">
               <ToolbarItem>
                 <RBAC
                   allowedPermissions={applicationsWriteScopes}
@@ -1017,7 +1021,7 @@ export const ApplicationsTable: FC = () => {
                 </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
-            <ToolbarGroup variant="icon-button-group">
+            <ToolbarGroup variant="action-group-plain">
               {toolbarKebabItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown
@@ -1372,30 +1376,36 @@ export const ApplicationsTable: FC = () => {
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"
-        title={t("composed.manageDependenciesFor", {
-          what: applicationDependenciesToManage?.name,
-        })}
         onClose={() => setApplicationDependenciesToManage(null)}
       >
-        {applicationDependenciesToManage && (
-          <ApplicationDependenciesForm
-            application={applicationDependenciesToManage._}
-            onCancel={() => setApplicationDependenciesToManage(null)}
-          />
-        )}
+        <ModalHeader
+          title={t("composed.manageDependenciesFor", {
+            what: applicationDependenciesToManage?.name,
+          })}
+        />
+        <ModalBody>
+          {applicationDependenciesToManage && (
+            <ApplicationDependenciesForm
+              application={applicationDependenciesToManage._}
+              onCancel={() => setApplicationDependenciesToManage(null)}
+            />
+          )}
+        </ModalBody>
       </Modal>
 
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
-          }}
-        />
+        <ModalHeader title={t("dialog.title.importApplicationFile")} />
+        <ModalBody>
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+            }}
+          />
+        </ModalBody>
       </Modal>
 
       <ConfirmDialog
@@ -1624,38 +1634,42 @@ export const ApplicationsTable: FC = () => {
 
       <Modal
         variant="small"
-        title={t("actions.download", { what: "analysis details" })}
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
-        actions={[
+      >
+        <ModalHeader
+          title={t("actions.download", { what: "analysis details" })}
+        />
+        <ModalBody>
+          <Content>{"Select format"}</Content>
+          <FormSelect
+            value={selectedFormat}
+            onChange={onChange}
+            aria-label="FormSelect Input"
+            ouiaId="BasicFormSelect"
+          >
+            {formats.map((option, index) => (
+              <FormSelectOption
+                isDisabled={option.disabled}
+                key={index}
+                value={option.value}
+                label={option.label}
+              />
+            ))}
+          </FormSelect>
+        </ModalBody>
+        <ModalFooter>
           <Button key="confirm" variant="primary" onClick={handleDownload}>
             Download
-          </Button>,
+          </Button>
           <Button
             key="cancel"
             variant="link"
             onClick={() => setIsDownloadModalOpen(false)}
           >
             Cancel
-          </Button>,
-        ]}
-      >
-        <TextContent>{"Select format"}</TextContent>
-        <FormSelect
-          value={selectedFormat}
-          onChange={onChange}
-          aria-label="FormSelect Input"
-          ouiaId="BasicFormSelect"
-        >
-          {formats.map((option, index) => (
-            <FormSelectOption
-              isDisabled={option.disabled}
-              key={index}
-              value={option.value}
-              label={option.label}
-            />
-          ))}
-        </FormSelect>
+          </Button>
+        </ModalFooter>
       </Modal>
     </ConditionalRender>
   );

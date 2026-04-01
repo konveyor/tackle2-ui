@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 export const name = "#name";
-export const type = "#platform-kind-toggle-select-typeahead";
+export const type = "button[aria-label='Platform kind select dropdown toggle']";
 export const url = "#url";
-export const credentials = "#credentials-toggle-select-typeahead";
+export const credentials =
+  "button[aria-label='Credentials select dropdown toggle']";

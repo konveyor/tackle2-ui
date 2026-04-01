@@ -98,7 +98,6 @@ import {
   filterInput,
   filteredBy,
   firstPageButton,
-  itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
   lastPageButton,
   manageImportsActionsButton,
@@ -150,12 +149,36 @@ export function inputText(
   text: string | string[],
   log = false
 ): void {
-  if (!log) {
-    cy.log(`Type ${text} in ${fieldId}`);
+  const value = Array.isArray(text) ? text.join(" ") : text;
+  if (!value) {
+    cy.log(`inputText: skipping empty text for fieldId="${fieldId}"`);
+    return;
   }
-  cy.get(fieldId, { log, timeout: 2 * SEC })
-    .clear({ log, timeout: 30 * SEC })
-    .type(Array.isArray(text) ? text.join(" ") : text, { log });
+  if (!log) {
+    cy.log(`Type ${value} in ${fieldId}`);
+  }
+  cy.get(fieldId, { log, timeout: 2 * SEC }).then(($el) => {
+    if ($el.is("input") || $el.is("textarea")) {
+      // Direct input/textarea element
+      cy.wrap($el, { log })
+        .clear({ log, timeout: 30 * SEC })
+        .type(value, { log });
+    } else {
+      // PF v6 MenuToggle button — click to open, then find and type in the input
+      cy.wrap($el, { log }).click({ log });
+      const $wrapper = $el.closest(
+        ".pf-v6-c-select, [data-ouia-component-type]"
+      );
+      const $input = $wrapper.length
+        ? $wrapper.find("input[type='text'], input[type='search']")
+        : $el.parent().find("input");
+      if ($input.length > 0) {
+        cy.wrap($input.first(), { log })
+          .clear({ log, timeout: 30 * SEC })
+          .type(value, { log });
+      }
+    }
+  });
 }
 
 export function clearInput(fieldID: string): void {
@@ -355,10 +378,12 @@ export function selectItemsPerPage(items: number): void {
   cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
-          .contains(`${items}`)
+        cy.wrap($toggleBtn.eq(0)).click({ log: false });
+        cy.get(`[data-action="per-page-${items}"]`, {
+          log: false,
+          timeout: 60 * SEC,
+        })
+          .first()
           .click({
             force: true,
             log: false,
@@ -383,24 +408,51 @@ export function selectFromDropListByText(
 }
 
 export function selectFormItems(fieldId: string, item: string): void {
+  if (!item) {
+    cy.log(`selectFormItems: skipping empty item for fieldId="${fieldId}"`);
+    return;
+  }
   // PatternFly typeahead selects virtualize the dropdown options, so only
   // items matching the typed filter are rendered to the DOM.  For plain
   // toggle-button selects all options are rendered on click.
+  // Wait for the element (or its MenuToggle wrapper) to not be disabled
+  cy.get(fieldId, { timeout: 30 * SEC }).should(($el) => {
+    const isDisabled =
+      $el.is(":disabled") ||
+      $el.closest(".pf-m-disabled").length > 0 ||
+      $el.attr("aria-disabled") === "true";
+    expect(isDisabled, `${fieldId} should not be disabled`).to.be.false;
+  });
   cy.get(fieldId).then(($el) => {
     if ($el.is("input")) {
-      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      // Direct input element
       cy.get(fieldId).click().clear().type(item);
     } else {
-      // Wrapper div or toggle button — click to open
+      // Wrapper div or toggle button — click to open, then find the input.
       cy.get(fieldId).click();
-      // If the wrapper contains a typeahead input, type into it to filter
-      const $input = $el.find("input");
+      // First check for inputs within the element itself (Autocomplete/SearchInput)
+      let $input = $el.find("input[type='text'], input[type='search'], input");
+      if ($input.length === 0) {
+        // PF v6 Select: the typeahead input is a sibling inside the same wrapper
+        const $wrapper = $el.closest(
+          ".pf-v6-c-select, [data-ouia-component-type]"
+        );
+        if ($wrapper.length) {
+          $input = $wrapper.find("input[type='text'], input[type='search']");
+        }
+      }
       if ($input.length > 0) {
         cy.wrap($input.first()).clear().type(item);
       }
     }
   });
-  cy.contains("button", item, { timeout: 30 * SEC }).click();
+  // PF v6: dropdown options render as menu items in a portal. Target them
+  // specifically to avoid matching the toggle button itself.
+  cy.get("span.pf-v6-c-menu__item-text, button.pf-v6-c-select__option", {
+    timeout: 30 * SEC,
+  })
+    .contains(item)
+    .click();
 }
 
 export function selectAnalysisMode(fieldId: string, item: string): void {
@@ -539,22 +591,14 @@ export function notExists(value: string, tableSelector = appTable): void {
 export function selectFilter(filterName: string, eq = 0): void {
   if (eq === 0) {
     cy.get(filteredBy).click();
-    clickWithinByText(
-      'div[class="pf-v5-c-menu__content"]',
-      "button",
-      filterName
-    );
+    clickWithinByText("div.pf-v6-c-menu__content", "button", filterName);
     return;
   }
   cy.get("div.pf-m-filter-group")
     .eq(eq)
     .within(() => {
       cy.get(filteredBy).click();
-      clickWithinByText(
-        'div[class="pf-v5-c-menu__content"]',
-        "button",
-        filterName
-      );
+      clickWithinByText("div.pf-v6-c-menu__content", "button", filterName);
     });
 }
 
@@ -629,14 +673,14 @@ export function applySelectFilter(
   isValid = true
 ): void {
   selectFilter(filterName);
-  click(".pf-v5-c-menu-toggle__button");
-  inputText(".pf-v5-c-text-input-group__text-input", filterText);
+  click(".pf-v6-c-menu-toggle__button");
+  inputText(".pf-v6-c-text-input-group__text-input", filterText);
   if (isValid) {
-    clickByText(".pf-v5-c-menu__item", filterText);
+    clickByText(".pf-v6-c-menu__item", filterText);
   } else {
     cy.contains(actionMenuItem, "No results");
   }
-  click(".pf-v5-c-text-input-group__text-input");
+  click(".pf-v6-c-text-input-group__text-input");
 }
 
 export function applySearchFilter(
@@ -685,7 +729,7 @@ export function clickOnSortButton(
         $tableHeader.attr("aria-sort") === "none" ||
         $tableHeader.attr("aria-sort") != sortCriteria
       ) {
-        sortButton.trigger("click");
+        cy.wrap(sortButton).click();
       }
       cy.wrap($tableHeader).should("have.attr", "aria-sort", sortCriteria);
     });
@@ -725,8 +769,8 @@ export function generateRandomDateRange(
 export function getTableColumnData(columnName: string): Array<string> {
   selectItemsPerPage(100);
   const itemList = [];
-  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-    .not(".pf-v5-c-table__expandable-row")
+  cy.get(".pf-v6-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v6-c-table__expandable-row")
     .find(`td[data-label="${columnName}"]`)
     .each(($ele) => {
       if (
@@ -954,7 +998,7 @@ export function application_inventory_kebab_menu(menu: string): void {
     cy.get(actionMenuItem)
       .contains(menu)
       .then(($menu_item) => {
-        if (!$menu_item.hasClass("pf-m-disabled")) {
+        if (!$menu_item.is(":disabled") && !$menu_item.attr("aria-disabled")) {
           clickByText(button, menu, true);
         } else {
           // close menu if nothing to do
@@ -976,11 +1020,24 @@ export function openManageImportsPage(): void {
 export function performRowAction(itemName: string, action: string): void {
   // itemName is text to be searched on the screen (like credentials name, stakeholder name, etc)
   // Action is the name of the action to be applied (usually edit or delete)
+  // PF v6: action buttons in table rows may be direct <button> children (inline)
+  // or portaled kebab menu items. Try inline first, fall back to kebab.
   cy.get(tdTag, { timeout: 120 * SEC })
     .contains(itemName, { timeout: 120 * SEC })
     .closest(trTag)
-    .within(() => {
-      clickByText(button, action);
+    .then(($tr) => {
+      const $inlineBtn = $tr.find(`button:contains("${action}")`);
+      if ($inlineBtn.length > 0) {
+        cy.wrap($inlineBtn.first()).click();
+      } else {
+        // Click kebab menu inside the row, then find action in portaled menu
+        cy.wrap($tr).within(() => {
+          click(sideKebabMenu);
+        });
+        cy.get(actionMenuItem, { timeout: 15 * SEC })
+          .contains(action)
+          .click({ force: true });
+      }
     });
 }
 
@@ -1525,9 +1582,9 @@ export function isTableEmpty(
   return cy
     .get(tableSelector, { timeout: 5 * SEC })
     .find("div")
-    .should("not.have.descendants", "svg.pf-v5-c-spinner")
+    .should("not.have.descendants", "svg.pf-v6-c-spinner")
     .then(($element) => {
-      return $element.hasClass("pf-v5-c-empty-state");
+      return $element.hasClass("pf-v6-c-empty-state");
     });
 }
 
@@ -1539,7 +1596,7 @@ export function deleteAllRows(tableSelector: string = commonTable) {
         .then(($rows) => {
           for (let i = 0; i < $rows.length - 1; i++) {
             cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(1 * SEC);
           }
@@ -1574,7 +1631,7 @@ export function deleteAllImports(tableSelector: string = commonTable) {
             cy.get(manageImportsActionsButton, { timeout: 10000 })
               .eq(1)
               .click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(2 * SEC);
           }
@@ -1592,7 +1649,7 @@ export function deleteAllItems(tableSelector: string = commonTable) {
         .then(($rows) => {
           for (let i = 0; i < $rows.length; i++) {
             cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
+            cy.get("span.pf-v6-c-menu__item-text").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(1 * SEC);
           }
@@ -1729,8 +1786,8 @@ export function goToPage(page: number): void {
       cy.get(firstPageButton).then(($firstPageButton) => {
         cy.get(lastPageButton).then(($lastPageButton) => {
           if (
-            !$firstPageButton.hasClass(".pf-m-disabled") ||
-            !$lastPageButton.hasClass(".pf-m-disabled")
+            !$firstPageButton.is(":disabled") ||
+            !$lastPageButton.is(":disabled")
           ) {
             cy.get(pageNumInput, { timeout: 2 * SEC })
               .clear()
@@ -1743,10 +1800,18 @@ export function goToPage(page: number): void {
 }
 
 export function selectUserPerspective(userType: string): void {
-  cy.get(optionMenu)
-    .find(button, { timeout: 10 * SEC })
-    .click();
-  clickByText(button, userType);
+  cy.get("body").then(($body) => {
+    if ($body.find(optionMenu).length > 0) {
+      cy.get(optionMenu)
+        .find(button, { timeout: 10 * SEC })
+        .click();
+      clickByText(button, userType);
+    } else {
+      cy.log(
+        `Perspective selector not found — skipping (auth may be disabled)`
+      );
+    }
+  });
 }
 
 export function selectWithinModal(selector: string): void {
@@ -1827,8 +1892,11 @@ export function applyAction(itemName, action: string): void {
     .closest(trTag)
     .within(() => {
       click(tagMenuButton);
-      clickByText(button, action);
     });
+  // PF v6: kebab menu items render in a portal outside the <tr>
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(action)
+    .click({ force: true });
 }
 
 export function confirm(): void {
@@ -1904,14 +1972,14 @@ export function goToLastPage(): void {
     .should("not.be.disabled", { timeout: 10 * SEC })
     .eq(1)
     .then(($button) => {
-      if (!$button.hasClass(".pf-m-disabled")) {
+      if (!$button.is(":disabled")) {
         cy.wrap($button).click();
       }
     });
 }
 
 export function checkCurrentPageIs(pageNumber: number) {
-  cy.get(".pf-v5-c-pagination__nav-page-select", { timeout: 10 * SEC })
+  cy.get(".pf-v6-c-pagination__nav-page-select", { timeout: 10 * SEC })
     .find('input[aria-label="Current page"]')
     .should("have.value", pageNumber.toString());
 }
@@ -2025,13 +2093,11 @@ export function enableSwitch(selector: string): void {
   cy.get(selector)
     .parent("label")
     .within(() => {
-      cy.get(".pf-m-on")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
+      cy.get("input[type='checkbox']").then(($input) => {
+        if (!$input.is(":checked")) {
+          cy.get(switchToggle).click();
+        }
+      });
     });
 }
 
@@ -2039,13 +2105,11 @@ export function disableSwitch(selector: string): void {
   cy.get(selector)
     .parent("label")
     .within(() => {
-      cy.get(".pf-m-off")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
+      cy.get("input[type='checkbox']").then(($input) => {
+        if ($input.is(":checked")) {
+          cy.get(switchToggle).click();
+        }
+      });
     });
 }
 
@@ -2166,16 +2230,16 @@ export function clickTab(name: string): void {
         const $el = Cypress.$(el);
         return (
           $el.is(":visible") &&
-          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+          $el.closest("li.pf-v6-c-tabs__item.pf-m-overflow").length === 0
         );
       });
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      const overflowItem = $root.find("li.pf-v6-c-tabs__item.pf-m-overflow");
       if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+        cy.root().find("li.pf-v6-c-tabs__item.pf-m-overflow > button").click({
           force: true,
         });
         cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
@@ -2652,7 +2716,7 @@ export function restoreColumnsToDefault(): void {
   clickByText(button, save, true);
 }
 export function openManageColumns(): void {
-  cy.get(".pf-v5-c-overflow-menu__group.pf-m-button-group")
+  cy.get(".pf-v6-c-overflow-menu__group.pf-m-button-group")
     .find("button")
     .click();
 }

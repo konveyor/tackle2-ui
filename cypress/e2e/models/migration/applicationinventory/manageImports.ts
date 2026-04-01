@@ -59,7 +59,10 @@ export class ManageImports {
     // Open error report for the first row
     cy.get("table > tbody > tr").eq(0).as("firstRow");
     cy.get("@firstRow").find(manageImportsActionsButton).click();
-    cy.get("@firstRow").find(button).contains("View error report").click();
+    // PF v6 menus are portaled outside the table row
+    cy.get("span.pf-v6-c-menu__item-text")
+      .contains("View error report")
+      .click();
     cy.get("h1", { timeout: 5 * SEC }).contains("Error report");
   }
 

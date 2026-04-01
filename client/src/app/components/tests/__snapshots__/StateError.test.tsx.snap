@@ -6,34 +6,33 @@ exports[`StateError Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-empty-state pf-m-sm"
+        class="pf-v6-c-empty-state pf-m-sm"
       >
         <div
-          class="pf-v5-c-empty-state__content"
+          class="pf-v6-c-empty-state__content"
         >
           <div
-            class="pf-v5-c-empty-state__header"
+            class="pf-v6-c-empty-state__header"
           >
             <div
-              class="pf-v5-c-empty-state__icon"
-              style="--pf-v5-c-empty-state__icon--Color: #a30000;"
+              class="pf-v6-c-empty-state__icon"
             >
               <test-file-stub
                 aria-hidden="true"
               />
             </div>
             <div
-              class="pf-v5-c-empty-state__title"
+              class="pf-v6-c-empty-state__title"
             >
               <h2
-                class="pf-v5-c-empty-state__title-text"
+                class="pf-v6-c-empty-state__title-text"
               >
                 message.unableToConnect
               </h2>
             </div>
           </div>
           <div
-            class="pf-v5-c-empty-state__body"
+            class="pf-v6-c-empty-state__body"
           >
             There was an error retrieving data. Check your connection and try again.
           </div>
@@ -43,34 +42,33 @@ exports[`StateError Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-empty-state pf-m-sm"
+      class="pf-v6-c-empty-state pf-m-sm"
     >
       <div
-        class="pf-v5-c-empty-state__content"
+        class="pf-v6-c-empty-state__content"
       >
         <div
-          class="pf-v5-c-empty-state__header"
+          class="pf-v6-c-empty-state__header"
         >
           <div
-            class="pf-v5-c-empty-state__icon"
-            style="--pf-v5-c-empty-state__icon--Color: #a30000;"
+            class="pf-v6-c-empty-state__icon"
           >
             <test-file-stub
               aria-hidden="true"
             />
           </div>
           <div
-            class="pf-v5-c-empty-state__title"
+            class="pf-v6-c-empty-state__title"
           >
             <h2
-              class="pf-v5-c-empty-state__title-text"
+              class="pf-v6-c-empty-state__title-text"
             >
               message.unableToConnect
             </h2>
           </div>
         </div>
         <div
-          class="pf-v5-c-empty-state__body"
+          class="pf-v6-c-empty-state__body"
         >
           There was an error retrieving data. Check your connection and try again.
         </div>

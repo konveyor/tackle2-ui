@@ -244,7 +244,7 @@ describe(
           ]
         );
         // Wait up to 3 sec until spinner will be away
-        cy.get("div.pf-v5-l-bullseye", { timeout: 3 * SEC }).should(
+        cy.get("div.pf-v6-l-bullseye", { timeout: 3 * SEC }).should(
           "not.exist"
         );
         selectItemsPerPage(100);

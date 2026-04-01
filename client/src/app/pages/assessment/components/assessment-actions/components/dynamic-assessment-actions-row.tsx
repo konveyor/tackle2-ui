@@ -119,6 +119,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const [action, setAction] = useState(determineAction());
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from assessment changes
     setAction(determineAction());
   }, [determineAction, assessment]);
 
@@ -248,6 +249,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
           <Button
             type="button"
             variant="plain"
+            icon={<TrashIcon />}
             onClick={() => {
               deleteAssessment({
                 assessmentId: assessment.id,
@@ -257,9 +259,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 archetypeId: archetype?.id,
               });
             }}
-          >
-            <TrashIcon />
-          </Button>
+          />
         </Td>
       ) : null}
     </>

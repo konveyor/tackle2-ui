@@ -1,4 +1,11 @@
-import { Button, Modal, ModalProps } from "@patternfly/react-core";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalProps,
+} from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
 
 import {
@@ -56,18 +63,22 @@ export const SimpleDocumentViewerModal = ({
       onClose={onClose}
       variant="large"
       position={position === "top" ? "top" : undefined}
-      title={title ?? `Analysis details for task instance ${documentId}`}
-      actions={[
+    >
+      <ModalHeader
+        title={title ?? `Analysis details for task instance ${documentId}`}
+      />
+      <ModalBody>
+        <SimpleDocumentViewer
+          taskId={documentId}
+          height={isFullHeight ? "full" : undefined}
+          {...rest}
+        />
+      </ModalBody>
+      <ModalFooter>
         <Button key="close" variant="link" onClick={onClose}>
           Close
-        </Button>,
-      ]}
-    >
-      <SimpleDocumentViewer
-        taskId={documentId}
-        height={isFullHeight ? "full" : undefined}
-        {...rest}
-      />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

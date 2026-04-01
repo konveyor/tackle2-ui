@@ -34,6 +34,7 @@ export const ApplicationSelectionContextProvider: React.FC<
 > = ({ applications, children }) => {
   const [allItems, setAllItems] = useState<Application[]>([]);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync selection items from prop
     setAllItems([...applications]);
   }, [applications]);
 

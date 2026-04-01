@@ -54,7 +54,7 @@ describe(["@tier3", "@tier3_E"], "Bulk deletion of applications", () => {
   it("Bulk deletion of applications - Select page ", function () {
     navigate_to_application_inventory();
     cy.get(appSelectionButton).eq(0).click();
-    cy.get("ul[role=menu] > li").contains("Select page").click();
+    cy.get("span.pf-v6-c-menu__item-text").contains("Select page").click();
     application_inventory_kebab_menu("Delete");
     click(commonView.confirmButton);
   });
@@ -62,7 +62,7 @@ describe(["@tier3", "@tier3_E"], "Bulk deletion of applications", () => {
   it("Bulk deletion of applications - Select all ", function () {
     navigate_to_application_inventory();
     cy.get(appSelectionButton).eq(0).click();
-    cy.get("ul[role=menu] > li").contains("Select all").click();
+    cy.get("span.pf-v6-c-menu__item-text").contains("Select all").click();
     application_inventory_kebab_menu("Delete");
     click(commonView.confirmButton);
   });
@@ -76,9 +76,9 @@ describe(["@tier3", "@tier3_E"], "Bulk deletion of applications", () => {
 
   const verifyDeleteButton = () => {
     cy.get(appSelectionButton).eq(0).click();
-    cy.get("ul[role=menu] > li").contains("Select all").click();
+    cy.get("span.pf-v6-c-menu__item-text").contains("Select all").click();
     cy.get(applicationsActionButton).eq(0).click({ force: true });
-    cy.get("li.pf-v5-c-menu__list-item")
+    cy.get("li.pf-v6-c-menu__list-item")
       .contains("Delete")
       .then(($deleteButton) => {
         if ($deleteButton.parent().hasClass("pf-m-aria-disabled")) {

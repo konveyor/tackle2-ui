@@ -6,20 +6,20 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Checkbox,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Text,
-  TextContent,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core/deprecated";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -35,7 +35,7 @@ import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
-import { duplicateNameCheck, getValidatedFromErrors } from "@app/utils/utils";
+import { duplicateNameCheck } from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
 import { useSourceLabels } from "../hooks/useSourceLabels";
@@ -175,12 +175,14 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}
         </Title>
-        <Text>{t("wizard.label.advancedOptions")}</Text>
-      </TextContent>
+        <Content component={ContentVariants.p}>
+          {t("wizard.label.advancedOptions")}
+        </Content>
+      </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
       <FormGroup
@@ -219,21 +221,22 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         fieldId="additional-target-labels"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isDirty, error, isTouched },
+          fieldState: {
+            isDirty: _isDirty,
+            error: _error,
+            isTouched: _isTouched,
+          },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (
             <Select
               id="additional-target-labels"
-              toggleId="additional-target-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select targets"
-              selections={selections}
               isOpen={isSelectTargetsOpen}
-              onSelect={(_, selection) => {
+              selected={selections}
+              onSelect={(_event, selection) => {
+                const selectionValue = selection as string;
                 const selectedLabel = availableTargetLabels.find(
-                  (label) => label.value === selection
+                  (label) => label.value === selectionValue
                 );
                 if (selectedLabel) {
                   onChange(
@@ -247,17 +250,32 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                 onBlur();
                 setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
-              onToggle={() => {
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              onOpenChange={(isOpen) => setSelectTargetsOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  id="additional-target-labels-toggle"
+                  onClick={() => setSelectTargetsOpen(!isSelectTargetsOpen)}
+                  isExpanded={isSelectTargetsOpen}
+                  style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT }}
+                >
+                  {selections.length > 0
+                    ? `${selections.length} selected`
+                    : "Select targets"}
+                </MenuToggle>
+              )}
             >
-              {availableTargetLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {availableTargetLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}
@@ -300,21 +318,22 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         fieldId="additional-source-labels"
         renderInput={({
           field: { onChange, onBlur, value },
-          fieldState: { isDirty, error, isTouched },
+          fieldState: {
+            isDirty: _isDirty2,
+            error: _error2,
+            isTouched: _isTouched2,
+          },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (
             <Select
               id="additional-source-labels"
-              toggleId="additional-source-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select sources"
-              selections={selections}
               isOpen={isSelectSourcesOpen}
-              onSelect={(_, selection) => {
+              selected={selections}
+              onSelect={(_event, selection) => {
+                const selectionValue = selection as string;
                 const selectedLabel = availableSourceLabels.find(
-                  (label) => label.value === selection
+                  (label) => label.value === selectionValue
                 );
                 if (selectedLabel) {
                   onChange(
@@ -328,17 +347,32 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                 onBlur();
                 setSelectSourcesOpen(!isSelectSourcesOpen);
               }}
-              onToggle={() => {
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              onOpenChange={(isOpen) => setSelectSourcesOpen(isOpen)}
+              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                <MenuToggle
+                  ref={toggleRef}
+                  id="additional-source-labels-toggle"
+                  onClick={() => setSelectSourcesOpen(!isSelectSourcesOpen)}
+                  isExpanded={isSelectSourcesOpen}
+                  style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT }}
+                >
+                  {selections.length > 0
+                    ? `${selections.length} selected`
+                    : "Select sources"}
+                </MenuToggle>
+              )}
             >
-              {availableSourceLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {availableSourceLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}

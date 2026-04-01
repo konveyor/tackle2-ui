@@ -2,12 +2,11 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
+  Content,
+  ContentVariants,
   Flex,
   FlexItem,
   Form,
-  Text,
-  TextContent,
-  Title,
   Tooltip,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
@@ -52,12 +51,14 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
-        <Title headingLevel="h3" size="xl">
+      <Content>
+        <Content component={ContentVariants.h3}>
           {t("wizard.terms.options")}
-        </Title>
-        <Text>{t("wizard.label.profileOptionsDescription")}</Text>
-      </TextContent>
+        </Content>
+        <Content component="p">
+          {t("wizard.label.profileOptionsDescription")}
+        </Content>
+      </Content>
 
       <Checkbox
         className={spacing.mtLg}

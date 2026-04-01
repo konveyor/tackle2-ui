@@ -12,12 +12,12 @@
   flex-direction: column;
 }
 
-.full-height .pf-v5-c-file-upload,
-.full-height .pf-v5-c-code-editor__main {
+.full-height .pf-v6-c-file-upload,
+.full-height .pf-v6-c-code-editor__main {
   flex: 1 1 auto;
   min-height: 0;
 }
 
-.full-height .pf-v5-c-code-editor__main .pf-v5-c-code-editor__code {
+.full-height .pf-v6-c-code-editor__main .pf-v6-c-code-editor__code {
   height: 100%;
 }

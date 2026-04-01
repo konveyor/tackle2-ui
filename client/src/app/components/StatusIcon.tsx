@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { SpinnerProps, TextContent } from "@patternfly/react-core";
+import { Content, SpinnerProps } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -9,12 +9,12 @@ import {
   UnknownIcon,
 } from "@patternfly/react-icons";
 import {
-  global_Color_dark_200 as unknownColor,
-  global_danger_color_100 as errorColor,
-  global_disabled_color_200 as disabledColor,
-  global_info_color_100 as infoColor,
-  global_info_color_200 as loadingColor,
-  global_success_color_100 as successColor,
+  t_global_color_disabled_200 as disabledColor,
+  t_global_color_status_danger_100 as errorColor,
+  t_global_color_status_info_100 as infoColor,
+  t_global_color_status_info_200 as loadingColor,
+  t_global_color_status_success_100 as successColor,
+  t_global_text_color_200 as unknownColor,
 } from "@patternfly/react-tokens";
 
 export type StatusIconType =
@@ -129,8 +129,8 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
   }
 
   return (
-    <TextContent>
+    <Content>
       {icon} {label}
-    </TextContent>
+    </Content>
   );
 };

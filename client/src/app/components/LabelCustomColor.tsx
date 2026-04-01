@@ -51,6 +51,7 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
         textColorObj.lighten(5);
       }
     }
+    // eslint-disable-next-line react-hooks/immutability -- module-level cache, intentional mutation
     globalColorCache[color] = {
       borderColor: color,
       backgroundColor: bgColorObj.toString(),
@@ -62,14 +63,14 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
     <Label
       style={
         {
-          "--pf-v5-c-label__content--before--BorderColor": borderColor,
-          "--pf-v5-c-label__content--link--hover--before--BorderColor":
+          "--pf-v6-c-label__content--before--BorderColor": borderColor,
+          "--pf-v6-c-label__content--link--hover--before--BorderColor":
             borderColor,
-          "--pf-v5-c-label__content--link--focus--before--BorderColor":
+          "--pf-v6-c-label__content--link--focus--before--BorderColor":
             borderColor,
-          "--pf-v5-c-label--BackgroundColor": backgroundColor,
-          "--pf-v5-c-label__icon--Color": textColor,
-          "--pf-v5-c-label__content--Color": textColor,
+          "--pf-v6-c-label--BackgroundColor": backgroundColor,
+          "--pf-v6-c-label__icon--Color": textColor,
+          "--pf-v6-c-label__content--Color": textColor,
         } as React.CSSProperties
       }
       {...props}
@@ -82,12 +83,12 @@ export const LabelCustomColor: React.FC<ILabelCustomColorProps> = ({
 Note: if we were to support the outline variant of Label,
 we would need to account for the following additional CSS variables:
 
---pf-v5-c-label--m-outline__content--Color
---pf-v5-c-label--m-outline__content--before--BorderColor
---pf-v5-c-label--m-outline__content--link--hover--before--BorderColor
---pf-v5-c-label--m-outline__content--link--focus--before--BorderColor
---pf-v5-c-label--m-editable__content--before--BorderColor
---pf-v5-c-label--m-editable__content--hover--before--BorderColor
---pf-v5-c-label--m-editable__content--focus--before--BorderColor
+--pf-v6-c-label--m-outline__content--Color
+--pf-v6-c-label--m-outline__content--before--BorderColor
+--pf-v6-c-label--m-outline__content--link--hover--before--BorderColor
+--pf-v6-c-label--m-outline__content--link--focus--before--BorderColor
+--pf-v6-c-label--m-editable__content--before--BorderColor
+--pf-v6-c-label--m-editable__content--hover--before--BorderColor
+--pf-v6-c-label--m-editable__content--focus--before--BorderColor
 
 */

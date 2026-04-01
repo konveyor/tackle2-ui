@@ -6,9 +6,9 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -187,18 +187,14 @@ export const JobFunctions: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.jobFunction").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  variant="sm"
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.jobFunction").toLowerCase(),
+                  })}
+                  icon={CubesIcon}
+                  headingLevel="h2"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -249,20 +245,24 @@ export const JobFunctions: React.FC = () => {
 
       <Modal
         id="create-edit-stakeholder-modal"
-        title={t(
-          jobFunctionToUpdate ? "dialog.title.update" : "dialog.title.new",
-          {
-            what: t("terms.jobFunction").toLowerCase(),
-          }
-        )}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <JobFunctionForm
-          jobFunction={jobFunctionToUpdate}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={t(
+            jobFunctionToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: t("terms.jobFunction").toLowerCase(),
+            }
+          )}
         />
+        <ModalBody>
+          <JobFunctionForm
+            jobFunction={jobFunctionToUpdate}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!jobFunctionToDelete && (

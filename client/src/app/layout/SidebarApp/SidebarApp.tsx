@@ -22,7 +22,6 @@ import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import keycloak from "@app/keycloak";
 import { checkAccess } from "@app/utils/rbac-utils";
 
-import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
 
 const PersonaDefinition = {
@@ -109,25 +108,25 @@ const PersonaSidebar: FC<{
 
   const history = useHistory();
   return (
-    <PageSidebar theme={LayoutTheme}>
-      <div className="perspective">
-        <SimpleSelectBasic
-          value={selectedPersona}
-          options={personaOptions.map((value) => ({
-            value,
-            children: PersonaDefinition[value]?.label,
-          }))}
-          onChange={(value) => {
-            const startPath =
-              PersonaDefinition[value as PersonaType]?.startPath;
-            if (value !== selectedPersona && startPath) {
-              history.push(startPath);
-            }
-          }}
-        />
-      </div>
+    <PageSidebar>
       <PageSidebarBody>
-        <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <div className="perspective">
+          <SimpleSelectBasic
+            value={selectedPersona}
+            options={personaOptions.map((value) => ({
+              value,
+              children: PersonaDefinition[value]?.label,
+            }))}
+            onChange={(value) => {
+              const startPath =
+                PersonaDefinition[value as PersonaType]?.startPath;
+              if (value !== selectedPersona && startPath) {
+                history.push(startPath);
+              }
+            }}
+          />
+        </div>
+        <Nav id="nav-primary" aria-label="Global">
           {children}
         </Nav>
       </PageSidebarBody>

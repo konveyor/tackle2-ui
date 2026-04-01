@@ -399,13 +399,13 @@ export class Application {
     this.selectApplicationRow();
     cy.get(rightSideMenu, { timeout: 10 * SEC }).should("be.visible");
     cy.get(rightSideMenu).within(() => {
-      cy.get("span.pf-v5-c-tabs__item-text", { timeout: 10 * SEC }).should(
+      cy.get("span.pf-v6-c-tabs__item-text", { timeout: 10 * SEC }).should(
         "be.visible"
       );
       clickTab(tab);
     });
     if (tab == "Tags")
-      cy.get("div[class='pf-v5-c-toolbar__item']", { timeout: 60 * SEC });
+      cy.get("div.pf-v6-c-toolbar__item", { timeout: 60 * SEC });
   }
 
   closeApplicationDetails(): void {
@@ -504,37 +504,39 @@ export class Application {
   validateAppContextMenu(rbacRules: RbacValidationRules): void {
     Application.open();
     cy.wait(SEC);
+    // Click kebab inside the row
     cy.get(tdTag)
       .contains(this.name)
       .closest(trTag)
       .within(() => {
         click(sideKebabMenu);
-        doesExistButton(
-          assessAppButton,
-          rbacRules["Application actions"]["Assess"]
-        );
-        doesExistButton(
-          reviewAppButton,
-          rbacRules["Application actions"]["Review"]
-        );
-        doesExistText(
-          "Discard assessment",
-          rbacRules["Application actions"]["Discard assessment"]
-        );
-        doesExistText(
-          "Discard review",
-          rbacRules["Application actions"]["Discard review"]
-        );
-        doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
-        doesExistText(
-          "Manage dependencies",
-          rbacRules["Application actions"]["Manage dependencies"]
-        );
-        doesExistText(
-          "Manage credentials",
-          rbacRules["Application actions"]["Manage credentials"]
-        );
       });
+    // PF v6: kebab menu renders in a portal outside the <tr>
+    doesExistButton(
+      assessAppButton,
+      rbacRules["Application actions"]["Assess"]
+    );
+    doesExistButton(
+      reviewAppButton,
+      rbacRules["Application actions"]["Review"]
+    );
+    doesExistText(
+      "Discard assessment",
+      rbacRules["Application actions"]["Discard assessment"]
+    );
+    doesExistText(
+      "Discard review",
+      rbacRules["Application actions"]["Discard review"]
+    );
+    doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
+    doesExistText(
+      "Manage dependencies",
+      rbacRules["Application actions"]["Manage dependencies"]
+    );
+    doesExistText(
+      "Manage credentials",
+      rbacRules["Application actions"]["Manage credentials"]
+    );
   }
 
   validateUploadBinary(rbacRules: RbacValidationRules): void {
@@ -752,7 +754,7 @@ export class Application {
       .closest(trTag)
       .within(() => {
         cy.get(columnSelector).within(() => {
-          cy.get(".pf-v5-svg")
+          cy.get(".pf-v6-svg")
             .eq(1)
             .should("have.attr", "role", "img")
             .and("be.visible");
@@ -882,7 +884,7 @@ export class Application {
       .should("contain.text", dependency)
       .parent("div")
       .find("button")
-      .trigger("click");
+      .click();
     if (dependencyType === "northbound")
       cy.get(northdependenciesDropdownBtn).click();
     else cy.get(southdependenciesDropdownBtn).click();

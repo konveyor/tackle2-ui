@@ -12,7 +12,6 @@ import {
   Level,
   LevelItem,
   PageSection,
-  PageSectionVariants,
   Tab,
   TabTitleText,
   Tabs,
@@ -45,6 +44,7 @@ export const Controls: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- sync tab state from URL */
     switch (location.pathname) {
       case "/controls/stakeholders":
         return setActiveTabKey(0);
@@ -59,10 +59,11 @@ export const Controls: React.FC = () => {
       default:
         return setActiveTabKey(0);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [location.pathname]);
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
+      <PageSection variant="secondary" className={spacing.pb_0}>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">{t("terms.controls")}</Title>

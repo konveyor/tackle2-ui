@@ -3,10 +3,9 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
+  Content,
+  ContentVariants,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -255,10 +254,12 @@ export const TasksPage: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("titles.taskManager")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content>
+          <Content component={ContentVariants.h1}>
+            {t("titles.taskManager")}
+          </Content>
+        </Content>
       </PageSection>
       <PageSection>
         <div

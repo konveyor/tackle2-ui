@@ -15,4 +15,5 @@ limitations under the License.
 */
 export const stakeholdergroupNameInput = "input[name=name]";
 export const stakeholdergroupDescriptionInput = "textarea[name=description]";
-export const stakeholdergroupMemberSelect = "#stakeholders-toggle";
+export const stakeholdergroupMemberSelect =
+  "button[aria-label='Stakeholders select dropdown toggle']";

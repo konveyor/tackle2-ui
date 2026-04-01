@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Text, TextContent, Title } from "@patternfly/react-core";
+import { Content, Form, FormSection, Title } from "@patternfly/react-core";
 
 import { AnalysisProfile } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
@@ -82,29 +82,31 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
-        <Title headingLevel="h3" size="xl">
-          {t("analysisProfileWizard.steps.profileDetails.title")}
-        </Title>
-        <Text>
-          {t("analysisProfileWizard.steps.profileDetails.description")}
-        </Text>
-      </TextContent>
+      <FormSection>
+        <Content>
+          <Title headingLevel="h3" size="xl">
+            {t("analysisProfileWizard.steps.profileDetails.title")}
+          </Title>
+          <Content component="p">
+            {t("analysisProfileWizard.steps.profileDetails.description")}
+          </Content>
+        </Content>
 
-      <HookFormPFTextInput
-        control={control}
-        name="name"
-        label={t("terms.name")}
-        fieldId="analysis-profile-name"
-        isRequired
-      />
+        <HookFormPFTextInput
+          control={control}
+          name="name"
+          label={t("terms.name")}
+          fieldId="analysis-profile-name"
+          isRequired
+        />
 
-      <HookFormPFTextInput
-        control={control}
-        name="description"
-        label={t("terms.description")}
-        fieldId="analysis-profile-description"
-      />
+        <HookFormPFTextInput
+          control={control}
+          name="description"
+          label={t("terms.description")}
+          fieldId="analysis-profile-description"
+        />
+      </FormSection>
     </Form>
   );
 };

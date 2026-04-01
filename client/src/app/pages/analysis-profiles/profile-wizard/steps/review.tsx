@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Text, TextContent, Title } from "@patternfly/react-core";
+import { Content, Title } from "@patternfly/react-core";
 
 import {
   DetailsContent,
@@ -12,12 +12,14 @@ export const Review: React.FC<DetailsContentProps> = ({ state }) => {
 
   return (
     <>
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisProfileWizard.steps.review.title")}
         </Title>
-        <Text>{t("analysisProfileWizard.steps.review.description")}</Text>
-      </TextContent>
+        <Content component="p">
+          {t("analysisProfileWizard.steps.review.description")}
+        </Content>
+      </Content>
 
       <DetailsContent state={state} />
     </>

@@ -8,13 +8,11 @@ import {
   Card,
   CardBody,
   CardHeader,
-  CardTitle,
   Dropdown,
   DropdownItem,
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
   EmptyStateVariant,
   Flex,
   FlexItem,
@@ -23,10 +21,8 @@ import {
   MenuToggle,
   MenuToggleElement,
   PageSection,
-  PageSectionVariants,
   Stack,
   StackItem,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import { EllipsisVIcon } from "@patternfly/react-icons";
@@ -126,9 +122,8 @@ export const SchemaDefinedPage: React.FC = () => {
             isExpanded={isOpen}
             onClick={() => setIsOpen((current) => !current)}
             variant="plain"
-          >
-            <EllipsisVIcon aria-hidden="true" />
-          </MenuToggle>
+            icon={<EllipsisVIcon aria-hidden="true" />}
+          />
         )}
         isOpen={isOpen}
         onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
@@ -150,12 +145,10 @@ export const SchemaDefinedPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
-            <TextContent>
-              <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
-            </TextContent>
+            <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
           </FlexItem>
           <FlexItem align={{ default: "alignRight" }}>
             <SchemaStatusAlert status={schemaStatus} />
@@ -178,7 +171,7 @@ export const SchemaDefinedPage: React.FC = () => {
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
                   <CardHeader actions={{ actions: <SchemaActions /> }}>
-                    <CardTitle>JSON Schema Editor</CardTitle>
+                    JSON Schema Editor
                   </CardHeader>
                   <CardBody className="full-height-container">
                     <CodeEditor
@@ -200,7 +193,7 @@ export const SchemaDefinedPage: React.FC = () => {
 
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
-                  <CardTitle>SchemaDefinedFields</CardTitle>
+                  <CardHeader>SchemaDefinedFields</CardHeader>
                   <CardBody className="full-height-container">
                     <SchemaDefinedField
                       id="demo-schema-field"
@@ -219,16 +212,15 @@ export const SchemaDefinedPage: React.FC = () => {
             <Grid hasGutter style={{ height: "100%" }}>
               <GridItem span={12}>
                 <Card isFullHeight isCompact>
-                  <CardHeader>
-                    <CardTitle>Current Document</CardTitle>
-                  </CardHeader>
+                  <CardHeader>Current Document</CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
-                      <EmptyState variant={EmptyStateVariant.xs} isFullHeight>
-                        <EmptyStateHeader
-                          titleText={t("message.noDocument")}
-                          headingLevel="h4"
-                        />
+                      <EmptyState
+                        variant={EmptyStateVariant.xs}
+                        isFullHeight
+                        titleText={t("message.noDocument")}
+                        headingLevel="h4"
+                      >
                         <EmptyStateBody>
                           Current document is empty.
                         </EmptyStateBody>

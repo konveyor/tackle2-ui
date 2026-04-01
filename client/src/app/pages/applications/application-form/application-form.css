@@ -1,10 +1,10 @@
-.toggle.pf-v5-c-expandable-section {
-  --pf-v5-c-expandable-section__toggle--Color: #000;
-  --pf-v5-c-expandable-section__toggle--m-expanded--Color: #000;
+.toggle.pf-v6-c-expandable-section {
+  --pf-v6-c-expandable-section__toggle--Color: #000;
+  --pf-v6-c-expandable-section__toggle--m-expanded--Color: #000;
 }
 
-.popover.pf-v5-c-popover {
-  --pf-v5-c-popover__content--BackgroundColor: #000;
-  --pf-v5-c-popover__arrow--BackgroundColor: #000;
+.popover.pf-v6-c-popover {
+  --pf-v6-c-popover__content--BackgroundColor: #000;
+  --pf-v6-c-popover__arrow--BackgroundColor: #000;
   color: #fff;
 }

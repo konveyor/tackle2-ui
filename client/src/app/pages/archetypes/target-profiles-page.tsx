@@ -9,10 +9,7 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -83,7 +80,7 @@ const TargetProfilesPage: React.FC = () => {
 
   if (!archetype) {
     return (
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection variant="secondary">
         <Alert variant={AlertVariant.warning} title={t("message.notFound")}>
           {t("message.archetypeNotFound")}
         </Alert>
@@ -94,7 +91,7 @@ const TargetProfilesPage: React.FC = () => {
   const profiles = archetype?.profiles || [];
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection variant="secondary">
         <PageHeader
           title={t("titles.archetypeTargetProfiles", {
             archetypeName: archetype.name,
@@ -123,7 +120,7 @@ const TargetProfilesPage: React.FC = () => {
           >
             <Toolbar>
               <ToolbarContent>
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -153,12 +150,12 @@ const TargetProfilesPage: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={profiles.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noTargetProfilesTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noTargetProfilesTitle")}
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                  >
                     <EmptyStateBody>
                       {t("message.noTargetProfilesCreate")}
                     </EmptyStateBody>

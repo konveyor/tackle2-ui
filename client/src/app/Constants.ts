@@ -1,12 +1,12 @@
 import {
-  global_palette_black_1000 as black,
-  global_palette_black_500 as gray,
-  global_palette_blue_300 as blue,
-  global_palette_cyan_300 as cyan,
-  global_palette_gold_300 as gold,
-  global_palette_green_300 as green,
-  global_palette_orange_300 as orange,
-  global_palette_purple_600 as purple,
+  chart_color_yellow_200 as gold,
+  t_color_black as black,
+  t_color_gray_50 as gray,
+  t_color_purple_70 as purple,
+  t_global_color_nonstatus_blue_300 as blue,
+  t_global_color_nonstatus_green_300 as green,
+  t_global_color_nonstatus_orange_200 as orange,
+  t_global_color_nonstatus_teal_300 as cyan,
 } from "@patternfly/react-tokens";
 
 import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
@@ -83,7 +83,7 @@ type RiskListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -138,7 +138,7 @@ type ProposedActionListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -177,7 +177,7 @@ export const PROPOSED_ACTION_LIST: ProposedActionListType = {
   },
   retire: {
     i18Key: "proposedActions.retire",
-    labelColor: "cyan",
+    labelColor: "teal",
     hexColor: cyan.value,
   },
   retain: {

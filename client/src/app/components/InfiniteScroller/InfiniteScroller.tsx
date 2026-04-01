@@ -30,13 +30,13 @@ export const InfiniteScroller = ({
       enable: hasMore,
     });
   useEffect(() => {
-    // enable or clear the flag depending on the sentinel visibility
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- derived flag from visibility tracker
     setReadyForFetch(!!isSentinelVisible);
   }, [isSentinelVisible]);
 
   useEffect(() => {
     if (readyForFetch) {
-      // clear the flag if fetch request is accepted
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear flag after fetch request
       setReadyForFetch(!fetchMore());
     }
     // reference to fetchMore() changes based on query state and ensures that the effect is triggered in the right moment

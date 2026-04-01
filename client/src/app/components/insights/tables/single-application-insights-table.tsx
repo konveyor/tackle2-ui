@@ -5,8 +5,6 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -206,7 +204,6 @@ export const SingleApplicationInsightsTable: React.FC<
             >
               <SimpleSelect
                 toggleAriaLabel="application-select"
-                toggleId="application-select"
                 width={220}
                 aria-label="Select application"
                 placeholderText="Select application..."
@@ -273,12 +270,12 @@ export const SingleApplicationInsightsTable: React.FC<
           isError={!!fetchError}
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
-            <EmptyState variant="sm">
-              <EmptyStateHeader
-                titleText={t("message.selectApplicationFromFilterMenu")}
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-                headingLevel="h2"
-              />
+            <EmptyState
+              variant="sm"
+              titleText={t("message.selectApplicationFromFilterMenu")}
+              icon={CubesIcon}
+              headingLevel="h2"
+            >
               <EmptyStateBody>
                 {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>

@@ -4,10 +4,9 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Content,
+  ContentVariants,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -127,10 +126,10 @@ export const AffectedApplicationsPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.affectedApplications")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content component={ContentVariants.h1}>
+          {t("terms.affectedApplications")}
+        </Content>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link

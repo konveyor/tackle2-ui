@@ -6,12 +6,13 @@ import {
   Card,
   CardBody,
   CardHeader,
+  CardTitle,
+  Content,
+  ContentVariants,
   FormSection,
   Grid,
   GridItem,
   PageSection,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 
@@ -65,16 +66,18 @@ const ReviewPage: React.FC = () => {
   if (fetchError) {
     return (
       <>
-        <PageSection variant="light">
+        <PageSection variant="default">
           <PageHeader
             title={t("terms.review")}
             description={
-              <Text component="p">{t("message.reviewInstructions")}</Text>
+              <Content component={ContentVariants.p}>
+                {t("message.reviewInstructions")}
+              </Content>
             }
             breadcrumbs={breadcrumbs}
           />
         </PageSection>
-        <PageSection variant="light">
+        <PageSection variant="default">
           <Bullseye>
             <SimpleEmptyState
               icon={BanIcon}
@@ -88,11 +91,13 @@ const ReviewPage: React.FC = () => {
   }
   return (
     <>
-      <PageSection variant="light">
+      <PageSection variant="default">
         <PageHeader
           title={t("terms.review")}
           description={
-            <Text component="p">{t("message.reviewInstructions")}</Text>
+            <Content component={ContentVariants.p}>
+              {t("message.reviewInstructions")}
+            </Content>
           }
           breadcrumbs={breadcrumbs}
         />
@@ -103,8 +108,7 @@ const ReviewPage: React.FC = () => {
             <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
               <Grid hasGutter>
                 <GridItem md={5}>
-                  <div className="pf-v5-c-form">
-                    <FormSection></FormSection>
+                  <div className="pf-v6-c-form">
                     <FormSection>
                       <ReviewForm
                         review={review}
@@ -133,9 +137,9 @@ const ReviewPage: React.FC = () => {
         <PageSection>
           <Card>
             <CardHeader>
-              <TextContent>
-                <Text component="h3">{t("terms.assessmentSummary")}</Text>
-              </TextContent>
+              <CardTitle>
+                <Content component="h3">{t("terms.assessmentSummary")}</Content>
+              </CardTitle>
             </CardHeader>
             <CardBody>
               <IdentifiedRisksTable

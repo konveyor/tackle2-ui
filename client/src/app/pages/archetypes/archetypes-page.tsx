@@ -5,15 +5,13 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -246,10 +244,10 @@ const Archetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.archetypes")}</Text>
-        </TextContent>
+      <PageSection>
+        <Content>
+          <Content component="h1">{t("terms.archetypes")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -264,7 +262,7 @@ const Archetypes: React.FC = () => {
             <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     {archetypeWriteAccess && (
                       <Button
@@ -318,12 +316,12 @@ const Archetypes: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noArchetypesCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState
+                    variant="sm"
+                    titleText={t("message.noArchetypesCreatedTitle")}
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                  >
                     <EmptyStateBody>
                       {t("message.noArchetypesCreatedDescription")}
                     </EmptyStateBody>
@@ -358,7 +356,9 @@ const Archetypes: React.FC = () => {
                           <LinkToArchetypeApplications archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "profiles" })}>
-                          <Text>{archetype.profiles?.length || 0}</Text>
+                          <Content component="p">
+                            {archetype.profiles?.length || 0}
+                          </Content>
                         </Td>
                         <Td
                           width={15}
@@ -484,44 +484,50 @@ const Archetypes: React.FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newArchetype")}
         variant="medium"
         isOpen={openCreateArchetype}
         onClose={() => setOpenCreateArchetype(false)}
       >
-        <ArchetypeForm
-          key={openCreateArchetype ? 1 : 0}
-          onClose={() => setOpenCreateArchetype(false)}
-        />
+        <ModalHeader title={t("dialog.title.newArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={openCreateArchetype ? 1 : 0}
+            onClose={() => setOpenCreateArchetype(false)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updateArchetype")}
         variant="medium"
         isOpen={!!archetypeToEdit}
         onClose={() => setArchetypeToEdit(null)}
       >
-        <ArchetypeForm
-          key={archetypeToEdit?.id ?? -1}
-          archetype={archetypeToEdit}
-          onClose={() => setArchetypeToEdit(null)}
-        />
+        <ModalHeader title={t("dialog.title.updateArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={archetypeToEdit?.id ?? -1}
+            archetype={archetypeToEdit}
+            onClose={() => setArchetypeToEdit(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Duplicate modal */}
       <Modal
-        title={t("dialog.title.newArchetype")}
         variant="medium"
         isOpen={!!archetypeToDuplicate}
         onClose={() => setArchetypeToDuplicate(null)}
       >
-        <ArchetypeForm
-          key={archetypeToDuplicate?.id ?? -1}
-          archetype={archetypeToDuplicate}
-          isDuplicating
-          onClose={() => setArchetypeToDuplicate(null)}
-        />
+        <ModalHeader title={t("dialog.title.newArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={archetypeToDuplicate?.id ?? -1}
+            archetype={archetypeToDuplicate}
+            isDuplicating
+            onClose={() => setArchetypeToDuplicate(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Confirm discard assessment modal */}

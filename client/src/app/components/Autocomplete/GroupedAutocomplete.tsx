@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as React from "react";
 import {
   Divider,
@@ -11,7 +11,6 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  Popper,
 } from "@patternfly/react-core";
 
 import { getString } from "@app/utils/utils";
@@ -92,6 +91,21 @@ export const GroupedAutocomplete: React.FC<IGroupedAutocompleteProps> = ({
     searchInputRef,
   });
 
+  // Handle clicks outside the menu to close it (replaces Popper's onDocumentClick)
+  useEffect(() => {
+    const handleDocumentClick = (event: MouseEvent) => {
+      handleOnDocumentClick(event);
+    };
+
+    if (menuIsOpen) {
+      document.addEventListener("click", handleDocumentClick);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
+  }, [menuIsOpen, handleOnDocumentClick]);
+
   const inputGroup = (
     <SearchInputComponent
       id={id}
@@ -152,15 +166,22 @@ export const GroupedAutocomplete: React.FC<IGroupedAutocompleteProps> = ({
   return (
     <Flex direction={{ default: "column" }}>
       <FlexItem key="input">
-        <Popper
-          trigger={inputGroup}
-          triggerRef={searchInputRef}
-          popper={menu}
-          popperRef={menuRef}
-          appendTo={() => searchInputRef.current || document.body}
-          isVisible={menuIsOpen}
-          onDocumentClick={handleOnDocumentClick}
-        />
+        <div style={{ position: "relative" }}>
+          {inputGroup}
+          {menuIsOpen && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                zIndex: 9999,
+                width: "100%",
+              }}
+            >
+              {menu}
+            </div>
+          )}
+        </div>
       </FlexItem>
       <FlexItem key="chips">
         <Flex spaceItems={{ default: "spaceItemsXs" }}>

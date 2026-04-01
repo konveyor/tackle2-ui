@@ -2,11 +2,13 @@ import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Form,
   FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
   Radio,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -97,12 +99,12 @@ export const WizardMode: React.FC<WizardModeProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.wizardMode")}
         </Title>
-        <Text>{t("wizard.label.selectWizardMode")}</Text>
-      </TextContent>
+        <Content component="p">{t("wizard.label.selectWizardMode")}</Content>
+      </Content>
 
       <FormGroup
         role="radiogroup"
@@ -157,9 +159,13 @@ export const WizardMode: React.FC<WizardModeProps> = ({
                 placeholderText={t("wizard.label.selectAnalysisProfile")}
               />
               {selectedProfile?.description && (
-                <Text component="small" className={spacing.mtSm}>
-                  {selectedProfile.description}
-                </Text>
+                <FormHelperText className={spacing.mtSm}>
+                  <HelperText>
+                    <HelperTextItem>
+                      {selectedProfile.description}
+                    </HelperTextItem>
+                  </HelperText>
+                </FormHelperText>
               )}
             </FormGroup>
           )}

@@ -30,7 +30,7 @@ export const KindBearerTokenForm: React.FC<{ identity?: Identity }> = ({
       isRequired={true}
       type={isKeyHidden ? "password" : "text"}
       formGroupProps={{
-        labelIcon: !isKeyEncrypted ? (
+        labelHelp: !isKeyEncrypted ? (
           <KeyDisplayToggle
             keyName="key"
             isKeyHidden={isKeyHidden}

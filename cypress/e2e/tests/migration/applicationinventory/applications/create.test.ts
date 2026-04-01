@@ -102,23 +102,17 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
     inputText(applicationOwnerInput, stakeHoldersList[0].name);
     cy.get("button").contains(stakeHoldersList[0].name).click();
 
-    cy.get(applicationOwnerInput)
-      .invoke("val")
-      .then((value) => {
-        expect(value).to.contain(stakeHoldersList[0].name);
-      });
+    cy.get(applicationOwnerInput).should(
+      "contain.text",
+      stakeHoldersList[0].name
+    );
 
-    cy.get(applicationOwnerInput)
-      .closest("div")
-      .next("button")
-      .click()
-      .then(() => {
-        cy.get(applicationOwnerInput)
-          .invoke("val")
-          .then((newValue) => {
-            expect(newValue).to.not.contain(stakeHoldersList[0].name);
-          });
-      });
+    // Clear the owner selection
+    cy.get("button[aria-label='Clear input value']").first().click();
+    cy.get(applicationOwnerInput).should(
+      "not.contain.text",
+      stakeHoldersList[0].name
+    );
 
     // Contributors Validation, Polarion TC 331
     inputText(applicationContributorsInput, stakeHoldersList[0].name);

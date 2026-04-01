@@ -6,12 +6,11 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Alert,
+  Content,
   Form,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -190,12 +189,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
 
   return (
     <>
-      <TextContent className={spacing.mbSm}>
+      <Content className={spacing.mbSm}>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.customRules")}
         </Title>
-        <Text> {t("wizard.label.customRules")}</Text>
-      </TextContent>
+        <p>{t("wizard.label.customRules")}</p>
+      </Content>
       {isCustomRuleRequiredAlertVisible && (
         <Alert
           variant="warning"

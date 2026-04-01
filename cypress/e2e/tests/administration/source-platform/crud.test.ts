@@ -89,7 +89,7 @@ describe(
 
       const newCreds = cloudFoundryCreds[1].name;
       platform.edit({ credentials: newCreds });
-      cy.get(selectors.credentials).should("have.value", newCreds);
+      cy.get(selectors.credentials).should("contain.text", newCreds);
 
       platform.delete();
       checkSuccessAlert(

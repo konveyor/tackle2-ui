@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import {
   FormGroup,
+  FormGroupLabelHelp,
   FormGroupProps,
   FormHelperText,
   HelperText,
@@ -66,7 +67,13 @@ export const HookFormPFGroupController = <
         error?.message && (isDirty || isTouched) && !errorsSuppressed;
       return (
         <FormGroup
-          labelIcon={labelIcon}
+          labelHelp={
+            labelIcon ? (
+              <FormGroupLabelHelp aria-label="More info">
+                {labelIcon}
+              </FormGroupLabelHelp>
+            ) : undefined
+          }
           label={label}
           fieldId={fieldId}
           className={className}

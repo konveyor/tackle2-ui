@@ -5,13 +5,12 @@ import {
   ActionGroup,
   Button,
   ButtonVariant,
+  Content,
   Form,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Application, ApplicationDependency } from "@app/api/models";
@@ -62,6 +61,7 @@ export const ApplicationDependenciesForm: React.FC<
       const north = northboundDependencies
         .filter((f) => f.to.id === application.id)
         .map((f) => dependencyToOption(f, northToStringFn));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from query result
       setNorthboundDependenciesOptions(north);
     }
   }, [application, northboundDependencies]);
@@ -71,6 +71,7 @@ export const ApplicationDependenciesForm: React.FC<
       const south = southboundDependencies
         .filter((f) => f.from.id === application.id)
         .map((f) => dependencyToOption(f, southToStringFn));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from query result
       setSouthboundDependenciesOptions(south);
     }
   }, [application, southboundDependencies]);
@@ -81,9 +82,9 @@ export const ApplicationDependenciesForm: React.FC<
 
   return (
     <Form>
-      <TextContent>
-        <Text component="p">{t("message.manageDependenciesInstructions")}</Text>
-      </TextContent>
+      <Content component="p">
+        {t("message.manageDependenciesInstructions")}
+      </Content>
 
       <FormGroup
         // t("terms.northboundDependencies")
@@ -115,7 +116,7 @@ export const ApplicationDependenciesForm: React.FC<
         {northSaveError && (
           <FormHelperText>
             <HelperText>
-              <HelperTextItem>{northSaveError}</HelperTextItem>
+              <HelperTextItem variant="error">{northSaveError}</HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
@@ -161,7 +162,7 @@ export const ApplicationDependenciesForm: React.FC<
         {southSaveError && (
           <FormHelperText>
             <HelperText>
-              <HelperTextItem>{southSaveError}</HelperTextItem>
+              <HelperTextItem variant="error">{southSaveError}</HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}

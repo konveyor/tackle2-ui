@@ -7,6 +7,9 @@ import * as yup from "yup";
 import {
   Button,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   ModalVariant,
   Wizard,
   WizardHeader,
@@ -116,23 +119,26 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
     }
   };
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form watch() API
   const readyApplications = watch("ready");
   if (readyApplications.length === 0) {
     return (
       <Modal
         variant={ModalVariant.medium}
-        title={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
         onClose={handleCancel}
-        footer={
+      >
+        <ModalHeader title={t("retrieveConfigWizard.title")} />
+        <ModalBody>
+          <div style={{ padding: "20px" }}>
+            <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
+          </div>
+        </ModalBody>
+        <ModalFooter>
           <Button variant="primary" onClick={handleCancel}>
             {t("actions.close")}
           </Button>
-        }
-      >
-        <div style={{ padding: "20px" }}>
-          <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
-        </div>
+        </ModalFooter>
       </Modal>
     );
   }
@@ -144,8 +150,6 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         variant={ModalVariant.large}
         aria-label={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
-        showClose={false}
-        hasNoBodyWrapper
         onEscapePress={handleCancel}
       >
         <Wizard

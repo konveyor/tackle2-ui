@@ -179,8 +179,8 @@ describe(
 
           // TC MTA-403
           target.openEditDialog();
-          cy.get(CustomMigrationTargetView.credentialsInput).should(
-            "have.value",
+          cy.get(CustomMigrationTargetView.credentialsDropdown).should(
+            "contain.text",
             sourceCredential.name
           );
           click(cancelButton);
@@ -254,7 +254,7 @@ describe(
 
           // Make sure the new custom migration target is in the first position
           AnalysisWizardHelpers.selectLanguage(language, true);
-          cy.get(".pf-v5-c-card__body", { timeout: 12 * SEC })
+          cy.get(".pf-v6-c-card__body", { timeout: 12 * SEC })
             .first()
             .should("contain", target.name);
           clickByText(button, "Cancel");
@@ -313,7 +313,7 @@ describe(
           target.validateSourceTechnology(targetData.sources);
 
           // TC 405 - Validate Target technology
-          cy.get(".pf-v5-c-wizard__main-body").should(
+          cy.get(".pf-v6-c-wizard__main-body").should(
             "contain",
             targetData.targets
           );

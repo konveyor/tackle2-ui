@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -11,8 +12,6 @@ import {
   LabelGroup,
   List,
   ListItem,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -101,12 +100,14 @@ const ReviewProfile: React.FC<ReviewProfileProps> = ({
 
   return (
     <>
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.review.title")}
         </Title>
-        <Text>{t("analysisSteps.review.analysisDescription")}</Text>
-      </TextContent>
+        <Content component="p">
+          {t("analysisSteps.review.analysisDescription")}
+        </Content>
+      </Content>
 
       <DescriptionList isHorizontal className={spacing.mtMd}>
         <DescriptionListGroup>
@@ -191,12 +192,14 @@ const ReviewManual: React.FC<ReviewManualProps> = ({
 
   return (
     <>
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.review.title")}
         </Title>
-        <Text>{t("analysisSteps.review.analysisDescription")}</Text>
-      </TextContent>
+        <Content component="p">
+          {t("analysisSteps.review.analysisDescription")}
+        </Content>
+      </Content>
 
       <DescriptionList isHorizontal className={spacing.mtMd}>
         <DescriptionListGroup>

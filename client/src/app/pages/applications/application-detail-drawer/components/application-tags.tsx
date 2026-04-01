@@ -6,10 +6,9 @@ import {
   Bullseye,
   Button,
   ButtonVariant,
+  Content,
   Flex,
   Spinner,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -58,6 +57,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
 
   useEffect(() => {
     if (application.tags) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- loading state for manual Promise.all fetch
       setIsFetching(true);
 
       Promise.all(
@@ -190,12 +190,14 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         <ToolbarContent className={spacing.p_0}>
           <ToolbarItem>Filter by:</ToolbarItem>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-              showFiltersSideBySide
-            />
+            <ToolbarItem>
+              <FilterToolbar
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+                showFiltersSideBySide
+              />
+            </ToolbarItem>
           </ToolbarToggleGroup>
         </ToolbarContent>
       </Toolbar>
@@ -212,14 +214,12 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           });
           return (
             <React.Fragment key={source}>
-              <TextContent>
-                <Text
-                  component="h3"
-                  className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
-                >
-                  {source === "" ? "Manual" : capitalizeFirstLetter(source)}
-                </Text>
-              </TextContent>
+              <Content
+                component="h3"
+                className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
+              >
+                {source === "" ? "Manual" : capitalizeFirstLetter(source)}
+              </Content>
               {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
                 const tagsInThisCategoryInThisSource =
                   tagsInThisSource?.filter(
@@ -227,15 +227,13 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                   ) || [];
                 return (
                   <React.Fragment key={tagCategory.id}>
-                    {/* TODO PF V5 - Verify fontWeight change */}
-                    <TextContent>
-                      <Text
-                        component="h4"
-                        className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightNormal}`}
-                      >
-                        {tagCategory.name}
-                      </Text>
-                    </TextContent>
+                    {/* TODO PF V6 - Verify fontWeight change */}
+                    <Content
+                      component="h4"
+                      className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightNormal}`}
+                    >
+                      {tagCategory.name}
+                    </Content>
                     <Flex>
                       {tagsInThisCategoryInThisSource.map((tag) => (
                         <ItemTagLabel
@@ -263,7 +261,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         })}
         description={t("message.toTagApplication")}
       />
-      <div className="pf-v5-u-text-align-center">
+      <div className="pf-v6-u-text-align-center">
         <Button
           type="button"
           id="create-tags"

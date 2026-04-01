@@ -5,71 +5,57 @@ exports[`SimpleSelect Renders without crashing 1`] = `
   "asFragment": [Function],
   "baseElement": <body>
     <div>
-      <div
-        class="pf-v5-c-select"
-        data-ouia-component-id="OUIA-Generated-Select-single-2"
-        data-ouia-component-type="PF5/Select"
+      <button
+        aria-expanded="false"
+        class="pf-v6-c-menu-toggle"
+        data-ouia-component-id="OUIA-Generated-MenuToggle-2"
+        data-ouia-component-type="PF6/MenuToggle"
         data-ouia-safe="true"
+        style="width: 100%;"
+        type="button"
       >
-        <button
-          aria-expanded="false"
-          aria-haspopup="listbox"
-          aria-label="Options menu"
-          aria-labelledby=" pf-select-toggle-id-0"
-          class="pf-v5-c-select__toggle"
-          id="pf-select-toggle-id-0"
-          type="button"
+        <span
+          class="pf-v6-c-menu-toggle__text"
         >
-          <div
-            class="pf-v5-c-select__toggle-wrapper"
-          >
-            <span
-              class="pf-v5-c-select__toggle-text"
-            >
-              Select...
-            </span>
-          </div>
+          Select...
+        </span>
+        <span
+          class="pf-v6-c-menu-toggle__controls"
+        >
           <span
-            class="pf-v5-c-select__toggle-arrow"
+            class="pf-v6-c-menu-toggle__toggle-icon"
           >
             <test-file-stub />
           </span>
-        </button>
-      </div>
-    </div>
-  </body>,
-  "container": <div>
-    <div
-      class="pf-v5-c-select"
-      data-ouia-component-id="OUIA-Generated-Select-single-2"
-      data-ouia-component-type="PF5/Select"
-      data-ouia-safe="true"
-    >
-      <button
-        aria-expanded="false"
-        aria-haspopup="listbox"
-        aria-label="Options menu"
-        aria-labelledby=" pf-select-toggle-id-0"
-        class="pf-v5-c-select__toggle"
-        id="pf-select-toggle-id-0"
-        type="button"
-      >
-        <div
-          class="pf-v5-c-select__toggle-wrapper"
-        >
-          <span
-            class="pf-v5-c-select__toggle-text"
-          >
-            Select...
-          </span>
-        </div>
-        <span
-          class="pf-v5-c-select__toggle-arrow"
-        >
-          <test-file-stub />
         </span>
       </button>
     </div>
+  </body>,
+  "container": <div>
+    <button
+      aria-expanded="false"
+      class="pf-v6-c-menu-toggle"
+      data-ouia-component-id="OUIA-Generated-MenuToggle-2"
+      data-ouia-component-type="PF6/MenuToggle"
+      data-ouia-safe="true"
+      style="width: 100%;"
+      type="button"
+    >
+      <span
+        class="pf-v6-c-menu-toggle__text"
+      >
+        Select...
+      </span>
+      <span
+        class="pf-v6-c-menu-toggle__controls"
+      >
+        <span
+          class="pf-v6-c-menu-toggle__toggle-icon"
+        >
+          <test-file-stub />
+        </span>
+      </span>
+    </button>
   </div>,
   "debug": [Function],
   "findAllByAltText": [Function],

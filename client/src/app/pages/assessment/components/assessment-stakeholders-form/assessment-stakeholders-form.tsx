@@ -3,11 +3,11 @@ import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
+  FormGroup,
   FormSection,
   Grid,
   GridItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { GroupedStakeholderRef, Ref, StakeholderType } from "@app/api/models";
@@ -29,35 +29,41 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   );
 
   return (
-    <div className="pf-v5-c-form">
-      <FormSection>
-        <TextContent>
-          <Text component="h1">
-            {t("composed.selectMany", {
-              what: t("terms.stakeholders").toLowerCase(),
-            })}
-          </Text>
-          <Text component="p">{t("message.assessmentStakeholderHeader")}</Text>
-        </TextContent>
-      </FormSection>
+    <div className="pf-v6-c-form">
+      <Content>
+        <Content component="h1">
+          {t("composed.selectMany", {
+            what: t("terms.stakeholders").toLowerCase(),
+          })}
+        </Content>
+        <Content component="p">
+          {t("message.assessmentStakeholderHeader")}
+        </Content>
+      </Content>
 
-      <Grid className="pf-v5-c-form__section">
-        <GridItem md={6} className="pf-v5-c-form">
+      <Grid className="pf-v6-c-form__section">
+        <GridItem md={6} className="pf-v6-c-form">
           <FormSection>
-            <HookFormAutocomplete<AssessmentWizardValues>
-              isGrouped
-              groupedItems={stakeholdersAndGroupsItems}
-              control={control}
-              name="stakeholdersAndGroupsRefs"
+            <FormGroup
               label="Stakeholder(s) and Stakeholder Group(s)"
               fieldId="stakeholdersAndGroups"
-              noResultsMessage={t("message.noResultsFoundTitle")}
-              placeholderText={t("composed.selectMany", {
-                what: t("terms.stakeholder(s)").toLowerCase(),
-              })}
               isRequired
-              searchInputAriaLabel="stakeholders-and-groups-select-toggle"
-            />
+            >
+              <HookFormAutocomplete<AssessmentWizardValues>
+                isGrouped
+                groupedItems={stakeholdersAndGroupsItems}
+                control={control}
+                name="stakeholdersAndGroupsRefs"
+                label="Stakeholder(s) and Stakeholder Group(s)"
+                fieldId="stakeholdersAndGroups"
+                noResultsMessage={t("message.noResultsFoundTitle")}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.stakeholder(s)").toLowerCase(),
+                })}
+                isRequired
+                searchInputAriaLabel="stakeholders-and-groups-select-toggle"
+              />
+            </FormGroup>
           </FormSection>
         </GridItem>
       </Grid>

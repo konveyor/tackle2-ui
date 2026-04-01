@@ -67,12 +67,14 @@ export const ApplicationFacts: React.FC<IApplicationRiskProps> = ({
         <ToolbarContent className={spacing.p_0}>
           <ToolbarItem>Filter by:</ToolbarItem>
           <ToolbarToggleGroup toggleIcon={<FilterIcon />} breakpoint="xl">
-            <FilterToolbar
-              filterCategories={filterCategories}
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-              showFiltersSideBySide
-            />
+            <ToolbarItem>
+              <FilterToolbar
+                filterCategories={filterCategories}
+                filterValues={filterValues}
+                setFilterValues={setFilterValues}
+                showFiltersSideBySide
+              />
+            </ToolbarItem>
           </ToolbarToggleGroup>
         </ToolbarContent>
       </Toolbar>

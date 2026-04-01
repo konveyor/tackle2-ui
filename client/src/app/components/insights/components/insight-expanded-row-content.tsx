@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  Flex,
-  FlexItem,
-  Label,
-  LabelGroup,
-  Text,
-} from "@patternfly/react-core";
+import { Flex, FlexItem, Label, LabelGroup } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
 import { ExpandableRowContent } from "@patternfly/react-table";
@@ -22,12 +16,11 @@ export const ExpandedFieldHeading: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   return (
-    <Text
-      component="h4"
+    <h4
       className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
     >
       {children}
-    </Text>
+    </h4>
   );
 };
 
@@ -47,24 +40,28 @@ export const InsightExpandedRowContent: React.FC<{
 
           <ExpandedFieldHeading>Target technologies</ExpandedFieldHeading>
           <div>
-            {targets.length > 0
-              ? targets.map((target) => (
-                  <Label key={target} className={spacing.mrSm}>
-                    {target}
-                  </Label>
-                ))
-              : "None"}
+            {targets.length > 0 ? (
+              <LabelGroup>
+                {targets.map((target) => (
+                  <Label key={target}>{target}</Label>
+                ))}
+              </LabelGroup>
+            ) : (
+              "None"
+            )}
           </div>
 
           <ExpandedFieldHeading>Source technologies</ExpandedFieldHeading>
           <div>
-            {sources.length > 0
-              ? sources.map((source) => (
-                  <Label key={source} className={spacing.mrSm}>
-                    {source}
-                  </Label>
-                ))
-              : "None"}
+            {sources.length > 0 ? (
+              <LabelGroup>
+                {sources.map((source) => (
+                  <Label key={source}>{source}</Label>
+                ))}
+              </LabelGroup>
+            ) : (
+              "None"
+            )}
           </div>
 
           <ExpandedFieldHeading>Rule set</ExpandedFieldHeading>
@@ -78,9 +75,7 @@ export const InsightExpandedRowContent: React.FC<{
             {otherLabels.length > 0 ? (
               <LabelGroup>
                 {otherLabels.map((label) => (
-                  <Label key={label} className={spacing.mrSm}>
-                    {label}
-                  </Label>
+                  <Label key={label}>{label}</Label>
                 ))}
               </LabelGroup>
             ) : (

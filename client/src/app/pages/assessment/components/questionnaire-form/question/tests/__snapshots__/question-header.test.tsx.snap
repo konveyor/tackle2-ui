@@ -6,7 +6,7 @@ exports[`QuestionHeader Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-l-stack__item pf-v5-u-pb-sm"
+        class="pf-v6-l-stack__item pf-v6-u-pb-sm"
       >
         content
       </div>
@@ -14,7 +14,7 @@ exports[`QuestionHeader Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-l-stack__item pf-v5-u-pb-sm"
+      class="pf-v6-l-stack__item pf-v6-u-pb-sm"
     >
       content
     </div>

@@ -1,8 +1,8 @@
 import * as React from "react";
 import {
   Button,
-  Chip,
-  ChipGroup,
+  Label,
+  LabelGroup,
   MenuToggle,
   MenuToggleElement,
   Select,
@@ -54,7 +54,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
     null
   );
   const [activeItem, setActiveItem] = React.useState<string | null>(null);
-  const textInputRef = React.useRef<HTMLInputElement>();
+  const textInputRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     let newSelectOptions: SelectOptionProps[] = options;
 
@@ -93,7 +93,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
 
   const onSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value: string | number | undefined
+    value: SelectOptionProps["value"] | undefined
   ) => {
     value = value as string;
     if (value && value !== "no results") {
@@ -211,7 +211,7 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           }}
           id="typeahead-select-input"
           autoComplete="off"
-          innerRef={textInputRef}
+          ref={textInputRef}
           placeholder={placeholderText}
           {...(activeItem && { "aria-activedescendant": activeItem })}
           role="combobox"
@@ -219,21 +219,21 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
           aria-controls="select-typeahead-listbox"
         >
           {selectMultiple && (
-            <ChipGroup aria-label="Current selections">
+            <LabelGroup aria-label="Current selections">
               {(Array.isArray(selected) ? selected : [selected]).map(
                 (sel, index) => (
-                  <Chip
+                  <Label
                     key={index}
-                    onClick={(ev) => {
+                    onClose={(ev) => {
                       ev.stopPropagation();
                       onSelect(undefined, sel);
                     }}
                   >
                     {sel}
-                  </Chip>
+                  </Label>
                 )
               )}
-            </ChipGroup>
+            </LabelGroup>
           )}
         </TextInputGroupMain>
         <TextInputGroupUtilities>
@@ -247,9 +247,8 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+              icon={<TimesIcon aria-hidden />}
+            />
           )}
           {!hideClearButton && !selectMultiple && !!inputValue && (
             <Button
@@ -262,9 +261,8 @@ export const SimpleSelectTypeahead: React.FC<ISimpleSelectBasicProps> = ({
                 textInputRef?.current?.focus();
               }}
               aria-label="Clear input value"
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+              icon={<TimesIcon aria-hidden />}
+            />
           )}
         </TextInputGroupUtilities>
       </TextInputGroup>

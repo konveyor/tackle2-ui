@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
   Dropdown,
-  DropdownGroup,
   DropdownItem,
   DropdownList,
   MenuToggle,
@@ -51,38 +50,36 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
           </MenuToggle>
         )}
       >
-        <DropdownGroup key="sso">
-          <DropdownList>
-            <DropdownItem
-              id="manage-account"
-              key="sso_user_management"
-              component="button"
-              onClick={() => keycloak.accountManagement()}
-            >
-              {t("actions.manageAccount")}
-            </DropdownItem>
-            <DropdownItem
-              id="logout"
-              key="sso_logout"
-              onClick={() => {
-                window.localStorage.removeItem(LocalStorageKey.selectedPersona);
-                {
-                  keycloak
-                    .logout()
-                    .then(() => {
-                      history.push("/");
-                    })
-                    .catch((err) => {
-                      console.error("Logout failed:", err);
-                      history.push("/");
-                    });
-                }
-              }}
-            >
-              {t("actions.logout")}
-            </DropdownItem>
-          </DropdownList>
-        </DropdownGroup>
+        <DropdownList>
+          <DropdownItem
+            id="manage-account"
+            key="sso_user_management"
+            component="button"
+            onClick={() => keycloak.accountManagement()}
+          >
+            {t("actions.manageAccount")}
+          </DropdownItem>
+          <DropdownItem
+            id="logout"
+            key="sso_logout"
+            onClick={() => {
+              window.localStorage.removeItem(LocalStorageKey.selectedPersona);
+              {
+                keycloak
+                  .logout()
+                  .then(() => {
+                    history.push("/");
+                  })
+                  .catch((err) => {
+                    console.error("Logout failed:", err);
+                    history.push("/");
+                  });
+              }
+            }}
+          >
+            {t("actions.logout")}
+          </DropdownItem>
+        </DropdownList>
       </Dropdown>
     </ToolbarItem>
   );

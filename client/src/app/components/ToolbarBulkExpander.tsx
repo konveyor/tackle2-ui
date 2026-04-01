@@ -24,9 +24,8 @@ export const ToolbarBulkExpander = ({
         onClick={() => {
           if (areAllExpanded !== undefined) toggleCollapseAll(areAllExpanded);
         }}
-      >
-        {areAllExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
-      </Button>
+        icon={areAllExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+      />
     </ToolbarItem>
   );
 };

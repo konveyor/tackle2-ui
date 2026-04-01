@@ -1,23 +1,30 @@
 import * as React from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toggle } from "radash";
+import { toggle as radashToggle } from "radash";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
+  Button,
+  Content,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Text,
-  TextContent,
+  Label,
+  LabelGroup,
+  MenuToggle,
+  MenuToggleElement,
+  Select,
+  SelectList,
+  SelectOption,
+  SelectOptionProps,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
   Title,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core/deprecated";
+import { TimesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
@@ -92,6 +99,8 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
 
   const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
   const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
+  const [targetFilterValue, setTargetFilterValue] = React.useState("");
+  const [sourceFilterValue, setSourceFilterValue] = React.useState("");
 
   const availableTargetLabels = parseLabels(useTargetLabels());
   const availableSourceLabels = parseLabels(useSourceLabels());
@@ -114,12 +123,12 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.labels.title")}
         </Title>
-        <Text>{t("analysisSteps.labels.description")}</Text>
-      </TextContent>
+        <p>{t("analysisSteps.labels.description")}</p>
+      </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
       <FormGroup
@@ -161,42 +170,120 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
+          const filteredTargetLabels = availableTargetLabels.filter(
+            (label) =>
+              !targetFilterValue ||
+              label.value
+                .toLowerCase()
+                .includes(targetFilterValue.toLowerCase())
+          );
+
+          const onTargetSelect = (
+            _event: React.MouseEvent<Element, MouseEvent> | undefined,
+            selection: SelectOptionProps["value"]
+          ) => {
+            const selectedLabel = availableTargetLabels.find(
+              (label) => label.value === selection
+            );
+            if (selectedLabel) {
+              onChange(
+                radashToggle(
+                  value,
+                  selectedLabel.targetLabel,
+                  (label) => label.label
+                )
+              );
+            }
+            onBlur();
+            setTargetFilterValue("");
+          };
+
+          const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              id="additional-target-labels-toggle"
+              ref={toggleRef}
+              variant="typeahead"
+              onClick={() => setSelectTargetsOpen(!isSelectTargetsOpen)}
+              isExpanded={isSelectTargetsOpen}
+              isFullWidth
+              status={
+                getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                  ? "danger"
+                  : undefined
+              }
+            >
+              <TextInputGroup isPlain>
+                <TextInputGroupMain
+                  value={targetFilterValue}
+                  onClick={() => setSelectTargetsOpen(!isSelectTargetsOpen)}
+                  onChange={(_event, val) => setTargetFilterValue(val)}
+                  autoComplete="off"
+                  placeholder="Select targets"
+                  aria-label="Select targets"
+                >
+                  <LabelGroup aria-label="Selected targets">
+                    {selections.map((selection, index) => (
+                      <Label
+                        key={index}
+                        onClose={(e) => {
+                          e.stopPropagation();
+                          const labelToRemove = availableTargetLabels.find(
+                            (label) => label.value === selection
+                          );
+                          if (labelToRemove) {
+                            onChange(
+                              value.filter(
+                                (label: TargetLabel) =>
+                                  label.label !==
+                                  labelToRemove.targetLabel.label
+                              )
+                            );
+                          }
+                        }}
+                      >
+                        {selection}
+                      </Label>
+                    ))}
+                  </LabelGroup>
+                </TextInputGroupMain>
+                <TextInputGroupUtilities>
+                  {selections.length > 0 && (
+                    <Button
+                      variant="plain"
+                      onClick={() => {
+                        onChange([]);
+                        setTargetFilterValue("");
+                      }}
+                      aria-label="Clear selections"
+                      icon={<TimesIcon />}
+                    />
+                  )}
+                </TextInputGroupUtilities>
+              </TextInputGroup>
+            </MenuToggle>
+          );
+
           return (
             <Select
               id="additional-target-labels"
-              toggleId="additional-target-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select targets"
-              selections={selections}
               isOpen={isSelectTargetsOpen}
-              onSelect={(_, selection) => {
-                const selectedLabel = availableTargetLabels.find(
-                  (label) => label.value === selection
-                );
-                if (selectedLabel) {
-                  onChange(
-                    toggle(
-                      value,
-                      selectedLabel.targetLabel,
-                      (label) => label.label
-                    )
-                  );
-                }
-                onBlur();
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onToggle={() => {
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              selected={selections}
+              onSelect={onTargetSelect}
+              onOpenChange={(isOpen) => setSelectTargetsOpen(isOpen)}
+              toggle={toggle}
+              style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT, overflow: "auto" }}
             >
-              {availableTargetLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {filteredTargetLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}
@@ -242,42 +329,120 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
+          const filteredSourceLabels = availableSourceLabels.filter(
+            (label) =>
+              !sourceFilterValue ||
+              label.value
+                .toLowerCase()
+                .includes(sourceFilterValue.toLowerCase())
+          );
+
+          const onSourceSelect = (
+            _event: React.MouseEvent<Element, MouseEvent> | undefined,
+            selection: SelectOptionProps["value"]
+          ) => {
+            const selectedLabel = availableSourceLabels.find(
+              (label) => label.value === selection
+            );
+            if (selectedLabel) {
+              onChange(
+                radashToggle(
+                  value,
+                  selectedLabel.targetLabel,
+                  (label) => label.label
+                )
+              );
+            }
+            onBlur();
+            setSourceFilterValue("");
+          };
+
+          const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              id="additional-source-labels-toggle"
+              ref={toggleRef}
+              variant="typeahead"
+              onClick={() => setSelectSourcesOpen(!isSelectSourcesOpen)}
+              isExpanded={isSelectSourcesOpen}
+              isFullWidth
+              status={
+                getValidatedFromErrors(error, isDirty, isTouched) === "error"
+                  ? "danger"
+                  : undefined
+              }
+            >
+              <TextInputGroup isPlain>
+                <TextInputGroupMain
+                  value={sourceFilterValue}
+                  onClick={() => setSelectSourcesOpen(!isSelectSourcesOpen)}
+                  onChange={(_event, val) => setSourceFilterValue(val)}
+                  autoComplete="off"
+                  placeholder="Select sources"
+                  aria-label="Select sources"
+                >
+                  <LabelGroup aria-label="Selected sources">
+                    {selections.map((selection, index) => (
+                      <Label
+                        key={index}
+                        onClose={(e) => {
+                          e.stopPropagation();
+                          const labelToRemove = availableSourceLabels.find(
+                            (label) => label.value === selection
+                          );
+                          if (labelToRemove) {
+                            onChange(
+                              value.filter(
+                                (label: TargetLabel) =>
+                                  label.label !==
+                                  labelToRemove.targetLabel.label
+                              )
+                            );
+                          }
+                        }}
+                      >
+                        {selection}
+                      </Label>
+                    ))}
+                  </LabelGroup>
+                </TextInputGroupMain>
+                <TextInputGroupUtilities>
+                  {selections.length > 0 && (
+                    <Button
+                      variant="plain"
+                      onClick={() => {
+                        onChange([]);
+                        setSourceFilterValue("");
+                      }}
+                      aria-label="Clear selections"
+                      icon={<TimesIcon />}
+                    />
+                  )}
+                </TextInputGroupUtilities>
+              </TextInputGroup>
+            </MenuToggle>
+          );
+
           return (
             <Select
               id="additional-source-labels"
-              toggleId="additional-source-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-              aria-label="Select sources"
-              selections={selections}
               isOpen={isSelectSourcesOpen}
-              onSelect={(_, selection) => {
-                const selectedLabel = availableSourceLabels.find(
-                  (label) => label.value === selection
-                );
-                if (selectedLabel) {
-                  onChange(
-                    toggle(
-                      value,
-                      selectedLabel.targetLabel,
-                      (label) => label.label
-                    )
-                  );
-                }
-                onBlur();
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onToggle={() => {
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onClear={() => {
-                onChange([]);
-              }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
+              selected={selections}
+              onSelect={onSourceSelect}
+              onOpenChange={(isOpen) => setSelectSourcesOpen(isOpen)}
+              toggle={toggle}
+              style={{ maxHeight: DEFAULT_SELECT_MAX_HEIGHT, overflow: "auto" }}
             >
-              {availableSourceLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
+              <SelectList>
+                {filteredSourceLabels.map(({ value }, index) => (
+                  <SelectOption
+                    key={index}
+                    value={value}
+                    isSelected={selections.includes(value)}
+                  >
+                    {value}
+                  </SelectOption>
+                ))}
+              </SelectList>
             </Select>
           );
         }}

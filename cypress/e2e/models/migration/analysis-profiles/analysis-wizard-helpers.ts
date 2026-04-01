@@ -33,7 +33,6 @@ import { RulesRepositoryFields } from "../../../types/types";
 import {
   addPackageToExclude,
   addPackageToInclude,
-  checkboxInput,
   languageListbox,
   menuListItem,
   ossCheckbox,
@@ -79,22 +78,14 @@ export class AnalysisWizardHelpers {
     cy.wait(2 * SEC);
     if (removePreSelected) {
       cy.get(languageSelectionDropdown).click();
-      cy.get(languageListbox)
-        .contains("Java")
-        .closest(menuListItem)
-        .find(checkboxInput)
-        .check();
+      cy.get(languageListbox).contains("Java").closest(menuListItem).click();
       cy.get(languageSelectionDropdown).click();
       clickWithinByText(wizardMainBody, "button", clearAllFilters);
     }
 
     cy.get(languageSelectionDropdown).click();
 
-    cy.get(languageListbox)
-      .contains(language)
-      .closest(menuListItem)
-      .find(checkboxInput)
-      .check();
+    cy.get(languageListbox).contains(language).closest(menuListItem).click();
 
     cy.get(languageSelectionDropdown).click();
   }
@@ -128,7 +119,11 @@ export class AnalysisWizardHelpers {
       .then((checked) => {
         checked
           ? cy.log("Box is already checked")
-          : cy.get(enableTransactionAnalysis).check();
+          : cy
+              .get(enableTransactionAnalysis)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click();
       });
   }
 
@@ -141,7 +136,11 @@ export class AnalysisWizardHelpers {
       .then((checked) => {
         checked
           ? cy.log("Box is already checked")
-          : cy.get(enableEnhancedAnalysisDetails).check();
+          : cy
+              .get(enableEnhancedAnalysisDetails)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click();
       });
   }
 
@@ -153,7 +152,11 @@ export class AnalysisWizardHelpers {
       .invoke("is", ":checked")
       .then((checked) => {
         checked
-          ? cy.get(enableAutomatedTagging).uncheck()
+          ? cy
+              .get(enableAutomatedTagging)
+              .closest(".pf-v6-c-check, .pf-v6-c-switch")
+              .find("label")
+              .click()
           : cy.log("Box is already unchecked");
       });
   }
@@ -170,7 +173,7 @@ export class AnalysisWizardHelpers {
       const folder = customRule[i].split(".").pop();
       uploadFile(`${folder}/${customRule[i]}`);
       cy.wait(2000);
-      cy.get("span.pf-v5-c-progress__measure", { timeout: 150000 }).should(
+      cy.get("span.pf-v6-c-progress__measure", { timeout: 150000 }).should(
         "contain",
         "100%"
       );

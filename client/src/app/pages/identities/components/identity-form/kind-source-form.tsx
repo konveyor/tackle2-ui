@@ -163,7 +163,7 @@ export const KindSourceForm: React.FC<{
             label="Private Key Passphrase"
             type={isPasswordHidden ? "password" : "text"}
             formGroupProps={{
-              labelIcon: !isPasswordEncrypted ? (
+              labelHelp: !isPasswordEncrypted ? (
                 <KeyDisplayToggle
                   keyName="password"
                   isKeyHidden={isPasswordHidden}

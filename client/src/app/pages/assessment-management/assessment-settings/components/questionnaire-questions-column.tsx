@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Text } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";
 
@@ -12,5 +11,5 @@ export const QuestionnaireQuestionsColumn: React.FC<{
     },
     0
   );
-  return <Text>{totalQuestions}</Text>;
+  return <span>{totalQuestions}</span>;
 };

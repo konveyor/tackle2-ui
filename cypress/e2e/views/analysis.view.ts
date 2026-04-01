@@ -17,18 +17,18 @@ export const sourceDropdown = "#analysis-source-toggle";
 export const analysisColumn = "td[data-label='Analysis']";
 export const effortColumn = "td[data-label='Effort']";
 export const manageCredentials = "Manage credentials";
-export const sourceCredential = "#source-credentials-toggle-select-typeahead";
-export const mavenCredential = "#maven-settings-toggle-select-typeahead";
+export const sourceCredential = "button[aria-label='Source credentials']";
+export const mavenCredential = "button[aria-label='Maven settings']";
 export const nextButton = "button[type=submit]";
-export const addRules =
-  "div > footer[class='pf-v5-c-modal-box__footer'] > button";
+export const addRules = "div > footer.pf-v6-c-modal-box__footer > button";
 export const fileName = "div[class='fileName']";
 export const reportStoryPoints =
   "div[class='effortPoints total'] > span[class='points']";
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
-export const analysisProfileSelect = "#analysis-profile-select-toggle";
+export const analysisProfileSelect =
+  "button[aria-label='Analysis profile selection dropdown toggle']";
 export const saveAsProfileCheckbox = "#save-as-profile-checkbox";
 export const analysisProfileNameInput = "#analysis-profile-name";
 export const excludePackagesSwitch = "#excludedPackages";
@@ -46,14 +46,15 @@ export const enableAutomatedTagging = "input[name=autoTaggingEnabled]";
 export const kebabTopMenuButton = "#toolbar-kebab";
 export const camelToggleButton = "#Camel-toggle";
 export const openjdkToggleButton = "#OpenJDK-toggle";
-export const dropDownMenu = "ul.pf-v5-c-menu__list";
-export const closeWizard = ".pf-v5-c-wizard__close > .pf-v5-c-button";
-export const codeEditorControls = "div.pf-v5-c-code-editor__controls";
-export const menuToggle = "button.pf-v5-c-menu-toggle";
-export const menuList = "div.pf-v5-c-menu";
-export const languageSelectionDropdown = "#filter-control-provider-Languages";
+export const dropDownMenu = "ul.pf-v6-c-menu__list";
+export const closeWizard = ".pf-v6-c-wizard__close > .pf-v6-c-button";
+export const codeEditorControls = "div.pf-v6-c-code-editor__controls";
+export const menuToggle = "button.pf-v6-c-menu-toggle";
+export const menuList = "div.pf-v6-c-menu";
+export const languageSelectionDropdown =
+  "#filter-control-provider-Languages button.pf-v6-c-menu-toggle";
 export const numberOfRulesColumn = "td[data-label='Number of rules']";
-export const logFilter = "span.pf-v5-c-menu-toggle__toggle-icon";
+export const logFilter = "span.pf-v6-c-menu-toggle__toggle-icon";
 export const analysisProfileMode = "#wizard-mode-profile";
 
 export enum AnalysisLogView {

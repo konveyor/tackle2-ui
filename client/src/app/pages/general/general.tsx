@@ -4,12 +4,11 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   Form,
+  FormGroup,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -29,10 +28,8 @@ export const General: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.generalConfig")}</Text>
-        </TextContent>
+      <PageSection variant="default">
+        <Content component="h1">{t("terms.generalConfig")}</Content>
       </PageSection>
       <PageSection>
         <Card>
@@ -45,17 +42,19 @@ export const General: React.FC = () => {
               />
             )}
             <Form className={spacing.mMd}>
-              <Switch
-                id="enable-download-report"
-                label={t("terms.reportDownloadSetting")}
-                aria-label="Allow reports to be downloaded"
-                isChecked={
-                  enableDownloadSetting.isSuccess
-                    ? enableDownloadSetting.data
-                    : false
-                }
-                onChange={onChangeEnableDownloadSetting}
-              />
+              <FormGroup fieldId="enable-download-report">
+                <Switch
+                  id="enable-download-report"
+                  label={t("terms.reportDownloadSetting")}
+                  aria-label="Allow reports to be downloaded"
+                  isChecked={
+                    enableDownloadSetting.isSuccess
+                      ? enableDownloadSetting.data
+                      : false
+                  }
+                  onChange={onChangeEnableDownloadSetting}
+                />
+              </FormGroup>
             </Form>
           </CardBody>
         </Card>

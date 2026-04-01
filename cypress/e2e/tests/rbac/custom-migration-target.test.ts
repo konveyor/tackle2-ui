@@ -95,7 +95,7 @@ describe(
       cy.intercept("POST", "/hub/targets*").as("postRule");
       target.create();
       cy.wait("@postRule");
-      cy.get(".pf-v5-c-card__body", { timeout: 12 * SEC })
+      cy.get(".pf-v6-c-card__body", { timeout: 12 * SEC })
         .should("contain", target.name)
         .then((_) => {
           assertTargetIsVisible(analysis, target);
@@ -140,7 +140,7 @@ describe(
       cy.contains("button", "Next", { timeout: 200 }).click();
 
       // Ensures that the latest custom migration target created is the last one in the list
-      cy.get("form .pf-v5-c-card__body", { timeout: 12 * SEC })
+      cy.get("form .pf-v6-c-card__body", { timeout: 12 * SEC })
         .last()
         .should("contain", existingTarget.name)
         .and("contain", "Custom");

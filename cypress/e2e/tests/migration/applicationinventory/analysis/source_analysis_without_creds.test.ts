@@ -61,7 +61,7 @@ const selectItemsPerPageInReport = (items: number) => {
       if ($toggleBtn.eq(0).is(":disabled")) {
         return;
       }
-      $toggleBtn.eq(0).trigger("click");
+      cy.wrap($toggleBtn.eq(0)).click();
       cy.get(`li > button`, { log: false }).contains(`${items}`).click({
         force: true,
         log: false,
@@ -236,7 +236,7 @@ describe(
     it("Validate Technologies Tab", function () {
       cy.contains("a", staticReportAppName).click();
       cy.contains("button > span", technologies).click();
-      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+      validateTextPresence("div.pf-v6-c-label-group", reportData.technology);
     });
 
     it("Validate Issues Menu", function () {

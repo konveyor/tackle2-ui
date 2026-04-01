@@ -33,9 +33,8 @@ export const KebabDropdown: React.FC<IKebabDropdownProps> = ({
           variant="plain"
           aria-label={ariaLabel || "Table toolbar actions kebab toggle"}
           isDisabled={!dropdownItems || dropdownItems.length === 0}
-        >
-          <EllipsisVIcon aria-hidden="true" />
-        </MenuToggle>
+          icon={<EllipsisVIcon aria-hidden="true" />}
+        />
       )}
     >
       <DropdownList>{dropdownItems}</DropdownList>

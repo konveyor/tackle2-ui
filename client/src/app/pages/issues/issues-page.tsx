@@ -3,13 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import {
   ButtonVariant,
+  Content,
+  ContentVariants,
   PageSection,
-  PageSectionVariants,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -56,13 +55,13 @@ export const Issues: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
-        <TextContent>
+      <PageSection variant="default" className={spacing.pb_0}>
+        <Content>
           <Title headingLevel="h1">{t("terms.issues")}</Title>
-          <Text component="small">
+          <Content component={ContentVariants.small}>
             This report provides a concise summary of all issues identified.
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
         <Tabs
           className={spacing.mtSm}
           activeKey={activeTabPath}

@@ -1,13 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import {
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Spinner,
-} from "@patternfly/react-core";
+import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
 
@@ -123,13 +117,13 @@ export const SchemaAsCodeEditor = ({
       showEditor={!!currentCode}
       emptyState={
         <div className="simple-task-viewer-empty-state">
-          <EmptyState variant={EmptyStateVariant.sm} isFullHeight>
-            <EmptyStateHeader
-              titleText={t("message.loadingDocumentTitle")}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
+          <EmptyState
+            variant={EmptyStateVariant.sm}
+            isFullHeight
+            titleText={t("message.loadingDocumentTitle")}
+            icon={Spinner}
+            headingLevel="h4"
+          />
         </div>
       }
     />

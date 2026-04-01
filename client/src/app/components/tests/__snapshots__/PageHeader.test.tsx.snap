@@ -6,24 +6,24 @@ exports[`PageHeader Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-l-stack pf-m-gutter"
+        class="pf-v6-l-stack pf-m-gutter"
       >
         <div
-          class="pf-v5-l-stack__item"
+          class="pf-v6-l-stack__item"
         >
           <nav
             aria-label="Breadcrumb"
-            class="pf-v5-c-breadcrumb"
+            class="pf-v6-c-breadcrumb"
             data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
-            data-ouia-component-type="PF5/Breadcrumb"
+            data-ouia-component-type="PF6/Breadcrumb"
             data-ouia-safe="true"
           >
             <ol
-              class="pf-v5-c-breadcrumb__list"
+              class="pf-v6-c-breadcrumb__list"
               role="list"
             >
               <li
-                class="pf-v5-c-breadcrumb__item"
+                class="pf-v6-c-breadcrumb__item"
               >
                 <a
                   class="pf-v5-c-breadcrumb__link"
@@ -33,10 +33,10 @@ exports[`PageHeader Renders without crashing 1`] = `
                 </a>
               </li>
               <li
-                class="pf-v5-c-breadcrumb__item"
+                class="pf-v6-c-breadcrumb__item"
               >
                 <span
-                  class="pf-v5-c-breadcrumb__item-divider"
+                  class="pf-v6-c-breadcrumb__item-divider"
                 >
                   <test-file-stub />
                 </span>
@@ -46,52 +46,53 @@ exports[`PageHeader Renders without crashing 1`] = `
           </nav>
         </div>
         <div
-          class="pf-v5-l-stack__item"
+          class="pf-v6-l-stack__item"
         >
           <div
-            class="pf-v5-l-split"
+            class="pf-v6-l-split"
           >
             <div
-              class="pf-v5-l-split__item pf-m-fill"
+              class="pf-v6-l-split__item pf-m-fill"
             >
               <div
-                class="pf-v5-c-content"
+                class="pf-v6-c-content"
+                data-ouia-component-id="OUIA-Generated-Content-2"
+                data-ouia-component-type="PF6/Content"
+                data-ouia-safe="true"
+                data-pf-content="true"
               >
-                <h1
-                  class=""
-                  data-ouia-component-id="OUIA-Generated-Text-2"
-                  data-ouia-component-type="PF5/Text"
-                  data-ouia-safe="true"
-                  data-pf-content="true"
-                >
+                <h1>
                   mycompany
                 </h1>
               </div>
             </div>
             <div
-              class="pf-v5-l-split__item"
+              class="pf-v6-l-split__item"
             >
               <button
-                aria-disabled="false"
-                class="pf-v5-c-button pf-m-primary"
+                class="pf-v6-c-button pf-m-primary"
                 data-ouia-component-id="OUIA-Generated-Button-primary-2"
-                data-ouia-component-type="PF5/Button"
+                data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 type="button"
               >
-                send email
+                <span
+                  class="pf-v6-c-button__text"
+                >
+                  send email
+                </span>
               </button>
             </div>
           </div>
         </div>
         <div
-          class="pf-v5-l-stack__item"
+          class="pf-v6-l-stack__item"
         >
           <div
-            class="pf-v5-c-tabs"
+            class="pf-v6-c-tabs"
           >
             <ul
-              class="pf-v5-c-tabs__list"
+              class="pf-v6-c-tabs__list"
             >
               <a
                 class="pf-v5-c-tabs__item"
@@ -155,24 +156,24 @@ exports[`PageHeader Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-l-stack pf-m-gutter"
+      class="pf-v6-l-stack pf-m-gutter"
     >
       <div
-        class="pf-v5-l-stack__item"
+        class="pf-v6-l-stack__item"
       >
         <nav
           aria-label="Breadcrumb"
-          class="pf-v5-c-breadcrumb"
+          class="pf-v6-c-breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
-          data-ouia-component-type="PF5/Breadcrumb"
+          data-ouia-component-type="PF6/Breadcrumb"
           data-ouia-safe="true"
         >
           <ol
-            class="pf-v5-c-breadcrumb__list"
+            class="pf-v6-c-breadcrumb__list"
             role="list"
           >
             <li
-              class="pf-v5-c-breadcrumb__item"
+              class="pf-v6-c-breadcrumb__item"
             >
               <a
                 class="pf-v5-c-breadcrumb__link"
@@ -182,10 +183,10 @@ exports[`PageHeader Renders without crashing 1`] = `
               </a>
             </li>
             <li
-              class="pf-v5-c-breadcrumb__item"
+              class="pf-v6-c-breadcrumb__item"
             >
               <span
-                class="pf-v5-c-breadcrumb__item-divider"
+                class="pf-v6-c-breadcrumb__item-divider"
               >
                 <test-file-stub />
               </span>
@@ -195,52 +196,53 @@ exports[`PageHeader Renders without crashing 1`] = `
         </nav>
       </div>
       <div
-        class="pf-v5-l-stack__item"
+        class="pf-v6-l-stack__item"
       >
         <div
-          class="pf-v5-l-split"
+          class="pf-v6-l-split"
         >
           <div
-            class="pf-v5-l-split__item pf-m-fill"
+            class="pf-v6-l-split__item pf-m-fill"
           >
             <div
-              class="pf-v5-c-content"
+              class="pf-v6-c-content"
+              data-ouia-component-id="OUIA-Generated-Content-2"
+              data-ouia-component-type="PF6/Content"
+              data-ouia-safe="true"
+              data-pf-content="true"
             >
-              <h1
-                class=""
-                data-ouia-component-id="OUIA-Generated-Text-2"
-                data-ouia-component-type="PF5/Text"
-                data-ouia-safe="true"
-                data-pf-content="true"
-              >
+              <h1>
                 mycompany
               </h1>
             </div>
           </div>
           <div
-            class="pf-v5-l-split__item"
+            class="pf-v6-l-split__item"
           >
             <button
-              aria-disabled="false"
-              class="pf-v5-c-button pf-m-primary"
+              class="pf-v6-c-button pf-m-primary"
               data-ouia-component-id="OUIA-Generated-Button-primary-2"
-              data-ouia-component-type="PF5/Button"
+              data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               type="button"
             >
-              send email
+              <span
+                class="pf-v6-c-button__text"
+              >
+                send email
+              </span>
             </button>
           </div>
         </div>
       </div>
       <div
-        class="pf-v5-l-stack__item"
+        class="pf-v6-l-stack__item"
       >
         <div
-          class="pf-v5-c-tabs"
+          class="pf-v6-c-tabs"
         >
           <ul
-            class="pf-v5-c-tabs__list"
+            class="pf-v6-c-tabs__list"
           >
             <a
               class="pf-v5-c-tabs__item"

@@ -118,7 +118,7 @@ export class CustomMigrationTarget {
   }
 
   public static uploadImage(imagePath: string) {
-    cy.get("div[class='pf-v5-c-file-upload__file-details']")
+    cy.get("div.pf-v6-c-file-upload__file-details")
       .next('input[type="file"]', { timeout: 2 * SEC })
       .selectFile(`fixtures/${imagePath}`, {
         timeout: 120 * SEC,
@@ -162,27 +162,17 @@ export class CustomMigrationTarget {
 
   public static selectLanguage(language: Languages) {
     CustomMigrationTarget.open();
-    cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-    /**
-     * There may be a pre-selected filter so
-     * the only deterministic way to eliminate pre-selected filters is to make sure there is one
-     */
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-      .contains(Languages.Java)
-      .closest(".pf-v5-c-menu__list-item")
-      .find("input[type=checkbox]")
-      .check();
-    cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-    clickByText("button", clearAllFilters);
 
+    // Clear any pre-existing filters first
+    cy.get("body").then(($body) => {
+      if ($body.find(`button:contains("${clearAllFilters}")`).length > 0) {
+        clickByText("button", clearAllFilters);
+      }
+    });
+
+    // Open the language filter dropdown and select the desired language
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
-
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
-      .contains(language)
-      .closest(".pf-v5-c-menu__list-item")
-      .find("input[type=checkbox]")
-      .check();
-
+    cy.get(".pf-v6-c-menu__list-item").contains(language).click();
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
   }
 
@@ -237,7 +227,7 @@ export class CustomMigrationTarget {
       .within(() => {
         cy.get(CustomMigrationTargetView.actionsButton).then(($btn) => {
           if ($btn.attr("aria-expanded") === "false") {
-            $btn.trigger("click");
+            cy.wrap($btn).click();
           }
         });
       });
@@ -245,7 +235,7 @@ export class CustomMigrationTarget {
 
   validateSourceTechnology(sources: string[]): void {
     sources.forEach((source) => {
-      cy.get("span.pf-v5-c-label__text").should("contain.text", source);
+      cy.get("span.pf-v6-c-label__text").should("contain.text", source);
     });
   }
 }

@@ -1,12 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Bullseye,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-} from "@patternfly/react-core";
+import { Bullseye, EmptyState, EmptyStateBody } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -28,12 +22,11 @@ export const TabTargetProfiles: React.FC<TabTargetProfilesProps> = ({
   if (profiles.length === 0) {
     return (
       <Bullseye>
-        <EmptyState>
-          <EmptyStateHeader
-            headingLevel="h4"
-            titleText={t("message.noTargetProfilesTitle")}
-            icon={<EmptyStateIcon icon={CubesIcon} />}
-          />
+        <EmptyState
+          headingLevel="h4"
+          titleText={t("message.noTargetProfilesTitle")}
+          icon={CubesIcon}
+        >
           <EmptyStateBody>
             {t("message.noTargetProfilesDescription")}
           </EmptyStateBody>

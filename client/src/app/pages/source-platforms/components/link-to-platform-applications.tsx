@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Text } from "@patternfly/react-core";
 
 import { Paths } from "@app/Paths";
 import type { SourcePlatform } from "@app/api/models";
@@ -33,7 +32,7 @@ const LinkToPlatformApplications: React.FC<{
   return !hasApplications && noApplicationsMessage ? (
     <>{noApplicationsMessage}</>
   ) : !hasApplications && !noApplicationsMessage ? (
-    <Text>{t("message.platformNoApplications")}</Text>
+    <span>{t("message.platformNoApplications")}</span>
   ) : (
     <Link to={getApplicationsUrl(platform?.name)}>
       {t("message.platformApplicationCount", {

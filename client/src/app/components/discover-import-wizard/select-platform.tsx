@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Form, Text, TextContent } from "@patternfly/react-core";
+import { Content, Form, FormGroup } from "@patternfly/react-core";
 
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { SourcePlatform } from "@app/api/models";
@@ -31,39 +31,44 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v6-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("platformDiscoverWizard.platformSelect.title")}
-        </Text>
-        <Text component="p">
+        </Content>
+        <Content component="p">
           {t("platformDiscoverWizard.platformSelect.description")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Form id="platform-select-form">
-        <SimpleSelect
-          maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-          placeholderText={
-            isLoading
-              ? t("message.loadingTripleDot")
-              : t("composed.selectOne", {
-                  what: t("terms.platform").toLowerCase(),
-                })
-          }
-          loadingVariant={isLoading ? "spinner" : undefined}
-          variant="typeahead"
-          toggleId="platform-select-toggle"
-          id="platform-select"
-          toggleAriaLabel="Platform select dropdown toggle"
-          aria-label="platform-select"
-          value={platform ? toOptionLike(platform, platformOptions) : undefined}
-          options={platformOptions}
-          onChange={(selection) => {
-            const selectionValue = selection as OptionWithValue<SourcePlatform>;
-            onPlatformSelected(selectionValue.value);
-          }}
-          onClear={() => onPlatformSelected(null)}
-        />
+        <FormGroup fieldId="platform-select">
+          <SimpleSelect
+            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+            placeholderText={
+              isLoading
+                ? t("message.loadingTripleDot")
+                : t("composed.selectOne", {
+                    what: t("terms.platform").toLowerCase(),
+                  })
+            }
+            loadingVariant={isLoading ? "spinner" : undefined}
+            variant="typeahead"
+            toggleId="platform-select-toggle"
+            id="platform-select"
+            toggleAriaLabel="Platform select dropdown toggle"
+            aria-label="platform-select"
+            value={
+              platform ? toOptionLike(platform, platformOptions) : undefined
+            }
+            options={platformOptions}
+            onChange={(selection) => {
+              const selectionValue =
+                selection as OptionWithValue<SourcePlatform>;
+              onPlatformSelected(selectionValue.value);
+            }}
+            onClear={() => onPlatformSelected(null)}
+          />
+        </FormGroup>
       </Form>
     </div>
   );

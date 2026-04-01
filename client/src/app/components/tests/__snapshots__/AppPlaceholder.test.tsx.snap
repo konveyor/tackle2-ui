@@ -6,22 +6,22 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-l-bullseye"
+        class="pf-v6-l-bullseye"
       >
         <div
-          class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
+          class="pf-v6-u-display-flex pf-v6-u-flex-direction-column"
           tabindex="0"
         >
           <div>
             <svg
               aria-label="Contents"
               aria-valuetext="Loading..."
-              class="pf-v5-c-spinner pf-m-xl"
+              class="pf-v6-c-spinner pf-m-xl"
               role="progressbar"
               viewBox="0 0 100 100"
             >
               <circle
-                class="pf-v5-c-spinner__path"
+                class="pf-v6-c-spinner__path"
                 cx="50"
                 cy="50"
                 fill="none"
@@ -30,7 +30,7 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
             </svg>
           </div>
           <div
-            class="pf-v5-c-content"
+            class="pf-v6-c-content"
           >
             <h3>
               Loading...
@@ -42,22 +42,22 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-l-bullseye"
+      class="pf-v6-l-bullseye"
     >
       <div
-        class="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
+        class="pf-v6-u-display-flex pf-v6-u-flex-direction-column"
         tabindex="0"
       >
         <div>
           <svg
             aria-label="Contents"
             aria-valuetext="Loading..."
-            class="pf-v5-c-spinner pf-m-xl"
+            class="pf-v6-c-spinner pf-m-xl"
             role="progressbar"
             viewBox="0 0 100 100"
           >
             <circle
-              class="pf-v5-c-spinner__path"
+              class="pf-v6-c-spinner__path"
               cx="50"
               cy="50"
               fill="none"
@@ -66,7 +66,7 @@ exports[`AppPlaceholder Renders without crashing 1`] = `
           </svg>
         </div>
         <div
-          class="pf-v5-c-content"
+          class="pf-v6-c-content"
         >
           <h3>
             Loading...

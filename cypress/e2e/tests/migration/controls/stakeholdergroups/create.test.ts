@@ -59,7 +59,7 @@ describe(["@tier2", "@tier2_B"], "Stakeholder groups validations", () => {
     // Description constraints
     inputText(stakeholdergroupDescriptionInput, data.getRandomWords(120));
     cy.get(commonView.stakeHolderGroupHelper).should("contain", max250CharsMsg);
-    cy.get(commonView.cancelButton).trigger("click");
+    cy.get(commonView.cancelButton).click();
   });
 
   it("Stakholder group button validations", function () {
