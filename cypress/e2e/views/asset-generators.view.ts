@@ -18,7 +18,7 @@ export const generatorsMenu = "Generators";
 export enum GeneratorView {
   nameInput = "input[id='name']",
   descriptionInput = "input[id='description']",
-  generatorTypeSelect = "input[id='generator-type-toggle-select-typeahead']",
+  generatorTypeSelect = "[data-ouia-component-id='generator-type-toggle'] [data-ouia-component-type='PF5/TextInput']",
   templateRepositoryToggle = "div[id='template-repository-header']",
   repositoryTypeButton = '[data-ouia-component-id="repo-type-toggle"]',
   repositoryUrlInput = "input[id='repository.url']",

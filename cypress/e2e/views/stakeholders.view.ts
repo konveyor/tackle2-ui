@@ -15,7 +15,8 @@ limitations under the License.
 */
 export const stakeholderEmailInput = "input[name=email]";
 export const stakeholderNameInput = "input[name=name]";
-export const jobfunctionInput = "#job-function-toggle-select-typeahead";
+export const jobfunctionInput =
+  "[data-ouia-component-id='job-function-toggle'] [data-ouia-component-type='PF5/TextInput']";
 export const groupInput =
   "#stakeholder-groups-toggle-select-multi-typeahead-typeahead";
 export const groupsCount = "td[data-label='Group count']";

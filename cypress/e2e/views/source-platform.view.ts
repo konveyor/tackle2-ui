@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 export const name = "#name";
-export const type = "#platform-kind-toggle-select-typeahead";
+export const type =
+  "[data-ouia-component-id='platform-kind-toggle'] [data-ouia-component-type='PF5/TextInput']";
 export const url = "#url";
-export const credentials = "#credentials-toggle-select-typeahead";
+export const credentials =
+  "[data-ouia-component-id='credentials-toggle'] [data-ouia-component-type='PF5/TextInput']";

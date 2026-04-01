@@ -18,7 +18,7 @@ export enum CustomMigrationTargetView {
   branch = "#branch",
   rootPath = "#rootPath",
   credentialsDropdown = '[data-ouia-component-id="associated-credentials-select-toggle"] [data-ouia-component-type="PF5/TextInput"]',
-  credentialsInput = "#associated-credentials-select-toggle-select-typeahead",
+  credentialsInput = "[data-ouia-component-id='associated-credentials-select-toggle'] [data-ouia-component-type='PF5/TextInput']",
   retrieveFromARepositoryRadio = "#repository",
   dragButton = 'button[id*="drag-button"]',
   card = ".pf-v5-c-card",
