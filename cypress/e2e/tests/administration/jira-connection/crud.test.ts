@@ -26,7 +26,7 @@ import { CredentialType, JiraType } from "../../../types/constants";
 import { JiraConnectionData } from "../../../types/types";
 
 describe(
-  ["@tier2", "@secretsNeeded"],
+  ["@tier2", "@tier2_secretsNeeded"],
   "CRUD operations for Jira Cloud instance",
   () => {
     const toBeCanceled = true;

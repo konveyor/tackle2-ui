@@ -16,7 +16,11 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import * as data from "../../../../utils/data_utils";
-import { createMultipleApplications, login } from "../../../../utils/utils";
+import {
+  createMultipleApplications,
+  deleteApplicationTableRows,
+  login,
+} from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import {
@@ -51,7 +55,7 @@ let migrationWave: MigrationWave;
 let projectName = "";
 
 describe(
-  ["@tier3", "@secretsNeeded"],
+  ["@tier3", "@tier3_secretsNeeded"],
   "Unlink application from exported migration waves",
   function () {
     before("Create test data", function () {
@@ -71,6 +75,7 @@ describe(
       }
       login();
       cy.visit("/");
+      deleteApplicationTableRows();
       jiraCloudCredentials = new JiraCredentials(
         data.getJiraCredentialData(CredentialType.jiraBasic, true)
       );
@@ -135,11 +140,11 @@ describe(
       });
     });
 
-    afterEach("Clear state", function () {
-      Application.open(true);
-    });
-
     after("Clear test data", function () {
+      // Ensure we're in a clean state for navigation during cleanup
+      login();
+      cy.visit("/", { timeout: 60 * SEC });
+
       jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
         jiraCloudInstance.deleteIssues(issues.map((issue) => issue.id));
       });

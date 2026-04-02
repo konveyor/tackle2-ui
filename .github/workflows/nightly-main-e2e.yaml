@@ -10,24 +10,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  nightly-auth:
-    name: "Nightly auth - all tiers"
+  nightly-e2e:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        test_tags:
+          - "@tier2_secretsNeeded,@tier3_secretsNeeded"
+          - "@tier2_taskManager"
+          - "@ci,@tier0,@tier2_A,@tier2_B"
+          - "@tier3_A,@tier3_B,@tier3_C"
+          - "@tier3_D,@tier3_E,@tier3_F"
+        auth_required:
+          - true
+          - false
+    name: "Nightly e2e - all tiers"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:
-      test_tags: "@ci,@tier0,@tier2,@tier3"
-      feature_auth_required: true
-      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      ui_image: quay.io/konveyor/tackle2-ui:latest
-      install_konveyor_version: main
-      test_ref: main
-    secrets: inherit
-
-  nightly-noauth:
-    name: "Nightly noauth - all tiers"
-    uses: ./.github/workflows/e2e-run-ui-tests.yaml
-    with:
-      test_tags: "@ci,@tier0,@tier2,@tier3"
-      feature_auth_required: false
+      test_tags: ${{ matrix.test_tags }}
+      feature_auth_required: ${{ matrix.auth_required }}
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
       ui_image: quay.io/konveyor/tackle2-ui:latest
       install_konveyor_version: main
