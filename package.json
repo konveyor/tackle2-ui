@@ -38,7 +38,7 @@
     "cypress"
   ],
   "engines": {
-    "node": ">=20.12.2",
+    "node": ">=22.22.0",
     "npm": "^9.5.0 || ^10.5.2 || >=11"
   },
   "devDependencies": {
@@ -50,7 +50,7 @@
     "@rollup/plugin-virtual": "^3.0.2",
     "@tanstack/eslint-plugin-query": "^5.91.4",
     "@types/ejs": "^3.1.5",
-    "@types/node": "^20.12.2",
+    "@types/node": "^22.19.15",
     "concurrently": "^9.2.1",
     "copyfiles": "^2.4.1",
     "eslint": "^9.39.2",
