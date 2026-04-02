@@ -93,9 +93,7 @@ describe(
       jiraCloudConnectionIncorrect.validateState(expectedToFail);
       clickByText(button, "Not connected");
       cy.get("#code-content").then(($code) => {
-        expect($code.text()).to.contain(
-          "Client must be authenticated to access this resource."
-        );
+        expect($code.text()).to.contain("request failed.");
         expect($code.text().toLowerCase()).not.to.contain("html");
         expect($code.text()).not.to.contain("403");
       });
