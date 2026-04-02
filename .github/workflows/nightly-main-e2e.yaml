@@ -57,6 +57,7 @@ jobs:
             echo "color=warning" >> $GITHUB_OUTPUT
             echo "emoji=:warning:" >> $GITHUB_OUTPUT
           fi
+          echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
 
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v2
@@ -88,7 +89,7 @@ jobs:
                   ],
                   "footer": "tackle2-ui",
                   "footer_icon": "https://github.com/konveyor.png",
-                  "ts": ${{ github.event.repository.updated_at }}
+                  "ts": ${{ steps.status.outputs.timestamp }}
                 }
               ]
             }
