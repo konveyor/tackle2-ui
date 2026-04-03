@@ -93,35 +93,51 @@ describe("Component: proxy-form", () => {
     });
   });
 
-  it("Rejects HTTP proxy host with http:// prefix", async () => {
+  it.each([
+    "http://proxy.example.com",
+    "https://proxy.example.com",
+    "proxy.example.com/path",
+    "proxy:8080",
+    "bad host",
+  ])("Rejects invalid HTTP proxy host: %s", async (invalidHost) => {
     render(<Proxies />);
     const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
     fireEvent.click(httpProxySwitch);
 
     const hostInput = await screen.findByLabelText("HTTP proxy host *");
     fireEvent.change(hostInput, {
-      target: { value: "http://proxy.example.com" },
+      target: { value: invalidHost },
     });
     fireEvent.blur(hostInput);
 
     await waitFor(() => {
-      expect(screen.getByText("validation.noSchemeInHost")).toBeInTheDocument();
+      expect(
+        screen.getByText("validation.invalidHostname")
+      ).toBeInTheDocument();
     });
   });
 
-  it("Rejects HTTPS proxy host with https:// prefix", async () => {
+  it.each([
+    "http://proxy.example.com",
+    "https://proxy.example.com",
+    "proxy.example.com/path",
+    "proxy:8080",
+    "bad host",
+  ])("Rejects invalid HTTPS proxy host: %s", async (invalidHost) => {
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
     fireEvent.click(httpsProxySwitch);
 
     const hostInput = await screen.findByLabelText("HTTPS proxy host *");
     fireEvent.change(hostInput, {
-      target: { value: "https://proxy.example.com" },
+      target: { value: invalidHost },
     });
     fireEvent.blur(hostInput);
 
     await waitFor(() => {
-      expect(screen.getByText("validation.noSchemeInHost")).toBeInTheDocument();
+      expect(
+        screen.getByText("validation.invalidHostname")
+      ).toBeInTheDocument();
     });
   });
 

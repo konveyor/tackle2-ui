@@ -718,7 +718,7 @@
     "repositoryUrlRequired": "Repository URL is required.",
     "repositoryUrlRequiredWhen": "Repository URL is required when branch or path is specified.",
     "repositoryUrlInvalid": "Must be a valid repository URL.",
-    "noSchemeInHost": "The host must not include \"http://\" or \"https://\"."
+    "invalidHostname": "The value must be a valid hostname. Do not include schemes (http://), ports, or paths."
   },
   "wizard": {
     "sourceMode": {

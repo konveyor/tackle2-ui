@@ -19,9 +19,13 @@ export const useProxyFormValidationSchema =
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
                 .test(
-                  "no-http-prefix",
-                  t("validation.noSchemeInHost"),
-                  (value) => !value || !/^https?:\/\//i.test(value)
+                  "valid-hostname",
+                  t("validation.invalidHostname"),
+                  (value: string | undefined) =>
+                    !value ||
+                    /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(
+                      value
+                    )
                 )
             : schema
         ),
@@ -55,9 +59,13 @@ export const useProxyFormValidationSchema =
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
                 .test(
-                  "no-http-prefix",
-                  t("validation.noSchemeInHost"),
-                  (value) => !value || !/^https?:\/\//i.test(value)
+                  "valid-hostname",
+                  t("validation.invalidHostname"),
+                  (value: string | undefined) =>
+                    !value ||
+                    /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(
+                      value
+                    )
                 )
             : schema
         ),
