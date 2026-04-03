@@ -69,24 +69,7 @@ jobs:
               "attachments": [
                 {
                   "color": "${{ steps.status.outputs.color }}",
-                  "title": "${{ steps.status.outputs.emoji }} Nightly E2E Tests (@main) - ${{ steps.status.outputs.status }}",
-                  "fields": [
-                    {
-                      "title": "Status",
-                      "value": "${{ needs.nightly-e2e.result }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Branch",
-                      "value": "main",
-                      "short": true
-                    },
-                    {
-                      "title": "Workflow",
-                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
-                      "short": false
-                    }
-                  ],
+                  "text": "${{ steps.status.outputs.emoji }} *Nightly E2E Tests (@main)* - ${{ steps.status.outputs.status }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
                   "footer": "tackle2-ui",
                   "footer_icon": "https://github.com/konveyor.png",
                   "ts": ${{ steps.status.outputs.timestamp }}
