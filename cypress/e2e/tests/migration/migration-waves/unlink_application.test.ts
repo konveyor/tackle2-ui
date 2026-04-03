@@ -26,7 +26,10 @@ import {
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
-import { JiraIssueType } from "../../../models/administration/jira-connection/jira-api.interface";
+import {
+  JiraIssue,
+  JiraIssueType,
+} from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import {
@@ -141,6 +144,9 @@ describe(
     });
 
     after("Clear test data", function () {
+      jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
+        jiraCloudInstance.deleteIssues(issues.map((issue) => issue.id));
+      });
       deleteAllJiraConnections();
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
