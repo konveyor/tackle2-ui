@@ -253,24 +253,15 @@ export class Analysis extends Application {
   private startAnalysis() {
     cy.contains(button, analyzeButton).should("be.enabled").click();
 
-    // Binary and Upload Binary applications skip the mode selection page
-    const isBinaryAnalysis =
-      this.source === AnalysisMode.Binary ||
-      this.source === AnalysisMode.BinaryUpload;
-
     if (this.profileName) {
-      if (!isBinaryAnalysis) {
-        this.selectAnalysisMode("profile", this.profileName);
-      }
+      this.selectAnalysisMode("profile", this.profileName);
       AnalysisWizardHelpers.enableEnhancedAnalysisDetails();
       next();
       clickByText(button, "Run");
     } else {
       // Manual mode: Configure all analysis settings
-      if (!isBinaryAnalysis) {
-        this.selectAnalysisMode("manual");
-        next();
-      }
+      this.selectAnalysisMode("manual");
+      next();
 
       AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
       if (this.binary) this.uploadBinary();
@@ -539,17 +530,8 @@ export class Analysis extends Application {
     Application.open();
     this.selectApplication();
     cy.contains(button, analyzeButton).should("be.enabled").click();
-
-    // Binary and Upload Binary applications skip the mode selection page
-    const isBinaryAnalysis =
-      this.source === AnalysisMode.Binary ||
-      this.source === AnalysisMode.BinaryUpload;
-
-    if (!isBinaryAnalysis) {
-      this.selectAnalysisMode();
-      next();
-    }
-
+    this.selectAnalysisMode();
+    next();
     AnalysisWizardHelpers.selectSourceofAnalysis(this.source);
     next();
     next();
