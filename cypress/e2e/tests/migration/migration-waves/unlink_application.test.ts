@@ -18,6 +18,9 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   createMultipleApplications,
+  deleteAllCredentials,
+  deleteAllJiraConnections,
+  deleteAllMigrationWaves,
   deleteApplicationTableRows,
   login,
 } from "../../../../utils/utils";
@@ -141,17 +144,13 @@ describe(
     });
 
     after("Clear test data", function () {
-      // Ensure we're in a clean state for navigation during cleanup
-      login();
-      cy.visit("/", { timeout: 60 * SEC });
-
       jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
         jiraCloudInstance.deleteIssues(issues.map((issue) => issue.id));
       });
-      migrationWave.delete();
-      applications.forEach((app) => app.delete());
-      jiraCloudInstance.delete();
-      jiraCloudCredentials.delete();
+      deleteAllJiraConnections();
+      deleteAllMigrationWaves();
+      deleteApplicationTableRows();
+      deleteAllCredentials();
     });
   }
 );
