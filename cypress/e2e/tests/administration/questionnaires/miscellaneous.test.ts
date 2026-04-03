@@ -9,6 +9,8 @@ import {
 } from "../../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import {
+  assess,
+  assessment,
   cloudNative,
   legacyPathfinder,
   sampleQuestionnaireTemplate,
@@ -29,6 +31,7 @@ describe(["@tier3", "@tier3_A"], "Miscellaneous Questionnaire tests", () => {
   it("Download YAML template", function () {
     // Polarion TC MTA-397
     AssessmentQuestionnaire.open();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
     click(downloadYamlTemplate);
     cy.readFile(filePath).then((fileContent) => {
       try {
