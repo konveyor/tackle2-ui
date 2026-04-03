@@ -93,6 +93,38 @@ describe("Component: proxy-form", () => {
     });
   });
 
+  it("Rejects HTTP proxy host with http:// prefix", async () => {
+    render(<Proxies />);
+    const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
+    fireEvent.click(httpProxySwitch);
+
+    const hostInput = await screen.findByLabelText("HTTP proxy host *");
+    fireEvent.change(hostInput, {
+      target: { value: "http://proxy.example.com" },
+    });
+    fireEvent.blur(hostInput);
+
+    await waitFor(() => {
+      expect(screen.getByText("validation.noSchemeInHost")).toBeInTheDocument();
+    });
+  });
+
+  it("Rejects HTTPS proxy host with https:// prefix", async () => {
+    render(<Proxies />);
+    const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
+    fireEvent.click(httpsProxySwitch);
+
+    const hostInput = await screen.findByLabelText("HTTPS proxy host *");
+    fireEvent.change(hostInput, {
+      target: { value: "https://proxy.example.com" },
+    });
+    fireEvent.blur(hostInput);
+
+    await waitFor(() => {
+      expect(screen.getByText("validation.noSchemeInHost")).toBeInTheDocument();
+    });
+  });
+
   it("Select https proxy identity", async () => {
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
