@@ -20,23 +20,6 @@ on:
         description: Git ref to checkout (defaults to the triggering ref)
         required: false
 
-###
-# The global CI settings need to be adjusted for the `release-*`` branches such that:
-#  1. The operator uses the correct `:release-*` images
-#  2. The `*-tests_ref` use the correct branches
-#
-# on:
-#   push:
-#     branches:
-#       - 'main'
-#       - 'release-*'
-#
-#   pull_request:
-#     branches:
-#       - 'main'
-#       - 'release-*'
-##
-
 concurrency:
   group: ci-global-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
@@ -91,6 +74,7 @@ jobs:
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
+      base_tag: release-0.9
       run_api_tests: false
       run_ui_tests: true
       ui_test_tags: ${{ matrix.test_tags }}
