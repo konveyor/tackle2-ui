@@ -92,6 +92,54 @@ describe("Component: proxy-form", () => {
     expect(sourceCred).toBeNull(); // it doesn't exist
   });
 
+  it.each([
+    "http://proxy.example.com",
+    "https://proxy.example.com",
+    "proxy.example.com/path",
+    "proxy:8080",
+    "bad host",
+  ])("Rejects invalid HTTP proxy host: %s", async (invalidHost) => {
+    render(<Proxies />);
+    const httpProxySwitch = await screen.findByLabelText("HTTP proxy");
+    fireEvent.click(httpProxySwitch);
+
+    const hostInput = await screen.findByLabelText("HTTP proxy host *");
+    fireEvent.change(hostInput, {
+      target: { value: invalidHost },
+    });
+    fireEvent.blur(hostInput);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("validation.invalidHostname")
+      ).toBeInTheDocument();
+    });
+  });
+
+  it.each([
+    "http://proxy.example.com",
+    "https://proxy.example.com",
+    "proxy.example.com/path",
+    "proxy:8080",
+    "bad host",
+  ])("Rejects invalid HTTPS proxy host: %s", async (invalidHost) => {
+    render(<Proxies />);
+    const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");
+    fireEvent.click(httpsProxySwitch);
+
+    const hostInput = await screen.findByLabelText("HTTPS proxy host *");
+    fireEvent.change(hostInput, {
+      target: { value: invalidHost },
+    });
+    fireEvent.blur(hostInput);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("validation.invalidHostname")
+      ).toBeInTheDocument();
+    });
+  });
+
   it("Select https proxy identity", async () => {
     render(<Proxies />);
     const httpsProxySwitch = await screen.findByLabelText("HTTPS proxy");

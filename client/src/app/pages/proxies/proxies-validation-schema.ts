@@ -18,6 +18,15 @@ export const useProxyFormValidationSchema =
                 .required(t("validation.required"))
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
+                .test(
+                  "valid-hostname",
+                  t("validation.invalidHostname"),
+                  (value: string | undefined) =>
+                    !value ||
+                    /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(
+                      value
+                    )
+                )
             : schema
         ),
       httpPort: yup
@@ -49,6 +58,15 @@ export const useProxyFormValidationSchema =
                 .required(t("validation.required"))
                 .min(3, t("validation.minLength", { length: 3 }))
                 .max(120, t("validation.maxLength", { length: 120 }))
+                .test(
+                  "valid-hostname",
+                  t("validation.invalidHostname"),
+                  (value: string | undefined) =>
+                    !value ||
+                    /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)*[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$/.test(
+                      value
+                    )
+                )
             : schema
         ),
       httpsPort: yup
