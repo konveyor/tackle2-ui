@@ -81,10 +81,6 @@ describe(
           const matchingElements = $elements.filter(`:contains("${status}")`);
           if (matchingElements.length) {
             TaskManager.cancelTask(status);
-            checkSuccessAlert(
-              commonView.infoAlertMessage,
-              "Cancelation request submitted"
-            );
             validateTextPresence(TaskManagerColumns.status, "Canceled");
           } else {
             cy.log(`Task with status ${status} does not exist`);

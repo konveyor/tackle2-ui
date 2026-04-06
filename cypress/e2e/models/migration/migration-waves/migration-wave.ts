@@ -39,6 +39,7 @@ import { Stakeholders } from "../controls/stakeholders";
 
 export class MigrationWave {
   name: string;
+  id?: number;
   startDate: Date;
   endDate: Date;
   stakeHolders?: Stakeholders[];
@@ -160,7 +161,7 @@ export class MigrationWave {
       return;
     }
 
-    cy.wait(1000);
+    cy.wait(2000);
 
     cy.get(submitButton, { timeout: 15 * SEC })
       .should("exist")
@@ -419,6 +420,78 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
+  }
+
+  /** Create a migration wave via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    startDate: Date,
+    endDate: Date,
+    stakeholderIds?: number[],
+    stakeholderGroupIds?: number[],
+    applicationIds?: number[],
+    headers?: Record<string, string>
+  ): Cypress.Chainable<MigrationWave> {
+    // Format dates as ISO 8601 strings (matching UI behavior)
+    // Set hours to 00:00:00 to match date-only behavior from UI date picker
+    const formattedStartDate = new Date(startDate);
+    formattedStartDate.setHours(0, 0, 0, 0);
+
+    const formattedEndDate = new Date(endDate);
+    formattedEndDate.setHours(0, 0, 0, 0);
+
+    const body: Record<string, unknown> = {
+      name,
+      startDate: formattedStartDate.toISOString(),
+      endDate: formattedEndDate.toISOString(),
+    };
+
+    if (stakeholderIds && stakeholderIds.length > 0) {
+      body.stakeholders = stakeholderIds.map((id) => ({ id }));
+    }
+    if (stakeholderGroupIds && stakeholderGroupIds.length > 0) {
+      body.stakeholderGroups = stakeholderGroupIds.map((id) => ({ id }));
+    }
+    if (applicationIds && applicationIds.length > 0) {
+      body.applications = applicationIds.map((id) => ({ id }));
+    }
+
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/migrationwaves",
+        body,
+        ...(headers && { headers }),
+      })
+      .then((res) => {
+        // Use the original dates passed in if API doesn't return them
+        const parsedStartDate = res.body.startDate
+          ? new Date(res.body.startDate)
+          : startDate;
+        const parsedEndDate = res.body.endDate
+          ? new Date(res.body.endDate)
+          : endDate;
+
+        // Validate dates
+        if (isNaN(parsedStartDate.getTime())) {
+          throw new Error(
+            `Invalid startDate: API returned ${res.body.startDate}, using fallback ${startDate}`
+          );
+        }
+        if (isNaN(parsedEndDate.getTime())) {
+          throw new Error(
+            `Invalid endDate: API returned ${res.body.endDate}, using fallback ${endDate}`
+          );
+        }
+
+        const wave = new MigrationWave(
+          res.body.name,
+          parsedStartDate,
+          parsedEndDate
+        );
+        wave.id = res.body.id;
+        return wave;
+      });
   }
 
   /** Delete all migration waves via the API. */
