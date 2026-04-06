@@ -22,7 +22,7 @@ export type CredentialsSourceControlPrivateKeyData = {
   type: string;
   name?: string;
   description?: string;
-  key?: any;
+  key?: string;
   passphrase?: string;
 };
 
@@ -38,7 +38,7 @@ export type CredentialsMavenData = {
   type: string;
   name?: string;
   description?: string;
-  settingFile?: any;
+  settingFile?: string | Record<string, unknown>;
   isDefault?: boolean;
 };
 
@@ -152,6 +152,7 @@ export type UserData = {
 
 export type RbacValidationRules = {
   "Create new"?: boolean;
+  "Analysis profile creation"?: boolean;
   Analyze?: boolean;
   "Upload binary"?: boolean;
   Import?: boolean;

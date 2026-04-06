@@ -272,7 +272,7 @@ export class BusinessServices {
   ): Cypress.Chainable<BusinessServices[]> {
     const timestamp = Date.now();
     const businessServices: BusinessServices[] = [];
-    let chain: Cypress.Chainable<any> = cy.wrap(null);
+    let chain: Cypress.Chainable<unknown> = cy.wrap(null);
 
     for (let i = 0; i < count; i++) {
       chain = chain.then(() =>

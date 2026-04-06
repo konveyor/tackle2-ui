@@ -88,5 +88,6 @@ describe(["@tier3", "@tier3_D"], "Reports Tab filter validations", function () {
     Application.open(true);
     deleteByList(applications);
     stakeholder.delete();
+    AssessmentQuestionnaire.deleteAllQuestionnaires();
   });
 });

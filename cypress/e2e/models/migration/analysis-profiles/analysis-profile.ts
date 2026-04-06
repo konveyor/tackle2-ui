@@ -33,7 +33,11 @@ import {
   button,
   migration,
 } from "../../../types/constants";
-import { RulesRepositoryFields, analysisData } from "../../../types/types";
+import {
+  RbacValidationRules,
+  RulesRepositoryFields,
+  analysisData,
+} from "../../../types/types";
 import {
   cancelButton,
   createProfileButton,
@@ -136,7 +140,7 @@ export class AnalysisProfile {
     });
   }
 
-  public static validateCreateButton(rbacRules: any): void {
+  public static validateCreateButton(rbacRules: RbacValidationRules): void {
     AnalysisProfile.open();
     doesExistSelector(
       createProfileButton,

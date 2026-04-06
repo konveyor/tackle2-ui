@@ -21,11 +21,9 @@ import {
   deleteAllCredentials,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
-  getAuthHeaders,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
-import { Credentials } from "../../../models/administration/credentials/credentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
 import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";

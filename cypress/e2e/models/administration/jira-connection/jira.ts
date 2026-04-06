@@ -210,6 +210,30 @@ export class Jira {
   }
 
   /**
+   * Deletes all Jira tracker instances via API
+   */
+  static deleteAllViaApi(headers?: Record<string, string>): void {
+    cy.request({
+      method: "GET",
+      url: "/hub/trackers",
+      ...(headers && { headers }),
+      failOnStatusCode: false,
+    }).then((res) => {
+      const body =
+        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const items = Array.isArray(body) ? body : [];
+      items.forEach((item: { id: number }) => {
+        cy.request({
+          method: "DELETE",
+          url: `/hub/trackers/${item.id}`,
+          ...(headers && { headers }),
+          failOnStatusCode: false,
+        });
+      });
+    });
+  }
+
+  /**
    * This method validates all fields values of Jira connection after creation
    */
   public validateState(expectedToFail = false): void {

@@ -99,6 +99,7 @@ describe(
       archetype.delete();
       application.delete();
       stakeholder.delete();
+      AssessmentQuestionnaire.deleteAllQuestionnaires();
     });
   }
 );
