@@ -16,7 +16,6 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-  checkSuccessAlert,
   deleteApplicationTableRows,
   deleteCustomResource,
   getNumberOfNonTaskPods,
@@ -29,7 +28,6 @@ import {
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../../models/migration/task-manager/task-manager";
 import { TaskStatus } from "../../../types/constants";
-import * as commonView from "../../../views/common.view";
 import { TaskManagerColumns } from "../../../views/taskmanager.view";
 
 describe(
