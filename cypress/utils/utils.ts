@@ -355,14 +355,32 @@ export function selectItemsPerPage(items: number): void {
   cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
     ($toggleBtn) => {
       if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
+        cy.wrap($toggleBtn.eq(0)).click();
+        cy.get(itemsPerPageMenuOptions, {
+          timeout: 60 * SEC,
+          log: false,
+        }).should("be.visible");
         cy.get(`li[data-action="per-page-${items}"]`, { log: false })
           .contains(`${items}`)
           .click({
             force: true,
             log: false,
           });
+        // Wait for pagination to reflect the new items-per-page setting
+        cy.get(".pf-v5-c-pagination__total-items", {
+          timeout: 60 * SEC,
+        }).should(($el) => {
+          const text = $el.text();
+          // Match "X - Y of Z" pattern (e.g., "1 - 100 of 197")
+          const match = text.match(/(\d+)\s*-\s*(\d+)\s*of\s*(\d+)/);
+          if (match) {
+            const displayedCount = parseInt(match[2], 10);
+            const total = parseInt(match[3], 10);
+            // The displayed count should equal the requested items, or total if total < items
+            const expectedCount = Math.min(items, total);
+            expect(displayedCount).to.equal(expectedCount);
+          }
+        });
       }
     }
   );
@@ -491,20 +509,14 @@ export function removeMember(memberName: string): void {
 }
 
 export function exists(value: string, tableSelector = appTable): void {
-  selectItemsPerPage(100);
-  cy.get("body").then(($body) => {
-    const $table = $body.find(tableSelector);
-    if (
-      $table.length &&
-      !$table.text().includes(value) &&
-      !/No \w.* available/.test($table.text())
-    ) {
-      cy.url().then((currentUrl) => {
-        cy.visit("/");
-        cy.visit(currentUrl);
-      });
-    }
-  });
+  // Use search filter to find the specific item (handles large datasets)
+  inputText(searchInput, value);
+  click(searchButton);
+  // Wait for table to have rows loaded after search
+  cy.get(`${tableSelector} tbody tr`, { timeout: 30 * SEC }).should(
+    "have.length.greaterThan",
+    0
+  );
   cy.get("body").should(($body) => {
     const $table = $body.find(tableSelector);
     expect($table.length, `${tableSelector} to exist`).to.be.greaterThan(0);
@@ -518,6 +530,7 @@ export function exists(value: string, tableSelector = appTable): void {
 
 export function notExists(value: string, tableSelector = appTable): void {
   selectItemsPerPage(100);
+  // selectItemsPerPage() already waits for pagination to complete
   cy.get("body").then(($body) => {
     const $table = $body.find(tableSelector);
     if ($table.length && $table.text().includes(value)) {
@@ -994,7 +1007,8 @@ export function performRowActionByIcon(
 ): void {
   // itemName is the text to be searched on the screen (For eg: application name, etc)
   // Action is the name of the action to be applied (For eg: edit or click kebab menu)
-  cy.contains(itemName, { timeout: 120 * SEC })
+  cy.get("table tbody")
+    .contains(itemName, { timeout: 120 * SEC })
     .closest(trTag)
     .scrollIntoView()
     .find(action)
@@ -1005,7 +1019,8 @@ export function performRowActionByIcon(
 }
 
 export function clickItemInKebabMenu(rowItem, itemName: string): void {
-  cy.contains(rowItem)
+  cy.get("table tbody")
+    .contains(rowItem)
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
