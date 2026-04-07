@@ -17,7 +17,6 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
-  createMultipleApplications,
   deleteAllCredentials,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
@@ -99,20 +98,34 @@ describe(
 
     Object.values(JiraIssueTypes).forEach((issueType) => {
       it(`Create wave to export as ${issueType}`, function () {
-        const apps = createMultipleApplications(2);
-        applications.push(...apps);
-        appsMap[issueType] = apps;
+        getAuthHeaders().then((headers) => {
+          Application.createMultipleViaApi(
+            2,
+            undefined,
+            undefined,
+            undefined,
+            headers
+          )
+            .then((apps) => {
+              applications.push(...apps);
+              appsMap[issueType] = apps;
 
-        const migrationWave = new MigrationWave(
-          data.getRandomWord(8),
-          now,
-          end,
-          null,
-          null,
-          apps
-        );
-        migrationWave.create();
-        wavesMap[issueType] = migrationWave;
+              const applicationIds = apps.map((app) => app.id);
+              return MigrationWave.createViaApi(
+                data.getRandomWord(8),
+                now,
+                end,
+                undefined,
+                undefined,
+                applicationIds,
+                headers
+              );
+            })
+            .then((wave) => {
+              wave.applications = appsMap[issueType];
+              wavesMap[issueType] = wave;
+            });
+        });
       });
     });
 
