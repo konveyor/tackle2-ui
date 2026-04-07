@@ -432,13 +432,17 @@ export class MigrationWave {
     applicationIds?: number[],
     headers?: Record<string, string>
   ): Cypress.Chainable<MigrationWave> {
-    // Format dates as ISO 8601 strings (matching UI behavior)
-    // Set hours to 00:00:00 to match date-only behavior from UI date picker
-    const formattedStartDate = new Date(startDate);
-    formattedStartDate.setHours(0, 0, 0, 0);
+    const formattedStartDate = new Date(
+      Date.UTC(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate()
+      )
+    );
 
-    const formattedEndDate = new Date(endDate);
-    formattedEndDate.setHours(0, 0, 0, 0);
+    const formattedEndDate = new Date(
+      Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+    );
 
     const body: Record<string, unknown> = {
       name,
