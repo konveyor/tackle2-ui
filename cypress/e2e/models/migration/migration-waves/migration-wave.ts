@@ -39,6 +39,7 @@ import { Stakeholders } from "../controls/stakeholders";
 
 export class MigrationWave {
   name: string;
+  id?: number;
   startDate: Date;
   endDate: Date;
   stakeHolders?: Stakeholders[];
@@ -291,6 +292,15 @@ export class MigrationWave {
     }).format(date);
   }
 
+  static parseUTCDateToLocal(isoString: string): Date {
+    const utcDate = new Date(isoString);
+    return new Date(
+      utcDate.getUTCFullYear(),
+      utcDate.getUTCMonth(),
+      utcDate.getUTCDate()
+    );
+  }
+
   public expandActionsMenu() {
     if (this.name) {
       const targetName = this.name;
@@ -419,6 +429,80 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
+  }
+
+  /** Create a migration wave via the API (no UI interaction). */
+  static createViaApi(
+    name: string,
+    startDate: Date,
+    endDate: Date,
+    stakeholderIds?: number[],
+    stakeholderGroupIds?: number[],
+    applicationIds?: number[],
+    headers?: Record<string, string>
+  ): Cypress.Chainable<MigrationWave> {
+    const formattedStartDate = new Date(
+      Date.UTC(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate()
+      )
+    );
+
+    const formattedEndDate = new Date(
+      Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate())
+    );
+
+    const body: Record<string, unknown> = {
+      name,
+      startDate: formattedStartDate.toISOString(),
+      endDate: formattedEndDate.toISOString(),
+    };
+
+    if (stakeholderIds && stakeholderIds.length > 0) {
+      body.stakeholders = stakeholderIds.map((id) => ({ id }));
+    }
+    if (stakeholderGroupIds && stakeholderGroupIds.length > 0) {
+      body.stakeholderGroups = stakeholderGroupIds.map((id) => ({ id }));
+    }
+    if (applicationIds && applicationIds.length > 0) {
+      body.applications = applicationIds.map((id) => ({ id }));
+    }
+
+    return cy
+      .request({
+        method: "POST",
+        url: "/hub/migrationwaves",
+        body,
+        ...(headers && { headers }),
+      })
+      .then((res) => {
+        const parsedStartDate = res.body.startDate
+          ? MigrationWave.parseUTCDateToLocal(res.body.startDate)
+          : startDate;
+        const parsedEndDate = res.body.endDate
+          ? MigrationWave.parseUTCDateToLocal(res.body.endDate)
+          : endDate;
+
+        if (isNaN(parsedStartDate.getTime())) {
+          throw new Error(
+            `Invalid startDate: API returned ${res.body.startDate}, using fallback ${startDate}`
+          );
+        }
+        if (isNaN(parsedEndDate.getTime())) {
+          throw new Error(
+            `Invalid endDate: API returned ${res.body.endDate}, using fallback ${endDate}`
+          );
+        }
+
+        const wave = new MigrationWave(
+          res.body.name,
+          parsedStartDate,
+          parsedEndDate
+        );
+        wave.id = res.body.id;
+        return wave;
+      });
   }
 
   /** Delete all migration waves via the API. */
