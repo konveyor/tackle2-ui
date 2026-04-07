@@ -17,11 +17,11 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
-  createMultipleApplications,
   deleteAllCredentials,
   deleteAllJiraConnections,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
+  getAuthHeaders,
   login,
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
@@ -79,6 +79,8 @@ describe(
       login();
       cy.visit("/");
       deleteApplicationTableRows();
+
+      // Create Jira credentials and instance via UI
       jiraCloudCredentials = new JiraCredentials(
         data.getJiraCredentialData(CredentialType.jiraBasic, true)
       );
@@ -94,16 +96,33 @@ describe(
       );
       jiraCloudInstance.create();
 
-      applications.push(...createMultipleApplications(2));
-      migrationWave = new MigrationWave(
-        data.getRandomWord(8),
-        now,
-        end,
-        null,
-        null,
-        applications
-      );
-      migrationWave.create();
+      getAuthHeaders().then((headers) => {
+        Application.createMultipleViaApi(
+          2,
+          undefined,
+          undefined,
+          undefined,
+          headers
+        )
+          .then((apps) => {
+            applications.push(...apps);
+            // Create migration wave via API with application IDs
+            const applicationIds = applications.map((app) => app.id);
+            return MigrationWave.createViaApi(
+              data.getRandomWord(8),
+              now,
+              end,
+              undefined,
+              undefined,
+              applicationIds,
+              headers
+            );
+          })
+          .then((wave) => {
+            migrationWave = wave;
+            migrationWave.applications = applications;
+          });
+      });
     });
 
     // Automates Polarion TC 414
