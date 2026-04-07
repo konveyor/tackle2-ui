@@ -161,7 +161,7 @@ export class MigrationWave {
       return;
     }
 
-    cy.wait(2000);
+    cy.wait(1000);
 
     cy.get(submitButton, { timeout: 15 * SEC })
       .should("exist")
@@ -290,6 +290,15 @@ export class MigrationWave {
       month: "2-digit",
       day: "2-digit",
     }).format(date);
+  }
+
+  static parseUTCDateToLocal(isoString: string): Date {
+    const utcDate = new Date(isoString);
+    return new Date(
+      utcDate.getUTCFullYear(),
+      utcDate.getUTCMonth(),
+      utcDate.getUTCDate()
+    );
   }
 
   public expandActionsMenu() {
@@ -468,15 +477,13 @@ export class MigrationWave {
         ...(headers && { headers }),
       })
       .then((res) => {
-        // Use the original dates passed in if API doesn't return them
         const parsedStartDate = res.body.startDate
-          ? new Date(res.body.startDate)
+          ? MigrationWave.parseUTCDateToLocal(res.body.startDate)
           : startDate;
         const parsedEndDate = res.body.endDate
-          ? new Date(res.body.endDate)
+          ? MigrationWave.parseUTCDateToLocal(res.body.endDate)
           : endDate;
 
-        // Validate dates
         if (isNaN(parsedStartDate.getTime())) {
           throw new Error(
             `Invalid startDate: API returned ${res.body.startDate}, using fallback ${startDate}`
