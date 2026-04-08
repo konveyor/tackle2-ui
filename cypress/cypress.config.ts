@@ -132,7 +132,7 @@ export default defineConfig({
           sourcesContent: true,
         })
       );
-      on("file:preprocessor", tagify(config));
+      tagify(config);
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);
       cypressMochawesomeReporter(on, config);
