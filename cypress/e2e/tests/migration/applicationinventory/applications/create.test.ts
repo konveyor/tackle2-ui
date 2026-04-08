@@ -22,7 +22,8 @@ import {
   closeRowDetails,
   createMultipleBusinessServices,
   createMultipleStakeholders,
-  deleteByList,
+  deleteAllBusinessServices,
+  deleteAllStakeholders,
   exists,
   existsWithinRow,
   expandRowDetails,
@@ -271,7 +272,7 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
   });
 
   after("Perform test data clean up", function () {
-    deleteByList(businessservicesList);
-    deleteByList(stakeHoldersList);
+    deleteAllBusinessServices();
+    deleteAllStakeholders();
   });
 });
