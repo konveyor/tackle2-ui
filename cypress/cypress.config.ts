@@ -123,7 +123,6 @@ export default defineConfig({
       }
 
       // Plugins
-      // Use tagify as the preprocessor (it includes its own bundler)
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);
