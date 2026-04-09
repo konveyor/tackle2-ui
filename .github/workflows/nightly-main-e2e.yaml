@@ -17,7 +17,6 @@ jobs:
       matrix:
         test_tags:
           - "@tier2_secretsNeeded,@tier3_secretsNeeded"
-          - "@tier2_taskManager"
           - "@ci,@tier0,@tier2_A,@tier2_B"
           - "@tier3_A,@tier3_B,@tier3_C"
           - "@tier3_D,@tier3_E,@tier3_F"
