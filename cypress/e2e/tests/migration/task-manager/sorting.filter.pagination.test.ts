@@ -250,7 +250,7 @@ describe(
       clearAllFilters();
     });
 
-    it("Negative test: filtering by not existing data", () => {
+    it("Negative test: filtering by not existing data and Pagination", () => {
       TaskManager.open();
       TaskManager.applyFilter(
         TaskFilter.applicationName,
@@ -258,10 +258,6 @@ describe(
       );
       cy.get(trTag).should("contain", "No results found");
       clearAllFilters();
-    });
-
-    it("Pagination validation", function () {
-      TaskManager.open(10, true);
       validatePagination();
     });
 
@@ -281,8 +277,6 @@ describe(
           `Expected task kinds not found. Found: [${foundTasksList.join(", ")}]`
         ).to.include.members(tasksKindsList);
       });
-
-      // Close the drawer before moving to cleanup
       applicationsList[0].closeApplicationDetails();
     });
 
