@@ -75,6 +75,7 @@ jobs:
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
       base_tag: release-0.9
+      operator_bundle: quay.io/konveyor/tackle2-operator-bundle:release-0.9
       run_api_tests: false
       run_ui_tests: true
       ui_test_tags: ${{ matrix.test_tags }}
