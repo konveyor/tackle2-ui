@@ -79,7 +79,7 @@ export const HookFormPFGroupController = <
             <FormHelperText id={`${fieldId}-helper`}>
               <HelperText>
                 <HelperTextItem
-                  data-testid={helperTextTestId}
+                  data-ouia-component-id={helperTextTestId}
                   variant={shouldDisplayError ? "error" : "default"}
                 >
                   {shouldDisplayError ? error.message : helperText}

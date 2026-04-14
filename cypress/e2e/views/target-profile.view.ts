@@ -16,5 +16,5 @@ limitations under the License.
 export const addSelectedItems = "button[aria-label='Add selected']";
 export const generatorListItem = "span.pf-v5-c-dual-list-selector__item-text";
 export const analysisProfileToggle =
-  "#analysis-profile-select-toggle-select-typeahead";
+  "[data-ouia-component-id='analysis-profile-select-toggle']";
 export const targetProfileName = "#target-profile-name";

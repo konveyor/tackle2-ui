@@ -15,7 +15,8 @@ limitations under the License.
 */
 export const businessServiceNameInput = "input[name=name]";
 export const businessServiceDescriptionInput = "textarea[name=description]";
-export const businessServiceOwnerSelect = "#action-select-toggle";
+export const businessServiceOwnerSelect =
+  '[data-ouia-component-id="action-select-toggle"]';
 export enum buzinessServiceLabels {
   name = 'td[data-label="Name"]',
   description = 'td[data-label="Description"]',

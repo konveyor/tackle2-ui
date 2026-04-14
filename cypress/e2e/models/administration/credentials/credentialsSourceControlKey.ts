@@ -43,7 +43,7 @@ export class CredentialsSourceControlKey extends CredentialsSourceControl {
   }
 
   protected selectCredType() {
-    click("#user-credentials-select-toggle");
+    click('[data-ouia-component-id="user-credentials-select-toggle"]');
     clickByText(button, "Source Private Key/Passphrase");
   }
 

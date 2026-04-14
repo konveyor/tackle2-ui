@@ -388,7 +388,7 @@ export function selectFormItems(fieldId: string, item: string): void {
   // toggle-button selects all options are rendered on click.
   cy.get(fieldId).then(($el) => {
     if ($el.is("input")) {
-      // Direct input element (e.g. #job-function-toggle-select-typeahead)
+      // Direct input element (e.g. PF4 legacy #job-function-toggle-select-typeahead)
       cy.get(fieldId).click().clear().type(item);
     } else {
       // Wrapper div or toggle button — click to open
