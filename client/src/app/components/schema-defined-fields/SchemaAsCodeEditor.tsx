@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import * as jsYaml from "js-yaml";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
@@ -33,6 +34,8 @@ export interface ISchemaAsCodeEditorProps {
    * Set to "100%" to make the editor take up the full height of its container.
    */
   height?: string;
+  /** Language for syntax highlighting. Defaults to Language.json. */
+  language?: Language;
 }
 
 export const SchemaAsCodeEditor = ({
@@ -42,12 +45,15 @@ export const SchemaAsCodeEditor = ({
   onDocumentChanged,
   isReadOnly = false,
   height = "600px",
+  language = Language.json,
 }: ISchemaAsCodeEditorProps) => {
   const { t } = useTranslation();
   const editorRef = useRef<ControlledEditor>();
 
   const [currentCode, setCurrentCode] = useState(
-    JSON.stringify(jsonDocument, null, 2)
+    language === Language.yaml
+      ? jsYaml.dump(jsonDocument, { indent: 2 })
+      : JSON.stringify(jsonDocument, null, 2)
   );
   // const [documentIsValid, setDocumentIsValid] = React.useState(true);
 
@@ -94,11 +100,15 @@ export const SchemaAsCodeEditor = ({
       isReadOnly={isReadOnly}
       height={height}
       downloadFileName="my-schema-download"
-      language={Language.json}
+      language={language}
       code={currentCode}
+      options={{
+        fontFamily: '"Red Hat Mono", "Courier New", Courier, monospace',
+      }}
       onChange={handleCodeChange}
       onEditorDidMount={(editor, monaco) => {
         editorRef.current = editor as ControlledEditor;
+        document.fonts.ready.then(() => monaco.editor.remeasureFonts());
         if (jsonSchema) {
           monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,

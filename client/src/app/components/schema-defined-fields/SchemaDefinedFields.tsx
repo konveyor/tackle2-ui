@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Language } from "@patternfly/react-code-editor";
 import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
@@ -15,6 +16,8 @@ export interface ISchemaDefinedFieldProps {
   jsonSchema?: JsonSchemaObject;
   onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
+  /** Language for syntax highlighting. Defaults to Language.json. */
+  language?: Language;
 }
 
 export const SchemaDefinedField = ({
@@ -24,6 +27,7 @@ export const SchemaDefinedField = ({
   jsonSchema,
   onDocumentChanged,
   isReadOnly = false,
+  language = Language.json,
 }: ISchemaDefinedFieldProps) => {
   const [isJsonView, setIsJsonView] = useState<boolean>(
     !jsonSchema || isComplexSchema(jsonSchema)
@@ -60,6 +64,7 @@ export const SchemaDefinedField = ({
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
             onDocumentChanged={onChangeHandler}
+            language={language}
           />
         ) : (
           <SchemaAsFields

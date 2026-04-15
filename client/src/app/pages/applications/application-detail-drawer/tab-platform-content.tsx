@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { Language } from "@patternfly/react-code-editor";
 
 import { EmptyTextMessage } from "@app/components/EmptyTextMessage";
 import {
@@ -58,8 +59,12 @@ export const TabPlatformContent: React.FC<{
       </DrawerTabContentSection>
 
       <DrawerTabContentSection label={t("terms.applicationDiscoveryManifest")}>
-        {manifest ? (
-          <SchemaDefinedField isReadOnly jsonDocument={manifest} />
+        {manifest?.content ? (
+          <SchemaDefinedField
+            isReadOnly
+            jsonDocument={manifest.content}
+            language={Language.yaml}
+          />
         ) : (
           <EmptyTextMessage />
         )}
