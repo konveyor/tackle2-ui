@@ -170,11 +170,7 @@ const decorateApplications = (
       isReadyForRetrieveConfigurations:
         !!app.platform && !!app.coordinates?.content,
 
-      isReadyForGenerateAssets:
-        !!app.platform &&
-        !!app.coordinates?.content &&
-        (app.manifests?.length ?? 0) > 0 &&
-        !!app.assets,
+      isReadyForGenerateAssets: !!app.assets,
 
       direct: {
         identities: app.identities
