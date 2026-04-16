@@ -80,6 +80,7 @@
   "overrides": {
     "axios": "^1.15.0",
     "follow-redirects": "^1.15.6",
+    "qs": "^6.14.1",
     "webpack-dev-server": {
       "express": "$express"
     }
