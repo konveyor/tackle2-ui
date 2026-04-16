@@ -79,6 +79,7 @@
     "http-proxy-middleware": "^3.0.5"
   },
   "overrides": {
+    "axios": "^1.15.0",
     "follow-redirects": "^1.15.6",
     "webpack-dev-server": {
       "express": "$express"
