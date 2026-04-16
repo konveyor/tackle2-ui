@@ -18,7 +18,7 @@ RUN apt-get update && \
 RUN mkdir /tmp/tackle-ui-tests
 WORKDIR /tmp/tackle-ui-tests
 COPY . .
-RUN npm install .
+RUN npm ci
 
 # Set required permissions for OpenShift usage
 RUN chgrp -R 0 /tmp && \
