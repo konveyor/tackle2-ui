@@ -36,6 +36,15 @@ export interface ISchemaAsCodeEditorProps {
   editorLanguage?: Language.json | Language.yaml;
 }
 
+const jsonDocumentToCode = (
+  jsonDocument: object,
+  editorLanguage: Language.json | Language.yaml
+) => {
+  return editorLanguage === Language.yaml
+    ? jsYaml.dump(jsonDocument, { indent: 2 })
+    : JSON.stringify(jsonDocument, null, 2);
+};
+
 export const SchemaAsCodeEditor = ({
   id,
   jsonDocument,
@@ -48,15 +57,13 @@ export const SchemaAsCodeEditor = ({
   const { t } = useTranslation();
   const editorRef = useRef<ControlledEditor>();
 
-  const serializedDocument = useMemo(
-    () =>
-      editorLanguage === Language.yaml
-        ? jsYaml.dump(jsonDocument, { indent: 2 })
-        : JSON.stringify(jsonDocument, null, 2),
-    [jsonDocument, editorLanguage]
+  const [currentCode, setCurrentCode] = useState(() =>
+    jsonDocumentToCode(jsonDocument, editorLanguage)
   );
 
-  const [currentCode, setCurrentCode] = useState(serializedDocument);
+  useEffect(() => {
+    setCurrentCode(jsonDocumentToCode(jsonDocument, editorLanguage));
+  }, [jsonDocument, editorLanguage]);
 
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
   const focusAndHomePosition = () => {
@@ -118,7 +125,7 @@ export const SchemaAsCodeEditor = ({
       onChange={handleCodeChange}
       onEditorDidMount={(editor, monaco) => {
         editorRef.current = editor as ControlledEditor;
-        document.fonts.ready.then(() => monaco.editor.remeasureFonts());
+        document.fonts?.ready?.then(() => monaco.editor.remeasureFonts());
         if (jsonSchema) {
           monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
             validate: true,
