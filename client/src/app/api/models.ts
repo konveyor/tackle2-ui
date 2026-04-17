@@ -376,34 +376,29 @@ export interface Task<DataType> {
   attached?: TaskAttachment[];
 }
 
-export interface AnalysisTask extends Omit<
-  Task<AnalysisTaskData>,
-  "application" | "platform"
-> {
+export interface AnalysisTask
+  extends Omit<Task<AnalysisTaskData>, "application" | "platform"> {
   kind: "analysis";
   application: Ref;
 }
 
-export interface ApplicationManifestTask extends Omit<
-  Task<EmptyObject>,
-  "application" | "platform"
-> {
+export interface ApplicationManifestTask
+  extends Omit<Task<EmptyObject>, "application" | "platform"> {
   kind: "application-manifest";
   application: Ref;
 }
 
-export interface ApplicationAssetGenerationTask extends Omit<
-  Task<AssetGenerationTaskData>,
-  "application" | "platform"
-> {
+export interface ApplicationAssetGenerationTask
+  extends Omit<Task<AssetGenerationTaskData>, "application" | "platform"> {
   kind: "asset-generation";
   application: Ref;
 }
 
-export interface PlatformApplicationImportTask extends Omit<
-  Task<PlatformApplicationImportTaskData>,
-  "application" | "platform"
-> {
+export interface PlatformApplicationImportTask
+  extends Omit<
+    Task<PlatformApplicationImportTaskData>,
+    "application" | "platform"
+  > {
   kind: "application-import";
   platform: Ref;
 }
@@ -907,10 +902,8 @@ export interface InitialAssessment {
   archetype?: Ref;
   questionnaire: Ref;
 }
-export interface Assessment extends Pick<
-  Questionnaire,
-  "thresholds" | "sections" | "riskMessages"
-> {
+export interface Assessment
+  extends Pick<Questionnaire, "thresholds" | "sections" | "riskMessages"> {
   name: string;
   id: number;
   application?: Ref;
@@ -985,7 +978,8 @@ export interface AssessmentWithSectionOrder extends Assessment {
   sections: SectionWithQuestionOrder[];
 }
 
-export interface AssessmentWithArchetypeApplications extends AssessmentWithSectionOrder {
+export interface AssessmentWithArchetypeApplications
+  extends AssessmentWithSectionOrder {
   archetypeApplications: Ref[];
 }
 export interface AssessmentsWithArchetype {
