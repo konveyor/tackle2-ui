@@ -140,7 +140,7 @@ describe(
     });
 
     it("Filtering dependencies by Archetype", function () {
-      Dependencies.applyFilter(dependencyFilter.archetype, archetype.name);
+      Dependencies.applyFilter(dependencyFilter.archetypes, archetype.name);
       this.analysisData["source_analysis_on_bookserverapp"][
         "dependencies"
       ].forEach((dependency: AppDependency) => {

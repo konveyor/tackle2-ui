@@ -25,13 +25,15 @@ import { Stakeholders } from "../../../models/migration/controls/stakeholders";
 import { Tag } from "../../../models/migration/controls/tags";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import {
-  businessServiceLower,
   button,
   clearAllFilters,
   manageApplications,
-  name,
-  owner,
 } from "../../../types/constants";
+import {
+  categoryBusinessService,
+  categoryName,
+  categoryOwner,
+} from "../../../types/filter-categories";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -98,13 +100,13 @@ describe(
       cy.contains(manageApplications).click();
 
       // Enter an existing exact name and apply it as search filter
-      applySearchFilter(name, applicationsList[1].name, true, 1);
+      applySearchFilter(categoryName, applicationsList[1].name, true, 1);
       cy.get("td").should("contain", applicationsList[1].name);
       cy.get("td").should("not.contain", applicationsList[0].name);
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing app name and apply it as search filter
-      applySearchFilter(name, String(data.getRandomNumber()), true, 1);
+      applySearchFilter(categoryName, String(data.getRandomNumber()), true, 1);
       cy.get("td").should("not.contain", applicationsList[1].name);
       cy.get("td").should("not.contain", applicationsList[0].name);
       clickByText(button, clearAllFilters);
@@ -130,7 +132,7 @@ describe(
 
       // Apply BS associated with applicationsList[1].name as search filter
       applySearchFilter(
-        businessServiceLower,
+        categoryBusinessService,
         applicationsList[1].business,
         true,
         1
@@ -141,7 +143,7 @@ describe(
 
       // Apply BS associated with applicationsList[0].name as search filter
       applySearchFilter(
-        businessServiceLower,
+        categoryBusinessService,
         applicationsList[0].business,
         true,
         1
@@ -170,13 +172,13 @@ describe(
       cy.contains(manageApplications).click();
 
       // Apply owner associated with applicationsList[1].name as search filter
-      applySearchFilter(owner, stakeholders[1].name, true, 1);
+      applySearchFilter(categoryOwner, stakeholders[1].name, true, 1);
       cy.get("td").should("contain", applicationsList[1].name);
       cy.get("td").should("not.contain", applicationsList[0].name);
       clickByText(button, clearAllFilters);
 
       // Apply owner associated with applicationsList[0].name as search filter
-      applySearchFilter(owner, stakeholders[0].name, true, 1);
+      applySearchFilter(categoryOwner, stakeholders[0].name, true, 1);
       cy.get("td").should("not.contain", applicationsList[1].name);
       cy.get("td").should("contain", applicationsList[0].name);
       clickByText(button, clearAllFilters);

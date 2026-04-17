@@ -11,8 +11,7 @@ import {
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
 export interface SimpleSelectProps {
-  id?: string;
-  isScrollable: boolean;
+  isScrollable?: boolean;
   options: FilterSelectOptionProps[];
   value?: string;
   onSelect: (value: string) => void;
@@ -26,14 +25,13 @@ export interface SimpleSelectProps {
 }
 
 const SimpleSelect: FC<SimpleSelectProps> = ({
-  id,
-  isScrollable,
+  isScrollable = true,
   options,
   value: selectedValue,
   onSelect,
   placeholderText = "Select...",
   isDisabled,
-  isFullWidth,
+  isFullWidth = true,
   ariaLabel,
   toggleId,
   toggleAriaLabel,
@@ -69,7 +67,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
   };
   return (
     <Select
-      id={id}
+      ouiaId={`${toggleId}-select`}
       isScrollable={isScrollable}
       aria-label={ariaLabel ?? toggleAriaLabel}
       toggle={toggle}

@@ -131,7 +131,7 @@ describe(
     });
 
     it("All issues - Filtering issues by Archetype", function () {
-      Issues.applyFilter(dynamicReportFilter.archetype, archetypeName);
+      Issues.applyFilter(dynamicReportFilter.archetypes, archetypeName);
       this.analysisData["source+dep_on_coolStore_app"]["issues"].forEach(
         (issue: AppIssue) => {
           Issues.validateFilter(issue);

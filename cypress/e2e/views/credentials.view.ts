@@ -23,13 +23,6 @@ export const privatePassphraseInput =
   "input[aria-label='Private Key Passphrase']";
 export const createBtn = "#create-credential-button";
 export const selectType = '[data-ouia-component-id="type-select-toggle"]';
-export const filteredBy = "#filtered-by";
-export const filterCategory = "#filter-category-name";
-export const filterCatType = "#filter-category-type";
-export const filterCatCreatedBy = "#filter-category-createdBy";
-export const filterSelectType =
-  '[data-ouia-component-id="select-filter-value-select"]';
-export const filterCatDefaultCredential = "#filter-category-";
 export const searchButton = "#search-button";
 export const modalBoxBody = "#confirm-dialog";
 export const defaultIcon = "svg.pf-v5-svg";

@@ -251,12 +251,9 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
               isRequired
               renderInput={({ field: { value, name, onChange } }) => (
                 <SimpleSelect
-                  id="repo-type-select"
                   toggleId="repo-type-select-toggle"
                   toggleAriaLabel="Repository type select dropdown toggle"
-                  isScrollable
                   ariaLabel={name}
-                  isFullWidth
                   value={value ?? undefined}
                   options={repositoryTypeOptions}
                   onSelect={(selection) => {

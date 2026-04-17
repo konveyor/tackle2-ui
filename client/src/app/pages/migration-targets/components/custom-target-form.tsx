@@ -443,9 +443,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
         fieldId="provider-type-select"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            isScrollable
-            isFullWidth
-            id="provider-type-select"
             toggleId="provider-type-select-toggle"
             toggleAriaLabel="Provider type select dropdown toggle"
             ariaLabel={name}
@@ -593,9 +590,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
             isRequired
             renderInput={({ field: { value, name, onChange } }) => (
               <SimpleSelect
-                isScrollable
-                isFullWidth
-                id="repo-type-select"
                 toggleId="repo-type-select-toggle"
                 toggleAriaLabel="Repository type select dropdown toggle"
                 ariaLabel={name}

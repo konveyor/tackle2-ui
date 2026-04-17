@@ -22,7 +22,8 @@ import {
   exists,
 } from "../../../../../../utils/utils";
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
-import { button, clearAllFilters, color } from "../../../../../types/constants";
+import { button, clearAllFilters } from "../../../../../types/constants";
+import { categoryColor } from "../../../../../types/filter-categories";
 
 describe(
   ["@tier3", "@tier3_C"],
@@ -37,7 +38,7 @@ describe(
 
       // Enter an existing tag category color substring and apply it as search filter
       const validSearchInput = data.getColor();
-      applySearchFilter(color, validSearchInput);
+      applySearchFilter(categoryColor, validSearchInput);
       exists(validSearchInput);
 
       clickByText(button, clearAllFilters);
@@ -45,7 +46,7 @@ describe(
 
       // Enter a non-existing tag type color substring and apply it as search filter
       const invalidSearchInput = String(data.getRandomWord(3));
-      applySearchFilter(color, invalidSearchInput);
+      applySearchFilter(categoryColor, invalidSearchInput);
       cy.get("h2").contains("No tags available");
       clickByText(button, clearAllFilters);
     });

@@ -25,7 +25,8 @@ import {
   notExists,
 } from "../../../../utils/utils";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
-import { button, clearAllFilters, name } from "../../../types/constants";
+import { button, clearAllFilters } from "../../../types/constants";
+import { categoryName } from "../../../types/filter-categories";
 
 let archetypeList: Archetype[];
 
@@ -43,14 +44,14 @@ describe(["@tier3", "@tier3_D"], "Archetype filter validation", () => {
 
     let searchInput = archetypeList[0].name;
 
-    applySearchFilter(name, searchInput);
+    applySearchFilter(categoryName, searchInput);
     exists(archetypeList[0].name);
     notExists(archetypeList[1].name);
     clickByText(button, clearAllFilters);
 
     searchInput = archetypeList[1].name;
 
-    applySearchFilter(name, searchInput);
+    applySearchFilter(categoryName, searchInput);
     exists(archetypeList[1].name);
     notExists(archetypeList[0].name);
     clickByText(button, clearAllFilters);

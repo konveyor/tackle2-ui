@@ -46,7 +46,6 @@ import {
   button,
   confidence,
   criticality,
-  dynamicReportFilter,
   groupCount,
   memberCount,
   migration,
@@ -57,6 +56,10 @@ import {
   tdTag,
   trTag,
 } from "../e2e/types/constants";
+import {
+  filterCategory,
+  filterSelectType,
+} from "../e2e/types/filter-categories";
 import {
   AppIssue,
   JiraConnectionData,
@@ -110,19 +113,14 @@ import {
   removeButton,
   searchButton,
   sideDrawer,
-  span,
   standardFilter,
   submitButton,
   successAlertMessage,
   taskDetailsEditor,
 } from "../e2e/views/common.view";
-import { filterSelectType } from "../e2e/views/credentials.view";
 import {
-  bsFilterName,
-  searchInput,
   searchMenuToggle,
   singleApplicationColumns,
-  tagFilterName,
 } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
@@ -536,25 +534,17 @@ export function notExists(value: string, tableSelector = appTable): void {
   });
 }
 
-export function selectFilter(filterName: string, eq = 0): void {
+export function selectFilter(categoryKey: string, eq = 0): void {
   if (eq === 0) {
     cy.get(filteredBy).click();
-    clickWithinByText(
-      'div[class="pf-v5-c-menu__content"]',
-      "button",
-      filterName
-    );
+    cy.get(filterCategory(categoryKey)).click();
     return;
   }
   cy.get("div.pf-m-filter-group")
     .eq(eq)
     .within(() => {
       cy.get(filteredBy).click();
-      clickWithinByText(
-        'div[class="pf-v5-c-menu__content"]',
-        "button",
-        filterName
-      );
+      cy.get(filterCategory(categoryKey)).click();
     });
 }
 
@@ -565,46 +555,6 @@ export function filterInputText(searchTextValue: string, value: number): void {
 
 export function clearAllFilters(): void {
   cy.contains(button, "Clear all filters").click({ force: true });
-}
-
-export function filterIssueBy(
-  filterType: dynamicReportFilter,
-  filterValue: string | string[]
-): void {
-  let selector = "";
-  selectFilter(filterType);
-  const isApplicableFilter =
-    filterType === dynamicReportFilter.applicationName ||
-    filterType === dynamicReportFilter.category ||
-    filterType === dynamicReportFilter.source ||
-    filterType === dynamicReportFilter.target;
-
-  if (isApplicableFilter) {
-    if (Array.isArray(filterValue)) {
-      filterValue.forEach((current) => {
-        inputText(searchInput, current);
-        click(searchButton);
-      });
-    } else {
-      inputText(searchInput, filterValue);
-      click(searchButton);
-    }
-  } else {
-    if (filterType == dynamicReportFilter.bs) {
-      selector = bsFilterName;
-    } else if (filterType == dynamicReportFilter.tags) {
-      selector = tagFilterName;
-    }
-    click(selector);
-    if (Array.isArray(filterValue)) {
-      filterValue.forEach((name) => {
-        clickByText(span, name);
-      });
-    } else {
-      clickByText(span, filterValue);
-    }
-    click(selector);
-  }
 }
 
 export function validateSingleApplicationIssue(issue: AppIssue): void {
@@ -658,8 +608,8 @@ export function applySearchFilter(
         cy.get(standardFilter).contains(searchTextValue).click();
       });
     } else {
-      if ($container.find(filterSelectType).length > 0) {
-        cy.get(filterSelectType).click();
+      if ($container.find(filterSelectType(filterName)).length > 0) {
+        cy.get(filterSelectType(filterName)).click();
         filterValue.forEach((searchTextValue) => {
           cy.get(standardFilter).contains(searchTextValue).click();
         });

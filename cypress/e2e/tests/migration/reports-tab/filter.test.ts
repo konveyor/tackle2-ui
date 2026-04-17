@@ -73,11 +73,7 @@ describe(["@tier3", "@tier3_D"], "Reports Tab filter validations", function () {
   identifiedRisksFilterValidations.forEach((validation) => {
     it(`Filtering identified risks by ${validation.name}`, function () {
       Reports.open(100);
-      applySelectFilter(
-        validation.id,
-        new RegExp(`^${validation.name}$`),
-        validation.text
-      );
+      applySelectFilter(validation.id, validation.id, validation.text);
       exists(validation.should);
       notExists(validation.shouldNot);
       clearAllFilters();

@@ -21,7 +21,8 @@ import {
   login,
 } from "../../../../utils/utils";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
-import { button, clearAllFilters, name } from "../../../types/constants";
+import { button, clearAllFilters } from "../../../types/constants";
+import { categoryName } from "../../../types/filter-categories";
 import { MigrationWaveView } from "../../../views/migration-wave.view";
 
 let migrationWavesList: Array<MigrationWave> = [];
@@ -41,7 +42,7 @@ describe(
 
       // Enter an existing display name substring and assert
       const validSearchInput = migrationWavesList[0].name.substring(0, 3);
-      applySearchFilter(name, validSearchInput);
+      applySearchFilter(categoryName, validSearchInput);
       cy.get("td").should("contain", migrationWavesList[0].name);
       if (migrationWavesList[1].name.indexOf(validSearchInput) >= 0) {
         cy.get("td").should("contain", migrationWavesList[1].name);
@@ -49,13 +50,13 @@ describe(
       clickByText(button, clearAllFilters);
 
       // Enter an existing exact name and assert
-      applySearchFilter(name, migrationWavesList[1].name);
+      applySearchFilter(categoryName, migrationWavesList[1].name);
       cy.get("td").should("contain", migrationWavesList[1].name);
       cy.get("td").should("not.contain", migrationWavesList[0].name);
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing name substring and apply it as search filter
-      applySearchFilter(name, String(data.getRandomNumber()));
+      applySearchFilter(categoryName, String(data.getRandomNumber()));
 
       // Assert that no search results are found
       cy.get(MigrationWaveView.migrationWavesTable)

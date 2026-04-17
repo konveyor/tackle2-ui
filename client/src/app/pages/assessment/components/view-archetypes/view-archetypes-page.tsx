@@ -73,9 +73,8 @@ const ViewArchetypes: React.FC = () => {
         <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
           {application?.archetypes && application?.archetypes?.length > 1 && (
             <SimpleSelect
-              id="archetype-select"
-              isScrollable
               ariaLabel="Select an archetype"
+              isFullWidth={false}
               value={activeArchetype ? String(activeArchetype.id) : undefined}
               options={archetypeOptions}
               onSelect={(value) => {

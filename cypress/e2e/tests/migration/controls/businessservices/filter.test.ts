@@ -25,13 +25,12 @@ import {
 } from "../../../../../utils/utils";
 import { BusinessServices } from "../../../../models/migration/controls/businessservices";
 import { Stakeholders } from "../../../../models/migration/controls/stakeholders";
+import { button, clearAllFilters } from "../../../../types/constants";
 import {
-  button,
-  clearAllFilters,
-  createdBy,
-  description,
-  name,
-} from "../../../../types/constants";
+  categoryDescription,
+  categoryName,
+  categoryOwner,
+} from "../../../../types/filter-categories";
 
 let businessServicesList: Array<BusinessServices> = [];
 let stakeholdersList: Array<Stakeholders> = [];
@@ -56,7 +55,7 @@ describe(
 
       // Enter an existing display name substring and assert
       const validSearchInput = businessServicesList[0].name.substring(0, 3);
-      applySearchFilter(name, validSearchInput);
+      applySearchFilter(categoryName, validSearchInput);
       exists(businessServicesList[0].name);
 
       if (businessServicesList[1].name.indexOf(validSearchInput) >= 0) {
@@ -65,14 +64,14 @@ describe(
       clickByText(button, clearAllFilters);
 
       // Enter an existing exact name and assert
-      applySearchFilter(name, businessServicesList[1].name);
+      applySearchFilter(categoryName, businessServicesList[1].name);
       exists(businessServicesList[1].name);
       notExists(businessServicesList[0].name);
 
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing name substring and apply it as search filter
-      applySearchFilter(name, invalidSearchInput);
+      applySearchFilter(categoryName, invalidSearchInput);
       cy.get("h2").contains("No business service available");
       clickByText(button, clearAllFilters);
     });
@@ -85,7 +84,7 @@ describe(
         0,
         8
       );
-      applySearchFilter(description, validSearchInput);
+      applySearchFilter(categoryDescription, validSearchInput);
       exists(businessServicesList[0].description);
 
       if (businessServicesList[1].description.indexOf(validSearchInput) >= 0) {
@@ -94,14 +93,17 @@ describe(
       clickByText(button, clearAllFilters);
 
       // Enter an existing exact description and assert
-      applySearchFilter(description, businessServicesList[1].description);
+      applySearchFilter(
+        categoryDescription,
+        businessServicesList[1].description
+      );
       exists(businessServicesList[1].description);
       notExists(businessServicesList[0].description);
 
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing description substring and apply it as search filter
-      applySearchFilter(description, invalidSearchInput);
+      applySearchFilter(categoryDescription, invalidSearchInput);
       cy.get("h2").contains("No business service available");
       clickByText(button, clearAllFilters);
     });
@@ -111,7 +113,7 @@ describe(
 
       // Enter an existing owner substring and assert
       const validSearchInput = businessServicesList[0].owner.substring(0, 3);
-      applySearchFilter(createdBy, validSearchInput);
+      applySearchFilter(categoryOwner, validSearchInput);
       exists(businessServicesList[0].owner);
 
       if (businessServicesList[1].owner.indexOf(validSearchInput) >= 0) {
@@ -120,14 +122,14 @@ describe(
       clickByText(button, clearAllFilters);
 
       // Enter an existing exact owner and assert
-      applySearchFilter(createdBy, businessServicesList[1].owner);
+      applySearchFilter(categoryOwner, businessServicesList[1].owner);
       exists(businessServicesList[1].owner);
       notExists(businessServicesList[0].owner);
 
       clickByText(button, clearAllFilters);
 
       // Enter a non-attached owner substring and apply it as search filter
-      applySearchFilter(createdBy, stakeholdersList[2].name);
+      applySearchFilter(categoryOwner, stakeholdersList[2].name);
       cy.get("h2").contains("No business service available");
       clickByText(button, clearAllFilters);
     });
