@@ -63,7 +63,7 @@ export const TabPlatformContent: React.FC<{
           <SchemaDefinedField
             isReadOnly
             jsonDocument={manifest.content}
-            language={Language.yaml}
+            editorLanguage={Language.yaml}
           />
         ) : (
           <EmptyTextMessage />

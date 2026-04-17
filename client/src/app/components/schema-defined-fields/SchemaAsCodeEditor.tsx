@@ -14,8 +14,6 @@ import { JsonSchemaObject } from "@app/api/models";
 
 import { jsonSchemaToYupSchema } from "./utils";
 
-export { Language } from "@patternfly/react-code-editor";
-
 type ControlledEditor = {
   focus: () => void;
   getPosition: () => object;
@@ -34,8 +32,8 @@ export interface ISchemaAsCodeEditorProps {
    * Set to "100%" to make the editor take up the full height of its container.
    */
   height?: string;
-  /** Language for syntax highlighting. Defaults to Language.json. */
-  language?: Language;
+  /** Language for the editor. Defaults to Language.json. */
+  editorLanguage?: Language.json | Language.yaml;
 }
 
 export const SchemaAsCodeEditor = ({
@@ -45,17 +43,20 @@ export const SchemaAsCodeEditor = ({
   onDocumentChanged,
   isReadOnly = false,
   height = "600px",
-  language = Language.json,
+  editorLanguage = Language.json,
 }: ISchemaAsCodeEditorProps) => {
   const { t } = useTranslation();
   const editorRef = useRef<ControlledEditor>();
 
-  const [currentCode, setCurrentCode] = useState(
-    language === Language.yaml
-      ? jsYaml.dump(jsonDocument, { indent: 2 })
-      : JSON.stringify(jsonDocument, null, 2)
+  const serializedDocument = useMemo(
+    () =>
+      editorLanguage === Language.yaml
+        ? jsYaml.dump(jsonDocument, { indent: 2 })
+        : JSON.stringify(jsonDocument, null, 2),
+    [jsonDocument, editorLanguage]
   );
-  // const [documentIsValid, setDocumentIsValid] = React.useState(true);
+
+  const [currentCode, setCurrentCode] = useState(serializedDocument);
 
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
   const focusAndHomePosition = () => {
@@ -64,6 +65,7 @@ export const SchemaAsCodeEditor = ({
       editorRef.current.setPosition({ column: 1, lineNumber: 1 });
     }
   };
+
   useEffect(() => {
     if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
       focusAndHomePosition();
@@ -79,12 +81,20 @@ export const SchemaAsCodeEditor = ({
     setCurrentCode(newValue);
     if (onDocumentChanged) {
       try {
-        const asJson = JSON.parse(newValue);
-        if (!validator || validator.isValidSync(asJson)) {
-          onDocumentChanged(asJson);
+        const parsed =
+          editorLanguage === Language.yaml
+            ? (jsYaml.load(newValue) as unknown)
+            : (JSON.parse(newValue) as unknown);
+
+        if (
+          parsed &&
+          typeof parsed === "object" &&
+          (!validator || validator.isValidSync(parsed))
+        ) {
+          onDocumentChanged(parsed as object);
         }
       } catch {
-        // ignore invalid JSON, the change will be ignored
+        // ignore invalid document, the change will be ignored
       }
     }
   };
@@ -100,7 +110,7 @@ export const SchemaAsCodeEditor = ({
       isReadOnly={isReadOnly}
       height={height}
       downloadFileName="my-schema-download"
-      language={language}
+      language={editorLanguage}
       code={currentCode}
       options={{
         fontFamily: '"Red Hat Mono", "Courier New", Courier, monospace',
