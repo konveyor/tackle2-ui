@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Language } from "@patternfly/react-code-editor";
 import { Panel, PanelHeader, PanelMain, Switch } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
@@ -7,7 +8,6 @@ import { SchemaAsCodeEditor } from "./SchemaAsCodeEditor";
 import { SchemaAsFields } from "./SchemaAsFields";
 import { isComplexSchema } from "./utils";
 
-export { Language } from "@patternfly/react-code-editor";
 export interface ISchemaDefinedFieldProps {
   id?: string;
   className?: string;
@@ -15,6 +15,8 @@ export interface ISchemaDefinedFieldProps {
   jsonSchema?: JsonSchemaObject;
   onDocumentChanged?: (newJsonDocument: object) => void;
   isReadOnly?: boolean;
+  /** Language for the editor if the document/schema cannot render as fields. Defaults to Language.json. */
+  editorLanguage?: Language.json | Language.yaml;
 }
 
 export const SchemaDefinedField = ({
@@ -24,6 +26,7 @@ export const SchemaDefinedField = ({
   jsonSchema,
   onDocumentChanged,
   isReadOnly = false,
+  editorLanguage = Language.json,
 }: ISchemaDefinedFieldProps) => {
   const [isJsonView, setIsJsonView] = useState<boolean>(
     !jsonSchema || isComplexSchema(jsonSchema)
@@ -45,7 +48,7 @@ export const SchemaDefinedField = ({
         <PanelHeader>
           <Switch
             id={`${id}-json-toggle`}
-            label="JSON"
+            label={editorLanguage === Language.json ? "JSON" : "YAML"}
             isChecked={isJsonView}
             onChange={() => setIsJsonView(!isJsonView)}
           />
@@ -60,6 +63,7 @@ export const SchemaDefinedField = ({
             jsonDocument={jsonDocument}
             jsonSchema={jsonSchema}
             onDocumentChanged={onChangeHandler}
+            editorLanguage={editorLanguage}
           />
         ) : (
           <SchemaAsFields
