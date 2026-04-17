@@ -48,7 +48,7 @@ export const SchemaDefinedField = ({
         <PanelHeader>
           <Switch
             id={`${id}-json-toggle`}
-            label="JSON"
+            label={editorLanguage === Language.json ? "JSON" : "YAML"}
             isChecked={isJsonView}
             onChange={() => setIsJsonView(!isJsonView)}
           />

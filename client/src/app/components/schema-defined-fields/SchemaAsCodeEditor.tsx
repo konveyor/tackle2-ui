@@ -45,6 +45,15 @@ const jsonDocumentToCode = (
     : JSON.stringify(jsonDocument, null, 2);
 };
 
+const codeToJsonDocument = (
+  code: string,
+  editorLanguage: Language.json | Language.yaml
+): unknown => {
+  return editorLanguage === Language.yaml
+    ? jsYaml.load(code)
+    : JSON.parse(code);
+};
+
 export const SchemaAsCodeEditor = ({
   id,
   jsonDocument,
@@ -61,10 +70,6 @@ export const SchemaAsCodeEditor = ({
     jsonDocumentToCode(jsonDocument, editorLanguage)
   );
 
-  useEffect(() => {
-    setCurrentCode(jsonDocumentToCode(jsonDocument, editorLanguage));
-  }, [jsonDocument, editorLanguage]);
-
   const focusMovedOnSelectedDocumentChange = useRef<boolean>(false);
   const focusAndHomePosition = () => {
     if (editorRef.current) {
@@ -72,7 +77,6 @@ export const SchemaAsCodeEditor = ({
       editorRef.current.setPosition({ column: 1, lineNumber: 1 });
     }
   };
-
   useEffect(() => {
     if (currentCode && !focusMovedOnSelectedDocumentChange.current) {
       focusAndHomePosition();
@@ -88,10 +92,7 @@ export const SchemaAsCodeEditor = ({
     setCurrentCode(newValue);
     if (onDocumentChanged) {
       try {
-        const parsed =
-          editorLanguage === Language.yaml
-            ? (jsYaml.load(newValue) as unknown)
-            : (JSON.parse(newValue) as unknown);
+        const parsed = codeToJsonDocument(newValue, editorLanguage);
 
         if (
           parsed &&
