@@ -12,16 +12,13 @@ import i18n from "@app/i18n";
 // Axios error
 
 export const getAxiosErrorMessage = (axiosError: AxiosError) => {
-  // Try to extract error message from response data
   if (axiosError.response?.data) {
     const data = axiosError.response.data;
 
-    // If data is a string, return it directly
     if (typeof data === "string") {
       return data;
     }
 
-    // If data is an object, try common error message fields
     if (typeof data === "object" && data !== null) {
       const errorData = data as Record<string, unknown>;
       if (typeof errorData.message === "string") {
@@ -36,7 +33,6 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
     }
   }
 
-  // Fallback to axios error message or generic message
   return axiosError.message || "Network error";
 };
 
