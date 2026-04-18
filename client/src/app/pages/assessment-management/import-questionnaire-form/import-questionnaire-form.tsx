@@ -108,8 +108,15 @@ export const ImportQuestionnaireForm: React.FC<
   };
 
   const onHandleFailedQuestionnaireCreation = (error: AxiosError) => {
+    let errorMessage = getAxiosErrorMessage(error);
+
+    // For 400 errors (Bad Request), show user-friendly message for invalid questionnaires
+    if (error.response?.status === 400) {
+      errorMessage = t("message.invalidQuestionnaireImported");
+    }
+
     pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: errorMessage,
       variant: "danger",
     });
   };
