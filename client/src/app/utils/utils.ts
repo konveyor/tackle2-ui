@@ -12,11 +12,28 @@ import i18n from "@app/i18n";
 // Axios error
 
 export const getAxiosErrorMessage = (axiosError: AxiosError) => {
-  if (axiosError.response && axiosError.response.data && axiosError.message) {
-    return axiosError.message;
-  } else {
-    return "Network error";
+  if (axiosError.response?.data) {
+    const data = axiosError.response.data;
+
+    if (typeof data === "string") {
+      return data;
+    }
+
+    if (typeof data === "object" && data !== null) {
+      const errorData = data as Record<string, unknown>;
+      if (typeof errorData.message === "string") {
+        return errorData.message;
+      }
+      if (typeof errorData.error === "string") {
+        return errorData.error;
+      }
+      if (typeof errorData.detail === "string") {
+        return errorData.detail;
+      }
+    }
   }
+
+  return axiosError.message || "Network error";
 };
 
 // ToolbarChip
