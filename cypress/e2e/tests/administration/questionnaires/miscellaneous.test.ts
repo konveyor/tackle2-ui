@@ -53,8 +53,7 @@ describe(["@tier3", "@tier3_A"], "Miscellaneous Questionnaire tests", () => {
     notExists(sampleQuestionnaireTemplate);
   });
 
-  it.skip("Bug Tackle-3115: Import invalid questionnaire", function () {
-    // https://github.com/konveyor/tackle2-ui/issues/3115
+  it("Import invalid questionnaire", function () {
     // Automates bug https://issues.redhat.com/browse/MTA-1349
 
     AssessmentQuestionnaire.open();
@@ -63,8 +62,8 @@ describe(["@tier3", "@tier3_A"], "Miscellaneous Questionnaire tests", () => {
     cy.get(alertTitle).then(($element) => {
       const text = $element.text();
       expect(text).to.contain(
-        "Error:Field validation",
-        `Error: expected the alert popup to contain text [Error:Field validation] but it didn't.\nInstead found: ${text}`
+        "Invalid questionnaire error",
+        `Error: expected the alert popup to contain text [Invalid questionnaire error] but it didn't.\nInstead found: ${text}`
       );
     });
 

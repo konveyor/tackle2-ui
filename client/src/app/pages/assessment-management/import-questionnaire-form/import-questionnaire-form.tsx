@@ -108,8 +108,17 @@ export const ImportQuestionnaireForm: React.FC<
   };
 
   const onHandleFailedQuestionnaireCreation = (error: AxiosError) => {
+    let errorMessage = getAxiosErrorMessage(error);
+
+    if (error.response?.status === 400) {
+      const backendError = getAxiosErrorMessage(error);
+      errorMessage = t("message.invalidQuestionnaireImported", {
+        error: backendError,
+      });
+    }
+
     pushNotification({
-      title: getAxiosErrorMessage(error),
+      title: errorMessage,
       variant: "danger",
     });
   };
