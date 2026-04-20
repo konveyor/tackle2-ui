@@ -254,7 +254,7 @@
     "generatorsAvailable": "Available Generators",
     "generatorsChosen": "Chosen Generators",
     "importErrorCheckDocumentation": "For status Error imports, check the documentation to ensure your file is structured correctly.",
-    "invalidQuestionnaireImported": "Invalid questionnaire imported.",
+    "invalidQuestionnaireImported": "Invalid questionnaire error",
     "inheritedAssessmentTooltip_one": "This application is inheriting an assessment from an archetype.",
     "inheritedAssessmentTooltip_other": "This application is inheriting assessments from {{count}} archetypes.",
     "inheritedReviewTooltip_one": "This application is inheriting a review from an archetype.",

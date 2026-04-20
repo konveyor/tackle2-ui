@@ -111,7 +111,8 @@ export const ImportQuestionnaireForm: React.FC<
     let errorMessage = getAxiosErrorMessage(error);
 
     if (error.response?.status === 400) {
-      errorMessage = t("message.invalidQuestionnaireImported");
+      const backendError = getAxiosErrorMessage(error);
+      errorMessage = `${t("message.invalidQuestionnaireImported")}: ${backendError}`;
     }
 
     pushNotification({
