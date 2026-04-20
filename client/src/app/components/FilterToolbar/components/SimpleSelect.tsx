@@ -19,7 +19,7 @@ export interface SimpleSelectProps {
   isDisabled?: boolean;
   isFullWidth?: boolean;
   ariaLabel?: string;
-  toggleId?: string;
+  toggleId: string;
   toggleAriaLabel?: string;
   toggleStatus?: MenuToggleProps["status"];
 }
