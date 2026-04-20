@@ -169,6 +169,13 @@ export interface Application {
   effort?: number;
 }
 
+export interface ApplicationManifest {
+  id: number;
+  content: JsonDocument;
+  secret?: JsonDocument;
+  application: Ref;
+}
+
 export interface Review {
   id: number;
   proposedAction: ProposedAction;
