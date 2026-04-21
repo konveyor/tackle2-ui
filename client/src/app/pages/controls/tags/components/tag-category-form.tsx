@@ -168,12 +168,9 @@ export const TagCategoryForm: React.FC<TagCategoryFormProps> = ({
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            isScrollable
             placeholderText={t("composed.selectOne", {
               what: t("terms.color").toLowerCase(),
             })}
-            id="type-select"
-            isFullWidth
             toggleId="type-select-toggle"
             toggleAriaLabel="Type select dropdown toggle"
             ariaLabel={name}

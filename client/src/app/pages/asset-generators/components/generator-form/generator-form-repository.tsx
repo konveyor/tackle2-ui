@@ -54,11 +54,9 @@ export const GeneratorFormRepository: React.FC = () => {
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            isScrollable
             toggleId="repo-type-toggle"
             toggleAriaLabel="Type select dropdown toggle"
             ariaLabel={name}
-            isFullWidth
             value={value ?? undefined}
             options={REPOSITORY_KIND_OPTIONS}
             onSelect={(selection) => {

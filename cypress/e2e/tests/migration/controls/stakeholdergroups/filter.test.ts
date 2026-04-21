@@ -33,12 +33,14 @@ import { Stakeholders } from "../../../../models/migration/controls/stakeholders
 import {
   button,
   clearAllFilters,
-  description,
-  name,
-  stakeholders,
   tdTag,
   trTag,
 } from "../../../../types/constants";
+import {
+  categoryDescription,
+  categoryName,
+  categoryStakeholders,
+} from "../../../../types/filter-categories";
 
 let stakeholdersList: Array<Stakeholders> = [];
 let stakeholderGroupsList: Array<Stakeholdergroups> = [];
@@ -67,7 +69,7 @@ describe(
       cy.get("@getStakeholderGroups");
 
       const validSearchInput = stakeholderGroupsList[0].name.substring(0, 5);
-      applySearchFilter(name, validSearchInput);
+      applySearchFilter(categoryName, validSearchInput);
       exists(stakeholderGroupsList[0].name);
       if (stakeholderGroupsList[1].name.indexOf(validSearchInput) >= 0) {
         exists(stakeholderGroupsList[1].name);
@@ -75,7 +77,7 @@ describe(
 
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");
-      applySearchFilter(name, invalidSearchInput);
+      applySearchFilter(categoryName, invalidSearchInput);
       cy.get("h2").contains("No stakeholder group available");
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");
@@ -89,7 +91,7 @@ describe(
         0,
         3
       );
-      applySearchFilter(description, validSearchInput);
+      applySearchFilter(categoryDescription, validSearchInput);
 
       // Assert that stakeholder groups row(s) containing the search text is/are displayed
       exists(stakeholderGroupsList[0].description);
@@ -99,7 +101,7 @@ describe(
 
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");
-      applySearchFilter(description, invalidSearchInput);
+      applySearchFilter(categoryDescription, invalidSearchInput);
       cy.get("h2").contains("No stakeholder group available");
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");
@@ -113,7 +115,7 @@ describe(
         0,
         3
       );
-      applySearchFilter(stakeholders, validSearchInput);
+      applySearchFilter(categoryStakeholders, validSearchInput);
 
       selectItemsPerPage(100);
       cy.get(tdTag)
@@ -131,7 +133,7 @@ describe(
 
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");
-      applySearchFilter(stakeholders, invalidSearchInput);
+      applySearchFilter(categoryStakeholders, invalidSearchInput);
       cy.get("h2").contains("No stakeholder group available");
       clickByText(button, clearAllFilters);
       cy.get("@getStakeholderGroups");

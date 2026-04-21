@@ -28,8 +28,8 @@ import {
   clearAllFilters,
   cloudNative,
   legacyPathfinder,
-  name,
 } from "../../../types/constants";
+import { categoryName } from "../../../types/filter-categories";
 
 const yamlFileName = "questionnaire_import/cloud-native.yaml";
 const assessmentQuestionnaireList: Array<string> = [];
@@ -55,14 +55,14 @@ describe(
 
       let searchInput = assessmentQuestionnaireList[0];
 
-      applySearchFilter(name, searchInput);
+      applySearchFilter(categoryName, searchInput);
       exists(assessmentQuestionnaireList[0]);
       notExists(assessmentQuestionnaireList[1]);
       clickByText(button, clearAllFilters);
 
       searchInput = assessmentQuestionnaireList[1];
 
-      applySearchFilter(name, searchInput);
+      applySearchFilter(categoryName, searchInput);
       exists(assessmentQuestionnaireList[1]);
       notExists(assessmentQuestionnaireList[0]);
       clickByText(button, clearAllFilters);

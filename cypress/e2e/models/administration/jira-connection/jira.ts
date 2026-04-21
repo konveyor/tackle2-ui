@@ -24,17 +24,15 @@ import {
   tdTag,
   trTag,
 } from "../../../types/constants";
+import { categoryName, filterCategory } from "../../../types/filter-categories";
 import { JiraConnectionData } from "../../../types/types";
 import {
   confirmButton,
   confirmCancelButton,
+  filteredBy,
   navLink,
 } from "../../../views/common.view";
-import {
-  filterCategory,
-  filteredBy,
-  searchButton,
-} from "../../../views/credentials.view";
+import { searchButton } from "../../../views/credentials.view";
 import { searchInput } from "../../../views/issue.view";
 import {
   createJiraButton,
@@ -274,7 +272,7 @@ export class Jira {
   }
 
   static applyFilterByName(value: string) {
-    selectFromDropList(filteredBy, filterCategory);
+    selectFromDropList(filteredBy, filterCategory(categoryName));
     inputText(searchInput, value);
     click(searchButton);
   }

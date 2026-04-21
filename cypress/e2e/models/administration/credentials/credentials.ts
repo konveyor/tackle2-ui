@@ -29,6 +29,14 @@ import {
   trTag,
   unsetAsDefaultAction,
 } from "../../../types/constants";
+import {
+  categoryCreatedBy,
+  categoryDefaultCredential,
+  categoryName,
+  categoryType,
+  filterCategory,
+  filterSelectType,
+} from "../../../types/filter-categories";
 import { CredentialsData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
 import {
@@ -37,12 +45,6 @@ import {
   credentialNameInput,
   defaultIcon,
   descriptionInput,
-  filterCatCreatedBy,
-  filterCatDefaultCredential,
-  filterCatType,
-  filterCategory,
-  filterSelectType,
-  filteredBy,
   isDefaultCheckbox,
   modalBoxBody,
   passwordInput,
@@ -216,26 +218,32 @@ export class Credentials {
   }
 
   static ApplyFilterByName(value: string) {
-    selectFromDropList(filteredBy, filterCategory);
+    selectFromDropList(commonView.filteredBy, filterCategory(categoryName));
     inputText(commonView.searchInput, value);
     click(commonView.searchButton);
   }
 
   static applyFilterByType(type: string) {
-    selectFromDropList(filteredBy, filterCatType);
-    selectFromDropListByText(filterSelectType, type);
+    selectFromDropList(commonView.filteredBy, filterCategory(categoryType));
+    selectFromDropListByText(filterSelectType(categoryType), type);
   }
 
   static applyFilterCreatedBy(value: string) {
-    selectFromDropList(filteredBy, filterCatCreatedBy);
+    selectFromDropList(
+      commonView.filteredBy,
+      filterCategory(categoryCreatedBy)
+    );
     inputText(commonView.searchInput, value);
     click(commonView.searchButton);
   }
 
   static applyFilterDefaultCredential(value: DefaultCredentialFilter) {
-    selectFromDropList(filteredBy, filterCatDefaultCredential);
+    selectFromDropList(
+      commonView.filteredBy,
+      filterCategory(categoryDefaultCredential)
+    );
     selectFromDropListByText(
-      filterSelectType,
+      filterSelectType(categoryDefaultCredential),
       value,
       commonView.actionMenuItem
     );

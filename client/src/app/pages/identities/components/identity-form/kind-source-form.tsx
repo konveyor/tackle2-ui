@@ -54,9 +54,6 @@ export const KindSourceForm: React.FC<{
         fieldId="user-credentials-select"
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            isScrollable
-            isFullWidth
-            id="user-credentials-select"
             toggleId="user-credentials-select-toggle"
             toggleAriaLabel="User credentials select dropdown toggle"
             ariaLabel={name}

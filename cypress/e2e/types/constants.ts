@@ -13,6 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import {
+  categoryApplication,
+  categoryApplicationId,
+  categoryApplicationName,
+  categoryBusinessServiceName,
+  categoryCategory,
+  categoryCreateUser,
+  categoryId,
+  categoryKind,
+  categoryName,
+  categoryProvider,
+  categorySource,
+  categoryStatus,
+  categoryTagId,
+  categoryTarget,
+} from "./filter-categories";
 export const sourceCode = "Source code";
 export const answer = "Answer";
 export const applicationName = "Application name";
@@ -38,7 +54,6 @@ export const confidence = "Confidence";
 export const createNewButton = "Create new";
 export const criticality = "Criticality";
 export const credentials = "Credentials";
-export const credentialType = "Credential type";
 export const setAsDefaultAction = "Set as default";
 export const unsetAsDefaultAction = "Remove default";
 export const deleteAction = "Delete";
@@ -203,22 +218,22 @@ export enum SortType {
 }
 
 export enum dynamicReportFilter {
-  applicationName = "Application name",
-  archetype = "Archetype",
-  bs = "Business service",
-  tags = "Tags",
-  category = "Category",
-  source = "Source",
-  target = "Target",
+  applicationName = categoryApplicationName,
+  archetypes = categoryApplicationId,
+  bs = categoryBusinessServiceName,
+  tags = categoryTagId,
+  category = categoryCategory,
+  source = categorySource,
+  target = categoryTarget,
 }
 
 export enum dependencyFilter {
-  appName = "Application name",
-  archetype = "Archetype",
-  bs = "Business service",
-  tags = "Tags",
-  deppName = "Name",
-  language = "Language",
+  appName = categoryApplicationName,
+  archetypes = categoryApplicationId,
+  bs = categoryBusinessServiceName,
+  tags = categoryTagId,
+  deppName = categoryName,
+  language = categoryProvider,
 }
 
 export enum Languages {
@@ -246,11 +261,11 @@ export enum TaskKind {
 }
 
 export enum TaskFilter {
-  applicationName = "Application",
-  id = "ID",
-  status = "Status",
-  kind = "Kind",
-  createdBy = "Created By",
+  applicationName = categoryApplication,
+  id = categoryId,
+  status = categoryStatus,
+  kind = categoryKind,
+  createdBy = categoryCreateUser,
 }
 
 export enum appInventoryKebab {

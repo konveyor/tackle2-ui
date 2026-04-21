@@ -276,9 +276,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 fieldState: { isDirty, error, isTouched },
               }) => (
                 <SimpleSelect
-                  isScrollable
-                  isFullWidth
-                  id="httpIdentity"
                   toggleId="http-proxy-credentials-select-toggle"
                   ariaLabel="HTTP proxy credentials"
                   value={value || undefined}
@@ -365,8 +362,6 @@ export const ProxyForm: React.FC<ProxyFormProps> = ({
                 fieldState: { isDirty, error, isTouched },
               }) => (
                 <SimpleSelect
-                  isScrollable
-                  isFullWidth
                   toggleId="https-proxy-credentials-select-toggle"
                   ariaLabel="HTTPS proxy credentials"
                   value={value ? value : undefined}

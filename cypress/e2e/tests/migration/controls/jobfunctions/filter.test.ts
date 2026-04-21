@@ -24,7 +24,8 @@ import {
   login,
 } from "../../../../../utils/utils";
 import { Jobfunctions } from "../../../../models/migration/controls/jobfunctions";
-import { button, clearAllFilters, name } from "../../../../types/constants";
+import { button, clearAllFilters } from "../../../../types/constants";
+import { categoryName } from "../../../../types/filter-categories";
 
 const jobFunctionsList: Array<Jobfunctions> = [];
 const invalidSearchInput = String(data.getRandomNumber());
@@ -51,16 +52,16 @@ describe(
 
       // Enter an existing display name substring and assert
       const validSearchInput = jobFunctionsList[0].name.substring(0, 3);
-      applySearchFilter(name, validSearchInput);
+      applySearchFilter(categoryName, validSearchInput);
       exists(jobFunctionsList[0].name);
       clickByText(button, clearAllFilters);
 
-      applySearchFilter(name, jobFunctionsList[1].name);
+      applySearchFilter(categoryName, jobFunctionsList[1].name);
       exists(jobFunctionsList[1].name);
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing display name substring and apply it as search filter
-      applySearchFilter(name, invalidSearchInput);
+      applySearchFilter(categoryName, invalidSearchInput);
       cy.get("h2").contains("No job function available");
       clickByText(button, clearAllFilters);
     });

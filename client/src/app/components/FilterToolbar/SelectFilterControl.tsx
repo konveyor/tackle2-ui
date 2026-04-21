@@ -61,13 +61,14 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
     >
       <SimpleSelect
         isScrollable={isScrollable}
+        isFullWidth={false}
         options={category.selectOptions}
         value={filterValue?.[0]}
         onSelect={onFilterSelect}
         ariaLabel={category.title}
         isDisabled={isDisabled}
         placeholderText="Any"
-        toggleId="select-filter-value-select"
+        toggleId={`select-filter-value-${category.categoryKey}`}
         toggleAriaLabel="Select"
       />
     </ToolbarFilter>

@@ -25,5 +25,5 @@ export enum CustomMigrationTargetView {
   cardContainer = 'div[class*="gallery"][class*="gutter"]',
   filterLanguageDropdown = "#filter-control-provider-Languages",
   formLanguageDropdown = '[data-ouia-component-id="provider-type-select-toggle"]',
-  formLanguageDropdownOptions = "#provider-type-select",
+  formLanguageDropdownOptions = '[data-ouia-component-id="provider-type-select-toggle-select"]',
 }

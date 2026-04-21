@@ -92,7 +92,6 @@ export const RepositoryFields = <TFormValues extends FieldValues>({
         isRequired={isTypeRequired}
         renderInput={({ field: { value, name, onChange } }) => (
           <SimpleSelect
-            isScrollable
             toggleId={toggleIds.type || `${prefix}-repo-type-toggle`}
             toggleAriaLabel="Type select dropdown toggle"
             ariaLabel={name}

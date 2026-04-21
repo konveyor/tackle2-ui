@@ -26,7 +26,8 @@ import {
 } from "../../../../../../utils/utils";
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
 import { Tag } from "../../../../../models/migration/controls/tags";
-import { name, tdTag } from "../../../../../types/constants";
+import { tdTag } from "../../../../../types/constants";
+import { categoryTags } from "../../../../../types/filter-categories";
 
 describe(["@tier3", "@tier3_C"], "Tags filter validations", function () {
   const tagCategory = new TagCategory(data.getRandomWord(5), data.getColor());
@@ -42,22 +43,21 @@ describe(["@tier3", "@tier3_C"], "Tags filter validations", function () {
   it("Name filter validations", function () {
     const validSearchInputTag = tag.name.substring(0, 3);
     const validSearchInputTagCategory = tagCategory.name.substring(0, 3);
-    const filterType = name;
 
     Tag.openList();
-    applySelectFilter("tags", filterType, validSearchInputTag);
+    applySelectFilter(categoryTags, categoryTags, validSearchInputTag);
     expandRowDetails(tag.tagCategory);
     existsWithinRow(tag.tagCategory, tdTag, tag.name);
     closeRowDetails(tag.tagCategory);
 
-    applySelectFilter("tags", filterType, validSearchInputTagCategory);
+    applySelectFilter(categoryTags, categoryTags, validSearchInputTagCategory);
     exists(validSearchInputTagCategory);
 
     clearAllFilters();
 
     // Enter a non-existing tag name substring and apply it as search filter
     const invalidSearchInput = String(data.getRandomNumber(111111, 222222));
-    applySelectFilter("tags", filterType, invalidSearchInput, false);
+    applySelectFilter(categoryTags, categoryTags, invalidSearchInput, false);
   });
 
   after("Cleanup", function () {

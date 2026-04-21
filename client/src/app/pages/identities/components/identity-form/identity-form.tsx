@@ -376,9 +376,6 @@ export const IdentityForm: React.FC<IdentityFormProps> = ({
           isRequired
           renderInput={({ field: { value, name, onChange } }) => (
             <SimpleSelect
-              isScrollable
-              isFullWidth
-              id="type-select"
               toggleId="type-select-toggle"
               toggleAriaLabel="Type select dropdown toggle"
               ariaLabel={name}

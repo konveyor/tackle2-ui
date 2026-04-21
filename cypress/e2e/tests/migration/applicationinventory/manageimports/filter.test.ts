@@ -29,7 +29,7 @@ import {
 } from "../../../../../utils/utils";
 import { Application } from "../../../../models/migration/applicationinventory/application";
 import { button, clearAllFilters } from "../../../../types/constants";
-import { FileName } from "../../../../views/applicationinventory.view";
+import { categoryFileName } from "../../../../types/filter-categories";
 
 const filePath = "app_import/csv/";
 const filesToImport = [
@@ -66,7 +66,7 @@ describe(
 
       // Enter an existing file name substring and apply it as search filter
       const validSearchInput = filesToImport[0].substring(0, 5);
-      applySearchFilter(FileName, validSearchInput);
+      applySearchFilter(categoryFileName, validSearchInput);
 
       // Assert that application import row(s) containing the search text is/are displayed
       exists(filesToImport[0]);
@@ -77,7 +77,7 @@ describe(
       clickByText(button, clearAllFilters);
 
       // Enter a non-existing file name substring and apply it as search filter
-      applySearchFilter(FileName, invalidSearchInput);
+      applySearchFilter(categoryFileName, invalidSearchInput);
       cy.get("h2").contains("No import summary available");
     });
 
