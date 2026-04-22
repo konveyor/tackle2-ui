@@ -51,7 +51,7 @@ const ViewArchetypesTable: React.FC<ViewArchetypesTableProps> = ({
         archetype={archetype}
         questionnaires={requiredQuestionnaires}
         assessments={assessments}
-        isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+        isLoading={isFetchingQuestionnaires || isFetchingAssessmentsById}
         tableName="Required questionnaires"
       />
       {filteredArchivedAssessments.length === 0 ? null : (
@@ -60,7 +60,7 @@ const ViewArchetypesTable: React.FC<ViewArchetypesTableProps> = ({
           isReadonly
           questionnaires={filteredArchivedQuestionnaires}
           assessments={filteredArchivedAssessments}
-          isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+          isLoading={isFetchingQuestionnaires || isFetchingAssessmentsById}
           tableName="Archived questionnaires"
         />
       )}
