@@ -3,17 +3,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import {
-  Alert,
-  Form,
-  SelectOptionProps,
-  TextContent,
-  Title,
-} from "@patternfly/react-core";
+import { Alert, Form, TextContent, Title } from "@patternfly/react-core";
 
 import { Application, Taskgroup } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { isNotEmptyString } from "@app/utils/utils";
 
@@ -230,22 +225,22 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
   const isSingleApp = applications && applications.length === 1;
   const showBinaryUpload = !hideBinary && isSingleApp && !!renderBinaryUpload;
 
-  const analysisOptions: SelectOptionProps[] = [
+  const analysisOptions: FilterSelectOptionProps[] = [
     {
       value: "source-code-deps",
-      children: "Source code + dependencies",
+      label: "Source code + dependencies",
     },
     {
       value: "source-code",
-      children: "Source code",
+      label: "Source code",
     },
     !hideBinary && {
       value: "binary",
-      children: "Binary",
+      label: "Binary",
     },
     showBinaryUpload && {
       value: "binary-upload",
-      children: "Upload a local binary",
+      label: "Upload a local binary",
     },
   ].filter(Boolean);
 
@@ -268,13 +263,13 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         helperTextTestId="analysis-source-select-message"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelectBasic
-            selectId="analysis-source"
+          <SimpleSelect
             toggleId="analysis-source-toggle"
             toggleAriaLabel="Analysis source dropdown toggle"
             aria-label={name}
             value={value}
-            onChange={onChange}
+            isFullWidth
+            onSelect={onChange}
             options={analysisOptions}
           />
         )}
