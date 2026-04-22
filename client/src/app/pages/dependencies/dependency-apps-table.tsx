@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Text,
   TextContent,
@@ -41,7 +41,8 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   dependency,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const { businessServices } = useFetchBusinessServices();
   const { tagItems } = useFetchTagsWithTagItems();
@@ -158,10 +159,10 @@ export const DependencyAppsTable: React.FC<IDependencyAppsTableProps> = ({
   } = tableControls;
 
   const clearFilters = () => {
-    const currentPath = history.location.pathname;
-    const newSearch = new URLSearchParams(history.location.search);
+    const currentPath = location.pathname;
+    const newSearch = new URLSearchParams(location.search);
     newSearch.delete("filters");
-    history.push(`${currentPath}`);
+    navigate(`${currentPath}`);
   };
   return (
     <>

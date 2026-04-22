@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { DisallowCharacters } from "@app/utils/type-utils";
 import { objectKeys } from "@app/utils/utils";
@@ -61,7 +61,7 @@ export const useUrlParams = <
 >): TURLParamStateTuple<TDeserializedParams> => {
   type TPrefixedURLParamKey = TURLParamKey | `${TKeyPrefix}:${TURLParamKey}`;
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const withPrefix = (key: TURLParamKey): TPrefixedURLParamKey =>
     persistenceKeyPrefix ? `${persistenceKeyPrefix}:${key}` : key;
@@ -87,13 +87,16 @@ export const useUrlParams = <
     const existingSearchParams = new URLSearchParams(search);
     // We prefix the params object here so the serialize function doesn't have to care about the keyPrefix.
     const newPrefixedSerializedParams = withPrefixes(serialize(newParams));
-    history.replace({
-      pathname,
-      search: trimAndStringifyUrlParams({
-        existingSearchParams,
-        newPrefixedSerializedParams,
-      }),
-    });
+    navigate(
+      {
+        pathname,
+        search: trimAndStringifyUrlParams({
+          existingSearchParams,
+          newPrefixedSerializedParams,
+        }),
+      },
+      { replace: true }
+    );
   };
 
   // We use useLocation here so we are re-rendering when the params change.

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
@@ -47,7 +47,7 @@ import { ImportApplicationsForm } from "../components/import-applications-form";
 
 export const ManageImports: React.FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pushNotification } = React.useContext(NotificationsContext);
 
   const { importSummaries, isFetching, fetchError, refetch } =
@@ -142,7 +142,7 @@ export const ManageImports: React.FC = () => {
   };
 
   const viewRowDetails = (row: ApplicationImportSummary) => {
-    history.push(
+    navigate(
       formatPath(Paths.applicationsImportsDetails, {
         importId: row.id,
       })
