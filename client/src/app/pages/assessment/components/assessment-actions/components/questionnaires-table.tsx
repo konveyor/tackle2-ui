@@ -23,7 +23,7 @@ import DynamicAssessmentActionsRow from "./dynamic-assessment-actions-row";
 
 interface QuestionnairesTableProps {
   tableName: string;
-  isFetching: boolean;
+  isLoading: boolean;
   isReadonly?: boolean;
   application?: Application;
   archetype?: Archetype;
@@ -38,6 +38,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   application,
   archetype,
   tableName,
+  isLoading,
 }) => {
   const tableControls = useLocalTableControls({
     tableName: "questionnaires-table",
@@ -86,6 +87,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
         <ConditionalTableBody
           isNoData={questionnaires?.length === 0}
           numRenderedColumns={numRenderedColumns}
+          isLoading={isLoading}
           noDataEmptyState={
             <div>
               <NoDataEmptyState title="No Questionnaires are currently available to be taken. " />

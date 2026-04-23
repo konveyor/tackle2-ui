@@ -56,7 +56,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
         archetype={archetype}
         questionnaires={requiredQuestionnaires}
         assessments={assessments}
-        isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+        isLoading={isFetchingQuestionnaires || isFetchingAssessmentsById}
         tableName="Required questionnaires"
       />
       {filteredArchivedAssessments.length === 0 ? null : (
@@ -66,7 +66,7 @@ const AssessmentActionsTable: React.FC<AssessmentActionsTableProps> = ({
           isReadonly
           questionnaires={filteredArchivedQuestionnaires}
           assessments={filteredArchivedAssessments}
-          isFetching={isFetchingQuestionnaires || isFetchingAssessmentsById}
+          isLoading={isFetchingQuestionnaires || isFetchingAssessmentsById}
           tableName="Archived questionnaires"
         />
       )}
