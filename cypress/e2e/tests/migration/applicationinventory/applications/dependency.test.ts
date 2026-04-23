@@ -56,8 +56,7 @@ describe(["@tier3", "@tier3_B"], "Manage application dependencies", () => {
     applicationsList[1].removeDependencies(northboundApps, southboundApps);
   });
 
-  it.skip("Bug Tackle-3113: Cyclic dependencies for applications", function () {
-    // https://github.com/konveyor/tackle2-ui/issues/3113
+  it("Cyclic dependencies for applications", function () {
     const northboundApps: Array<string> = [applicationsList[0].name];
     const southboundApps: Array<string> = [applicationsList[2].name];
 

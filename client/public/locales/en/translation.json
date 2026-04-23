@@ -266,6 +266,7 @@
     "loadingTripleDot": "Loading...",
     "manageColumnsDescription": "Select the columns you want to display in the table view.",
     "manageDependenciesInstructions": "Add northbound and southbound dependencies for the selected application here. Note that any selections made will be saved automatically. To undo any changes, you must manually delete the applications from the dropdowns.",
+    "cyclicDependenciesNotAllowed": "Cyclic dependencies are not allowed.",
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
     "noArchetypesCreatedTitle": "No archetypes have been created",
     "noArchetypesCreatedDescription": "Create a new archetype to get started.",
