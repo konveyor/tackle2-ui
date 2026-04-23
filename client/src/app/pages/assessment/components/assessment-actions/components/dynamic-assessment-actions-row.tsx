@@ -1,21 +1,9 @@
-import {
-  FunctionComponent,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import {
-  useIsFetching,
-  useIsMutating,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { FunctionComponent, useCallback, useContext } from "react";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { Button, Spinner } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import { TrashIcon } from "@patternfly/react-icons";
-import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Td } from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
@@ -30,7 +18,6 @@ import { NotificationsContext } from "@app/components/NotificationsContext";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import {
   addSectionOrderToQuestions,
-  assessmentsByItemIdQueryKey,
   useCreateAssessmentMutation,
   useDeleteAssessmentMutation,
 } from "@app/queries/assessments";
@@ -66,18 +53,14 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const isArchetype = useIsArchetype();
   const history = useHistory();
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   const { pushNotification } = useContext(NotificationsContext);
 
   const onSuccessHandler = () => {};
   const onErrorHandler = () => {};
 
-  const { mutateAsync: createAssessmentAsync } = useCreateAssessmentMutation(
-    isArchetype,
-    onSuccessHandler,
-    onErrorHandler
-  );
+  const { mutateAsync: createAssessmentAsync, isLoading: isCreating } =
+    useCreateAssessmentMutation(isArchetype, onSuccessHandler, onErrorHandler);
 
   const onDeleteAssessmentSuccess = (name: string) => {
     pushNotification({
@@ -86,11 +69,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       }),
       variant: "success",
     });
-    queryClient.invalidateQueries([
-      assessmentsByItemIdQueryKey,
-      application?.id,
-      isArchetype,
-    ]);
   };
 
   const onDeleteError = (error: AxiosError) => {
@@ -103,9 +81,6 @@ const DynamicAssessmentActionsRow: FunctionComponent<
   const { mutate: deleteAssessment, isLoading: isDeleting } =
     useDeleteAssessmentMutation(onDeleteAssessmentSuccess, onDeleteError);
 
-  const isFetching = useIsFetching();
-  const isMutating = useIsMutating();
-
   const determineAction = useCallback(() => {
     if (!assessment) {
       return AssessmentAction.Take;
@@ -116,20 +91,16 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     }
   }, [assessment]);
 
-  const [action, setAction] = useState(determineAction());
+  const action = determineAction();
 
-  useEffect(() => {
-    setAction(determineAction());
-  }, [determineAction, assessment]);
-
-  const determineButtonClassName = () => {
-    const action = determineAction();
+  const determineButtonClassName = useCallback(() => {
     if (action === AssessmentAction.Continue) {
       return "continue-button";
     } else if (action === AssessmentAction.Retake) {
       return "retake-button";
     }
-  };
+    return "";
+  }, [action]);
 
   const createAssessment = async () => {
     const newAssessment: InitialAssessment = {
@@ -201,21 +172,19 @@ const DynamicAssessmentActionsRow: FunctionComponent<
     <>
       <Td className="actions-col">
         <div>
-          {isReadonly ? null : !isDeleting && !isFetching && !isMutating ? (
+          {isReadonly ? null : (
             <Button
               type="button"
               variant="primary"
               className={determineButtonClassName()}
+              isDisabled={isCreating || isDeleting}
+              isLoading={isCreating || isDeleting}
               onClick={() => {
                 onHandleAssessmentAction();
               }}
             >
               {action}
             </Button>
-          ) : (
-            <Spinner role="status" size="md" className={spacing.mxLg}>
-              <span className="sr-only">Loading...</span>
-            </Spinner>
           )}
           {assessment?.status === "complete" ? (
             <Button
