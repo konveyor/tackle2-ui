@@ -41,8 +41,9 @@ spec:
       default: "@ci,@tier0"
 
   workspaces:
-    - name: cluster-credentials
-      description: Kubeconfig for the test cluster
+    - name: source
+      description: Workspace containing test source code
+      optional: true
 
   results:
     - name: TEST_PASSED
@@ -72,9 +73,6 @@ spec:
           value: $(params.OPERATOR_NAMESPACE)
         - name: install_mode
           value: "AllNamespaces"
-      workspaces:
-        - name: credentials
-          workspace: cluster-credentials
 
     # Step 2: Wait for operator to be ready
     - name: wait-for-operator
@@ -187,7 +185,7 @@ spec:
           value: $(params.TEST_TIER)
       workspaces:
         - name: source
-          workspace: cluster-credentials
+          workspace: source
 
   finally:
     # Cleanup task that always runs
