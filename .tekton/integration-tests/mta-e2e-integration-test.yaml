@@ -1,0 +1,55 @@
+apiVersion: appstudio.redhat.com/v1beta1
+kind: IntegrationTestScenario
+metadata:
+  name: mta-ui-e2e-fbc-test
+  namespace: art-mta-tenant
+spec:
+  application: mta-8-1
+  contexts:
+    - description: E2E tests for MTA UI with full operator deployment
+      name: mta-e2e-test
+  params:
+    # FBC Operator Deployment Parameters
+    - name: CATALOG_IMAGE
+      # This should point to the MTA/Konveyor FBC catalog image
+      value: "quay.io/konveyor/mta-operator-catalog:latest"
+
+    - name: OPERATOR_NAMESPACE
+      value: "konveyor-tackle"
+
+    - name: OPERATOR_PACKAGE_NAME
+      value: "mta-operator" # or "konveyor-operator" based on your FBC
+
+    - name: OPERATOR_CHANNEL
+      value: "development" # or "stable", "alpha" based on your channel
+
+    # Custom test parameters
+    - name: UI_IMAGE
+      # This will be replaced with the Snapshot image at runtime
+      value: "{{snapshot.components.tackle2-ui.containerImage}}"
+
+    - name: CYPRESS_BASE_URL
+      value: "http://tackle-ui.konveyor-tackle.svc.cluster.local:9000"
+
+    - name: TEST_TIER
+      value: "@ci,@tier0,@tier2_A"
+
+  # Reference the custom pipeline from git repository
+  resolverRef:
+    resolver: git
+    params:
+      - name: url
+        value: https://github.com/konveyor/tackle2-ui.git
+      - name: revision
+        value: main
+      - name: pathInRepo
+        value: .tekton/integration-tests/mta-integration-pipeline.yaml
+
+  # Environment configuration
+  environment:
+    name: ephemeral-cluster
+    type: POC # Proof of Concept cluster
+    configuration:
+      env:
+        - name: KONVEYOR_NAMESPACE
+          value: konveyor-tackle
