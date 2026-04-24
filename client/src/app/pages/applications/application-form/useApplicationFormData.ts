@@ -3,6 +3,7 @@ import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
 import { Application } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { OptionWithValue } from "@app/components/SimpleSelect";
 import { useRepositoryKind } from "@app/hooks/useRepositoryKind";
@@ -23,6 +24,13 @@ const entityToOptionWithValue = <T extends { name: string }>(
 ): OptionWithValue<string> => ({
   value: entity.name,
   toString: () => entity.name,
+});
+
+const entityToOption = <T extends { name: string }>(
+  entity: T
+): FilterSelectOptionProps => ({
+  value: entity.name,
+  label: entity.name,
 });
 
 export const useApplicationFormData = ({
@@ -134,10 +142,11 @@ export const useApplicationFormData = ({
   return {
     isDataReady,
     businessServices,
-    businessServiceOptions: businessServices.map(entityToOptionWithValue),
+    businessServiceOptions: businessServices.map(entityToOption),
     businessServiceToRef,
     stakeholders,
-    stakeholdersOptions: stakeholders.map(entityToOptionWithValue),
+    stakeholdersOptions: stakeholders.map(entityToOption),
+    stakeholdersOptionsWithValue: stakeholders.map(entityToOptionWithValue),
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
@@ -147,7 +156,7 @@ export const useApplicationFormData = ({
     createApplication,
     updateApplication,
     platforms,
-    platformOptions: platforms.map(entityToOptionWithValue),
+    platformOptions: platforms.map(entityToOption),
     platformFromName,
     repositoryKindOptions: kindOptions,
   };

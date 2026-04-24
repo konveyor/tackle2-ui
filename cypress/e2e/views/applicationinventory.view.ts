@@ -21,14 +21,17 @@ export const applicationNameInput = "input[name=name]";
 export const applicationDescriptionInput = "input[name=description]";
 export const applicationBusinessServiceSelect =
   "[placeholder='Select a business service']";
+export const applicationBusinessServiceClearButton =
+  "[data-ouia-component-id='business-service-toggle-clear-button']";
 export const tagsColumnSelector = "td[data-label='Tags']";
 
 export const applicationContributorsInput =
   "#contributors-select-toggle-select-multi-typeahead-typeahead";
 export const applicationContributorsText = ".pf-v5-c-chip__text";
 export const applicationContributorsAction = ".pf-v5-c-chip__actions";
-export const applicationOwnerInput =
-  "[data-ouia-component-id='owner-toggle'] [data-ouia-component-type='PF5/TextInput']";
+export const applicationOwnerInput = "#owner-toggle-input";
+export const applicationOwnerClearButton =
+  "[data-ouia-component-id='owner-toggle-clear-button']";
 export const modalBoxDialog = "#confirm-dialog";
 export const modalBoxMessage = ".pf-v5-c-modal-box__body";
 export const reviewConfirmationText =

@@ -578,15 +578,19 @@ export function applySelectFilter(
   filterText: string,
   isValid = true
 ): void {
+  const filterInput = `#filter-control-${filterId}-typeahead-select-input`;
   selectFilter(filterName);
-  click(".pf-v5-c-menu-toggle__button");
-  inputText(".pf-v5-c-text-input-group__text-input", filterText);
+  cy.get(filterInput)
+    .closest(".pf-v5-c-menu-toggle")
+    .find(".pf-v5-c-menu-toggle__button")
+    .click();
+  inputText(filterInput, filterText);
   if (isValid) {
     clickByText(".pf-v5-c-menu__item", filterText);
   } else {
     cy.contains(actionMenuItem, "No results");
   }
-  click(".pf-v5-c-text-input-group__text-input");
+  cy.get(filterInput).click();
 }
 
 export function applySearchFilter(

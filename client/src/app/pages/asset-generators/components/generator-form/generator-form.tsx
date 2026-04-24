@@ -12,16 +12,16 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import type { Generator, New, Repository } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateGeneratorMutation,
   useFetchGenerators,
@@ -228,25 +228,19 @@ const GeneratorFormRenderer: React.FC<GeneratorFormProps> = ({
           fieldId="kind"
           isRequired
           renderInput={({ field: { value, name, onChange } }) => (
-            <>
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                placeholderText={t("composed.selectOne", {
-                  what: t("terms.generatorType").toLowerCase(),
-                })}
-                variant="typeahead"
-                toggleId="generator-type-toggle"
-                id="generator-type-select"
-                toggleAriaLabel="Generator type select dropdown toggle"
-                aria-label={name}
-                value={value}
-                options={providersList || []}
-                onChange={(selection) => {
-                  onChange(selection);
-                }}
-                onClear={() => onChange("")}
-              />
-            </>
+            <TypeaheadSelect
+              placeholderText={t("composed.selectOne", {
+                what: t("terms.generatorType").toLowerCase(),
+              })}
+              toggleId="generator-type-toggle"
+              toggleAriaLabel="Generator type select dropdown toggle"
+              ariaLabel={name}
+              value={value}
+              options={(providersList || []).map(
+                (p): FilterSelectOptionProps => ({ value: p, label: p })
+              )}
+              onSelect={(selection) => onChange(selection ?? "")}
+            />
           )}
         />
 

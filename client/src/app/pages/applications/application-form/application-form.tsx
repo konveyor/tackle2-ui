@@ -13,6 +13,7 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormAutocomplete,
   HookFormPFGroupController,
@@ -22,14 +23,12 @@ import {
 import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { RepositoryFields } from "@app/components/repository-fields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
-import { toOptionLike } from "@app/utils/model-utils";
 import { wrapAsEvent } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
 import { useApplicationForm } from "./useApplicationForm";
 import { useApplicationFormData } from "./useApplicationFormData";
-
 export interface ApplicationFormProps {
   form: ReturnType<typeof useApplicationForm>["form"];
   data: ReturnType<typeof useApplicationFormData>;
@@ -66,6 +65,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   data: {
     tagItems,
     stakeholdersOptions,
+    stakeholdersOptionsWithValue,
     repositoryKindOptions,
     stakeholders,
     businessServiceOptions,
@@ -123,27 +123,16 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.businessService")}
             fieldId="businessService"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectOne", {
                   what: t("terms.businessService").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="business-service-toggle"
-                id="business-service-select"
                 toggleAriaLabel="Business service select dropdown toggle"
-                aria-label={name}
-                value={
-                  value
-                    ? toOptionLike(value, businessServiceOptions)
-                    : undefined
-                }
+                ariaLabel={name}
+                value={value}
                 options={businessServiceOptions}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onClear={() => onChange("")}
+                onSelect={(selection) => onChange(selection ?? "")}
               />
             )}
           />
@@ -167,26 +156,16 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.owner")}
             fieldId="owner"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectAn", {
                   what: t("terms.owner").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="owner-toggle"
-                id="owner-select"
                 toggleAriaLabel="Owner select dropdown toggle"
-                aria-label={name}
-                value={
-                  value ? toOptionLike(value, stakeholdersOptions) : undefined
-                }
+                ariaLabel={name}
+                value={value || undefined}
                 options={stakeholdersOptions}
-                onClear={() => onChange("")}
-                onChange={(selection) => {
-                  const selectionValue = selection as OptionWithValue<string>;
-                  onChange(selectionValue.value);
-                }}
-                onBlur={onChange}
+                onSelect={(selection) => onChange(selection || null)}
               />
             )}
           />
@@ -221,7 +200,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                       : undefined
                   )
                   .filter((e) => e !== undefined)}
-                options={stakeholdersOptions}
+                options={stakeholdersOptionsWithValue}
                 onChange={(selection) => {
                   const selectionWithValue =
                     selection as OptionWithValue<string>;
@@ -342,32 +321,22 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.sourcePlatform")}
             fieldId="sourcePlatform"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <TypeaheadSelect
                 placeholderText={t("composed.selectOne", {
                   what: t("terms.sourcePlatform").toLowerCase(),
                 })}
-                variant="typeahead"
                 toggleId="source-platform-toggle"
-                id="source-platform-select"
                 toggleAriaLabel="Source platform select dropdown toggle"
-                aria-label={name}
-                value={value ? toOptionLike(value, platformOptions) : undefined}
+                ariaLabel={name}
+                value={value || undefined}
                 options={platformOptions}
-                onChange={(selection) => {
-                  const name = (selection as OptionWithValue<string>).value;
-                  if (name !== value) {
-                    onChange(name);
+                onSelect={(selection) => {
+                  if (selection !== value) {
+                    onChange(selection ?? null);
                     setValue("coordinatesDocument", null, {
                       shouldValidate: true,
                     });
                   }
-                }}
-                onClear={() => {
-                  onChange(null);
-                  setValue("coordinatesDocument", null, {
-                    shouldValidate: true,
-                  });
                 }}
               />
             )}
