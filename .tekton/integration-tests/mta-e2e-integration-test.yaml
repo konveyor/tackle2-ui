@@ -26,7 +26,7 @@ spec:
     # Custom test parameters
     - name: UI_IMAGE
       # This will be replaced with the Snapshot image at runtime
-      value: "{{snapshot.components.tackle2-ui.containerImage}}"
+      value: "{{snapshot.components.mta-8-1-mta-ui.containerImage}}"
 
     - name: CYPRESS_BASE_URL
       value: "http://tackle-ui.konveyor-tackle.svc.cluster.local:9000"
