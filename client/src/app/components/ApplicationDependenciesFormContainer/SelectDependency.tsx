@@ -50,7 +50,11 @@ export const SelectDependency: React.FC<SelectDependencyProps> = ({
 
   const createDependencyMutation = useCreateApplicationDependency({
     onError: (error: AxiosError) => {
-      setErrorMsg(getAxiosErrorMessage(error));
+      if (error.response?.status === 409) {
+        setErrorMsg(t("message.cyclicDependenciesNotAllowed"));
+      } else {
+        setErrorMsg(getAxiosErrorMessage(error));
+      }
     },
     onSuccess: () => {
       setErrorMsg(null);
