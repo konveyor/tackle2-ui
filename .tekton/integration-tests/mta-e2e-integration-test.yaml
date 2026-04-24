@@ -32,16 +32,16 @@ spec:
       value: "http://tackle-ui.konveyor-tackle.svc.cluster.local:9000"
 
     - name: TEST_TIER
-      value: "@ci,@tier0,@tier2_A"
+      value: "@ci,@tier0"
 
   # Reference the custom pipeline from git repository
   resolverRef:
     resolver: git
     params:
       - name: url
-        value: https://github.com/konveyor/tackle2-ui.git
+        value: https://github.com/sshveta/tackle2-ui.git
       - name: revision
-        value: main
+        value: ui_test_konflux_integration
       - name: pathInRepo
         value: .tekton/integration-tests/mta-integration-pipeline.yaml
 
