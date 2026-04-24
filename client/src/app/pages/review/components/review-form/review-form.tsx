@@ -22,12 +22,13 @@ import {
   ProposedAction,
   Review,
 } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import useIsArchetype from "@app/hooks/useIsArchetype";
 import {
   useCreateReviewMutation,
@@ -58,17 +59,17 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
   const { pushNotification } = React.useContext(NotificationsContext);
   const isArchetype = useIsArchetype();
 
-  const actionOptions: OptionWithValue<ProposedAction>[] = React.useMemo(() => {
+  const actionOptions: FilterSelectOptionProps[] = React.useMemo(() => {
     return Object.entries(PROPOSED_ACTION_LIST).map(([key, value]) => ({
-      value: key as ProposedAction,
-      toString: () => t(value.i18Key),
+      value: key,
+      label: t(value.i18Key),
     }));
   }, [t]);
 
-  const effortOptions: OptionWithValue<EffortEstimate>[] = React.useMemo(() => {
+  const effortOptions: FilterSelectOptionProps[] = React.useMemo(() => {
     return Object.entries(EFFORT_ESTIMATE_LIST).map(([key, value]) => ({
-      value: key as EffortEstimate,
-      toString: () => t(value.i18Key),
+      value: key,
+      label: t(value.i18Key),
     }));
   }, [t]);
 
@@ -166,19 +167,13 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         fieldId="action"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeahead"
-            id="action-select"
+          <TypeaheadSelect
             toggleId="action-select-toggle"
             toggleAriaLabel="Action select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
             value={value}
             options={actionOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as OptionWithValue<ProposedAction>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />
@@ -189,19 +184,13 @@ export const ReviewForm: React.FC<IReviewFormProps> = ({
         fieldId="effort"
         isRequired
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeahead"
-            id="effort-select"
+          <TypeaheadSelect
             toggleId="effort-select-toggle"
             toggleAriaLabel="Effort select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
             value={value}
             options={effortOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as OptionWithValue<EffortEstimate>;
-              onChange(selectionValue.value);
-            }}
+            onSelect={onChange}
           />
         )}
       />

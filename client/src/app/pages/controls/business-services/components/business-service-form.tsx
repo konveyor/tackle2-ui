@@ -11,15 +11,15 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { BusinessService, New } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateBusinessServiceMutation,
   useFetchBusinessServices,
@@ -56,12 +56,12 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
     onActionSuccess: onClose,
   });
 
-  const stakeholdersOptions = stakeholders.map((stakeholder) => {
-    return {
+  const stakeholdersOptions: FilterSelectOptionProps[] = stakeholders.map(
+    (stakeholder) => ({
       value: stakeholder.name,
-      toString: () => stakeholder.name,
-    };
-  });
+      label: stakeholder.name,
+    })
+  );
 
   const validationSchema = object().shape({
     name: string()
@@ -134,20 +134,13 @@ export const BusinessServiceForm: React.FC<BusinessServiceFormProps> = ({
         label={t("terms.owner")}
         fieldId="owner"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeahead"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            id="action-select"
+          <TypeaheadSelect
             toggleId="action-select-toggle"
             toggleAriaLabel="Action select dropdown toggle"
-            aria-label={name}
+            ariaLabel={name}
             value={value}
             options={stakeholdersOptions}
-            onChange={(selection) => {
-              const selectionValue = selection as OptionWithValue<string>;
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange("")}
+            onSelect={(selection) => onChange(selection ?? "")}
           />
         )}
       />

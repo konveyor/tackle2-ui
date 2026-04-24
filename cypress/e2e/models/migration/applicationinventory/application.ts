@@ -65,6 +65,7 @@ import { rightSideMenu, sourceDropdown } from "../../../views/analysis.view";
 import {
   appContributorSelect,
   appDetailsView,
+  applicationBusinessServiceClearButton,
   applicationBusinessServiceSelect,
   applicationCommentInput,
   applicationDescriptionInput,
@@ -356,12 +357,7 @@ export class Application {
   removeBusinessService(): void {
     cy.wait(2000);
     performRowActionByIcon(this.name, commonView.pencilAction);
-    cy.get(applicationBusinessServiceSelect)
-      .closest("div")
-      .next("button")
-      .then(($a) => {
-        if ($a.hasClass(commonView.dropdownClearSelection)) $a.click();
-      });
+    cy.get(applicationBusinessServiceClearButton).click();
     submitForm();
   }
 

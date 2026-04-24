@@ -53,6 +53,7 @@ import {
   applicationContributorsText,
   applicationDescriptionInput,
   applicationNameInput,
+  applicationOwnerClearButton,
   applicationOwnerInput,
 } from "../../../../views/applicationinventory.view";
 import * as commonView from "../../../../views/common.view";
@@ -109,9 +110,7 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
         expect(value).to.contain(stakeHoldersList[0].name);
       });
 
-    cy.get(applicationOwnerInput)
-      .closest("div")
-      .next("button")
+    cy.get(applicationOwnerClearButton)
       .click()
       .then(() => {
         cy.get(applicationOwnerInput)

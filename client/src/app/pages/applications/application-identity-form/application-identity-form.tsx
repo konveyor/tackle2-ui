@@ -16,7 +16,6 @@ import {
 import { WarningTriangleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
   Application,
   Identity,
@@ -24,15 +23,16 @@ import {
   ManagedIdentityRole,
   RefWithRole,
 } from "@app/api/models";
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   UpdateAllApplicationsResult,
   useBulkPatchApplicationsMutation,
 } from "@app/queries/applications";
 import { useFetchIdentities } from "@app/queries/identities";
-import { toOptionLike, toRef } from "@app/utils/model-utils";
+import { toRef } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
@@ -51,13 +51,13 @@ const MANAGED_IDENTITY_SET: Set<IdentityRole> = new Set([
 
 function identitiesToOptions(
   identities?: Identity[]
-): OptionWithValue<number>[] {
+): FilterSelectOptionProps[] {
   if (!identities) {
     return [];
   }
   return identities.map((identity) => ({
-    value: identity.id,
-    toString: () => identity.name,
+    value: identity.id.toString(),
+    label: identity.name,
   }));
 }
 
@@ -186,21 +186,21 @@ export const ApplicationIdentityForm: React.FC<
       .number()
       .nullable()
       .oneOf(
-        [...sourceIdentityOptions.map((o) => o.value), null],
+        [...sourceIdentityOptions.map((o) => Number(o.value)), null],
         t("validation.notOneOf")
       ),
     maven: yup
       .number()
       .nullable()
       .oneOf(
-        [...mavenIdentityOptions.map((o) => o.value), null],
+        [...mavenIdentityOptions.map((o) => Number(o.value)), null],
         t("validation.notOneOf")
       ),
     asset: yup
       .number()
       .nullable()
       .oneOf(
-        [...assetIdentityOptions.map((o) => o.value), null],
+        [...assetIdentityOptions.map((o) => Number(o.value)), null],
         t("validation.notOneOf")
       ),
   });
@@ -240,21 +240,15 @@ export const ApplicationIdentityForm: React.FC<
         label={"Source repository credentials"}
         fieldId="source"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
+          <TypeaheadSelect
             toggleId="source-credentials-toggle"
-            id="source-credentials"
             toggleAriaLabel="Source credentials"
-            aria-label={name}
-            value={toOptionLike(value, sourceIdentityOptions)}
+            ariaLabel={name}
+            value={value?.toString()}
             options={sourceIdentityOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as (typeof sourceIdentityOptions)[number];
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange(null)}
+            onSelect={(selection) =>
+              onChange(selection ? Number(selection) : null)
+            }
           />
         )}
       />
@@ -265,21 +259,15 @@ export const ApplicationIdentityForm: React.FC<
         label={"Maven settings"}
         fieldId="maven"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
+          <TypeaheadSelect
             toggleId="maven-settings-toggle"
-            id="maven-settings"
             toggleAriaLabel="Maven settings"
-            aria-label={name}
-            value={toOptionLike(value, mavenIdentityOptions)}
+            ariaLabel={name}
+            value={value?.toString()}
             options={mavenIdentityOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as (typeof mavenIdentityOptions)[number];
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange(null)}
+            onSelect={(selection) =>
+              onChange(selection ? Number(selection) : null)
+            }
           />
         )}
       />
@@ -290,21 +278,15 @@ export const ApplicationIdentityForm: React.FC<
         label={"Asset repository credentials"}
         fieldId="asset"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            variant="typeahead"
+          <TypeaheadSelect
             toggleId="asset-toggle"
-            id="asset"
             toggleAriaLabel="Asset"
-            aria-label={name}
-            value={toOptionLike(value, assetIdentityOptions)}
+            ariaLabel={name}
+            value={value?.toString()}
             options={assetIdentityOptions}
-            onChange={(selection) => {
-              const selectionValue =
-                selection as (typeof assetIdentityOptions)[number];
-              onChange(selectionValue.value);
-            }}
-            onClear={() => onChange(null)}
+            onSelect={(selection) =>
+              onChange(selection ? Number(selection) : null)
+            }
           />
         )}
       />

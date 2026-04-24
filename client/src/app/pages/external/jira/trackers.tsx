@@ -27,6 +27,7 @@ import { AppTableActionButtons } from "@app/components/AppTableActionButtons";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
+import { toDisplayValue } from "@app/components/FilterToolbar/components/selectUtils";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { SimplePagination } from "@app/components/SimplePagination";
 import {
@@ -40,7 +41,7 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import { IssueManagerOptions, toOptionLike } from "@app/utils/model-utils";
+import { IssueManagerOptions, findOption } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import TrackerStatus from "./components/tracker-status";
@@ -266,10 +267,9 @@ export const JiraTrackers: React.FC = () => {
                           {tracker.url}
                         </Td>
                         <Td width={10} {...getTdProps({ columnKey: "kind" })}>
-                          {toOptionLike(
-                            tracker.kind,
-                            IssueManagerOptions
-                          )?.toString()}
+                          {toDisplayValue(
+                            findOption(tracker.kind, IssueManagerOptions)
+                          )}
                         </Td>
                         <Td
                           width={10}

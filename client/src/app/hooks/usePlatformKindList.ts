@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { OptionWithValue } from "@app/components/SimpleSelect";
 
 export const DEFAULT_KIND = "cloudfoundry";
@@ -61,5 +62,16 @@ export const usePlatformKindList = () => {
     [t]
   );
 
-  return { kinds, getDisplayLabel, getUrlTooltip, getCredentialTooltip };
+  return {
+    kinds,
+    getDisplayLabel,
+    getUrlTooltip,
+    getCredentialTooltip,
+    kindOptions: kinds.map(
+      (k): FilterSelectOptionProps => ({
+        value: k.value,
+        label: k.toString(),
+      })
+    ),
+  };
 };
