@@ -1,6 +1,7 @@
 import {
   click,
   clickByText,
+  clickWithinByText,
   getUniqueElementsFromSecondArray,
   getUrl,
   inputText,
@@ -10,10 +11,15 @@ import {
   validateTextPresence,
 } from "../../../../../utils/utils";
 import { SEC, dependencyFilter, migration } from "../../../../types/constants";
+import {
+  filterToggleListbox,
+  searchButton,
+  searchInput,
+} from "../../../../types/filter-categories";
 import { AppDependency } from "../../../../types/types";
-import { searchButton, span } from "../../../../views/common.view";
+import { span } from "../../../../views/common.view";
 import { dependencyColumns } from "../../../../views/dependency.view";
-import { archetypeFilterName, searchInput } from "../../../../views/issue.view";
+import { archetypeFilterName } from "../../../../views/issue.view";
 import { navMenu } from "../../../../views/menu.view";
 
 export class Dependencies {
@@ -44,12 +50,12 @@ export class Dependencies {
       filterType === dependencyFilter.language;
 
     if (isApplicableFilter) {
-      inputText(searchInput, filterValue);
-      click(searchButton);
+      inputText(searchInput(filterType), filterValue);
+      click(searchButton(filterType));
     } else {
       selector = archetypeFilterName;
       click(selector);
-      clickByText(span, filterValue);
+      clickWithinByText(filterToggleListbox(filterType), span, filterValue);
       click(selector);
       cy.wait(SEC);
     }

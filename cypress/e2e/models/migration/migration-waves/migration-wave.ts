@@ -144,10 +144,12 @@ export class MigrationWave {
     MigrationWave.open();
     this.expandActionsMenu();
     cy.contains(manageApplications).click();
-    callWithin(modal, () => selectItemsPerPage(100));
-    cy.get(itemsSelectInsideDialog).click();
-    cy.contains(button, selectNone).click();
-    callWithin(modal, () => selectItemsPerPage(100));
+    callWithin(modal, () => {
+      selectItemsPerPage(100);
+      cy.get(itemsSelectInsideDialog).click();
+      cy.contains(button, selectNone).click();
+      selectItemsPerPage(100);
+    });
 
     this.applications.forEach((app) => {
       cy.get(tdTag)
@@ -185,10 +187,12 @@ export class MigrationWave {
     }
 
     cy.contains(manageApplications).click();
-    cy.get(itemsSelectInsideDialog).click();
-    cy.contains(button, selectNone).click();
-    clickJs(submitButton);
-    this.applications = [];
+    callWithin(modal, () => {
+      cy.get(itemsSelectInsideDialog).click();
+      cy.contains(button, selectNone).click();
+      clickJs(submitButton);
+      this.applications = [];
+    });
   }
 
   public static fillName(name: string): void {

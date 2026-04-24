@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { MultiSelectBase, MultiSelectProps } from "./MultiSelectBase";
+import { MultiSelect, MultiSelectProps } from "./MultiSelect";
 
 export type TypeaheadSelectProps = Omit<
   MultiSelectProps,
@@ -11,7 +11,7 @@ export type TypeaheadSelectProps = Omit<
 };
 
 const TypeaheadSelect: FC<TypeaheadSelectProps> = ({ value, ...props }) => (
-  <MultiSelectBase
+  <MultiSelect
     {...props}
     hasCheckbox={false}
     values={value ? [value] : []}

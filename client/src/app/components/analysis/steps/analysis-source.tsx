@@ -262,7 +262,7 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         fieldId="analysis-source"
         helperTextTestId="analysis-source-select-message"
         isRequired
-        renderInput={({ field: { value, name, onChange } }) => (
+        renderInput={({ field: { value, onChange } }) => (
           <SimpleSelect
             toggleId="analysis-source-toggle"
             toggleAriaLabel="Analysis source dropdown toggle"
