@@ -122,8 +122,10 @@ spec:
         echo "========================================="
         if [ $TEST_EXIT_CODE -eq 0 ]; then
           echo "✅ E2E Tests PASSED"
+          echo "PASSED" > $(results.TEST_OUTPUT.path)
         else
           echo "❌ E2E Tests FAILED (exit code: $TEST_EXIT_CODE)"
+          echo "FAILED" > $(results.TEST_OUTPUT.path)
         fi
         echo "========================================="
 
