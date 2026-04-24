@@ -144,8 +144,7 @@ export const WizardMode: React.FC<WizardModeProps> = ({
               <SimpleSelect
                 isFullWidth
                 toggleId="analysis-profile-select-toggle"
-                toggleAriaLabel="Analysis profile selection dropdown toggle"
-                aria-label="Select analysis profile"
+                toggleAriaLabel="Analysis profile selection dropdown"
                 value={selectedProfile ? String(selectedProfile.id) : undefined}
                 onSelect={(value) => {
                   const profile = availableProfiles.find(

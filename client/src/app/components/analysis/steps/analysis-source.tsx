@@ -266,7 +266,6 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
           <SimpleSelect
             toggleId="analysis-source-toggle"
             toggleAriaLabel="Analysis source dropdown toggle"
-            aria-label={name}
             value={value}
             isFullWidth
             onSelect={onChange}

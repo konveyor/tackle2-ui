@@ -99,7 +99,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         : [];
 
     const labelOptions = labelChoices.map((label) => ({
-      children: label.name,
+      label: label.name,
       value: label.name,
     }));
     return { labelChoices, labelOptions };
