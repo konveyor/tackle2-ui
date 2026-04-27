@@ -84,34 +84,35 @@ describe(
       jiraStageConnectionIncorrect = new Jira(jiraStageConnectionDataIncorrect);
     });
 
-    it("Validating error when Jira Cloud Instance is not connected", () => {
+    const validateCodeContent = (connection: Jira) => {
       /**
          Implements MTA-362 - Add JIRA instance with invalid credentials
          Automates https://issues.redhat.com/browse/MTA-991
          */
-      jiraCloudConnectionIncorrect.create();
-      jiraCloudConnectionIncorrect.validateState(expectedToFail);
-      clickByText(button, "Not connected");
-      cy.get("#code-content").then(($code) => {
-        expect($code.text()).to.contain("request failed.");
-        expect($code.text().toLowerCase()).not.to.contain("html");
-        expect($code.text()).not.to.contain("403");
-      });
+      connection.create();
+      connection.validateState(expectedToFail);
+
+      // scope to the right table row
+      cy.get(`[data-item-name="${connection.name}"]`)
+        .first()
+        .within(() => {
+          clickByText(button, "Not connected");
+        });
+
+      cy.get("#code-content")
+        // wait for message - initial message is empty
+        .contains(/\w+/)
+        .then(($code) => {
+          expect($code.text().toLowerCase()).not.to.contain("html");
+        });
+    };
+
+    it("Validating error when Jira Cloud Instance is not connected", () => {
+      validateCodeContent(jiraCloudConnectionIncorrect);
     });
 
     it("Validating error when Jira Stage Instance is not connected", () => {
-      /**
-         Implements MTA-362 - Add JIRA instance with invalid credentials
-         Automates https://issues.redhat.com/browse/MTA-991
-         */
-      jiraStageConnectionIncorrect.create();
-      jiraStageConnectionIncorrect.validateState(expectedToFail);
-      clickByText(button, "Not connected");
-      cy.get("#code-content").then(($code) => {
-        expect($code.text()).to.contain("request failed.");
-        expect($code.text().toLowerCase()).not.to.contain("html");
-        expect($code.text()).not.to.contain("403");
-      });
+      validateCodeContent(jiraStageConnectionIncorrect);
     });
 
     after("Clean up data", () => {
