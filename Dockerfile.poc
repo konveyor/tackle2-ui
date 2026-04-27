@@ -1,0 +1,20 @@
+FROM --platform=linux/amd64 node:22-slim AS builder
+
+WORKDIR /app
+COPY . .
+
+RUN npm clean-install --ignore-scripts --no-audit && \
+    npm run build && \
+    npm run dist
+
+# Runner
+FROM --platform=linux/amd64 node:22-slim
+
+WORKDIR /opt/app-root/dist
+COPY --from=builder /app/dist/ .
+RUN chmod +x ./entrypoint.sh && chmod -R g=u /opt/app-root/dist && mkdir -p /opt/app-root/src && touch /opt/app-root/src/ca.crt && chmod -R g=u /opt/app-root/src
+
+ENV DEBUG=1
+EXPOSE 8080
+
+ENTRYPOINT ["./entrypoint.sh"]

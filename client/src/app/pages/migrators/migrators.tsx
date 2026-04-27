@@ -99,7 +99,6 @@ const Migrators: FC = () => {
     async (migrator: MigratorConfig) => {
       setIsRunning(true);
       try {
-        // Create a TaskGroup targeting the kai addon
         const taskgroupPayload = {
           name: `migration-${migrator.name}-${Date.now()}`,
           kind: "migration",
@@ -120,7 +119,7 @@ const Migrators: FC = () => {
         await submitTaskgroup(created);
 
         pushNotification({
-          title: `Migration "${migrator.name}" submitted successfully. Check Tasks for progress.`,
+          title: `Migration "${migrator.name}" submitted — TaskGroup #${created.id} (${created.state || "Ready"})`,
           variant: "success",
         });
       } catch (error) {
