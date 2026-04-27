@@ -101,6 +101,7 @@ import { ApplicationFormModal } from "../application-form";
 import { ApplicationIdentityModal } from "../application-identity-form/application-identity-modal";
 import { ImportApplicationsForm } from "../components/import-applications-form";
 import { GenerateAssetsWizard } from "../generate-assets-wizard";
+import { MigrateModal } from "../migrate-modal/migrate-modal";
 import { RetrieveConfigWizard } from "../retrieve-config-wizard";
 import {
   DecoratedApplication,
@@ -148,6 +149,7 @@ export const ApplicationsTable: FC = () => {
     useState<DecoratedApplication | null>(null);
 
   const [isAnalyzeModalOpen, setAnalyzeModalOpen] = useState(false);
+  const [isMigrateModalOpen, setMigrateModalOpen] = useState(false);
   const [retrieveConfigApplications, setRetrieveConfigApplications] = useState<
     DecoratedApplication[] | null
   >(null);
@@ -1016,6 +1018,18 @@ export const ApplicationsTable: FC = () => {
                   </ToolbarItem>
                 </RBAC>
               </ToolbarItem>
+              <ToolbarItem>
+                <Button
+                  type="button"
+                  id="migrate-application"
+                  aria-label="Migrate Application"
+                  variant={ButtonVariant.secondary}
+                  onClick={() => setMigrateModalOpen(true)}
+                  isDisabled={selectedRows.length < 1}
+                >
+                  Migrate
+                </Button>
+              </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup variant="icon-button-group">
               {toolbarKebabItems.length ? (
@@ -1327,6 +1341,15 @@ export const ApplicationsTable: FC = () => {
           isOpen={true}
           onClose={() => {
             setAnalyzeModalOpen(false);
+          }}
+        />
+      )}
+      {isMigrateModalOpen && (
+        <MigrateModal
+          applications={selectedRows}
+          isOpen={true}
+          onClose={() => {
+            setMigrateModalOpen(false);
           }}
         />
       )}
