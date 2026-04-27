@@ -1158,8 +1158,6 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
-        workspaces:
-          - name: shared-data
         steps:
           - name: get-kubeconfig
             ref:
@@ -1178,6 +1176,21 @@ spec:
                 value: $(params.clusterName)
               - name: credentials
                 value: credentials
+          - name: clone-source
+            image: registry.access.redhat.com/ubi9/ubi:latest
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Installing git..."
+              dnf install -y git
+
+              echo "[INFO] Cloning tackle2-ui repository..."
+              git clone https://github.com/konveyor/tackle2-ui.git /tmp/tackle-ui-tests
+              cd /tmp/tackle-ui-tests
+
+              echo "[INFO] Repository cloned successfully"
+              ls -la cypress/
           - name: verify-ui-accessible
             image: registry.redhat.io/ubi9/ubi-minimal:latest
             env:
@@ -1217,7 +1230,7 @@ spec:
               exit 1
           - name: install-cypress-deps
             image: registry.access.redhat.com/ubi9/nodejs-20:latest
-            workingDir: $(workspaces.shared-data.path)/source/cypress
+            workingDir: /tmp/tackle-ui-tests/cypress
             script: |
               #!/bin/bash
               set -euo pipefail
@@ -1236,7 +1249,7 @@ spec:
               npx cypress verify
           - name: run-tests
             image: registry.access.redhat.com/ubi9/nodejs-20:latest
-            workingDir: $(workspaces.shared-data.path)/source/cypress
+            workingDir: /tmp/tackle-ui-tests/cypress
             env:
               - name: KUBECONFIG
                 value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
