@@ -9,32 +9,27 @@ spec:
     - description: E2E tests for MTA UI with full operator deployment
       name: mta-e2e-test
   params:
-    # FBC Operator Deployment Parameters
-    - name: CATALOG_IMAGE
-      # This should point to the MTA/Konveyor FBC catalog image
-      value: "quay.io/konveyor/mta-operator-catalog:latest"
+    # Required for deploy-fbc-operator
+    - name: CREDENTIALS_SECRET_NAME
+      value: openshift-release-dev-pull-secret
+
+    - name: OCI_REF
+      value: results.IMAGE_URL
+
+    - name: PACKAGE_NAME
+      value: "" # Auto-detected from FBC
+
+    - name: CHANNEL_NAME
+      value: "" # Auto-detected from FBC
+
+    # E2E Test Parameters
+    - name: TEST_TIER
+      value: "@ci,@tier0"
 
     - name: OPERATOR_NAMESPACE
       value: "konveyor-tackle"
 
-    - name: OPERATOR_PACKAGE_NAME
-      value: "mta-operator" # or "konveyor-operator" based on your FBC
-
-    - name: OPERATOR_CHANNEL
-      value: "development" # or "stable", "alpha" based on your channel
-
-    # Custom test parameters
-    - name: UI_IMAGE
-      # This will be replaced with the Snapshot image at runtime
-      value: "{{snapshot.components.mta-8-1-mta-ui.containerImage}}"
-
-    - name: CYPRESS_BASE_URL
-      value: "http://tackle-ui.konveyor-tackle.svc.cluster.local:9000"
-
-    - name: TEST_TIER
-      value: "@ci,@tier0"
-
-  # Reference the custom pipeline from git repository
+  # Reference our extended pipeline with E2E tests
   resolverRef:
     resolver: git
     params:
@@ -43,7 +38,7 @@ spec:
       - name: revision
         value: ui_test_konflux_integration
       - name: pathInRepo
-        value: .tekton/integration-tests/mta-integration-pipeline.yaml
+        value: .tekton/integration-tests/deploy-fbc-with-e2e-tests.yaml
 
   # Environment configuration
   environment:
