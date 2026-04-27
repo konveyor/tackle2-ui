@@ -103,6 +103,7 @@ spec:
       type: string
   workspaces:
     - name: shared-data
+      optional: true
   tasks:
     - name: parse-metadata
       taskRef:
