@@ -1,0 +1,614 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: mta-ui-test-pipeline
+spec:
+  description: |
+    Simplified pipeline for testing UI against a known FBC catalog.
+    Used for testing before moving to full FBC-triggered integration tests.
+
+  params:
+    - name: SNAPSHOT
+      description: The Snapshot being tested (JSON string)
+      type: string
+
+    - name: FBC_CATALOG_IMAGE
+      description: FBC catalog image to use for operator deployment
+      type: string
+      default: "quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc:v4.20__operator_nvr__mta-operator-container-8.1.1-202604201807.p2.ga19cee4.assembly.stream.el9"
+
+    - name: PACKAGE_NAME
+      description: Operator package name
+      type: string
+      default: "mta-operator"
+
+    - name: CHANNEL_NAME
+      description: Operator channel
+      type: string
+      default: "stable-v8.1"
+
+    - name: OPERATOR_NAMESPACE
+      description: Namespace to install operator
+      type: string
+      default: "konveyor-tackle"
+
+    - name: TEST_TIER
+      description: Test tier to execute
+      type: string
+      default: "@ci,@tier0"
+
+  results:
+    - name: TEST_PASSED
+      description: Whether the tests passed
+      value: $(tasks.run-e2e-tests.results.TEST_OUTPUT)
+
+  tasks:
+    # Step 1: Provision EaaS cluster (handled by Konflux)
+    - name: provision-eaas-space
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
+
+    - name: provision-cluster
+      runAfter:
+        - provision-eaas-space
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-create-ephemeral-cluster-hypershift-aws/0.1/eaas-create-ephemeral-cluster-hypershift-aws.yaml
+
+    # Step 2: Deploy operator from hardcoded FBC catalog
+    - name: deploy-operator
+      runAfter:
+        - provision-cluster
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+        - name: catalogImage
+          value: "$(params.FBC_CATALOG_IMAGE)"
+        - name: packageName
+          value: "$(params.PACKAGE_NAME)"
+        - name: channelName
+          value: "$(params.CHANNEL_NAME)"
+        - name: namespace
+          value: "$(params.OPERATOR_NAMESPACE)"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+          - name: catalogImage
+            type: string
+          - name: packageName
+            type: string
+          - name: channelName
+            type: string
+          - name: namespace
+            type: string
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+          - name: create-namespace
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Creating namespace $NAMESPACE..."
+              oc create namespace "$NAMESPACE" || echo "Namespace already exists"
+
+              echo "[INFO] Creating OperatorGroup..."
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1
+              kind: OperatorGroup
+              metadata:
+                name: mta-operator-group
+                namespace: $NAMESPACE
+              spec:
+                targetNamespaces:
+                  - $NAMESPACE
+              EOF
+          - name: deploy-catalogsource
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: CATALOG_IMAGE
+                value: "$(params.catalogImage)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Creating CatalogSource with image: $CATALOG_IMAGE"
+
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: CatalogSource
+              metadata:
+                name: mta-fbc-catalog
+                namespace: $NAMESPACE
+              spec:
+                sourceType: grpc
+                image: $CATALOG_IMAGE
+                displayName: MTA FBC Catalog
+                publisher: Red Hat
+                updateStrategy:
+                  registryPoll:
+                    interval: 10m
+              EOF
+
+              echo "[INFO] Waiting for CatalogSource to be ready..."
+              for i in {1..30}; do
+                STATE=$(oc get catalogsource mta-fbc-catalog -n "$NAMESPACE" -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
+                if [ "$STATE" = "READY" ]; then
+                  echo "[INFO] ✅ CatalogSource is READY"
+                  exit 0
+                fi
+                echo "[INFO] Attempt $i/30: CatalogSource state: $STATE, waiting..."
+                sleep 10
+              done
+              echo "[ERROR] CatalogSource not ready after 5 minutes"
+              exit 1
+          - name: create-subscription
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: PACKAGE_NAME
+                value: "$(params.packageName)"
+              - name: CHANNEL_NAME
+                value: "$(params.channelName)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Creating Subscription for $PACKAGE_NAME on channel $CHANNEL_NAME"
+
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: Subscription
+              metadata:
+                name: $PACKAGE_NAME
+                namespace: $NAMESPACE
+              spec:
+                channel: $CHANNEL_NAME
+                name: $PACKAGE_NAME
+                source: mta-fbc-catalog
+                sourceNamespace: $NAMESPACE
+                installPlanApproval: Automatic
+              EOF
+
+              echo "[INFO] ✅ Subscription created"
+          - name: wait-for-operator
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: PACKAGE_NAME
+                value: "$(params.packageName)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Waiting for operator CSV..."
+
+              for i in {1..60}; do
+                CSV_NAME=$(oc get csv -n "$NAMESPACE" -o name 2>/dev/null | grep "$PACKAGE_NAME" | head -1 || echo "")
+                if [ -n "$CSV_NAME" ]; then
+                  echo "[INFO] Found CSV: $CSV_NAME"
+
+                  oc wait "$CSV_NAME" \
+                    -n "$NAMESPACE" \
+                    --for=jsonpath='{.status.phase}'=Succeeded \
+                    --timeout=10m
+
+                  echo "[INFO] ✅ Operator installed successfully!"
+                  exit 0
+                fi
+                echo "[INFO] Attempt $i/60: Waiting for CSV..."
+                sleep 10
+              done
+
+              echo "[ERROR] CSV not found after 10 minutes"
+              exit 1
+          - name: wait-for-mta-components
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Waiting for MTA UI deployment..."
+
+              for i in {1..90}; do
+                if oc get deployment tackle-ui -n "$NAMESPACE" 2>/dev/null; then
+                  echo "[INFO] Found tackle-ui deployment!"
+
+                  oc wait --for=condition=available --timeout=10m \
+                    deployment/tackle-ui -n "$NAMESPACE"
+
+                  echo "[INFO] ✅ MTA UI is ready!"
+                  exit 0
+                fi
+                echo "[INFO] Attempt $i/90: Waiting for tackle-ui deployment..."
+                sleep 10
+              done
+
+              echo "[ERROR] tackle-ui deployment not found"
+              exit 1
+
+    # Step 3: Patch UI with Snapshot image
+    - name: patch-ui-image
+      runAfter:
+        - deploy-operator
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+        - name: snapshot
+          value: "$(params.SNAPSHOT)"
+        - name: namespace
+          value: "$(params.OPERATOR_NAMESPACE)"
+      taskSpec:
+        results:
+          - name: UI_IMAGE
+            description: The UI image from snapshot
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+          - name: snapshot
+            type: string
+          - name: namespace
+            type: string
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+          - name: patch
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: SNAPSHOT
+                value: "$(params.snapshot)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Extracting UI image from Snapshot..."
+
+              UI_IMAGE=$(echo "$SNAPSHOT" | jq -r '.components[] | select(.name=="mta-8-1-mta-ui") | .containerImage')
+
+              if [ -z "$UI_IMAGE" ] || [ "$UI_IMAGE" == "null" ]; then
+                echo "[ERROR] Could not find mta-8-1-mta-ui image in Snapshot"
+                exit 1
+              fi
+
+              echo "[INFO] UI Image: $UI_IMAGE"
+              echo -n "$UI_IMAGE" > $(results.UI_IMAGE.path)
+
+              echo "[INFO] Patching tackle-ui deployment..."
+              oc set image deployment/tackle-ui \
+                tackle-ui="$UI_IMAGE" \
+                -n "$NAMESPACE"
+
+              echo "[INFO] Waiting for rollout..."
+              oc rollout status deployment/tackle-ui -n "$NAMESPACE" --timeout=10m
+
+              echo "[INFO] ✅ UI patched successfully!"
+
+    # Step 4: Run E2E tests
+    - name: run-e2e-tests
+      runAfter:
+        - patch-ui-image
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+        - name: uiImage
+          value: "$(tasks.patch-ui-image.results.UI_IMAGE)"
+        - name: namespace
+          value: "$(params.OPERATOR_NAMESPACE)"
+        - name: testTier
+          value: "$(params.TEST_TIER)"
+      taskSpec:
+        results:
+          - name: TEST_OUTPUT
+            description: Test execution summary
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+          - name: uiImage
+            type: string
+          - name: namespace
+            type: string
+          - name: testTier
+            type: string
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+          - name: clone-source
+            image: registry.access.redhat.com/ubi9/ubi:latest
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Installing git..."
+              dnf install -y git
+
+              echo "[INFO] Cloning tackle2-ui repository..."
+              git clone https://github.com/konveyor/tackle2-ui.git /tmp/tackle-ui-tests
+
+              echo "[INFO] Repository cloned successfully"
+              ls -la /tmp/tackle-ui-tests/cypress/
+          - name: verify-ui-accessible
+            image: registry.redhat.io/ubi9/ubi-minimal:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Getting UI route..."
+              UI_URL=$(oc get route tackle-ui -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
+
+              if [ -z "$UI_URL" ]; then
+                echo "[INFO] No route found, using service URL..."
+                UI_URL="http://tackle-ui.$NAMESPACE.svc.cluster.local:9000"
+              else
+                UI_URL="https://$UI_URL"
+              fi
+
+              echo "[INFO] Verifying UI at $UI_URL"
+
+              for i in {1..30}; do
+                if curl -k -f -s -o /dev/null "$UI_URL" 2>/dev/null; then
+                  echo "[INFO] ✅ UI is accessible!"
+                  exit 0
+                fi
+                echo "[INFO] Attempt $i/30: waiting..."
+                sleep 10
+              done
+
+              echo "[ERROR] UI not accessible"
+              exit 1
+          - name: install-cypress-deps
+            image: registry.access.redhat.com/ubi9/nodejs-20:latest
+            workingDir: /tmp/tackle-ui-tests/cypress
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Installing Cypress dependencies..."
+              npm ci
+
+              echo "[INFO] Verifying Cypress..."
+              npx cypress verify
+          - name: run-tests
+            image: registry.access.redhat.com/ubi9/nodejs-20:latest
+            workingDir: /tmp/tackle-ui-tests/cypress
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+              - name: TEST_TAGS
+                value: "$(params.testTier)"
+              - name: CYPRESS_CACHE_FOLDER
+                value: /tmp/.cache/Cypress
+              - name: npm_config_cache
+                value: /tmp/.cache/npm
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] ========================================="
+              echo "[INFO] Running MTA UI E2E Tests"
+              echo "[INFO] UI Image: $(params.uiImage)"
+              echo "[INFO] Test Tags: $TEST_TAGS"
+              echo "[INFO] ========================================="
+
+              # Get UI URL
+              UI_URL=$(oc get route tackle-ui -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
+              if [ -z "$UI_URL" ]; then
+                CYPRESS_BASE_URL="http://tackle-ui.$NAMESPACE.svc.cluster.local:9000"
+              else
+                CYPRESS_BASE_URL="https://$UI_URL"
+              fi
+
+              echo "[INFO] CYPRESS_BASE_URL: $CYPRESS_BASE_URL"
+
+              # Run Cypress tests
+              npx cypress run \
+                --config baseUrl="$CYPRESS_BASE_URL",video=true \
+                --env TAGS="$TEST_TAGS" || TEST_EXIT_CODE=$?
+
+              TEST_EXIT_CODE=${TEST_EXIT_CODE:-0}
+
+              echo "[INFO] ========================================="
+              if [ $TEST_EXIT_CODE -eq 0 ]; then
+                echo "[INFO] ✅ E2E Tests PASSED"
+                echo "PASSED" > $(results.TEST_OUTPUT.path)
+              else
+                echo "[ERROR] ❌ E2E Tests FAILED (exit code: $TEST_EXIT_CODE)"
+                echo "FAILED" > $(results.TEST_OUTPUT.path)
+              fi
+              echo "[INFO] ========================================="
+
+              exit $TEST_EXIT_CODE
+
+  finally:
+    - name: cleanup
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: "$(tasks.provision-cluster.results.clusterName)"
+        - name: namespace
+          value: "$(params.OPERATOR_NAMESPACE)"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+            type: string
+          - name: clusterName
+            type: string
+          - name: namespace
+            type: string
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+          - name: collect-logs
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            env:
+              - name: KUBECONFIG
+                value: "/credentials/$(steps.get-kubeconfig.results.kubeconfig)"
+              - name: NAMESPACE
+                value: "$(params.namespace)"
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Collecting logs..."
+              oc logs deployment/tackle-ui -n "$NAMESPACE" --tail=500 || true
+              oc get pods -n "$NAMESPACE" || true

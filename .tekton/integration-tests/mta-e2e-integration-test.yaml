@@ -6,30 +6,26 @@ metadata:
 spec:
   application: mta-8-1
   contexts:
-    - description: E2E tests for MTA UI with full operator deployment
-      name: mta-e2e-test
+    - description: E2E tests for MTA UI with full operator deployment (test with UI component, will move to FBC application later)
+      name: component_mta-8-1-mta-ui
   params:
-    # Required for deploy-fbc-operator
-    - name: CREDENTIALS_SECRET_NAME
-      value: openshift-release-dev-pull-secret
-
-    - name: OCI_REF
-      value: results.IMAGE_URL
+    # Hardcoded FBC for testing
+    - name: FBC_CATALOG_IMAGE
+      value: "quay.io/redhat-user-workloads/ocp-art-tenant/art-fbc:v4.20__operator_nvr__mta-operator-container-8.1.1-202604201807.p2.ga19cee4.assembly.stream.el9"
 
     - name: PACKAGE_NAME
-      value: "" # Auto-detected from FBC
+      value: "mta-operator"
 
     - name: CHANNEL_NAME
-      value: "" # Auto-detected from FBC
+      value: "stable-v8.1"
 
-    # E2E Test Parameters
     - name: TEST_TIER
-      value: "@ci,@tier0"
+      value: "@ci"
 
     - name: OPERATOR_NAMESPACE
       value: "konveyor-tackle"
 
-  # Reference our extended pipeline with E2E tests
+  # Reference simplified test pipeline
   resolverRef:
     resolver: git
     params:
@@ -38,7 +34,7 @@ spec:
       - name: revision
         value: ui_test_konflux_integration
       - name: pathInRepo
-        value: .tekton/integration-tests/deploy-fbc-with-e2e-tests.yaml
+        value: .tekton/integration-tests/mta-ui-test-pipeline.yaml
 
   # Environment configuration
   environment:
