@@ -1,5 +1,13 @@
 ---
 apiVersion: tackle.konveyor.io/v1alpha1
+kind: Task
+metadata:
+  name: migration
+  namespace: konveyor-tackle
+spec:
+  priority: 10
+---
+apiVersion: tackle.konveyor.io/v1alpha1
 kind: Addon
 metadata:
   generation: 1

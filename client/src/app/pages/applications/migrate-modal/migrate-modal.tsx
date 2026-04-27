@@ -51,7 +51,7 @@ export const MigrateModal: React.FC<MigrateModalProps> = ({
     try {
       const taskgroupPayload = {
         name: `migration-${selectedMigrator.name}-${Date.now()}`,
-        addon: "kai",
+        kind: "migration",
         data: {
           sourceRepository: selectedMigrator.sourceRepository,
           assetRepository: selectedMigrator.assetRepository,
@@ -59,7 +59,7 @@ export const MigrateModal: React.FC<MigrateModalProps> = ({
           pallet: selectedMigrator.pallet,
         },
         tasks: applications.map((app) => ({
-          name: `${selectedMigrator.name}-${app.name}`,
+          name: `${selectedMigrator.name}.${app.name}.migration`,
           data: {},
           application: { id: app.id, name: app.name },
         })),

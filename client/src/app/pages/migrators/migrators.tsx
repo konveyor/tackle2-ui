@@ -102,7 +102,7 @@ const Migrators: FC = () => {
         // Create a TaskGroup targeting the kai addon
         const taskgroupPayload = {
           name: `migration-${migrator.name}-${Date.now()}`,
-          addon: "kai",
+          kind: "migration",
           data: {
             sourceRepository: migrator.sourceRepository,
             assetRepository: migrator.assetRepository,
