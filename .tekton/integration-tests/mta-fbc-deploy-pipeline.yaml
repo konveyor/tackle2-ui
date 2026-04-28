@@ -167,10 +167,6 @@ spec:
               fi
 
               echo "✅ Kubeconfig saved to ${KUBECONFIG_FILE}"
-              echo -n "kubeconfig" > $(results.kubeconfig.path)
-            results:
-              - name: kubeconfig
-                description: Kubeconfig file name
 
           # Step 2: Deploy operator
           - name: install-operator
@@ -180,7 +176,7 @@ spec:
                 mountPath: /credentials
             env:
               - name: KUBECONFIG
-                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+                value: /credentials/kubeconfig
             script: |
               #!/bin/bash
               set -euo pipefail
