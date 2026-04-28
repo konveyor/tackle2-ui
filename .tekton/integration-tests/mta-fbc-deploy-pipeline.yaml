@@ -1,0 +1,308 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: mta-fbc-deploy-pipeline
+spec:
+  description: |
+    Deploy MTA operator from FBC catalog to ephemeral cluster.
+    Simplified pipeline that avoids when expression bugs in inline taskSpecs.
+
+  params:
+    - name: SNAPSHOT
+      description: Application Snapshot JSON
+      type: string
+    - name: CREDENTIALS_SECRET_NAME
+      description: Secret containing registry credentials
+      type: string
+    - name: OCI_REF
+      description: OCI artifact reference for storing results
+      type: string
+
+  results:
+    - name: CLUSTER_NAME
+      description: Name of the provisioned cluster
+      value: $(tasks.provision-cluster.results.clusterName)
+    - name: TEST_OUTPUT
+      description: Test execution result
+      value: $(tasks.deploy-operator.results.deploymentStatus)
+
+  tasks:
+    # Task 1: Parse Snapshot metadata
+    - name: parse-metadata
+      params:
+        - name: SNAPSHOT
+          value: $(params.SNAPSHOT)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/integration-examples
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: tasks/test_metadata.yaml
+
+    # Task 2: Provision EaaS space
+    - name: provision-eaas-space
+      runAfter:
+        - parse-metadata
+      params:
+        - name: ownerName
+          value: $(context.pipelineRun.name)
+        - name: ownerUid
+          value: $(context.pipelineRun.uid)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
+
+    # Task 3: Get supported cluster versions
+    - name: get-supported-versions
+      runAfter:
+        - provision-eaas-space
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-get-supported-ephemeral-cluster-versions/0.1/eaas-get-supported-ephemeral-cluster-versions.yaml
+
+    # Task 4: Provision ephemeral cluster (hardcoded to OCP 4.17)
+    - name: provision-cluster
+      runAfter:
+        - get-supported-versions
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: version
+          value: "4.17.0"
+        - name: instanceType
+          value: "amd64"
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-create-ephemeral-cluster-hypershift-aws/0.1/eaas-create-ephemeral-cluster-hypershift-aws.yaml
+
+    # Task 5: Deploy MTA operator from FBC
+    - name: deploy-operator
+      runAfter:
+        - provision-cluster
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: $(tasks.provision-cluster.results.clusterName)
+        - name: fbcImage
+          value: $(tasks.parse-metadata.results.component-container-image)
+        - name: packageName
+          value: "mta-operator"
+        - name: channelName
+          value: "stable-v8.1"
+        - name: operatorNamespace
+          value: "konveyor-tackle"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+          - name: clusterName
+          - name: fbcImage
+          - name: packageName
+          - name: channelName
+          - name: operatorNamespace
+        results:
+          - name: deploymentStatus
+            description: Deployment status
+          - name: csvName
+            description: Installed ClusterServiceVersion name
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          # Step 1: Get kubeconfig
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+
+          # Step 2: Deploy operator
+          - name: install-operator
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              FBC_IMAGE="$(params.fbcImage)"
+              PACKAGE_NAME="$(params.packageName)"
+              CHANNEL_NAME="$(params.channelName)"
+              NAMESPACE="$(params.operatorNamespace)"
+
+              echo "========================================="
+              echo "Deploying MTA Operator"
+              echo "FBC Image: $FBC_IMAGE"
+              echo "Package: $PACKAGE_NAME"
+              echo "Channel: $CHANNEL_NAME"
+              echo "Namespace: $NAMESPACE"
+              echo "========================================="
+
+              # Create namespace
+              echo "[INFO] Creating namespace $NAMESPACE..."
+              oc create namespace "$NAMESPACE" || echo "Namespace already exists"
+
+              # Create OperatorGroup
+              echo "[INFO] Creating OperatorGroup..."
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1
+              kind: OperatorGroup
+              metadata:
+                name: mta-operatorgroup
+                namespace: $NAMESPACE
+              spec:
+                targetNamespaces:
+                  - $NAMESPACE
+              EOF
+
+              # Create CatalogSource
+              echo "[INFO] Creating CatalogSource..."
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: CatalogSource
+              metadata:
+                name: mta-fbc-catalog
+                namespace: $NAMESPACE
+              spec:
+                sourceType: grpc
+                image: $FBC_IMAGE
+                grpcPodConfig:
+                  securityContextConfig: restricted
+                  extractContent:
+                    catalogDir: /configs
+                    cacheDir: /tmp/cache
+              EOF
+
+              # Wait for CatalogSource
+              echo "[INFO] Waiting for CatalogSource to be ready..."
+              for i in {1..60}; do
+                STATE=$(oc get catalogsource mta-fbc-catalog -n "$NAMESPACE" -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
+                if [ "$STATE" = "READY" ]; then
+                  echo "[INFO] ✅ CatalogSource is READY"
+                  break
+                fi
+                if [ $i -eq 60 ]; then
+                  echo "[ERROR] CatalogSource not ready after 5 minutes"
+                  oc get catalogsource mta-fbc-catalog -n "$NAMESPACE" -o yaml
+                  exit 1
+                fi
+                echo "[INFO] Attempt $i/60: State=$STATE, waiting..."
+                sleep 5
+              done
+
+              # Create Subscription
+              echo "[INFO] Creating Subscription..."
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: Subscription
+              metadata:
+                name: $PACKAGE_NAME
+                namespace: $NAMESPACE
+              spec:
+                channel: $CHANNEL_NAME
+                name: $PACKAGE_NAME
+                source: mta-fbc-catalog
+                sourceNamespace: $NAMESPACE
+                installPlanApproval: Automatic
+              EOF
+
+              # Wait for CSV
+              echo "[INFO] Waiting for ClusterServiceVersion..."
+              for i in {1..120}; do
+                CSV=$(oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
+                if [ -n "$CSV" ]; then
+                  PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+                  if [ "$PHASE" = "Succeeded" ]; then
+                    echo "[INFO] ✅ Operator installed successfully: $CSV"
+                    echo "SUCCESS" > $(results.deploymentStatus.path)
+                    echo "$CSV" > $(results.csvName.path)
+
+                    # Wait for MTA UI to be ready
+                    echo "[INFO] Waiting for MTA UI deployment..."
+                    for j in {1..60}; do
+                      if oc get deployment tackle-ui -n "$NAMESPACE" 2>/dev/null; then
+                        echo "[INFO] Found tackle-ui deployment"
+                        oc wait --for=condition=available --timeout=10m deployment/tackle-ui -n "$NAMESPACE" || true
+
+                        # Get UI route
+                        UI_ROUTE=$(oc get route tackle-ui -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
+                        if [ -n "$UI_ROUTE" ]; then
+                          echo "[INFO] ✅ MTA UI available at: https://$UI_ROUTE"
+                        fi
+                        break
+                      fi
+                      sleep 5
+                    done
+
+                    exit 0
+                  fi
+                  echo "[INFO] Attempt $i/120: CSV=$CSV, Phase=$PHASE"
+                fi
+                sleep 5
+              done
+
+              echo "[ERROR] CSV not ready after 10 minutes"
+              oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o yaml
+              oc get csv -n "$NAMESPACE"
+              echo "FAILED" > $(results.deploymentStatus.path)
+              exit 1
+
+  finally:
+    - name: cleanup-on-failure
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values: ["Failed"]
+      params:
+        - name: message
+          value: "Pipeline failed - cluster resources may still be running"
+      taskSpec:
+        params:
+          - name: message
+        steps:
+          - name: log-message
+            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            script: |
+              #!/bin/bash
+              echo "$(params.message)"
+              echo "Check cluster: $(tasks.provision-cluster.results.clusterName)"
