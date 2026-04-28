@@ -15,7 +15,7 @@ metadata:
   namespace: konveyor-tackle
 spec:
   container:
-    image: quay.io/konveyor/tackle2-addon-kai:latest
+    image: quay.io/dymurray/tackle2-addon-kai:latest
     imagePullPolicy: Always
     name: addon
     resources:
