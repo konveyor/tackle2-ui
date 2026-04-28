@@ -90,7 +90,7 @@ spec:
               - name: version
                 value: "4.17.0"
               - name: instanceType
-                value: "amd64"
+                value: "m5.large"
 
     # Task 5: Deploy MTA operator from FBC
     - name: deploy-operator
