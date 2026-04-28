@@ -136,22 +136,41 @@ spec:
         steps:
           # Step 1: Get kubeconfig
           - name: get-kubeconfig
-            ref:
-              resolver: git
-              params:
-                - name: url
-                  value: https://github.com/konflux-ci/build-definitions.git
-                - name: revision
-                  value: main
-                - name: pathInRepo
-                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
-            params:
-              - name: eaasSpaceSecretRef
-                value: $(params.eaasSpaceSecretRef)
-              - name: clusterName
-                value: $(params.clusterName)
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
               - name: credentials
-                value: credentials
+                mountPath: /credentials
+            env:
+              - name: CLUSTER_NAME
+                value: $(params.clusterName)
+              - name: EAAS_SPACE_SECRET_REF
+                value: $(params.eaasSpaceSecretRef)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "Getting kubeconfig for cluster: ${CLUSTER_NAME}"
+              SECRET_NAME="${CLUSTER_NAME}-admin-kubeconfig"
+              KUBECONFIG_FILE="/credentials/kubeconfig"
+
+              # Get kubeconfig from secret
+              if ! oc get secret "${SECRET_NAME}" -n art-mta-tenant &>/dev/null; then
+                echo "ERROR: Secret ${SECRET_NAME} not found"
+                exit 1
+              fi
+
+              oc get secret "${SECRET_NAME}" -n art-mta-tenant -o jsonpath='{.data.kubeconfig}' | base64 -d > "${KUBECONFIG_FILE}"
+
+              if [ ! -s "${KUBECONFIG_FILE}" ]; then
+                echo "ERROR: Kubeconfig file is empty"
+                exit 1
+              fi
+
+              echo "✅ Kubeconfig saved to ${KUBECONFIG_FILE}"
+              echo -n "kubeconfig" > $(results.kubeconfig.path)
+            results:
+              - name: kubeconfig
+                description: Kubeconfig file name
 
           # Step 2: Deploy operator
           - name: install-operator
