@@ -93,9 +93,12 @@ spec:
                 value: "m5.large"
           - name: capture-result
             image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            env:
+              - name: CLUSTER_NAME
+                value: $(steps.create-cluster.results.clusterName)
             script: |
               #!/bin/bash
-              echo "$(steps.create-cluster.results.clusterName)" > $(results.clusterName.path)
+              echo "${CLUSTER_NAME}" > $(results.clusterName.path)
 
     # Task 5: Deploy MTA operator from FBC
     - name: deploy-operator
