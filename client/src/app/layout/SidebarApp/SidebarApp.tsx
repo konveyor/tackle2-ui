@@ -18,7 +18,7 @@ import {
   migrationRoutes,
   universalRoutes,
 } from "@app/Routes";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import keycloak from "@app/keycloak";
 import { checkAccess } from "@app/utils/rbac-utils";
 
@@ -111,13 +111,16 @@ const PersonaSidebar: FC<{
   return (
     <PageSidebar theme={LayoutTheme}>
       <div className="perspective">
-        <SimpleSelectBasic
+        <SimpleSelect
+          toggleId="persona-select"
+          toggleAriaLabel="Select persona dropdown"
+          isFullWidth
           value={selectedPersona}
           options={personaOptions.map((value) => ({
             value,
-            children: PersonaDefinition[value]?.label,
+            label: PersonaDefinition[value]?.label,
           }))}
-          onChange={(value) => {
+          onSelect={(value) => {
             const startPath =
               PersonaDefinition[value as PersonaType]?.startPath;
             if (value !== selectedPersona && startPath) {

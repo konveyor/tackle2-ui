@@ -23,8 +23,8 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Target, TargetLabel } from "@app/api/models";
 import DefaultImage from "@app/images/Icon-Red_Hat-Virtual_server_stack-A-Black-RGB.svg";
 
+import SimpleSelect from "../FilterToolbar/components/SimpleSelect";
 import { KebabDropdown } from "../KebabDropdown";
-import { SimpleSelectBasic } from "../SimpleSelectBasic";
 
 import useFetchImageDataUrl from "./hooks/useFetchImageDataUrl";
 
@@ -99,7 +99,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         : [];
 
     const labelOptions = labelChoices.map((label) => ({
-      children: label.name,
+      label: label.name,
       value: label.name,
     }));
     return { labelChoices, labelOptions };
@@ -175,16 +175,17 @@ export const TargetCard: React.FC<TargetCardProps> = ({
           {/* Target label choice */}
           {labelChoices.length === 0 ? null : (
             <StackItem className="target-label-choice-container">
-              <SimpleSelectBasic
-                selectId={`${target.name}-label-menu`}
+              <SimpleSelect
                 toggleId={`${target.name}-toggle`}
-                toggleAriaLabel="Select label dropdown target"
-                aria-label="Select Label"
+                toggleAriaLabel={t("terms.customTargetsChoice", {
+                  targetName: target.name,
+                })}
+                isFullWidth
                 value={
                   selectedLabel ? selectedLabel.name : labelChoices[0].name
                 }
                 options={labelOptions}
-                onChange={handleLabelChange}
+                onSelect={handleLabelChange}
               />
             </StackItem>
           )}
