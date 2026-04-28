@@ -34,6 +34,8 @@ import {
 import { matchItemsToRef } from "@app/utils/model-utils";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
+import PalletEditor from "./pallet-editor";
+
 export interface MigratorFormValues {
   name: string;
   description?: string;
@@ -311,25 +313,17 @@ const MigratorFormRenderer: React.FC<MigratorFormProps> = ({
           )}
         />
 
-        {/* Pallet YAML Section */}
+        {/* Pallet Configuration */}
         <HookFormPFGroupController
           control={control}
           name="palletYaml"
-          label="Pallet YAML"
+          label=""
           fieldId="migrator-pallet-yaml"
           renderInput={({ field: { value, onChange } }) => (
-            <FormGroup fieldId="migrator-pallet-yaml-input">
-              <TextArea
-                id="migrator-pallet-yaml-input"
-                value={value}
-                onChange={(_event, val) => onChange(val)}
-                aria-label="Pallet YAML"
-                rows={8}
-                resizeOrientation="vertical"
-                placeholder={`# Define your pallet configuration\nskills:\n  - java-ee-to-quarkus\narchetype: default`}
-                style={{ fontFamily: "monospace", fontSize: "0.85em" }}
-              />
-            </FormGroup>
+            <PalletEditor
+              value={value || ""}
+              onChange={(val) => onChange(val)}
+            />
           )}
         />
 
