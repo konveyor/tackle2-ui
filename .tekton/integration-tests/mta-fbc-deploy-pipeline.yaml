@@ -61,43 +61,36 @@ spec:
           - name: pathInRepo
             value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
 
-    # Task 3: Get supported cluster versions
-    - name: get-supported-versions
+    # Task 3: Provision ephemeral cluster (OCP 4.17, amd64)
+    - name: provision-cluster
       runAfter:
         - provision-eaas-space
       params:
         - name: eaasSpaceSecretRef
           value: $(tasks.provision-eaas-space.results.secretRef)
-      taskRef:
-        resolver: git
+      taskSpec:
         params:
-          - name: url
-            value: https://github.com/konflux-ci/build-definitions.git
-          - name: revision
-            value: main
-          - name: pathInRepo
-            value: task/eaas-get-supported-ephemeral-cluster-versions/0.1/eaas-get-supported-ephemeral-cluster-versions.yaml
-
-    # Task 4: Provision ephemeral cluster (hardcoded to OCP 4.17)
-    - name: provision-cluster
-      runAfter:
-        - get-supported-versions
-      params:
-        - name: eaasSpaceSecretRef
-          value: $(tasks.provision-eaas-space.results.secretRef)
-        - name: version
-          value: "4.17.0"
-        - name: instanceType
-          value: "amd64"
-      taskRef:
-        resolver: git
-        params:
-          - name: url
-            value: https://github.com/konflux-ci/build-definitions.git
-          - name: revision
-            value: main
-          - name: pathInRepo
-            value: task/eaas-create-ephemeral-cluster-hypershift-aws/0.1/eaas-create-ephemeral-cluster-hypershift-aws.yaml
+          - name: eaasSpaceSecretRef
+        results:
+          - name: clusterName
+        steps:
+          - name: create-cluster
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-create-ephemeral-cluster-hypershift-aws/0.1/eaas-create-ephemeral-cluster-hypershift-aws.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: version
+                value: "4.17.0"
+              - name: instanceType
+                value: "amd64"
 
     # Task 5: Deploy MTA operator from FBC
     - name: deploy-operator
