@@ -98,7 +98,7 @@ spec:
                 value: $(steps.create-cluster.results.clusterName)
             script: |
               #!/bin/bash
-              echo "${CLUSTER_NAME}" > $(results.clusterName.path)
+              echo -n "${CLUSTER_NAME}" > $(results.clusterName.path)
 
     # Task 5: Deploy MTA operator from FBC
     - name: deploy-operator
@@ -185,6 +185,21 @@ spec:
               PACKAGE_NAME="$(params.packageName)"
               CHANNEL_NAME="$(params.channelName)"
               NAMESPACE="$(params.operatorNamespace)"
+              CLUSTER_NAME="$(params.clusterName)"
+
+              # Get cluster console URL
+              CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
+              API_URL=$(oc whoami --show-server 2>/dev/null || echo "Unable to get API URL")
+
+              echo "========================================="
+              echo "CLUSTER ACCESS INFORMATION"
+              echo "========================================="
+              echo "Cluster Name: $CLUSTER_NAME"
+              echo "Console URL: $CONSOLE_URL"
+              echo "API Server: $API_URL"
+              echo "Username: kubeadmin"
+              echo "Password: Check EaaS secrets for cluster-${CLUSTER_NAME}-admin-password"
+              echo "========================================="
 
               echo "========================================="
               echo "Deploying MTA Operator"
