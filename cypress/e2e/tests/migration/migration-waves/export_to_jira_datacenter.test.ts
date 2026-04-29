@@ -25,15 +25,15 @@ import {
 } from "../../../../utils/utils";
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
-import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import {
   CredentialType,
   JiraIssueTypes,
   JiraType,
-  SEC,
 } from "../../../types/constants";
+
+import { pullJiraIssuesByWaves } from "./common";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -133,23 +133,19 @@ describe(
       });
 
       it(`Assert exports for ${issueType}`, function () {
-        cy.wait(40 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
-        jiraInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
-          const waveIssues = issues.filter((issue) => {
-            return (
-              (issue.fields.summary.includes(
-                wave.applications[0].name.trim()
-              ) ||
-                issue.fields.summary.includes(
-                  wave.applications[1].name.trim()
-                )) &&
-              issue.fields.issuetype.name.toUpperCase() ===
-                (issueType as string).toUpperCase()
-            );
+        const expectedIssuesCountPerType = 2;
+        pullJiraIssuesByWaves(
+          jiraInstance,
+          projectName,
+          { [issueType]: wave },
+          expectedIssuesCountPerType
+        ).then((issuesByIssueType) => {
+          Object.entries(issuesByIssueType).forEach(([issueType, issues]) => {
+            expect(
+              Cypress._.uniqBy(issues, ({ app }) => app),
+              `Issues for ${issueType} are not exported`
+            ).to.have.length(expectedIssuesCountPerType);
           });
-
-          expect(waveIssues).to.have.length(2);
-          wave.delete();
         });
       });
     });
