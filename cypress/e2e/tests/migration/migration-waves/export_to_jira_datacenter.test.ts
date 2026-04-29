@@ -151,7 +151,6 @@ describe(
     });
 
     after("Clear test data", function () {
-      wave.delete();
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
       deleteAllCredentials();

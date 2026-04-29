@@ -96,5 +96,5 @@ export const pullJiraIssuesByWaves = (
     });
   }
 
-  return recursivePull(0);
+  return recursivePull(1);
 };

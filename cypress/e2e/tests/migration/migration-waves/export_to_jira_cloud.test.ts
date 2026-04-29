@@ -174,18 +174,20 @@ describe(
     });
 
     after("Clear test data", function () {
-      getWaveIssuesByIssueType({
-        jiraInstance: jiraCloudInstance,
-        projectName,
-        wavesMap,
-        usedAppsCount: 2,
-      }).then((issuesByIssueType) => {
-        jiraCloudInstance.deleteIssues(
-          Object.values(issuesByIssueType).flatMap((issues) =>
-            issues.map((issue) => issue.issue.id)
-          )
-        );
-      });
+      if (projectName) {
+        getWaveIssuesByIssueType({
+          jiraInstance: jiraCloudInstance,
+          projectName,
+          wavesMap,
+          usedAppsCount: 2,
+        }).then((issuesByIssueType) => {
+          jiraCloudInstance.deleteIssues(
+            Object.values(issuesByIssueType).flatMap((issues) =>
+              issues.map((issue) => issue.issue.id)
+            )
+          );
+        });
+      }
       getAuthHeaders().then((headers) => {
         MigrationWave.deleteAllViaApi(headers);
         Application.deleteAllViaApi(headers);
