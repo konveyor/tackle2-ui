@@ -171,54 +171,57 @@ spec:
 
               # Extract using tar on the OCI blobs
               echo "[INFO] Extracting layer content..."
-              mkdir -p catalog
+              mkdir -p extracted
 
               # OCI format stores blobs in blobs/sha256/
               if [ -d "oci-image/blobs/sha256" ]; then
                 for blob in oci-image/blobs/sha256/*; do
                   if [ -f "$blob" ]; then
-                    echo "[INFO] Processing blob: $(basename $blob)"
                     # Try to extract as tar
-                    tar -xzf "$blob" -C catalog 2>/dev/null || tar -xf "$blob" -C catalog 2>/dev/null || true
+                    tar -xzf "$blob" -C extracted 2>/dev/null || tar -xf "$blob" -C extracted 2>/dev/null || true
                   fi
                 done
-              else
-                echo "[WARNING] Could not find OCI blobs directory"
               fi
 
-              # Find the catalog content
-              if [ -d "catalog/configs" ]; then
-                echo "[INFO] Found configs directory at catalog/configs"
-                CATALOG_DIR="catalog"
-              elif [ -d "catalog/var/lib/opm" ]; then
-                echo "[INFO] Found catalog at catalog/var/lib/opm"
-                mv catalog/var/lib/opm catalog-content
-                rm -rf catalog
-                mkdir -p catalog/configs
-                mv catalog-content/* catalog/configs/
-                CATALOG_DIR="catalog"
-              else
-                # Search for any directory with JSON/YAML files
-                FOUND_DIR=$(find catalog -type f \( -name "*.json" -o -name "*.yaml" \) -exec dirname {} \; | head -1)
-                if [ -n "$FOUND_DIR" ]; then
-                  echo "[INFO] Found catalog files in: $FOUND_DIR"
-                  mkdir -p catalog-new/configs
-                  cp -r "$FOUND_DIR"/* catalog-new/configs/ 2>/dev/null || true
-                  rm -rf catalog
-                  mv catalog-new catalog
-                  CATALOG_DIR="catalog"
-                else
-                  echo "[WARNING] Could not find catalog content in standard locations"
-                  echo "[INFO] Directory structure:"
-                  find catalog -type d | head -20
-                  echo "[INFO] Will try to use entire extracted content"
-                  CATALOG_DIR="catalog"
-                fi
+              # Find where the actual FBC catalog files are
+              echo "[INFO] Searching for FBC catalog files..."
+
+              # Look for JSON/YAML files that contain operator metadata
+              CATALOG_FILES=$(find extracted -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null)
+
+              if [ -z "$CATALOG_FILES" ]; then
+                echo "[ERROR] No catalog JSON/YAML files found!"
+                echo "[INFO] Extracted directory structure:"
+                find extracted -type d 2>/dev/null | head -20
+                echo "[INFO] Sample files:"
+                find extracted -type f 2>/dev/null | head -20
+                exit 1
               fi
+
+              # Find the directory containing catalog files
+              CATALOG_SOURCE_DIR=$(echo "$CATALOG_FILES" | head -1 | xargs dirname)
+              echo "[INFO] Found catalog files in: $CATALOG_SOURCE_DIR"
+
+              # Copy catalog content to a clean directory
+              mkdir -p catalog/configs
+
+              # If files are in a configs directory, copy that
+              if echo "$CATALOG_SOURCE_DIR" | grep -q "configs"; then
+                # Copy the entire configs directory structure
+                CONFIGS_ROOT=$(echo "$CATALOG_SOURCE_DIR" | sed 's|/configs.*|/configs|')
+                if [ -d "$CONFIGS_ROOT" ]; then
+                  cp -r "$CONFIGS_ROOT"/* catalog/configs/ 2>/dev/null || cp -r "$CONFIGS_ROOT" catalog/ 2>/dev/null
+                fi
+              else
+                # Copy all JSON/YAML files to configs
+                find extracted -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -exec cp {} catalog/configs/ \; 2>/dev/null || true
+              fi
+
+              CATALOG_DIR="catalog"
 
               # Show what we have
               echo "[INFO] Catalog structure:"
-              find $CATALOG_DIR -type f | head -30
+              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | head -20
 
               # Rewrite registry references
               echo "[INFO] Rewriting registry.redhat.io -> registry.stage.redhat.io..."
@@ -281,9 +284,6 @@ spec:
 
               # Get current cluster pull secret
               EXISTING_SECRET=$(oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d || echo '{"auths":{}}')
-
-              # Start with existing secret
-              MERGED_SECRET="$EXISTING_SECRET"
 
               # Check if external credentials are provided
               if [ -f "/registry-credentials/.dockerconfigjson" ]; then
