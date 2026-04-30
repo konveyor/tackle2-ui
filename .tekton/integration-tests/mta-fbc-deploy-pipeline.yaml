@@ -164,79 +164,74 @@ spec:
               WORK_DIR=$(mktemp -d)
               cd "$WORK_DIR"
 
-              # Copy image to local directory using skopeo
-              echo "[INFO] Copying image layers using skopeo..."
-              mkdir -p oci-image
-              skopeo copy "docker://$ORIGINAL_FBC_IMAGE" "oci:oci-image:latest" --override-os linux
-
-              # Extract the image to a directory
-              echo "[INFO] Extracting image filesystem..."
-              mkdir -p extracted
-
-              # Use skopeo to get the image manifest
-              MANIFEST=$(skopeo inspect "docker://$ORIGINAL_FBC_IMAGE" --raw)
-
-              # Get config blob
-              CONFIG_DIGEST=$(echo "$MANIFEST" | jq -r '.config.digest' | cut -d: -f2)
-
-              # Get layer digests
-              LAYERS=$(echo "$MANIFEST" | jq -r '.layers[].digest' | cut -d: -f2)
-
-              echo "[INFO] Extracting catalog from OCI image..."
-              # Use a container to extract files without privileged mode
-              # Since we can't use privileged, we'll use the original image directly
-              # and just copy the catalog files out using kubectl cp alternative
-
-              # Alternative: Download and extract catalog directly
-              echo "[INFO] Downloading catalog content directly..."
-              mkdir -p catalog/configs
-
-              # Try to extract using skopeo
+              # Download image to directory format using skopeo
+              echo "[INFO] Downloading FBC image using skopeo..."
+              mkdir -p extracted-image
               skopeo copy "docker://$ORIGINAL_FBC_IMAGE" "dir:extracted-image"
 
-              # Find and extract tar layers
+              # Extract all tar layer files
+              echo "[INFO] Extracting layer tarballs..."
+              mkdir -p catalog
+
               for layer in extracted-image/*.tar; do
                 if [ -f "$layer" ]; then
-                  echo "[INFO] Extracting layer: $layer"
-                  tar -xf "$layer" -C catalog --strip-components=0 2>/dev/null || true
+                  echo "[INFO] Extracting layer: $(basename $layer)"
+                  tar -xf "$layer" -C catalog 2>/dev/null || true
                 fi
               done
 
-              # If configs directory exists, use it
+              # Find the catalog content
               if [ -d "catalog/configs" ]; then
-                echo "[INFO] Found configs directory"
-              elif [ -d "catalog" ] && [ "$(find catalog -type f | wc -l)" -gt 0 ]; then
-                echo "[INFO] Catalog files extracted to catalog/"
-                # Move everything to configs subdirectory
-                mkdir -p catalog-tmp/configs
-                mv catalog/* catalog-tmp/configs/ 2>/dev/null || true
+                echo "[INFO] Found configs directory at catalog/configs"
+                CATALOG_DIR="catalog"
+              elif [ -d "catalog/var/lib/opm" ]; then
+                echo "[INFO] Found catalog at catalog/var/lib/opm"
+                mv catalog/var/lib/opm catalog-content
                 rm -rf catalog
-                mv catalog-tmp catalog
+                mkdir -p catalog/configs
+                mv catalog-content/* catalog/configs/
+                CATALOG_DIR="catalog"
               else
-                echo "[WARNING] Could not extract catalog, will try mounting approach"
-                echo "SKIP" > /tmp/rewritten-fbc-image
-                exit 0
+                # Search for any directory with JSON/YAML files
+                FOUND_DIR=$(find catalog -type f \( -name "*.json" -o -name "*.yaml" \) -exec dirname {} \; | head -1)
+                if [ -n "$FOUND_DIR" ]; then
+                  echo "[INFO] Found catalog files in: $FOUND_DIR"
+                  mkdir -p catalog-new/configs
+                  cp -r "$FOUND_DIR"/* catalog-new/configs/ 2>/dev/null || true
+                  rm -rf catalog
+                  mv catalog-new catalog
+                  CATALOG_DIR="catalog"
+                else
+                  echo "[WARNING] Could not find catalog content in standard locations"
+                  echo "[INFO] Directory structure:"
+                  find catalog -type d | head -20
+                  echo "[INFO] Will try to use entire extracted content"
+                  CATALOG_DIR="catalog"
+                fi
               fi
 
-              # Show what we extracted
+              # Show what we have
               echo "[INFO] Catalog structure:"
-              find catalog -type f | head -20
+              find $CATALOG_DIR -type f | head -30
 
               # Rewrite registry references
               echo "[INFO] Rewriting registry.redhat.io -> registry.stage.redhat.io..."
-              find catalog -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -exec sed -i 's|registry\.redhat\.io|registry.stage.redhat.io|g' {} \;
+              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -exec sed -i 's|registry\.redhat\.io|registry.stage.redhat.io|g' {} \;
 
               # Verify changes
               echo "[INFO] Verifying rewrites..."
-              if grep -r "registry.stage.redhat.io" catalog 2>/dev/null; then
-                echo "[INFO] ✅ Successfully rewrote registry references"
+              REWRITE_COUNT=$(grep -r "registry.stage.redhat.io" $CATALOG_DIR 2>/dev/null | wc -l)
+              if [ "$REWRITE_COUNT" -gt 0 ]; then
+                echo "[INFO] ✅ Successfully rewrote $REWRITE_COUNT registry references"
+                grep -r "registry.stage.redhat.io" $CATALOG_DIR | head -5
               else
-                echo "[WARNING] No registry references found in text files"
+                echo "[WARNING] No registry references found - showing sample file content:"
+                find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" \) | head -1 | xargs cat | head -20
               fi
 
-              # Save rewritten catalog content for later use
+              # Save rewritten catalog content
               echo "[INFO] Packaging rewritten catalog..."
-              tar czf /tmp/rewritten-catalog.tar.gz -C catalog .
+              tar czf /tmp/rewritten-catalog.tar.gz -C $CATALOG_DIR .
 
               # Mark as local (we'll use ConfigMap approach)
               echo "LOCAL" > /tmp/rewritten-fbc-image
