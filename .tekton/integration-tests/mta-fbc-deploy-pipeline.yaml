@@ -176,6 +176,14 @@ spec:
               CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
               API_URL=$(oc whoami --show-server 2>/dev/null || echo "Unable to get API URL")
 
+              # Get password from credentials volume
+              PASSWORD_FILE="/credentials/${CLUSTER_NAME}-password"
+              if [ -f "$PASSWORD_FILE" ]; then
+                CLUSTER_PASSWORD=$(cat "$PASSWORD_FILE")
+              else
+                CLUSTER_PASSWORD="Password file not found"
+              fi
+
               echo "========================================="
               echo "CLUSTER ACCESS INFORMATION"
               echo "========================================="
@@ -183,7 +191,7 @@ spec:
               echo "Console URL: $CONSOLE_URL"
               echo "API Server: $API_URL"
               echo "Username: kubeadmin"
-              echo "Password: Check EaaS secrets for cluster-${CLUSTER_NAME}-admin-password"
+              echo "Password: $CLUSTER_PASSWORD"
               echo "========================================="
 
               echo "========================================="
@@ -262,9 +270,9 @@ spec:
                 installPlanApproval: Automatic
               EOF
 
-              # Wait for CSV
+              # Wait for CSV (30 minutes timeout)
               echo "[INFO] Waiting for ClusterServiceVersion..."
-              for i in {1..120}; do
+              for i in {1..360}; do
                 CSV=$(oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
@@ -297,28 +305,12 @@ spec:
                 sleep 5
               done
 
-              echo "[ERROR] CSV not ready after 10 minutes"
+              echo "[ERROR] CSV not ready after 30 minutes"
+              echo "[INFO] Cluster will remain running for debugging"
+              echo "[INFO] Cluster: $CLUSTER_NAME"
+              echo "[INFO] Console: $CONSOLE_URL"
+              echo "[INFO] Password: $CLUSTER_PASSWORD"
               oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o yaml
               oc get csv -n "$NAMESPACE"
               echo "FAILED" > $(results.deploymentStatus.path)
               exit 1
-
-  finally:
-    - name: cleanup-on-failure
-      when:
-        - input: $(tasks.status)
-          operator: in
-          values: ["Failed"]
-      params:
-        - name: message
-          value: "Pipeline failed - cluster resources may still be running"
-      taskSpec:
-        params:
-          - name: message
-        steps:
-          - name: log-message
-            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
-            script: |
-              #!/bin/bash
-              echo "$(params.message)"
-              echo "Check cluster: $(tasks.provision-cluster.results.clusterName)"
