@@ -153,7 +153,140 @@ spec:
               - name: credentials
                 value: credentials
 
-          # Step 2: Deploy operator
+          # Step 2: Update global pull secret for registry.stage.redhat.io
+          - name: update-pull-secret
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Checking if registry credentials need to be added..."
+
+              # Get current pull secret
+              EXISTING_SECRET=$(oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d || echo '{"auths":{}}')
+
+              # Check if registry.stage.redhat.io is already present
+              if echo "$EXISTING_SECRET" | grep -q "registry.stage.redhat.io"; then
+                echo "[INFO] registry.stage.redhat.io already in pull secret"
+              else
+                echo "[INFO] Adding registry.stage.redhat.io credentials..."
+
+                # Get credentials from registry.redhat.io and apply to staging
+                REDHAT_CREDS=$(echo "$EXISTING_SECRET" | jq -r '.auths["registry.redhat.io"].auth' 2>/dev/null || echo "")
+
+                if [ -n "$REDHAT_CREDS" ] && [ "$REDHAT_CREDS" != "null" ]; then
+                  # Add staging registry with same credentials
+                  MERGED_SECRET=$(echo "$EXISTING_SECRET" | jq --arg auth "$REDHAT_CREDS" '.auths["registry.stage.redhat.io"] = {"auth": $auth}')
+
+                  TMPFILE=$(mktemp)
+                  echo "$MERGED_SECRET" > "$TMPFILE"
+                  oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson="$TMPFILE"
+                  rm -f "$TMPFILE"
+                  echo "[INFO] Pull secret updated"
+                else
+                  echo "[WARNING] Could not extract registry.redhat.io credentials, skipping pull secret update"
+                fi
+              fi
+
+          # Step 3: Configure image registry mirroring
+          - name: setup-registry-mirrors
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Creating ImageDigestMirrorSet..."
+              cat <<EOF | oc apply -f -
+              apiVersion: config.openshift.io/v1
+              kind: ImageDigestMirrorSet
+              metadata:
+                name: mta-registry-mirror
+              spec:
+                imageDigestMirrors:
+                - source: registry.redhat.io
+                  mirrors:
+                  - registry.stage.redhat.io
+                  mirrorSourcePolicy: AllowContactingSource
+              EOF
+
+              echo "[INFO] Creating ImageTagMirrorSet..."
+              cat <<EOF | oc apply -f -
+              apiVersion: config.openshift.io/v1
+              kind: ImageTagMirrorSet
+              metadata:
+                name: mta-registry-mirror
+              spec:
+                imageTagMirrors:
+                - source: registry.redhat.io
+                  mirrors:
+                  - registry.stage.redhat.io
+                  mirrorSourcePolicy: AllowContactingSource
+              EOF
+
+              echo "[INFO] Sleeping 30s for MCO to detect mirror configuration..."
+              sleep 30
+
+              echo "[INFO] Waiting for MachineConfigPool to finish updating..."
+              TIMEOUT=1800  # 30 minutes
+              ELAPSED=0
+              INTERVAL=30
+
+              while true; do
+                # Check if any pool is degraded
+                if oc get mcp -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Degraded")].status}{"\n"}{end}' | grep -q "True"; then
+                  echo "[ERROR] MachineConfigPool is degraded:"
+                  oc get mcp
+                  exit 1
+                fi
+
+                # Check if any pool is still updating
+                if ! oc get mcp -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Updating")].status}{"\n"}{end}' | grep -q "True"; then
+                  echo "[INFO] ✅ All MachineConfigPools are updated"
+                  break
+                fi
+
+                if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+                  echo "[ERROR] Timed out waiting for MachineConfigPool update after ${TIMEOUT}s"
+                  oc get mcp
+                  exit 1
+                fi
+
+                echo "[INFO] MachineConfigPool still updating (${ELAPSED}s/${TIMEOUT}s)..."
+                oc get mcp
+                sleep $INTERVAL
+                ELAPSED=$((ELAPSED + INTERVAL))
+              done
+
+          # Step 4: Disable community operators
+          - name: disable-community-operators
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Disabling community and certified operators..."
+              oc patch operatorhub cluster --type merge --patch '{"spec":{"sources":[{"disabled": true,"name": "community-operators"},{"disabled": true,"name": "certified-operators"}]}}'
+              echo "[INFO] ✅ Community operators disabled"
+
+          # Step 5: Deploy operator
           - name: install-operator
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
@@ -206,53 +339,53 @@ spec:
               echo "[INFO] Creating namespace $NAMESPACE..."
               oc create namespace "$NAMESPACE" || echo "Namespace already exists"
 
-              # Create OperatorGroup
-              echo "[INFO] Creating OperatorGroup..."
-              cat <<EOF | oc apply -f -
-              apiVersion: operators.coreos.com/v1
-              kind: OperatorGroup
-              metadata:
-                name: mta-operatorgroup
-                namespace: $NAMESPACE
-              spec:
-                targetNamespaces:
-                  - $NAMESPACE
-              EOF
-
-              # Create CatalogSource
-              echo "[INFO] Creating CatalogSource..."
+              # Create CatalogSource in openshift-marketplace (global)
+              echo "[INFO] Creating CatalogSource in openshift-marketplace..."
               cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: CatalogSource
               metadata:
-                name: mta-fbc-catalog
-                namespace: $NAMESPACE
+                name: mta-konflux-catalog
+                namespace: openshift-marketplace
               spec:
                 sourceType: grpc
                 image: $FBC_IMAGE
-                grpcPodConfig:
-                  securityContextConfig: restricted
-                  extractContent:
-                    catalogDir: /configs
-                    cacheDir: /tmp/cache
+                displayName: MTA Konflux Catalog
+                publisher: Red Hat
+                updateStrategy:
+                  registryPoll:
+                    interval: 10m
               EOF
 
               # Wait for CatalogSource
               echo "[INFO] Waiting for CatalogSource to be ready..."
               for i in {1..60}; do
-                STATE=$(oc get catalogsource mta-fbc-catalog -n "$NAMESPACE" -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
+                STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
                 if [ "$STATE" = "READY" ]; then
                   echo "[INFO] ✅ CatalogSource is READY"
                   break
                 fi
                 if [ $i -eq 60 ]; then
                   echo "[ERROR] CatalogSource not ready after 5 minutes"
-                  oc get catalogsource mta-fbc-catalog -n "$NAMESPACE" -o yaml
+                  oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o yaml
                   exit 1
                 fi
                 echo "[INFO] Attempt $i/60: State=$STATE, waiting..."
                 sleep 5
               done
+
+              # Create OperatorGroup
+              echo "[INFO] Creating OperatorGroup..."
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1
+              kind: OperatorGroup
+              metadata:
+                name: mta-operator-group
+                namespace: $NAMESPACE
+              spec:
+                targetNamespaces:
+                  - $NAMESPACE
+              EOF
 
               # Create Subscription
               echo "[INFO] Creating Subscription..."
@@ -260,57 +393,106 @@ spec:
               apiVersion: operators.coreos.com/v1alpha1
               kind: Subscription
               metadata:
-                name: $PACKAGE_NAME
+                name: mta-operator
                 namespace: $NAMESPACE
               spec:
                 channel: $CHANNEL_NAME
-                name: $PACKAGE_NAME
-                source: mta-fbc-catalog
-                sourceNamespace: $NAMESPACE
                 installPlanApproval: Automatic
+                name: $PACKAGE_NAME
+                source: mta-konflux-catalog
+                sourceNamespace: openshift-marketplace
               EOF
 
               # Wait for CSV (30 minutes timeout)
               echo "[INFO] Waiting for ClusterServiceVersion..."
               for i in {1..360}; do
-                CSV=$(oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
+                CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
                   if [ "$PHASE" = "Succeeded" ]; then
                     echo "[INFO] ✅ Operator installed successfully: $CSV"
-                    echo "SUCCESS" > $(results.deploymentStatus.path)
                     echo "$CSV" > $(results.csvName.path)
-
-                    # Wait for MTA UI to be ready
-                    echo "[INFO] Waiting for MTA UI deployment..."
-                    for j in {1..60}; do
-                      if oc get deployment tackle-ui -n "$NAMESPACE" 2>/dev/null; then
-                        echo "[INFO] Found tackle-ui deployment"
-                        oc wait --for=condition=available --timeout=10m deployment/tackle-ui -n "$NAMESPACE" || true
-
-                        # Get UI route
-                        UI_ROUTE=$(oc get route tackle-ui -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
-                        if [ -n "$UI_ROUTE" ]; then
-                          echo "[INFO] ✅ MTA UI available at: https://$UI_ROUTE"
-                        fi
-                        break
-                      fi
-                      sleep 5
-                    done
-
-                    exit 0
+                    break
                   fi
-                  echo "[INFO] Attempt $i/120: CSV=$CSV, Phase=$PHASE"
+                  echo "[INFO] Attempt $i/360: CSV=$CSV, Phase=$PHASE"
                 fi
                 sleep 5
               done
 
-              echo "[ERROR] CSV not ready after 30 minutes"
-              echo "[INFO] Cluster will remain running for debugging"
-              echo "[INFO] Cluster: $CLUSTER_NAME"
-              echo "[INFO] Console: $CONSOLE_URL"
-              echo "[INFO] Password: $CLUSTER_PASSWORD"
-              oc get subscription "$PACKAGE_NAME" -n "$NAMESPACE" -o yaml
-              oc get csv -n "$NAMESPACE"
-              echo "FAILED" > $(results.deploymentStatus.path)
-              exit 1
+              if [ -z "$CSV" ] || [ "$PHASE" != "Succeeded" ]; then
+                echo "[ERROR] CSV not ready after 30 minutes"
+                echo "[INFO] Cluster will remain running for debugging"
+                echo "[INFO] Cluster: $CLUSTER_NAME"
+                echo "[INFO] Console: $CONSOLE_URL"
+                echo "[INFO] Password: $CLUSTER_PASSWORD"
+                oc get subscription mta-operator -n "$NAMESPACE" -o yaml
+                oc get csv -n "$NAMESPACE"
+                echo "FAILED" > $(results.deploymentStatus.path)
+                exit 1
+              fi
+
+              # Wait for mta-operator deployment
+              echo "[INFO] Waiting for MTA operator deployment..."
+              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
+              echo "[INFO] ✅ MTA operator deployment is available"
+
+              # Create MTA Custom Resource
+              echo "[INFO] Creating MTA Custom Resource..."
+              cat <<EOF | oc apply -f -
+              apiVersion: tackle.konveyor.io/v1alpha1
+              kind: Tackle
+              metadata:
+                name: mta
+                namespace: $NAMESPACE
+              spec:
+                provider_c_sharp_container_requests_memory: 512Mi
+                provider_c_sharp_container_limits_memory: 512Mi
+                provider_c_sharp_container_requests_cpu: 500m
+                provider_c_sharp_container_limits_cpu: 500m
+                language_discovery_container_limits_cpu: 500m
+                language_discovery_container_requests_cpu: 500m
+                language_discovery_container_limits_memory: 512Mi
+                language_discovery_container_requests_memory: 512Mi
+                analyzer_container_limits_cpu: 500m
+                analyzer_container_requests_cpu: 500m
+                analyzer_container_limits_memory: 512Mi
+                analyzer_container_requests_memory: 512Mi
+                provider_generic_container_limits_cpu: 500m
+                provider_generic_container_requests_cpu: 500m
+                provider_generic_container_limits_memory: 512Mi
+                provider_generic_container_requests_memory: 512Mi
+                provider_nodejs_container_limits_cpu: 500m
+                provider_nodejs_container_requests_cpu: 500m
+                provider_nodejs_container_limits_memory: 512Mi
+                provider_nodejs_container_requests_memory: 512Mi
+                hub_bucket_volume_size: "25Gi"
+                cache_data_volume_size: "25Gi"
+              EOF
+
+              # Wait for MTA UI to be ready
+              echo "[INFO] Waiting for MTA UI deployment..."
+              oc wait --for=condition=ready --timeout=600s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE"
+              echo "[INFO] ✅ MTA UI pods are ready"
+
+              # Get UI route
+              UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
+              if [ -n "$UI_ROUTE" ]; then
+                UI_URL="https://$UI_ROUTE"
+                echo "[INFO] ✅ MTA UI available at: $UI_URL"
+              else
+                echo "[WARNING] Could not get MTA route"
+              fi
+
+              echo "SUCCESS" > $(results.deploymentStatus.path)
+
+              echo ""
+              echo "========================================="
+              echo "✅ MTA Deployment Complete!"
+              echo "========================================="
+              echo "Namespace: $NAMESPACE"
+              echo "CSV: $CSV"
+              echo "MTA URL: ${UI_URL:-<route not found>}"
+              echo "Login: admin / Dog8code"
+              echo "========================================="
+              echo ""
+              exit 0
