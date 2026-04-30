@@ -192,9 +192,9 @@ spec:
               if [ -z "$CATALOG_FILES" ]; then
                 echo "[ERROR] No catalog JSON/YAML files found!"
                 echo "[INFO] Extracted directory structure:"
-                find extracted -type d 2>/dev/null | head -20
+                find extracted -type d 2>/dev/null || true
                 echo "[INFO] Sample files:"
-                find extracted -type f 2>/dev/null | head -20
+                find extracted -type f 2>/dev/null || true
                 exit 1
               fi
 
@@ -221,7 +221,7 @@ spec:
 
               # Show what we have
               echo "[INFO] Catalog structure:"
-              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | head -20
+              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true
 
               # Rewrite registry references
               echo "[INFO] Rewriting registry.redhat.io -> registry.stage.redhat.io..."
@@ -232,10 +232,14 @@ spec:
               REWRITE_COUNT=$(grep -r "registry.stage.redhat.io" $CATALOG_DIR 2>/dev/null | wc -l)
               if [ "$REWRITE_COUNT" -gt 0 ]; then
                 echo "[INFO] ✅ Successfully rewrote $REWRITE_COUNT registry references"
-                grep -r "registry.stage.redhat.io" $CATALOG_DIR | head -5
+                echo "[INFO] Sample rewrites:"
+                (grep -r "registry.stage.redhat.io" $CATALOG_DIR 2>/dev/null | head -5) || true
               else
                 echo "[WARNING] No registry references found - showing sample file content:"
-                find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" \) | head -1 | xargs cat | head -20
+                SAMPLE_FILE=$(find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" \) 2>/dev/null | head -1)
+                if [ -n "$SAMPLE_FILE" ]; then
+                  (cat "$SAMPLE_FILE" | head -20) || true
+                fi
               fi
 
               # Save rewritten catalog content
