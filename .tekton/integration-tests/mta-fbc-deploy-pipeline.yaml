@@ -164,21 +164,27 @@ spec:
               WORK_DIR=$(mktemp -d)
               cd "$WORK_DIR"
 
-              # Download image to directory format using skopeo
+              # Download image to OCI format using skopeo
               echo "[INFO] Downloading FBC image using skopeo..."
-              mkdir -p extracted-image
-              skopeo copy "docker://$ORIGINAL_FBC_IMAGE" "dir:extracted-image"
+              mkdir -p oci-image
+              skopeo copy "docker://$ORIGINAL_FBC_IMAGE" "oci:oci-image:fbc"
 
-              # Extract all tar layer files
-              echo "[INFO] Extracting layer tarballs..."
+              # Extract using tar on the OCI blobs
+              echo "[INFO] Extracting layer content..."
               mkdir -p catalog
 
-              for layer in extracted-image/*.tar; do
-                if [ -f "$layer" ]; then
-                  echo "[INFO] Extracting layer: $(basename $layer)"
-                  tar -xf "$layer" -C catalog 2>/dev/null || true
-                fi
-              done
+              # OCI format stores blobs in blobs/sha256/
+              if [ -d "oci-image/blobs/sha256" ]; then
+                for blob in oci-image/blobs/sha256/*; do
+                  if [ -f "$blob" ]; then
+                    echo "[INFO] Processing blob: $(basename $blob)"
+                    # Try to extract as tar
+                    tar -xzf "$blob" -C catalog 2>/dev/null || tar -xf "$blob" -C catalog 2>/dev/null || true
+                  fi
+                done
+              else
+                echo "[WARNING] Could not find OCI blobs directory"
+              fi
 
               # Find the catalog content
               if [ -d "catalog/configs" ]; then
