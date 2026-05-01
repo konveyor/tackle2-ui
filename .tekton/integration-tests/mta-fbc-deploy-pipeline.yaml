@@ -45,7 +45,7 @@ spec:
     # Task 2: Provision EaaS space
     - name: provision-eaas-space
       runAfter:
-        - create-mirror-config
+        - parse-metadata
       params:
         - name: ownerName
           value: $(context.pipelineRun.name)
