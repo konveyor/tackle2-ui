@@ -148,6 +148,8 @@ spec:
           - name: rewrite-fbc-catalog
             image: quay.io/skopeo/stable:latest
             volumeMounts:
+              - name: credentials
+                mountPath: /credentials
               - name: registry-credentials
                 mountPath: /registry-credentials
             env:
@@ -242,13 +244,13 @@ spec:
                 fi
               fi
 
-              # Save rewritten catalog content
+              # Save rewritten catalog content to shared volume
               echo "[INFO] Packaging rewritten catalog..."
-              tar czf /tmp/rewritten-catalog.tar.gz -C $CATALOG_DIR .
+              tar czf /credentials/rewritten-catalog.tar.gz -C $CATALOG_DIR .
 
               # Mark as local (we'll use ConfigMap approach)
-              echo "LOCAL" > /tmp/rewritten-fbc-image
-              echo "[INFO] ✅ Catalog rewrite complete - will deploy using ConfigMap"
+              echo "LOCAL" > /credentials/rewritten-fbc-image
+              echo "[INFO] ✅ Catalog rewrite complete - saved to shared volume"
 
           # Step 2: Get kubeconfig from EaaS
           - name: get-kubeconfig
@@ -389,8 +391,8 @@ spec:
               echo "========================================="
 
               # Determine which catalog image to use
-              if [ -f "/tmp/rewritten-fbc-image" ]; then
-                REWRITTEN_IMAGE=$(cat /tmp/rewritten-fbc-image)
+              if [ -f "/credentials/rewritten-fbc-image" ]; then
+                REWRITTEN_IMAGE=$(cat /credentials/rewritten-fbc-image)
                 if [ "$REWRITTEN_IMAGE" = "LOCAL" ]; then
                   echo "[INFO] Using locally rewritten catalog (ConfigMap-based)"
                   FBC_IMAGE="LOCAL"
@@ -422,7 +424,7 @@ spec:
 
                 # Extract rewritten catalog
                 mkdir -p /tmp/catalog-content
-                tar xzf /tmp/rewritten-catalog.tar.gz -C /tmp/catalog-content
+                tar xzf /credentials/rewritten-catalog.tar.gz -C /tmp/catalog-content
 
                 # Create ConfigMap with catalog content
                 oc create configmap mta-fbc-configs -n openshift-marketplace --from-file=/tmp/catalog-content --dry-run=client -o yaml | oc apply -f -
