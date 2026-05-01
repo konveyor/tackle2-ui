@@ -141,6 +141,9 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
+          - name: registry-credentials
+            secret:
+              secretName: $(params.credentialsSecret)
         steps:
           # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
@@ -167,11 +170,11 @@ spec:
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
+              - name: registry-credentials
+                mountPath: /registry-credentials
             env:
               - name: KUBECONFIG
                 value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
-              - name: CREDENTIALS_SECRET
-                value: $(params.credentialsSecret)
             script: |
               #!/bin/bash
               set -euo pipefail
@@ -183,9 +186,9 @@ spec:
               curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
               chmod +x /tmp/jq
 
-              # Get credentials from the secret
-              echo "[INFO] Extracting credentials from secret: $CREDENTIALS_SECRET..."
-              CREDS_JSON=$(oc get secret "$CREDENTIALS_SECRET" -n art-mta-tenant -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d)
+              # Get credentials from the mounted secret volume
+              echo "[INFO] Reading credentials from mounted secret..."
+              CREDS_JSON=$(cat /registry-credentials/.dockerconfigjson)
 
               # Get current global pull secret
               echo "[INFO] Getting current global pull secret..."
