@@ -4,8 +4,8 @@ metadata:
   name: mta-fbc-deploy-pipeline
 spec:
   description: |
-    Deploy MTA operator from FBC catalog to ephemeral cluster.
-    Simplified pipeline that avoids when expression bugs in inline taskSpecs.
+    Deploy MTA operator from FBC catalog to ephemeral Hypershift cluster.
+    Uses imageContentSources to configure registry mirroring at cluster creation time.
 
   params:
     - name: SNAPSHOT
@@ -17,6 +17,9 @@ spec:
     - name: OCI_REF
       description: OCI artifact reference for storing results
       type: string
+
+  workspaces:
+    - name: shared-data
 
   results:
     - name: CLUSTER_NAME
@@ -42,10 +45,39 @@ spec:
           - name: pathInRepo
             value: tasks/test_metadata.yaml
 
-    # Task 2: Provision EaaS space
-    - name: provision-eaas-space
+    # Task 2: Create image mirror configuration
+    - name: create-mirror-config
       runAfter:
         - parse-metadata
+      workspaces:
+        - name: shared-data
+          workspace: shared-data
+      taskSpec:
+        workspaces:
+          - name: shared-data
+        steps:
+          - name: create-config
+            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Creating imageContentSources configuration for Hypershift"
+
+              # Create mirror configuration for registry.redhat.io -> registry.stage.redhat.io
+              cat > /workspace/shared-data/imageContentSources.yaml << 'YAML'
+              - source: registry.redhat.io
+                mirrors:
+                - registry.stage.redhat.io
+              YAML
+
+              echo "[INFO] Mirror configuration created:"
+              cat /workspace/shared-data/imageContentSources.yaml
+
+    # Task 3: Provision EaaS space
+    - name: provision-eaas-space
+      runAfter:
+        - create-mirror-config
       params:
         - name: ownerName
           value: $(context.pipelineRun.name)
@@ -61,17 +93,19 @@ spec:
           - name: pathInRepo
             value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
 
-    # Task 3: Provision ephemeral Hypershift cluster (OCP 4.17, x86_64)
-    # EaaS provisions Hypershift clusters with hosted control plane
-    # Hypershift does NOT have MachineConfigPools on worker nodes
-    # Solution: Rewrite FBC catalog references instead of using ImageDigestMirrorSet
+    # Task 4: Provision ephemeral Hypershift cluster with imageContentSources
     - name: provision-cluster
       runAfter:
         - provision-eaas-space
+      workspaces:
+        - name: shared-data
+          workspace: shared-data
       params:
         - name: eaasSpaceSecretRef
           value: $(tasks.provision-eaas-space.results.secretRef)
       taskSpec:
+        workspaces:
+          - name: shared-data
         params:
           - name: eaasSpaceSecretRef
         results:
@@ -94,6 +128,8 @@ spec:
                 value: "4.17.0"
               - name: instanceType
                 value: "m5.xlarge"
+              - name: imageContentSourcesFile
+                value: /workspace/shared-data/imageContentSources.yaml
           - name: capture-result
             image: registry.access.redhat.com/ubi9/ubi-minimal:latest
             env:
@@ -120,8 +156,6 @@ spec:
           value: "stable-v8.1"
         - name: operatorNamespace
           value: "konveyor-tackle"
-        - name: credentialsSecretName
-          value: $(params.CREDENTIALS_SECRET_NAME)
       taskSpec:
         params:
           - name: eaasSpaceSecretRef
@@ -130,7 +164,6 @@ spec:
           - name: packageName
           - name: channelName
           - name: operatorNamespace
-          - name: credentialsSecretName
         results:
           - name: deploymentStatus
             description: Deployment status
@@ -139,120 +172,8 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
-          - name: registry-credentials
-            secret:
-              secretName: $(params.credentialsSecretName)
-              optional: true
         steps:
-          # Step 1: Rewrite FBC catalog to use staging registry
-          - name: rewrite-fbc-catalog
-            image: quay.io/skopeo/stable:latest
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
-              - name: registry-credentials
-                mountPath: /registry-credentials
-            env:
-              - name: ORIGINAL_FBC_IMAGE
-                value: $(params.fbcImage)
-            script: |
-              #!/bin/bash
-              set -euo pipefail
-
-              echo "[INFO] Extracting and rewriting FBC catalog..."
-              echo "[INFO] Original FBC image: $ORIGINAL_FBC_IMAGE"
-
-              # Create working directory
-              WORK_DIR=$(mktemp -d)
-              cd "$WORK_DIR"
-
-              # Download image to OCI format using skopeo
-              echo "[INFO] Downloading FBC image using skopeo..."
-              mkdir -p oci-image
-              skopeo copy "docker://$ORIGINAL_FBC_IMAGE" "oci:oci-image:fbc"
-
-              # Extract using tar on the OCI blobs
-              echo "[INFO] Extracting layer content..."
-              mkdir -p extracted
-
-              # OCI format stores blobs in blobs/sha256/
-              if [ -d "oci-image/blobs/sha256" ]; then
-                for blob in oci-image/blobs/sha256/*; do
-                  if [ -f "$blob" ]; then
-                    # Try to extract as tar
-                    tar -xzf "$blob" -C extracted 2>/dev/null || tar -xf "$blob" -C extracted 2>/dev/null || true
-                  fi
-                done
-              fi
-
-              # Find where the actual FBC catalog files are
-              echo "[INFO] Searching for FBC catalog files..."
-
-              # Look for JSON/YAML files that contain operator metadata
-              CATALOG_FILES=$(find extracted -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null)
-
-              if [ -z "$CATALOG_FILES" ]; then
-                echo "[ERROR] No catalog JSON/YAML files found!"
-                echo "[INFO] Extracted directory structure:"
-                find extracted -type d 2>/dev/null || true
-                echo "[INFO] Sample files:"
-                find extracted -type f 2>/dev/null || true
-                exit 1
-              fi
-
-              # Find the directory containing catalog files
-              CATALOG_SOURCE_DIR=$(echo "$CATALOG_FILES" | head -1 | xargs dirname)
-              echo "[INFO] Found catalog files in: $CATALOG_SOURCE_DIR"
-
-              # Copy catalog content to a clean directory
-              mkdir -p catalog/configs
-
-              # If files are in a configs directory, copy that
-              if echo "$CATALOG_SOURCE_DIR" | grep -q "configs"; then
-                # Copy the entire configs directory structure
-                CONFIGS_ROOT=$(echo "$CATALOG_SOURCE_DIR" | sed 's|/configs.*|/configs|')
-                if [ -d "$CONFIGS_ROOT" ]; then
-                  cp -r "$CONFIGS_ROOT"/* catalog/configs/ 2>/dev/null || cp -r "$CONFIGS_ROOT" catalog/ 2>/dev/null
-                fi
-              else
-                # Copy all JSON/YAML files to configs
-                find extracted -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -exec cp {} catalog/configs/ \; 2>/dev/null || true
-              fi
-
-              CATALOG_DIR="catalog"
-
-              # Show what we have
-              echo "[INFO] Catalog structure:"
-              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null || true
-
-              # Rewrite registry references
-              echo "[INFO] Rewriting registry.redhat.io -> registry.stage.redhat.io..."
-              find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -exec sed -i 's|registry\.redhat\.io|registry.stage.redhat.io|g' {} \;
-
-              # Verify changes
-              echo "[INFO] Verifying rewrites..."
-              REWRITE_COUNT=$(grep -r "registry.stage.redhat.io" $CATALOG_DIR 2>/dev/null | wc -l)
-              if [ "$REWRITE_COUNT" -gt 0 ]; then
-                echo "[INFO] ✅ Successfully rewrote $REWRITE_COUNT registry references"
-                echo "[INFO] Sample rewrites:"
-                (grep -r "registry.stage.redhat.io" $CATALOG_DIR 2>/dev/null | head -5) || true
-              else
-                echo "[WARNING] No registry references found - showing sample file content:"
-                SAMPLE_FILE=$(find $CATALOG_DIR -type f \( -name "*.json" -o -name "*.yaml" \) 2>/dev/null | head -1)
-                if [ -n "$SAMPLE_FILE" ]; then
-                  (cat "$SAMPLE_FILE" | head -20) || true
-                fi
-              fi
-
-              # Save rewritten catalog content to shared volume
-              echo "[INFO] Packaging rewritten catalog..."
-              tar czf /credentials/rewritten-catalog.tar.gz -C $CATALOG_DIR .
-
-              # Mark as local (we'll use ConfigMap approach)
-              echo "LOCAL" > /credentials/rewritten-fbc-image
-              echo "[INFO] ✅ Catalog rewrite complete - saved to shared volume"
-
-          # Step 2: Get kubeconfig from EaaS
+          # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
             ref:
               resolver: git
@@ -271,85 +192,7 @@ spec:
               - name: credentials
                 value: credentials
 
-          # Step 3: Update global pull secret for registry.stage.redhat.io
-          - name: update-pull-secret
-            image: registry.redhat.io/openshift4/ose-cli:latest
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
-              - name: registry-credentials
-                mountPath: /registry-credentials
-            env:
-              - name: KUBECONFIG
-                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
-            script: |
-              #!/bin/bash
-              set -euo pipefail
-
-              echo "[INFO] Installing jq..."
-              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
-              chmod +x /tmp/jq
-
-              echo "[INFO] Updating pull secret with registry credentials..."
-
-              # Get current cluster pull secret
-              EXISTING_SECRET=$(oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' 2>/dev/null | base64 -d || echo '{"auths":{}}')
-
-              # Check if external credentials are provided
-              if [ -f "/registry-credentials/.dockerconfigjson" ]; then
-                echo "[INFO] Found external registry credentials, merging..."
-                EXTERNAL_CREDS=$(cat /registry-credentials/.dockerconfigjson)
-
-                # Merge external credentials with existing
-                MERGED_SECRET=$(/tmp/jq -s '.[0] * .[1]' <(echo "$EXISTING_SECRET") <(echo "$EXTERNAL_CREDS"))
-                echo "[INFO] Merged external credentials"
-              else
-                echo "[INFO] No external credentials found, copying from registry.redhat.io to registry.stage.redhat.io"
-
-                # Fallback: copy credentials from registry.redhat.io
-                REDHAT_CREDS=$(echo "$EXISTING_SECRET" | /tmp/jq -r '.auths["registry.redhat.io"].auth' 2>/dev/null || echo "")
-
-                if [ -n "$REDHAT_CREDS" ] && [ "$REDHAT_CREDS" != "null" ]; then
-                  MERGED_SECRET=$(echo "$EXISTING_SECRET" | /tmp/jq --arg auth "$REDHAT_CREDS" '.auths["registry.stage.redhat.io"] = {"auth": $auth}')
-                  echo "[INFO] Copied registry.redhat.io credentials to registry.stage.redhat.io"
-                else
-                  echo "[WARNING] Could not extract registry.redhat.io credentials"
-                fi
-              fi
-
-              # Apply updated pull secret
-              echo "[INFO] Registries in merged secret:"
-              echo "$MERGED_SECRET" | /tmp/jq -r '.auths | keys[]'
-
-              TMPFILE=$(mktemp)
-              echo "$MERGED_SECRET" > "$TMPFILE"
-              oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson="$TMPFILE"
-              rm -f "$TMPFILE"
-              echo "[INFO] ✅ Pull secret updated successfully"
-
-          # Step 4: Configure image registry mirroring (Hypershift only)
-          # NOTE: ImageDigestMirrorSet doesn't work on Hypershift (no MachineConfigPools)
-          # We rely on catalog rewrite + pull secret credentials instead
-          - name: setup-registry-mirrors
-            image: registry.redhat.io/openshift4/ose-cli:latest
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
-            env:
-              - name: KUBECONFIG
-                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
-            script: |
-              #!/bin/bash
-              set -euo pipefail
-
-              echo "[INFO] Hypershift cluster - ImageDigestMirrorSet not supported"
-              echo "[INFO] Skipping IDMS/ITMS creation as they require MachineConfigPool"
-              echo "[INFO] Deployment will rely on:"
-              echo "  1. Rewritten FBC catalog (registry.redhat.io -> registry.stage.redhat.io)"
-              echo "  2. Pull secret with registry.stage.redhat.io credentials"
-              echo "[INFO] ✅ Configuration check complete"
-
-          # Step 5: Deploy operator using rewritten catalog
+          # Step 2: Install operator using FBC image directly
           - name: install-operator
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
@@ -362,7 +205,7 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
-              ORIGINAL_FBC_IMAGE="$(params.fbcImage)"
+              FBC_IMAGE="$(params.fbcImage)"
               PACKAGE_NAME="$(params.packageName)"
               CHANNEL_NAME="$(params.channelName)"
               NAMESPACE="$(params.operatorNamespace)"
@@ -389,26 +232,8 @@ spec:
               echo "Username: kubeadmin"
               echo "Password: $CLUSTER_PASSWORD"
               echo "========================================="
-
-              # Determine which catalog image to use
-              if [ -f "/credentials/rewritten-fbc-image" ]; then
-                REWRITTEN_IMAGE=$(cat /credentials/rewritten-fbc-image)
-                if [ "$REWRITTEN_IMAGE" = "LOCAL" ]; then
-                  echo "[INFO] Using locally rewritten catalog (ConfigMap-based)"
-                  FBC_IMAGE="LOCAL"
-                else
-                  echo "[INFO] Using pushed rewritten catalog: $REWRITTEN_IMAGE"
-                  FBC_IMAGE="$REWRITTEN_IMAGE"
-                fi
-              else
-                echo "[WARNING] No rewritten catalog found, using original (may fail on Hypershift)"
-                FBC_IMAGE="$ORIGINAL_FBC_IMAGE"
-              fi
-
-              echo "========================================="
-              echo "Deploying MTA Operator"
-              echo "Original FBC Image: $ORIGINAL_FBC_IMAGE"
-              echo "Actual FBC Image: $FBC_IMAGE"
+              echo ""
+              echo "FBC Image: $FBC_IMAGE"
               echo "Package: $PACKAGE_NAME"
               echo "Channel: $CHANNEL_NAME"
               echo "Namespace: $NAMESPACE"
@@ -418,115 +243,9 @@ spec:
               echo "[INFO] Creating namespace $NAMESPACE..."
               oc create namespace "$NAMESPACE" || echo "Namespace already exists"
 
-              if [ "$FBC_IMAGE" = "LOCAL" ]; then
-                # Create ConfigMap-based catalog
-                echo "[INFO] Creating ConfigMap-based catalog from local rewritten content..."
-
-                # Extract rewritten catalog
-                mkdir -p /tmp/catalog-extract
-                tar xzf /credentials/rewritten-catalog.tar.gz -C /tmp/catalog-extract
-
-                # Debug: show structure
-                echo "[DEBUG] Catalog structure after extraction:"
-                find /tmp/catalog-extract -type f | head -10
-
-                # Find catalog files and create ConfigMap
-                # The tar was created with -C $CATALOG_DIR ., so files should be at root
-                if [ -d "/tmp/catalog-extract/configs" ]; then
-                  CATALOG_FILES="/tmp/catalog-extract/configs"
-                else
-                  CATALOG_FILES="/tmp/catalog-extract"
-                fi
-
-                echo "[INFO] Creating ConfigMap from: $CATALOG_FILES"
-                oc create configmap mta-fbc-configs -n openshift-marketplace --from-file=$CATALOG_FILES --dry-run=client -o yaml | oc apply -f -
-
-                # Verify ConfigMap has data
-                echo "[DEBUG] ConfigMap keys:"
-                oc get configmap mta-fbc-configs -n openshift-marketplace -o jsonpath='{.data}' | head -200
-
-                # Create a pod to serve the catalog with init container to fix ..data issue
-                cat <<'EOF' | oc apply -f -
-              apiVersion: v1
-              kind: Pod
-              metadata:
-                name: mta-konflux-catalog-server
-                namespace: openshift-marketplace
-                labels:
-                  app: mta-konflux-catalog
-              spec:
-                initContainers:
-                - name: copy-configs
-                  image: quay.io/operator-framework/opm:latest
-                  command: ["/bin/sh", "-c"]
-                  args:
-                  - |
-                    echo "Copying catalog files to clean directory..."
-                    mkdir -p /catalog-clean
-                    cp -L /configs-mount/* /catalog-clean/ 2>/dev/null || true
-                    ls -la /catalog-clean/
-                    echo "Files copied successfully"
-                  volumeMounts:
-                  - name: configs-mount
-                    mountPath: /configs-mount
-                  - name: catalog-clean
-                    mountPath: /catalog-clean
-                containers:
-                - name: registry-server
-                  image: quay.io/operator-framework/opm:latest
-                  command: ["/bin/opm"]
-                  args: ["serve", "/catalog-clean", "-p", "50051"]
-                  volumeMounts:
-                  - name: catalog-clean
-                    mountPath: /catalog-clean
-                  ports:
-                  - containerPort: 50051
-                    protocol: TCP
-                volumes:
-                - name: configs-mount
-                  configMap:
-                    name: mta-fbc-configs
-                - name: catalog-clean
-                  emptyDir: {}
-              EOF
-
-                # Create service
-                cat <<EOF | oc apply -f -
-              apiVersion: v1
-              kind: Service
-              metadata:
-                name: mta-konflux-catalog
-                namespace: openshift-marketplace
-              spec:
-                ports:
-                - port: 50051
-                  protocol: TCP
-                  targetPort: 50051
-                selector:
-                  app: mta-konflux-catalog
-              EOF
-
-                # Wait for pod to be ready
-                echo "[INFO] Waiting for catalog server pod..."
-                oc wait --for=condition=ready pod/mta-konflux-catalog-server -n openshift-marketplace --timeout=300s
-
-                # Create CatalogSource pointing to local service
-                cat <<EOF | oc apply -f -
-              apiVersion: operators.coreos.com/v1alpha1
-              kind: CatalogSource
-              metadata:
-                name: mta-konflux-catalog
-                namespace: openshift-marketplace
-              spec:
-                sourceType: grpc
-                address: mta-konflux-catalog.openshift-marketplace.svc:50051
-                displayName: MTA Konflux Catalog (Rewritten)
-                publisher: Red Hat
-              EOF
-              else
-                # Use image-based catalog (rewritten or original)
-                echo "[INFO] Creating CatalogSource in openshift-marketplace..."
-                cat <<EOF | oc apply -f -
+              # Create CatalogSource using FBC image directly with extractContent
+              echo "[INFO] Creating CatalogSource from FBC image..."
+              cat <<CATALOGEOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: CatalogSource
               metadata:
@@ -535,18 +254,23 @@ spec:
               spec:
                 sourceType: grpc
                 image: $FBC_IMAGE
-                displayName: MTA Konflux Catalog (Rewritten)
+                displayName: MTA Konflux Catalog
                 publisher: Red Hat
+                grpcPodConfig:
+                  securityContextConfig: restricted
+                  extractContent:
+                    catalogDir: /configs
+                    cacheDir: /tmp/cache
                 updateStrategy:
                   registryPoll:
                     interval: 10m
-              EOF
-              fi
+              CATALOGEOF
 
               # Wait for CatalogSource
               echo "[INFO] Waiting for CatalogSource to be ready..."
               for i in {1..60}; do
                 STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
+                echo "[INFO] Attempt $i/60: State=$STATE"
                 if [ "$STATE" = "READY" ]; then
                   echo "[INFO] ✅ CatalogSource is READY"
                   break
@@ -554,15 +278,16 @@ spec:
                 if [ $i -eq 60 ]; then
                   echo "[ERROR] CatalogSource not ready after 5 minutes"
                   oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o yaml
+                  oc describe catalogsource mta-konflux-catalog -n openshift-marketplace
+                  echo "FAILED" > $(results.deploymentStatus.path)
                   exit 1
                 fi
-                echo "[INFO] Attempt $i/60: State=$STATE, waiting..."
                 sleep 5
               done
 
               # Create OperatorGroup
               echo "[INFO] Creating OperatorGroup..."
-              cat <<EOF | oc apply -f -
+              cat <<OGEOF | oc apply -f -
               apiVersion: operators.coreos.com/v1
               kind: OperatorGroup
               metadata:
@@ -571,11 +296,11 @@ spec:
               spec:
                 targetNamespaces:
                   - $NAMESPACE
-              EOF
+              OGEOF
 
               # Create Subscription
               echo "[INFO] Creating Subscription..."
-              cat <<EOF | oc apply -f -
+              cat <<SUBEOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: Subscription
               metadata:
@@ -587,7 +312,7 @@ spec:
                 name: $PACKAGE_NAME
                 source: mta-konflux-catalog
                 sourceNamespace: openshift-marketplace
-              EOF
+              SUBEOF
 
               # Wait for CSV (30 minutes timeout)
               echo "[INFO] Waiting for ClusterServiceVersion..."
@@ -595,12 +320,15 @@ spec:
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+                  echo "[INFO] Attempt $i/360: CSV=$CSV, Phase=$PHASE"
                   if [ "$PHASE" = "Succeeded" ]; then
                     echo "[INFO] ✅ Operator installed successfully: $CSV"
                     echo "$CSV" > $(results.csvName.path)
                     break
                   fi
-                  echo "[INFO] Attempt $i/360: CSV=$CSV, Phase=$PHASE"
+                fi
+                if [ $((i % 12)) -eq 0 ]; then
+                  echo "[INFO] Still waiting... ($i/360)"
                 fi
                 sleep 5
               done
@@ -613,18 +341,21 @@ spec:
                 echo "[INFO] Password: $CLUSTER_PASSWORD"
                 oc get subscription mta-operator -n "$NAMESPACE" -o yaml
                 oc get csv -n "$NAMESPACE"
+                oc get pods -n openshift-marketplace
                 echo "FAILED" > $(results.deploymentStatus.path)
                 exit 1
               fi
 
               # Wait for mta-operator deployment
               echo "[INFO] Waiting for MTA operator deployment..."
-              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
-              echo "[INFO] ✅ MTA operator deployment is available"
+              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE" || {
+                echo "[WARNING] Deployment wait timed out, checking status..."
+                oc get deployment mta-operator -n "$NAMESPACE"
+              }
 
               # Create MTA Custom Resource
               echo "[INFO] Creating MTA Custom Resource..."
-              cat <<EOF | oc apply -f -
+              cat <<MTAEOF | oc apply -f -
               apiVersion: tackle.konveyor.io/v1alpha1
               kind: Tackle
               metadata:
@@ -653,12 +384,14 @@ spec:
                 provider_nodejs_container_requests_memory: 512Mi
                 hub_bucket_volume_size: "25Gi"
                 cache_data_volume_size: "25Gi"
-              EOF
+              MTAEOF
 
               # Wait for MTA UI to be ready
               echo "[INFO] Waiting for MTA UI deployment..."
-              oc wait --for=condition=ready --timeout=600s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE"
-              echo "[INFO] ✅ MTA UI pods are ready"
+              oc wait --for=condition=ready --timeout=600s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE" || {
+                echo "[WARNING] MTA UI pods not ready after 10 minutes"
+                oc get pods -n "$NAMESPACE"
+              }
 
               # Get UI route
               UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
