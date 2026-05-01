@@ -423,14 +423,30 @@ spec:
                 echo "[INFO] Creating ConfigMap-based catalog from local rewritten content..."
 
                 # Extract rewritten catalog
-                mkdir -p /tmp/catalog-content
-                tar xzf /credentials/rewritten-catalog.tar.gz -C /tmp/catalog-content
+                mkdir -p /tmp/catalog-extract
+                tar xzf /credentials/rewritten-catalog.tar.gz -C /tmp/catalog-extract
 
-                # Create ConfigMap with catalog content
-                oc create configmap mta-fbc-configs -n openshift-marketplace --from-file=/tmp/catalog-content --dry-run=client -o yaml | oc apply -f -
+                # Debug: show structure
+                echo "[DEBUG] Catalog structure after extraction:"
+                find /tmp/catalog-extract -type f | head -10
 
-                # Create a pod to serve the catalog
-                cat <<EOF | oc apply -f -
+                # Find catalog files and create ConfigMap
+                # The tar was created with -C $CATALOG_DIR ., so files should be at root
+                if [ -d "/tmp/catalog-extract/configs" ]; then
+                  CATALOG_FILES="/tmp/catalog-extract/configs"
+                else
+                  CATALOG_FILES="/tmp/catalog-extract"
+                fi
+
+                echo "[INFO] Creating ConfigMap from: $CATALOG_FILES"
+                oc create configmap mta-fbc-configs -n openshift-marketplace --from-file=$CATALOG_FILES --dry-run=client -o yaml | oc apply -f -
+
+                # Verify ConfigMap has data
+                echo "[DEBUG] ConfigMap keys:"
+                oc get configmap mta-fbc-configs -n openshift-marketplace -o jsonpath='{.data}' | head -200
+
+                # Create a pod to serve the catalog with init container to fix ..data issue
+                cat <<'EOF' | oc apply -f -
               apiVersion: v1
               kind: Pod
               metadata:
@@ -439,21 +455,39 @@ spec:
                 labels:
                   app: mta-konflux-catalog
               spec:
+                initContainers:
+                - name: copy-configs
+                  image: quay.io/operator-framework/opm:latest
+                  command: ["/bin/sh", "-c"]
+                  args:
+                  - |
+                    echo "Copying catalog files to clean directory..."
+                    mkdir -p /catalog-clean
+                    cp -L /configs-mount/* /catalog-clean/ 2>/dev/null || true
+                    ls -la /catalog-clean/
+                    echo "Files copied successfully"
+                  volumeMounts:
+                  - name: configs-mount
+                    mountPath: /configs-mount
+                  - name: catalog-clean
+                    mountPath: /catalog-clean
                 containers:
                 - name: registry-server
                   image: quay.io/operator-framework/opm:latest
                   command: ["/bin/opm"]
-                  args: ["serve", "/configs", "-p", "50051"]
+                  args: ["serve", "/catalog-clean", "-p", "50051"]
                   volumeMounts:
-                  - name: configs
-                    mountPath: /configs
+                  - name: catalog-clean
+                    mountPath: /catalog-clean
                   ports:
                   - containerPort: 50051
                     protocol: TCP
                 volumes:
-                - name: configs
+                - name: configs-mount
                   configMap:
                     name: mta-fbc-configs
+                - name: catalog-clean
+                  emptyDir: {}
               EOF
 
                 # Create service
