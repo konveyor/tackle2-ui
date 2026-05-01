@@ -122,6 +122,8 @@ spec:
           value: "stable-v8.1"
         - name: operatorNamespace
           value: "konveyor-tackle"
+        - name: credentialsSecret
+          value: $(params.CREDENTIALS_SECRET_NAME)
       taskSpec:
         params:
           - name: eaasSpaceSecretRef
@@ -130,6 +132,7 @@ spec:
           - name: packageName
           - name: channelName
           - name: operatorNamespace
+          - name: credentialsSecret
         results:
           - name: deploymentStatus
             description: Deployment status
@@ -158,7 +161,48 @@ spec:
               - name: credentials
                 value: credentials
 
-          # Step 2: Install operator using FBC image directly
+          # Step 2: Update global pull secret with registry credentials
+          - name: update-pull-secret
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+              - name: CREDENTIALS_SECRET
+                value: $(params.credentialsSecret)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "[INFO] Updating global pull secret with registry.stage.redhat.io credentials..."
+
+              # Install jq for JSON manipulation
+              echo "[INFO] Installing jq..."
+              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
+              chmod +x /tmp/jq
+
+              # Get credentials from the secret
+              echo "[INFO] Extracting credentials from secret: $CREDENTIALS_SECRET..."
+              CREDS_JSON=$(oc get secret "$CREDENTIALS_SECRET" -n art-mta-tenant -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d)
+
+              # Get current global pull secret
+              echo "[INFO] Getting current global pull secret..."
+              CURRENT_SECRET=$(oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d)
+
+              # Merge the credentials
+              echo "[INFO] Merging credentials..."
+              MERGED_SECRET=$(echo "$CURRENT_SECRET" "$CREDS_JSON" | /tmp/jq -s '.[0] * .[1]')
+
+              # Update the global pull secret
+              echo "[INFO] Updating global pull secret..."
+              oc set data secret/pull-secret -n openshift-config --from-literal=.dockerconfigjson="$MERGED_SECRET"
+
+              echo "[INFO] ✅ Global pull secret updated successfully"
+              echo "[INFO] Registry credentials are now available cluster-wide"
+
+          # Step 3: Install operator using FBC image directly
           - name: install-operator
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
