@@ -284,6 +284,10 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
+              echo "[INFO] Installing jq..."
+              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
+              chmod +x /tmp/jq
+
               echo "[INFO] Updating pull secret with registry credentials..."
 
               # Get current cluster pull secret
@@ -295,16 +299,16 @@ spec:
                 EXTERNAL_CREDS=$(cat /registry-credentials/.dockerconfigjson)
 
                 # Merge external credentials with existing
-                MERGED_SECRET=$(jq -s '.[0] * .[1]' <(echo "$EXISTING_SECRET") <(echo "$EXTERNAL_CREDS"))
+                MERGED_SECRET=$(/tmp/jq -s '.[0] * .[1]' <(echo "$EXISTING_SECRET") <(echo "$EXTERNAL_CREDS"))
                 echo "[INFO] Merged external credentials"
               else
                 echo "[INFO] No external credentials found, copying from registry.redhat.io to registry.stage.redhat.io"
 
                 # Fallback: copy credentials from registry.redhat.io
-                REDHAT_CREDS=$(echo "$EXISTING_SECRET" | jq -r '.auths["registry.redhat.io"].auth' 2>/dev/null || echo "")
+                REDHAT_CREDS=$(echo "$EXISTING_SECRET" | /tmp/jq -r '.auths["registry.redhat.io"].auth' 2>/dev/null || echo "")
 
                 if [ -n "$REDHAT_CREDS" ] && [ "$REDHAT_CREDS" != "null" ]; then
-                  MERGED_SECRET=$(echo "$EXISTING_SECRET" | jq --arg auth "$REDHAT_CREDS" '.auths["registry.stage.redhat.io"] = {"auth": $auth}')
+                  MERGED_SECRET=$(echo "$EXISTING_SECRET" | /tmp/jq --arg auth "$REDHAT_CREDS" '.auths["registry.stage.redhat.io"] = {"auth": $auth}')
                   echo "[INFO] Copied registry.redhat.io credentials to registry.stage.redhat.io"
                 else
                   echo "[WARNING] Could not extract registry.redhat.io credentials"
@@ -313,7 +317,7 @@ spec:
 
               # Apply updated pull secret
               echo "[INFO] Registries in merged secret:"
-              echo "$MERGED_SECRET" | jq -r '.auths | keys[]'
+              echo "$MERGED_SECRET" | /tmp/jq -r '.auths | keys[]'
 
               TMPFILE=$(mktemp)
               echo "$MERGED_SECRET" > "$TMPFILE"
