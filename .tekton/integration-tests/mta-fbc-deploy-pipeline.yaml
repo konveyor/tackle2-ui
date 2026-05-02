@@ -122,8 +122,6 @@ spec:
           value: "stable-v8.1"
         - name: operatorNamespace
           value: "konveyor-tackle"
-        - name: credentialsSecret
-          value: $(params.CREDENTIALS_SECRET_NAME)
       taskSpec:
         params:
           - name: eaasSpaceSecretRef
@@ -132,7 +130,6 @@ spec:
           - name: packageName
           - name: channelName
           - name: operatorNamespace
-          - name: credentialsSecret
         results:
           - name: deploymentStatus
             description: Deployment status
@@ -141,9 +138,6 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
-          - name: registry-credentials
-            secret:
-              secretName: $(params.credentialsSecret)
         steps:
           # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
@@ -170,8 +164,6 @@ spec:
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
-              - name: registry-credentials
-                mountPath: /registry-credentials
             env:
               - name: KUBECONFIG
                 value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
@@ -186,9 +178,17 @@ spec:
               curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
               chmod +x /tmp/jq
 
-              # Get credentials from the mounted secret volume
-              echo "[INFO] Reading credentials from mounted secret..."
-              CREDS_JSON=$(cat /registry-credentials/.dockerconfigjson)
+              # Fetch pull-secrets.json from repo
+              echo "[INFO] Fetching pull-secrets.json from repo..."
+              REPO_URL="https://raw.githubusercontent.com/sshveta/tackle2-ui/ui_test_konflux_integration/.tekton/integration-tests/pull-secrets.json"
+              curl -sL "$REPO_URL" -o /tmp/pull-secrets.json
+
+              if [ ! -f /tmp/pull-secrets.json ]; then
+                echo "[ERROR] Failed to fetch pull-secrets.json"
+                exit 1
+              fi
+
+              CREDS_JSON=$(cat /tmp/pull-secrets.json)
 
               # Get current global pull secret
               echo "[INFO] Getting current global pull secret..."
