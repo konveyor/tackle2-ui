@@ -52,8 +52,9 @@ import {
   applicationData,
 } from "../../../types/types";
 import {
+  additionalSourceLabelsToggle,
   includeLabelsInput,
-  includeLabelsMenuItem,
+  includeLabelsSelectListbox,
 } from "../../../views/analysis-profile.view";
 import {
   AnalysisLogView,
@@ -221,7 +222,8 @@ export class Analysis extends Application {
 
   protected labelsToInclude(label: string) {
     click(includeLabelsInput);
-    cy.get(includeLabelsMenuItem).contains(label).click();
+    cy.get(includeLabelsSelectListbox).contains("button", label).click();
+    cy.get(additionalSourceLabelsToggle).click();
   }
 
   protected enableSaveAsProfile() {

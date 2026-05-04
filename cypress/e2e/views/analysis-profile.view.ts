@@ -40,6 +40,8 @@ export const ossCheckbox = "#oss";
 export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
 export const addPackageToExclude = "#add-package-to-exclude";
-export const includeLabelsInput =
-  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
-export const includeLabelsMenuItem = ".pf-v5-c-select__menu-item";
+export const additionalSourceLabelsToggle =
+  "[data-ouia-component-id='additional-source-labels-toggle']";
+export const includeLabelsInput = "[id=additional-source-labels-toggle-input]";
+export const includeLabelsSelectListbox =
+  "[id='additional-source-labels-toggle-listbox']";

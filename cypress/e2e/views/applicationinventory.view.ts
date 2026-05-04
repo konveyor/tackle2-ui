@@ -31,8 +31,9 @@ export const applicationBusinessServiceClearButton =
   "[data-ouia-component-id='business-service-toggle-clear-button']";
 export const tagsColumnSelector = "td[data-label='Tags']";
 
-export const applicationContributorsInput =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
+export const applicationContributorsInput = "#contributors-select-toggle-input";
+export const applicationContributorsChipGroup =
+  "[data-ouia-component-id='contributors-select-toggle-chip-group']";
 export const applicationContributorsText = ".pf-v5-c-chip__text";
 export const applicationContributorsAction = ".pf-v5-c-chip__actions";
 export const applicationOwnerInput = "#owner-toggle-input";
@@ -52,10 +53,20 @@ export const closeForm = "button[aria-label='close']";
 export const copy = "button[aria-label='Copy']";
 export const cyclicDependenciesErrorMsg =
   "Cyclic dependencies are not allowed.";
+export const applicationDependenciesCloseButton =
+  "[data-ouia-component-id='application-dependencies-close']";
 export const northdependenciesDropdownBtn =
-  "button[aria-label='northbound-dependencies-toggle']";
+  "[data-ouia-component-id='northbound-dependencies-toggle']";
+export const northdependenciesChipGroup =
+  "[data-ouia-component-id='northbound-dependencies-toggle-chip-group']";
+export const northdependenciesSelectListbox =
+  "[id='northbound-dependencies-toggle-listbox']";
+export const southdependenciesChipGroup =
+  "[data-ouia-component-id='southbound-dependencies-toggle-chip-group']";
+export const southdependenciesSelectListbox =
+  "[id='southbound-dependencies-toggle-listbox']";
 export const southdependenciesDropdownBtn =
-  "button[aria-label='southbound-dependencies-toggle']";
+  "[data-ouia-component-id='southbound-dependencies-toggle']";
 export const date = "Import Time";
 export const importStatus = "Status";
 export const selectBox = "input[type=checkbox]";
@@ -67,8 +78,7 @@ export const topKebabMenu = "#toolbar-kebab";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
 export const profileEdit = ".pf-m-1-col > .pf-v5-c-button";
-export const appContributorSelect =
-  "#contributors-select-toggle-select-multi-typeahead-typeahead";
+export const appContributorSelect = "#contributors-select-toggle-input";
 export const appSelectionButton = "button.pf-v5-c-menu-toggle__button";
 // This is on the Application imports page.
 export const sideKebabMenu = "button[aria-label='Kebab toggle']";

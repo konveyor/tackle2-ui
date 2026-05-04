@@ -5,9 +5,9 @@ import {
   FilterSelectOptionProps,
   IMultiselectFilterCategory,
 } from "./FilterToolbar";
-
 import "./select-overrides.css";
 import { MultiSelect } from "./components/MultiSelect";
+import { toChipDisplayValue } from "./components/selectUtils";
 
 export interface IMultiselectFilterControlProps<TItem>
   extends IFilterControlProps<TItem, string> {
@@ -72,15 +72,10 @@ export const MultiselectFilterControl = <TItem,>({
         )
       )
       .filter(Boolean)
-      .map((option) => {
-        const { chipLabel, label, value } = option;
-        const displayValue: string = chipLabel ?? label ?? value ?? "";
-
-        return {
-          key: value,
-          node: displayValue,
-        };
-      });
+      .map((option) => ({
+        key: option.value,
+        node: toChipDisplayValue(option),
+      })) ?? [];
 
   const onSelect = (value: string | undefined) => {
     if (!value || value === NO_RESULTS) {
@@ -122,6 +117,7 @@ export const MultiselectFilterControl = <TItem,>({
             showSelectedInToggle={false}
             closeMenuOnSelect={false}
             options={category.selectOptions}
+            onClear={() => setFilterValue([])}
           />
         </ToolbarFilter>
       }

@@ -2,7 +2,6 @@ import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 
 export const DEFAULT_KIND = "cloudfoundry";
 
@@ -23,11 +22,11 @@ export const KIND_MAP: Map<
 export const usePlatformKindList = () => {
   const { t } = useTranslation();
 
-  const kinds: OptionWithValue<string>[] = useMemo(
+  const kinds: FilterSelectOptionProps[] = useMemo(
     () =>
       Array.from(KIND_MAP.entries()).map(([key, meta]) => ({
         value: key,
-        toString: () => t(meta.labelKey),
+        label: t(meta.labelKey),
       })),
     [t]
   );
@@ -63,15 +62,9 @@ export const usePlatformKindList = () => {
   );
 
   return {
-    kinds,
     getDisplayLabel,
     getUrlTooltip,
     getCredentialTooltip,
-    kindOptions: kinds.map(
-      (k): FilterSelectOptionProps => ({
-        value: k.value,
-        label: k.toString(),
-      })
-    ),
+    kinds,
   };
 };

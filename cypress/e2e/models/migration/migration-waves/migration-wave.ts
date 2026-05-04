@@ -281,11 +281,13 @@ export class MigrationWave {
   private static fillStakeHolder(stakeHolderName: string) {
     inputText(MigrationWaveView.stakeHoldersInput, stakeHolderName);
     cy.get("button").contains(stakeHolderName).click();
+    cy.get(MigrationWaveView.stakeHoldersToggle).click();
   }
 
   private static fillStakeHolderGroup(stakeHolderGroupName: string) {
     inputText(MigrationWaveView.stakeHolderGroupsInput, stakeHolderGroupName);
     cy.get("button").contains(stakeHolderGroupName).click();
+    cy.get(MigrationWaveView.stakeHolderGroupsToggle).click();
   }
 
   static formatDateMMddYYYY(date: Date): string {

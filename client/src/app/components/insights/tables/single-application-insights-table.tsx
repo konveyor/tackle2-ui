@@ -18,15 +18,17 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import {
-  Application,
   HubRequestParams,
   UiAnalysisReportApplicationInsight,
 } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
-import { FilterToolbar } from "@app/components/FilterToolbar";
+import {
+  FilterSelectOptionProps,
+  FilterToolbar,
+} from "@app/components/FilterToolbar";
+import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import { SimplePagination } from "@app/components/SimplePagination";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { SingleLabelWithOverflow } from "@app/components/SingleLabelWithOverflow";
 import {
   ConditionalTableBody,
@@ -180,10 +182,10 @@ export const SingleApplicationInsightsTable: React.FC<
   } = tableControls;
 
   const { data: applications } = useFetchApplications();
-  const applicationOptions: OptionWithValue<Application>[] = applications.map(
+  const applicationOptions: FilterSelectOptionProps[] = applications.map(
     (app) => ({
-      value: app,
-      toString: () => app.name,
+      value: String(app.id),
+      label: app.name,
     })
   );
 
@@ -204,23 +206,18 @@ export const SingleApplicationInsightsTable: React.FC<
               isTooltipEnabled={applicationOptions.length === 0}
               content="No applications available. Add an application on the application inventory page."
             >
-              <SimpleSelect
+              <TypeaheadSelect
                 toggleAriaLabel="application-select"
                 toggleId="application-select"
-                width={220}
                 aria-label="Select application"
                 placeholderText="Select application..."
-                hasInlineFilter
-                value={applicationOptions.find(
-                  (option) => option.value.id === selectedAppId
-                )}
+                value={selectedAppId ? String(selectedAppId) : undefined}
                 options={applicationOptions}
-                onChange={(option) => {
-                  setSelectedAppId(
-                    (option as OptionWithValue<Application>).value.id
-                  );
+                onSelect={(value) => {
+                  if (value) {
+                    setSelectedAppId(Number(value));
+                  }
                 }}
-                className={spacing.mrMd}
                 isDisabled={applicationOptions.length === 0}
               />
             </ConditionalTooltip>

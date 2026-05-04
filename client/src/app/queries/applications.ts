@@ -278,8 +278,9 @@ export const useFetchApplicationDependencies = (
     refetch: refetchNorth,
   } = useQuery<ApplicationDependency[], AxiosError>({
     queryKey: [ApplicationDependencyQueryKey, applicationId, "north"],
-    queryFn: () => getApplicationDependencies({ to: [`${applicationId}`] }),
+    queryFn: () => getApplicationDependencies({ toId: `${applicationId}` }),
     enabled: !!applicationId,
+    refetchInterval: DEFAULT_REFETCH_INTERVAL,
   });
 
   const {
@@ -289,7 +290,9 @@ export const useFetchApplicationDependencies = (
     refetch: refetchSouth,
   } = useQuery<ApplicationDependency[], AxiosError>({
     queryKey: [ApplicationDependencyQueryKey, applicationId, "south"],
-    queryFn: () => getApplicationDependencies({ from: [`${applicationId}`] }),
+    queryFn: () => getApplicationDependencies({ fromId: `${applicationId}` }),
+    enabled: !!applicationId,
+    refetchInterval: DEFAULT_REFETCH_INTERVAL,
   });
 
   const isFetching = isLoadingNorth || isLoadingSouth;
@@ -312,8 +315,8 @@ export const useFetchApplicationDependencies = (
 };
 
 interface UseCreateApplicationDependencyOptions {
-  onError?: (error: AxiosError) => void;
-  onSuccess?: () => void;
+  onError?: (error: AxiosError, variables: ApplicationDependency) => void;
+  onSuccess?: (variables: ApplicationDependency) => void;
 }
 
 export const useCreateApplicationDependency = ({
@@ -324,14 +327,17 @@ export const useCreateApplicationDependency = ({
 
   return useMutation({
     mutationFn: createApplicationDependency,
-    onSuccess: () => {
+    onSuccess: (
+      _data: ApplicationDependency,
+      variables: ApplicationDependency
+    ) => {
       queryClient.invalidateQueries({
         queryKey: [ApplicationDependencyQueryKey],
       });
-      onSuccess?.();
+      onSuccess?.(variables);
     },
-    onError: (error: AxiosError) => {
-      onError?.(error);
+    onError: (error: AxiosError, variables: ApplicationDependency) => {
+      onError?.(error, variables);
     },
   });
 };
