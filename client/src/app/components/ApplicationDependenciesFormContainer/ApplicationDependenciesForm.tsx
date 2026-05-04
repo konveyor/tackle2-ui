@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,26 +13,12 @@ import {
   TextContent,
 } from "@patternfly/react-core";
 
-import { Application, ApplicationDependency } from "@app/api/models";
-import { OptionWithValue } from "@app/components/SimpleSelect";
-import {
-  useFetchApplicationDependencies,
-  useFetchApplications,
-} from "@app/queries/applications";
-import { toRef } from "@app/utils/model-utils";
+import { Application } from "@app/api/models";
+import { useFetchApplications } from "@app/queries/applications";
 
-import { SelectDependency } from "./SelectDependency";
+import { MultiSelect } from "../FilterToolbar/components/MultiSelect";
 
-const northToStringFn = (value: ApplicationDependency) => value.from.name;
-const southToStringFn = (value: ApplicationDependency) => value.to.name;
-
-const dependencyToOption = (
-  value: ApplicationDependency,
-  toStringFn: (value: ApplicationDependency) => string
-): OptionWithValue<ApplicationDependency> => ({
-  value,
-  toString: () => toStringFn(value),
-});
+import { useApplicationDependencies } from "./useApplicationDependencies";
 
 export interface ApplicationDependenciesFormProps {
   application: Application;
@@ -44,40 +29,18 @@ export const ApplicationDependenciesForm: React.FC<
   ApplicationDependenciesFormProps
 > = ({ application, onCancel }) => {
   const { t } = useTranslation();
-  const { northboundDependencies, southboundDependencies, isFetching } =
-    useFetchApplicationDependencies(application?.id);
-  const [southSaveError, setSouthSaveError] = useState<null | string>(null);
-  const [northSaveError, setNorthSaveError] = useState<null | string>(null);
 
-  const [northboundDependenciesOptions, setNorthboundDependenciesOptions] =
-    useState<OptionWithValue<ApplicationDependency>[]>([]);
-  const [southboundDependenciesOptions, setSouthboundDependenciesOptions] =
-    useState<OptionWithValue<ApplicationDependency>[]>([]);
+  const {
+    northboundDependenciesOptions,
+    southboundDependenciesOptions,
+    createDependency,
+    deleteDependency,
+    saveError,
+    isFetching,
+  } = useApplicationDependencies(application);
 
   const { data: applications, isFetching: isFetchingApplications } =
     useFetchApplications();
-
-  useEffect(() => {
-    if (northboundDependencies) {
-      const north = northboundDependencies
-        .filter((f) => f.to.id === application.id)
-        .map((f) => dependencyToOption(f, northToStringFn));
-      setNorthboundDependenciesOptions(north);
-    }
-  }, [application, northboundDependencies]);
-
-  useEffect(() => {
-    if (southboundDependencies) {
-      const south = southboundDependencies
-        .filter((f) => f.from.id === application.id)
-        .map((f) => dependencyToOption(f, southToStringFn));
-      setSouthboundDependenciesOptions(south);
-    }
-  }, [application, southboundDependencies]);
-
-  const existingDependencyMappings = southboundDependenciesOptions
-    .map((sbd) => sbd.value.to.id)
-    .concat(northboundDependenciesOptions.map((nbd) => nbd.value.from.id));
 
   return (
     <Form>
@@ -86,36 +49,42 @@ export const ApplicationDependenciesForm: React.FC<
       </TextContent>
 
       <FormGroup
-        // t("terms.northboundDependencies")
         label={t("composed.add", {
           what: t("terms.northboundDependencies").toLowerCase(),
         })}
         fieldId="northbound-dependencies"
         isRequired={false}
       >
-        <SelectDependency
-          toggleAriaLabel="northbound-dependencies-toggle"
+        <MultiSelect
+          toggleAriaLabel="Northbound dependencies"
           toggleId="northbound-dependencies-toggle"
-          fieldId="northbound-dependencies"
-          toStringFn={northToStringFn}
-          value={northboundDependenciesOptions}
-          setValue={setNorthboundDependenciesOptions}
+          values={northboundDependenciesOptions}
+          placeholderText={t("composed.selectMany", {
+            what: t("terms.applications").toLowerCase(),
+          })}
           options={(applications || [])
-            .filter((f) => f.id !== application.id)
-            .filter((app) => {
-              return !existingDependencyMappings?.includes(app.id);
-            })
-            .map((f) =>
-              dependencyToOption({ from: f, to: application }, northToStringFn)
-            )}
-          isFetching={isFetchingApplications || isFetching}
-          isSaving={isFetching}
-          setErrorMsg={setNorthSaveError}
+            .filter((app) => app.id !== application.id)
+            .map((app) => ({ value: String(app.id), label: app.name }))}
+          isDisabled={isFetchingApplications || isFetching}
+          onSelect={(fromId) => {
+            if (!fromId) {
+              return;
+            }
+            if (northboundDependenciesOptions.includes(fromId)) {
+              deleteDependency(fromId, application.id);
+              return;
+            }
+
+            createDependency(
+              applications?.find((app) => app.id === Number(fromId)),
+              application
+            );
+          }}
         />
-        {northSaveError && (
+        {saveError.northSaveError && (
           <FormHelperText>
             <HelperText>
-              <HelperTextItem>{northSaveError}</HelperTextItem>
+              <HelperTextItem>{saveError.northSaveError}</HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}
@@ -127,41 +96,35 @@ export const ApplicationDependenciesForm: React.FC<
         fieldId="southbound-dependencies"
         isRequired={false}
       >
-        <SelectDependency
-          toggleAriaLabel="southbound-dependencies-toggle"
-          fieldId="southbound-dependencies"
+        <MultiSelect
+          toggleAriaLabel="Southbound dependencies"
           toggleId="southbound-dependencies-toggle"
-          toStringFn={southToStringFn}
-          value={southboundDependenciesOptions}
-          setValue={setSouthboundDependenciesOptions}
+          values={southboundDependenciesOptions}
+          placeholderText={t("composed.selectMany", {
+            what: t("terms.applications").toLowerCase(),
+          })}
           options={(applications || [])
-            .filter(
-              (app) =>
-                app.id !== application.id &&
-                !existingDependencyMappings?.includes(app.id)
-            )
-            .map((app) => {
-              const fromApplicationRef = toRef(application);
-              const toApplicationRef = toRef(app);
-
-              if (fromApplicationRef && toApplicationRef) {
-                return dependencyToOption(
-                  { from: fromApplicationRef, to: toApplicationRef },
-                  southToStringFn
-                );
-              } else {
-                return null;
-              }
-            })
-            .filter(Boolean)}
-          isFetching={isFetchingApplications || isFetching}
-          isSaving={isFetching}
-          setErrorMsg={setSouthSaveError}
+            .filter((app) => app.id !== application.id)
+            .map((app) => ({ value: String(app.id), label: app.name }))}
+          isDisabled={isFetchingApplications || isFetching}
+          onSelect={(toId) => {
+            if (!toId) {
+              return;
+            }
+            if (southboundDependenciesOptions.includes(toId)) {
+              deleteDependency(application.id, toId);
+              return;
+            }
+            createDependency(
+              application,
+              applications?.find((app) => app.id === Number(toId))
+            );
+          }}
         />
-        {southSaveError && (
+        {saveError.southSaveError && (
           <FormHelperText>
             <HelperText>
-              <HelperTextItem>{southSaveError}</HelperTextItem>
+              <HelperTextItem>{saveError.southSaveError}</HelperTextItem>
             </HelperText>
           </FormHelperText>
         )}

@@ -833,20 +833,20 @@ export class Application {
     clickByText(button, "Manage dependencies");
   }
 
-  // Selects the application as dependency from dropdown. Arg dropdownNum value 0 selects northbound, whereas value 1 selects southbound
   selectNorthDependency(appNameList: Array<string>): void {
+    cy.get(northdependenciesDropdownBtn).click();
     appNameList.forEach(function (app) {
-      cy.get(northdependenciesDropdownBtn).click();
       cy.contains("button", app).click();
     });
+    cy.get(northdependenciesDropdownBtn).click();
   }
 
-  // Selects the application as dependency from dropdown. Arg dropdownNum value 0 selects northbound, whereas value 1 selects southbound
   selectDependency(dropdownLocator: string, appNameList: Array<string>): void {
+    cy.get(dropdownLocator).click();
     appNameList.forEach(function (app) {
-      cy.get(dropdownLocator).click();
       cy.contains("button", app).click();
     });
+    cy.get(dropdownLocator).click();
   }
 
   // Add north or south bound dependency for an application

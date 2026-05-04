@@ -18,7 +18,6 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix, UI_UNIQUE_ID } from "@app/Constants";
 import {
-  Application,
   HubRequestParams,
   UiAnalysisReportApplicationInsight,
 } from "@app/api/models";

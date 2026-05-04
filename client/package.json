@@ -14,8 +14,8 @@
     "test": "NODE_ENV=test TZ=UTC jest --rootDir=. --config=./config/jest.config.ts",
     "format": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --write .",
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
-    "lint": "eslint --max-warnings=24 .",
-    "lint:fix": "eslint --max-warnings=24 --fix .",
+    "lint": "eslint --max-warnings=22 .",
+    "lint:fix": "eslint --max-warnings=22 --fix .",
     "tsc": "tsc -p ./tsconfig.json"
   },
   "dependencies": {

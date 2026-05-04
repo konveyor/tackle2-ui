@@ -53,9 +53,9 @@ export const copy = "button[aria-label='Copy']";
 export const cyclicDependenciesErrorMsg =
   "Cyclic dependencies are not allowed.";
 export const northdependenciesDropdownBtn =
-  "button[aria-label='northbound-dependencies-toggle']";
+  "[data-ouia-component-id='northbound-dependencies-toggle']";
 export const southdependenciesDropdownBtn =
-  "button[aria-label='southbound-dependencies-toggle']";
+  "[data-ouia-component-id='southbound-dependencies-toggle']";
 export const date = "Import Time";
 export const importStatus = "Status";
 export const selectBox = "input[type=checkbox]";

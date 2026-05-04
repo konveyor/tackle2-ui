@@ -312,8 +312,8 @@ export const useFetchApplicationDependencies = (
 };
 
 interface UseCreateApplicationDependencyOptions {
-  onError?: (error: AxiosError) => void;
-  onSuccess?: () => void;
+  onError?: (error: AxiosError, variables: ApplicationDependency) => void;
+  onSuccess?: (variables: ApplicationDependency) => void;
 }
 
 export const useCreateApplicationDependency = ({
@@ -324,14 +324,17 @@ export const useCreateApplicationDependency = ({
 
   return useMutation({
     mutationFn: createApplicationDependency,
-    onSuccess: () => {
+    onSuccess: (
+      _data: ApplicationDependency,
+      variables: ApplicationDependency
+    ) => {
       queryClient.invalidateQueries({
         queryKey: [ApplicationDependencyQueryKey],
       });
-      onSuccess?.();
+      onSuccess?.(variables);
     },
-    onError: (error: AxiosError) => {
-      onError?.(error);
+    onError: (error: AxiosError, variables: ApplicationDependency) => {
+      onError?.(error, variables);
     },
   });
 };
