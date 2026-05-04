@@ -138,6 +138,9 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
+          - name: registry-pull-secrets
+            secret:
+              secretName: mta-its-registry-pull-secrets-sshveta
         steps:
           # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
@@ -164,6 +167,8 @@ spec:
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
+              - name: registry-pull-secrets
+                mountPath: /registry-secrets
             env:
               - name: KUBECONFIG
                 value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
@@ -173,15 +178,14 @@ spec:
 
               echo "[INFO] Adding registry credentials to namespaces..."
 
-              # Fetch pull-secrets.json from repo
-              echo "[INFO] Fetching pull-secrets.json from repo..."
-              REPO_URL="https://raw.githubusercontent.com/sshveta/tackle2-ui/ui_test_konflux_integration/.tekton/integration-tests/pull-secrets.json"
-              curl -sL "$REPO_URL" -o /tmp/pull-secrets.json
-
-              if [ ! -f /tmp/pull-secrets.json ]; then
-                echo "[ERROR] Failed to fetch pull-secrets.json"
+              # Use mounted secret from Konflux
+              echo "[INFO] Using registry credentials from Konflux secret..."
+              if [ ! -f /registry-secrets/.dockerconfigjson ]; then
+                echo "[ERROR] Registry secret not found at /registry-secrets/.dockerconfigjson"
                 exit 1
               fi
+
+              cp /registry-secrets/.dockerconfigjson /tmp/pull-secrets.json
 
               # Create pull secret in openshift-marketplace namespace
               echo "[INFO] Creating pull secret in openshift-marketplace..."
