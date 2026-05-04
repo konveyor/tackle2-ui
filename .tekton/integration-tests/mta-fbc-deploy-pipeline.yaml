@@ -158,8 +158,8 @@ spec:
               - name: credentials
                 value: credentials
 
-          # Step 2: Update global pull secret with registry credentials
-          - name: update-pull-secret
+          # Step 2: Add registry credentials to namespaces
+          - name: add-pull-secrets
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
               - name: credentials
@@ -171,12 +171,7 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
-              echo "[INFO] Updating global pull secret with registry.stage.redhat.io credentials..."
-
-              # Install jq for JSON manipulation
-              echo "[INFO] Installing jq..."
-              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
-              chmod +x /tmp/jq
+              echo "[INFO] Adding registry credentials to namespaces..."
 
               # Fetch pull-secrets.json from repo
               echo "[INFO] Fetching pull-secrets.json from repo..."
@@ -188,22 +183,38 @@ spec:
                 exit 1
               fi
 
-              CREDS_JSON=$(cat /tmp/pull-secrets.json)
+              # Create pull secret in openshift-marketplace namespace
+              echo "[INFO] Creating pull secret in openshift-marketplace..."
+              oc create secret generic registry-pull-secret \
+                --from-file=.dockerconfigjson=/tmp/pull-secrets.json \
+                --type=kubernetes.io/dockerconfigjson \
+                -n openshift-marketplace \
+                --dry-run=client -o yaml | oc apply -f -
 
-              # Get current global pull secret
-              echo "[INFO] Getting current global pull secret..."
-              CURRENT_SECRET=$(oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d)
+              # Link secret to default service account in openshift-marketplace
+              echo "[INFO] Linking pull secret to default SA in openshift-marketplace..."
+              oc patch serviceaccount default -n openshift-marketplace \
+                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
-              # Merge the credentials
-              echo "[INFO] Merging credentials..."
-              MERGED_SECRET=$(echo "$CURRENT_SECRET" "$CREDS_JSON" | /tmp/jq -s '.[0] * .[1]')
+              # Create konveyor-tackle namespace if it doesn't exist
+              echo "[INFO] Creating konveyor-tackle namespace..."
+              oc create namespace konveyor-tackle || echo "Namespace already exists"
 
-              # Update the global pull secret
-              echo "[INFO] Updating global pull secret..."
-              oc set data secret/pull-secret -n openshift-config --from-literal=.dockerconfigjson="$MERGED_SECRET"
+              # Create pull secret in konveyor-tackle namespace
+              echo "[INFO] Creating pull secret in konveyor-tackle..."
+              oc create secret generic registry-pull-secret \
+                --from-file=.dockerconfigjson=/tmp/pull-secrets.json \
+                --type=kubernetes.io/dockerconfigjson \
+                -n konveyor-tackle \
+                --dry-run=client -o yaml | oc apply -f -
 
-              echo "[INFO] ✅ Global pull secret updated successfully"
-              echo "[INFO] Registry credentials are now available cluster-wide"
+              # Link secret to default service account in konveyor-tackle
+              echo "[INFO] Linking pull secret to default SA in konveyor-tackle..."
+              oc patch serviceaccount default -n konveyor-tackle \
+                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
+
+              echo "[INFO] ✅ Registry credentials added to namespace service accounts"
+              echo "[INFO] Pods in openshift-marketplace and konveyor-tackle can now pull from stage registry and Quay"
 
           # Step 3: Install operator using FBC image directly
           - name: install-operator
