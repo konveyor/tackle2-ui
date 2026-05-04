@@ -140,7 +140,7 @@ spec:
             emptyDir: {}
           - name: registry-pull-secrets
             secret:
-              secretName: mta-its-registry-pull-secrets-sshveta
+              secretName: registry-pull-secrets
         steps:
           # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
