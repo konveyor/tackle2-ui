@@ -333,6 +333,11 @@ export const AdminSidebar = ({
           </NavLink>
         </NavItem>
         <NavItem>
+          <NavLink to={AdminPaths.migrators} activeClassName="pf-m-current">
+            Migrators
+          </NavLink>
+        </NavItem>
+        <NavItem>
           <NavLink to={UniversalPaths.tasks} activeClassName="pf-m-current">
             {t("sidebar.tasks")}
           </NavLink>
