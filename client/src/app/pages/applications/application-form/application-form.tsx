@@ -10,9 +10,9 @@ import {
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormAutocomplete,
@@ -20,7 +20,6 @@ import {
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { RepositoryFields } from "@app/components/repository-fields";
 import { SchemaDefinedField } from "@app/components/schema-defined-fields";
 import { wrapAsEvent } from "@app/utils/utils";
@@ -65,9 +64,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   data: {
     tagItems,
     stakeholdersOptions,
-    stakeholdersOptionsWithValue,
     repositoryKindOptions,
-    stakeholders,
     businessServiceOptions,
     platformFromName,
     platformOptions,
@@ -175,50 +172,28 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
             label={t("terms.contributors")}
             fieldId="contributors"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              <MultiSelect
                 placeholderText={t("composed.selectMany", {
                   what: t("terms.contributors").toLowerCase(),
                 })}
-                id="contributors-select"
-                variant="typeaheadmulti"
                 toggleId="contributors-select-toggle"
                 toggleAriaLabel="contributors dropdown toggle"
                 aria-label={name}
-                value={value
-                  .map((formContributor) =>
-                    stakeholders?.find(
-                      (stakeholder) => stakeholder.name === formContributor
-                    )
-                  )
-                  .map((matchingStakeholder) =>
-                    matchingStakeholder
-                      ? {
-                          value: matchingStakeholder.name,
-                          toString: () => matchingStakeholder.name,
-                        }
-                      : undefined
-                  )
-                  .filter((e) => e !== undefined)}
-                options={stakeholdersOptionsWithValue}
-                onChange={(selection) => {
-                  const selectionWithValue =
-                    selection as OptionWithValue<string>;
-
+                values={value}
+                options={stakeholdersOptions}
+                onSelect={(selection) => {
+                  if (!selection) {
+                    return;
+                  }
                   const currentValue = value || [];
-                  const e = currentValue.find(
-                    (f) => f === selectionWithValue.value
-                  );
+                  const e = currentValue.find((f) => f === selection);
                   if (e) {
-                    onChange(
-                      currentValue.filter((f) => f !== selectionWithValue.value)
-                    );
+                    onChange(currentValue.filter((f) => f !== selection));
                   } else {
-                    onChange([...currentValue, selectionWithValue.value]);
+                    onChange([...currentValue, selection]);
                   }
                 }}
                 onClear={() => onChange([])}
-                noResultsFoundText={t("message.noResultsFoundTitle")}
               />
             )}
           />
