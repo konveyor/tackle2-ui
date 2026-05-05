@@ -14,6 +14,18 @@ export const toDisplayValue = (option?: FilterSelectOptionProps) => {
   return option?.label ?? option?.value ?? "";
 };
 
+export const toChipDisplayValue = (option?: FilterSelectOptionProps) => {
+  return option?.chipLabel ?? toDisplayValue(option);
+};
+
+export const getDisplayValueForChip = (
+  value: string,
+  options: FilterSelectOptionProps[]
+) => {
+  const option = options.find((option) => option.value === value);
+  return toChipDisplayValue(option);
+};
+
 export const noResultsId = (idPrefix: string) => `${idPrefix}-${NO_RESULTS}`;
 
 export const getStableIndex = (

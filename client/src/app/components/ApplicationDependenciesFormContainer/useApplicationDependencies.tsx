@@ -72,21 +72,34 @@ export const useApplicationDependencies = (application: Application) => {
     }
   };
 
-  const northboundDependenciesOptions =
-    northboundDependencies
-      ?.filter((f) => f.to.id === application.id)
-      .map((dep) => String(dep.from.id)) ?? [];
-  const southboundDependenciesOptions =
-    southboundDependencies
-      ?.filter((f) => f.from.id === application.id)
-      .map((dep) => String(dep.to.id)) ?? [];
+  const clearDependencies = (dependencies: ApplicationDependency[]) => {
+    dependencies.forEach((dep) => {
+      if (dep.id) {
+        deleteDependencyMutation.mutate(dep.id);
+      }
+    });
+  };
+
+  const northboundDependenciesForApplication =
+    northboundDependencies?.filter((f) => f.to.id === application.id) ?? [];
+
+  const southboundDependenciesForApplication =
+    southboundDependencies?.filter((f) => f.from.id === application.id) ?? [];
 
   return {
-    northboundDependenciesOptions,
-    southboundDependenciesOptions,
+    northboundDependenciesOptions: northboundDependenciesForApplication.map(
+      (dep) => String(dep.from.id)
+    ),
+    southboundDependenciesOptions: southboundDependenciesForApplication.map(
+      (dep) => String(dep.to.id)
+    ),
     createDependency,
     deleteDependency,
     saveError,
     isFetching,
+    clearSouthboundDependencies: () =>
+      clearDependencies(southboundDependenciesForApplication),
+    clearNorthboundDependencies: () =>
+      clearDependencies(northboundDependenciesForApplication),
   };
 };

@@ -37,6 +37,8 @@ export const ApplicationDependenciesForm: React.FC<
     deleteDependency,
     saveError,
     isFetching,
+    clearSouthboundDependencies,
+    clearNorthboundDependencies,
   } = useApplicationDependencies(application);
 
   const { data: applications, isFetching: isFetchingApplications } =
@@ -58,10 +60,12 @@ export const ApplicationDependenciesForm: React.FC<
         <MultiSelect
           toggleAriaLabel="Northbound dependencies"
           toggleId="northbound-dependencies-toggle"
+          hasChips={true}
           values={northboundDependenciesOptions}
           placeholderText={t("composed.selectMany", {
             what: t("terms.applications").toLowerCase(),
           })}
+          onClear={clearNorthboundDependencies}
           options={(applications || [])
             .filter((app) => app.id !== application.id)
             .map((app) => ({ value: String(app.id), label: app.name }))}
@@ -100,6 +104,8 @@ export const ApplicationDependenciesForm: React.FC<
           toggleAriaLabel="Southbound dependencies"
           toggleId="southbound-dependencies-toggle"
           values={southboundDependenciesOptions}
+          hasChips={true}
+          onClear={clearSouthboundDependencies}
           placeholderText={t("composed.selectMany", {
             what: t("terms.applications").toLowerCase(),
           })}
