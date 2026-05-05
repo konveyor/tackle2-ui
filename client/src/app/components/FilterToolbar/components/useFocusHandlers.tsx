@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
-import { createItemId, getStableIndex } from "./selectUtils";
+import { getStableIndex } from "./selectUtils";
 
 export const useFocusHandlers = ({
   filteredOptions,
@@ -21,10 +21,7 @@ export const useFocusHandlers = ({
     setFocusedItemIndex(newIndex);
     setActiveItemId(
       newIndex !== null
-        ? createItemId(
-            getStableIndex(filteredOptions[newIndex]?.value, options),
-            idPrefix
-          )
+        ? `${idPrefix}-${getStableIndex(filteredOptions[newIndex]?.value, options)}`
         : null
     );
   };

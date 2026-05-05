@@ -19,7 +19,6 @@ import { TimesIcon } from "@patternfly/react-icons";
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
 import {
-  createItemId,
   getDisplayValue,
   getStableIndex,
   noResultsId,
@@ -50,7 +49,7 @@ export interface MultiSelectProps {
   closeMenuOnSelect?: boolean;
 }
 
-export const MultiSelectBase: FC<MultiSelectProps> = ({
+export const MultiSelect: FC<MultiSelectProps> = ({
   options,
   ariaLabel,
   "aria-label": htmlAriaLabel,
@@ -237,7 +236,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
           {...(activeItemId && { "aria-activedescendant": activeItemId })}
           role="combobox"
           isExpanded={isFilterDropdownOpen}
-          aria-controls={createItemId("listbox", toggleId)}
+          aria-controls={`${toggleId}-listbox`}
         />
 
         <TextInputGroupUtilities>
@@ -283,14 +282,14 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
       isOpen={isFilterDropdownOpen}
       variant="typeahead"
     >
-      <SelectList id={createItemId("listbox", toggleId)}>
+      <SelectList id={`${toggleId}-listbox`}>
         {filteredOptions.map(
           ({ groupLabel, label, value, optionProps = {} }, index) => (
             <SelectOption
               {...optionProps}
               {...(!optionProps.isDisabled && { hasCheckbox })}
               key={value}
-              id={createItemId(getStableIndex(value, options), toggleId)}
+              id={`${toggleId}-${getStableIndex(value, options)}`}
               value={value}
               isFocused={focusedItemIndex === index}
               isSelected={values?.includes(value)}

@@ -1,3 +1,5 @@
+import { categoryProvider, filterToggle } from "../types/filter-categories";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -55,7 +57,7 @@ export const closeWizard = ".pf-v5-c-wizard__close > .pf-v5-c-button";
 export const codeEditorControls = "div.pf-v5-c-code-editor__controls";
 export const menuToggle = "button.pf-v5-c-menu-toggle";
 export const menuList = "div.pf-v5-c-menu";
-export const languageSelectionDropdown = "#filter-control-provider-Languages";
+export const languageSelectionDropdown = filterToggle(categoryProvider);
 export const numberOfRulesColumn = "td[data-label='Number of rules']";
 export const logFilter = "span.pf-v5-c-menu-toggle__toggle-icon";
 export const analysisProfileMode = "#wizard-mode-profile";

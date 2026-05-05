@@ -1,3 +1,9 @@
+import {
+  categorySource,
+  categoryTagCategory,
+  filterToggleInput,
+} from "../types/filter-categories";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -82,13 +88,13 @@ export const packaging = "input[name=packaging]";
 export const createEntitiesCheckbox = "#create-entities-checkbox";
 
 //Fields related to application details page
-export enum appDetailsView {
-  applicationTag = "span.pf-v5-c-label__content",
-  closeDetailsPage = "button[aria-label='Close drawer panel']",
-  tagFilter = "#filter-control-source-typeahead-select-input",
-  tagCategory = "div[class='pf-v5-c-content'] > h4",
-  tagCategoryFilter = "#filter-control-tagCategory-typeahead-select-input",
-}
+export const appDetailsView = {
+  applicationTag: "span.pf-v5-c-label__content",
+  closeDetailsPage: "button[aria-label='Close drawer panel']",
+  tagFilter: filterToggleInput(categorySource),
+  tagCategory: "div[class='pf-v5-c-content'] > h4",
+  tagCategoryFilter: filterToggleInput(categoryTagCategory),
+};
 
 // Fields related to copy assessment modal
 export const copyAssessmentTableTd = ".pf-m-compact> tbody > tr > td";

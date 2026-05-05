@@ -14,11 +14,7 @@ export const toDisplayValue = (option?: FilterSelectOptionProps) => {
   return option?.label ?? option?.value ?? "";
 };
 
-export const noResultsId = (idPrefix: string) =>
-  createItemId(NO_RESULTS, idPrefix);
-
-export const createItemId = (partialId: number | string, idPrefix: string) =>
-  `select-${idPrefix}-${partialId}`;
+export const noResultsId = (idPrefix: string) => `${idPrefix}-${NO_RESULTS}`;
 
 export const getStableIndex = (
   value: unknown,
