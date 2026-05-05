@@ -311,6 +311,15 @@ spec:
 
               oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
 
+              echo "Checking cluster proxy configuration for trustedCA workaround..."
+              if ! oc get proxy cluster -o jsonpath='{.spec.trustedCA}' 2>/dev/null | grep -q .; then
+                echo "⚠️  Proxy missing trustedCA field - applying workaround for operator bug"
+                oc patch proxy cluster --type=merge -p '{"spec":{"trustedCA":{"name":""}}}'
+                echo "✅ Proxy patched with empty trustedCA"
+              else
+                echo "✅ Proxy already has trustedCA configured"
+              fi
+
               cat <<EOF | oc apply -f -
               apiVersion: tackle.konveyor.io/v1alpha1
               kind: Tackle
