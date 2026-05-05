@@ -15,19 +15,18 @@ import {
   GridItem,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import {
   MigrationWave,
   New,
   Stakeholder,
   StakeholderGroup,
 } from "@app/api/models";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateMigrationWaveMutation,
   useUpdateMigrationWaveMutation,
@@ -35,23 +34,6 @@ import {
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { matchItemsToRefs } from "@app/utils/model-utils";
-
-const stakeholderGroupToOption = (
-  value: StakeholderGroup
-): OptionWithValue<StakeholderGroup> => ({
-  value,
-  toString: () => value.name,
-});
-
-const stakeholderToOption = (
-  value: Stakeholder
-): OptionWithValue<Stakeholder> => ({
-  value,
-  toString: () => value.name,
-  props: {
-    description: value.email,
-  },
-});
 
 interface WaveFormValues {
   name?: string;
@@ -367,33 +349,38 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             label={t("terms.stakeholders")}
             fieldId="stakeholders"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                variant="typeaheadmulti"
-                id="stakeholders"
+              <MultiSelect
                 toggleId="stakeholders-toggle"
                 toggleAriaLabel="Stakeholders select dropdown toggle"
                 aria-label={name}
                 placeholderText={t("composed.selectMany", {
                   what: t("terms.stakeholders").toLowerCase(),
                 })}
-                value={value.map(stakeholderToOption)}
-                options={stakeholders.map(stakeholderToOption)}
-                onChange={(selection) => {
+                values={value.map((s) => String(s.id))}
+                options={stakeholders.map((s) => ({
+                  value: String(s.id),
+                  label: s.name,
+                  optionProps: {
+                    description: s.email,
+                  },
+                }))}
+                hasChips={true}
+                onSelect={(selection) => {
+                  if (!selection) {
+                    return;
+                  }
+                  const selectionId = Number(selection);
                   const currentValue = value || [];
-                  const selectionWithValue =
-                    selection as OptionWithValue<Stakeholder>;
-                  const e = currentValue.find(
-                    (f) => f.id === selectionWithValue.value.id
-                  );
+                  const e = currentValue.find((f) => f.id === selectionId);
                   if (e) {
-                    onChange(
-                      currentValue.filter(
-                        (f) => f.id !== selectionWithValue.value.id
-                      )
-                    );
+                    onChange(currentValue.filter((f) => f.id !== selectionId));
                   } else {
-                    onChange([...currentValue, selectionWithValue.value]);
+                    const match = stakeholders.find(
+                      (s) => s.id === selectionId
+                    );
+                    if (match) {
+                      onChange([...currentValue, match]);
+                    }
                   }
                 }}
                 onClear={() => onChange([])}
@@ -408,33 +395,34 @@ export const WaveForm: React.FC<WaveFormProps> = ({
             label={t("terms.stakeholderGroups")}
             fieldId="stakeholderGroups"
             renderInput={({ field: { value, name, onChange } }) => (
-              <SimpleSelect
-                maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-                variant="typeaheadmulti"
-                id="stakeholder-groups"
+              <MultiSelect
                 toggleId="stakeholder-groups-toggle"
                 toggleAriaLabel="Stakeholder groups select dropdown toggle"
                 aria-label={name}
                 placeholderText={t("composed.selectMany", {
                   what: t("terms.stakeholderGroups").toLowerCase(),
                 })}
-                value={value.map(stakeholderGroupToOption)}
-                options={stakeholderGroups.map(stakeholderGroupToOption)}
-                onChange={(selection) => {
+                values={value.map((sg) => sg.name)}
+                options={stakeholderGroups.map((sg) => ({
+                  value: sg.name,
+                  label: sg.name,
+                }))}
+                hasChips={true}
+                onSelect={(selection) => {
+                  if (!selection) {
+                    return;
+                  }
                   const currentValue = value || [];
-                  const selectionWithValue =
-                    selection as OptionWithValue<StakeholderGroup>;
-                  const e = currentValue.find(
-                    (f) => f.name === selectionWithValue.value.name
-                  );
+                  const e = currentValue.find((f) => f.name === selection);
                   if (e) {
-                    onChange(
-                      currentValue.filter(
-                        (f) => f.name !== selectionWithValue.value.name
-                      )
-                    );
+                    onChange(currentValue.filter((f) => f.name !== selection));
                   } else {
-                    onChange([...currentValue, selectionWithValue.value]);
+                    const match = stakeholderGroups.find(
+                      (sg) => sg.name === selection
+                    );
+                    if (match) {
+                      onChange([...currentValue, match]);
+                    }
                   }
                 }}
                 onClear={() => onChange([])}

@@ -1,0 +1,168 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MultiSelect Renders without crashing 1`] = `
+{
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="pf-v5-c-menu-toggle pf-m-full-width pf-m-typeahead"
+      >
+        <div
+          class="pf-v5-c-text-input-group pf-m-plain"
+        >
+          <div
+            autocomplete="off"
+            class="pf-v5-c-text-input-group__main"
+          >
+            <span
+              class="pf-v5-c-text-input-group__text"
+            >
+              <input
+                aria-controls="my-selection-listbox"
+                aria-expanded="false"
+                aria-label="Type to filter"
+                class="pf-v5-c-text-input-group__text-input"
+                id="my-selection-input"
+                role="combobox"
+                type="text"
+                value=""
+              />
+            </span>
+          </div>
+          <div
+            class="pf-v5-c-text-input-group__utilities"
+          />
+        </div>
+        <button
+          aria-expanded="false"
+          aria-label="Menu toggle"
+          class="pf-v5-c-menu-toggle__button"
+          data-ouia-component-id="my-selection"
+          data-ouia-component-type="PF5/MenuToggle"
+          data-ouia-safe="true"
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="pf-v5-c-menu-toggle__controls"
+          >
+            <span
+              class="pf-v5-c-menu-toggle__toggle-icon"
+            >
+              <test-file-stub
+                aria-hidden="true"
+              />
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="pf-v5-c-menu-toggle pf-m-full-width pf-m-typeahead"
+    >
+      <div
+        class="pf-v5-c-text-input-group pf-m-plain"
+      >
+        <div
+          autocomplete="off"
+          class="pf-v5-c-text-input-group__main"
+        >
+          <span
+            class="pf-v5-c-text-input-group__text"
+          >
+            <input
+              aria-controls="my-selection-listbox"
+              aria-expanded="false"
+              aria-label="Type to filter"
+              class="pf-v5-c-text-input-group__text-input"
+              id="my-selection-input"
+              role="combobox"
+              type="text"
+              value=""
+            />
+          </span>
+        </div>
+        <div
+          class="pf-v5-c-text-input-group__utilities"
+        />
+      </div>
+      <button
+        aria-expanded="false"
+        aria-label="Menu toggle"
+        class="pf-v5-c-menu-toggle__button"
+        data-ouia-component-id="my-selection"
+        data-ouia-component-type="PF5/MenuToggle"
+        data-ouia-safe="true"
+        tabindex="-1"
+        type="button"
+      >
+        <span
+          class="pf-v5-c-menu-toggle__controls"
+        >
+          <span
+            class="pf-v5-c-menu-toggle__toggle-icon"
+          >
+            <test-file-stub
+              aria-hidden="true"
+            />
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;

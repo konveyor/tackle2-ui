@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   Badge,
   Button,
+  Chip,
+  ChipGroup,
   Label,
   MenuToggle,
   MenuToggleElement,
@@ -20,6 +22,7 @@ import { FilterSelectOptionProps } from "../FilterToolbar";
 
 import {
   getDisplayValue,
+  getDisplayValueForChip,
   getStableIndex,
   noResultsId,
   toDisplayValue,
@@ -31,6 +34,7 @@ export interface MultiSelectProps {
   options: FilterSelectOptionProps[];
   values?: string[];
   onSelect: (value?: string) => void;
+  onClear: () => void;
   placeholderText?: string;
   isDisabled?: boolean;
   isFullWidth?: boolean;
@@ -47,6 +51,7 @@ export interface MultiSelectProps {
   hasBadge?: boolean;
   showSelectedInToggle?: boolean;
   closeMenuOnSelect?: boolean;
+  hasChips?: boolean;
 }
 
 export const MultiSelect: FC<MultiSelectProps> = ({
@@ -66,6 +71,8 @@ export const MultiSelect: FC<MultiSelectProps> = ({
   hasBadge,
   showSelectedInToggle,
   closeMenuOnSelect,
+  hasChips = false,
+  onClear,
 }: MultiSelectProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
@@ -177,7 +184,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
   const onClearButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onSelectCallback(undefined);
+    onClear();
     setInputValue("");
     resetActiveAndFocusedItem();
     textInputRef?.current?.focus();
@@ -237,10 +244,26 @@ export const MultiSelect: FC<MultiSelectProps> = ({
           role="combobox"
           isExpanded={isFilterDropdownOpen}
           aria-controls={`${toggleId}-listbox`}
-        />
+        >
+          {hasChips && (
+            <ChipGroup aria-label="Current selections">
+              {values?.map((value) => (
+                <Chip
+                  key={value}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    onSelect(value);
+                  }}
+                >
+                  {getDisplayValueForChip(value, options)}
+                </Chip>
+              ))}
+            </ChipGroup>
+          )}
+        </TextInputGroupMain>
 
         <TextInputGroupUtilities>
-          {!!inputValue && (
+          {(!!inputValue || !!values?.length) && (
             <Button
               variant="plain"
               onClick={onClearButtonClick}

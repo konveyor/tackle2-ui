@@ -59,8 +59,11 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const { kindOptions, getUrlTooltip, getCredentialTooltip } =
-    usePlatformKindList();
+  const {
+    kinds: kindOptions,
+    getUrlTooltip,
+    getCredentialTooltip,
+  } = usePlatformKindList();
 
   const { existingPlatforms, createPlatform, updatePlatform } =
     usePlatformFormData({

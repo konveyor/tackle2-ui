@@ -12,13 +12,13 @@ import {
 } from "@patternfly/react-core";
 
 import { New, Ref, Stakeholder } from "@app/api/models";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import { useFetchJobFunctions } from "@app/queries/jobfunctions";
 import { useFetchStakeholderGroups } from "@app/queries/stakeholdergroups";
 import {
@@ -26,7 +26,6 @@ import {
   useFetchStakeholders,
   useUpdateStakeholderMutation,
 } from "@app/queries/stakeholders";
-import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
@@ -59,10 +58,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
     };
   });
   const stakeholderGroupOptions = stakeholderGroups.map((stakeholderGroup) => {
-    return {
-      value: stakeholderGroup.name,
-      toString: () => stakeholderGroup.name,
-    };
+    return { value: stakeholderGroup.name };
   });
 
   const validationSchema = object().shape({
@@ -227,32 +223,23 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
         label={t("terms.stakeholderGroups")}
         fieldId="stakeholderGroups"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeaheadmulti"
-            id="stakeholder-groups"
+          <MultiSelect
             toggleId="stakeholder-groups-toggle"
             toggleAriaLabel="Stakeholder groups select dropdown toggle"
             aria-label={name}
-            value={
-              value
-                ? value.map((value) =>
-                    toOptionLike(value, stakeholderGroupOptions)
-                  )
-                : undefined
-            }
+            hasChips={true}
+            values={value}
             options={stakeholderGroupOptions}
-            onChange={(selection) => {
+            onSelect={(selection) => {
+              if (!selection) {
+                return;
+              }
               const currentValue = value || [];
-              const selectionWithValue = selection as OptionWithValue<string>;
-              const e = currentValue.find(
-                (f) => f === selectionWithValue.value
-              );
+              const e = currentValue.find((f) => f === selection);
               if (e) {
-                onChange(
-                  currentValue.filter((f) => f !== selectionWithValue.value)
-                );
+                onChange(currentValue.filter((f) => f !== selection));
               } else {
-                onChange([...currentValue, selectionWithValue.value]);
+                onChange([...currentValue, selection]);
               }
             }}
             onClear={() => onChange([])}
