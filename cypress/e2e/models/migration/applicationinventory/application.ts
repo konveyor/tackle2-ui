@@ -873,15 +873,10 @@ export class Application {
     cy.get("div")
       .contains(`Add ${dependencyType} dependencies`)
       .parent("div")
-      .siblings()
-      .find("span")
-      .should("contain.text", dependency)
-      .parent("div")
+      .contains("span.pf-v5-c-chip__text", dependency)
+      .closest(".pf-v5-c-chip")
       .find("button")
-      .trigger("click");
-    if (dependencyType === "northbound")
-      cy.get(northdependenciesDropdownBtn).click();
-    else cy.get(southdependenciesDropdownBtn).click();
+      .click();
   }
 
   // Remove north or south bound dependency for an application
@@ -961,13 +956,11 @@ export class Application {
     validateTextPresence(commonView.alertBody, alertBodyMessage);
   }
 
-  // Checks if app name is displayed in the dropdown under respective dependency
   protected dependencyExists(dependencyType: string, appName: string): void {
     cy.get("div")
       .contains(`Add ${dependencyType} dependencies`)
       .parent("div")
-      .siblings()
-      .find("span")
+      .find("span.pf-v5-c-chip__text")
       .should("contain.text", appName);
   }
 

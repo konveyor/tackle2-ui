@@ -179,6 +179,7 @@ export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
                 toggleId="contributors-select-toggle"
                 toggleAriaLabel="contributors dropdown toggle"
                 aria-label={name}
+                hasChips={true}
                 values={value}
                 options={stakeholdersOptions}
                 onSelect={(selection) => {

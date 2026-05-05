@@ -364,6 +364,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                     description: s.email,
                   },
                 }))}
+                hasChips={true}
                 onSelect={(selection) => {
                   if (!selection) {
                     return;
@@ -406,6 +407,7 @@ export const WaveForm: React.FC<WaveFormProps> = ({
                   value: sg.name,
                   label: sg.name,
                 }))}
+                hasChips={true}
                 onSelect={(selection) => {
                   if (!selection) {
                     return;

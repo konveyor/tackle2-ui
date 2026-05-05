@@ -227,6 +227,7 @@ export const StakeholderForm: React.FC<StakeholderFormProps> = ({
             toggleId="stakeholder-groups-toggle"
             toggleAriaLabel="Stakeholder groups select dropdown toggle"
             aria-label={name}
+            hasChips={true}
             values={value}
             options={stakeholderGroupOptions}
             onSelect={(selection) => {
