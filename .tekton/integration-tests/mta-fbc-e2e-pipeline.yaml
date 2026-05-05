@@ -379,7 +379,7 @@ spec:
               echo -n "$UI_ROUTE" > $(results.uiRoute.path)
 
               echo "Getting Keycloak admin password..."
-              KEYCLOAK_SECRET="mta-keycloak-sso"
+              KEYCLOAK_SECRET="mta-keycloak-rhbk"
               for i in {1..60}; do
                 if oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" &>/dev/null; then
                   KEYCLOAK_PASS=$(oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
