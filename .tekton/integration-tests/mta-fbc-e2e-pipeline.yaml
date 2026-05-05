@@ -350,7 +350,7 @@ spec:
               echo "SUCCESS" > $(results.deploymentStatus.path)
 
           - name: run-e2e-tests
-            image: quay.io/konveyor/nodejs:22-ubi9
+            image: registry.access.redhat.com/ubi9/nodejs-22:latest
             volumeMounts:
               - name: credentials
                 mountPath: /credentials
