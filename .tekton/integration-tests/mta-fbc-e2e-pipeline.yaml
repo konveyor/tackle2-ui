@@ -1,21 +1,15 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: mta-fbc-deploy-pipeline
+  name: mta-fbc-e2e-pipeline
 spec:
   description: |
-    Deploy MTA operator from FBC catalog to ephemeral Hypershift cluster.
-    Uses imageContentSources to configure registry mirroring at cluster creation time.
+    Deploy MTA operator from FBC catalog to ephemeral Hypershift cluster and run E2E tests.
+    Uses imageContentSources to configure registry mirroring.
 
   params:
     - name: SNAPSHOT
       description: Application Snapshot JSON
-      type: string
-    - name: CREDENTIALS_SECRET_NAME
-      description: Secret containing registry credentials
-      type: string
-    - name: OCI_REF
-      description: OCI artifact reference for storing results
       type: string
 
   results:
@@ -27,7 +21,6 @@ spec:
       value: $(tasks.deploy-operator.results.deploymentStatus)
 
   tasks:
-    # Task 1: Parse Snapshot metadata
     - name: parse-metadata
       params:
         - name: SNAPSHOT
@@ -42,7 +35,6 @@ spec:
           - name: pathInRepo
             value: tasks/test_metadata.yaml
 
-    # Task 2: Provision EaaS space
     - name: provision-eaas-space
       runAfter:
         - parse-metadata
@@ -61,7 +53,6 @@ spec:
           - name: pathInRepo
             value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
 
-    # Task 3: Provision ephemeral Hypershift cluster with imageContentSources
     - name: provision-cluster
       runAfter:
         - provision-eaas-space
@@ -105,7 +96,6 @@ spec:
               #!/bin/bash
               echo -n "${CLUSTER_NAME}" > $(results.clusterName.path)
 
-    # Task 4: Deploy MTA operator from FBC
     - name: deploy-operator
       runAfter:
         - provision-cluster
@@ -142,7 +132,6 @@ spec:
             secret:
               secretName: registry-pull-secrets
         steps:
-          # Step 1: Get kubeconfig from EaaS
           - name: get-kubeconfig
             ref:
               resolver: git
@@ -161,7 +150,6 @@ spec:
               - name: credentials
                 value: credentials
 
-          # Step 2: Add registry credentials to namespaces
           - name: add-pull-secrets
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
@@ -176,51 +164,31 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
-              echo "[INFO] Adding registry credentials to namespaces..."
-
-              # Use mounted secret from Konflux
-              echo "[INFO] Using registry credentials from Konflux secret..."
               if [ ! -f /registry-secrets/.dockerconfigjson ]; then
-                echo "[ERROR] Registry secret not found at /registry-secrets/.dockerconfigjson"
+                echo "[ERROR] Registry secret not found"
                 exit 1
               fi
 
-              cp /registry-secrets/.dockerconfigjson /tmp/pull-secrets.json
-
-              # Create pull secret in openshift-marketplace namespace
-              echo "[INFO] Creating pull secret in openshift-marketplace..."
               oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/tmp/pull-secrets.json \
+                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
                 --type=kubernetes.io/dockerconfigjson \
                 -n openshift-marketplace \
                 --dry-run=client -o yaml | oc apply -f -
 
-              # Link secret to default service account in openshift-marketplace
-              echo "[INFO] Linking pull secret to default SA in openshift-marketplace..."
               oc patch serviceaccount default -n openshift-marketplace \
                 -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
-              # Create konveyor-tackle namespace if it doesn't exist
-              echo "[INFO] Creating konveyor-tackle namespace..."
-              oc create namespace konveyor-tackle || echo "Namespace already exists"
+              oc create namespace konveyor-tackle --dry-run=client -o yaml | oc apply -f -
 
-              # Create pull secret in konveyor-tackle namespace
-              echo "[INFO] Creating pull secret in konveyor-tackle..."
               oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/tmp/pull-secrets.json \
+                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
                 --type=kubernetes.io/dockerconfigjson \
                 -n konveyor-tackle \
                 --dry-run=client -o yaml | oc apply -f -
 
-              # Link secret to default service account in konveyor-tackle
-              echo "[INFO] Linking pull secret to default SA in konveyor-tackle..."
               oc patch serviceaccount default -n konveyor-tackle \
                 -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
-              echo "[INFO] ✅ Registry credentials added to namespace service accounts"
-              echo "[INFO] Pods in openshift-marketplace and konveyor-tackle can now pull from stage registry and Quay"
-
-          # Step 3: Install operator using FBC image directly
           - name: install-operator
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
@@ -239,41 +207,23 @@ spec:
               NAMESPACE="$(params.operatorNamespace)"
               CLUSTER_NAME="$(params.clusterName)"
 
-              # Get cluster console URL
               CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
-              API_URL=$(oc whoami --show-server 2>/dev/null || echo "Unable to get API URL")
-
-              # Get password from credentials volume
               PASSWORD_FILE="/credentials/${CLUSTER_NAME}-password"
               if [ -f "$PASSWORD_FILE" ]; then
                 CLUSTER_PASSWORD=$(cat "$PASSWORD_FILE")
               else
-                CLUSTER_PASSWORD="Password file not found"
+                CLUSTER_PASSWORD="Not found"
               fi
 
               echo "========================================="
-              echo "CLUSTER ACCESS INFORMATION"
-              echo "========================================="
-              echo "Cluster Name: $CLUSTER_NAME"
-              echo "Console URL: $CONSOLE_URL"
-              echo "API Server: $API_URL"
-              echo "Username: kubeadmin"
-              echo "Password: $CLUSTER_PASSWORD"
-              echo "========================================="
-              echo ""
-              echo "FBC Image: $FBC_IMAGE"
-              echo "Package: $PACKAGE_NAME"
-              echo "Channel: $CHANNEL_NAME"
-              echo "Namespace: $NAMESPACE"
+              echo "CLUSTER: $CLUSTER_NAME"
+              echo "CONSOLE: $CONSOLE_URL"
+              echo "PASSWORD: $CLUSTER_PASSWORD"
               echo "========================================="
 
-              # Create namespace
-              echo "[INFO] Creating namespace $NAMESPACE..."
-              oc create namespace "$NAMESPACE" || echo "Namespace already exists"
+              oc create namespace "$NAMESPACE" --dry-run=client -o yaml | oc apply -f -
 
-              # Create CatalogSource using FBC image directly with extractContent
-              echo "[INFO] Creating CatalogSource from FBC image..."
-              cat <<CATALOGEOF | oc apply -f -
+              cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: CatalogSource
               metadata:
@@ -292,30 +242,22 @@ spec:
                 updateStrategy:
                   registryPoll:
                     interval: 10m
-              CATALOGEOF
+              EOF
 
-              # Wait for CatalogSource
-              echo "[INFO] Waiting for CatalogSource to be ready..."
               for i in {1..60}; do
                 STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
-                echo "[INFO] Attempt $i/60: State=$STATE"
                 if [ "$STATE" = "READY" ]; then
-                  echo "[INFO] ✅ CatalogSource is READY"
+                  echo "✅ CatalogSource READY"
                   break
                 fi
                 if [ $i -eq 60 ]; then
-                  echo "[ERROR] CatalogSource not ready after 5 minutes"
-                  oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o yaml
-                  oc describe catalogsource mta-konflux-catalog -n openshift-marketplace
                   echo "FAILED" > $(results.deploymentStatus.path)
                   exit 1
                 fi
                 sleep 5
               done
 
-              # Create OperatorGroup
-              echo "[INFO] Creating OperatorGroup..."
-              cat <<OGEOF | oc apply -f -
+              cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1
               kind: OperatorGroup
               metadata:
@@ -324,11 +266,9 @@ spec:
               spec:
                 targetNamespaces:
                   - $NAMESPACE
-              OGEOF
+              EOF
 
-              # Create Subscription
-              echo "[INFO] Creating Subscription..."
-              cat <<SUBEOF | oc apply -f -
+              cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: Subscription
               metadata:
@@ -340,50 +280,32 @@ spec:
                 name: $PACKAGE_NAME
                 source: mta-konflux-catalog
                 sourceNamespace: openshift-marketplace
-              SUBEOF
+              EOF
 
-              # Wait for CSV (30 minutes timeout)
-              echo "[INFO] Waiting for ClusterServiceVersion..."
               for i in {1..360}; do
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
-                  echo "[INFO] Attempt $i/360: CSV=$CSV, Phase=$PHASE"
                   if [ "$PHASE" = "Succeeded" ]; then
-                    echo "[INFO] ✅ Operator installed successfully: $CSV"
+                    echo "✅ Operator installed: $CSV"
                     echo "$CSV" > $(results.csvName.path)
                     break
                   fi
                 fi
                 if [ $((i % 12)) -eq 0 ]; then
-                  echo "[INFO] Still waiting... ($i/360)"
+                  echo "Waiting for CSV... ($i/360)"
                 fi
                 sleep 5
               done
 
               if [ -z "$CSV" ] || [ "$PHASE" != "Succeeded" ]; then
-                echo "[ERROR] CSV not ready after 30 minutes"
-                echo "[INFO] Cluster will remain running for debugging"
-                echo "[INFO] Cluster: $CLUSTER_NAME"
-                echo "[INFO] Console: $CONSOLE_URL"
-                echo "[INFO] Password: $CLUSTER_PASSWORD"
-                oc get subscription mta-operator -n "$NAMESPACE" -o yaml
-                oc get csv -n "$NAMESPACE"
-                oc get pods -n openshift-marketplace
                 echo "FAILED" > $(results.deploymentStatus.path)
                 exit 1
               fi
 
-              # Wait for mta-operator deployment
-              echo "[INFO] Waiting for MTA operator deployment..."
-              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE" || {
-                echo "[WARNING] Deployment wait timed out, checking status..."
-                oc get deployment mta-operator -n "$NAMESPACE"
-              }
+              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
 
-              # Create MTA Custom Resource
-              echo "[INFO] Creating MTA Custom Resource..."
-              cat <<MTAEOF | oc apply -f -
+              cat <<EOF | oc apply -f -
               apiVersion: tackle.konveyor.io/v1alpha1
               kind: Tackle
               metadata:
@@ -412,34 +334,83 @@ spec:
                 provider_nodejs_container_requests_memory: 512Mi
                 hub_bucket_volume_size: "25Gi"
                 cache_data_volume_size: "25Gi"
-              MTAEOF
+              EOF
 
-              # Wait for MTA UI to be ready
-              echo "[INFO] Waiting for MTA UI deployment..."
-              oc wait --for=condition=ready --timeout=600s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE" || {
-                echo "[WARNING] MTA UI pods not ready after 10 minutes"
-                oc get pods -n "$NAMESPACE"
-              }
+              echo "Waiting for MTA UI pods..."
+              oc wait --for=condition=ready --timeout=900s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE"
 
-              # Get UI route
               UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
-              if [ -n "$UI_ROUTE" ]; then
-                UI_URL="https://$UI_ROUTE"
-                echo "[INFO] ✅ MTA UI available at: $UI_URL"
-              else
-                echo "[WARNING] Could not get MTA route"
+              if [ -z "$UI_ROUTE" ]; then
+                echo "ERROR: Could not get MTA route"
+                echo "FAILED" > $(results.deploymentStatus.path)
+                exit 1
               fi
 
+              echo "✅ MTA UI: https://$UI_ROUTE"
               echo "SUCCESS" > $(results.deploymentStatus.path)
 
-              echo ""
-              echo "========================================="
-              echo "✅ MTA Deployment Complete!"
-              echo "========================================="
-              echo "Namespace: $NAMESPACE"
-              echo "CSV: $CSV"
-              echo "MTA URL: ${UI_URL:-<route not found>}"
-              echo "Login: admin / Dog8code"
-              echo "========================================="
-              echo ""
-              exit 0
+          - name: run-e2e-tests
+            image: quay.io/konveyor/nodejs:22-ubi9
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              NAMESPACE="$(params.operatorNamespace)"
+
+              echo "Getting MTA UI route..."
+              UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}')
+              BASE_URL="https://${UI_ROUTE}"
+              echo "MTA UI: $BASE_URL"
+
+              echo "Getting Keycloak admin password..."
+              KEYCLOAK_SECRET="mta-keycloak-sso"
+              for i in {1..30}; do
+                if oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" &>/dev/null; then
+                  KEYCLOAK_PASS=$(oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
+                  echo "✅ Keycloak password retrieved"
+                  break
+                fi
+                echo "Waiting for Keycloak secret ($i/30)..."
+                sleep 2
+              done
+
+              if [ -z "${KEYCLOAK_PASS:-}" ]; then
+                echo "WARNING: Could not get Keycloak password, tests may fail"
+                KEYCLOAK_PASS="admin"
+              fi
+
+              echo "Cloning tackle2-ui repository..."
+              cd /tmp
+              git clone --depth 1 https://github.com/konveyor/tackle2-ui.git
+              cd tackle2-ui
+
+              echo "Installing dependencies..."
+              npm clean-install --ignore-scripts --no-audit
+              npx cypress install
+
+              echo "Building test spec for @ci tests..."
+              cd cypress
+              TEST_SPEC=$(node scripts/findTierFiles.mjs @ci)
+              echo "Test spec: $TEST_SPEC"
+
+              echo "Running Cypress E2E tests with @ci tag..."
+              export CYPRESS_BASE_URL="$BASE_URL"
+              export CYPRESS_USER="admin"
+              export CYPRESS_PASSWORD="Dog8code"
+              export CYPRESS_KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_PASS"
+              export CYPRESS_INCLUDE_TAGS="@ci"
+              export CYPRESS_EXCLUDE_TAGS="cf,downstream"
+
+              npx cypress run \
+                --spec "$TEST_SPEC" \
+                --config-file cypress.config.ts \
+                --reporter junit \
+                --reporter-options "mochaFile=run/results-[hash].xml"
+
+              echo "✅ E2E tests completed"
