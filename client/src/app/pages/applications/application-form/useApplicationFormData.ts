@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { Application } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 import { useRepositoryKind } from "@app/hooks/useRepositoryKind";
 import {
   useCreateApplicationMutation,
@@ -18,13 +17,6 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { useFetchTagsWithTagItems } from "@app/queries/tags";
 import { matchItemsToRef, matchItemsToRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
-
-const entityToOptionWithValue = <T extends { name: string }>(
-  entity: T
-): OptionWithValue<string> => ({
-  value: entity.name,
-  toString: () => entity.name,
-});
 
 const entityToOption = <T extends { name: string }>(
   entity: T
@@ -146,7 +138,6 @@ export const useApplicationFormData = ({
     businessServiceToRef,
     stakeholders,
     stakeholdersOptions: stakeholders.map(entityToOption),
-    stakeholdersOptionsWithValue: stakeholders.map(entityToOptionWithValue),
     stakeholderToRef,
     stakeholdersToRefs,
     existingApplications,
