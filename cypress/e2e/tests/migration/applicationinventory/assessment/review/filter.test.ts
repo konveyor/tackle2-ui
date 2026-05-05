@@ -16,7 +16,7 @@ limitations under the License.
 /// <reference types="cypress" />
 
 import {
-  applySelectFilter,
+  applySelectFilterViaTextInput,
   clearAllFilters,
   clickItemInKebabMenu,
   clickKebabMenuOptionArchetype,
@@ -75,7 +75,7 @@ describe(
     identifiedRisksFilterValidations.forEach((validation) => {
       it(`Filtering identified risks by ${validation.name}`, function () {
         const commonActions = () => {
-          applySelectFilter(validation.id, validation.id, validation.text);
+          applySelectFilterViaTextInput(validation.id, validation.text);
           exists(validation.should);
           notExists(validation.shouldNot);
           clearAllFilters();

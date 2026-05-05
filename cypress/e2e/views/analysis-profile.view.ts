@@ -1,3 +1,8 @@
+import {
+  categoryProvider,
+  filterToggleListbox,
+} from "../types/filter-categories";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -23,8 +28,7 @@ export const submitButton = 'button[type="submit"]';
 export const pencilAction = '[id^="pencil-action"]';
 
 // Language and target selectors
-export const languageListbox =
-  "#filter-control-provider-select-typeahead-listbox > li";
+export const languageListbox = `${filterToggleListbox(categoryProvider)} > li`;
 export const menuListItem = ".pf-v5-c-menu__list-item";
 export const checkboxInput = "input[type=checkbox]";
 export const wizardMainBody = ".pf-v5-c-wizard__main-body";
