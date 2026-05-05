@@ -336,7 +336,21 @@ spec:
                 cache_data_volume_size: "25Gi"
               EOF
 
-              echo "Waiting for MTA UI pods..."
+              echo "Waiting for MTA UI deployment to be created..."
+              for i in {1..120}; do
+                if oc get deployment mta-ui -n "$NAMESPACE" &>/dev/null; then
+                  echo "✅ MTA UI deployment exists"
+                  break
+                fi
+                if [ $i -eq 120 ]; then
+                  echo "ERROR: MTA UI deployment not created after 10 minutes"
+                  echo "FAILED" > $(results.deploymentStatus.path)
+                  exit 1
+                fi
+                sleep 5
+              done
+
+              echo "Waiting for MTA UI pods to be ready..."
               oc wait --for=condition=ready --timeout=900s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE"
 
               UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
