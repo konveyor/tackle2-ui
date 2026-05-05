@@ -398,12 +398,16 @@ spec:
               echo "SUCCESS" > $(results.deploymentStatus.path)
 
           - name: run-e2e-tests
-            image: registry.access.redhat.com/ubi9/nodejs-22:latest
+            image: cypress/included:15.7.0
             env:
               - name: UI_ROUTE
                 value: $(steps.install-operator.results.uiRoute)
               - name: KEYCLOAK_PASS
                 value: $(steps.install-operator.results.keycloakPassword)
+              - name: CYPRESS_CACHE_FOLDER
+                value: /tmp/.cache/Cypress
+              - name: npm_config_cache
+                value: /tmp/.cache/npm
             script: |
               #!/bin/bash
               set -euo pipefail
