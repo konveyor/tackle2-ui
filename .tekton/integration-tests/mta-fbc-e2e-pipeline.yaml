@@ -111,7 +111,7 @@ spec:
         - name: channelName
           value: "stable-v8.1"
         - name: operatorNamespace
-          value: "konveyor-tackle"
+          value: "openshift-mta"
       taskSpec:
         params:
           - name: eaasSpaceSecretRef
@@ -125,6 +125,10 @@ spec:
             description: Deployment status
           - name: csvName
             description: Installed ClusterServiceVersion name
+          - name: uiRoute
+            description: MTA UI route hostname
+          - name: keycloakPassword
+            description: Keycloak admin password
         volumes:
           - name: credentials
             emptyDir: {}
@@ -160,6 +164,8 @@ spec:
             env:
               - name: KUBECONFIG
                 value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+              - name: OPERATOR_NAMESPACE
+                value: $(params.operatorNamespace)
             script: |
               #!/bin/bash
               set -euo pipefail
@@ -178,15 +184,15 @@ spec:
               oc patch serviceaccount default -n openshift-marketplace \
                 -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
-              oc create namespace konveyor-tackle --dry-run=client -o yaml | oc apply -f -
+              oc create namespace $OPERATOR_NAMESPACE --dry-run=client -o yaml | oc apply -f -
 
               oc create secret generic registry-pull-secret \
                 --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
                 --type=kubernetes.io/dockerconfigjson \
-                -n konveyor-tackle \
+                -n $OPERATOR_NAMESPACE \
                 --dry-run=client -o yaml | oc apply -f -
 
-              oc patch serviceaccount default -n konveyor-tackle \
+              oc patch serviceaccount default -n $OPERATOR_NAMESPACE \
                 -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
           - name: install-operator
@@ -361,43 +367,41 @@ spec:
               fi
 
               echo "✅ MTA UI: https://$UI_ROUTE"
+              echo -n "$UI_ROUTE" > $(results.uiRoute.path)
+
+              echo "Getting Keycloak admin password..."
+              KEYCLOAK_SECRET="mta-keycloak-sso"
+              for i in {1..60}; do
+                if oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" &>/dev/null; then
+                  KEYCLOAK_PASS=$(oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
+                  echo "✅ Keycloak password retrieved"
+                  echo -n "$KEYCLOAK_PASS" > $(results.keycloakPassword.path)
+                  break
+                fi
+                if [ $i -eq 60 ]; then
+                  echo "WARNING: Could not get Keycloak password after 5 minutes, using default"
+                  echo -n "admin" > $(results.keycloakPassword.path)
+                  break
+                fi
+                sleep 5
+              done
+
               echo "SUCCESS" > $(results.deploymentStatus.path)
 
           - name: run-e2e-tests
             image: registry.access.redhat.com/ubi9/nodejs-22:latest
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
             env:
-              - name: KUBECONFIG
-                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+              - name: UI_ROUTE
+                value: $(steps.install-operator.results.uiRoute)
+              - name: KEYCLOAK_PASS
+                value: $(steps.install-operator.results.keycloakPassword)
             script: |
               #!/bin/bash
               set -euo pipefail
 
-              NAMESPACE="$(params.operatorNamespace)"
-
-              echo "Getting MTA UI route..."
-              UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}')
               BASE_URL="https://${UI_ROUTE}"
               echo "MTA UI: $BASE_URL"
-
-              echo "Getting Keycloak admin password..."
-              KEYCLOAK_SECRET="mta-keycloak-sso"
-              for i in {1..30}; do
-                if oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" &>/dev/null; then
-                  KEYCLOAK_PASS=$(oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
-                  echo "✅ Keycloak password retrieved"
-                  break
-                fi
-                echo "Waiting for Keycloak secret ($i/30)..."
-                sleep 2
-              done
-
-              if [ -z "${KEYCLOAK_PASS:-}" ]; then
-                echo "WARNING: Could not get Keycloak password, tests may fail"
-                KEYCLOAK_PASS="admin"
-              fi
+              echo "Keycloak password: (set from previous step)"
 
               echo "Cloning tackle2-ui repository..."
               cd /tmp

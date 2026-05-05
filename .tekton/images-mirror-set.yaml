@@ -1,8 +1,0 @@
-# ImageDigestMirrorSet for operator deployment
-# Empty mirror set - no image mirroring required for this deployment
-apiVersion: config.openshift.io/v1
-kind: ImageDigestMirrorSet
-metadata:
-  name: mta-operator-mirrors
-spec:
-  imageDigestMirrors: []
