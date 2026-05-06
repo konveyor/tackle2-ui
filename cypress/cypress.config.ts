@@ -68,6 +68,7 @@ export default defineConfig({
 
   e2e: {
     baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:9000",
+    chromeWebSecurity: false,
     specPattern: [
       "e2e/tests/login.test.ts",
       "e2e/tests/**/*.test.{js,jsx,ts,tsx}",

@@ -408,6 +408,10 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
+              echo "========================================="
+              echo "Starting E2E Test Execution"
+              echo "========================================="
+
               echo "Reading MTA UI route and Keycloak password from previous step results..."
               UI_ROUTE=$(cat /tekton/results/uiRoute)
               KEYCLOAK_PASS=$(cat /tekton/results/keycloakPassword)
@@ -416,20 +420,45 @@ spec:
               echo "MTA UI: $BASE_URL"
               echo "Keycloak password: ✅ Retrieved"
 
+              echo ""
+              echo "Testing connectivity to MTA UI..."
+              if curl -k -s -o /dev/null -w "%{http_code}" "$BASE_URL" | grep -q "200\|302\|401"; then
+                echo "✅ MTA UI is reachable (HTTP status check passed)"
+              else
+                echo "⚠️  Warning: MTA UI returned unexpected status code"
+                echo "Response headers:"
+                curl -k -I "$BASE_URL" || true
+              fi
+
+              echo ""
               echo "Cloning tackle2-ui repository..."
               cd /tmp
-              git clone --depth 1 https://github.com/konveyor/tackle2-ui.git
+              git clone --depth 1 --branch ui_test_konflux_integration https://github.com/sshveta/tackle2-ui.git
               cd tackle2-ui
 
+              echo ""
               echo "Installing dependencies..."
               npm clean-install --ignore-scripts --no-audit
               npx cypress install
 
+              echo ""
               echo "Building test spec for @ci tests..."
               cd cypress
               TEST_SPEC=$(node scripts/findTierFiles.mjs @ci)
               echo "Test spec: $TEST_SPEC"
 
+              echo ""
+              echo "========================================="
+              echo "Cypress Configuration:"
+              echo "========================================="
+              echo "BASE_URL: $BASE_URL"
+              echo "USER: admin"
+              echo "INCLUDE_TAGS: @ci"
+              echo "EXCLUDE_TAGS: cf,downstream"
+              echo "chromeWebSecurity: false (allows self-signed certs)"
+              echo "========================================="
+
+              echo ""
               echo "Running Cypress E2E tests with @ci tag..."
               export CYPRESS_BASE_URL="$BASE_URL"
               export CYPRESS_USER="admin"
@@ -437,14 +466,40 @@ spec:
               export CYPRESS_KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_PASS"
               export CYPRESS_INCLUDE_TAGS="@ci"
               export CYPRESS_EXCLUDE_TAGS="cf,downstream"
+              export DEBUG="cypress:*"
 
+              # Run tests and capture exit code
+              EXIT_CODE=0
               npx cypress run \
                 --spec "$TEST_SPEC" \
                 --config-file cypress.config.ts \
                 --reporter junit \
-                --reporter-options "mochaFile=run/results-[hash].xml"
+                --reporter-options "mochaFile=run/results-[hash].xml" || EXIT_CODE=$?
 
-              echo "✅ E2E tests completed"
+              echo ""
+              echo "========================================="
+              if [ $EXIT_CODE -eq 0 ]; then
+                echo "✅ E2E tests PASSED"
+              else
+                echo "❌ E2E tests FAILED (exit code: $EXIT_CODE)"
+                echo ""
+                echo "Test artifacts location:"
+                echo "  Screenshots: /tmp/tackle2-ui/cypress/run/screenshots/"
+                echo "  Reports: /tmp/tackle2-ui/cypress/run/report/"
+
+                echo ""
+                echo "Listing test artifacts..."
+                ls -lah /tmp/tackle2-ui/cypress/run/screenshots/ 2>&1 || echo "No screenshots found"
+
+                echo ""
+                echo "Checking for test failure details..."
+                if [ -d "/tmp/tackle2-ui/cypress/run/report" ]; then
+                  find /tmp/tackle2-ui/cypress/run/report -type f -name "*.json" -exec cat {} \; 2>&1 || true
+                fi
+              fi
+              echo "========================================="
+
+              exit $EXIT_CODE
 
   finally:
     - name: capture-logs
@@ -529,6 +584,19 @@ spec:
               echo "" | tee -a $DIAG_FILE
               echo "=== Operator Logs (last 50 lines) ===" | tee -a $DIAG_FILE
               oc logs -n $NAMESPACE deployment/mta-operator --tail=50 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== MTA UI Logs (last 50 lines) ===" | tee -a $DIAG_FILE
+              oc logs -n $NAMESPACE deployment/mta-ui --tail=50 2>&1 | tee -a $DIAG_FILE || echo "Could not get UI logs" | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Keycloak Logs (last 30 lines) ===" | tee -a $DIAG_FILE
+              KEYCLOAK_POD=$(oc get pod -n $NAMESPACE -l app=mta-keycloak -o name 2>/dev/null | head -1)
+              if [ -n "$KEYCLOAK_POD" ]; then
+                oc logs -n $NAMESPACE $KEYCLOAK_POD --tail=30 2>&1 | tee -a $DIAG_FILE
+              else
+                echo "Keycloak pod not found" | tee -a $DIAG_FILE
+              fi
 
               # Save summary to result
               echo "Diagnostics captured at $(date -u)" > $(results.diagnostics.path)
