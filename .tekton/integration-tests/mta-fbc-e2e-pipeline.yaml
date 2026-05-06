@@ -400,10 +400,6 @@ spec:
           - name: run-e2e-tests
             image: cypress/included:15.7.0
             env:
-              - name: UI_ROUTE
-                value: $(steps.install-operator.results.uiRoute)
-              - name: KEYCLOAK_PASS
-                value: $(steps.install-operator.results.keycloakPassword)
               - name: CYPRESS_CACHE_FOLDER
                 value: /tmp/.cache/Cypress
               - name: npm_config_cache
@@ -412,9 +408,13 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
+              echo "Reading MTA UI route and Keycloak password from previous step results..."
+              UI_ROUTE=$(cat /tekton/results/uiRoute)
+              KEYCLOAK_PASS=$(cat /tekton/results/keycloakPassword)
+
               BASE_URL="https://${UI_ROUTE}"
               echo "MTA UI: $BASE_URL"
-              echo "Keycloak password: (set from previous step)"
+              echo "Keycloak password: ✅ Retrieved"
 
               echo "Cloning tackle2-ui repository..."
               cd /tmp
