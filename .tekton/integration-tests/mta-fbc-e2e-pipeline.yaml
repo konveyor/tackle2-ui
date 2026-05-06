@@ -1,0 +1,581 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: mta-fbc-e2e-pipeline
+spec:
+  description: |
+    Deploy MTA operator from FBC catalog to ephemeral Hypershift cluster and run E2E tests.
+    Uses imageContentSources to configure registry mirroring.
+
+  params:
+    - name: SNAPSHOT
+      description: Application Snapshot JSON
+      type: string
+
+  results:
+    - name: CLUSTER_NAME
+      description: Name of the provisioned cluster
+      value: $(tasks.provision-cluster.results.clusterName)
+    - name: TEST_OUTPUT
+      description: Test execution result
+      value: $(tasks.deploy-operator.results.deploymentStatus)
+
+  tasks:
+    - name: parse-metadata
+      params:
+        - name: SNAPSHOT
+          value: $(params.SNAPSHOT)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/integration-examples
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: tasks/test_metadata.yaml
+
+    - name: provision-eaas-space
+      runAfter:
+        - parse-metadata
+      params:
+        - name: ownerName
+          value: $(context.pipelineRun.name)
+        - name: ownerUid
+          value: $(context.pipelineRun.uid)
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/konflux-ci/build-definitions.git
+          - name: revision
+            value: main
+          - name: pathInRepo
+            value: task/eaas-provision-space/0.1/eaas-provision-space.yaml
+
+    - name: provision-cluster
+      runAfter:
+        - provision-eaas-space
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+        results:
+          - name: clusterName
+        steps:
+          - name: create-cluster
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-create-ephemeral-cluster-hypershift-aws/0.1/eaas-create-ephemeral-cluster-hypershift-aws.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: version
+                value: "4.17.0"
+              - name: instanceType
+                value: "m5.xlarge"
+              - name: imageContentSources
+                value: |
+                  - source: registry.redhat.io
+                    mirrors:
+                    - registry.stage.redhat.io
+          - name: capture-result
+            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            env:
+              - name: CLUSTER_NAME
+                value: $(steps.create-cluster.results.clusterName)
+            script: |
+              #!/bin/bash
+              echo -n "${CLUSTER_NAME}" > $(results.clusterName.path)
+
+    - name: deploy-operator
+      runAfter:
+        - provision-cluster
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: $(tasks.provision-cluster.results.clusterName)
+        - name: fbcImage
+          value: $(tasks.parse-metadata.results.component-container-image)
+        - name: packageName
+          value: "mta-operator"
+        - name: channelName
+          value: "stable-v8.1"
+        - name: operatorNamespace
+          value: "openshift-mta"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+          - name: clusterName
+          - name: fbcImage
+          - name: packageName
+          - name: channelName
+          - name: operatorNamespace
+        results:
+          - name: deploymentStatus
+            description: Deployment status
+          - name: csvName
+            description: Installed ClusterServiceVersion name
+          - name: uiRoute
+            description: MTA UI route hostname
+          - name: keycloakPassword
+            description: Keycloak admin password
+        volumes:
+          - name: credentials
+            emptyDir: {}
+          - name: registry-pull-secrets
+            secret:
+              secretName: registry-pull-secrets
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+
+          - name: add-pull-secrets
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+              - name: registry-pull-secrets
+                mountPath: /registry-secrets
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+              - name: OPERATOR_NAMESPACE
+                value: $(params.operatorNamespace)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              if [ ! -f /registry-secrets/.dockerconfigjson ]; then
+                echo "[ERROR] Registry secret not found"
+                exit 1
+              fi
+
+              oc create secret generic registry-pull-secret \
+                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
+                --type=kubernetes.io/dockerconfigjson \
+                -n openshift-marketplace \
+                --dry-run=client -o yaml | oc apply -f -
+
+              oc patch serviceaccount default -n openshift-marketplace \
+                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
+
+              oc create namespace $OPERATOR_NAMESPACE --dry-run=client -o yaml | oc apply -f -
+
+              oc create secret generic registry-pull-secret \
+                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
+                --type=kubernetes.io/dockerconfigjson \
+                -n $OPERATOR_NAMESPACE \
+                --dry-run=client -o yaml | oc apply -f -
+
+              oc patch serviceaccount default -n $OPERATOR_NAMESPACE \
+                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
+
+          - name: install-operator
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              FBC_IMAGE="$(params.fbcImage)"
+              PACKAGE_NAME="$(params.packageName)"
+              CHANNEL_NAME="$(params.channelName)"
+              NAMESPACE="$(params.operatorNamespace)"
+              CLUSTER_NAME="$(params.clusterName)"
+
+              CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
+              PASSWORD_FILE="/credentials/${CLUSTER_NAME}-password"
+              if [ -f "$PASSWORD_FILE" ]; then
+                CLUSTER_PASSWORD=$(cat "$PASSWORD_FILE")
+              else
+                CLUSTER_PASSWORD="Not found"
+              fi
+
+              echo "========================================="
+              echo "CLUSTER: $CLUSTER_NAME"
+              echo "CONSOLE: $CONSOLE_URL"
+              echo "PASSWORD: $CLUSTER_PASSWORD"
+              echo "========================================="
+
+              oc create namespace "$NAMESPACE" --dry-run=client -o yaml | oc apply -f -
+
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: CatalogSource
+              metadata:
+                name: mta-konflux-catalog
+                namespace: openshift-marketplace
+              spec:
+                sourceType: grpc
+                image: $FBC_IMAGE
+                displayName: MTA Konflux Catalog
+                publisher: Red Hat
+                grpcPodConfig:
+                  securityContextConfig: restricted
+                  extractContent:
+                    catalogDir: /configs
+                    cacheDir: /tmp/cache
+                updateStrategy:
+                  registryPoll:
+                    interval: 10m
+              EOF
+
+              for i in {1..60}; do
+                STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
+                if [ "$STATE" = "READY" ]; then
+                  echo "✅ CatalogSource READY"
+                  break
+                fi
+                if [ $i -eq 60 ]; then
+                  echo "FAILED" > $(results.deploymentStatus.path)
+                  exit 1
+                fi
+                sleep 5
+              done
+
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1
+              kind: OperatorGroup
+              metadata:
+                name: mta-operator-group
+                namespace: $NAMESPACE
+              spec:
+                targetNamespaces:
+                  - $NAMESPACE
+              EOF
+
+              cat <<EOF | oc apply -f -
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: Subscription
+              metadata:
+                name: mta-operator
+                namespace: $NAMESPACE
+              spec:
+                channel: $CHANNEL_NAME
+                installPlanApproval: Automatic
+                name: $PACKAGE_NAME
+                source: mta-konflux-catalog
+                sourceNamespace: openshift-marketplace
+              EOF
+
+              for i in {1..360}; do
+                CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
+                if [ -n "$CSV" ]; then
+                  PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
+                  if [ "$PHASE" = "Succeeded" ]; then
+                    echo "✅ Operator installed: $CSV"
+                    echo "$CSV" > $(results.csvName.path)
+                    break
+                  fi
+                fi
+                if [ $((i % 12)) -eq 0 ]; then
+                  echo "Waiting for CSV... ($i/360)"
+                fi
+                sleep 5
+              done
+
+              if [ -z "$CSV" ] || [ "$PHASE" != "Succeeded" ]; then
+                echo "FAILED" > $(results.deploymentStatus.path)
+                exit 1
+              fi
+
+              oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
+
+              echo "Checking cluster proxy configuration for trustedCA workaround..."
+              if ! oc get proxy cluster -o jsonpath='{.spec.trustedCA}' 2>/dev/null | grep -q .; then
+                echo "⚠️  Proxy missing trustedCA field - applying workaround for operator bug"
+                oc patch proxy cluster --type=merge -p '{"spec":{"trustedCA":{"name":""}}}'
+                echo "✅ Proxy patched with empty trustedCA"
+              else
+                echo "✅ Proxy already has trustedCA configured"
+              fi
+
+              cat <<EOF | oc apply -f -
+              apiVersion: tackle.konveyor.io/v1alpha1
+              kind: Tackle
+              metadata:
+                name: mta
+                namespace: $NAMESPACE
+              spec:
+                provider_c_sharp_container_requests_memory: 512Mi
+                provider_c_sharp_container_limits_memory: 512Mi
+                provider_c_sharp_container_requests_cpu: 500m
+                provider_c_sharp_container_limits_cpu: 500m
+                language_discovery_container_limits_cpu: 500m
+                language_discovery_container_requests_cpu: 500m
+                language_discovery_container_limits_memory: 512Mi
+                language_discovery_container_requests_memory: 512Mi
+                analyzer_container_limits_cpu: 500m
+                analyzer_container_requests_cpu: 500m
+                analyzer_container_limits_memory: 512Mi
+                analyzer_container_requests_memory: 512Mi
+                provider_generic_container_limits_cpu: 500m
+                provider_generic_container_requests_cpu: 500m
+                provider_generic_container_limits_memory: 512Mi
+                provider_generic_container_requests_memory: 512Mi
+                provider_nodejs_container_limits_cpu: 500m
+                provider_nodejs_container_requests_cpu: 500m
+                provider_nodejs_container_limits_memory: 512Mi
+                provider_nodejs_container_requests_memory: 512Mi
+                hub_bucket_volume_size: "25Gi"
+                cache_data_volume_size: "25Gi"
+              EOF
+
+              echo "Waiting for MTA UI deployment to be created..."
+              for i in {1..120}; do
+                if oc get deployment mta-ui -n "$NAMESPACE" &>/dev/null; then
+                  echo "✅ MTA UI deployment exists"
+                  break
+                fi
+                if [ $i -eq 120 ]; then
+                  echo "ERROR: MTA UI deployment not created after 10 minutes"
+                  echo "FAILED" > $(results.deploymentStatus.path)
+                  exit 1
+                fi
+                sleep 5
+              done
+
+              echo "Waiting for MTA UI pods to be ready..."
+              oc wait --for=condition=ready --timeout=900s pods -l app.kubernetes.io/name=mta-ui -n "$NAMESPACE"
+
+              UI_ROUTE=$(oc get route mta -n "$NAMESPACE" -o jsonpath='{.spec.host}' 2>/dev/null || echo "")
+              if [ -z "$UI_ROUTE" ]; then
+                echo "ERROR: Could not get MTA route"
+                echo "FAILED" > $(results.deploymentStatus.path)
+                exit 1
+              fi
+
+              echo "✅ MTA UI: https://$UI_ROUTE"
+              echo -n "$UI_ROUTE" > $(results.uiRoute.path)
+
+              echo "Getting Keycloak admin password..."
+              KEYCLOAK_SECRET="mta-keycloak-rhbk"
+              for i in {1..60}; do
+                if oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" &>/dev/null; then
+                  KEYCLOAK_PASS=$(oc get secret "$KEYCLOAK_SECRET" -n "$NAMESPACE" -o jsonpath='{.data.password}' | base64 -d)
+                  echo "✅ Keycloak password retrieved"
+                  echo -n "$KEYCLOAK_PASS" > $(results.keycloakPassword.path)
+                  break
+                fi
+                if [ $i -eq 60 ]; then
+                  echo "WARNING: Could not get Keycloak password after 5 minutes, using default"
+                  echo -n "admin" > $(results.keycloakPassword.path)
+                  break
+                fi
+                sleep 5
+              done
+
+              echo "SUCCESS" > $(results.deploymentStatus.path)
+
+          - name: run-e2e-tests
+            image: cypress/included:15.7.0
+            env:
+              - name: CYPRESS_CACHE_FOLDER
+                value: /tmp/.cache/Cypress
+              - name: npm_config_cache
+                value: /tmp/.cache/npm
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              echo "Reading MTA UI route and Keycloak password from previous step results..."
+              UI_ROUTE=$(cat /tekton/results/uiRoute)
+              KEYCLOAK_PASS=$(cat /tekton/results/keycloakPassword)
+
+              BASE_URL="https://${UI_ROUTE}"
+              echo "MTA UI: $BASE_URL"
+              echo "Keycloak password: ✅ Retrieved"
+
+              echo "Cloning tackle2-ui repository..."
+              cd /tmp
+              git clone --depth 1 https://github.com/konveyor/tackle2-ui.git
+              cd tackle2-ui
+
+              echo "Installing dependencies..."
+              npm clean-install --ignore-scripts --no-audit
+              npx cypress install
+
+              echo "Building test spec for @ci tests..."
+              cd cypress
+              TEST_SPEC=$(node scripts/findTierFiles.mjs @ci)
+              echo "Test spec: $TEST_SPEC"
+
+              echo "Running Cypress E2E tests with @ci tag..."
+              export CYPRESS_BASE_URL="$BASE_URL"
+              export CYPRESS_USER="admin"
+              export CYPRESS_PASSWORD="Dog8code"
+              export CYPRESS_KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_PASS"
+              export CYPRESS_INCLUDE_TAGS="@ci"
+              export CYPRESS_EXCLUDE_TAGS="cf,downstream"
+
+              npx cypress run \
+                --spec "$TEST_SPEC" \
+                --config-file cypress.config.ts \
+                --reporter junit \
+                --reporter-options "mochaFile=run/results-[hash].xml"
+
+              echo "✅ E2E tests completed"
+
+  finally:
+    - name: capture-logs
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: $(tasks.provision-cluster.results.clusterName)
+        - name: operatorNamespace
+          value: "openshift-mta"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+          - name: clusterName
+          - name: operatorNamespace
+        results:
+          - name: diagnostics
+            description: Diagnostic information
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+
+          - name: collect-diagnostics
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set +e  # Don't exit on error
+
+              NAMESPACE="$(params.operatorNamespace)"
+              DIAG_FILE="/tmp/diagnostics.txt"
+
+              echo "=========================================" | tee -a $DIAG_FILE
+              echo "DIAGNOSTIC INFORMATION" | tee -a $DIAG_FILE
+              echo "Cluster: $(params.clusterName)" | tee -a $DIAG_FILE
+              echo "Timestamp: $(date -u)" | tee -a $DIAG_FILE
+              echo "=========================================" | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== MTA Pods Status ===" | tee -a $DIAG_FILE
+              oc get pods -n $NAMESPACE 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Tackle CR Status ===" | tee -a $DIAG_FILE
+              oc get tackle -n $NAMESPACE -o yaml 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== CSV Status ===" | tee -a $DIAG_FILE
+              oc get csv -n $NAMESPACE 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== CatalogSource Status ===" | tee -a $DIAG_FILE
+              oc get catalogsource -n openshift-marketplace | grep mta 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Recent Events ===" | tee -a $DIAG_FILE
+              oc get events -n $NAMESPACE --sort-by='.lastTimestamp' | tail -20 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Operator Logs (last 50 lines) ===" | tee -a $DIAG_FILE
+              oc logs -n $NAMESPACE deployment/mta-operator --tail=50 2>&1 | tee -a $DIAG_FILE
+
+              # Save summary to result
+              echo "Diagnostics captured at $(date -u)" > $(results.diagnostics.path)
+
+              # Display full diagnostics
+              cat $DIAG_FILE
+
+              echo ""
+              echo "========================================="
+              echo "✅ Diagnostics captured successfully"
+              echo "========================================="
+
+          - name: save-to-konflux
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              CLUSTER_NAME="$(params.clusterName)"
+              TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+              CM_NAME="mta-fbc-e2e-logs-${TIMESTAMP}"
+
+              # Read diagnostics from previous step
+              if [ -f /tmp/diagnostics.txt ]; then
+                DIAG_CONTENT=$(cat /tmp/diagnostics.txt | base64 -w 0)
+              else
+                DIAG_CONTENT=$(echo "No diagnostics file found" | base64 -w 0)
+              fi
+
+              # Create ConfigMap in Konflux cluster (art-mta-tenant namespace)
+              cat <<EOFCM | oc apply -f -
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: ${CM_NAME}
+                namespace: art-mta-tenant
+                labels:
+                  app: mta-fbc-e2e
+                  cluster: ${CLUSTER_NAME}
+                annotations:
+                  description: "E2E test diagnostics for cluster ${CLUSTER_NAME}"
+              data:
+                cluster: "${CLUSTER_NAME}"
+                timestamp: "${TIMESTAMP}"
+                diagnostics-base64: "${DIAG_CONTENT}"
+              EOFCM
+
+              echo "✅ Logs saved to ConfigMap: ${CM_NAME} in art-mta-tenant namespace"
+              echo "View with: oc get configmap ${CM_NAME} -n art-mta-tenant -o yaml"
+              echo "Decode logs: oc get configmap ${CM_NAME} -n art-mta-tenant -o jsonpath='{.data.diagnostics-base64}' | base64 -d"
