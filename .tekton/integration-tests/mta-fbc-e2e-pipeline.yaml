@@ -397,7 +397,20 @@ spec:
 
               echo "SUCCESS" > $(results.deploymentStatus.path)
 
-          - name: run-e2e-tests
+    - name: run-e2e-tests
+      runAfter:
+        - deploy-operator
+      params:
+        - name: uiRoute
+          value: $(tasks.deploy-operator.results.uiRoute)
+        - name: keycloakPassword
+          value: $(tasks.deploy-operator.results.keycloakPassword)
+      taskSpec:
+        params:
+          - name: uiRoute
+          - name: keycloakPassword
+        steps:
+          - name: run-tests
             image: cypress/included:15.7.0
             env:
               - name: CYPRESS_CACHE_FOLDER
@@ -408,8 +421,8 @@ spec:
               #!/bin/bash
               set -euo pipefail
 
-              UI_ROUTE=$(cat /tekton/results/uiRoute)
-              KEYCLOAK_PASS=$(cat /tekton/results/keycloakPassword)
+              UI_ROUTE="$(params.uiRoute)"
+              KEYCLOAK_PASS="$(params.keycloakPassword)"
               BASE_URL="https://${UI_ROUTE}"
 
               echo "MTA UI: $BASE_URL"
