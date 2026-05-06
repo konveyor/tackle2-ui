@@ -445,3 +445,137 @@ spec:
                 --reporter-options "mochaFile=run/results-[hash].xml"
 
               echo "✅ E2E tests completed"
+
+  finally:
+    - name: capture-logs
+      params:
+        - name: eaasSpaceSecretRef
+          value: $(tasks.provision-eaas-space.results.secretRef)
+        - name: clusterName
+          value: $(tasks.provision-cluster.results.clusterName)
+        - name: operatorNamespace
+          value: "openshift-mta"
+      taskSpec:
+        params:
+          - name: eaasSpaceSecretRef
+          - name: clusterName
+          - name: operatorNamespace
+        results:
+          - name: diagnostics
+            description: Diagnostic information
+        volumes:
+          - name: credentials
+            emptyDir: {}
+        steps:
+          - name: get-kubeconfig
+            ref:
+              resolver: git
+              params:
+                - name: url
+                  value: https://github.com/konflux-ci/build-definitions.git
+                - name: revision
+                  value: main
+                - name: pathInRepo
+                  value: stepactions/eaas-get-ephemeral-cluster-credentials/0.1/eaas-get-ephemeral-cluster-credentials.yaml
+            params:
+              - name: eaasSpaceSecretRef
+                value: $(params.eaasSpaceSecretRef)
+              - name: clusterName
+                value: $(params.clusterName)
+              - name: credentials
+                value: credentials
+
+          - name: collect-diagnostics
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            volumeMounts:
+              - name: credentials
+                mountPath: /credentials
+            env:
+              - name: KUBECONFIG
+                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
+            script: |
+              #!/bin/bash
+              set +e  # Don't exit on error
+
+              NAMESPACE="$(params.operatorNamespace)"
+              DIAG_FILE="/tmp/diagnostics.txt"
+
+              echo "=========================================" | tee -a $DIAG_FILE
+              echo "DIAGNOSTIC INFORMATION" | tee -a $DIAG_FILE
+              echo "Cluster: $(params.clusterName)" | tee -a $DIAG_FILE
+              echo "Timestamp: $(date -u)" | tee -a $DIAG_FILE
+              echo "=========================================" | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== MTA Pods Status ===" | tee -a $DIAG_FILE
+              oc get pods -n $NAMESPACE 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Tackle CR Status ===" | tee -a $DIAG_FILE
+              oc get tackle -n $NAMESPACE -o yaml 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== CSV Status ===" | tee -a $DIAG_FILE
+              oc get csv -n $NAMESPACE 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== CatalogSource Status ===" | tee -a $DIAG_FILE
+              oc get catalogsource -n openshift-marketplace | grep mta 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Recent Events ===" | tee -a $DIAG_FILE
+              oc get events -n $NAMESPACE --sort-by='.lastTimestamp' | tail -20 2>&1 | tee -a $DIAG_FILE
+
+              echo "" | tee -a $DIAG_FILE
+              echo "=== Operator Logs (last 50 lines) ===" | tee -a $DIAG_FILE
+              oc logs -n $NAMESPACE deployment/mta-operator --tail=50 2>&1 | tee -a $DIAG_FILE
+
+              # Save summary to result
+              echo "Diagnostics captured at $(date -u)" > $(results.diagnostics.path)
+
+              # Display full diagnostics
+              cat $DIAG_FILE
+
+              echo ""
+              echo "========================================="
+              echo "✅ Diagnostics captured successfully"
+              echo "========================================="
+
+          - name: save-to-konflux
+            image: registry.redhat.io/openshift4/ose-cli:latest
+            script: |
+              #!/bin/bash
+              set -euo pipefail
+
+              CLUSTER_NAME="$(params.clusterName)"
+              TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+              CM_NAME="mta-fbc-e2e-logs-${TIMESTAMP}"
+
+              # Read diagnostics from previous step
+              if [ -f /tmp/diagnostics.txt ]; then
+                DIAG_CONTENT=$(cat /tmp/diagnostics.txt | base64 -w 0)
+              else
+                DIAG_CONTENT=$(echo "No diagnostics file found" | base64 -w 0)
+              fi
+
+              # Create ConfigMap in Konflux cluster (art-mta-tenant namespace)
+              cat <<EOFCM | oc apply -f -
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: ${CM_NAME}
+                namespace: art-mta-tenant
+                labels:
+                  app: mta-fbc-e2e
+                  cluster: ${CLUSTER_NAME}
+                annotations:
+                  description: "E2E test diagnostics for cluster ${CLUSTER_NAME}"
+              data:
+                cluster: "${CLUSTER_NAME}"
+                timestamp: "${TIMESTAMP}"
+                diagnostics-base64: "${DIAG_CONTENT}"
+              EOFCM
+
+              echo "✅ Logs saved to ConfigMap: ${CM_NAME} in art-mta-tenant namespace"
+              echo "View with: oc get configmap ${CM_NAME} -n art-mta-tenant -o yaml"
+              echo "Decode logs: oc get configmap ${CM_NAME} -n art-mta-tenant -o jsonpath='{.data.diagnostics-base64}' | base64 -d"
