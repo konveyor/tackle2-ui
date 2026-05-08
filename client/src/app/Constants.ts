@@ -83,7 +83,7 @@ type RiskListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -138,7 +138,7 @@ type ProposedActionListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -177,7 +177,7 @@ export const PROPOSED_ACTION_LIST: ProposedActionListType = {
   },
   retire: {
     i18Key: "proposedActions.retire",
-    labelColor: "cyan",
+    labelColor: "teal",
     hexColor: cyan.value,
   },
   retain: {

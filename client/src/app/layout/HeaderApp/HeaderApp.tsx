@@ -125,8 +125,8 @@ export const HeaderApp: React.FC = () => {
             aria-label="Global navigation"
           />
         </MastheadToggle>
-        <MastheadBrand data-codemods>
-          <MastheadLogo data-codemods>
+        <MastheadBrand>
+          <MastheadLogo>
             {leftBrand ? (
               <Brand
                 src={leftBrand.src}

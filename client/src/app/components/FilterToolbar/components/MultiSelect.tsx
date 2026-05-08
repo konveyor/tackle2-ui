@@ -248,7 +248,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
           {hasChips && (
             <LabelGroup
               aria-label="Current selections"
-              ouiaId={`${toggleId}-chip-group`}
+              data-ouia-component-id={`${toggleId}-chip-group`}
             >
               {values?.map((value) => (
                 <Label
