@@ -11,8 +11,8 @@ import {
   PanelMainBody,
   Popover,
   Radio,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 
@@ -77,15 +77,15 @@ export const AdvancedOptions: React.FC<{
 
   return (
     <>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("generateAssetsWizard.advancedOptions.title")}
-        </Text>
+        </Content>
 
-        <Text component="p">
+        <Content component="p">
           {t("generateAssetsWizard.advancedOptions.description")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Panel>
         <PanelMain>

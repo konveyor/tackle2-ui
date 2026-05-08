@@ -10,8 +10,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -160,9 +160,9 @@ export const JiraTrackers: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.jiraConfig")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.jiraConfig")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

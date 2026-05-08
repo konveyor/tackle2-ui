@@ -12,8 +12,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -165,12 +165,14 @@ export const AnalysisProfiles: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("titles.analysisProfiles")}</Text>
-        </TextContent>
-        <TextContent>
-          <Text>{t("terms.analysisProfilesDescription")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("titles.analysisProfiles")}</Content>
+        </Content>
+        <Content>
+          <Content component="p">
+            {t("terms.analysisProfilesDescription")}
+          </Content>
+        </Content>
       </PageSection>
 
       <PageSection>

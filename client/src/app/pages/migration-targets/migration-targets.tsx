@@ -23,8 +23,8 @@ import {
   Gallery,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -246,12 +246,12 @@ export const MigrationTargets: FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.customTargets")}</Text>
-        </TextContent>
-        <TextContent>
-          <Text>{t("terms.customTargetsDetails")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.customTargets")}</Content>
+        </Content>
+        <Content>
+          <Content component="p">{t("terms.customTargetsDetails")}</Content>
+        </Content>
       </PageSection>
 
       <PageSection>

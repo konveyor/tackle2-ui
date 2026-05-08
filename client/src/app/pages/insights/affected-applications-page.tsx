@@ -6,8 +6,8 @@ import {
   BreadcrumbItem,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -128,9 +128,9 @@ export const AffectedApplicationsPage: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.affectedApplications")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.affectedApplications")}</Content>
+        </Content>
         <Breadcrumb>
           <BreadcrumbItem>
             <Link

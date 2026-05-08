@@ -9,8 +9,8 @@ import {
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import { Application } from "@app/api/models";
@@ -46,9 +46,11 @@ export const ApplicationDependenciesForm: React.FC<
 
   return (
     <Form>
-      <TextContent>
-        <Text component="p">{t("message.manageDependenciesInstructions")}</Text>
-      </TextContent>
+      <Content>
+        <Content component="p">
+          {t("message.manageDependenciesInstructions")}
+        </Content>
+      </Content>
 
       <FormGroup
         label={t("composed.add", {

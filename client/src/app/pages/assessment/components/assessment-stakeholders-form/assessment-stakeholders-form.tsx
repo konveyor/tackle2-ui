@@ -6,8 +6,8 @@ import {
   FormSection,
   Grid,
   GridItem,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import { GroupedStakeholderRef, Ref, StakeholderType } from "@app/api/models";
@@ -31,14 +31,16 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   return (
     <div className="pf-v5-c-form">
       <FormSection>
-        <TextContent>
-          <Text component="h1">
+        <Content>
+          <Content component="h1">
             {t("composed.selectMany", {
               what: t("terms.stakeholders").toLowerCase(),
             })}
-          </Text>
-          <Text component="p">{t("message.assessmentStakeholderHeader")}</Text>
-        </TextContent>
+          </Content>
+          <Content component="p">
+            {t("message.assessmentStakeholderHeader")}
+          </Content>
+        </Content>
       </FormSection>
 
       <Grid className="pf-v5-c-form__section">

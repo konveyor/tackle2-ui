@@ -5,8 +5,8 @@ import {
   BreadcrumbItem,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import { AssessmentActionsRoute, Paths } from "@app/Paths";
@@ -28,9 +28,9 @@ const AssessmentActions: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">Assessment Actions</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">Assessment Actions</Content>
+        </Content>
         <Breadcrumb>
           {isArchetype ? (
             <BreadcrumbItem>
@@ -49,19 +49,19 @@ const AssessmentActions: React.FC = () => {
       <PageSection>
         {isArchetype ? (
           <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
-            <TextContent>
+            <Content>
               {archetype ? (
                 <AssessmentActionsTable archetype={archetype} />
               ) : null}
-            </TextContent>
+            </Content>
           </ConditionalRender>
         ) : (
           <ConditionalRender when={!application} then={<AppPlaceholder />}>
-            <TextContent>
+            <Content>
               {application ? (
                 <AssessmentActionsTable application={application} />
               ) : null}
-            </TextContent>
+            </Content>
           </ConditionalRender>
         )}
       </PageSection>

@@ -4,7 +4,7 @@ import {
   FlexItem,
   Label,
   LabelGroup,
-  Text,
+  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";
@@ -22,12 +22,12 @@ export const ExpandedFieldHeading: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   return (
-    <Text
+    <Content
       component="h4"
       className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightBold}`}
     >
       {children}
-    </Text>
+    </Content>
   );
 };
 

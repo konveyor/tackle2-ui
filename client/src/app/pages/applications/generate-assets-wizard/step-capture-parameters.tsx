@@ -10,8 +10,8 @@ import {
   Panel,
   PanelMain,
   PanelMainBody,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";
@@ -141,18 +141,18 @@ export const CaptureParameters: React.FC<{
 
   return (
     <>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("generateAssetsWizard.captureParameters.title")}
-        </Text>
+        </Content>
 
         {targetProfile ? (
-          <Text component="p">
+          <Content component="p">
             {t("generateAssetsWizard.captureParameters.description", {
               count: generators.length,
               name: targetProfile?.name ?? "",
             })}
-          </Text>
+          </Content>
         ) : (
           <Alert
             variant={AlertVariant.danger}
@@ -161,7 +161,7 @@ export const CaptureParameters: React.FC<{
             )}
           />
         )}
-      </TextContent>
+      </Content>
 
       <Panel>
         <PanelMain>

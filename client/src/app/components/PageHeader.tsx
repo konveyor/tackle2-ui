@@ -4,8 +4,8 @@ import {
   SplitItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import { BreadCrumbPath } from "./BreadCrumbPath";
@@ -34,10 +34,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <StackItem>
         <Split>
           <SplitItem isFilled>
-            <TextContent>
-              <Text component="h1">{title}</Text>
+            <Content>
+              <Content component="h1">{title}</Content>
               {description}
-            </TextContent>
+            </Content>
           </SplitItem>
           {btnActions && <SplitItem>{btnActions}</SplitItem>}
         </Split>

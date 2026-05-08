@@ -10,8 +10,8 @@ import {
   SearchInput,
   Tab,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -121,9 +121,9 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{summaryType}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{summaryType}</Content>
+        </Content>
         {BreadcrumbPath}
       </PageSection>
       <PageSection>
@@ -203,12 +203,12 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                           hideAnswerKey={summaryType === SummaryType.Assessment}
                         />
                         {section?.comment && (
-                          <TextContent className={spacing.myMd}>
-                            <Text component="h4">Section comments</Text>
-                            <Text key={index} component="p">
+                          <Content className={spacing.myMd}>
+                            <Content component="h4">Section comments</Content>
+                            <Content key={index} component="p">
                               {section.comment}
-                            </Text>
-                          </TextContent>
+                            </Content>
+                          </Content>
                         )}
                       </Tab>
                     );

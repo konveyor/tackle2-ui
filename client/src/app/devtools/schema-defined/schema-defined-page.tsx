@@ -26,7 +26,7 @@ import {
   PageSectionVariants,
   Stack,
   StackItem,
-  TextContent,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import { EllipsisVIcon } from "@patternfly/react-icons";
@@ -190,9 +190,9 @@ export const SchemaDefinedPage: React.FC = () => {
       <PageSection>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
-            <TextContent>
+            <Content>
               <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
-            </TextContent>
+            </Content>
           </FlexItem>
           <FlexItem align={{ default: "alignRight" }}>
             <SchemaStatusAlert status={schemaStatus} />

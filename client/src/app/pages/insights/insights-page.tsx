@@ -8,8 +8,8 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -52,12 +52,12 @@ export const InsightsPage: React.FC = () => {
   return (
     <>
       <PageSection className={spacing.pb_0}>
-        <TextContent>
+        <Content>
           <Title headingLevel="h1">{t("terms.insights")}</Title>
-          <Text component="small">
+          <Content component="small">
             This report provides a concise summary of all insights identified.
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
         <Tabs
           className={spacing.mtSm}
           activeKey={activeTabPath}

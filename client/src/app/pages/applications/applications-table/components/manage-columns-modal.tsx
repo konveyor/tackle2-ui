@@ -10,9 +10,9 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  Content,
+  ContentVariants,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 
@@ -66,9 +66,9 @@ export const ManageColumnsModal = <TColumnKey extends string>({
       isOpen={true}
       variant="small"
       description={
-        <TextContent>
-          <Text component={TextVariants.p}>{description}</Text>
-        </TextContent>
+        <Content>
+          <Content component={ContentVariants.p}>{description}</Content>
+        </Content>
       }
       onClose={onClose}
       actions={[

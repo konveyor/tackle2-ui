@@ -5,8 +5,8 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -49,14 +49,14 @@ const ArchetypeDetailDrawer: React.FC<IArchetypeDetailDrawerProps> = ({
       onCloseClick={onCloseClick}
       pageKey="archetype-details"
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             {t("titles.archetypeDrawer")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {archetype ? archetype.name : "No archetype selected"}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       {archetype ? (

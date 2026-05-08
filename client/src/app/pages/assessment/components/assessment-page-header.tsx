@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { Button, ButtonVariant, Text } from "@patternfly/react-core";
+import { Button, ButtonVariant, Content } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
@@ -38,9 +38,9 @@ export const AssessmentPageHeader: React.FC<AssessmentPageHeaderProps> = ({
       <PageHeader
         title={t("composed.applicationAssessment")}
         description={
-          <Text component="p">
+          <Content component="p">
             {isArchetype ? archetype?.name : application?.name}
-          </Text>
+          </Content>
         }
         breadcrumbs={[
           {

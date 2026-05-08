@@ -16,8 +16,8 @@ import {
   OverflowMenu,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -275,9 +275,9 @@ export const MigrationWaves: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.migrationWaves")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.migrationWaves")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

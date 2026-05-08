@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { SpinnerProps, TextContent } from "@patternfly/react-core";
+import { SpinnerProps, Content } from "@patternfly/react-core";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -129,8 +129,8 @@ export const StatusIcon: React.FC<IStatusIconProps> = ({
   }
 
   return (
-    <TextContent>
+    <Content>
       {icon} {label}
-    </TextContent>
+    </Content>
   );
 };

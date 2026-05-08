@@ -10,7 +10,7 @@ import {
   DropdownItem,
   FormSelect,
   FormSelectOption,
-  TextContent,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -1643,7 +1643,7 @@ export const ApplicationsTable: FC = () => {
           </Button>,
         ]}
       >
-        <TextContent>{"Select format"}</TextContent>
+        <Content>{"Select format"}</Content>
         <FormSelect
           value={selectedFormat}
           onChange={onChange}

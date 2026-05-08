@@ -5,9 +5,9 @@ import {
   Bullseye,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  Content,
+  ContentVariants,
 } from "@patternfly/react-core";
 import { global_palette_black_300 as black } from "@patternfly/react-tokens";
 
@@ -61,15 +61,15 @@ export const Donut: React.FC<IDonutProps> = ({
         </Bullseye>
       </StackItem>
       <StackItem style={{ width: "100%" }}>
-        <TextContent className="pf-v5-u-text-align-center">
-          <Text component="h3">{riskLabel}</Text>
-          <Text
-            component={TextVariants.small}
+        <Content className="pf-v5-u-text-align-center">
+          <Content component="h3">{riskLabel}</Content>
+          <Content
+            component={ContentVariants.small}
             className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
           >
             {riskDescription}
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </StackItem>
     </Stack>
   );

@@ -9,8 +9,8 @@ import {
   FlexItem,
   Form,
   FormGroup,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -106,12 +106,12 @@ export const AnalysisLabels: React.FC<AnalysisLabelsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisSteps.labels.title")}
         </Title>
-        <Text>{t("analysisSteps.labels.description")}</Text>
-      </TextContent>
+        <Content component="p">{t("analysisSteps.labels.description")}</Content>
+      </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
       <FormGroup

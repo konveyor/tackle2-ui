@@ -11,8 +11,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -247,9 +247,9 @@ const Archetypes: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.archetypes")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.archetypes")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender
@@ -358,7 +358,9 @@ const Archetypes: React.FC = () => {
                           <LinkToArchetypeApplications archetype={archetype} />
                         </Td>
                         <Td {...getTdProps({ columnKey: "profiles" })}>
-                          <Text>{archetype.profiles?.length || 0}</Text>
+                          <Content component="p">
+                            {archetype.profiles?.length || 0}
+                          </Content>
                         </Td>
                         <Td
                           width={15}

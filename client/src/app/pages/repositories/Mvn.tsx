@@ -14,8 +14,8 @@ import {
   PageSectionVariants,
   Spinner,
   Switch,
-  Text,
-  TextContent,
+  Content,
+  Content,
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
@@ -76,9 +76,9 @@ export const RepositoriesMvn: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.mavenConfig")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.mavenConfig")}</Content>
+        </Content>
       </PageSection>
 
       <PageSection>
@@ -112,14 +112,14 @@ export const RepositoriesMvn: React.FC = () => {
                         onClick={() => setIsConfirmDialogOpen(true)}
                       >
                         {isFetching ? (
-                          <Text>
+                          <Content component="p">
                             Loading...
                             <Spinner
                               className={spacing.mlMd}
                               isInline
                               aria-label="Spinner of clear repository button"
                             />
-                          </Text>
+                          </Content>
                         ) : (
                           "Clear repository"
                         )}

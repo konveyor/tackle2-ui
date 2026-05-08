@@ -11,8 +11,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -194,9 +194,9 @@ export const SourcePlatforms: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.sourcePlatforms")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.sourcePlatforms")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

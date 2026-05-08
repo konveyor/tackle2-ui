@@ -10,7 +10,7 @@ import {
   Button,
   ButtonVariant,
   Form,
-  Text,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import { WarningTriangleIcon } from "@patternfly/react-icons";
@@ -292,11 +292,11 @@ export const ApplicationIdentityForm: React.FC<
       />
 
       {existingIdentitiesError && (
-        <Text>
+        <Content component="p">
           <WarningTriangleIcon className={spacing.mrSm} color="orange" />
           One or more of the selected applications have already been assigned
           credentials. Any changes made will override the existing values.
-        </Text>
+        </Content>
       )}
 
       <ActionGroup>

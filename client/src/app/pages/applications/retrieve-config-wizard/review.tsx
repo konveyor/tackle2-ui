@@ -12,9 +12,9 @@ import {
   PanelMainBody,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  Content,
+  ContentVariants,
 } from "@patternfly/react-core";
 
 import { FormValues } from "./retrieve-config-wizard";
@@ -26,18 +26,18 @@ export const Review: React.FC = () => {
 
   return (
     <>
-      <TextContent>
-        <Text component={TextVariants.h3}>
+      <Content>
+        <Content component={ContentVariants.h3}>
           {t("retrieveConfigWizard.review.selectedApplications", {
             count: ready.length,
           })}
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           {t("retrieveConfigWizard.review.description", {
             count: ready.length,
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Panel isScrollable>
         <PanelMain>
@@ -60,9 +60,9 @@ export const Review: React.FC = () => {
                               </strong>
                             </StackItem>
                             <StackItem>
-                              <Text component={TextVariants.small}>
+                              <Content component={ContentVariants.small}>
                                 {application.description}
-                              </Text>
+                              </Content>
                             </StackItem>
                           </Stack>
                         </DataListCell>,

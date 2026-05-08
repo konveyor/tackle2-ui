@@ -10,8 +10,8 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -187,12 +187,12 @@ export const CustomRules: React.FC<CustomRulesProps> = ({
 
   return (
     <>
-      <TextContent className={spacing.mbSm}>
+      <Content className={spacing.mbSm}>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.customRules")}
         </Title>
-        <Text> {t("wizard.label.customRules")}</Text>
-      </TextContent>
+        <Content component="p"> {t("wizard.label.customRules")}</Content>
+      </Content>
       {isCustomRuleRequiredAlertVisible && (
         <Alert
           variant="warning"

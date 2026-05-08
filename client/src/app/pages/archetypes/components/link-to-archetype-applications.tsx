@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Text } from "@patternfly/react-core";
+import { Content } from "@patternfly/react-core";
 
 import { Paths } from "@app/Paths";
 import type { Archetype } from "@app/api/models";
@@ -33,7 +33,7 @@ const LinkToArchetypeApplications: React.FC<{
   return !hasApplications && noApplicationsMessage ? (
     <>{noApplicationsMessage}</>
   ) : !hasApplications && !noApplicationsMessage ? (
-    <Text>{t("message.archetypeNoApplications")}</Text>
+    <Content component="p">{t("message.archetypeNoApplications")}</Content>
   ) : (
     <Link to={getApplicationsUrl(archetype?.name)}>
       {t("message.archetypeApplicationCount", {

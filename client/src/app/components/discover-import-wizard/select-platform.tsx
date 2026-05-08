@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Form, Text, TextContent } from "@patternfly/react-core";
+import { Form, Content, Content } from "@patternfly/react-core";
 
 import { SourcePlatform } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
@@ -29,14 +29,14 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
 
   return (
     <div>
-      <TextContent style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
-        <Text component="h3">
+      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+        <Content component="h3">
           {t("platformDiscoverWizard.platformSelect.title")}
-        </Text>
-        <Text component="p">
+        </Content>
+        <Content component="p">
           {t("platformDiscoverWizard.platformSelect.description")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Form id="platform-select-form">
         <TypeaheadSelect

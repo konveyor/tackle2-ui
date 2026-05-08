@@ -6,8 +6,8 @@ import {
   Form,
   Gallery,
   GalleryItem,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
   Toolbar,
   ToolbarContent,
@@ -262,12 +262,12 @@ export const SetTargets: FC<SetTargetsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.setTargets")}
         </Title>
-        <Text>{t("wizard.label.setTargets")}</Text>
-      </TextContent>
+        <Content component="p">{t("wizard.label.setTargets")}</Content>
+      </Content>
       <Toolbar
         {...toolbarProps}
         clearAllFilters={() => filterToolbarProps.setFilterValues({})}

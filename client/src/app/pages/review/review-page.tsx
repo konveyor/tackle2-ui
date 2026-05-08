@@ -10,8 +10,8 @@ import {
   Grid,
   GridItem,
   PageSection,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 
@@ -69,7 +69,7 @@ const ReviewPage: React.FC = () => {
           <PageHeader
             title={t("terms.review")}
             description={
-              <Text component="p">{t("message.reviewInstructions")}</Text>
+              <Content component="p">{t("message.reviewInstructions")}</Content>
             }
             breadcrumbs={breadcrumbs}
           />
@@ -92,7 +92,7 @@ const ReviewPage: React.FC = () => {
         <PageHeader
           title={t("terms.review")}
           description={
-            <Text component="p">{t("message.reviewInstructions")}</Text>
+            <Content component="p">{t("message.reviewInstructions")}</Content>
           }
           breadcrumbs={breadcrumbs}
         />
@@ -133,9 +133,9 @@ const ReviewPage: React.FC = () => {
         <PageSection>
           <Card>
             <CardHeader>
-              <TextContent>
-                <Text component="h3">{t("terms.assessmentSummary")}</Text>
-              </TextContent>
+              <Content>
+                <Content component="h3">{t("terms.assessmentSummary")}</Content>
+              </Content>
             </CardHeader>
             <CardBody>
               <IdentifiedRisksTable

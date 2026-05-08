@@ -2,11 +2,11 @@ import * as React from "react";
 import { Trans, useTranslation } from "react-i18next";
 import {
   AboutModal,
-  Text,
-  TextContent,
-  TextList,
-  TextListItem,
-  TextVariants,
+  Content,
+  Content,
+  Content,
+  Content,
+  ContentVariants,
 } from "@patternfly/react-core";
 
 import { ENV } from "@app/env";
@@ -24,9 +24,9 @@ const AboutLink: React.FC<{ href?: string; children?: React.ReactNode }> = ({
   href,
   children,
 }) => (
-  <Text href={href} component={TextVariants.a} target="_blank">
+  <Content href={href} component={ContentVariants.a} target="_blank">
     {children}
-  </Text>
+  </Content>
 );
 
 export const AppAboutModal: React.FC<AppAboutModalProps> = ({
@@ -45,18 +45,18 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
       brandImageAlt="Logo"
       productName={about.displayName}
     >
-      <TextContent>
-        <Text component={TextVariants.h4}>{t("about.about")}</Text>
+      <Content>
+        <Content component={ContentVariants.h4}>{t("about.about")}</Content>
 
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           {t("about.introduction", { brandType: about.displayName })}
-        </Text>
+        </Content>
 
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           {t("about.description", { brandType: about.displayName })}
-        </Text>
+        </Content>
 
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           <Trans
             i18nKey={"about.bottom1"}
             values={{ brandType: about.displayName }}
@@ -64,10 +64,10 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
               Link: <AboutLink href="https://www.konveyor.io/" />,
             }}
           />
-        </Text>
+        </Content>
 
         {about.documentationUrl ? (
-          <Text component={TextVariants.p}>
+          <Content component={ContentVariants.p}>
             <Trans
               i18nKey={"about.bottom2"}
               values={{ brandType: about.displayName }}
@@ -75,26 +75,26 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
                 Link: <AboutLink href={about.documentationUrl} />,
               }}
             />
-          </Text>
+          </Content>
         ) : null}
 
-        <Text component={TextVariants.p}>
+        <Content component={ContentVariants.p}>
           <Trans
             i18nKey="about.iconLibrary"
             components={{
               Link: <AboutLink />,
             }}
           ></Trans>
-        </Text>
-      </TextContent>
-      <TextContent className="pf-v5-u-py-xl">
-        <TextContent>
-          <TextList component="dl">
-            <TextListItem component="dt">{t("terms.version")}</TextListItem>
-            <TextListItem component="dd">{ENV.VERSION}</TextListItem>
-          </TextList>
-        </TextContent>
-      </TextContent>
+        </Content>
+      </Content>
+      <Content className="pf-v5-u-py-xl">
+        <Content>
+          <Content component="dl">
+            <Content component="dt">{t("terms.version")}</Content>
+            <Content component="dd">{ENV.VERSION}</Content>
+          </Content>
+        </Content>
+      </Content>
     </AboutModal>
   );
 };

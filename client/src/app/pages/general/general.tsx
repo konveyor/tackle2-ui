@@ -8,8 +8,8 @@ import {
   PageSection,
   PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -30,9 +30,9 @@ export const General: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.generalConfig")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.generalConfig")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <Card>

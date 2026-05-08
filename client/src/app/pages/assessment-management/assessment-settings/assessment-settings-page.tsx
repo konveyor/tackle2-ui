@@ -18,8 +18,8 @@ import {
   PageSection,
   PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -160,9 +160,11 @@ const AssessmentSettings: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.assessmentQuestionnaires")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">
+            {t("terms.assessmentQuestionnaires")}
+          </Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

@@ -8,8 +8,8 @@ import {
   SplitItem,
   Stack,
   StackItem,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons";
 
@@ -59,9 +59,9 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   return (
     <Stack hasGutter>
       <StackItem>
-        <TextContent>
-          <Text component="h1">{section.name}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{section.name}</Content>
+        </Content>
       </StackItem>
       {questionsWithUiId.map((question) => {
         return (

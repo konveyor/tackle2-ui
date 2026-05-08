@@ -6,8 +6,8 @@ import {
   LabelGroup,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -151,9 +151,9 @@ export const Dependencies: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.dependencies")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.dependencies")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <div

@@ -1,6 +1,11 @@
 import { FC, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Button, ButtonVariant, Text, TextInput } from "@patternfly/react-core";
+import {
+  Button,
+  ButtonVariant,
+  Content,
+  TextInput,
+} from "@patternfly/react-core";
 import {
   Modal,
   ModalProps,
@@ -95,14 +100,14 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
         what: titleWhat,
       })}
     >
-      <Text component="p">{deleteObjectMessage}</Text>
-      <Text component="p">{t("dialog.message.delete")}</Text>
-      <Text component="p" className="confirm-deletion">
+      <Content component="p">{deleteObjectMessage}</Content>
+      <Content component="p">{t("dialog.message.delete")}</Content>
+      <Content component="p" className="confirm-deletion">
         <Trans
           i18nKey="dialog.message.confirmDeletion"
           values={{ nameToDelete }}
         />
-      </Text>
+      </Content>
       <TextInput
         id="confirm-deletion-input"
         value={nameToDeleteInput}

@@ -7,8 +7,8 @@ import {
   PageSection,
   PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import "./Repositories.css";
@@ -27,9 +27,9 @@ export const RepositoriesSvn: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.svnConfig")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.svnConfig")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <Card>

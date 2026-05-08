@@ -11,8 +11,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -181,9 +181,9 @@ export const Identities: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.credentials")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.credentials")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

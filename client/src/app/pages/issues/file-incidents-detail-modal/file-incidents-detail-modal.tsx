@@ -7,8 +7,8 @@ import {
   GridItem,
   Tab,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Truncate,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
@@ -110,12 +110,14 @@ export const FileIncidentsDetailModal: React.FC<
                       />
                     </GridItem>
                     <GridItem span={6} className={spacing.plSm}>
-                      <TextContent>
-                        <Text component="h2">
+                      <Content>
+                        <Content component="h2">
                           <Truncate content={issueTitle} />
-                        </Text>
-                        <Text component="small">Line {incident.line}</Text>
-                      </TextContent>
+                        </Content>
+                        <Content component="small">
+                          Line {incident.line}
+                        </Content>
+                      </Content>
                       <InsightDescriptionAndLinks
                         className={spacing.mtLg}
                         description={incident.message}

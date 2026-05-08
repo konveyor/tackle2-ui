@@ -11,8 +11,8 @@ import {
   EmptyStateIcon,
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -210,9 +210,9 @@ const AssetGenerators: FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.generators")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.generators")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <ConditionalRender

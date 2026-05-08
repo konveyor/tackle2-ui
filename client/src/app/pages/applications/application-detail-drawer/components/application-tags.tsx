@@ -8,8 +8,8 @@ import {
   ButtonVariant,
   Flex,
   Spinner,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -212,14 +212,14 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
           });
           return (
             <React.Fragment key={source}>
-              <TextContent>
-                <Text
+              <Content>
+                <Content
                   component="h3"
                   className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeMd}`}
                 >
                   {source === "" ? "Manual" : capitalizeFirstLetter(source)}
-                </Text>
-              </TextContent>
+                </Content>
+              </Content>
               {Array.from(tagCategoriesInThisSource).map((tagCategory) => {
                 const tagsInThisCategoryInThisSource =
                   tagsInThisSource?.filter(
@@ -228,14 +228,14 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
                 return (
                   <React.Fragment key={tagCategory.id}>
                     {/* TODO PF V5 - Verify fontWeight change */}
-                    <TextContent>
-                      <Text
+                    <Content>
+                      <Content
                         component="h4"
                         className={`${spacing.mtSm} ${spacing.mbSm} ${textStyles.fontSizeSm} ${textStyles.fontWeightNormal}`}
                       >
                         {tagCategory.name}
-                      </Text>
-                    </TextContent>
+                      </Content>
+                    </Content>
                     <Flex>
                       {tagsInThisCategoryInThisSource.map((tag) => (
                         <ItemTagLabel

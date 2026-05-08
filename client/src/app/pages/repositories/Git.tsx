@@ -7,8 +7,8 @@ import {
   PageSection,
   PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 
 import "./Repositories.css";
@@ -28,9 +28,9 @@ export const RepositoriesGit: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.gitConfig")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.gitConfig")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <Card>

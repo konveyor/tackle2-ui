@@ -9,8 +9,8 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -55,14 +55,14 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
       focusKey={platform?.id}
       pageKey="platform-details"
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             {t("titles.platformDrawer")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {platform?.name}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       <DrawerTabsContainer>

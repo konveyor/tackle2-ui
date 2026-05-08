@@ -5,8 +5,8 @@ import { Link, useHistory } from "react-router-dom";
 import {
   PageSection,
   PageSectionVariants,
-  Text,
-  TextContent,
+  Content,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -256,9 +256,9 @@ export const TasksPage: FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("titles.taskManager")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("titles.taskManager")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <div

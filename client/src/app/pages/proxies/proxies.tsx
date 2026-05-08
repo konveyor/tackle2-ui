@@ -9,8 +9,8 @@ import {
   PageSection,
   PageSectionVariants,
   Spinner,
-  Text,
-  TextContent,
+  Content,
+  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -35,10 +35,10 @@ export const Proxies: React.FC = () => {
   return (
     <>
       <PageSection>
-        <TextContent>
-          <Text component="h1">{t("terms.proxyConfig")}</Text>
-          <Text>{t("terms.proxyConfigDetails")}</Text>
-        </TextContent>
+        <Content>
+          <Content component="h1">{t("terms.proxyConfig")}</Content>
+          <Content component="p">{t("terms.proxyConfigDetails")}</Content>
+        </Content>
       </PageSection>
       <PageSection>
         <Card>

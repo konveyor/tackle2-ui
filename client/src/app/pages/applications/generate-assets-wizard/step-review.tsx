@@ -10,9 +10,9 @@ import {
   PanelMainBody,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
+  Content,
+  Content,
+  ContentVariants,
 } from "@patternfly/react-core";
 
 import { TargetProfile } from "@app/api/models";
@@ -36,17 +36,17 @@ export const Review: React.FC<{
 
   return (
     <>
-      <TextContent>
-        <Text component={TextVariants.h3}>
+      <Content>
+        <Content component={ContentVariants.h3}>
           {t("generateAssetsWizard.review.title")}
-        </Text>
-        <Text component={TextVariants.p}>
+        </Content>
+        <Content component={ContentVariants.p}>
           {t("generateAssetsWizard.review.description", {
             count: applications.length,
             targetProfile: targetProfile.name,
           })}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <Panel>
         <PanelMain>
@@ -68,9 +68,9 @@ export const Review: React.FC<{
                     <Stack>
                       <StackItem>{application.name}</StackItem>
                       <StackItem>
-                        <Text component={TextVariants.small}>
+                        <Content component={ContentVariants.small}>
                           {application.description}
-                        </Text>
+                        </Content>
                       </StackItem>
                     </Stack>
                   </DescriptionListDescription>
