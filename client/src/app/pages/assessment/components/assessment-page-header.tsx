@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { Button, ButtonVariant, Modal, Text } from "@patternfly/react-core";
+import { Button, ButtonVariant, Text } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { Paths } from "@app/Paths";
 import { Application, Assessment } from "@app/api/models";

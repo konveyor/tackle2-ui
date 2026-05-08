@@ -15,8 +15,6 @@ import {
   List,
   MenuToggle,
   MenuToggleElement,
-  Modal,
-  ModalVariant,
   PageSection,
   PageSectionVariants,
   Switch,
@@ -27,6 +25,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon, EllipsisVIcon, LockIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";

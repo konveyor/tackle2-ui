@@ -6,12 +6,11 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Button,
-  Modal,
-  ModalVariant,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { universalComparator } from "@app/utils/utils";

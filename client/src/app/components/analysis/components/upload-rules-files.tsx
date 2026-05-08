@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Button, Modal } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { UploadFile } from "@app/api/models";
 import { CustomRuleFilesUpload } from "@app/components/CustomRuleFilesUpload";

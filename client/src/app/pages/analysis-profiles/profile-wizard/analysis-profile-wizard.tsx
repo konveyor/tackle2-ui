@@ -1,13 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Icon,
-  Modal,
-  ModalVariant,
-  Wizard,
-  WizardHeader,
-  WizardStep,
-} from "@patternfly/react-core";
+import { Icon, Wizard, WizardHeader, WizardStep } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { AnalysisProfile } from "@app/api/models";

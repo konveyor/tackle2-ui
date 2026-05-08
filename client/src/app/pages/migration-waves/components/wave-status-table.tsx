@@ -5,12 +5,12 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
-  Modal,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { TrashIcon, UnlinkIcon } from "@patternfly/react-icons";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";

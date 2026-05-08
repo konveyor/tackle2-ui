@@ -4,15 +4,12 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
+import { ActionGroup, Button, Form, Spinner } from "@patternfly/react-core";
 import {
-  ActionGroup,
-  Button,
-  Form,
+  DualListSelector,
   Modal,
   ModalVariant,
-  Spinner,
-} from "@patternfly/react-core";
-import { DualListSelector } from "@patternfly/react-core/deprecated";
+} from "@patternfly/react-core/deprecated";
 
 import type {
   AnalysisProfile,

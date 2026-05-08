@@ -12,13 +12,12 @@ import {
   EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
-  Modal,
-  ModalVariant,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {

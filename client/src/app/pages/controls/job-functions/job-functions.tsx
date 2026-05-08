@@ -8,11 +8,11 @@ import {
   EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
-  Modal,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 

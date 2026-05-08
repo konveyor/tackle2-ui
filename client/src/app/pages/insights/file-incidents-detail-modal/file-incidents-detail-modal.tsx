@@ -5,13 +5,13 @@ import {
   Button,
   Grid,
   GridItem,
-  Modal,
   Tab,
   Tabs,
   Text,
   TextContent,
   Truncate,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisInsight, AnalysisReportFile } from "@app/api/models";

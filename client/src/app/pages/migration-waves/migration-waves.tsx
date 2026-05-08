@@ -13,8 +13,6 @@ import {
   EmptyStateIcon,
   MenuToggle,
   MenuToggleElement,
-  Modal,
-  ModalVariant,
   OverflowMenu,
   PageSection,
   PageSectionVariants,
@@ -26,6 +24,7 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import {
   CubesIcon,
   EllipsisVIcon,

@@ -110,26 +110,26 @@ export const ToolbarBulkSelector = ({
             ref={toggleRef}
             onClick={() => setIsOpen(!isOpen)}
             splitButtonItems={[
-                <MenuToggleCheckbox
-                  id="bulk-selected-items-checkbox"
-                  key="bulk-select-checkbox"
-                  aria-label={t("actions.selectPage", { count: page })}
-                  onChange={(checked) => {
-                    if (checked) {
-                      onSelectCurrentPage();
-                    } else {
-                      onSelectNone();
-                    }
-                  }}
-                  isChecked={isChecked}
-                >
-                  {selected === 0
-                    ? ""
-                    : t("composed.selectedCount", {
-                        count: selected,
-                      })}
-                </MenuToggleCheckbox>,
-              ]}
+              <MenuToggleCheckbox
+                id="bulk-selected-items-checkbox"
+                key="bulk-select-checkbox"
+                aria-label={t("actions.selectPage", { count: page })}
+                onChange={(checked) => {
+                  if (checked) {
+                    onSelectCurrentPage();
+                  } else {
+                    onSelectNone();
+                  }
+                }}
+                isChecked={isChecked}
+              >
+                {selected === 0
+                  ? ""
+                  : t("composed.selectedCount", {
+                      count: selected,
+                    })}
+              </MenuToggleCheckbox>,
+            ]}
           />
         )}
       >

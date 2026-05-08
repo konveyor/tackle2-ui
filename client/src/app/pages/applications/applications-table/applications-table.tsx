@@ -10,7 +10,6 @@ import {
   DropdownItem,
   FormSelect,
   FormSelectOption,
-  Modal,
   TextContent,
   Toolbar,
   ToolbarContent,
@@ -18,6 +17,7 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,

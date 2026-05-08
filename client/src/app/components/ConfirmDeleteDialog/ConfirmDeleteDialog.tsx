@@ -1,14 +1,11 @@
 import { FC, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import { Button, ButtonVariant, Text, TextInput } from "@patternfly/react-core";
 import {
-  Button,
-  ButtonVariant,
   Modal,
   ModalProps,
   ModalVariant,
-  Text,
-  TextInput,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 
 import { collapseSpacesAndCompare } from "@app/utils/utils";
 

@@ -1,4 +1,5 @@
-import { Button, Modal, ModalProps } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
+import { Modal, ModalProps } from "@patternfly/react-core/deprecated";
 import { css } from "@patternfly/react-styles";
 
 import {

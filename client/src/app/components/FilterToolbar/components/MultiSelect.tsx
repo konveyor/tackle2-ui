@@ -276,12 +276,13 @@ export const MultiSelect: FC<MultiSelectProps> = ({
 
         <TextInputGroupUtilities>
           {(!!inputValue || !!values?.length) && (
-            <Button icon={<TimesIcon aria-hidden />}
+            <Button
+              icon={<TimesIcon aria-hidden />}
               variant="plain"
               onClick={onClearButtonClick}
               ouiaId={`${toggleId}-clear-button`}
               aria-label={t("actions.clearInputValue")}
-             />
+            />
           )}
           {values?.length && hasBadge ? (
             <Badge

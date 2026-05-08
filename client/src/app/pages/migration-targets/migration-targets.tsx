@@ -21,7 +21,6 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   Gallery,
-  Modal,
   PageSection,
   PageSectionVariants,
   Text,
@@ -31,6 +30,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target } from "@app/api/models";

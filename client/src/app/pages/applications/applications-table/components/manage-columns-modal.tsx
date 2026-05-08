@@ -10,11 +10,11 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
-  Modal,
   Text,
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
 

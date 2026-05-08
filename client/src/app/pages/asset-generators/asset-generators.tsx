@@ -9,7 +9,6 @@ import {
   EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
-  Modal,
   PageSection,
   PageSectionVariants,
   Text,
@@ -20,6 +19,7 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
