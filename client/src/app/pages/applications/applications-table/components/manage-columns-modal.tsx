@@ -3,6 +3,8 @@ import "./manage-columns-modal.css";
 import { useState } from "react";
 import {
   Button,
+  Content,
+  ContentVariants,
   DataList,
   DataListCell,
   DataListCheck,
@@ -10,8 +12,6 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
-  Content,
-  ContentVariants,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 

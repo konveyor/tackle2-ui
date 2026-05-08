@@ -1,9 +1,9 @@
 import {
   t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_1000 */,
-  t_temp_dev_tbd as gray /* CODEMODS: you should update this color token, original v5 token was global_palette_black_500 */,
   t_temp_dev_tbd as blue /* CODEMODS: you should update this color token, original v5 token was global_palette_blue_300 */,
   t_temp_dev_tbd as cyan /* CODEMODS: you should update this color token, original v5 token was global_palette_cyan_300 */,
   t_temp_dev_tbd as gold /* CODEMODS: you should update this color token, original v5 token was global_palette_gold_300 */,
+  t_temp_dev_tbd as gray /* CODEMODS: you should update this color token, original v5 token was global_palette_black_500 */,
   t_temp_dev_tbd as green /* CODEMODS: you should update this color token, original v5 token was global_palette_green_300 */,
   t_temp_dev_tbd as orange /* CODEMODS: you should update this color token, original v5 token was global_palette_orange_300 */,
   t_temp_dev_tbd as purple /* CODEMODS: you should update this color token, original v5 token was global_palette_purple_600 */,

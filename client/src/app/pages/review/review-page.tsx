@@ -6,11 +6,11 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Content,
   FormSection,
   Grid,
   GridItem,
   PageSection,
-  Content,
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 

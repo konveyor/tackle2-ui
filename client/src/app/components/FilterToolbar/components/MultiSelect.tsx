@@ -15,7 +15,6 @@ import {
   TextInputGroupMain,
   TextInputGroupUtilities,
 } from "@patternfly/react-core";
-
 import { TimesIcon } from "@patternfly/react-icons";
 
 import { FilterSelectOptionProps } from "../FilterToolbar";

@@ -1,10 +1,10 @@
 import * as React from "react";
 import {
+  Content,
   Flex,
   FlexItem,
   Label,
   LabelGroup,
-  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import textStyles from "@patternfly/react-styles/css/utilities/Text/text";

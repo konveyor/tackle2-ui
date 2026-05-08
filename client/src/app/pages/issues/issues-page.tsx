@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import {
   ButtonVariant,
+  Content,
   PageSection,
   Tab,
   TabTitleText,
   Tabs,
-  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

@@ -6,11 +6,11 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
+  ContentVariants,
   Grid,
   GridItem,
   Icon,
-  Content,
-  ContentVariants,
 } from "@patternfly/react-core";
 import {
   CheckCircleIcon,

@@ -3,8 +3,8 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
-  Divider,
   Content,
+  Divider,
   Toolbar,
   ToolbarContent,
   ToolbarItem,

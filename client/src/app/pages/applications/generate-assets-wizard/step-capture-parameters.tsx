@@ -6,11 +6,11 @@ import * as yup from "yup";
 import {
   Alert,
   AlertVariant,
+  Content,
   Form,
   Panel,
   PanelMain,
   PanelMainBody,
-  Content,
 } from "@patternfly/react-core";
 
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";

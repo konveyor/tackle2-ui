@@ -20,9 +20,9 @@ import { unique } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Content,
   Gallery,
   PageSection,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

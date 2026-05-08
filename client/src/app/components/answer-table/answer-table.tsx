@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Label,
   List,
   ListItem,
-  Content,
   Tooltip,
 } from "@patternfly/react-core";
 import {

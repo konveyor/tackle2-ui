@@ -2,10 +2,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
+  Content,
   Flex,
   FlexItem,
   Form,
-  Content,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

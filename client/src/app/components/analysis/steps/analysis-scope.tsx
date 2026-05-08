@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Radio, Switch, Content, Title } from "@patternfly/react-core";
+import { Content, Form, Radio, Switch, Title } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { StringListField } from "@app/components/StringListField";

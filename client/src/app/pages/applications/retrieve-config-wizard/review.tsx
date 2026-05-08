@@ -2,6 +2,8 @@ import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
+  ContentVariants,
   DataList,
   DataListCell,
   DataListItem,
@@ -12,8 +14,6 @@ import {
   PanelMainBody,
   Stack,
   StackItem,
-  Content,
-  ContentVariants,
 } from "@patternfly/react-core";
 
 import { FormValues } from "./retrieve-config-wizard";

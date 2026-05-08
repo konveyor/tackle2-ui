@@ -6,6 +6,7 @@ import {
   ButtonVariant,
   Card,
   CardBody,
+  Content,
   Form,
   FormGroup,
   Grid,
@@ -13,7 +14,6 @@ import {
   PageSection,
   Spinner,
   Switch,
-  Content,
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";

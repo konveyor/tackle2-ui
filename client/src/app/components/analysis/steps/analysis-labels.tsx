@@ -5,11 +5,11 @@ import { UseFormSetValue, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
+  Content,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

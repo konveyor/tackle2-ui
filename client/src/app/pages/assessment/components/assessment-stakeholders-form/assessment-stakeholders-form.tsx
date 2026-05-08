@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FormSection, Grid, GridItem, Content } from "@patternfly/react-core";
+import { Content, FormSection, Grid, GridItem } from "@patternfly/react-core";
 
 import { GroupedStakeholderRef, Ref, StakeholderType } from "@app/api/models";
 import { HookFormAutocomplete } from "@app/components/HookFormPFFields";

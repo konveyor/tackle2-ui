@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Alert,
+  Content,
   Form,
   Tab,
   TabTitleText,
   Tabs,
-  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

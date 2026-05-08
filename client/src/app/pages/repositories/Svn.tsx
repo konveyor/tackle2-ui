@@ -4,9 +4,9 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   PageSection,
   Switch,
-  Content,
 } from "@patternfly/react-core";
 
 import "./Repositories.css";

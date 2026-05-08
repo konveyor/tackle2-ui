@@ -9,6 +9,7 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -24,7 +25,6 @@ import {
   PageSection,
   Stack,
   StackItem,
-  Content,
   Title,
 } from "@patternfly/react-core";
 import { EllipsisVIcon } from "@patternfly/react-icons";

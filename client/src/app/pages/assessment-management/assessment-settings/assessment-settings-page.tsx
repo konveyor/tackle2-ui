@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
   Dropdown,
   DropdownItem,
   EmptyState,
@@ -15,7 +16,6 @@ import {
   MenuToggleElement,
   PageSection,
   Switch,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Content, Title } from "@patternfly/react-core";
+import { Content, Form, Title } from "@patternfly/react-core";
 
 import { AnalysisProfile } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";

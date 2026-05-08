@@ -2,10 +2,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
+  Content,
   Label,
   LabelGroup,
   PageSection,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,

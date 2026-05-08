@@ -3,12 +3,12 @@ import * as React from "react";
 import { useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Popover,
   Split,
   SplitItem,
   Stack,
   StackItem,
-  Content,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons";
 

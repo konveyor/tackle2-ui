@@ -5,10 +5,10 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
+  Content,
   ExpandableSectionToggle,
   Popover,
   Spinner,
-  Content,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

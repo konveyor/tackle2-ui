@@ -2,11 +2,11 @@ import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
-  Content,
 } from "@patternfly/react-core";
 
 import { AnalysisProfile, AnalysisProfileTarget, Ref } from "@app/api/models";

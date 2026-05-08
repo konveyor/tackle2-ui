@@ -5,10 +5,10 @@ import { Trans, useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateBody,
   PageSection,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

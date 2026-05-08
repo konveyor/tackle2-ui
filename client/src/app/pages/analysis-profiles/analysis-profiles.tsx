@@ -4,12 +4,12 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
   PageSection,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

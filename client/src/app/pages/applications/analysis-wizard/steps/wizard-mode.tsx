@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Form, FormGroup, Radio, Content, Title } from "@patternfly/react-core";
+import { Content, Form, FormGroup, Radio, Title } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Application } from "@app/api/models";

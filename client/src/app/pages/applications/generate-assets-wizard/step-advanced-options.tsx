@@ -4,6 +4,7 @@ import { UseFormReturn, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
+  Content,
   Form,
   Icon,
   Panel,
@@ -11,7 +12,6 @@ import {
   PanelMainBody,
   Popover,
   Radio,
-  Content,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 

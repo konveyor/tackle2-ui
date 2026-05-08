@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   Dropdown,
   DropdownItem,
   EmptyState,
@@ -13,7 +14,6 @@ import {
   MenuToggleElement,
   OverflowMenu,
   PageSection,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

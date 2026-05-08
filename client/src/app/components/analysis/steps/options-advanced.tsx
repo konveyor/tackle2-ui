@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Checkbox,
+  Content,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Content,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

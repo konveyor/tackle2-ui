@@ -4,10 +4,10 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   Form,
   PageSection,
   Switch,
-  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

@@ -1,10 +1,10 @@
 import * as React from "react";
 import {
+  Content,
   Split,
   SplitItem,
   Stack,
   StackItem,
-  Content,
 } from "@patternfly/react-core";
 
 import { BreadCrumbPath } from "./BreadCrumbPath";

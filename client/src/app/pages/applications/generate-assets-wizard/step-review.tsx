@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
+  ContentVariants,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -10,8 +12,6 @@ import {
   PanelMainBody,
   Stack,
   StackItem,
-  Content,
-  ContentVariants,
 } from "@patternfly/react-core";
 
 import { TargetProfile } from "@app/api/models";

@@ -3,8 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  PageSection,
   Content,
+  PageSection,
 } from "@patternfly/react-core";
 
 import { AssessmentActionsRoute, Paths } from "@app/Paths";

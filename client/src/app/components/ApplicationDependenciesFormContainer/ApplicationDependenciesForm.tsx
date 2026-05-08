@@ -4,12 +4,12 @@ import {
   ActionGroup,
   Button,
   ButtonVariant,
+  Content,
   Form,
   FormGroup,
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Content,
 } from "@patternfly/react-core";
 
 import { Application } from "@app/api/models";

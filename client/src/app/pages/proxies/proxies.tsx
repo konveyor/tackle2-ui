@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import {
   Card,
   CardBody,
+  Content,
   EmptyState,
   PageSection,
   Spinner,
-  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   Button,
+  Content,
+  ContentVariants,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -12,8 +14,6 @@ import {
   List,
   ListItem,
   Spinner,
-  Content,
-  ContentVariants,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

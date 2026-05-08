@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
+  Content,
   Grid,
   GridItem,
   Tab,
   Tabs,
-  Content,
   Truncate,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";

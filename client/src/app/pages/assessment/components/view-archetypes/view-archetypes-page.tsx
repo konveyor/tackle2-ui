@@ -4,8 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  PageSection,
   Content,
+  PageSection,
 } from "@patternfly/react-core";
 
 import { Paths, ViewArchetypesRoute } from "@app/Paths";
