@@ -187,7 +187,7 @@ export const SchemaDefinedPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
             <TextContent>
@@ -264,11 +264,7 @@ export const SchemaDefinedPage: React.FC = () => {
                   </CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
-                      <EmptyState variant={EmptyStateVariant.xs} isFullHeight>
-                        <EmptyStateHeader
-                          titleText={t("message.noDocument")}
-                          headingLevel="h4"
-                        />
+                      <EmptyState  headingLevel="h4"   titleText={t("message.noDocument")} variant={EmptyStateVariant.xs} isFullHeight>
                         <EmptyStateBody>
                           Current document is empty.
                         </EmptyStateBody>

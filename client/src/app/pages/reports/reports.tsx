@@ -66,7 +66,7 @@ export const Reports: React.FC = () => {
     React.useState<number>(ALL_QUESTIONNAIRES);
 
   const pageHeaderSection = (
-    <PageSection variant={PageSectionVariants.light}>
+    <PageSection>
       <TextContent>
         <Text component="h1">{t("terms.reports")}</Text>
       </TextContent>

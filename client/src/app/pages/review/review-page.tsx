@@ -65,7 +65,7 @@ const ReviewPage: React.FC = () => {
   if (fetchError) {
     return (
       <>
-        <PageSection variant="light">
+        <PageSection>
           <PageHeader
             title={t("terms.review")}
             description={
@@ -74,7 +74,7 @@ const ReviewPage: React.FC = () => {
             breadcrumbs={breadcrumbs}
           />
         </PageSection>
-        <PageSection variant="light">
+        <PageSection>
           <Bullseye>
             <SimpleEmptyState
               icon={BanIcon}
@@ -88,7 +88,7 @@ const ReviewPage: React.FC = () => {
   }
   return (
     <>
-      <PageSection variant="light">
+      <PageSection>
         <PageHeader
           title={t("terms.review")}
           description={

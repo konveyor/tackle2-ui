@@ -193,7 +193,7 @@ export const SourcePlatforms: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.sourcePlatforms")}</Text>
         </TextContent>
@@ -255,12 +255,7 @@ export const SourcePlatforms: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noPlatformsCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noPlatformsCreatedTitle")} variant="sm">
                     <EmptyStateBody>
                       Create a new platform to get started.
                     </EmptyStateBody>

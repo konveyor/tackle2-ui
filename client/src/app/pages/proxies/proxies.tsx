@@ -34,7 +34,7 @@ export const Proxies: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.proxyConfig")}</Text>
           <Text>{t("terms.proxyConfigDetails")}</Text>
@@ -44,13 +44,8 @@ export const Proxies: React.FC = () => {
         <Card>
           <CardBody>
             {isFetching ? (
-              <EmptyState className={spacing.mtXl}>
-                <EmptyStateHeader
-                  titleText={t("message.loadingTripleDot")}
-                  icon={<EmptyStateIcon icon={Spinner} />}
-                  headingLevel="h4"
-                />
-              </EmptyState>
+              <EmptyState  headingLevel="h4" icon={Spinner}  titleText={t("message.loadingTripleDot")} className={spacing.mtXl}>
+                </EmptyState>
             ) : (
               <ProxyForm
                 httpProxy={existingHttpProxy}

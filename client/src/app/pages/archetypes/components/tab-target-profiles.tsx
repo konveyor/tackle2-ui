@@ -28,12 +28,7 @@ export const TabTargetProfiles: React.FC<TabTargetProfilesProps> = ({
   if (profiles.length === 0) {
     return (
       <Bullseye>
-        <EmptyState>
-          <EmptyStateHeader
-            headingLevel="h4"
-            titleText={t("message.noTargetProfilesTitle")}
-            icon={<EmptyStateIcon icon={CubesIcon} />}
-          />
+        <EmptyState  headingLevel="h4" icon={CubesIcon}  titleText={t("message.noTargetProfilesTitle")}>
           <EmptyStateBody>
             {t("message.noTargetProfilesDescription")}
           </EmptyStateBody>

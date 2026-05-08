@@ -164,7 +164,7 @@ export const AnalysisProfiles: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("titles.analysisProfiles")}</Text>
         </TextContent>
@@ -228,14 +228,9 @@ export const AnalysisProfiles: React.FC = () => {
               isError={!!error}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={t("composed.noDataStateTitle", {
+                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("composed.noDataStateTitle", {
                       what: t("terms.analysisProfiles").toLowerCase(),
-                    })}
-                    headingLevel="h2"
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                  />
+                    })} variant="sm">
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("actions.create"),

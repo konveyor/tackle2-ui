@@ -127,7 +127,7 @@ export const AffectedApplicationsPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.affectedApplications")}</Text>
         </TextContent>

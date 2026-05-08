@@ -120,7 +120,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     );
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{summaryType}</Text>
         </TextContent>

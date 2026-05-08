@@ -150,7 +150,7 @@ export const Dependencies: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.dependencies")}</Text>
         </TextContent>

@@ -274,7 +274,7 @@ export const MigrationWaves: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.migrationWaves")}</Text>
         </TextContent>
@@ -390,12 +390,7 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noMigrationWavesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noMigrationWavesAvailable")} variant="sm">
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>

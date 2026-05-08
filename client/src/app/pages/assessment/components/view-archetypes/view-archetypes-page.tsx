@@ -46,7 +46,7 @@ const ViewArchetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">View Archetypes</Text>
         </TextContent>

@@ -83,7 +83,7 @@ const TargetProfilesPage: React.FC = () => {
 
   if (!archetype) {
     return (
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <Alert variant={AlertVariant.warning} title={t("message.notFound")}>
           {t("message.archetypeNotFound")}
         </Alert>
@@ -94,7 +94,7 @@ const TargetProfilesPage: React.FC = () => {
   const profiles = archetype?.profiles || [];
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <PageHeader
           title={t("titles.archetypeTargetProfiles", {
             archetypeName: archetype.name,
@@ -153,12 +153,7 @@ const TargetProfilesPage: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={profiles.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noTargetProfilesTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noTargetProfilesTitle")} variant="sm">
                     <EmptyStateBody>
                       {t("message.noTargetProfilesCreate")}
                     </EmptyStateBody>

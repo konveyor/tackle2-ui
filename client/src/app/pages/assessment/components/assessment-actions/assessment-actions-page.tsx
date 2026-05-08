@@ -27,7 +27,7 @@ const AssessmentActions: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">Assessment Actions</Text>
         </TextContent>

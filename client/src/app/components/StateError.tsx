@@ -13,17 +13,7 @@ import { global_danger_color_200 as globalDangerColor200 } from "@patternfly/rea
 export const StateError: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <EmptyState variant={EmptyStateVariant.sm}>
-      <EmptyStateHeader
-        titleText={t("message.unableToConnect")}
-        icon={
-          <EmptyStateIcon
-            icon={ExclamationCircleIcon}
-            color={globalDangerColor200.value}
-          />
-        }
-        headingLevel="h2"
-      />
+    <EmptyState  headingLevel="h2" icon={ExclamationCircleIcon}  titleText={t("message.unableToConnect")} variant={EmptyStateVariant.sm}>
       <EmptyStateBody>
         There was an error retrieving data. Check your connection and try again.
       </EmptyStateBody>

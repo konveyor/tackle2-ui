@@ -245,7 +245,7 @@ export const MigrationTargets: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.customTargets")}</Text>
         </TextContent>

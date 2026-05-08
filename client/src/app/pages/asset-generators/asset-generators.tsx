@@ -209,7 +209,7 @@ const AssetGenerators: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.generators")}</Text>
         </TextContent>
@@ -272,12 +272,7 @@ const AssetGenerators: FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noGeneratorsCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noGeneratorsCreatedTitle")} variant="sm">
                     <EmptyStateBody>
                       {t("message.noGeneratorsCreatedTitleDescription")}
                     </EmptyStateBody>

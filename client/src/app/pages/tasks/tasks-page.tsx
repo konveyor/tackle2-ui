@@ -255,7 +255,7 @@ export const TasksPage: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("titles.taskManager")}</Text>
         </TextContent>

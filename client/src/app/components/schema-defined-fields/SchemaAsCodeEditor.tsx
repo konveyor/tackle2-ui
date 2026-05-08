@@ -151,13 +151,8 @@ export const SchemaAsCodeEditor = ({
       showEditor={!!currentCode}
       emptyState={
         <div className="simple-task-viewer-empty-state">
-          <EmptyState variant={EmptyStateVariant.sm} isFullHeight>
-            <EmptyStateHeader
-              titleText={t("message.loadingDocumentTitle")}
-              icon={<EmptyStateIcon icon={Spinner} />}
-              headingLevel="h4"
-            />
-          </EmptyState>
+          <EmptyState  headingLevel="h4" icon={Spinner}  titleText={t("message.loadingDocumentTitle")} variant={EmptyStateVariant.sm} isFullHeight>
+            </EmptyState>
         </div>
       }
     />

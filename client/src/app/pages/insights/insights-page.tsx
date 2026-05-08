@@ -51,7 +51,7 @@ export const InsightsPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light} className={spacing.pb_0}>
+      <PageSection  className={spacing.pb_0}>
         <TextContent>
           <Title headingLevel="h1">{t("terms.insights")}</Title>
           <Text component="small">

@@ -272,12 +272,7 @@ export const SingleApplicationInsightsTable: React.FC<
           isError={!!fetchError}
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
-            <EmptyState variant="sm">
-              <EmptyStateHeader
-                titleText={t("message.selectApplicationFromFilterMenu")}
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-                headingLevel="h2"
-              />
+            <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.selectApplicationFromFilterMenu")} variant="sm">
               <EmptyStateBody>
                 {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>

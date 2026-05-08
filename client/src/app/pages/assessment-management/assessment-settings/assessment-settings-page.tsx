@@ -159,7 +159,7 @@ const AssessmentSettings: React.FC = () => {
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.assessmentQuestionnaires")}</Text>
         </TextContent>
@@ -241,12 +241,7 @@ const AssessmentSettings: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noQuestionnairesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noQuestionnairesAvailable")} variant="sm">
                     <EmptyStateBody>
                       {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>

@@ -246,7 +246,7 @@ const Archetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.archetypes")}</Text>
         </TextContent>
@@ -318,12 +318,7 @@ const Archetypes: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noArchetypesCreatedTitle")}
-                      headingLevel="h2"
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                    />
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noArchetypesCreatedTitle")} variant="sm">
                     <EmptyStateBody>
                       {t("message.noArchetypesCreatedDescription")}
                     </EmptyStateBody>

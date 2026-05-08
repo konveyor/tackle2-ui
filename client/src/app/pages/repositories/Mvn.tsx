@@ -75,7 +75,7 @@ export const RepositoriesMvn: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.mavenConfig")}</Text>
         </TextContent>

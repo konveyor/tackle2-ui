@@ -151,7 +151,7 @@ export const ManageImports: React.FC = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection>
         <PageHeader
           title={t("terms.applicationImports")}
           breadcrumbs={[
@@ -238,14 +238,9 @@ export const ManageImports: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("composed.noDataStateTitle", {
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("composed.noDataStateTitle", {
                         what: t("terms.importSummary").toLowerCase(),
-                      })}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                      })} variant="sm">
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.import"),

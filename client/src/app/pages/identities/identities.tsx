@@ -180,7 +180,7 @@ export const Identities: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection>
         <TextContent>
           <Text component="h1">{t("terms.credentials")}</Text>
         </TextContent>
@@ -249,18 +249,13 @@ export const Identities: React.FC = () => {
                 isError={!!fetchErrorIdentities}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={
+                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={
                         <>
                           {t("composed.noDataStateTitle", {
                             what: t("terms.credential").toLowerCase(),
                           })}
                         </>
-                      }
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                      } variant="sm">
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),
