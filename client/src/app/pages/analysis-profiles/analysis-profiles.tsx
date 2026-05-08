@@ -186,7 +186,7 @@ export const AnalysisProfiles: React.FC = () => {
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               {isArchitect && (
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       id="create-analysis-profile"

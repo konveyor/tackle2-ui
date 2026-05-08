@@ -1,4 +1,4 @@
-import { ToolbarChip, ToolbarFilter } from "@patternfly/react-core";
+import { ToolbarLabel, ToolbarFilter } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import { ISelectFilterCategory } from "./FilterToolbar";
@@ -36,7 +36,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
       return {
         key: value,
         node: chipLabel ?? label ?? value,
-      } as ToolbarChip;
+      } as ToolbarLabel;
     })
     .filter(Boolean);
 
@@ -45,7 +45,7 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
     setFilterValue(option ? [value] : null);
   };
 
-  const onFilterClear = (chip: string | ToolbarChip) => {
+  const onFilterClear = (chip: string | ToolbarLabel) => {
     const chipValue = typeof chip === "string" ? chip : chip.key;
     const newValue = filterValue?.filter((val) => val !== chipValue);
     setFilterValue(newValue?.length ? newValue : null);
@@ -54,8 +54,8 @@ export const SelectFilterControl = <TItem, TFilterCategoryKey extends string>({
   return (
     <ToolbarFilter
       id={`filter-control-${category.categoryKey}`}
-      chips={chips}
-      deleteChip={(_, chip) => onFilterClear(chip)}
+      labels={chips}
+      deleteLabel={(_, chip) => onFilterClear(chip)}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >

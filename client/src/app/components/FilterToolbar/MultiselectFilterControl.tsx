@@ -1,4 +1,4 @@
-import { ToolbarChip, ToolbarFilter } from "@patternfly/react-core";
+import { ToolbarLabel, ToolbarFilter } from "@patternfly/react-core";
 
 import { IFilterControlProps } from "./FilterControl";
 import {
@@ -51,7 +51,7 @@ export const MultiselectFilterControl = <TItem,>({
         .filter(([, groupLabel]) => groupLabel != groupName)
         .map(([filter]) => filter)
     );
-  const onFilterClear = (chip: string | ToolbarChip) => {
+  const onFilterClear = (chip: string | ToolbarLabel) => {
     const value = typeof chip === "string" ? chip : chip.key;
 
     if (value) {
@@ -97,9 +97,9 @@ export const MultiselectFilterControl = <TItem,>({
       {
         <ToolbarFilter
           id={`${idPrefix}-${firstGroup}`}
-          chips={chipsFor(firstGroup)}
-          deleteChip={(_, chip) => onFilterClear(chip)}
-          deleteChipGroup={() => onFilterClearGroup(firstGroup)}
+          labels={chipsFor(firstGroup)}
+          deleteLabel={(_, chip) => onFilterClear(chip)}
+          deleteLabelGroup={() => onFilterClearGroup(firstGroup)}
           categoryName={{ name: firstGroup, key: withGroupPrefix(firstGroup) }}
           key={withGroupPrefix(firstGroup)}
           showToolbarItem={showToolbarItem}
@@ -124,9 +124,9 @@ export const MultiselectFilterControl = <TItem,>({
       {otherGroups.map((groupName) => (
         <ToolbarFilter
           id={`${idPrefix}-${groupName}`}
-          chips={chipsFor(groupName)}
-          deleteChip={(_, chip) => onFilterClear(chip)}
-          deleteChipGroup={() => onFilterClearGroup(groupName)}
+          labels={chipsFor(groupName)}
+          deleteLabel={(_, chip) => onFilterClear(chip)}
+          deleteLabelGroup={() => onFilterClearGroup(groupName)}
           categoryName={{ name: groupName, key: withGroupPrefix(groupName) }}
           key={withGroupPrefix(groupName)}
           showToolbarItem={false}

@@ -177,7 +177,7 @@ export const JiraTrackers: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}

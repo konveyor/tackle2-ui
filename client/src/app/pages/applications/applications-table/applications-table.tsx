@@ -967,7 +967,7 @@ export const ApplicationsTable: FC = () => {
             <FilterToolbar<DecoratedApplication, string>
               {...filterToolbarProps}
             />
-            <ToolbarGroup variant="button-group">
+            <ToolbarGroup variant="action-group">
               <ToolbarItem>
                 <RBAC
                   allowedPermissions={applicationsWriteScopes}
@@ -1020,7 +1020,7 @@ export const ApplicationsTable: FC = () => {
                 </RBAC>
               </ToolbarItem>
             </ToolbarGroup>
-            <ToolbarGroup variant="icon-button-group">
+            <ToolbarGroup variant="action-group-plain">
               {toolbarKebabItems.length ? (
                 <ToolbarItem id="toolbar-kebab">
                   <KebabDropdown

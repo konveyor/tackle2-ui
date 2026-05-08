@@ -295,7 +295,7 @@ export const MigrationWaves: React.FC = () => {
                 <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}

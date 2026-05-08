@@ -46,8 +46,8 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   return (
     <ToolbarFilter
       id={`filter-control-${category.categoryKey}`}
-      chips={filterValue || []}
-      deleteChip={() => setFilterValue([])}
+      labels={filterValue || []}
+      deleteLabel={() => setFilterValue([])}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >

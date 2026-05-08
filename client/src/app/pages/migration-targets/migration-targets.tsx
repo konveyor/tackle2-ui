@@ -262,7 +262,7 @@ export const MigrationTargets: FC = () => {
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} breakpoint="md" />
             {targetsWriteAccess && (
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <Button
                     id="create-target"

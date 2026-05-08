@@ -211,7 +211,7 @@ export const SourcePlatforms: React.FC = () => {
             <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"

@@ -212,7 +212,7 @@ export const Stakeholders: React.FC = () => {
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <RBAC
                   allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}

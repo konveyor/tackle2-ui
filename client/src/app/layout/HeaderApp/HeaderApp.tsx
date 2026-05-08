@@ -39,7 +39,7 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to always show */}
         <ToolbarGroup
           id="header-toolbar-tasks"
-          variant="icon-button-group"
+          variant="action-group-plain"
           align={{ default: "alignEnd" }}
         >
           <ToolbarItem>
@@ -50,7 +50,7 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to show at desktop sizes */}
         <ToolbarGroup
           id="header-toolbar-desktop"
-          variant="icon-button-group"
+          variant="action-group-plain"
           gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{
             default: "hidden",
@@ -80,7 +80,7 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to show at mobile sizes */}
         <ToolbarGroup
           id="header-toolbar-mobile"
-          variant="icon-button-group"
+          variant="action-group-plain"
           gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{ lg: "hidden" }}
         >

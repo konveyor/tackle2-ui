@@ -123,7 +123,7 @@ const TargetProfilesPage: React.FC = () => {
           >
             <Toolbar>
               <ToolbarContent>
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
