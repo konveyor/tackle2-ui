@@ -12,7 +12,6 @@ import {
   Level,
   LevelItem,
   PageSection,
-  PageSectionVariants,
   Tab,
   TabTitleText,
   Tabs,

@@ -8,8 +8,6 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   Popover,
   Toolbar,

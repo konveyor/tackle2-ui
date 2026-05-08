@@ -5,8 +5,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageSection,
-  PageSectionVariants,
-  Content,
   Content,
   Toolbar,
   ToolbarContent,

@@ -12,7 +12,6 @@ import {
   Popover,
   Radio,
   Content,
-  Content,
 } from "@patternfly/react-core";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 

@@ -1,13 +1,6 @@
 import * as React from "react";
 import { Trans, useTranslation } from "react-i18next";
-import {
-  AboutModal,
-  Content,
-  Content,
-  Content,
-  Content,
-  ContentVariants,
-} from "@patternfly/react-core";
+import { AboutModal, Content, ContentVariants } from "@patternfly/react-core";
 
 import { ENV } from "@app/env";
 import { useBranding } from "@app/hooks/useBranding";

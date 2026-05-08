@@ -9,7 +9,6 @@ import {
   Stack,
   StackItem,
   Content,
-  Content,
 } from "@patternfly/react-core";
 import { HelpIcon } from "@patternfly/react-icons";
 

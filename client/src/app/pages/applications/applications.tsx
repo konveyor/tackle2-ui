@@ -5,7 +5,6 @@ import {
   Level,
   LevelItem,
   PageSection,
-  PageSectionVariants,
   Title,
 } from "@patternfly/react-core";
 

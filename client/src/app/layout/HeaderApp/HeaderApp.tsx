@@ -16,7 +16,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { BarsIcon, HelpIcon } from "@patternfly/react-icons";
+import { HelpIcon } from "@patternfly/react-icons";
 
 import { TaskNotificationBadge } from "@app/components/task-manager/TaskNotificaitonBadge";
 import { useBranding } from "@app/hooks/useBranding";

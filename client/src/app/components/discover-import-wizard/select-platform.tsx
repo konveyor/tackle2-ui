@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Form, Content, Content } from "@patternfly/react-core";
+import { Form, Content } from "@patternfly/react-core";
 
 import { SourcePlatform } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";

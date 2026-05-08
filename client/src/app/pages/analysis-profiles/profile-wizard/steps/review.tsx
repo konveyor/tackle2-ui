@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Content, Content, Title } from "@patternfly/react-core";
+import { Content, Title } from "@patternfly/react-core";
 
 import {
   DetailsContent,

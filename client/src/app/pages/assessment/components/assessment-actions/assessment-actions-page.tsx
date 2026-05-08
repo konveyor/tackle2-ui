@@ -4,8 +4,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   PageSection,
-  PageSectionVariants,
-  Content,
   Content,
 } from "@patternfly/react-core";
 

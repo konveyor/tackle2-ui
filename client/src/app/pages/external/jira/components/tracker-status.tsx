@@ -9,7 +9,6 @@ import {
   Popover,
   Spinner,
   Content,
-  Content,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

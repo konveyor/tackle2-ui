@@ -9,7 +9,6 @@ import {
   Stack,
   StackItem,
   Content,
-  Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 

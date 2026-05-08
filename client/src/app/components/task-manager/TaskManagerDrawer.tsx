@@ -9,8 +9,6 @@ import {
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,

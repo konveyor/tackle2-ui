@@ -3,14 +3,13 @@ import { useTranslation } from "react-i18next";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
-import {
-  t_temp_dev_tbd as globalDangerColor200 /* CODEMODS: you should update this color token, original v5 token was global_danger_color_200 */,
-} from "@patternfly/react-tokens";
+//  Color override removed after codemodes run
+//  import {
+//     t_temp_dev_tbd as globalDangerColor200 /* CODEMODS: you should update this color token, original v5 token was global_danger_color_200 */,
+//  } from "@patternfly/react-tokens";
 
 export const StateError: React.FC = () => {
   const { t } = useTranslation();

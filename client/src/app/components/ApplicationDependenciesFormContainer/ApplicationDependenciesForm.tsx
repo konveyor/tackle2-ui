@@ -10,7 +10,6 @@ import {
   HelperText,
   HelperTextItem,
   Content,
-  Content,
 } from "@patternfly/react-core";
 
 import { Application } from "@app/api/models";

@@ -8,7 +8,6 @@ import {
   Tab,
   Tabs,
   Content,
-  Content,
   Truncate,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";

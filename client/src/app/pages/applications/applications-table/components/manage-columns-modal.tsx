@@ -11,7 +11,6 @@ import {
   DataListItemCells,
   DataListItemRow,
   Content,
-  Content,
   ContentVariants,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";

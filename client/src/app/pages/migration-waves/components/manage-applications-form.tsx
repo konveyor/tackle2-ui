@@ -7,7 +7,6 @@ import {
   Button,
   Form,
   Content,
-  Content,
   TextInput,
   ContentVariants,
   Toolbar,

@@ -8,10 +8,8 @@ import {
   Flex,
   FlexItem,
   PageSection,
-  PageSectionVariants,
   Stack,
   StackItem,
-  Content,
   Content,
 } from "@patternfly/react-core";
 

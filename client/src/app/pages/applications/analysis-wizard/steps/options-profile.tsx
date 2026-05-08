@@ -6,7 +6,6 @@ import {
   FlexItem,
   Form,
   Content,
-  Content,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

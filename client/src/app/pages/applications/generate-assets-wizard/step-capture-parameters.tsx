@@ -11,7 +11,6 @@ import {
   PanelMain,
   PanelMainBody,
   Content,
-  Content,
 } from "@patternfly/react-core";
 
 import { JsonDocument, JsonSchemaObject, TargetProfile } from "@app/api/models";

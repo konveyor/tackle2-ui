@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
   Content,
-  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,

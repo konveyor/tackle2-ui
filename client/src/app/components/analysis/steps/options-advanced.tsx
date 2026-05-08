@@ -11,7 +11,6 @@ import {
   Form,
   FormGroup,
   Content,
-  Content,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

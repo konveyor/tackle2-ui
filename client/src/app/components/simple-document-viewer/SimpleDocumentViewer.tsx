@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   Spinner,
 } from "@patternfly/react-core";

@@ -6,7 +6,6 @@ import {
   Stack,
   StackItem,
   Content,
-  Content,
   ContentVariants,
 } from "@patternfly/react-core";
 import {

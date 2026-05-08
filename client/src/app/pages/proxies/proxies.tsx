@@ -4,12 +4,8 @@ import {
   Card,
   CardBody,
   EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
   Spinner,
-  Content,
   Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

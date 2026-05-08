@@ -4,8 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
   PageSection,
-  PageSectionVariants,
-  Content,
   Content,
   Toolbar,
   ToolbarContent,

@@ -9,7 +9,6 @@ import {
   DescriptionListTerm,
   Divider,
   Content,
-  Content,
   Title,
   Tooltip,
 } from "@patternfly/react-core";

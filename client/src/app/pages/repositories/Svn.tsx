@@ -5,9 +5,7 @@ import {
   Card,
   CardBody,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Content,
   Content,
 } from "@patternfly/react-core";
 

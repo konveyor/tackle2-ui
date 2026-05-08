@@ -7,7 +7,6 @@ import {
   Gallery,
   GalleryItem,
   Content,
-  Content,
   Title,
   Toolbar,
   ToolbarContent,

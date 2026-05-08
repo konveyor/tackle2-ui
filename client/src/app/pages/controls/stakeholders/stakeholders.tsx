@@ -10,8 +10,6 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,

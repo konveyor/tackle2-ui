@@ -11,7 +11,6 @@ import {
   GridItem,
   PageSection,
   Content,
-  Content,
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 

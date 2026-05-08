@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { SearchIcon } from "@patternfly/react-icons";

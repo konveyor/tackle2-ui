@@ -4,11 +4,9 @@ import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import {
   ButtonVariant,
   PageSection,
-  PageSectionVariants,
   Tab,
   TabTitleText,
   Tabs,
-  Content,
   Content,
   Title,
 } from "@patternfly/react-core";

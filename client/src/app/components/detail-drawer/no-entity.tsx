@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";

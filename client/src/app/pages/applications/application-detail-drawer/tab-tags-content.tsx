@@ -4,7 +4,6 @@ import {
   Bullseye,
   Spinner,
   Content,
-  Content,
   ContentVariants,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

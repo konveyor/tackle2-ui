@@ -7,8 +7,6 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   Toolbar,
   ToolbarContent,

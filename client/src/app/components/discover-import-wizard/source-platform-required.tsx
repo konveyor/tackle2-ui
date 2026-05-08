@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Content, Content } from "@patternfly/react-core";
+import { Content } from "@patternfly/react-core";
 
 export const SourcePlatformRequired: React.FC<{
   title: string;

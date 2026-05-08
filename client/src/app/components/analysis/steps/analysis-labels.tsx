@@ -10,7 +10,6 @@ import {
   Form,
   FormGroup,
   Content,
-  Content,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";

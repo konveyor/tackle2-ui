@@ -22,8 +22,6 @@ import {
   Button,
   Gallery,
   PageSection,
-  PageSectionVariants,
-  Content,
   Content,
   Toolbar,
   ToolbarContent,

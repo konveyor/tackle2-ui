@@ -6,7 +6,6 @@ import {
   DescriptionListGroup,
   DescriptionListTerm,
   Content,
-  Content,
 } from "@patternfly/react-core";
 
 import { SourcePlatform } from "@app/api/models";

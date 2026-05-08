@@ -5,8 +5,6 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Toolbar,
   ToolbarContent,
   ToolbarItem,

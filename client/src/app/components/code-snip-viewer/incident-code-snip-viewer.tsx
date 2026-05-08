@@ -4,8 +4,6 @@ import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";

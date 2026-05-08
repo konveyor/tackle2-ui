@@ -13,7 +13,6 @@ import {
   ListItem,
   Spinner,
   Content,
-  Content,
   ContentVariants,
   Title,
   Tooltip,

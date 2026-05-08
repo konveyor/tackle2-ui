@@ -5,8 +5,6 @@ import {
   Label,
   LabelGroup,
   PageSection,
-  PageSectionVariants,
-  Content,
   Content,
   Toolbar,
   ToolbarContent,

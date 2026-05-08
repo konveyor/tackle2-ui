@@ -10,7 +10,6 @@ import {
   GridItem,
   Icon,
   Content,
-  Content,
   ContentVariants,
 } from "@patternfly/react-core";
 import {

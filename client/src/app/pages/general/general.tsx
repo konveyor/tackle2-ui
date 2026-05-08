@@ -6,9 +6,7 @@ import {
   CardBody,
   Form,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Content,
   Content,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
