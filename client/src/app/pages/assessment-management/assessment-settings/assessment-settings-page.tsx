@@ -279,7 +279,6 @@ const AssessmentSettings: React.FC = () => {
                             <Switch
                               id={`required-switch-${questionnaire.id}`}
                               label="Yes"
-                              labelOff="No"
                               isChecked={questionnaire.required}
                               onChange={() => {
                                 updateQuestionnaire({

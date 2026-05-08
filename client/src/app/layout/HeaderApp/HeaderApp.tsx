@@ -4,7 +4,7 @@ import {
   Button,
   ButtonVariant,
   Masthead,
-  MastheadBrand,
+  MastheadLogo,
   MastheadContent,
   MastheadMain,
   MastheadToggle,
@@ -123,7 +123,7 @@ export const HeaderApp: React.FC = () => {
         </PageToggleButton>
       </MastheadToggle>
       <MastheadMain>
-        <MastheadBrand>
+        <MastheadLogo data-codemods>
           {leftBrand ? (
             <Brand
               src={leftBrand.src}
@@ -140,7 +140,7 @@ export const HeaderApp: React.FC = () => {
               {leftTitle.text}
             </Title>
           ) : null}
-        </MastheadBrand>
+        </MastheadLogo>
       </MastheadMain>
       <MastheadContent>{toolbar}</MastheadContent>
     </Masthead>

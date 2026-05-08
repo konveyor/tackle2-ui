@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   Badge,
   Button,
-  Chip,
-  ChipGroup,
   Label,
   MenuToggle,
   MenuToggleElement,
@@ -16,6 +14,7 @@ import {
   TextInputGroupMain,
   TextInputGroupUtilities,
 } from "@patternfly/react-core";
+import { Chip, ChipGroup } from "@patternfly/react-core/deprecated";
 import { TimesIcon } from "@patternfly/react-icons";
 
 import { FilterSelectOptionProps } from "../FilterToolbar";

@@ -119,7 +119,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       isFullHeight
       isCompact
-      isFlat
     >
       <CardHeader
         selectableActions={{
