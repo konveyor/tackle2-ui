@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   Label,
+  LabelGroup,
   MenuToggle,
   MenuToggleElement,
   MenuToggleProps,
@@ -14,7 +15,7 @@ import {
   TextInputGroupMain,
   TextInputGroupUtilities,
 } from "@patternfly/react-core";
-import { Chip, ChipGroup } from "@patternfly/react-core/deprecated";
+
 import { TimesIcon } from "@patternfly/react-icons";
 
 import { FilterSelectOptionProps } from "../FilterToolbar";
@@ -245,12 +246,13 @@ export const MultiSelect: FC<MultiSelectProps> = ({
           aria-controls={`${toggleId}-listbox`}
         >
           {hasChips && (
-            <ChipGroup
+            <LabelGroup
               aria-label="Current selections"
               ouiaId={`${toggleId}-chip-group`}
             >
               {values?.map((value) => (
-                <Chip
+                <Label
+                  variant="outline"
                   key={value}
                   /**
                    * for testing purposes, we cannot rely on text inside the chip as
@@ -260,7 +262,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
                    * aria-label is not used at the chip level
                    * as a workaround, we use a span with the aria-label
                    */
-                  onClick={(ev) => {
+                  onClose={(ev) => {
                     ev.stopPropagation();
                     onSelect(value);
                   }}
@@ -268,9 +270,9 @@ export const MultiSelect: FC<MultiSelectProps> = ({
                   <span aria-label={getDisplayValue(value, options)}>
                     {getDisplayValueForChip(value, options)}
                   </span>
-                </Chip>
+                </Label>
               ))}
-            </ChipGroup>
+            </LabelGroup>
           )}
         </TextInputGroupMain>
 
