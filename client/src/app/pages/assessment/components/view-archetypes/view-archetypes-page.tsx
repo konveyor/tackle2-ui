@@ -44,7 +44,7 @@ const ViewArchetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">View Archetypes</Content>
         </Content>
@@ -67,7 +67,7 @@ const ViewArchetypes: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
           {application?.archetypes && application?.archetypes?.length > 1 && (
             <SimpleSelect

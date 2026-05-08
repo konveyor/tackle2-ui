@@ -160,7 +160,7 @@ export const AnalysisProfiles: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("titles.analysisProfiles")}</Content>
         </Content>
@@ -171,7 +171,7 @@ export const AnalysisProfiles: React.FC = () => {
         </Content>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div
           style={{
             backgroundColor:

@@ -53,7 +53,7 @@ export const TaskDetailsBase: FC<{
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={formatTitle(taskName)}
           breadcrumbs={[
@@ -72,7 +72,7 @@ export const TaskDetailsBase: FC<{
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div
           style={{
             backgroundColor:

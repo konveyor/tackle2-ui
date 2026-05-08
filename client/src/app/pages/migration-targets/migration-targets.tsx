@@ -243,7 +243,7 @@ export const MigrationTargets: FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.customTargets")}</Content>
         </Content>
@@ -252,7 +252,7 @@ export const MigrationTargets: FC = () => {
         </Content>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Toolbar
           {...toolbarProps}
           clearAllFilters={() => filterToolbarProps.setFilterValues({})}
@@ -276,7 +276,7 @@ export const MigrationTargets: FC = () => {
           </ToolbarContent>
         </Toolbar>
       </PageSection>
-      <PageSection style={{ paddingBlockStart: 0 }}>
+      <PageSection hasBodyWrapper={false} style={{ paddingBlockStart: 0 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

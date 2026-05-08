@@ -242,12 +242,12 @@ const Archetypes: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.archetypes")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(archetypes || fetchError)}
           then={<AppPlaceholder />}

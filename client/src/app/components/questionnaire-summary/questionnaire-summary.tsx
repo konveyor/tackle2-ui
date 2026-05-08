@@ -118,13 +118,13 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     );
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{summaryType}</Content>
         </Content>
         {BreadcrumbPath}
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <div
             style={{

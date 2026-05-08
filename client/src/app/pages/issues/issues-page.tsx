@@ -54,7 +54,7 @@ export const Issues: React.FC = () => {
 
   return (
     <>
-      <PageSection className={spacing.pb_0}>
+      <PageSection hasBodyWrapper={false} className={spacing.pb_0}>
         <Content>
           <Title headingLevel="h1">{t("terms.issues")}</Title>
           <Content component="small">
@@ -85,7 +85,7 @@ export const Issues: React.FC = () => {
           />
         </Tabs>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {activeTabPath === Paths.issuesAllTab ? (
           <AllInsightsTable
             tableName="all-issues-table"

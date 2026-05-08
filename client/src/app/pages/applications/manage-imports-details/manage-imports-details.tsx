@@ -118,7 +118,7 @@ export const ManageImportsDetails: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.errorReport")}
           breadcrumbs={[
@@ -137,7 +137,7 @@ export const ManageImportsDetails: React.FC = () => {
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(imports || fetchError)}
           then={<AppPlaceholder />}

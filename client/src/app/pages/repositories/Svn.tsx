@@ -24,12 +24,12 @@ export const RepositoriesSvn: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.svnConfig")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             {svnInsecureSetting.isError && (

@@ -30,13 +30,13 @@ export const Proxies: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.proxyConfig")}</Content>
           <Content component="p">{t("terms.proxyConfigDetails")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             {isFetching ? (

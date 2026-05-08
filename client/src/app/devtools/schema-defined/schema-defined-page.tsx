@@ -185,7 +185,7 @@ export const SchemaDefinedPage: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
             <Content>
@@ -205,7 +205,7 @@ export const SchemaDefinedPage: React.FC = () => {
           </FlexItem>
         </Flex>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           {/* Schema Editor & Schema Defined Field - Main Section */}
           <StackItem isFilled>

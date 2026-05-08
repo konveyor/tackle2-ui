@@ -148,12 +148,12 @@ export const Dependencies: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.dependencies")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div
           style={{
             backgroundColor:

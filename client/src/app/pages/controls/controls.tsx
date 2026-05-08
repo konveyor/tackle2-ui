@@ -61,7 +61,7 @@ export const Controls: React.FC = () => {
   }, [location.pathname]);
   return (
     <>
-      <PageSection className={spacing.pb_0}>
+      <PageSection hasBodyWrapper={false} className={spacing.pb_0}>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">{t("terms.controls")}</Title>
@@ -97,7 +97,7 @@ export const Controls: React.FC = () => {
           />
         </Tabs>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Suspense fallback={<AppPlaceholder />}>
           <Switch>
             <Route path={Paths.controlsStakeholders} component={Stakeholders} />

@@ -176,12 +176,12 @@ export const Identities: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.credentials")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(identities || fetchErrorIdentities)}
           then={<AppPlaceholder />}

@@ -205,12 +205,12 @@ const AssetGenerators: FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.generators")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isLoading && !(generators || fetchError)}
           then={<AppPlaceholder />}

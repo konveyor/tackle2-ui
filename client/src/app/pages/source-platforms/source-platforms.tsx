@@ -189,12 +189,12 @@ export const SourcePlatforms: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.sourcePlatforms")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isLoading && !(platforms || fetchError)}
           then={<AppPlaceholder />}

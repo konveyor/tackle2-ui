@@ -2,11 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as jsYaml from "js-yaml";
 import { useTranslation } from "react-i18next";
 import { CodeEditor, Language } from "@patternfly/react-code-editor";
-import {
-  EmptyState,
-  EmptyStateVariant,
-  Spinner,
-} from "@patternfly/react-core";
+import { EmptyState, EmptyStateVariant, Spinner } from "@patternfly/react-core";
 
 import { JsonSchemaObject } from "@app/api/models";
 

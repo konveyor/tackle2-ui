@@ -155,12 +155,12 @@ export const JiraTrackers: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.jiraConfig")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(trackers || fetchError)}
           then={<AppPlaceholder />}

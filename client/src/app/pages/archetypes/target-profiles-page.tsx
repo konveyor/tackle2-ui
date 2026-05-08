@@ -80,7 +80,7 @@ const TargetProfilesPage: React.FC = () => {
 
   if (!archetype) {
     return (
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Alert variant={AlertVariant.warning} title={t("message.notFound")}>
           {t("message.archetypeNotFound")}
         </Alert>
@@ -91,7 +91,7 @@ const TargetProfilesPage: React.FC = () => {
   const profiles = archetype?.profiles || [];
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("titles.archetypeTargetProfiles", {
             archetypeName: archetype.name,
@@ -108,7 +108,7 @@ const TargetProfilesPage: React.FC = () => {
         />
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isArchetypesFetching}
           then={<AppPlaceholder />}

@@ -125,7 +125,7 @@ export const AffectedApplicationsPage: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.affectedApplications")}</Content>
         </Content>
@@ -145,7 +145,7 @@ export const AffectedApplicationsPage: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(currentPageAppReports || fetchError)}
           then={<AppPlaceholder />}

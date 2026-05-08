@@ -64,7 +64,7 @@ export const Reports: React.FC = () => {
     React.useState<number>(ALL_QUESTIONNAIRES);
 
   const pageHeaderSection = (
-    <PageSection>
+    <PageSection hasBodyWrapper={false}>
       <Content>
         <Content component="h1">{t("terms.reports")}</Content>
       </Content>
@@ -79,7 +79,7 @@ export const Reports: React.FC = () => {
     return (
       <>
         {pageHeaderSection}
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <StateError />
         </PageSection>
       </>
@@ -119,7 +119,7 @@ export const Reports: React.FC = () => {
   return (
     <>
       {pageHeaderSection}
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={
             isApplicationsFetching ||

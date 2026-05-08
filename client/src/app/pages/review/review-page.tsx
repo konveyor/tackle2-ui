@@ -64,7 +64,7 @@ const ReviewPage: React.FC = () => {
   if (fetchError) {
     return (
       <>
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <PageHeader
             title={t("terms.review")}
             description={
@@ -73,7 +73,7 @@ const ReviewPage: React.FC = () => {
             breadcrumbs={breadcrumbs}
           />
         </PageSection>
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <Bullseye>
             <SimpleEmptyState
               icon={BanIcon}
@@ -87,7 +87,7 @@ const ReviewPage: React.FC = () => {
   }
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.review")}
           description={
@@ -96,7 +96,7 @@ const ReviewPage: React.FC = () => {
           breadcrumbs={breadcrumbs}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
@@ -129,7 +129,7 @@ const ReviewPage: React.FC = () => {
         </Card>
       </PageSection>
       {application?.assessments?.length || archetype?.assessments?.length ? (
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <Card>
             <CardHeader>
               <Content>

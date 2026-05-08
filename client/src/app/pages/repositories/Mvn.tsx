@@ -73,13 +73,13 @@ export const RepositoriesMvn: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.mavenConfig")}</Content>
         </Content>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             <Form>

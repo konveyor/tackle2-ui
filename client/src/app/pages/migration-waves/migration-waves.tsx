@@ -270,12 +270,12 @@ export const MigrationWaves: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">{t("terms.migrationWaves")}</Content>
         </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(migrationWaves || fetchError)}
           then={<AppPlaceholder />}

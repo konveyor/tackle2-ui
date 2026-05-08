@@ -25,7 +25,7 @@ const AssessmentActions: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Content>
           <Content component="h1">Assessment Actions</Content>
         </Content>
@@ -44,7 +44,7 @@ const AssessmentActions: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {isArchetype ? (
           <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
             <Content>

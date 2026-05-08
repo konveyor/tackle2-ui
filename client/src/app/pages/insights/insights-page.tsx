@@ -49,7 +49,7 @@ export const InsightsPage: React.FC = () => {
 
   return (
     <>
-      <PageSection className={spacing.pb_0}>
+      <PageSection hasBodyWrapper={false} className={spacing.pb_0}>
         <Content>
           <Title headingLevel="h1">{t("terms.insights")}</Title>
           <Content component="small">
@@ -81,7 +81,7 @@ export const InsightsPage: React.FC = () => {
         </Tabs>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {activeTabPath === Paths.insightsAllTab && (
           <AllInsightsTable
             tableName="all-insights-table"

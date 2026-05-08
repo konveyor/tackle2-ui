@@ -149,7 +149,7 @@ export const ManageImports: React.FC = () => {
 
   return (
     <>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.applicationImports")}
           breadcrumbs={[
@@ -164,7 +164,7 @@ export const ManageImports: React.FC = () => {
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(importSummaries || fetchError)}
           then={<AppPlaceholder />}
