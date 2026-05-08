@@ -98,7 +98,7 @@ export const Review: React.FC<{
                       <div
                         style={{
                           border:
-                            "1px solid var(--pf-v5-global--BorderColor--100)",
+                            "var(--pf-t--temp--dev--tbd)" /* CODEMODS: original v5 color was --pf-v5-global--BorderColor--100 */,
                           borderRadius: "3px",
                           padding: "16px",
                         }}

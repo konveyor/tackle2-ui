@@ -141,7 +141,7 @@ export const CaptureParameters: React.FC<{
 
   return (
     <>
-      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
         <Content component="h3">
           {t("generateAssetsWizard.captureParameters.title")}
         </Content>

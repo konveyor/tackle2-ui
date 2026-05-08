@@ -9,7 +9,7 @@ export const SourcePlatformRequired: React.FC<{
 
   return (
     <div>
-      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
         <Content component="h3">{title}</Content>
         <Content component="p">
           {t("platformDiscoverWizard.noPlatformSelectedDescription")}

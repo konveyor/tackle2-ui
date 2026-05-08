@@ -114,7 +114,7 @@ export const FilterInput: React.FC<{
 
   return (
     <div>
-      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
         <Content component="h3">
           {t("platformDiscoverWizard.filterInput.title")}
         </Content>

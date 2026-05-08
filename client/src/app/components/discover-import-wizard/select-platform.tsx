@@ -29,7 +29,7 @@ export const SelectPlatform: React.FC<SelectPlatformProps> = ({
 
   return (
     <div>
-      <Content style={{ marginBottom: "var(--pf-v5-global--spacer--lg)" }}>
+      <Content style={{ marginBottom: "var(--pf-t--global--spacer--lg)" }}>
         <Content component="h3">
           {t("platformDiscoverWizard.platformSelect.title")}
         </Content>
