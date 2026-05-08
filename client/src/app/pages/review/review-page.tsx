@@ -102,7 +102,7 @@ const ReviewPage: React.FC = () => {
             <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
               <Grid hasGutter>
                 <GridItem md={5}>
-                  <div className="pf-v5-c-form">
+                  <div className="pf-v6-c-form">
                     <FormSection></FormSection>
                     <FormSection>
                       <ReviewForm

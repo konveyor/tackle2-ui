@@ -2,9 +2,7 @@ import { useMemo } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ChartDonut, ChartLegend } from "@patternfly/react-charts/victory";
-import {
-  t_temp_dev_tbd as defaultColor /* CODEMODS: you should update this color token, original v5 token was global_palette_blue_300 */,
-} from "@patternfly/react-tokens";
+import { chart_color_blue_300 as defaultColor } from "@patternfly/react-tokens";
 
 import { RISK_LIST } from "@app/Constants";
 import {

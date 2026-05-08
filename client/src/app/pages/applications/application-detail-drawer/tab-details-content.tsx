@@ -180,7 +180,7 @@ export const TabDetailsContent: React.FC<{
         <DrawerTabContentSection label={t("terms.owner")}>
           <Content
             component={ContentVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.owner?.name ?? <EmptyTextMessage />}
           </Content>
@@ -189,7 +189,7 @@ export const TabDetailsContent: React.FC<{
         <DrawerTabContentSection label={t("terms.contributors")}>
           <Content
             component={ContentVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.contributors?.length ? (
               application.contributors
@@ -209,21 +209,21 @@ export const TabDetailsContent: React.FC<{
             <>
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.repositoryType")}
                 {": "}
               </Content>
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.kind}
               </Content>
               <br />
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 <ExternalLink
                   href={application?.repository?.url ?? ""}
@@ -235,28 +235,28 @@ export const TabDetailsContent: React.FC<{
               <br />
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.branch")}
                 {": "}
               </Content>
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.branch}
               </Content>
               <br />
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.rootPath")}
                 {": "}
               </Content>
               <Content
                 component={ContentVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.path}
               </Content>
@@ -264,7 +264,7 @@ export const TabDetailsContent: React.FC<{
           ) : (
             <Content
               component={ContentVariants.small}
-              className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
             >
               <EmptyTextMessage />
             </Content>
@@ -274,7 +274,7 @@ export const TabDetailsContent: React.FC<{
         <DrawerTabContentSection label={t("terms.binary")}>
           <Content
             component={ContentVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.binary || <EmptyTextMessage />}
           </Content>
@@ -315,7 +315,7 @@ const MigrationWaveDetails: React.FC<{
   return (
     <Content
       component={ContentVariants.small}
-      className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+      className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
     >
       {application?.migrationWave ? (
         `Wave name: ${application?.migrationWave.name}`

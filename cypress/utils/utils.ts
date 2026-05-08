@@ -565,7 +565,7 @@ export function applySelectFilterViaTextInput(
   cy.get(filterToggle(filterCategoryKey)).click();
   inputText(filterInput, filterText);
   if (isValid) {
-    clickByText(".pf-v5-c-menu__item", filterText);
+    clickByText(".pf-v6-c-menu__item", filterText);
   } else {
     cy.contains(actionMenuItem, "No results");
   }
@@ -653,8 +653,8 @@ export function generateRandomDateRange(
 export function getTableColumnData(columnName: string): Array<string> {
   selectItemsPerPage(100);
   const itemList = [];
-  cy.get(".pf-v5-c-table > tbody > tr", { timeout: 5 * SEC })
-    .not(".pf-v5-c-table__expandable-row")
+  cy.get(".pf-v6-c-table > tbody > tr", { timeout: 5 * SEC })
+    .not(".pf-v6-c-table__expandable-row")
     .find(`td[data-label="${columnName}"]`)
     .each(($ele) => {
       if (
@@ -1453,9 +1453,9 @@ export function isTableEmpty(
   return cy
     .get(tableSelector, { timeout: 5 * SEC })
     .find("div")
-    .should("not.have.descendants", "svg.pf-v5-c-spinner")
+    .should("not.have.descendants", "svg.pf-v6-c-spinner")
     .then(($element) => {
-      return $element.hasClass("pf-v5-c-empty-state");
+      return $element.hasClass("pf-v6-c-empty-state");
     });
 }
 
@@ -1839,7 +1839,7 @@ export function goToLastPage(): void {
 }
 
 export function checkCurrentPageIs(pageNumber: number) {
-  cy.get(".pf-v5-c-pagination__nav-page-select", { timeout: 10 * SEC })
+  cy.get(".pf-v6-c-pagination__nav-page-select", { timeout: 10 * SEC })
     .find('input[aria-label="Current page"]')
     .should("have.value", pageNumber.toString());
 }
@@ -2094,16 +2094,16 @@ export function clickTab(name: string): void {
         const $el = Cypress.$(el);
         return (
           $el.is(":visible") &&
-          $el.closest("li.pf-v5-c-tabs__item.pf-m-overflow").length === 0
+          $el.closest("li.pf-v6-c-tabs__item.pf-m-overflow").length === 0
         );
       });
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v5-c-tabs__item.pf-m-overflow");
+      const overflowItem = $root.find("li.pf-v6-c-tabs__item.pf-m-overflow");
       if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v5-c-tabs__item.pf-m-overflow > button").click({
+        cy.root().find("li.pf-v6-c-tabs__item.pf-m-overflow > button").click({
           force: true,
         });
         cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
@@ -2580,7 +2580,7 @@ export function restoreColumnsToDefault(): void {
   clickByText(button, save, true);
 }
 export function openManageColumns(): void {
-  cy.get(".pf-v5-c-overflow-menu__group.pf-m-button-group")
+  cy.get(".pf-v6-c-overflow-menu__group.pf-m-button-group")
     .find("button")
     .click();
 }

@@ -236,7 +236,7 @@ describe(
     it("Validate Technologies Tab", function () {
       cy.contains("a", staticReportAppName).click();
       cy.contains("button > span", technologies).click();
-      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+      validateTextPresence("div.pf-v6-c-label-group", reportData.technology);
     });
 
     it("Validate Issues Menu", function () {

@@ -23,7 +23,7 @@ export const AssessmentStakeholdersForm: React.FC = () => {
   );
 
   return (
-    <div className="pf-v5-c-form">
+    <div className="pf-v6-c-form">
       <FormSection>
         <Content>
           <Content component="h1">
@@ -37,8 +37,8 @@ export const AssessmentStakeholdersForm: React.FC = () => {
         </Content>
       </FormSection>
 
-      <Grid className="pf-v5-c-form__section">
-        <GridItem md={6} className="pf-v5-c-form">
+      <Grid className="pf-v6-c-form__section">
+        <GridItem md={6} className="pf-v6-c-form">
           <FormSection>
             <HookFormAutocomplete<AssessmentWizardValues>
               isGrouped

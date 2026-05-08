@@ -145,7 +145,7 @@ export const ManageImportsDetails: React.FC = () => {
           <div
             style={{
               backgroundColor:
-                "var(--pf-t--temp--dev--tbd)" /* CODEMODS: original v5 color was --pf-v5-global--BackgroundColor--100 */,
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>

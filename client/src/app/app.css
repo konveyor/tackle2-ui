@@ -1,16 +1,14 @@
 /*
-  Hacks necessary for the drawer to always use full page height
-  This is because the structure of the HTML for pf-v5-c-page__drawer does not match the HTML demo at https://www.patternfly.org/v4/components/drawer/html-demos/expanded/
-  We could fix that by using the `notificationDrawer` prop of the Page component, but it doesn't support passing the props we need to `DrawerPanelContent`.
-  TODO: Open this as a bug in PF, add a prop to allow that, and switch to that structure in order to remove this hack.
+  PF6: Page/Drawer structure has been updated. These overrides may no longer
+  be needed. If the drawer doesn't fill full page height, re-enable them
+  with the pf-v6 class names.
 */
-/* TODO PF V5 - Obsolete ? */
-.pf-v5-c-page__drawer {
+/* .pf-v6-c-page__drawer {
   min-height: 100%;
 }
-.pf-v5-c-drawer__body:last-child {
+.pf-v6-c-drawer__body:last-child {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   overflow: auto;
-}
+} */

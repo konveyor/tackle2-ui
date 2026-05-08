@@ -84,8 +84,7 @@ export const Review: React.FC<{
             <DescriptionListDescription>
               <div
                 style={{
-                  border:
-                    "var(--pf-t--temp--dev--tbd)" /* CODEMODS: original v5 color was --pf-v5-global--BorderColor--100 */,
+                  border: "var(--pf-t--global--border--color--default)",
                   borderRadius: "3px",
                   padding: "16px",
                 }}

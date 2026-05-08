@@ -8,9 +8,7 @@ import {
   Stack,
   StackItem,
 } from "@patternfly/react-core";
-import {
-  t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_300 */,
-} from "@patternfly/react-tokens";
+import { chart_color_black_200 as black } from "@patternfly/react-tokens";
 
 export interface IDonutProps {
   id: string;
@@ -62,11 +60,11 @@ export const Donut: React.FC<IDonutProps> = ({
         </Bullseye>
       </StackItem>
       <StackItem style={{ width: "100%" }}>
-        <Content className="pf-v5-u-text-align-center">
+        <Content className="pf-v6-u-text-align-center">
           <Content component="h3">{riskLabel}</Content>
           <Content
             component={ContentVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {riskDescription}
           </Content>

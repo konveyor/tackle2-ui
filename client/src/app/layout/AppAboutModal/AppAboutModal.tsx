@@ -80,7 +80,7 @@ export const AppAboutModal: React.FC<AppAboutModalProps> = ({
           ></Trans>
         </Content>
       </Content>
-      <Content className="pf-v5-u-py-xl">
+      <Content className="pf-v6-u-py-xl">
         <Content>
           <Content component="dl">
             <Content component="dt">{t("terms.version")}</Content>

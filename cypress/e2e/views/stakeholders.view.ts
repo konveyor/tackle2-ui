@@ -20,7 +20,7 @@ export const groupInput = "#stakeholder-groups-toggle-input";
 export const groupsToggle =
   "[data-ouia-component-id='stakeholder-groups-toggle']";
 export const groupsCount = "td[data-label='Group count']";
-export const stakeholderHelper = "div.pf-v5-c-helper-text";
+export const stakeholderHelper = "div.pf-v6-c-helper-text";
 export const removeJobFunction =
   "[data-ouia-component-id='job-function-toggle-clear-button']";
 export const stakeHoldersTable = "table[aria-label='Stakeholders table']";

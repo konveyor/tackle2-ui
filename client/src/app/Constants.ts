@@ -1,13 +1,30 @@
 import {
-  t_temp_dev_tbd as black /* CODEMODS: you should update this color token, original v5 token was global_palette_black_1000 */,
-  t_temp_dev_tbd as blue /* CODEMODS: you should update this color token, original v5 token was global_palette_blue_300 */,
-  t_temp_dev_tbd as cyan /* CODEMODS: you should update this color token, original v5 token was global_palette_cyan_300 */,
-  t_temp_dev_tbd as gold /* CODEMODS: you should update this color token, original v5 token was global_palette_gold_300 */,
-  t_temp_dev_tbd as gray /* CODEMODS: you should update this color token, original v5 token was global_palette_black_500 */,
-  t_temp_dev_tbd as green /* CODEMODS: you should update this color token, original v5 token was global_palette_green_300 */,
-  t_temp_dev_tbd as orange /* CODEMODS: you should update this color token, original v5 token was global_palette_orange_300 */,
-  t_temp_dev_tbd as purple /* CODEMODS: you should update this color token, original v5 token was global_palette_purple_600 */,
+  chart_color_black_500 as black,
+  chart_color_blue_300 as blue,
+  chart_color_green_300 as green,
+  chart_color_orange_300 as orange,
 } from "@patternfly/react-tokens";
+
+const gray = {
+  name: "--pf-t--global--text--color--200",
+  value: "#6a6e73",
+  var: "var(--pf-t--global--text--color--200)",
+};
+const cyan = {
+  name: "--pf-t--chart--color--teal--300",
+  value: "#009596",
+  var: "var(--pf-t--chart--color--teal--300)",
+};
+const gold = {
+  name: "--pf-t--chart--color--gold--300",
+  value: "#f4c145",
+  var: "var(--pf-t--chart--color--gold--300)",
+};
+const purple = {
+  name: "--pf-t--chart--color--purple--300",
+  value: "#a18fff",
+  var: "var(--pf-t--chart--color--purple--300)",
+};
 
 import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
 

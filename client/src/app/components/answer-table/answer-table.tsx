@@ -127,7 +127,7 @@ const AnswerTable: React.FC<IAnswerTableProps> = ({
                           <Tooltip
                             content={
                               <div
-                                className="pf-v5-c-tooltip__content pf-m-text-align-left"
+                                className="pf-v6-c-tooltip__content pf-m-text-align-left"
                                 id="conditional-tooltip-content"
                               >
                                 {!!answer?.autoAnswerFor?.length && (

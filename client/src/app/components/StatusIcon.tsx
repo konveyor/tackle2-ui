@@ -9,12 +9,12 @@ import {
   UnknownIcon,
 } from "@patternfly/react-icons";
 import {
-  t_temp_dev_tbd as disabledColor /* CODEMODS: you should update this color token, original v5 token was global_disabled_color_200 */,
-  t_temp_dev_tbd as errorColor /* CODEMODS: you should update this color token, original v5 token was global_danger_color_100 */,
-  t_temp_dev_tbd as infoColor /* CODEMODS: you should update this color token, original v5 token was global_info_color_100 */,
-  t_temp_dev_tbd as loadingColor /* CODEMODS: you should update this color token, original v5 token was global_info_color_200 */,
-  t_temp_dev_tbd as successColor /* CODEMODS: you should update this color token, original v5 token was global_success_color_100 */,
-  t_temp_dev_tbd as unknownColor /* CODEMODS: you should update this color token, original v5 token was global_Color_dark_200 */,
+  t_global_color_status_danger_default as errorColor,
+  t_global_color_status_info_200 as loadingColor,
+  t_global_color_status_info_default as infoColor,
+  t_global_color_status_success_default as successColor,
+  t_global_text_color_200 as unknownColor,
+  t_global_text_color_disabled as disabledColor,
 } from "@patternfly/react-tokens";
 
 export type StatusIconType =

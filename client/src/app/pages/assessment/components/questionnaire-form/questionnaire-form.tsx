@@ -35,7 +35,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
   // Force the wizard parent to reset the scroll
   useEffect(() => {
     const parentWizardBody = document.getElementsByClassName(
-      "pf-v5-c-wizard__main-body"
+      "pf-v6-c-wizard__main-body"
     );
     if (parentWizardBody && parentWizardBody[0]) {
       parentWizardBody[0].scrollIntoView();
@@ -75,7 +75,7 @@ export const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({
                         type="button"
                         aria-label="More info"
                         onClick={(e) => e.preventDefault()}
-                        className="pf-v5-c-form__group-label-help"
+                        className="pf-v6-c-form__group-label-help"
                       >
                         <HelpIcon />
                       </button>

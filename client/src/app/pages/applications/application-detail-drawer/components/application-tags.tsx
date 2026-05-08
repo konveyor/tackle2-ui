@@ -262,7 +262,7 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
         })}
         description={t("message.toTagApplication")}
       />
-      <div className="pf-v5-u-text-align-center">
+      <div className="pf-v6-u-text-align-center">
         <Button
           type="button"
           id="create-tags"

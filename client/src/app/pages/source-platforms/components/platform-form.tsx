@@ -211,7 +211,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
                 type="button"
                 aria-label="More info for URL field"
                 onClick={(e) => e.preventDefault()}
-                className="pf-v5-c-button pf-m-plain"
+                className="pf-v6-c-button pf-m-plain"
               >
                 <HelpIcon />
               </button>
@@ -234,7 +234,7 @@ const PlatformFormRenderer: React.FC<PlatformFormProps> = ({
                 type="button"
                 aria-label="More info for credential field"
                 onClick={(e) => e.preventDefault()}
-                className="pf-v5-c-button pf-m-plain"
+                className="pf-v6-c-button pf-m-plain"
               >
                 <HelpIcon />
               </button>

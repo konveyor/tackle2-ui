@@ -20,7 +20,7 @@ export const dropdownMenuToggle =
   '[data-ouia-component-id="tag-type-select-toggle"]';
 export const dropdownMenuTypeToggle =
   '[data-ouia-component-id="type-select-toggle"]';
-export const tagsHelper = "div.pf-v5-c-helper-text";
+export const tagsHelper = "div.pf-v6-c-helper-text";
 export const nameInput = "input[name=name]";
 export const tagMenuButton = 'button[aria-label="Kebab toggle"]';
 export const tagCategory = "td[data-label='Tag category']";
