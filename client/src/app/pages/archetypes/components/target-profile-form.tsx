@@ -7,12 +7,12 @@ import * as yup from "yup";
 import {
   ActionGroup,
   Button,
-  DualListSelector,
   Form,
   Modal,
   ModalVariant,
   Spinner,
 } from "@patternfly/react-core";
+import { DualListSelector } from "@patternfly/react-core/deprecated";
 
 import type {
   AnalysisProfile,

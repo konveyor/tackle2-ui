@@ -109,8 +109,7 @@ export const ToolbarBulkSelector = ({
             isDisabled={totalItems === 0}
             ref={toggleRef}
             onClick={() => setIsOpen(!isOpen)}
-            splitButtonOptions={{
-              items: [
+            splitButtonItems={[
                 <MenuToggleCheckbox
                   id="bulk-selected-items-checkbox"
                   key="bulk-select-checkbox"
@@ -130,8 +129,7 @@ export const ToolbarBulkSelector = ({
                         count: selected,
                       })}
                 </MenuToggleCheckbox>,
-              ],
-            }}
+              ]}
           />
         )}
       >

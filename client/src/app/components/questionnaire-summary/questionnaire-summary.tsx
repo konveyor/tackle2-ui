@@ -135,7 +135,7 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
           >
             <Toolbar>
               <ToolbarContent>
-                <ToolbarItem widths={{ default: "300px" }}>
+                <ToolbarItem>
                   <SearchInput
                     placeholder="Search questions"
                     value={searchValue}

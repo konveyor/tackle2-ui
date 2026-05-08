@@ -4,8 +4,8 @@ import {
   Button,
   ButtonVariant,
   Masthead,
-  MastheadLogo,
   MastheadContent,
+  MastheadLogo,
   MastheadMain,
   MastheadToggle,
   PageToggleButton,
@@ -39,7 +39,7 @@ export const HeaderApp: React.FC = () => {
         <ToolbarGroup
           id="header-toolbar-tasks"
           variant="icon-button-group"
-          align={{ default: "alignRight" }}
+          align={{ default: "alignEnd" }}
         >
           <ToolbarItem>
             <TaskNotificationBadge />
@@ -118,8 +118,8 @@ export const HeaderApp: React.FC = () => {
   return (
     <Masthead>
       <MastheadToggle>
-        <PageToggleButton variant="plain" aria-label="Global navigation">
-          <BarsIcon />
+        <PageToggleButton isHamburgerButton variant="plain" aria-label="Global navigation">
+          
         </PageToggleButton>
       </MastheadToggle>
       <MastheadMain>
