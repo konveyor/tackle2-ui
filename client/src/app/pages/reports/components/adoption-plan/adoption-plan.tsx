@@ -10,7 +10,7 @@ import {
   ChartGroup,
   ChartThemeColor,
   ChartVoronoiContainer,
-} from "@patternfly/react-charts";
+} from "@patternfly/react-charts/victory";
 import { Bullseye, Skeleton } from "@patternfly/react-core";
 
 import { PROPOSED_ACTION_LIST } from "@app/Constants";

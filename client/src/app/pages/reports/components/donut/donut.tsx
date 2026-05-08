@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ChartDonut } from "@patternfly/react-charts";
+import { ChartDonut } from "@patternfly/react-charts/victory";
 import {
   Bullseye,
   Stack,

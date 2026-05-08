@@ -7,6 +7,7 @@ import {
   MastheadContent,
   MastheadLogo,
   MastheadMain,
+  MastheadBrand,
   MastheadToggle,
   PageToggleButton,
   Title,
@@ -50,7 +51,7 @@ export const HeaderApp: React.FC = () => {
         <ToolbarGroup
           id="header-toolbar-desktop"
           variant="icon-button-group"
-          spacer={{ default: "spacerNone", md: "spacerMd" }}
+          gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{
             default: "hidden",
             "2xl": "visible",
@@ -64,13 +65,12 @@ export const HeaderApp: React.FC = () => {
               {({ toggleModal }) => {
                 return (
                   <Button
+                    icon={<HelpIcon />}
                     id="about-button"
                     aria-label="about button"
                     variant={ButtonVariant.plain}
                     onClick={toggleModal}
-                  >
-                    <HelpIcon />
-                  </Button>
+                  />
                 );
               }}
             </AppAboutModalState>
@@ -81,7 +81,7 @@ export const HeaderApp: React.FC = () => {
         <ToolbarGroup
           id="header-toolbar-mobile"
           variant="icon-button-group"
-          spacer={{ default: "spacerNone", md: "spacerMd" }}
+          gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{ lg: "hidden" }}
         >
           <ToolbarItem>
@@ -117,30 +117,34 @@ export const HeaderApp: React.FC = () => {
 
   return (
     <Masthead>
-      <MastheadToggle>
-        <PageToggleButton isHamburgerButton variant="plain" aria-label="Global navigation">
-          
-        </PageToggleButton>
-      </MastheadToggle>
       <MastheadMain>
-        <MastheadLogo data-codemods>
-          {leftBrand ? (
-            <Brand
-              src={leftBrand.src}
-              alt={leftBrand.alt}
-              heights={{ default: leftBrand.height }}
-            />
-          ) : null}
-          {leftTitle ? (
-            <Title
-              className="logo-pointer"
-              headingLevel={leftTitle?.heading ?? "h1"}
-              size={leftTitle?.size ?? "2xl"}
-            >
-              {leftTitle.text}
-            </Title>
-          ) : null}
-        </MastheadLogo>
+        <MastheadToggle>
+          <PageToggleButton
+            isHamburgerButton
+            variant="plain"
+            aria-label="Global navigation"
+          />
+        </MastheadToggle>
+        <MastheadBrand data-codemods>
+          <MastheadLogo data-codemods>
+            {leftBrand ? (
+              <Brand
+                src={leftBrand.src}
+                alt={leftBrand.alt}
+                heights={{ default: leftBrand.height }}
+              />
+            ) : null}
+            {leftTitle ? (
+              <Title
+                className="logo-pointer"
+                headingLevel={leftTitle?.heading ?? "h1"}
+                size={leftTitle?.size ?? "2xl"}
+              >
+                {leftTitle.text}
+              </Title>
+            ) : null}
+          </MastheadLogo>
+        </MastheadBrand>
       </MastheadMain>
       <MastheadContent>{toolbar}</MastheadContent>
     </Masthead>

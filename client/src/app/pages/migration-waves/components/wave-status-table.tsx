@@ -181,6 +181,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         </Tooltip>
                       )}
                       <Button
+                        icon={<TrashIcon />}
                         type="button"
                         variant="plain"
                         onClick={() => {
@@ -204,9 +205,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                             removeApplication(migrationWave, app.id);
                           }
                         }}
-                      >
-                        <TrashIcon />
-                      </Button>
+                      />
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>

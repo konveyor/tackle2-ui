@@ -39,15 +39,14 @@ export const TargetItem = React.forwardRef<HTMLDivElement, TargetItemProps>(
           dndSortHandle={
             readOnly ? undefined : (
               <Button
+                icon={<GripVerticalIcon />}
                 ref={activatorNodeRef}
                 className="grabbable"
                 id={`target-${target.id}-drag-button`}
                 aria-label={`target ${target.name} drag button`}
                 variant={ButtonVariant.plain}
                 {...draggableProps}
-              >
-                <GripVerticalIcon />
-              </Button>
+              />
             )
           }
           onEdit={onEdit}
