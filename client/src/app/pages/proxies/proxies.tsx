@@ -44,8 +44,12 @@ export const Proxies: React.FC = () => {
         <Card>
           <CardBody>
             {isFetching ? (
-              <EmptyState  headingLevel="h4" icon={Spinner}  titleText={t("message.loadingTripleDot")} className={spacing.mtXl}>
-                </EmptyState>
+              <EmptyState
+                headingLevel="h4"
+                icon={Spinner}
+                titleText={t("message.loadingTripleDot")}
+                className={spacing.mtXl}
+              ></EmptyState>
             ) : (
               <ProxyForm
                 httpProxy={existingHttpProxy}

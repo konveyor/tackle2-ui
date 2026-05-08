@@ -243,13 +243,18 @@ export const StakeholderGroups: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.stakeholderGroup").toLowerCase(),
-                        })}
-                      </>
-                    } variant="sm">
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={
+                    <>
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.stakeholderGroup").toLowerCase(),
+                      })}
+                    </>
+                  }
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.add"),

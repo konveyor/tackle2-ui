@@ -229,13 +229,18 @@ export const BusinessServices: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.businessService").toLowerCase(),
-                        })}
-                      </>
-                    } variant="sm">
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={
+                    <>
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.businessService").toLowerCase(),
+                      })}
+                    </>
+                  }
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),

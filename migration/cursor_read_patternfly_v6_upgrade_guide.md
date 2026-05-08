@@ -1,4 +1,5 @@
 # Read PatternFly v6 upgrade guide
+
 _Exported on 5/8/2026 at 14:10:54 GMT+2 from Cursor (2.6.22)_
 
 ---
@@ -6,8 +7,6 @@ _Exported on 5/8/2026 at 14:10:54 GMT+2 from Cursor (2.6.22)_
 **Cursor**
 
 Loading the PatternFly upgrade page, waiting for the SPA to render, then capturing the full guide text.
-
-
 
 Here is what the loaded page documents, organized how you asked, then a single **full plain-text transcription** of the migration guide body (assembled from the live page’s accessibility tree at [Upgrade to PatternFly 6](https://www.patternfly.org/get-started/upgrade/); a few inline sentences were clipped in that export, so those are marked with `[…]` where the site did not expose the full string).
 
@@ -17,8 +16,8 @@ Here is what the loaded page documents, organized how you asked, then a single *
 
 Purple **info alert** at the top of the guide:
 
-- **Are you ready for PatternFly 6?**  
-- **To ensure your product is ready for PatternFly 6, complete the [PatternFly 5 upgrade process](https://www.patternfly.org/get-started/develop#upgrade) first** to address any necessary changes from our previous release. *(Exact link target is handled by PatternFly’s site navigation; the alert text anchors on “complete the PatternFly 5 upgrade process”.)*
+- **Are you ready for PatternFly 6?**
+- **To ensure your product is ready for PatternFly 6, complete the [PatternFly 5 upgrade process](https://www.patternfly.org/get-started/develop#upgrade) first** to address any necessary changes from our previous release. _(Exact link target is handled by PatternFly’s site navigation; the alert text anchors on “complete the PatternFly 5 upgrade process”.)_
 
 ---
 
@@ -28,24 +27,24 @@ The guide uses **two overlapping lists**:
 
 **A. High-level bullets under “Your upgrade process will require you to complete these steps:”**
 
-1. Update your dependencies to use PatternFly **6** instead of PatternFly **5**.  
-2. Run our **codemods** suite.  
-3. Remove all **CSS overrides**.  
-4. Review and update **variable and class names**.  
+1. Update your dependencies to use PatternFly **6** instead of PatternFly **5**.
+2. Run our **codemods** suite.
+3. Remove all **CSS overrides**.
+4. Review and update **variable and class names**.
 5. Update any **pixel-based logic** for your breakpoints.
 
 **B. Numbered sections in the TOC (“How to upgrade”)**
 
 These map to concrete work after dependencies are bumped:
 
-1. **Run our codemods suite**  
-2. **Remove all CSS overrides**  
-3. **Review and update variable and class names** (includes the three supplementary codemods: `class-name-updater`, `tokens-update`, `css-vars-updater`)  
+1. **Run our codemods suite**
+2. **Remove all CSS overrides**
+3. **Review and update variable and class names** (includes the three supplementary codemods: `class-name-updater`, `tokens-update`, `css-vars-updater`)
 4. **Update any pixel-based logic for breakpoints**
 
 Extra sections:
 
-- **Potential test failures** (Button, Select testing-library notes)  
+- **Potential test failures** (Button, Select testing-library notes)
 - **Get help** (support + caveat about fully custom/non-component styling)
 
 ---
@@ -58,11 +57,11 @@ The page **does not** spell out every `@patternfly/*` package and target semver 
 
 Concrete package-related details called out explicitly:
 
-| Topic | What the guide says |
-|--------|---------------------|
-| **Charts / Victory** | Victory-based charts live under **`@patternfly/react-charts/victory`**. Imports must change from e.g. `import { Area } from '@patternfly/react-charts';` → `import { Area } from '@patternfly/react-charts/victory';`. Victory is now an **optional peer dependency**. Install **`victory`** for everything, **or** feature-specific packages (e.g. `victory-core`, `victory-tooltip`, …). |
-| **Codemods CLI** | `npx @patternfly/pf-codemods@latest <path to source> --v6` (+ optional `--fix`). |
-| **React tokens package** | Manual discussion references tokens imported via **`@patternfly/react-tokens`** when codemods can’t resolve 1:1 token pairs. |
+| Topic                    | What the guide says                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Charts / Victory**     | Victory-based charts live under **`@patternfly/react-charts/victory`**. Imports must change from e.g. `import { Area } from '@patternfly/react-charts';` → `import { Area } from '@patternfly/react-charts/victory';`. Victory is now an **optional peer dependency**. Install **`victory`** for everything, **or** feature-specific packages (e.g. `victory-core`, `victory-tooltip`, …). |
+| **Codemods CLI**         | `npx @patternfly/pf-codemods@latest <path to source> --v6` (+ optional `--fix`).                                                                                                                                                                                                                                                                                                           |
+| **React tokens package** | Manual discussion references tokens imported via **`@patternfly/react-tokens`** when codemods can’t resolve 1:1 token pairs.                                                                                                                                                                                                                                                               |
 
 Other helper tools referenced by **name** (you install/run them separately per their README / examples):
 
@@ -79,14 +78,14 @@ Other helper tools referenced by **name** (you install/run them separately per t
 - For **tokens & classes**, the guide points to curated lists: **“Removed variables”** and **“Added variables”** (links from the live page).
 - **Three codemods** for naming/token migration:
 
-  **a. `class-name-updater`**  
+  **a. `class-name-updater`**
   - Highlights places needing tweaks; **`pf-v5` → `pf-v6`** style find/replace semantics. Simple enough it can **incorrectly rewrite** unrelated cases—manual review recommended. Use **`--v6`** (defaults to PF5-targeting behavior otherwise) + **`--fix`**.
 
-  **b. `tokens-update`** *(JS/TSX)*  
-  - Temporarily rewires globals to a visible **placeholder** styling so unresolved spots jump out (**`--pf-t--temp--dev--tbd`** / analogous **`t_temp_dev_tbd`** style token **[…]**).  
+  **b. `tokens-update`** _(JS/TSX)_
+  - Temporarily rewires globals to a visible **placeholder** styling so unresolved spots jump out (**`--pf-t--temp--dev--tbd`** / analogous **`t_temp_dev_tbd`** style token **[…]**).
   - Example mappings: `--pf-v5-global--FontSize--lg` → `--pf-t--global--font--size--lg`; `global_FontSize_lg` → `t_global_font_size_lg`.
 
-  **c. `css-vars-updater`** *(non-React/CSS/Sass/md/etc.)**  
+  **c. `css-vars-updater`** \*(non-React/CSS/Sass/md/etc.)\*\*
   - Updates PF5 CSS variables tied to PF6 tokens in non-React files.
 
 - **Breakpoints:** PF6 global breakpoint tokens are expressed in **`rem`**, not **px**.
@@ -266,4 +265,3 @@ Reach out links: Slack, GitHub discussions, mailing list/calendar/discussions su
 ```
 
 If you need the **canonical exact wording** including every hyperlink URL and ellipsis-free prose, copying from the rendered page or its MDX source in [patternfly/patternfly-org](https://github.com/patternfly/patternfly-org) will be more precise than the accessibility dump alone.
-

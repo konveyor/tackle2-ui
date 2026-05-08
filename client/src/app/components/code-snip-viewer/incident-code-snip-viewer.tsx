@@ -34,7 +34,12 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
 
   if (!parsed.valid) {
     return (
-      <EmptyState  headingLevel="h4" icon={CubesIcon}  titleText={t("message.noCodesSnippetAvailableTitle")} variant={EmptyStateVariant.sm}>
+      <EmptyState
+        headingLevel="h4"
+        icon={CubesIcon}
+        titleText={t("message.noCodesSnippetAvailableTitle")}
+        variant={EmptyStateVariant.sm}
+      >
         <EmptyStateBody>
           {t("message.noCodesSnippetAvailableBody")}
         </EmptyStateBody>

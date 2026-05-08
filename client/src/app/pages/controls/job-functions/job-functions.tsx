@@ -187,13 +187,18 @@ export const JobFunctions: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.jobFunction").toLowerCase(),
-                        })}
-                      </>
-                    } variant="sm">
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={
+                    <>
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.jobFunction").toLowerCase(),
+                      })}
+                    </>
+                  }
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),

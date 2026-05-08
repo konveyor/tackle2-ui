@@ -228,9 +228,14 @@ export const AnalysisProfiles: React.FC = () => {
               isError={!!error}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("composed.noDataStateTitle", {
-                      what: t("terms.analysisProfiles").toLowerCase(),
-                    })} variant="sm">
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.analysisProfiles").toLowerCase(),
+                  })}
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("actions.create"),

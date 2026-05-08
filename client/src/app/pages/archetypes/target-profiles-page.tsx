@@ -153,7 +153,12 @@ const TargetProfilesPage: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={profiles.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noTargetProfilesTitle")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noTargetProfilesTitle")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("message.noTargetProfilesCreate")}
                     </EmptyStateBody>

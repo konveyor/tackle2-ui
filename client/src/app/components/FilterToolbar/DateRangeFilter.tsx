@@ -3,9 +3,9 @@ import {
   DatePicker,
   InputGroup,
   InputGroupItem,
+  ToolbarFilter,
   ToolbarLabel,
   ToolbarLabelGroup,
-  ToolbarFilter,
   Tooltip,
   isValidDate as isValidJSDate,
 } from "@patternfly/react-core";

@@ -26,7 +26,12 @@ export const NoEntitySelected: React.FC<NoEntitySelectedProps> = ({
 
   return (
     <div className="drawer-tabs-container">
-      <EmptyState  headingLevel="h4" icon={CubesIcon}  titleText={t(title, { entity: entityName })} variant={EmptyStateVariant.sm}>
+      <EmptyState
+        headingLevel="h4"
+        icon={CubesIcon}
+        titleText={t(title, { entity: entityName })}
+        variant={EmptyStateVariant.sm}
+      >
         <EmptyStateBody>
           {t(description, { entity: entityName })}
         </EmptyStateBody>

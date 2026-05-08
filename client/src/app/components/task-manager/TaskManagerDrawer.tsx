@@ -87,7 +87,12 @@ export const TaskManagerDrawer = forwardRef((_props, ref) => {
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         {tasks.length == 0 ? (
-          <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noQueuedTasksTitle")} variant={EmptyStateVariant.full}>
+          <EmptyState
+            headingLevel="h2"
+            icon={CubesIcon}
+            titleText={t("message.noQueuedTasksTitle")}
+            variant={EmptyStateVariant.full}
+          >
             <EmptyStateBody>
               No tasks are currently ready, postponed, blocked, pending or
               running. Completed and cancelled tasks may be viewed on the full

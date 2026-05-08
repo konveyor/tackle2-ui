@@ -390,7 +390,12 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noMigrationWavesAvailable")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noMigrationWavesAvailable")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>

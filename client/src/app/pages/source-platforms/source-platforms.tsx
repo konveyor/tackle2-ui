@@ -255,7 +255,12 @@ export const SourcePlatforms: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noPlatformsCreatedTitle")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noPlatformsCreatedTitle")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       Create a new platform to get started.
                     </EmptyStateBody>

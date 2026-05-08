@@ -318,7 +318,12 @@ const Archetypes: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noArchetypesCreatedTitle")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noArchetypesCreatedTitle")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("message.noArchetypesCreatedDescription")}
                     </EmptyStateBody>

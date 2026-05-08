@@ -1,4 +1,5 @@
 # Read pf-codemods GitHub docs
+
 _Exported on 5/8/2026 at 14:02:54 GMT+2 from Cursor (2.6.22)_
 
 ---
@@ -7,11 +8,7 @@ _Exported on 5/8/2026 at 14:02:54 GMT+2 from Cursor (2.6.22)_
 
 Fetching the README from GitHub's raw URL for the complete text (GitHub HTML often truncates), and opening the repo page to confirm.
 
-
-
 Opening the raw README for the complete text.
-
-
 
 Noting: the repo root [`README.md`](https://github.com/patternfly/pf-codemods/blob/main/README.md) is a symlink to [`packages/pf-codemods/README.md`](https://github.com/patternfly/pf-codemods/blob/main/packages/pf-codemods/README.md); the real documentation lives there. We loaded the full file from GitHub’s plain view (`?plain=1`).
 
@@ -32,18 +29,18 @@ Noting: the repo root [`README.md`](https://github.com/patternfly/pf-codemods/bl
 
 From the README’s **Options** section (CLI help text):
 
-| Flag | Purpose |
-|------|--------|
-| `-V`, `--version` | Print version |
-| `--only <rules>` | Comma-separated list of **rule names** to run |
+| Flag                | Purpose                                                    |
+| ------------------- | ---------------------------------------------------------- |
+| `-V`, `--version`   | Print version                                              |
+| `--only <rules>`    | Comma-separated list of **rule names** to run              |
 | `--exclude <rules>` | Run recommended rules **except** this comma-separated list |
-| `--fix` | Run ESLint **fixers** |
-| `--format <format>` | ESLint report format (default `stylish`) |
-| `--no-cache` | Disable ESLint cache |
-| `--v4` | v3 → v4 codemods |
-| `--v5` | v4 → v5 codemods |
-| **`--v6`** | **v5 → v6** codemods |
-| `-h`, `--help` | Help |
+| `--fix`             | Run ESLint **fixers**                                      |
+| `--format <format>` | ESLint report format (default `stylish`)                   |
+| `--no-cache`        | Disable ESLint cache                                       |
+| `--v4`              | v3 → v4 codemods                                           |
+| `--v5`              | v4 → v5 codemods                                           |
+| **`--v6`**          | **v5 → v6** codemods                                       |
+| `-h`, `--help`      | Help                                                       |
 
 If you don’t pass `--v4` / `--v5` / `--v6`, the tool can use an **interactive menu** to pick the target version (per README “Simple case”).
 
@@ -89,7 +86,7 @@ The verbatim README is **~3,148 lines** (mostly per-rule docs and examples). Pas
 
 Below is the **full beginning through the CLI “Options” block and the rules intro** exactly as in the README (everything after that is hundreds of rule sections with duplicated “Examples / In / Out” JSX blocks—the same structure repeats for each rule):
 
-```markdown
+````markdown
 # pf-codemods
 
 Hey PatternFly-React devs! `pf-codemods` is an eslint wrapper to update @patternfly/react-core@5.x.x code to 6.x.x.
@@ -107,6 +104,7 @@ Requires Node.js >= 10.
 ```sh
 npx @patternfly/pf-codemods ./path-to-src
 ```
+````
 
 Use the interactive menu to choose a PatternFly version to update to. Or you can specify the version directly with a flag:
 
@@ -149,11 +147,12 @@ These rules are based off the breaking change notes for React. Each rule links t
 Some rules will add either a comment (`/* data-codemods */`) or data attribute (`data-codemods="true"`) in order to prevent certain other rules from applying an unnecessary fix.
 These `data-codemods` attributes and comments can be removed by our `data-codemods-cleanup` rule. You should run this rule only once, after you finish running the general codemods, by adding the `--only data-codemods-cleanup` option.
 
-
 ### accordionContent-remove-isHidden-prop ...
 
 … (remainder: every rule documented with headings, descriptions, and In/Out code examples — see raw URL or saved file above.)
+
 ```
 
 If you want the rules list exported as plain text only (rule names without examples), say so and we can derive that from the same file programmatically once shell access is available in your environment.
 
+```

@@ -264,7 +264,12 @@ export const SchemaDefinedPage: React.FC = () => {
                   </CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
-                      <EmptyState  headingLevel="h4"   titleText={t("message.noDocument")} variant={EmptyStateVariant.xs} isFullHeight>
+                      <EmptyState
+                        headingLevel="h4"
+                        titleText={t("message.noDocument")}
+                        variant={EmptyStateVariant.xs}
+                        isFullHeight
+                      >
                         <EmptyStateBody>
                           Current document is empty.
                         </EmptyStateBody>

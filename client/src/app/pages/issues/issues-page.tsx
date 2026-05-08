@@ -56,7 +56,7 @@ export const Issues: React.FC = () => {
 
   return (
     <>
-      <PageSection  className={spacing.pb_0}>
+      <PageSection className={spacing.pb_0}>
         <TextContent>
           <Title headingLevel="h1">{t("terms.issues")}</Title>
           <Text component="small">

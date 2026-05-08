@@ -47,7 +47,12 @@ export const ErrorFallback = ({
 
   return (
     <Bullseye>
-      <EmptyState  headingLevel="h2" icon={UserNinjaIcon}  titleText={<>{t("dialog.message.pageError")}</>} variant={EmptyStateVariant.sm}>
+      <EmptyState
+        headingLevel="h2"
+        icon={UserNinjaIcon}
+        titleText={<>{t("dialog.message.pageError")}</>}
+        variant={EmptyStateVariant.sm}
+      >
         <EmptyStateBody>
           {t("dialog.message.refreshPage")}
           <Button

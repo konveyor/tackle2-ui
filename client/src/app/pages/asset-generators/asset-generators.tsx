@@ -272,7 +272,12 @@ const AssetGenerators: FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noGeneratorsCreatedTitle")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noGeneratorsCreatedTitle")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("message.noGeneratorsCreatedTitleDescription")}
                     </EmptyStateBody>

@@ -62,7 +62,7 @@ export const Controls: React.FC = () => {
   }, [location.pathname]);
   return (
     <>
-      <PageSection  className={spacing.pb_0}>
+      <PageSection className={spacing.pb_0}>
         <Level>
           <LevelItem>
             <Title headingLevel="h1">{t("terms.controls")}</Title>

@@ -200,14 +200,16 @@ export const SimpleDocumentViewer = ({
       showEditor={code !== undefined}
       emptyState={
         <div className="simple-task-viewer-empty-state">
-          <EmptyState  headingLevel="h4" icon={Spinner}  titleText={t("message.loadingCurrentLanguage", {
-                currentLanguage,
-              })}
+          <EmptyState
+            headingLevel="h4"
+            icon={Spinner}
+            titleText={t("message.loadingCurrentLanguage", {
+              currentLanguage,
+            })}
             variant={EmptyStateVariant.sm}
             isFullHeight
             style={{ height: height === "full" ? "auto" : height }}
-          >
-            </EmptyState>
+          ></EmptyState>
         </div>
       }
       customControls={[

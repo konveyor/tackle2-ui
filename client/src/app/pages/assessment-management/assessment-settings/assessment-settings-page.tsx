@@ -241,7 +241,12 @@ const AssessmentSettings: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={t("message.noQuestionnairesAvailable")} variant="sm">
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noQuestionnairesAvailable")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>

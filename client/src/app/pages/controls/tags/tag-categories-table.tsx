@@ -301,13 +301,18 @@ export const Tags: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState  headingLevel="h2" icon={CubesIcon}  titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.tags").toLowerCase(),
-                        })}
-                      </>
-                    } variant="sm">
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={
+                    <>
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.tags").toLowerCase(),
+                      })}
+                    </>
+                  }
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -372,9 +377,12 @@ export const Tags: React.FC = () => {
                                 onDelete={setTagToDelete}
                               />
                             ) : (
-                              <EmptyState  headingLevel="h4" icon={CubesIcon}  titleText={
-                                    <>{t("message.noTagsAvailable")}</>
-                                  } variant="sm">
+                              <EmptyState
+                                headingLevel="h4"
+                                icon={CubesIcon}
+                                titleText={<>{t("message.noTagsAvailable")}</>}
+                                variant="sm"
+                              >
                                 <EmptyStateBody>
                                   {t("message.noAssociatedTags")}
                                 </EmptyStateBody>
