@@ -175,8 +175,18 @@ spec:
                 exit 1
               fi
 
+              echo "Filtering credentials to ONLY include stage registry (registry.stage.redhat.io)"
+
+              # Filter dockerconfig to only include stage registry
+              cat /registry-secrets/.dockerconfigjson | \
+                jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
+                > /tmp/stage-only-dockerconfig.json
+
+              echo "Stage-only credentials:"
+              jq -r '.auths | keys[]' /tmp/stage-only-dockerconfig.json
+
               oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
+                --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
                 --type=kubernetes.io/dockerconfigjson \
                 -n openshift-marketplace \
                 --dry-run=client -o yaml | oc apply -f -
@@ -187,7 +197,7 @@ spec:
               oc create namespace $OPERATOR_NAMESPACE --dry-run=client -o yaml | oc apply -f -
 
               oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/registry-secrets/.dockerconfigjson \
+                --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
                 --type=kubernetes.io/dockerconfigjson \
                 -n $OPERATOR_NAMESPACE \
                 --dry-run=client -o yaml | oc apply -f -
@@ -311,14 +321,15 @@ spec:
 
               oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
 
-              echo "Checking cluster proxy configuration for trustedCA workaround..."
-              if ! oc get proxy cluster -o jsonpath='{.spec.trustedCA}' 2>/dev/null | grep -q .; then
-                echo "⚠️  Proxy missing trustedCA field - applying workaround for operator bug"
-                oc patch proxy cluster --type=merge -p '{"spec":{"trustedCA":{"name":""}}}'
-                echo "✅ Proxy patched with empty trustedCA"
-              else
-                echo "✅ Proxy already has trustedCA configured"
-              fi
+              echo "========================================="
+              echo "VERIFYING IMAGE SOURCES (stage-only test)"
+              echo "========================================="
+              echo "Checking which registry operator images were pulled from:"
+              oc get pods -n "$NAMESPACE" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{range .status.containerStatuses[*]}  {.name}: {.imageID}{"\n"}{end}{end}' | head -20
+              echo ""
+              echo "Checking catalog source pod images:"
+              oc get pods -n openshift-marketplace -l olm.catalogSource=mta-konflux-catalog -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{range .status.containerStatuses[*]}  {.name}: {.imageID}{"\n"}{end}{end}'
+              echo "========================================="
 
               cat <<EOF | oc apply -f -
               apiVersion: tackle.konveyor.io/v1alpha1
