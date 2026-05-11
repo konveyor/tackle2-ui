@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  profile: concise
+  path_instructions:
+    - path: client/src/app/api/**
+      instructions: >
+        Verify API model types match the Hub OpenAPI spec.
+        Check that REST functions use the `hub` tagged template.
+    - path: client/src/app/queries/**
+      instructions: >
+        Ensure query keys are exported constants.
+        Verify mutations invalidate relevant query caches on success.
+        Check TanStack Query exhaustive-deps compliance.
+    - path: client/src/app/components/FilterToolbar/**
+      instructions: >
+        Check that Select components use FilterSelectOptionProps.
+        Verify toggle IDs are unique across instances.
+        Ensure aria-labels are human-readable, not ID-like.
+    - path: client/src/app/pages/**
+      instructions: >
+        Forms must use react-hook-form with yup validation.
+        Check import ordering (react, external, @patternfly, @app).
+        Verify ID checks use explicit null guards, not truthy checks.
+    - path: cypress/e2e/**
+      instructions: >
+        Ensure selectors scope to the active element (listbox, modal, dialog).
+        Verify page object model patterns are followed.
+        Check that assertions do not rely on timing - use Cypress retry-ability.
+
+  path_filters:
+    - "!**/package-lock.json"
+    - "!**/dist/**"
+    - "!**/node_modules/**"
+    - "!**/coverage/**"
+    - "!client/public/locales/**"
+    - "!branding/**"
+
+chat:
+  auto_reply: true
