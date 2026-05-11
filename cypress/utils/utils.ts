@@ -103,7 +103,6 @@ import {
   expandableRow,
   filteredBy,
   firstPageButton,
-  itemsPerPageMenuOptions,
   itemsPerPageToggleButton,
   lastPageButton,
   manageImportsActionsButton,
@@ -347,20 +346,23 @@ export function resetURL(): void {
 }
 
 export function selectItemsPerPage(items: number): void {
-  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC, log: false }).then(
-    ($toggleBtn) => {
-      if (!$toggleBtn.eq(0).is(":disabled")) {
-        $toggleBtn.eq(0).trigger("click");
-        cy.get(itemsPerPageMenuOptions, { timeout: 60 * SEC, log: false });
-        cy.get(`li[data-action="per-page-${items}"]`, { log: false })
-          .contains(`${items}`)
-          .click({
-            force: true,
-            log: false,
-          });
-      }
+  cy.get(itemsPerPageToggleButton, { timeout: 60 * SEC }).then(($toggleBtn) => {
+    if ($toggleBtn.is(":disabled")) {
+      return;
     }
-  );
+    $toggleBtn.trigger("click");
+    // Note PF6 renders menu dropdowns via Popper/portal outside the current
+    // DOM context (e.g. outside a modal)
+    const actionSelector = `li[data-action="per-page-${items}"]`;
+
+    cy.document()
+      .its("body")
+      .within(() => {
+        cy.get(actionSelector, { timeout: 60 * SEC })
+          .contains("button", `${items}`)
+          .click();
+      });
+  });
 }
 
 export function selectFromDropList(dropList, item: string) {
@@ -1691,8 +1693,9 @@ export function callWithin(
   selector: string,
   functionToExec: () => void,
   index = 0
-): void {
-  cy.get(selector)
+): Chainable<JQuery<HTMLElement>> {
+  return cy
+    .get(selector)
     .eq(index)
     .within(() => functionToExec());
 }
