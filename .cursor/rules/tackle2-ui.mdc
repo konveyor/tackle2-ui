@@ -1,0 +1,28 @@
+---
+description: Konveyor UI conventions and context pointers
+globs: "**/*.{ts,tsx,js,jsx,css}"
+alwaysApply: true
+---
+
+# tackle2-ui
+
+React + PatternFly frontend for Konveyor application modernization platform.
+
+## Context
+
+- [../../AGENTS.md](../../AGENTS.md) -- directory structure, patterns, review checklist
+- [../../ARCHITECTURE.md](../../ARCHITECTURE.md) -- system design, data flow
+- [../../CONTRIBUTING.md](../../CONTRIBUTING.md) -- coding standards, PR process
+
+## Conventions
+
+- Functional components + hooks only (no class components)
+- Forms: `react-hook-form` + `yup` schemas, PatternFly wrappers in `components/HookFormPFFields/`
+- API data: TanStack Query hooks in `queries/`, REST client in `api/rest.ts`
+- Tables: use `hooks/table-controls/` composable system
+- IDs: explicit null checks (`id != null`), never truthy guards
+- Selects: `SimpleSelect` / `TypeaheadSelect` / `MultiSelect` with `FilterSelectOptionProps`
+- i18n: all strings via `useTranslation` hook, translations in `client/public/locales/en/`
+- File names: kebab-case
+- Import order: react -> external -> @patternfly -> @konveyor-ui/@app -> relative
+- RBAC roles: `tackle-admin`, `tackle-architect`, `tackle-migrator`

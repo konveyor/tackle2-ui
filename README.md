@@ -2,7 +2,11 @@
 
 [![Operator Repository on Quay](https://quay.io/repository/konveyor/tackle2-ui/status "Operator Repository on Quay")](https://quay.io/repository/konveyor/tackle2-ui) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/konveyor/tackle2-ui/pulls)
 
-Konveyor UI component
+## Overview
+
+tackle2-ui is the web-based user interface for [Konveyor](https://konveyor.io), an open-source application modernization platform. It provides tools for assessing, analyzing, and migrating applications to Kubernetes. The UI is built with React and PatternFly, communicates with the [Konveyor Hub](https://github.com/konveyor/tackle2-hub) REST API, and runs as a containerized Node.js application within the Konveyor operator deployment.
+
+Key capabilities include application inventory management, assessment questionnaires, static code analysis, migration wave planning, dependency tracking, and issue/insight visualization.
 
 # Build and Test Status
 
