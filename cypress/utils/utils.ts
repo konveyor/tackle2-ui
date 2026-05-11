@@ -1950,31 +1950,19 @@ export function verifySelectorText(
 }
 
 export function enableSwitch(selector: string): void {
-  cy.get(selector)
-    .parent("label")
-    .within(() => {
-      cy.get(".pf-m-on")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
-    });
+  cy.get(selector).then(($input) => {
+    if (!$input.is(":checked")) {
+      cy.wrap($input).parent("label").find(switchToggle).click();
+    }
+  });
 }
 
 export function disableSwitch(selector: string): void {
-  cy.get(selector)
-    .parent("label")
-    .within(() => {
-      cy.get(".pf-m-off")
-        .invoke("css", "display")
-        .then((display) => {
-          if (display.toString() == "none") {
-            cy.get(switchToggle).click();
-          }
-        });
-    });
+  cy.get(selector).then(($input) => {
+    if ($input.is(":checked")) {
+      cy.wrap($input).parent("label").find(switchToggle).click();
+    }
+  });
 }
 
 export function validateTooShortInput(

@@ -97,17 +97,15 @@ export class AssessmentQuestionnaire {
   public static enable(fileName: string, enable = true) {
     AssessmentQuestionnaire.open();
     cy.wait(3 * SEC);
-    const selector = enable ? ".pf-m-on" : ".pf-m-off";
     cy.contains(fileName, { timeout: 2 * SEC })
       .closest("tr")
       .within(() => {
-        cy.get(selector)
-          .invoke("css", "display")
-          .then((display) => {
-            if (display.toString() == "none") {
-              cy.get(switchToggle, { timeout: 2 * SEC }).click();
-            }
-          });
+        cy.get(".pf-v6-c-switch__input").then(($input) => {
+          const isChecked = $input.is(":checked");
+          if (enable !== isChecked) {
+            cy.get(switchToggle, { timeout: 2 * SEC }).click();
+          }
+        });
       });
   }
 
