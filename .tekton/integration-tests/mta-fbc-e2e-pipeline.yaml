@@ -180,9 +180,13 @@ spec:
               chmod +x /tmp/jq
 
               echo "==========================================="
-              echo "UPDATING CLUSTER GLOBAL PULL SECRET"
+              echo "REGISTRY CREDENTIALS SETUP"
               echo "==========================================="
-              echo "Merging stage credentials into cluster's global pull secret..."
+              echo "Note: Hypershift clusters actively reconcile the global pull secret."
+              echo "We will attempt to merge stage credentials, but they may be reverted."
+              echo "Main strategy: Use CatalogSource.spec.secrets for bundle pulls."
+              echo ""
+              echo "Attempting to merge stage credentials into cluster's global pull secret..."
 
               # Get current global pull secret
               oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > /tmp/current-global-secret.json
@@ -220,7 +224,9 @@ spec:
               echo "==========================================="
               echo ""
 
-              # Also create namespace-level secret for stage-only testing verification
+              # Create namespace-level secret with STAGE-ONLY credentials for true stage-only testing
+              # Filter to only include registry.stage.redhat.io
+              echo "Creating registry-pull-secret in openshift-marketplace with STAGE-ONLY credentials..."
               cat /registry-secrets/.dockerconfigjson | \
                 /tmp/jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
                 > /tmp/stage-only-dockerconfig.json
@@ -231,11 +237,18 @@ spec:
                 -n openshift-marketplace \
                 --dry-run=client -o yaml | oc apply -f -
 
+              echo "Registries in openshift-marketplace/registry-pull-secret (stage-only):"
+              oc get secret registry-pull-secret -n openshift-marketplace -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | sed 's/^/  - /'
+              echo ""
+              echo "✅ Stage-only credentials configured - prod registry pulls will fail (no credentials)"
+              echo ""
+
               oc patch serviceaccount default -n openshift-marketplace \
                 -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
 
               oc create namespace $OPERATOR_NAMESPACE --dry-run=client -o yaml | oc apply -f -
 
+              echo "Creating registry-pull-secret in $OPERATOR_NAMESPACE with STAGE-ONLY credentials..."
               oc create secret generic registry-pull-secret \
                 --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
                 --type=kubernetes.io/dockerconfigjson \
@@ -308,6 +321,7 @@ spec:
 
               oc create namespace "$NAMESPACE" --dry-run=client -o yaml | oc apply -f -
 
+              echo "Creating CatalogSource with registry-pull-secret for bundle image pulls..."
               cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: CatalogSource
@@ -317,6 +331,8 @@ spec:
               spec:
                 sourceType: grpc
                 image: $FBC_IMAGE
+                secrets:
+                  - registry-pull-secret
                 displayName: MTA Konflux Catalog
                 publisher: Red Hat
                 grpcPodConfig:
@@ -328,6 +344,10 @@ spec:
                   registryPoll:
                     interval: 10m
               EOF
+
+              echo "✅ CatalogSource configured to use registry-pull-secret for image pulls"
+              echo "   This should allow bundle unpacking pods to access registry.stage.redhat.io"
+              echo ""
 
               for i in {1..60}; do
                 STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
