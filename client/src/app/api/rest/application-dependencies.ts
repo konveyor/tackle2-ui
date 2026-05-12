@@ -13,14 +13,20 @@ const ANALYSIS_DEPS = hub`/analyses/report/dependencies`;
 const ANALYSIS_DEPS_APPS = hub`/analyses/report/dependencies/applications`;
 
 interface DependencyParams {
-  from?: string[];
-  to?: string[];
+  fromId?: string;
+  toId?: string;
 }
 
-export const getApplicationDependencies = (params?: DependencyParams) => {
+export const getApplicationDependencies = ({
+  fromId,
+  toId,
+}: DependencyParams = {}) => {
   return axios
     .get<ApplicationDependency[]>(`${DEPENDENCIES}`, {
-      params,
+      params: {
+        ...(fromId ? { "from.id": fromId } : {}),
+        ...(toId ? { "to.id": toId } : {}),
+      },
       headers: HEADERS.json,
     })
     .then((response) => response.data);

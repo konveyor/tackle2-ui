@@ -40,6 +40,7 @@ import * as commonView from "../../../views/common.view";
 import { navMenu, navTab } from "../../../views/menu.view";
 import {
   groupInput,
+  groupsToggle,
   jobfunctionInput,
   removeJobFunction,
   stakeholderEmailInput,
@@ -103,9 +104,13 @@ export class Stakeholders {
   }
 
   protected selectGroups(groups: Array<string>): void {
+    if (!groups.length) {
+      return;
+    }
     groups.forEach(function (group) {
       selectFormItems(groupInput, group);
     });
+    cy.get(groupsToggle).click();
   }
 
   protected removeGroups(groups: Array<string>): void {

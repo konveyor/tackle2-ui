@@ -11,22 +11,20 @@ import {
   Form,
 } from "@patternfly/react-core";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { New, Ref, StakeholderGroup } from "@app/api/models";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextArea,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 import { NotificationsContext } from "@app/components/NotificationsContext";
-import { OptionWithValue, SimpleSelect } from "@app/components/SimpleSelect";
 import {
   useCreateStakeholderGroupMutation,
   useFetchStakeholderGroups,
   useUpdateStakeholderGroupMutation,
 } from "@app/queries/stakeholdergroups";
 import { useFetchStakeholders } from "@app/queries/stakeholders";
-import { toOptionLike } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
 
 export interface FormValues {
@@ -52,10 +50,7 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
   const { stakeholderGroups } = useFetchStakeholderGroups();
 
   const stakeholdersOptions = stakeholders.map((stakeholder) => {
-    return {
-      value: stakeholder.name,
-      toString: () => stakeholder.name,
-    };
+    return { value: stakeholder.name };
   });
 
   const validationSchema = object().shape({
@@ -191,33 +186,26 @@ export const StakeholderGroupForm: React.FC<StakeholderGroupFormProps> = ({
         label={t("terms.member(s)")}
         fieldId="stakeholders"
         renderInput={({ field: { value, name, onChange } }) => (
-          <SimpleSelect
-            variant="typeaheadmulti"
-            maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
-            id="stakeholders"
+          <MultiSelect
             toggleId="stakeholders-toggle"
             toggleAriaLabel="Stakeholders select dropdown toggle"
             aria-label={name}
-            value={
-              value
-                ? value.map((value) => toOptionLike(value, stakeholdersOptions))
-                : undefined
-            }
+            values={value}
+            hasChips={true}
             options={stakeholdersOptions}
-            onChange={(selection) => {
+            onSelect={(selection) => {
+              if (!selection) {
+                return;
+              }
               const currentValue = value || [];
-              const selectionWithValue = selection as OptionWithValue<string>;
-              const e = currentValue.find(
-                (f) => f === selectionWithValue.value
-              );
+              const e = currentValue.find((f) => f === selection);
               if (e) {
-                onChange(
-                  currentValue.filter((f) => f !== selectionWithValue.value)
-                );
+                onChange(currentValue.filter((f) => f !== selection));
               } else {
-                onChange([...currentValue, selectionWithValue.value]);
+                onChange([...currentValue, selection]);
               }
             }}
+            onClear={() => onChange([])}
           />
         )}
       />
