@@ -65,7 +65,7 @@ describe(
       // Create applications for filtering tests
       cy.fixture("application").then((appData) => {
         cy.fixture("analysis").then((analysisData) => {
-          for (let i = 0; i < 6; i++) {
+          for (let i = 0; i < 2; i++) {
             const app = new Analysis(
               getRandomApplicationData("TaskFilteringApp_" + i, {
                 sourceData: appData["bookserver-app"],
@@ -250,7 +250,30 @@ describe(
       clearAllFilters();
     });
 
+    function createSimpleAppsForPagination() {
+      cy.fixture("application").then((appData) => {
+        cy.fixture("analysis").then((analysisData) => {
+          const appsForPagination = [];
+          for (let i = 0; i < 4; i++) {
+            const app = new Analysis(
+              getRandomApplicationData("SimpleTaskFilteringApp_" + i, {
+                sourceData: appData["bookserver-app"],
+              }),
+              getRandomAnalysisData(
+                analysisData["source_analysis_on_bookserverapp"]
+              )
+            );
+
+            appsForPagination.push(app);
+          }
+          appsForPagination.forEach((application) => application.create());
+        });
+      });
+    }
+
     it("Negative test: filtering by not existing data and Pagination", () => {
+      cy.visit("/");
+      createSimpleAppsForPagination();
       TaskManager.open();
       TaskManager.applyFilter(
         TaskFilter.applicationName,

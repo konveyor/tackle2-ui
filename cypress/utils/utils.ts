@@ -119,7 +119,7 @@ import {
 } from "../e2e/views/common.view";
 import { singleApplicationColumns } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
-import { navMenu, navTab } from "../e2e/views/menu.view";
+import { navMenu, navTab, navTabs } from "../e2e/views/menu.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
 import { tagLabels, tagMenuButton } from "../e2e/views/tags.view";
 import * as data from "../utils/data_utils";
@@ -534,8 +534,25 @@ export function notExists(value: string, tableSelector = appTable): void {
 }
 
 export function selectFilter(categoryKey: string): void {
-  cy.get(filteredBy).click();
-  cy.get(filterCategory(categoryKey)).click();
+  cy.get(
+    `[data-ouia-component-type="PF6/Toolbar"] button[aria-label="Show Filters"],${filteredBy}`
+  )
+    .should("be.visible")
+    .each(($button) => {
+      // expand the filter toolbar if it is not visible
+      if ($button.is("button[aria-label='Show filters']")) {
+        $button.trigger("click");
+      }
+    })
+    .then(() => {
+      cy.get(filteredBy).should("be.visible").click();
+      // popup rendered outside of the toolbar (escape within() scope)
+      cy.document()
+        .its("body")
+        .within(() => {
+          cy.get(filterCategory(categoryKey)).click({ force: true });
+        });
+    });
 }
 
 export function clearAllFilters(): void {
@@ -582,11 +599,16 @@ export function applySelectFilter(
   const filterValue = Array.isArray(searchText) ? searchText : [searchText];
 
   cy.get(filterToggle(filterName)).click();
-  cy.get(filterToggleListbox(filterName)).within(() => {
-    filterValue.forEach((searchTextValue) => {
-      cy.contains(searchTextValue).click();
+  // popup rendered outside of the toolbar (escape within() scope)
+  cy.document()
+    .its("body")
+    .within(() => {
+      cy.get(filterToggleListbox(filterName)).within(() => {
+        filterValue.forEach((searchTextValue) => {
+          cy.contains(searchTextValue).click({ force: true });
+        });
+      });
     });
-  });
 }
 
 export function applySearchFilter(
@@ -2078,32 +2100,26 @@ export function isButtonEnabled(selector: string, toBeEnabled?: boolean): void {
 }
 
 export function clickTab(name: string): void {
-  cy.get(navTab, { timeout: 10 * SEC }).should("exist");
+  cy.get(navTabs, { timeout: 10 * SEC }).should("exist");
 
-  cy.root().then(($root) => {
-    const visibleTab = $root
-      .find(`${navTab}:contains("${name}")`)
-      .filter((_index, el) => {
-        const $el = Cypress.$(el);
-        return (
-          $el.is(":visible") &&
-          $el.closest("li.pf-v6-c-tabs__item.pf-m-overflow").length === 0
-        );
-      });
+  cy.get(navTabs).then(($root) => {
+    const visibleTab = $root.find(`${navTab}:contains("${name}")`);
 
     if (visibleTab.length > 0) {
       clickByText(navTab, name);
     } else {
-      const overflowItem = $root.find("li.pf-v6-c-tabs__item.pf-m-overflow");
-      if (overflowItem.length > 0 && overflowItem.is(":visible")) {
-        cy.root().find("li.pf-v6-c-tabs__item.pf-m-overflow > button").click({
-          force: true,
+      cy.get(navTabs)
+        .get("li.pf-v6-c-tabs__item.pf-m-overflow button")
+        .should("exist")
+        .click({ force: true })
+        .then(() => {
+          cy.root().then(($root) => {
+            // for some reason synchronous check is needed
+            $root
+              .find(`${actionMenuItem}:contains("${name}")`)
+              .trigger("click");
+          });
         });
-        cy.get(actionMenuItem, { timeout: 5 * SEC }).should("be.visible");
-        clickByText(actionMenuItem, name);
-      } else {
-        clickByText(navTab, name);
-      }
     }
   });
 }

@@ -15,3 +15,4 @@ limitations under the License.
 */
 export const navMenu = 'a[class*="nav__link"]';
 export const navTab = "button[data-ouia-component-type='PF6/TabButton']";
+export const navTabs = "[data-ouia-component-type='PF6/Tabs']";

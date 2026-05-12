@@ -130,17 +130,8 @@ export class AssessmentQuestionnaire {
             .contains("Delete")
             .then(($delete_btn) => {
               if (!$delete_btn.parent().hasClass("pf-m-aria-disabled")) {
-                const row_name = $delete_btn
-                  .closest("td")
-                  .parent(trTag)
-                  .find('td[data-label="Name"]')
-                  .text();
                 clickByText(button, "Delete", true);
-                cy.get(confirmDeletion)
-                  .click()
-                  .focused()
-                  .clear()
-                  .type(row_name);
+                cy.get(confirmDeletion).click().focused().clear().type(rowName);
                 clickByText(button, deleteAction);
               } else {
                 // close menu if nothing to do
