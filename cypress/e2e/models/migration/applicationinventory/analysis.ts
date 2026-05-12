@@ -187,7 +187,7 @@ export class Analysis extends Application {
     cy.get(modeId).should("be.checked");
 
     if (mode === "profile") {
-      cy.contains(button, "Next").should("have.class", "pf-m-disabled");
+      cy.contains(button, "Next").should("be.disabled");
 
       if (profileName) {
         cy.get(analysisProfileSelect).click();
@@ -210,8 +210,7 @@ export class Analysis extends Application {
 
   protected isNextEnabled() {
     cy.contains(button, "Next", { timeout: 300 * SEC }).should(
-      "not.have.class",
-      "pf-m-disabled"
+      "not.be.disabled"
     );
   }
 
