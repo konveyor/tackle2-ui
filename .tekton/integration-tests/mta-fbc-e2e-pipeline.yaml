@@ -180,13 +180,14 @@ spec:
               chmod +x /tmp/jq
 
               echo "Filtering credentials to ONLY include stage registry (registry.stage.redhat.io)"
+              echo "This ensures images are pulled from stage, not prod"
 
               # Filter dockerconfig to only include stage registry
               cat /registry-secrets/.dockerconfigjson | \
                 /tmp/jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
                 > /tmp/stage-only-dockerconfig.json
 
-              echo "Stage-only credentials:"
+              echo "Stage-only credentials configured:"
               /tmp/jq -r '.auths | keys[]' /tmp/stage-only-dockerconfig.json
 
               oc create secret generic registry-pull-secret \
@@ -226,6 +227,29 @@ spec:
               CHANNEL_NAME="$(params.channelName)"
               NAMESPACE="$(params.operatorNamespace)"
               CLUSTER_NAME="$(params.clusterName)"
+
+              echo "========================================="
+              echo "FBC CATALOG INSPECTION"
+              echo "========================================="
+              echo "FBC Image: $FBC_IMAGE"
+              echo ""
+              echo "Extracting bundle references from FBC catalog..."
+
+              # Use oc image extract to get the catalog content
+              mkdir -p /tmp/fbc-content
+              if oc image extract "$FBC_IMAGE" --path /configs/:/tmp/fbc-content/ --confirm 2>/dev/null; then
+                echo "✅ FBC catalog extracted"
+                echo ""
+                echo "Bundle images referenced in catalog:"
+                grep -r "image:" /tmp/fbc-content/ 2>/dev/null | grep -E "registry\.(redhat|stage)" | head -10 || echo "No bundle images found"
+                echo ""
+                echo "First bundle reference (if any):"
+                grep -r "image:" /tmp/fbc-content/ 2>/dev/null | grep -E "registry\.(redhat|stage)" | head -1 | awk -F'image:' '{print $2}' | tr -d ' "' || echo "None found"
+              else
+                echo "⚠️  Could not extract FBC catalog content"
+              fi
+              echo "========================================="
+              echo ""
 
               CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
               PASSWORD_FILE="/credentials/${CLUSTER_NAME}-password"
