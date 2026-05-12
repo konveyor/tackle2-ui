@@ -179,16 +179,51 @@ spec:
               curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
               chmod +x /tmp/jq
 
-              echo "Filtering credentials to ONLY include stage registry (registry.stage.redhat.io)"
-              echo "This ensures images are pulled from stage, not prod"
+              echo "==========================================="
+              echo "UPDATING CLUSTER GLOBAL PULL SECRET"
+              echo "==========================================="
+              echo "Merging stage credentials into cluster's global pull secret..."
 
-              # Filter dockerconfig to only include stage registry
+              # Get current global pull secret
+              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > /tmp/current-global-secret.json
+
+              echo "Current global pull secret registries:"
+              /tmp/jq -r '.auths | keys[]' /tmp/current-global-secret.json
+
+              # Merge our credentials (prod+stage) with existing global secret
+              /tmp/jq -s '.[0].auths * .[1].auths | {auths: .}' \
+                /tmp/current-global-secret.json \
+                /registry-secrets/.dockerconfigjson \
+                > /tmp/merged-global-secret.json
+
+              echo ""
+              echo "Updated global pull secret registries:"
+              /tmp/jq -r '.auths | keys[]' /tmp/merged-global-secret.json
+
+              # Update the global pull secret
+              oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/merged-global-secret.json
+
+              echo "✅ Global pull secret updated with stage credentials"
+
+              # Verify the update worked
+              echo ""
+              echo "Verifying global pull secret was updated:"
+              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | grep -i stage && echo "✅ Stage registry found in global secret" || echo "❌ Stage registry NOT found in global secret"
+
+              echo ""
+              echo "All registries in global pull secret:"
+              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | sed 's/^/  - /'
+
+              echo ""
+              echo "Stage registry details in global secret:"
+              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | to_entries[] | select(.key | contains("stage")) | "  Registry: \(.key)\n  Has auth: \(if .value.auth then "yes" else "no" end)"'
+              echo "==========================================="
+              echo ""
+
+              # Also create namespace-level secret for stage-only testing verification
               cat /registry-secrets/.dockerconfigjson | \
                 /tmp/jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
                 > /tmp/stage-only-dockerconfig.json
-
-              echo "Stage-only credentials configured:"
-              /tmp/jq -r '.auths | keys[]' /tmp/stage-only-dockerconfig.json
 
               oc create secret generic registry-pull-secret \
                 --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
@@ -264,6 +299,12 @@ spec:
               echo "CONSOLE: $CONSOLE_URL"
               echo "PASSWORD: $CLUSTER_PASSWORD"
               echo "========================================="
+
+              echo ""
+              echo "Verifying imageContentSources (registry mirroring):"
+              oc get imagecontentsourcepolicy -o yaml 2>/dev/null | grep -A5 "mirrors:" | head -15 || echo "No ImageContentSourcePolicy found"
+              oc get imagedigestmirrorset -o yaml 2>/dev/null | grep -A5 "mirrors:" | head -15 || echo "No ImageDigestMirrorSet found"
+              echo ""
 
               oc create namespace "$NAMESPACE" --dry-run=client -o yaml | oc apply -f -
 
@@ -353,6 +394,42 @@ spec:
                   echo "🔍 Pods in openshift-marketplace (bundle unpacking):"
                   oc get pods -n openshift-marketplace | grep -E "NAME|mta|bundle" || echo "No bundle-related pods"
                   echo ""
+
+                  # Check bundle pod's service account and imagePullSecrets
+                  BUNDLE_POD=$(oc get pods -n openshift-marketplace --no-headers 2>/dev/null | grep -E "^[a-f0-9].*mta.*" | awk '{print $1}' | head -1)
+                  if [ -n "$BUNDLE_POD" ]; then
+                    echo "🔍 Bundle pod details ($BUNDLE_POD):"
+                    echo "  Service Account:"
+                    oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.serviceAccountName}' 2>/dev/null || echo "    N/A"
+                    echo ""
+                    echo "  ImagePullSecrets:"
+                    oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.imagePullSecrets[*].name}' 2>/dev/null || echo "    None"
+                    echo ""
+                    echo "  Pod Status:"
+                    POD_STATUS=$(oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.status.phase}' 2>/dev/null)
+                    echo "    Phase: $POD_STATUS"
+                    echo ""
+
+                    # If pod is failing, get detailed logs and error info
+                    if [[ "$POD_STATUS" == *"Error"* ]] || [[ "$POD_STATUS" == *"Failed"* ]] || oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.status.containerStatuses[0].state.waiting.reason}' 2>/dev/null | grep -q "ImagePull"; then
+                      echo "  ❌ Bundle pod is failing. Detailed diagnostics:"
+                      echo ""
+                      echo "  Container statuses:"
+                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{range .status.containerStatuses[*]}    Container: {.name}, State: {.state}, Message: {.state.waiting.message}{"\n"}{end}' 2>/dev/null || echo "    N/A"
+                      echo ""
+                      echo "  Pod logs (last 30 lines):"
+                      oc logs "$BUNDLE_POD" -n openshift-marketplace --tail=30 2>&1 | sed 's/^/    /' || echo "    Cannot retrieve logs"
+                      echo ""
+                      echo "  Image being pulled:"
+                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.containers[0].image}' 2>/dev/null || echo "    N/A"
+                      echo ""
+                      echo "  Checking if imageContentSources mirroring is working:"
+                      echo "  (Should try registry.stage.redhat.io first due to imageContentSources)"
+                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o yaml 2>/dev/null | grep -A5 "message:" | head -10 | sed 's/^/    /'
+                      echo ""
+                    fi
+                  fi
+
                   echo "🔍 Recent events in openshift-marketplace:"
                   oc get events -n openshift-marketplace --sort-by='.lastTimestamp' | grep -i "pull\|error\|failed\|image" | tail -10 || echo "No relevant events"
                   echo ""
