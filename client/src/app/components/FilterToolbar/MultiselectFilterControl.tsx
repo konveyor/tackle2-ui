@@ -117,7 +117,7 @@ export const MultiselectFilterControl = <TItem,>({
             showSelectedInToggle={false}
             closeMenuOnSelect={false}
             options={category.selectOptions}
-            onClear={() => setFilterValue([])}
+            onClear={() => setFilterValue(undefined)}
           />
         </ToolbarFilter>
       }

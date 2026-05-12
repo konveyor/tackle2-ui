@@ -707,7 +707,7 @@ export const ApplicationsTable: FC = () => {
 
   const toolbarKebabItems = filterAndAddSeparator(
     (index) => (
-      <Divider key={`breakpoint-${index}`} component={DividerVariant.div} />
+      <Divider key={`breakpoint-${index}`} component={DividerVariant.li} />
     ),
     [
       [

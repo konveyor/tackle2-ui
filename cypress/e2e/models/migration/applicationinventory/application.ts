@@ -876,7 +876,7 @@ export class Application {
   ): void {
     if (northbound || southbound) {
       this.openManageDependencies();
-      if (northbound.length > 0) {
+      if (northbound?.length > 0) {
         this.selectDependency({
           dependencyToggle: northdependenciesDropdownBtn,
           dependencyChipGroup: northdependenciesChipGroup,
@@ -884,7 +884,7 @@ export class Application {
           appNameList: northbound,
         });
       }
-      if (southbound.length > 0) {
+      if (southbound?.length > 0) {
         this.selectDependency({
           dependencyToggle: southdependenciesDropdownBtn,
           dependencyChipGroup: southdependenciesChipGroup,

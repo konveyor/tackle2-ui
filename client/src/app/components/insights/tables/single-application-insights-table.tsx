@@ -68,7 +68,7 @@ const useSelectedApplicationId = (
     ? Number(routeMatch.params.applicationId)
     : undefined;
 
-  const setSelectedAppId = (applicationId: number) => {
+  const setSelectedAppId = (applicationId?: number) => {
     const existingFiltersParam =
       location &&
       new URLSearchParams(location.search).get(`${keyPrefix}:filters`);
@@ -214,7 +214,9 @@ export const SingleApplicationInsightsTable: React.FC<
                 value={selectedAppId ? String(selectedAppId) : undefined}
                 options={applicationOptions}
                 onSelect={(value) => {
-                  if (value) {
+                  if (value === undefined) {
+                    setSelectedAppId(undefined);
+                  } else if (value) {
                     setSelectedAppId(Number(value));
                   }
                 }}

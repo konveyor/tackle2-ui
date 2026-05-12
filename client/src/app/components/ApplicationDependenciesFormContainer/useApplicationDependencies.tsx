@@ -67,14 +67,14 @@ export const useApplicationDependencies = (application: Application) => {
       ...(northboundDependencies ?? []),
       ...(southboundDependencies ?? []),
     ].find((f) => f.from.id === Number(fromId) && f.to.id === Number(toId))?.id;
-    if (dependencyId) {
+    if (dependencyId !== undefined) {
       deleteDependencyMutation.mutate(dependencyId);
     }
   };
 
   const clearDependencies = (dependencies: ApplicationDependency[]) => {
     dependencies.forEach((dep) => {
-      if (dep.id) {
+      if (dep.id !== undefined) {
         deleteDependencyMutation.mutate(dep.id);
       }
     });
