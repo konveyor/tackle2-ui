@@ -1758,8 +1758,10 @@ export function applyAction(itemName, action: string): void {
     .closest(trTag)
     .within(() => {
       click(tagMenuButton);
-      clickByText(button, action);
     });
+  cy.get(actionMenuItem, { timeout: 15 * SEC })
+    .contains(action)
+    .click({ force: true });
 }
 
 export function confirm(): void {
