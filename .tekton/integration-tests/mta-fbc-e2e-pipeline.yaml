@@ -175,15 +175,19 @@ spec:
                 exit 1
               fi
 
+              echo "Installing jq for JSON filtering..."
+              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
+              chmod +x /tmp/jq
+
               echo "Filtering credentials to ONLY include stage registry (registry.stage.redhat.io)"
 
               # Filter dockerconfig to only include stage registry
               cat /registry-secrets/.dockerconfigjson | \
-                jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
+                /tmp/jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
                 > /tmp/stage-only-dockerconfig.json
 
               echo "Stage-only credentials:"
-              jq -r '.auths | keys[]' /tmp/stage-only-dockerconfig.json
+              /tmp/jq -r '.auths | keys[]' /tmp/stage-only-dockerconfig.json
 
               oc create secret generic registry-pull-secret \
                 --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
