@@ -302,6 +302,9 @@ spec:
                 sourceNamespace: openshift-marketplace
               EOF
 
+              echo "Waiting for operator installation..."
+              sleep 10
+
               for i in {1..360}; do
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
@@ -314,6 +317,18 @@ spec:
                 fi
                 if [ $((i % 12)) -eq 0 ]; then
                   echo "Waiting for CSV... ($i/360)"
+                  echo "📊 Subscription status:"
+                  oc get subscription mta-operator -n "$NAMESPACE" -o yaml | grep -A10 "status:" || echo "No subscription status yet"
+                  echo ""
+                  echo "📦 InstallPlans:"
+                  oc get installplan -n "$NAMESPACE" || echo "No InstallPlans found"
+                  echo ""
+                  echo "🔍 Pods in $NAMESPACE:"
+                  oc get pods -n "$NAMESPACE" || echo "No pods yet"
+                  echo ""
+                  echo "🔍 Recent events in $NAMESPACE:"
+                  oc get events -n "$NAMESPACE" --sort-by='.lastTimestamp' | tail -5 || echo "No events"
+                  echo "========================================="
                 fi
                 sleep 5
               done
