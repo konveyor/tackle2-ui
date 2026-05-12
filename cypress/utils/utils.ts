@@ -360,7 +360,7 @@ export function selectItemsPerPage(items: number): void {
       .within(() => {
         cy.get(actionSelector, { timeout: 60 * SEC })
           .contains("button", `${items}`)
-          .click();
+          .click({ force: true });
       });
   });
 }

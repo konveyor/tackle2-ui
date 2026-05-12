@@ -104,10 +104,10 @@ export class Tag {
       .contains(this.name)
       .closest(trTag)
       .find(tagMenuButton)
-      .click()
-      .next()
-      .contains(button, buttonName)
       .click();
+    cy.get(commonView.actionMenuItem, { timeout: 15 * SEC })
+      .contains(buttonName)
+      .click({ force: true });
   }
 
   create(cancel = false, readSuccessAlert = false): void {
