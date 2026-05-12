@@ -387,10 +387,11 @@ spec:
                 sourceNamespace: openshift-marketplace
               EOF
 
-              echo "Waiting for operator installation..."
+              echo "Waiting for operator installation (15 minute timeout)..."
               sleep 10
 
-              for i in {1..120}; do
+              for i in {1..180}; do
+                # Check subscription status
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
@@ -400,23 +401,37 @@ spec:
                     break
                   fi
                 fi
+
+                # Print diagnostics every 30 seconds
                 if [ $((i % 6)) -eq 0 ]; then
-                  echo "Waiting for CSV... ($i/120) - timeout in $((10 - i/6)) minutes"
+                  echo ""
+                  echo "========================================="
+                  echo "Iteration $i/180 ($(($i * 5)) seconds elapsed, $((15 - i/6)) minutes until timeout)"
+                  echo "========================================="
+                  echo "Waiting for CSV... ($i/180) - timeout in $((15 - i/6)) minutes"
                   echo "📊 Subscription status:"
-                  oc get subscription mta-operator -n "$NAMESPACE" -o yaml | grep -A10 "status:" || echo "No subscription status yet"
+                  if ! oc get subscription mta-operator -n "$NAMESPACE" -o yaml 2>/dev/null | grep -A10 "status:"; then
+                    echo "⚠️  Failed to get subscription status (command error)"
+                  fi
                   echo ""
                   echo "📦 InstallPlans:"
-                  oc get installplan -n "$NAMESPACE" || echo "No InstallPlans found"
+                  if ! oc get installplan -n "$NAMESPACE" 2>/dev/null; then
+                    echo "No InstallPlans found (or command failed)"
+                  fi
                   echo ""
                   echo "🔍 Pods in $NAMESPACE:"
-                  oc get pods -n "$NAMESPACE" || echo "No pods yet"
+                  if ! oc get pods -n "$NAMESPACE" 2>/dev/null; then
+                    echo "No pods yet (or command failed)"
+                  fi
                   echo ""
                   echo "🔍 Pods in openshift-marketplace (bundle unpacking):"
-                  oc get pods -n openshift-marketplace | grep -E "NAME|mta|bundle" || echo "No bundle-related pods"
+                  if ! oc get pods -n openshift-marketplace 2>/dev/null | grep -E "NAME|mta|bundle"; then
+                    echo "No bundle-related pods (or command failed)"
+                  fi
                   echo ""
 
                   # Check bundle pod's service account and imagePullSecrets
-                  BUNDLE_POD=$(oc get pods -n openshift-marketplace --no-headers 2>/dev/null | grep -E "^[a-f0-9].*mta.*" | awk '{print $1}' | head -1)
+                  BUNDLE_POD=$(oc get pods -n openshift-marketplace --no-headers 2>/dev/null | grep -E "^[a-f0-9].*mta.*" | awk '{print $1}' | head -1 || echo "")
                   if [ -n "$BUNDLE_POD" ]; then
                     echo "🔍 Bundle pod details ($BUNDLE_POD):"
                     echo "  Service Account:"
@@ -451,17 +466,21 @@ spec:
                   fi
 
                   echo "🔍 Recent events in openshift-marketplace:"
-                  oc get events -n openshift-marketplace --sort-by='.lastTimestamp' | grep -i "pull\|error\|failed\|image" | tail -10 || echo "No relevant events"
+                  if ! oc get events -n openshift-marketplace --sort-by='.lastTimestamp' 2>/dev/null | grep -i "pull\|error\|failed\|image" | tail -10; then
+                    echo "No relevant events (or command failed)"
+                  fi
                   echo ""
                   echo "🔍 Recent events in $NAMESPACE:"
-                  oc get events -n "$NAMESPACE" --sort-by='.lastTimestamp' | tail -5 || echo "No events"
+                  if ! oc get events -n "$NAMESPACE" --sort-by='.lastTimestamp' 2>/dev/null | tail -5; then
+                    echo "No events (or command failed)"
+                  fi
                   echo "========================================="
                 fi
                 sleep 5
               done
 
               if [ -z "$CSV" ] || [ "$PHASE" != "Succeeded" ]; then
-                echo "❌ Operator installation failed or timed out after 10 minutes"
+                echo "❌ Operator installation failed or timed out after 15 minutes"
                 echo "CSV: $CSV, Phase: $PHASE"
                 echo "FAILED" > $(results.deploymentStatus.path)
                 exit 1
