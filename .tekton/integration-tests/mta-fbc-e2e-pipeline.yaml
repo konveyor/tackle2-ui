@@ -370,7 +370,7 @@ spec:
               echo "Waiting for operator installation..."
               sleep 10
 
-              for i in {1..360}; do
+              for i in {1..120}; do
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
@@ -380,8 +380,8 @@ spec:
                     break
                   fi
                 fi
-                if [ $((i % 12)) -eq 0 ]; then
-                  echo "Waiting for CSV... ($i/360)"
+                if [ $((i % 6)) -eq 0 ]; then
+                  echo "Waiting for CSV... ($i/120) - timeout in $((10 - i/6)) minutes"
                   echo "📊 Subscription status:"
                   oc get subscription mta-operator -n "$NAMESPACE" -o yaml | grep -A10 "status:" || echo "No subscription status yet"
                   echo ""
@@ -441,6 +441,8 @@ spec:
               done
 
               if [ -z "$CSV" ] || [ "$PHASE" != "Succeeded" ]; then
+                echo "❌ Operator installation failed or timed out after 10 minutes"
+                echo "CSV: $CSV, Phase: $PHASE"
                 echo "FAILED" > $(results.deploymentStatus.path)
                 exit 1
               fi
