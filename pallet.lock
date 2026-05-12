@@ -1,0 +1,18 @@
+config_hash: sha256:8e0fb18be27eb6f80df1b4b9da67a5c06070813428abc135ee65a881f5f3a8b9
+sources:
+- name: Rons-repo-context-skill
+  type: git
+  resolved_ref: b5fc934df60131850bb74c8984d8db477c80eee9
+  url: https://github.com/ninja-agents/ninja-agents/
+resources:
+- kind: skill
+  name: repo-contextification
+  source: Rons-repo-context-skill
+  source_index: 0
+  governance: federated
+  content_hash: sha256:3199b1577e1c8b9187d7b5b57feb86bad58bf078362c6fa127b222785842231f
+  placed:
+    goose:
+    - .goose/skills/repo-contextification
+    opencode:
+    - .opencode/skills/repo-contextification

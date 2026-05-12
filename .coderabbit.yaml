@@ -1,0 +1,203 @@
+reviews:
+  # Enable reviews on all pull requests
+  auto_review:
+    enabled: true
+    # Review all files by default
+    drafts: false
+    
+  # Customize review behavior
+  path_filters:
+    # Skip reviewing generated files and dependencies
+    - "!package-lock.json"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/coverage/**"
+    - "!**/node_modules/**"
+    - "!**/*.min.js"
+    - "!**/*.bundle.js"
+    
+  # Language-specific configuration
+  language_filters:
+    - typescript
+    - javascript
+    - markdown
+    - yaml
+    - json
+
+  # Review quality settings
+  review_selection: "all"
+  
+  # Custom prompts for better reviews
+  custom_prompts:
+    - "Focus on React best practices and TypeScript type safety"
+    - "Check for accessibility compliance (WCAG 2.1)"
+    - "Verify PatternFly design system usage"
+    - "Look for potential security vulnerabilities"
+    - "Ensure proper error handling and loading states"
+
+# Chat settings
+chat:
+  # Enable chat on pull requests
+  auto_reply: true
+  
+# Knowledge base settings  
+knowledge_base:
+  # Key areas for the AI to understand
+  learnings:
+    - "This is a React TypeScript application using PatternFly design system"
+    - "The project uses npm workspaces with client, server, common, and cypress packages"
+    - "Authentication is handled via Keycloak integration"
+    - "State management uses React Query for server state and React hooks for local state"
+    - "Testing includes Jest unit tests and Cypress e2e tests"
+    - "The application connects to Konveyor Tackle Hub API for backend services"
+    - "All components should follow accessibility guidelines"
+    - "Code style is enforced by ESLint and Prettier"
+
+# Review rules configuration
+rules:
+  # Code quality rules
+  - name: "typescript_best_practices"
+    description: "Enforce TypeScript best practices"
+    patterns:
+      - "Avoid using 'any' type"
+      - "Prefer interfaces over type aliases for object shapes"
+      - "Use proper generic constraints"
+      - "Ensure all functions have return types"
+    
+  - name: "react_patterns"
+    description: "React component and hook best practices"
+    patterns:
+      - "Use functional components with hooks"
+      - "Properly type component props"
+      - "Use React.memo for expensive components"
+      - "Follow hooks rules (no conditional hooks)"
+      
+  - name: "accessibility"
+    description: "Accessibility compliance checks"
+    patterns:
+      - "Include proper ARIA labels"
+      - "Ensure keyboard navigation support"
+      - "Use semantic HTML elements"
+      - "Provide alternative text for images"
+      
+  - name: "security"
+    description: "Security best practices"
+    patterns:
+      - "Sanitize user inputs"
+      - "Use HTTPS for API calls"
+      - "Avoid exposing sensitive information"
+      - "Validate data from external sources"
+      
+  - name: "performance"
+    description: "Performance optimization guidelines"
+    patterns:
+      - "Use lazy loading for large components"
+      - "Implement proper loading states"
+      - "Avoid unnecessary re-renders"
+      - "Optimize bundle size with code splitting"
+
+# File-specific review configuration
+file_review_config:
+  "**/*.tsx":
+    focus_areas:
+      - "Component structure and props typing"
+      - "Accessibility implementation"
+      - "Performance considerations"
+      - "Error boundary usage"
+      
+  "**/*.ts":
+    focus_areas:
+      - "Type definitions and interfaces"
+      - "Function signatures and return types"
+      - "Error handling patterns"
+      - "Code organization and modularity"
+      
+  "**/*.test.{ts,tsx}":
+    focus_areas:
+      - "Test coverage and edge cases"
+      - "Proper mocking strategies"
+      - "Assertion quality and clarity"
+      - "Test organization and naming"
+      
+  "**/package.json":
+    focus_areas:
+      - "Dependency version compatibility"
+      - "Security vulnerability scanning"
+      - "Script organization and naming"
+      - "Workspace configuration"
+
+# Integration settings
+integrations:
+  # GitHub integration
+  github:
+    # Enable status checks
+    status_checks: true
+    # Auto-merge conditions (disabled for safety)
+    auto_merge: false
+    
+# Summary settings
+summaries:
+  # Enable PR summaries
+  enabled: true
+  # Include suggestions in summaries
+  include_suggestions: true
+  
+# Advanced settings
+advanced:
+  # Enable early access features
+  early_access: false
+  
+  # Token usage optimization
+  token_limits:
+    # Reasonable limits for open source project
+    max_tokens_per_review: 4000
+    max_files_per_review: 50
+    
+# Exclusions
+exclude:
+  # Files to exclude from all reviews
+  - "**/.env*"
+  - "**/secrets.yaml"
+  - "**/CHANGELOG.md"
+  - "**/LICENSE*"
+  - "**/*.log"
+  - "**/cypress/screenshots/**"
+  - "**/cypress/videos/**"
+  - "**/coverage/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/node_modules/**"
+
+# Custom review templates
+templates:
+  pull_request_summary: |
+    ## CodeRabbit Review Summary
+    
+    **Project Context**: This PR affects the tackle2-ui React application, which is part of the Konveyor application modernization platform.
+    
+    **Key Review Areas**:
+    - TypeScript type safety and best practices
+    - React component patterns and performance
+    - PatternFly design system compliance
+    - Accessibility (WCAG 2.1) standards
+    - Security considerations
+    - Test coverage and quality
+    
+    **Integration Points to Consider**:
+    - Keycloak authentication flows
+    - Tackle Hub API integration
+    - React Query state management
+    - Internationalization support
+
+# Learning and adaptation
+learning:
+  # Enable learning from feedback
+  enabled: true
+  
+  # Project-specific patterns to learn
+  patterns:
+    - "PatternFly component usage patterns"
+    - "React Query hook implementations"
+    - "TypeScript interface definitions for API responses"
+    - "Cypress test page object patterns"
+    - "Error handling and user feedback patterns"

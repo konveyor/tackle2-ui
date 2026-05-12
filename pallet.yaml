@@ -1,0 +1,10 @@
+sources:
+  - name: Rons-repo-context-skill
+    type: git
+    url: https://github.com/ninja-agents/ninja-agents/
+    ref: main
+    paths:
+      - .claude/skills/repo-contextification
+
+agents:
+  auto_detect: true
