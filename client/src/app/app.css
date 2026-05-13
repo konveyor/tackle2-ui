@@ -1,9 +1,4 @@
-/*
-  PF6: Page/Drawer structure has been updated. These overrides may no longer
-  be needed. If the drawer doesn't fill full page height, re-enable them
-  with the pf-v6 class names.
-*/
-/* .pf-v6-c-page__drawer {
+.pf-v6-c-page__drawer {
   min-height: 100%;
 }
 .pf-v6-c-drawer__body:last-child {
@@ -11,4 +6,4 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow: auto;
-} */
+}

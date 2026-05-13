@@ -19,11 +19,16 @@
   Make all of the containers of the MonacoEditor component take the maximum height so the
   editor can always be as tall as possible.
  */
-.simple-task-viewer[class*="full-height"] .pf-v6-c-modal-box__body,
-.simple-task-viewer-container {
+.simple-task-viewer[class*="full-height"] .pf-v6-c-modal-box__body {
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+.simple-task-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 180px);
 }
 
 .simple-task-viewer-code {
@@ -31,18 +36,11 @@
   height: 100%;
 }
 
-.simple-task-viewer-code .pf-v6-c-file-upload {
-  height: 100%;
-}
-
-.simple-task-viewer-code .pf-v6-c-file-upload .pf-v6-c-code-editor__main {
+.simple-task-viewer-code .pf-v6-c-code-editor__main {
   flex-grow: 1;
 }
 
-.simple-task-viewer-code
-  .pf-v6-c-file-upload
-  .pf-v6-c-code-editor__main
-  .pf-v6-c-code-editor__code {
+.simple-task-viewer-code .pf-v6-c-code-editor__main .pf-v6-c-code-editor__code {
   height: 100%;
 }
 

@@ -72,7 +72,7 @@ export const TaskDetailsBase: FC<{
           ]}
         />
       </PageSection>
-      <PageSection hasBodyWrapper={false}>
+      <PageSection hasBodyWrapper={false} isFilled>
         <div
           style={{
             backgroundColor:
