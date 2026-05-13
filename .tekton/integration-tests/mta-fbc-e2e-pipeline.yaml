@@ -79,7 +79,7 @@ spec:
               - name: eaasSpaceSecretRef
                 value: $(params.eaasSpaceSecretRef)
               - name: version
-                value: "4.17.0"
+                value: "4.20"
               - name: instanceType
                 value: "m5.xlarge"
               - name: imageContentSources
