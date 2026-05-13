@@ -22,8 +22,9 @@ import {
   exists,
 } from "../../../../../../utils/utils";
 import { TagCategory } from "../../../../../models/migration/controls/tagcategory";
-import { button, clearAllFilters } from "../../../../../types/constants";
+import { button, clearAllFilters, tdTag } from "../../../../../types/constants";
 import { categoryColor } from "../../../../../types/filter-categories";
+import { appTable } from "../../../../../views/common.view";
 
 describe(
   ["@tier3", "@tier3_C"],
@@ -36,10 +37,21 @@ describe(
     it("Tag category color filter validations", function () {
       TagCategory.openList();
 
-      // Enter an existing tag category color substring and apply it as search filter
-      const validSearchInput = data.getColor();
-      applySearchFilter(categoryColor, validSearchInput);
-      exists(validSearchInput);
+      // Find an existing tag category color substring and apply it as search filter
+      let validSearchInput = "none";
+      cy.get(appTable)
+        .should(($table) => {
+          validSearchInput = data.getColor();
+          const cell = $table.find(`${tdTag}:contains(${validSearchInput})`);
+          expect(
+            cell.length,
+            `Color ${validSearchInput} to exist`
+          ).to.be.greaterThan(0);
+        })
+        .then(() => {
+          applySearchFilter(categoryColor, validSearchInput);
+          exists(validSearchInput);
+        });
 
       clickByText(button, clearAllFilters);
       cy.get("@getTagCategories");
