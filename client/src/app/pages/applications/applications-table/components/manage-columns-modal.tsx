@@ -89,7 +89,7 @@ export const ManageColumnsModal = <TColumnKey extends string>({
               <DataListControl>
                 <DataListCheck
                   aria-labelledby={`check-${id}`}
-                  checked={isVisible || isIdentity}
+                  isChecked={isVisible || isIdentity}
                   isDisabled={isIdentity}
                   onChange={(e, checked) => onSelect(id, checked)}
                 />
