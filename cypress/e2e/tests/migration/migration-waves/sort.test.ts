@@ -17,6 +17,7 @@ limitations under the License.
 
 import * as data from "../../../../utils/data_utils";
 import {
+  callWithin,
   cancelForm,
   clickOnSortButton,
   createMultipleBusinessServices,
@@ -37,6 +38,7 @@ import { BusinessServices } from "../../../models/migration/controls/businessser
 import { Stakeholders } from "../../../models/migration/controls/stakeholders";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import { SortType, endDate, name, startDate } from "../../../types/constants";
+import { modal } from "../../../views/common.view";
 import { MigrationWaveView } from "../../../views/migration-wave.view";
 
 let migrationWavesList: MigrationWave[] = [];
@@ -149,59 +151,62 @@ describe(
       }
 
       migrationWavesList[0].openManageApplications();
-      const unsortedAppList = getTableColumnData("Application Name");
-      const unsortedBusinessList = getTableColumnData("Business service");
-      const unsortedOwnerList = getTableColumnData("Owner");
-      //sort asc and desc for 3 columns
-      clickOnSortButton(
-        "Business service",
-        SortType.ascending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterAscSortBusinessList = getTableColumnData("Business service");
-      verifySortAsc(afterAscSortBusinessList, unsortedBusinessList);
+      callWithin(modal, () => {
+        const unsortedAppList = getTableColumnData("Application Name");
+        const unsortedBusinessList = getTableColumnData("Business service");
+        const unsortedOwnerList = getTableColumnData("Owner");
+        //sort asc and desc for 3 columns
+        clickOnSortButton(
+          "Business service",
+          SortType.ascending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterAscSortBusinessList = getTableColumnData("Business service");
+        verifySortAsc(afterAscSortBusinessList, unsortedBusinessList);
 
-      clickOnSortButton(
-        "Business service",
-        SortType.descending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterDescSortBusinessList = getTableColumnData("Business service");
-      verifySortDesc(afterDescSortBusinessList, unsortedBusinessList);
+        clickOnSortButton(
+          "Business service",
+          SortType.descending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterDescSortBusinessList =
+          getTableColumnData("Business service");
+        verifySortDesc(afterDescSortBusinessList, unsortedBusinessList);
 
-      clickOnSortButton(
-        "Application Name",
-        SortType.ascending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterAscSortappList = getTableColumnData("Application Name");
-      verifySortAsc(afterAscSortappList, unsortedAppList);
+        clickOnSortButton(
+          "Application Name",
+          SortType.ascending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterAscSortappList = getTableColumnData("Application Name");
+        verifySortAsc(afterAscSortappList, unsortedAppList);
 
-      clickOnSortButton(
-        "Application Name",
-        SortType.descending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterDescSortappList = getTableColumnData("Application Name");
-      verifySortDesc(afterDescSortappList, unsortedAppList);
+        clickOnSortButton(
+          "Application Name",
+          SortType.descending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterDescSortappList = getTableColumnData("Application Name");
+        verifySortDesc(afterDescSortappList, unsortedAppList);
 
-      clickOnSortButton(
-        "Owner",
-        SortType.ascending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterAscSortOwnerList = getTableColumnData("Owner");
-      verifySortAsc(afterAscSortOwnerList, unsortedOwnerList);
+        clickOnSortButton(
+          "Owner",
+          SortType.ascending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterAscSortOwnerList = getTableColumnData("Owner");
+        verifySortAsc(afterAscSortOwnerList, unsortedOwnerList);
 
-      clickOnSortButton(
-        "Owner",
-        SortType.descending,
-        MigrationWaveView.migrationWavesTable
-      );
-      const afterDescSortOwnerList = getTableColumnData("Owner");
-      verifySortDesc(afterDescSortOwnerList, unsortedOwnerList);
+        clickOnSortButton(
+          "Owner",
+          SortType.descending,
+          MigrationWaveView.migrationWavesTable
+        );
+        const afterDescSortOwnerList = getTableColumnData("Owner");
+        verifySortDesc(afterDescSortOwnerList, unsortedOwnerList);
 
-      cancelForm();
+        cancelForm();
+      });
     });
 
     after("Perform test data clean up", function () {

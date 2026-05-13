@@ -12,8 +12,8 @@ import {
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Application } from "@app/api/models";
+import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
-import { SimpleSelectBasic } from "@app/components/SimpleSelectBasic";
 import { useAvailableAnalysisProfiles } from "@app/hooks/useAvailableAnalysisProfiles";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { useFetchArchetypes } from "@app/queries/archetypes";
@@ -88,7 +88,7 @@ export const WizardMode: React.FC<WizardModeProps> = ({
 
   const profileOptions = availableProfiles.map((profile) => ({
     value: String(profile.id),
-    children: profile.name,
+    label: profile.name,
   }));
 
   return (
@@ -141,13 +141,12 @@ export const WizardMode: React.FC<WizardModeProps> = ({
               fieldId="analysis-profile-select"
               isRequired
             >
-              <SimpleSelectBasic
-                selectId="analysis-profile-select"
+              <SimpleSelect
+                isFullWidth
                 toggleId="analysis-profile-select-toggle"
-                toggleAriaLabel="Analysis profile selection dropdown toggle"
-                aria-label="Select analysis profile"
+                toggleAriaLabel="Analysis profile selection dropdown"
                 value={selectedProfile ? String(selectedProfile.id) : undefined}
-                onChange={(value) => {
+                onSelect={(value) => {
                   const profile = availableProfiles.find(
                     (p) => String(p.id) === value
                   );

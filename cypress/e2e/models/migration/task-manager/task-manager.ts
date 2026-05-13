@@ -34,13 +34,9 @@ import {
   taskDetails,
   trTag,
 } from "../../../types/constants";
+import { searchButton, searchInput } from "../../../types/filter-categories";
 import { sideKebabMenu } from "../../../views/applicationinventory.view";
-import {
-  actionMenuItem,
-  kebabActionButton,
-  searchButton,
-  searchInput,
-} from "../../../views/common.view";
+import { actionMenuItem, kebabActionButton } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import {
   TaskManagerColumns,
@@ -93,8 +89,8 @@ export class TaskManager {
 
   public static applyFilter(filterType: TaskFilter, filterValue: string) {
     selectFilter(filterType);
-    inputText(searchInput, filterValue);
-    click(searchButton);
+    inputText(searchInput(filterType), filterValue);
+    click(searchButton(filterType));
     cy.wait(2 * SEC);
   }
 

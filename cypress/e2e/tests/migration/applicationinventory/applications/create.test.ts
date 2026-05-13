@@ -48,9 +48,8 @@ import {
 } from "../../../../types/constants";
 import {
   applicationBusinessServiceSelect,
-  applicationContributorsAction,
+  applicationContributorsChipGroup,
   applicationContributorsInput,
-  applicationContributorsText,
   applicationDescriptionInput,
   applicationNameInput,
   applicationOwnerClearButton,
@@ -133,10 +132,10 @@ describe(["@tier2", "@tier2_B"], "Application validations", () => {
       .and("contain", stakeHoldersList[1].name);
 
     // Unassign contributor#1 and verify only contributor#2 is listed
-    cy.get(applicationContributorsText)
-      .contains(stakeHoldersList[0].name)
-      .parent()
-      .next(applicationContributorsAction)
+    cy.get(applicationContributorsChipGroup)
+      .find(`span[aria-label='${stakeHoldersList[0].name}']`)
+      .closest("li")
+      .find("button")
       .click();
     cy.get(applicationContributorsInput)
       .closest("div")

@@ -35,7 +35,9 @@ import {
   categoryName,
   categoryType,
   filterCategory,
-  filterSelectType,
+  filterToggle,
+  searchButton,
+  searchInput,
 } from "../../../types/filter-categories";
 import { CredentialsData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
@@ -219,13 +221,13 @@ export class Credentials {
 
   static ApplyFilterByName(value: string) {
     selectFromDropList(commonView.filteredBy, filterCategory(categoryName));
-    inputText(commonView.searchInput, value);
-    click(commonView.searchButton);
+    inputText(searchInput(categoryName), value);
+    click(searchButton(categoryName));
   }
 
   static applyFilterByType(type: string) {
     selectFromDropList(commonView.filteredBy, filterCategory(categoryType));
-    selectFromDropListByText(filterSelectType(categoryType), type);
+    selectFromDropListByText(filterToggle(categoryType), type);
   }
 
   static applyFilterCreatedBy(value: string) {
@@ -233,8 +235,8 @@ export class Credentials {
       commonView.filteredBy,
       filterCategory(categoryCreatedBy)
     );
-    inputText(commonView.searchInput, value);
-    click(commonView.searchButton);
+    inputText(searchInput(categoryCreatedBy), value);
+    click(searchButton(categoryCreatedBy));
   }
 
   static applyFilterDefaultCredential(value: DefaultCredentialFilter) {
@@ -243,7 +245,7 @@ export class Credentials {
       filterCategory(categoryDefaultCredential)
     );
     selectFromDropListByText(
-      filterSelectType(categoryDefaultCredential),
+      filterToggle(categoryDefaultCredential),
       value,
       commonView.actionMenuItem
     );

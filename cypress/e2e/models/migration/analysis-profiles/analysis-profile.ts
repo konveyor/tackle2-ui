@@ -39,11 +39,12 @@ import {
   analysisData,
 } from "../../../types/types";
 import {
+  additionalSourceLabelsToggle,
   cancelButton,
   createProfileButton,
   description as profileDescriptionInput,
   includeLabelsInput,
-  includeLabelsMenuItem,
+  includeLabelsSelectListbox,
   name as profileNameInput,
   pencilAction,
   ruleLabelToExclude,
@@ -183,7 +184,8 @@ export class AnalysisProfile {
 
   protected labelsToInclude(label: string) {
     click(includeLabelsInput);
-    cy.get(includeLabelsMenuItem).contains(label).click();
+    cy.get(includeLabelsSelectListbox).contains("button", label).click();
+    cy.get(additionalSourceLabelsToggle).click();
   }
 
   private fillWizard(data: Partial<AnalysisProfile>, isEdit = false) {

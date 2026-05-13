@@ -1,3 +1,8 @@
+import {
+  categoryProvider,
+  filterToggleListbox,
+} from "../types/filter-categories";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -23,8 +28,7 @@ export const submitButton = 'button[type="submit"]';
 export const pencilAction = '[id^="pencil-action"]';
 
 // Language and target selectors
-export const languageListbox =
-  "#filter-control-provider-select-typeahead-listbox > li";
+export const languageListbox = `${filterToggleListbox(categoryProvider)} > li`;
 export const menuListItem = ".pf-v5-c-menu__list-item";
 export const checkboxInput = "input[type=checkbox]";
 export const wizardMainBody = ".pf-v5-c-wizard__main-body";
@@ -36,6 +40,8 @@ export const ossCheckbox = "#oss";
 export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";
 export const addPackageToExclude = "#add-package-to-exclude";
-export const includeLabelsInput =
-  "input[id=additional-source-labels-toggle-select-multi-typeahead-typeahead]";
-export const includeLabelsMenuItem = ".pf-v5-c-select__menu-item";
+export const additionalSourceLabelsToggle =
+  "[data-ouia-component-id='additional-source-labels-toggle']";
+export const includeLabelsInput = "[id=additional-source-labels-toggle-input]";
+export const includeLabelsSelectListbox =
+  "[id='additional-source-labels-toggle-listbox']";

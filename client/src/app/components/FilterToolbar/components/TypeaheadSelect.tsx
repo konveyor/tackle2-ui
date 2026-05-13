@@ -1,17 +1,17 @@
 import { FC } from "react";
 
-import { MultiSelectBase, MultiSelectProps } from "./MultiSelectBase";
+import { MultiSelect, MultiSelectProps } from "./MultiSelect";
 
 export type TypeaheadSelectProps = Omit<
   MultiSelectProps,
-  "values" | "onSelect" | "variant"
+  "values" | "onSelect" | "variant" | "onClear"
 > & {
   value?: string;
   onSelect: (value?: string) => void;
 };
 
 const TypeaheadSelect: FC<TypeaheadSelectProps> = ({ value, ...props }) => (
-  <MultiSelectBase
+  <MultiSelect
     {...props}
     hasCheckbox={false}
     values={value ? [value] : []}
@@ -19,6 +19,7 @@ const TypeaheadSelect: FC<TypeaheadSelectProps> = ({ value, ...props }) => (
     showSelectedInToggle={true}
     hasBadge={false}
     closeMenuOnSelect={true}
+    onClear={() => props.onSelect(undefined)}
   />
 );
 

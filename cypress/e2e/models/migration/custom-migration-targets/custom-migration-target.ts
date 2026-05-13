@@ -20,6 +20,10 @@ import {
   deleteAction,
   editAction,
 } from "../../../types/constants";
+import {
+  categoryProvider,
+  filterToggleListbox,
+} from "../../../types/filter-categories";
 import { RulesManualFields, RulesRepositoryFields } from "../../../types/types";
 import { submitButton } from "../../../views/common.view";
 import { CustomMigrationTargetView } from "../../../views/custom-migration-target.view";
@@ -167,7 +171,7 @@ export class CustomMigrationTarget {
      * There may be a pre-selected filter so
      * the only deterministic way to eliminate pre-selected filters is to make sure there is one
      */
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
+    cy.get(`${filterToggleListbox(categoryProvider)} > li`)
       .contains(Languages.Java)
       .closest(".pf-v5-c-menu__list-item")
       .find("input[type=checkbox]")
@@ -177,7 +181,7 @@ export class CustomMigrationTarget {
 
     cy.get(CustomMigrationTargetView.filterLanguageDropdown).click();
 
-    cy.get(`#filter-control-provider-select-typeahead-listbox > li`)
+    cy.get(`${filterToggleListbox(categoryProvider)} > li`)
       .contains(language)
       .closest(".pf-v5-c-menu__list-item")
       .find("input[type=checkbox]")

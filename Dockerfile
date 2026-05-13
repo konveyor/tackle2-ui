@@ -9,7 +9,7 @@
 #   - https://github.com/konveyor/tackle2-ui/pull/1781
 
 # Builder image
-FROM registry.access.redhat.com/ubi10/nodejs-22:10.1-1776833029 AS builder
+FROM registry.access.redhat.com/ubi10/nodejs-22:10.1-1778459738 AS builder
 
 USER 1001
 COPY --chown=1001 . .
@@ -22,7 +22,7 @@ RUN \
   npm run dist
 
 # Runner image
-FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:10.1-1776103442
+FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:10.1-1778488740
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp

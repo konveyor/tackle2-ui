@@ -30,8 +30,7 @@ export const categoryCategory = "category";
 export const categorySource = "source";
 export const categoryTarget = "target";
 export const categoryApplicationId = "application.id";
-export const filterSelectType = (categoryKey: string) =>
-  `[data-ouia-component-id="select-filter-value-${categoryKey}"]`;
+export const categoryTagCategory = "tagCategory";
 /**
  * Main filter dropdown is based on the HTML id attribute
  * ouiaId is passed (as of PF5) to the wrapping <li> element
@@ -40,3 +39,18 @@ export const filterSelectType = (categoryKey: string) =>
 export const filterCategory = (categoryKey: string) =>
   // this syntax works with dots in the categoryKey
   `[id="filter-category-${categoryKey}"]`;
+
+export const filterToggle = (categoryKey: string) =>
+  `[data-ouia-component-id="filter-for-${categoryKey}"]`;
+
+export const filterToggleInput = (categoryKey: string) =>
+  `[id="filter-for-${categoryKey}-input"]`;
+
+export const filterToggleListbox = (categoryKey: string) =>
+  `[id="filter-for-${categoryKey}-listbox"]`;
+
+export const searchInput = (categoryKey: string) =>
+  `[data-ouia-component-id="search-for-${categoryKey}-input"]`;
+
+export const searchButton = (categoryKey: string) =>
+  `[data-ouia-component-id="search-for-${categoryKey}-button"]`;

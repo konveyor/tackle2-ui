@@ -23,7 +23,6 @@ export const privatePassphraseInput =
   "input[aria-label='Private Key Passphrase']";
 export const createBtn = "#create-credential-button";
 export const selectType = '[data-ouia-component-id="type-select-toggle"]';
-export const searchButton = "#search-button";
 export const modalBoxBody = "#confirm-dialog";
 export const defaultIcon = "svg.pf-v5-svg";
 export enum credLabels {

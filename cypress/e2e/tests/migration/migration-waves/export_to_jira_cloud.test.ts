@@ -26,15 +26,15 @@ import {
 import { JiraCredentials } from "../../../models/administration/credentials/JiraCredentials";
 import { Credentials } from "../../../models/administration/credentials/credentials";
 import { Jira } from "../../../models/administration/jira-connection/jira";
-import { JiraIssue } from "../../../models/administration/jira-connection/jira-api.interface";
 import { Application } from "../../../models/migration/applicationinventory/application";
 import { MigrationWave } from "../../../models/migration/migration-waves/migration-wave";
 import {
   CredentialType,
   JiraIssueTypes,
   JiraType,
-  SEC,
 } from "../../../types/constants";
+
+import { getWaveIssuesByIssueType, pullJiraIssuesByWaves } from "./common";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -160,32 +160,34 @@ describe(
       });
     });
 
-    Object.values(JiraIssueTypes).forEach((issueType) => {
-      it(`Assert exports for ${issueType}`, function () {
-        cy.wait(30 * SEC); // Enough time to create both tasks and for them to be available in the Jira API
-        jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
-          const waveIssues = issues.filter((issue) => {
-            return (
-              (issue.fields.summary.includes(
-                wavesMap[issueType].applications[0].name
-              ) ||
-                issue.fields.summary.includes(
-                  wavesMap[issueType].applications[1].name
-                )) &&
-              issue.fields.issuetype.name.toUpperCase() ===
-                (issueType as string).toUpperCase()
-            );
+    it("Assert exports for all issue types", function () {
+      pullJiraIssuesByWaves(jiraCloudInstance, projectName, wavesMap).then(
+        (issuesByIssueType) => {
+          Object.entries(issuesByIssueType).forEach(([issueType, issues]) => {
+            expect(
+              Cypress._.uniqBy(issues, ({ app }) => app),
+              `Issues for ${issueType} are not exported`
+            ).to.have.length(2);
           });
-          Application.open();
-
-          jiraCloudInstance.deleteIssues(waveIssues.map((issue) => issue.id));
-
-          expect(waveIssues).to.have.length(2);
-        });
-      });
+        }
+      );
     });
 
     after("Clear test data", function () {
+      if (projectName) {
+        getWaveIssuesByIssueType({
+          jiraInstance: jiraCloudInstance,
+          projectName,
+          wavesMap,
+          usedAppsCount: 2,
+        }).then((issuesByIssueType) => {
+          jiraCloudInstance.deleteIssues(
+            Object.values(issuesByIssueType).flatMap((issues) =>
+              issues.map((issue) => issue.issue.id)
+            )
+          );
+        });
+      }
       getAuthHeaders().then((headers) => {
         MigrationWave.deleteAllViaApi(headers);
         Application.deleteAllViaApi(headers);

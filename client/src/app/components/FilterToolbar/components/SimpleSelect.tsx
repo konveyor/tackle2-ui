@@ -80,7 +80,7 @@ const SimpleSelect: FC<SimpleSelectProps> = ({
       isOpen={isFilterDropdownOpen}
       shouldFocusToggleOnSelect
     >
-      <SelectList>
+      <SelectList id={`${toggleId}-listbox`}>
         {options.map(({ label, value, optionProps }) => (
           <SelectOption
             {...optionProps}

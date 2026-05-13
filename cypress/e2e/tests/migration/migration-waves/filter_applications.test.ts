@@ -15,6 +15,8 @@ limitations under the License.
 import * as data from "../../../../utils/data_utils";
 import {
   applySearchFilter,
+  applySelectFilter,
+  callWithin,
   clickByText,
   getAuthHeaders,
   login,
@@ -34,6 +36,7 @@ import {
   categoryName,
   categoryOwner,
 } from "../../../types/filter-categories";
+import { modal } from "../../../views/common.view";
 
 const now = new Date();
 now.setDate(now.getDate() + 1);
@@ -98,19 +101,20 @@ describe(
       MigrationWave.open(true);
       migrationWave.expandActionsMenu();
       cy.contains(manageApplications).click();
+      callWithin(modal, () => {
+        // Enter an existing exact name and apply it as search filter
+        applySearchFilter(categoryName, applicationsList[1].name);
+        cy.get("td").should("contain", applicationsList[1].name);
+        cy.get("td").should("not.contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
 
-      // Enter an existing exact name and apply it as search filter
-      applySearchFilter(categoryName, applicationsList[1].name, true, 1);
-      cy.get("td").should("contain", applicationsList[1].name);
-      cy.get("td").should("not.contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-
-      // Enter a non-existing app name and apply it as search filter
-      applySearchFilter(categoryName, String(data.getRandomNumber()), true, 1);
-      cy.get("td").should("not.contain", applicationsList[1].name);
-      cy.get("td").should("not.contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-      clickByText(button, "Cancel");
+        // Enter a non-existing app name and apply it as search filter
+        applySearchFilter(categoryName, String(data.getRandomNumber()));
+        cy.get("td").should("not.contain", applicationsList[1].name);
+        cy.get("td").should("not.contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
+        clickByText(button, "Cancel");
+      });
       migrationWave.delete();
     });
 
@@ -129,29 +133,26 @@ describe(
       MigrationWave.open(true);
       migrationWave.expandActionsMenu();
       cy.contains(manageApplications).click();
+      callWithin(modal, () => {
+        // Apply BS associated with applicationsList[1].name as select filter
+        applySelectFilter(
+          categoryBusinessService,
+          applicationsList[1].business
+        );
+        cy.get("td").should("contain", applicationsList[1].name);
+        cy.get("td").should("not.contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
 
-      // Apply BS associated with applicationsList[1].name as search filter
-      applySearchFilter(
-        categoryBusinessService,
-        applicationsList[1].business,
-        true,
-        1
-      );
-      cy.get("td").should("contain", applicationsList[1].name);
-      cy.get("td").should("not.contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-
-      // Apply BS associated with applicationsList[0].name as search filter
-      applySearchFilter(
-        categoryBusinessService,
-        applicationsList[0].business,
-        true,
-        1
-      );
-      cy.get("td").should("not.contain", applicationsList[1].name);
-      cy.get("td").should("contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-      clickByText(button, "Cancel");
+        // Apply BS associated with applicationsList[0].name as select filter
+        applySelectFilter(
+          categoryBusinessService,
+          applicationsList[0].business
+        );
+        cy.get("td").should("not.contain", applicationsList[1].name);
+        cy.get("td").should("contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
+        clickByText(button, "Cancel");
+      });
       migrationWave.delete();
     });
 
@@ -170,19 +171,20 @@ describe(
       MigrationWave.open(true);
       migrationWave.expandActionsMenu();
       cy.contains(manageApplications).click();
+      callWithin(modal, () => {
+        // Apply owner associated with applicationsList[1].name as select filter
+        applySelectFilter(categoryOwner, stakeholders[1].name);
+        cy.get("td").should("contain", applicationsList[1].name);
+        cy.get("td").should("not.contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
 
-      // Apply owner associated with applicationsList[1].name as search filter
-      applySearchFilter(categoryOwner, stakeholders[1].name, true, 1);
-      cy.get("td").should("contain", applicationsList[1].name);
-      cy.get("td").should("not.contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-
-      // Apply owner associated with applicationsList[0].name as search filter
-      applySearchFilter(categoryOwner, stakeholders[0].name, true, 1);
-      cy.get("td").should("not.contain", applicationsList[1].name);
-      cy.get("td").should("contain", applicationsList[0].name);
-      clickByText(button, clearAllFilters);
-      clickByText(button, "Cancel");
+        // Apply owner associated with applicationsList[0].name as select filter
+        applySelectFilter(categoryOwner, stakeholders[0].name);
+        cy.get("td").should("not.contain", applicationsList[1].name);
+        cy.get("td").should("contain", applicationsList[0].name);
+        clickByText(button, clearAllFilters);
+        clickByText(button, "Cancel");
+      });
       migrationWave.delete();
     });
 

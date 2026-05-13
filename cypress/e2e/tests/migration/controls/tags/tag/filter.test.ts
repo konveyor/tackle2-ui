@@ -16,7 +16,7 @@ limitations under the License.
 
 import * as data from "../../../../../../utils/data_utils";
 import {
-  applySelectFilter,
+  applySelectFilterViaTextInput,
   clearAllFilters,
   closeRowDetails,
   exists,
@@ -45,19 +45,19 @@ describe(["@tier3", "@tier3_C"], "Tags filter validations", function () {
     const validSearchInputTagCategory = tagCategory.name.substring(0, 3);
 
     Tag.openList();
-    applySelectFilter(categoryTags, categoryTags, validSearchInputTag);
+    applySelectFilterViaTextInput(categoryTags, validSearchInputTag);
     expandRowDetails(tag.tagCategory);
     existsWithinRow(tag.tagCategory, tdTag, tag.name);
     closeRowDetails(tag.tagCategory);
 
-    applySelectFilter(categoryTags, categoryTags, validSearchInputTagCategory);
+    applySelectFilterViaTextInput(categoryTags, validSearchInputTagCategory);
     exists(validSearchInputTagCategory);
 
     clearAllFilters();
 
     // Enter a non-existing tag name substring and apply it as search filter
     const invalidSearchInput = String(data.getRandomNumber(111111, 222222));
-    applySelectFilter(categoryTags, categoryTags, invalidSearchInput, false);
+    applySelectFilterViaTextInput(categoryTags, invalidSearchInput, false);
   });
 
   after("Cleanup", function () {

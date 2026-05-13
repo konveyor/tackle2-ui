@@ -1,6 +1,7 @@
 import {
   click,
   clickByText,
+  clickWithinByText,
   inputText,
   performWithin,
   selectFilter,
@@ -17,8 +18,14 @@ import {
   tdTag,
   trTag,
 } from "../../../types/constants";
-import { searchButton, searchInput, span } from "../../../views/common.view";
-import { searchMenuToggle, singleAppDropList } from "../../../views/issue.view";
+import {
+  filterToggle,
+  filterToggleListbox,
+  searchButton,
+  searchInput,
+} from "../../../types/filter-categories";
+import { span } from "../../../views/common.view";
+import { singleAppDropList } from "../../../views/issue.view";
 import { navMenu } from "../../../views/menu.view";
 
 export abstract class DynamicReports {
@@ -81,12 +88,12 @@ export abstract class DynamicReports {
       filterType === dynamicReportFilter.target;
 
     if (isApplicableFilter) {
-      inputText(searchInput, filterValue);
-      click(searchButton);
+      inputText(searchInput(filterType), filterValue);
+      click(searchButton(filterType));
     } else {
-      click(searchMenuToggle);
-      clickByText(span, filterValue);
-      click(searchMenuToggle);
+      click(filterToggle(filterType));
+      clickWithinByText(filterToggleListbox(filterType), span, filterValue);
+      click(filterToggle(filterType));
     }
   }
 
@@ -96,9 +103,9 @@ export abstract class DynamicReports {
   ): void {
     this.openList();
     selectFilter(filterType);
-    click(searchMenuToggle);
+    click(filterToggle(filterType));
     filterValues.forEach((filterValue) => clickByText(span, filterValue));
-    click(searchMenuToggle);
+    click(filterToggle(filterType));
   }
 
   public static validateSection(

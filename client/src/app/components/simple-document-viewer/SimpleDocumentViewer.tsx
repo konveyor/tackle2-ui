@@ -16,7 +16,8 @@ import {
   useFetchTaskByIdAndFormat,
 } from "@app/queries/tasks";
 
-import { AttachmentToggle } from "./AttachmentToggle";
+import SimpleSelect from "../FilterToolbar/components/SimpleSelect";
+
 import { LanguageToggle } from "./LanguageToggle";
 import { RefreshControl } from "./RefreshControl";
 
@@ -215,14 +216,27 @@ export const SimpleDocumentViewer = ({
         </div>
       }
       customControls={[
-        <AttachmentToggle
+        <div
           key="attachmentToggle"
-          documents={configuredDocuments.map((it) => ({
-            ...it,
-            isSelected: it.id === selectedDocument.id,
-          }))}
-          onSelect={onSelect}
-        />,
+          className="simple-task-viewer-attachment-toggle"
+        >
+          <SimpleSelect
+            toggleId="attachmentToggle"
+            toggleAriaLabel="Attachment toggle"
+            isFullWidth
+            options={configuredDocuments.map(({ id, name, description }) => ({
+              value: id.toString(),
+              label: name,
+              optionProps: {
+                description,
+              },
+            }))}
+            value={selectedDocument?.id?.toString()}
+            onSelect={(value) =>
+              onSelect(Number.isInteger(Number(value)) ? Number(value) : value)
+            }
+          />
+        </div>,
         <RefreshControl
           key="refresh"
           isVisible={code !== ""}

@@ -40,7 +40,6 @@ export const expandableRow = ".pf-c-expandable-row";
 export const helper = "span.pf-v5-c-helper-text__item-text";
 export const filterInput = "input[type='search']";
 export const inputText = "input[type='text']";
-export const searchButton = "button#search-button";
 export const nextPageButton = "button[aria-label='Go to next page']";
 export const prevPageButton = "button[aria-label='Go to previous page']";
 export const lastPageButton = "button[aria-label='Go to last page']";
@@ -71,21 +70,14 @@ export const saveAndReviewButton = "button[cy-data='save-and-review']";
 export const span = "span";
 export const div = "div";
 export const liTag = "li";
-export const searchInput = "#search-input";
 export const aboutButton = "#about-button";
 export const issues = "Issues";
 export const dependencies = "Dependencies";
 export const technologies = "Technologies";
-/**
- * ul[role=listbox] > li is for the Application Inventory page.
- * span.pf-c-check__label is for the Copy assessment page.
- */
-export const standardFilter =
-  "ul[role=listbox] > li, span.pf-v5-c-check__label";
+
 export const specialFilter = "#select-multi-typeahead-checkbox-listbox";
 export const filterDropDownContainer =
   "div.pf-v5-c-toolbar__group.pf-m-toggle-group.pf-m-filter-group.pf-m-show";
-export const filterDropDown = '[id^="filter-control-"]';
 export const actionSelectToggle = "span.pf-v5-c-menu-toggle__controls";
 export const radioButtonLabel = "div.pf-v5-c-radio";
 export const radioButton = '*[class^="pf-v5-c-radio__input"]';

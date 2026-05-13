@@ -58,7 +58,11 @@ import {
 } from "../e2e/types/constants";
 import {
   filterCategory,
-  filterSelectType,
+  filterToggle,
+  filterToggleInput,
+  filterToggleListbox,
+  searchButton,
+  searchInput,
 } from "../e2e/types/filter-categories";
 import {
   AppIssue,
@@ -97,8 +101,6 @@ import {
   downloadTaskButton,
   expandRow,
   expandableRow,
-  filterDropDownContainer,
-  filterInput,
   filteredBy,
   firstPageButton,
   itemsPerPageMenuOptions,
@@ -111,17 +113,12 @@ import {
   pageNumInput,
   prevPageButton,
   removeButton,
-  searchButton,
   sideDrawer,
-  standardFilter,
   submitButton,
   successAlertMessage,
   taskDetailsEditor,
 } from "../e2e/views/common.view";
-import {
-  searchMenuToggle,
-  singleApplicationColumns,
-} from "../e2e/views/issue.view";
+import { singleApplicationColumns } from "../e2e/views/issue.view";
 import * as loginView from "../e2e/views/login.view";
 import { navMenu, navTab } from "../e2e/views/menu.view";
 import { switchToggle } from "../e2e/views/reportsTab.view";
@@ -534,23 +531,9 @@ export function notExists(value: string, tableSelector = appTable): void {
   });
 }
 
-export function selectFilter(categoryKey: string, eq = 0): void {
-  if (eq === 0) {
-    cy.get(filteredBy).click();
-    cy.get(filterCategory(categoryKey)).click();
-    return;
-  }
-  cy.get("div.pf-m-filter-group")
-    .eq(eq)
-    .within(() => {
-      cy.get(filteredBy).click();
-      cy.get(filterCategory(categoryKey)).click();
-    });
-}
-
-export function filterInputText(searchTextValue: string, value: number): void {
-  cy.get(filterInput).eq(value).clear().type(searchTextValue);
-  cy.get(searchButton).eq(value).click({ force: true });
+export function selectFilter(categoryKey: string): void {
+  cy.get(filteredBy).click();
+  cy.get(filterCategory(categoryKey)).click();
 }
 
 export function clearAllFilters(): void {
@@ -572,18 +555,14 @@ export function validateSingleApplicationIssue(issue: AppIssue): void {
     });
 }
 
-export function applySelectFilter(
-  filterId: string,
-  filterName,
+export function applySelectFilterViaTextInput(
+  filterCategoryKey,
   filterText: string,
   isValid = true
 ): void {
-  const filterInput = `#filter-control-${filterId}-typeahead-select-input`;
-  selectFilter(filterName);
-  cy.get(filterInput)
-    .closest(".pf-v5-c-menu-toggle")
-    .find(".pf-v5-c-menu-toggle__button")
-    .click();
+  const filterInput = filterToggleInput(filterCategoryKey);
+  selectFilter(filterCategoryKey);
+  cy.get(filterToggle(filterCategoryKey)).click();
   inputText(filterInput, filterText);
   if (isValid) {
     clickByText(".pf-v5-c-menu__item", filterText);
@@ -593,36 +572,31 @@ export function applySelectFilter(
   cy.get(filterInput).click();
 }
 
+export function applySelectFilter(
+  filterName: string,
+  searchText: string | string[]
+): void {
+  selectFilter(filterName);
+  const filterValue = Array.isArray(searchText) ? searchText : [searchText];
+
+  cy.get(filterToggle(filterName)).click();
+  cy.get(filterToggleListbox(filterName)).within(() => {
+    filterValue.forEach((searchTextValue) => {
+      cy.contains(searchTextValue).click();
+    });
+  });
+}
+
 export function applySearchFilter(
   filterName: string,
-  searchText: string | string[],
-  identifiedRisk = false,
-  eq = 0
+  searchText: string | string[]
 ): void {
-  selectFilter(filterName, eq);
-  let filterValue = [];
-  if (!Array.isArray(searchText)) {
-    filterValue = [searchText];
-  } else filterValue = searchText;
+  selectFilter(filterName);
+  const filterValue = Array.isArray(searchText) ? searchText : [searchText];
 
-  cy.get(filterDropDownContainer).then(($container) => {
-    if ($container.find(searchMenuToggle).length > 0) {
-      cy.get(searchMenuToggle).click();
-      filterValue.forEach((searchTextValue) => {
-        cy.get(standardFilter).contains(searchTextValue).click();
-      });
-    } else {
-      if ($container.find(filterSelectType(filterName)).length > 0) {
-        cy.get(filterSelectType(filterName)).click();
-        filterValue.forEach((searchTextValue) => {
-          cy.get(standardFilter).contains(searchTextValue).click();
-        });
-      } else {
-        filterValue.forEach((searchTextValue) => {
-          filterInputText(searchTextValue, +identifiedRisk);
-        });
-      }
-    }
+  filterValue.forEach((searchTextValue) => {
+    cy.get(searchInput(filterName)).clear().type(searchTextValue);
+    cy.get(searchButton(filterName)).click({ force: true });
   });
 }
 

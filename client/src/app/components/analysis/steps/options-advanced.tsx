@@ -15,17 +15,12 @@ import {
   Title,
   Tooltip,
 } from "@patternfly/react-core";
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-} from "@patternfly/react-core/deprecated";
 import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { DEFAULT_SELECT_MAX_HEIGHT } from "@app/Constants";
 import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
 import { TargetLabelSchema } from "@app/api/schemas";
+import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
@@ -35,7 +30,10 @@ import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
-import { duplicateNameCheck, getValidatedFromErrors } from "@app/utils/utils";
+import {
+  duplicateNameCheck,
+  getToggleStatusFromErrors,
+} from "@app/utils/utils";
 
 import { GroupOfLabels } from "../components/group-of-labels";
 import { useSourceLabels } from "../hooks/useSourceLabels";
@@ -149,9 +147,6 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
 
   useFormChangeHandler({ form, onStateChanged });
 
-  const [isSelectTargetsOpen, setSelectTargetsOpen] = React.useState(false);
-  const [isSelectSourcesOpen, setSelectSourcesOpen] = React.useState(false);
-
   // TODO: Include labels parsed from uploaded manual custom rule files?
   const availableTargetLabels = parseLabels(useTargetLabels());
   const availableSourceLabels = parseLabels(useSourceLabels());
@@ -218,20 +213,20 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         name="additionalTargetLabels"
         fieldId="additional-target-labels"
         renderInput={({
-          field: { onChange, onBlur, value },
+          field: { onChange, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (
-            <Select
-              id="additional-target-labels"
+            <MultiSelect
               toggleId="additional-target-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
               aria-label="Select targets"
-              selections={selections}
-              isOpen={isSelectTargetsOpen}
-              onSelect={(_, selection) => {
+              hasChips={true}
+              values={selections}
+              options={availableTargetLabels.map(({ value }) => ({
+                value,
+              }))}
+              onSelect={(selection) => {
                 const selectedLabel = availableTargetLabels.find(
                   (label) => label.value === selection
                 );
@@ -244,21 +239,16 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                     )
                   );
                 }
-                onBlur();
-                setSelectTargetsOpen(!isSelectTargetsOpen);
-              }}
-              onToggle={() => {
-                setSelectTargetsOpen(!isSelectTargetsOpen);
               }}
               onClear={() => {
                 onChange([]);
               }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
-            >
-              {availableTargetLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
-            </Select>
+              toggleStatus={getToggleStatusFromErrors(
+                error,
+                isDirty,
+                isTouched
+              )}
+            />
           );
         }}
       />
@@ -299,20 +289,25 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         name="additionalSourceLabels"
         fieldId="additional-source-labels"
         renderInput={({
-          field: { onChange, onBlur, value },
+          field: { onChange, value },
           fieldState: { isDirty, error, isTouched },
         }) => {
           const selections = parseLabels(value).map((label) => label.value);
           return (
-            <Select
-              id="additional-source-labels"
+            <MultiSelect
               toggleId="additional-source-labels-toggle"
-              variant={SelectVariant.typeaheadMulti}
-              maxHeight={DEFAULT_SELECT_MAX_HEIGHT}
+              hasChips={true}
               aria-label="Select sources"
-              selections={selections}
-              isOpen={isSelectSourcesOpen}
-              onSelect={(_, selection) => {
+              values={selections}
+              options={availableSourceLabels.map(({ value }) => ({
+                value,
+              }))}
+              toggleStatus={getToggleStatusFromErrors(
+                error,
+                isDirty,
+                isTouched
+              )}
+              onSelect={(selection) => {
                 const selectedLabel = availableSourceLabels.find(
                   (label) => label.value === selection
                 );
@@ -325,21 +320,11 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
                     )
                   );
                 }
-                onBlur();
-                setSelectSourcesOpen(!isSelectSourcesOpen);
-              }}
-              onToggle={() => {
-                setSelectSourcesOpen(!isSelectSourcesOpen);
               }}
               onClear={() => {
                 onChange([]);
               }}
-              validated={getValidatedFromErrors(error, isDirty, isTouched)}
-            >
-              {availableSourceLabels.map(({ value }, index) => (
-                <SelectOption key={index} component="button" value={value} />
-              ))}
-            </Select>
+            />
           );
         }}
       />

@@ -17,3 +17,4 @@ export const stakeholdergroupNameInput = "input[name=name]";
 export const stakeholdergroupDescriptionInput = "textarea[name=description]";
 export const stakeholdergroupMemberSelect =
   '[data-ouia-component-id="stakeholders-toggle"]';
+export const stakeholdergroupMemberSelectInput = "#stakeholders-toggle-input";

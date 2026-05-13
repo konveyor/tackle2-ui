@@ -12,9 +12,7 @@ import {
   TagCategory,
   TagRef,
 } from "@app/api/models";
-import { Color } from "@app/components/Color";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
-import { OptionWithValue } from "@app/components/SimpleSelect";
 
 interface IModel {
   id?: string | number;
@@ -34,26 +32,12 @@ export const toIBusinessServiceDropdown = (
   name: value.name,
 });
 
-export const toIBusinessServiceDropdownOptionWithValue = (
-  value: IBusinessServiceDropdown
-): OptionWithValue<IBusinessServiceDropdown> => ({
-  value,
-  toString: () => value.name,
-});
-
 // Identity dropdown
 export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
 
 export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
   id: value.id,
   name: value.name,
-});
-
-export const toIdentityDropdownOptionWithValue = (
-  value: IdentityDropdown
-): OptionWithValue<IdentityDropdown> => ({
-  value,
-  toString: () => value?.name || "",
 });
 
 // Stakeholder dropdown
@@ -69,16 +53,6 @@ export const toIStakeholderDropdown = (
   email: value?.email || "",
 });
 
-export const toIStakeholderDropdownOptionWithValue = (
-  value: IStakeholderDropdown
-): OptionWithValue<IStakeholderDropdown> => ({
-  value,
-  toString: () => value.name,
-  props: {
-    description: value.email,
-  },
-});
-
 // Stakeholder group dropdown
 
 export interface IStakeholderGroupDropdown
@@ -89,13 +63,6 @@ export const toIStakeholderGroupDropdown = (
 ): IStakeholderGroupDropdown => ({
   id: value.id,
   name: value.name,
-});
-
-export const toIStakeholderGroupDropdownOptionWithValue = (
-  value: IStakeholderGroupDropdown
-): OptionWithValue<IStakeholderGroupDropdown> => ({
-  value,
-  toString: () => value.name,
 });
 
 // Job function dropdown
@@ -110,13 +77,6 @@ export const toIJobFunctionDropdown = (
   name: value.name,
 });
 
-export const toIJobFunctionDropdownOptionWithValue = (
-  value: IJobFunctionDropdown
-): OptionWithValue<IJobFunctionDropdown> => ({
-  value,
-  toString: () => value.name,
-});
-
 // TagCategory
 
 export interface ITagCategoryDropdown
@@ -129,13 +89,6 @@ export const toITagCategoryDropdown = (
   name: value.name,
 });
 
-export const toITagCategoryDropdownOptionWithValue = (
-  value: ITagCategoryDropdown
-): OptionWithValue<ITagCategoryDropdown> => ({
-  value,
-  toString: () => value.name,
-});
-
 // Tag
 
 export interface ITagDropdown extends Pick<TagRef, "id" | "name" | "source"> {}
@@ -146,39 +99,11 @@ export const toITagDropdown = (value: TagRef): ITagDropdown => ({
   source: value?.source || "",
 });
 
-export const toITagDropdownOptionWithValue = (
-  value: ITagDropdown
-): OptionWithValue<ITagDropdown> => ({
-  value,
-  toString: () => value.name,
-});
-
-// Colors
-
-export const colorHexToOptionWithValue = (
-  hex: string
-): OptionWithValue<string> => ({
-  value: hex,
-  toString: () => hex,
-  props: {
-    children: <Color hex={hex} />,
-  },
-});
-
 // Simple dropdown
 
 export interface ISimpleOptionDropdown<T> {
   key: T;
   name: string;
-}
-
-export function toISimpleOptionDropdownWithValue<T>(
-  value: ISimpleOptionDropdown<T>
-): OptionWithValue<ISimpleOptionDropdown<T>> {
-  return {
-    value,
-    toString: () => value.name,
-  };
 }
 
 export const getKindIdByRef = (
@@ -198,14 +123,6 @@ export const getKindIdByRef = (
   return matchingIdentity;
 };
 
-export const toOptionLike = <T,>(
-  value: T | undefined | null,
-  options: OptionWithValue<T>[]
-) => {
-  return value === null || value === undefined
-    ? undefined
-    : options.find((option) => option.value === value);
-};
 export const findOption = (
   value: string | undefined | null,
   options: FilterSelectOptionProps[]

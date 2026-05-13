@@ -24,7 +24,12 @@ import {
   tdTag,
   trTag,
 } from "../../../types/constants";
-import { categoryName, filterCategory } from "../../../types/filter-categories";
+import {
+  categoryName,
+  filterCategory,
+  searchButton,
+  searchInput,
+} from "../../../types/filter-categories";
 import { JiraConnectionData } from "../../../types/types";
 import {
   confirmButton,
@@ -32,8 +37,6 @@ import {
   filteredBy,
   navLink,
 } from "../../../views/common.view";
-import { searchButton } from "../../../views/credentials.view";
-import { searchInput } from "../../../views/issue.view";
 import {
   createJiraButton,
   instanceName,
@@ -273,8 +276,8 @@ export class Jira {
 
   static applyFilterByName(value: string) {
     selectFromDropList(filteredBy, filterCategory(categoryName));
-    inputText(searchInput, value);
-    click(searchButton);
+    inputText(searchInput(categoryName), value);
+    click(searchButton(categoryName));
   }
 
   public getAllProjects(): Cypress.Chainable<JiraProject[]> {

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   Badge,
   Button,
+  Chip,
+  ChipGroup,
   Label,
   MenuToggle,
   MenuToggleElement,
@@ -19,8 +21,8 @@ import { TimesIcon } from "@patternfly/react-icons";
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
 import {
-  createItemId,
   getDisplayValue,
+  getDisplayValueForChip,
   getStableIndex,
   noResultsId,
   toDisplayValue,
@@ -32,6 +34,7 @@ export interface MultiSelectProps {
   options: FilterSelectOptionProps[];
   values?: string[];
   onSelect: (value?: string) => void;
+  onClear: () => void;
   placeholderText?: string;
   isDisabled?: boolean;
   isFullWidth?: boolean;
@@ -48,9 +51,10 @@ export interface MultiSelectProps {
   hasBadge?: boolean;
   showSelectedInToggle?: boolean;
   closeMenuOnSelect?: boolean;
+  hasChips?: boolean;
 }
 
-export const MultiSelectBase: FC<MultiSelectProps> = ({
+export const MultiSelect: FC<MultiSelectProps> = ({
   options,
   ariaLabel,
   "aria-label": htmlAriaLabel,
@@ -67,6 +71,8 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   hasBadge,
   showSelectedInToggle,
   closeMenuOnSelect,
+  hasChips = false,
+  onClear,
 }: MultiSelectProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
@@ -178,7 +184,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
   const onClearButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onSelectCallback(undefined);
+    onClear();
     setInputValue("");
     resetActiveAndFocusedItem();
     textInputRef?.current?.focus();
@@ -216,7 +222,7 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
       status={toggleStatus}
       onClick={onToggleClick}
       isExpanded={isFilterDropdownOpen}
-      isDisabled={isDisabled || !options.length}
+      isDisabled={isDisabled}
       isFullWidth={isFullWidth}
     >
       <TextInputGroup isPlain>
@@ -237,11 +243,40 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
           {...(activeItemId && { "aria-activedescendant": activeItemId })}
           role="combobox"
           isExpanded={isFilterDropdownOpen}
-          aria-controls={createItemId("listbox", toggleId)}
-        />
+          aria-controls={`${toggleId}-listbox`}
+        >
+          {hasChips && (
+            <ChipGroup
+              aria-label="Current selections"
+              ouiaId={`${toggleId}-chip-group`}
+            >
+              {values?.map((value) => (
+                <Chip
+                  key={value}
+                  /**
+                   * for testing purposes, we cannot rely on text inside the chip as
+                   * it can be truncated
+                   * ouiaId is not used as it is used 2x in the chip:
+                   * outer div and button
+                   * aria-label is not used at the chip level
+                   * as a workaround, we use a span with the aria-label
+                   */
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    onSelect(value);
+                  }}
+                >
+                  <span aria-label={getDisplayValue(value, options)}>
+                    {getDisplayValueForChip(value, options)}
+                  </span>
+                </Chip>
+              ))}
+            </ChipGroup>
+          )}
+        </TextInputGroupMain>
 
         <TextInputGroupUtilities>
-          {!!inputValue && (
+          {(!!inputValue || !!values?.length) && (
             <Button
               variant="plain"
               onClick={onClearButtonClick}
@@ -283,14 +318,14 @@ export const MultiSelectBase: FC<MultiSelectProps> = ({
       isOpen={isFilterDropdownOpen}
       variant="typeahead"
     >
-      <SelectList id={createItemId("listbox", toggleId)}>
+      <SelectList id={`${toggleId}-listbox`}>
         {filteredOptions.map(
           ({ groupLabel, label, value, optionProps = {} }, index) => (
             <SelectOption
               {...optionProps}
               {...(!optionProps.isDisabled && { hasCheckbox })}
               key={value}
-              id={createItemId(getStableIndex(value, options), toggleId)}
+              id={`${toggleId}-${getStableIndex(value, options)}`}
               value={value}
               isFocused={focusedItemIndex === index}
               isSelected={values?.includes(value)}
