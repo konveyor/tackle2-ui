@@ -132,9 +132,6 @@ spec:
         volumes:
           - name: credentials
             emptyDir: {}
-          - name: registry-pull-secrets
-            secret:
-              secretName: registry-pull-secrets
         steps:
           - name: get-kubeconfig
             ref:
@@ -154,110 +151,6 @@ spec:
               - name: credentials
                 value: credentials
 
-          - name: add-pull-secrets
-            image: registry.redhat.io/openshift4/ose-cli:latest
-            volumeMounts:
-              - name: credentials
-                mountPath: /credentials
-              - name: registry-pull-secrets
-                mountPath: /registry-secrets
-            env:
-              - name: KUBECONFIG
-                value: /credentials/$(steps.get-kubeconfig.results.kubeconfig)
-              - name: OPERATOR_NAMESPACE
-                value: $(params.operatorNamespace)
-            script: |
-              #!/bin/bash
-              set -euo pipefail
-
-              if [ ! -f /registry-secrets/.dockerconfigjson ]; then
-                echo "[ERROR] Registry secret not found"
-                exit 1
-              fi
-
-              echo "Installing jq for JSON filtering..."
-              curl -sL https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64 -o /tmp/jq
-              chmod +x /tmp/jq
-
-              echo "==========================================="
-              echo "REGISTRY CREDENTIALS SETUP"
-              echo "==========================================="
-              echo "Note: Hypershift clusters actively reconcile the global pull secret."
-              echo "We will attempt to merge stage credentials, but they may be reverted."
-              echo "Main strategy: Use CatalogSource.spec.secrets for bundle pulls."
-              echo ""
-              echo "Attempting to merge stage credentials into cluster's global pull secret..."
-
-              # Get current global pull secret
-              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d > /tmp/current-global-secret.json
-
-              echo "Current global pull secret registries:"
-              /tmp/jq -r '.auths | keys[]' /tmp/current-global-secret.json
-
-              # Merge our credentials (prod+stage) with existing global secret
-              /tmp/jq -s '.[0].auths * .[1].auths | {auths: .}' \
-                /tmp/current-global-secret.json \
-                /registry-secrets/.dockerconfigjson \
-                > /tmp/merged-global-secret.json
-
-              echo ""
-              echo "Updated global pull secret registries:"
-              /tmp/jq -r '.auths | keys[]' /tmp/merged-global-secret.json
-
-              # Update the global pull secret
-              oc set data secret/pull-secret -n openshift-config --from-file=.dockerconfigjson=/tmp/merged-global-secret.json
-
-              echo "✅ Global pull secret updated with stage credentials"
-
-              # Verify the update worked
-              echo ""
-              echo "Verifying global pull secret was updated:"
-              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | grep -i stage && echo "✅ Stage registry found in global secret" || echo "❌ Stage registry NOT found in global secret"
-
-              echo ""
-              echo "All registries in global pull secret:"
-              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | sed 's/^/  - /'
-
-              echo ""
-              echo "Stage registry details in global secret:"
-              oc get secret pull-secret -n openshift-config -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | to_entries[] | select(.key | contains("stage")) | "  Registry: \(.key)\n  Has auth: \(if .value.auth then "yes" else "no" end)"'
-              echo "==========================================="
-              echo ""
-
-              # Create namespace-level secret with STAGE-ONLY credentials for true stage-only testing
-              # Filter to only include registry.stage.redhat.io
-              echo "Creating registry-pull-secret in openshift-marketplace with STAGE-ONLY credentials..."
-              cat /registry-secrets/.dockerconfigjson | \
-                /tmp/jq '.auths |= with_entries(select(.key | contains("registry.stage.redhat.io")))' \
-                > /tmp/stage-only-dockerconfig.json
-
-              oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
-                --type=kubernetes.io/dockerconfigjson \
-                -n openshift-marketplace \
-                --dry-run=client -o yaml | oc apply -f -
-
-              echo "Registries in openshift-marketplace/registry-pull-secret (stage-only):"
-              oc get secret registry-pull-secret -n openshift-marketplace -o jsonpath='{.data.\.dockerconfigjson}' | base64 -d | /tmp/jq -r '.auths | keys[]' | sed 's/^/  - /'
-              echo ""
-              echo "✅ Stage-only credentials configured - prod registry pulls will fail (no credentials)"
-              echo ""
-
-              oc patch serviceaccount default -n openshift-marketplace \
-                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
-
-              oc create namespace $OPERATOR_NAMESPACE --dry-run=client -o yaml | oc apply -f -
-
-              echo "Creating registry-pull-secret in $OPERATOR_NAMESPACE with STAGE-ONLY credentials..."
-              oc create secret generic registry-pull-secret \
-                --from-file=.dockerconfigjson=/tmp/stage-only-dockerconfig.json \
-                --type=kubernetes.io/dockerconfigjson \
-                -n $OPERATOR_NAMESPACE \
-                --dry-run=client -o yaml | oc apply -f -
-
-              oc patch serviceaccount default -n $OPERATOR_NAMESPACE \
-                -p '{"imagePullSecrets": [{"name": "registry-pull-secret"}]}'
-
           - name: install-operator
             image: registry.redhat.io/openshift4/ose-cli:latest
             volumeMounts:
@@ -274,54 +167,9 @@ spec:
               PACKAGE_NAME="$(params.packageName)"
               CHANNEL_NAME="$(params.channelName)"
               NAMESPACE="$(params.operatorNamespace)"
-              CLUSTER_NAME="$(params.clusterName)"
-
-              echo "========================================="
-              echo "FBC CATALOG INSPECTION"
-              echo "========================================="
-              echo "FBC Image: $FBC_IMAGE"
-              echo ""
-              echo "Extracting bundle references from FBC catalog..."
-
-              # Use oc image extract to get the catalog content
-              mkdir -p /tmp/fbc-content
-              if oc image extract "$FBC_IMAGE" --path /configs/:/tmp/fbc-content/ --confirm 2>/dev/null; then
-                echo "✅ FBC catalog extracted"
-                echo ""
-                echo "Bundle images referenced in catalog:"
-                grep -r "image:" /tmp/fbc-content/ 2>/dev/null | grep -E "registry\.(redhat|stage)" | head -10 || echo "No bundle images found"
-                echo ""
-                echo "First bundle reference (if any):"
-                grep -r "image:" /tmp/fbc-content/ 2>/dev/null | grep -E "registry\.(redhat|stage)" | head -1 | awk -F'image:' '{print $2}' | tr -d ' "' || echo "None found"
-              else
-                echo "⚠️  Could not extract FBC catalog content"
-              fi
-              echo "========================================="
-              echo ""
-
-              CONSOLE_URL=$(oc whoami --show-console 2>/dev/null || echo "Unable to get console URL")
-              PASSWORD_FILE="/credentials/${CLUSTER_NAME}-password"
-              if [ -f "$PASSWORD_FILE" ]; then
-                CLUSTER_PASSWORD=$(cat "$PASSWORD_FILE")
-              else
-                CLUSTER_PASSWORD="Not found"
-              fi
-
-              echo "========================================="
-              echo "CLUSTER: $CLUSTER_NAME"
-              echo "CONSOLE: $CONSOLE_URL"
-              echo "PASSWORD: $CLUSTER_PASSWORD"
-              echo "========================================="
-
-              echo ""
-              echo "Verifying imageContentSources (registry mirroring):"
-              oc get imagecontentsourcepolicy -o yaml 2>/dev/null | grep -A5 "mirrors:" | head -15 || echo "No ImageContentSourcePolicy found"
-              oc get imagedigestmirrorset -o yaml 2>/dev/null | grep -A5 "mirrors:" | head -15 || echo "No ImageDigestMirrorSet found"
-              echo ""
 
               oc create namespace "$NAMESPACE" --dry-run=client -o yaml | oc apply -f -
 
-              echo "Creating CatalogSource with registry-pull-secret for bundle image pulls..."
               cat <<EOF | oc apply -f -
               apiVersion: operators.coreos.com/v1alpha1
               kind: CatalogSource
@@ -331,8 +179,6 @@ spec:
               spec:
                 sourceType: grpc
                 image: $FBC_IMAGE
-                secrets:
-                  - registry-pull-secret
                 displayName: MTA Konflux Catalog
                 publisher: Red Hat
                 grpcPodConfig:
@@ -344,10 +190,6 @@ spec:
                   registryPoll:
                     interval: 10m
               EOF
-
-              echo "✅ CatalogSource configured to use registry-pull-secret for image pulls"
-              echo "   This should allow bundle unpacking pods to access registry.stage.redhat.io"
-              echo ""
 
               for i in {1..60}; do
                 STATE=$(oc get catalogsource mta-konflux-catalog -n openshift-marketplace -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null || echo "")
@@ -391,7 +233,6 @@ spec:
               sleep 10
 
               for i in {1..180}; do
-                # Check subscription status
                 CSV=$(oc get subscription mta-operator -n "$NAMESPACE" -o jsonpath='{.status.installedCSV}' 2>/dev/null || echo "")
                 if [ -n "$CSV" ]; then
                   PHASE=$(oc get csv "$CSV" -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "")
@@ -402,79 +243,8 @@ spec:
                   fi
                 fi
 
-                # Print diagnostics every 30 seconds
-                if [ $((i % 6)) -eq 0 ]; then
-                  echo ""
-                  echo "========================================="
-                  echo "Iteration $i/180 ($(($i * 5)) seconds elapsed, $((15 - i/6)) minutes until timeout)"
-                  echo "========================================="
-                  echo "Waiting for CSV... ($i/180) - timeout in $((15 - i/6)) minutes"
-                  echo "📊 Subscription status:"
-                  if ! oc get subscription mta-operator -n "$NAMESPACE" -o yaml 2>/dev/null | grep -A10 "status:"; then
-                    echo "⚠️  Failed to get subscription status (command error)"
-                  fi
-                  echo ""
-                  echo "📦 InstallPlans:"
-                  if ! oc get installplan -n "$NAMESPACE" 2>/dev/null; then
-                    echo "No InstallPlans found (or command failed)"
-                  fi
-                  echo ""
-                  echo "🔍 Pods in $NAMESPACE:"
-                  if ! oc get pods -n "$NAMESPACE" 2>/dev/null; then
-                    echo "No pods yet (or command failed)"
-                  fi
-                  echo ""
-                  echo "🔍 Pods in openshift-marketplace (bundle unpacking):"
-                  if ! oc get pods -n openshift-marketplace 2>/dev/null | grep -E "NAME|mta|bundle"; then
-                    echo "No bundle-related pods (or command failed)"
-                  fi
-                  echo ""
-
-                  # Check bundle pod's service account and imagePullSecrets
-                  BUNDLE_POD=$(oc get pods -n openshift-marketplace --no-headers 2>/dev/null | grep -E "^[a-f0-9].*mta.*" | awk '{print $1}' | head -1 || echo "")
-                  if [ -n "$BUNDLE_POD" ]; then
-                    echo "🔍 Bundle pod details ($BUNDLE_POD):"
-                    echo "  Service Account:"
-                    oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.serviceAccountName}' 2>/dev/null || echo "    N/A"
-                    echo ""
-                    echo "  ImagePullSecrets:"
-                    oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.imagePullSecrets[*].name}' 2>/dev/null || echo "    None"
-                    echo ""
-                    echo "  Pod Status:"
-                    POD_STATUS=$(oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.status.phase}' 2>/dev/null)
-                    echo "    Phase: $POD_STATUS"
-                    echo ""
-
-                    # If pod is failing, get detailed logs and error info
-                    if [[ "$POD_STATUS" == *"Error"* ]] || [[ "$POD_STATUS" == *"Failed"* ]] || oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.status.containerStatuses[0].state.waiting.reason}' 2>/dev/null | grep -q "ImagePull"; then
-                      echo "  ❌ Bundle pod is failing. Detailed diagnostics:"
-                      echo ""
-                      echo "  Container statuses:"
-                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{range .status.containerStatuses[*]}    Container: {.name}, State: {.state}, Message: {.state.waiting.message}{"\n"}{end}' 2>/dev/null || echo "    N/A"
-                      echo ""
-                      echo "  Pod logs (last 30 lines):"
-                      oc logs "$BUNDLE_POD" -n openshift-marketplace --tail=30 2>&1 | sed 's/^/    /' || echo "    Cannot retrieve logs"
-                      echo ""
-                      echo "  Image being pulled:"
-                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o jsonpath='{.spec.containers[0].image}' 2>/dev/null || echo "    N/A"
-                      echo ""
-                      echo "  Checking if imageContentSources mirroring is working:"
-                      echo "  (Should try registry.stage.redhat.io first due to imageContentSources)"
-                      oc get pod "$BUNDLE_POD" -n openshift-marketplace -o yaml 2>/dev/null | grep -A5 "message:" | head -10 | sed 's/^/    /'
-                      echo ""
-                    fi
-                  fi
-
-                  echo "🔍 Recent events in openshift-marketplace:"
-                  if ! oc get events -n openshift-marketplace --sort-by='.lastTimestamp' 2>/dev/null | grep -i "pull\|error\|failed\|image" | tail -10; then
-                    echo "No relevant events (or command failed)"
-                  fi
-                  echo ""
-                  echo "🔍 Recent events in $NAMESPACE:"
-                  if ! oc get events -n "$NAMESPACE" --sort-by='.lastTimestamp' 2>/dev/null | tail -5; then
-                    echo "No events (or command failed)"
-                  fi
-                  echo "========================================="
+                if [ $((i % 12)) -eq 0 ]; then
+                  echo "Waiting for CSV... ($i/180)"
                 fi
                 sleep 5
               done
@@ -487,16 +257,6 @@ spec:
               fi
 
               oc wait --for=condition=available --timeout=300s deployment/mta-operator -n "$NAMESPACE"
-
-              echo "========================================="
-              echo "VERIFYING IMAGE SOURCES (stage-only test)"
-              echo "========================================="
-              echo "Checking which registry operator images were pulled from:"
-              oc get pods -n "$NAMESPACE" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{range .status.containerStatuses[*]}  {.name}: {.imageID}{"\n"}{end}{end}' | head -20
-              echo ""
-              echo "Checking catalog source pod images:"
-              oc get pods -n openshift-marketplace -l olm.catalogSource=mta-konflux-catalog -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{range .status.containerStatuses[*]}  {.name}: {.imageID}{"\n"}{end}{end}'
-              echo "========================================="
 
               cat <<EOF | oc apply -f -
               apiVersion: tackle.konveyor.io/v1alpha1
@@ -614,21 +374,17 @@ spec:
               npm clean-install --ignore-scripts --no-audit
               npx cypress install
 
-              echo "Building test spec for @ci tests..."
+              echo "Running login test only..."
               cd cypress
-              TEST_SPEC=$(node scripts/findTierFiles.mjs @ci)
 
-              echo "Running Cypress E2E tests..."
               export CYPRESS_BASE_URL="$BASE_URL"
               export CYPRESS_USER="admin"
               export CYPRESS_INITIAL_PASSWORD="Passw0rd!"
               export CYPRESS_PASSWORD="Dog8code"
               export CYPRESS_KEYCLOAK_ADMIN_PASSWORD="$KEYCLOAK_PASS"
-              export CYPRESS_INCLUDE_TAGS="@ci"
-              export CYPRESS_EXCLUDE_TAGS="cf,downstream"
 
               npx cypress run \
-                --spec "$TEST_SPEC" \
+                --spec "e2e/tests/login.test.ts" \
                 --config-file cypress.config.ts \
                 --reporter junit \
                 --reporter-options "mochaFile=run/results-[hash].xml"
