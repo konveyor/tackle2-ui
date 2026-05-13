@@ -26,6 +26,7 @@ import {
 import {
   COLOR_NAMES_BY_HEX_VALUE,
   DEFAULT_REFETCH_INTERVAL,
+  normalizeHex,
 } from "@app/Constants";
 import { Tag, TagCategory } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -200,8 +201,9 @@ export const Tags: React.FC = () => {
             what: t("terms.color").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
-          const hex = item?.colour || "";
-          const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
+          const hex =
+            item?.colour || getTagCategoryFallbackColor(item ?? undefined);
+          const colorLabel = COLOR_NAMES_BY_HEX_VALUE[normalizeHex(hex)];
           return colorLabel || hex;
         },
       },

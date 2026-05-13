@@ -86,11 +86,26 @@ export const COLOR_HEX_VALUES_BY_NAME = {
   black: black.value,
 } as const;
 
+/**
+ * Expand shorthand hex (#abc) to full form (#aabbcc) so lookups work
+ * regardless of which format the backend stored.
+ */
+export const normalizeHex = (hex: string): string => {
+  const h = hex.toLowerCase().trim();
+  if (/^#[0-9a-f]{3}$/.test(h)) {
+    return `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+  }
+  return h;
+};
+
 export const COLOR_NAMES_BY_HEX_VALUE: Record<
   string,
   keyof typeof COLOR_HEX_VALUES_BY_NAME | undefined
 > = Object.fromEntries(
-  Object.entries(COLOR_HEX_VALUES_BY_NAME).map((e) => e.reverse())
+  Object.entries(COLOR_HEX_VALUES_BY_NAME).map(([name, hex]) => [
+    normalizeHex(hex),
+    name as keyof typeof COLOR_HEX_VALUES_BY_NAME,
+  ])
 );
 
 // Risks
