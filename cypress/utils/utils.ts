@@ -2678,17 +2678,17 @@ export function taskDetailsSanity(
   taskKind: TaskKind,
   taskStatus?: TaskStatus
 ) {
-  cy.wait(5 * SEC);
-  cy.get(taskDetailsEditor)
-    .invoke("text")
-    .then((text) => {
-      const normalizedText = normalizeText(text);
-      expect(normalizedText).to.include(`name: ${appName}`);
-      expect(normalizedText).to.include(`kind: ${taskKind}`);
-      if (taskStatus) {
-        expect(normalizedText).to.include(`state: ${taskStatus}`);
-      }
-    });
+  // Monaco Editor virtualizes content - only visible lines exist in the DOM.
+  // Use a retrying .should() assertion so Cypress re-reads text until the
+  // editor has fully initialized and rendered enough lines.
+  cy.get(taskDetailsEditor, { timeout: 30 * SEC }).should(($el) => {
+    const normalizedText = normalizeText($el.text());
+    expect(normalizedText).to.include(`name: ${appName}`);
+    expect(normalizedText).to.include(`kind: ${taskKind}`);
+    if (taskStatus) {
+      expect(normalizedText).to.include(`state: ${taskStatus}`);
+    }
+  });
 }
 
 export function downloadTaskDetails(format = downloadFormatDetails.yaml) {
