@@ -2,6 +2,7 @@ import "./platform-detail-drawer.css";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -9,8 +10,6 @@ import {
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -55,14 +54,14 @@ const PlatformDetailDrawer: React.FC<IPlatformDetailDrawerProps> = ({
       focusKey={platform?.id}
       pageKey="platform-details"
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             {t("titles.platformDrawer")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {platform?.name}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       <DrawerTabsContainer>

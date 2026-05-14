@@ -9,12 +9,12 @@ import {
   CardBody,
   CardHeader,
   CardTitle,
+  Content,
   Dropdown,
   DropdownItem,
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
   EmptyStateVariant,
   Flex,
   FlexItem,
@@ -23,10 +23,8 @@ import {
   MenuToggle,
   MenuToggleElement,
   PageSection,
-  PageSectionVariants,
   Stack,
   StackItem,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import { EllipsisVIcon } from "@patternfly/react-icons";
@@ -187,12 +185,12 @@ export const SchemaDefinedPage: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
+      <PageSection hasBodyWrapper={false}>
         <Flex>
           <FlexItem grow={{ default: "grow" }}>
-            <TextContent>
+            <Content>
               <Title headingLevel="h1">SchemaDefinedFields Playground</Title>
-            </TextContent>
+            </Content>
           </FlexItem>
           <FlexItem align={{ default: "alignRight" }}>
             <SchemaStatusAlert status={schemaStatus} />
@@ -207,7 +205,7 @@ export const SchemaDefinedPage: React.FC = () => {
           </FlexItem>
         </Flex>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Stack hasGutter>
           {/* Schema Editor & Schema Defined Field - Main Section */}
           <StackItem isFilled>
@@ -264,11 +262,12 @@ export const SchemaDefinedPage: React.FC = () => {
                   </CardHeader>
                   <CardBody className="full-height-container">
                     {currentDocument === null ? (
-                      <EmptyState variant={EmptyStateVariant.xs} isFullHeight>
-                        <EmptyStateHeader
-                          titleText={t("message.noDocument")}
-                          headingLevel="h4"
-                        />
+                      <EmptyState
+                        headingLevel="h4"
+                        titleText={t("message.noDocument")}
+                        variant={EmptyStateVariant.xs}
+                        isFullHeight
+                      >
                         <EmptyStateBody>
                           Current document is empty.
                         </EmptyStateBody>

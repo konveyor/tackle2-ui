@@ -1,12 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Modal,
-  ModalVariant,
-  Wizard,
-  WizardHeader,
-  WizardStep,
-} from "@patternfly/react-core";
+import { Wizard, WizardHeader, WizardStep } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { SourcePlatform } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";

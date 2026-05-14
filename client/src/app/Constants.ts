@@ -1,13 +1,30 @@
 import {
-  global_palette_black_1000 as black,
-  global_palette_black_500 as gray,
-  global_palette_blue_300 as blue,
-  global_palette_cyan_300 as cyan,
-  global_palette_gold_300 as gold,
-  global_palette_green_300 as green,
-  global_palette_orange_300 as orange,
-  global_palette_purple_600 as purple,
+  chart_color_black_500 as black,
+  chart_color_blue_300 as blue,
+  chart_color_green_300 as green,
+  chart_color_orange_300 as orange,
 } from "@patternfly/react-tokens";
+
+const gray = {
+  name: "--pf-t--global--text--color--200",
+  value: "#6a6e73",
+  var: "var(--pf-t--global--text--color--200)",
+};
+const cyan = {
+  name: "--pf-t--chart--color--teal--300",
+  value: "#009596",
+  var: "var(--pf-t--chart--color--teal--300)",
+};
+const gold = {
+  name: "--pf-t--chart--color--gold--300",
+  value: "#f4c145",
+  var: "var(--pf-t--chart--color--gold--300)",
+};
+const purple = {
+  name: "--pf-t--chart--color--purple--300",
+  value: "#a18fff",
+  var: "var(--pf-t--chart--color--purple--300)",
+};
 
 import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
 
@@ -69,11 +86,26 @@ export const COLOR_HEX_VALUES_BY_NAME = {
   black: black.value,
 } as const;
 
+/**
+ * Expand shorthand hex (#abc) to full form (#aabbcc) so lookups work
+ * regardless of which format the backend stored.
+ */
+export const normalizeHex = (hex: string): string => {
+  const h = hex.toLowerCase().trim();
+  if (/^#[0-9a-f]{3}$/.test(h)) {
+    return `#${h[1]}${h[1]}${h[2]}${h[2]}${h[3]}${h[3]}`;
+  }
+  return h;
+};
+
 export const COLOR_NAMES_BY_HEX_VALUE: Record<
   string,
   keyof typeof COLOR_HEX_VALUES_BY_NAME | undefined
 > = Object.fromEntries(
-  Object.entries(COLOR_HEX_VALUES_BY_NAME).map((e) => e.reverse())
+  Object.entries(COLOR_HEX_VALUES_BY_NAME).map(([name, hex]) => [
+    normalizeHex(hex),
+    name as keyof typeof COLOR_HEX_VALUES_BY_NAME,
+  ])
 );
 
 // Risks
@@ -83,7 +115,7 @@ type RiskListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -138,7 +170,7 @@ type ProposedActionListType = {
     hexColor: string;
     labelColor:
       | "blue"
-      | "cyan"
+      | "teal"
       | "green"
       | "orange"
       | "purple"
@@ -177,7 +209,7 @@ export const PROPOSED_ACTION_LIST: ProposedActionListType = {
   },
   retire: {
     i18Key: "proposedActions.retire",
-    labelColor: "cyan",
+    labelColor: "teal",
     hexColor: cyan.value,
   },
   retain: {

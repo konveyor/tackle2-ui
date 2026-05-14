@@ -4,11 +4,9 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import "./Repositories.css";
@@ -27,12 +25,12 @@ export const RepositoriesGit: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.gitConfig")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("terms.gitConfig")}</Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             {gitInsecureSetting.isError && (

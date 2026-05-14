@@ -3,9 +3,8 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
+  Content,
   Divider,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -377,22 +376,22 @@ export const IdentifiedRisksTable: React.FC<IIdentifiedRisksTableProps> = ({
                     <Tr isExpanded>
                       <Td />
                       <Td {...getExpandedContentTdProps({ item: item })}>
-                        <TextContent style={{ margin: 5 }}>
-                          <Text component="h6">Rationale</Text>
-                          <Text component="small">
+                        <Content style={{ margin: 5 }}>
+                          <Content component="h6">Rationale</Content>
+                          <Content component="small">
                             {item?.answer?.rationale
                               ? item.answer.rationale
                               : "N/A"}
-                          </Text>
+                          </Content>
                           <Divider className={spacing.mtMd}></Divider>
 
-                          <Text component="h6">Mitigation</Text>
-                          <Text component="small">
+                          <Content component="h6">Mitigation</Content>
+                          <Content component="small">
                             {item?.answer?.mitigation
                               ? item.answer.mitigation
                               : "N/A"}
-                          </Text>
-                        </TextContent>
+                          </Content>
+                        </Content>
                       </Td>
                     </Tr>
                   ) : null}

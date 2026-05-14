@@ -5,13 +5,11 @@ import { Link } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Content,
   PageSection,
-  PageSectionVariants,
   SearchInput,
   Tab,
   Tabs,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -120,22 +118,23 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
     );
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{summaryType}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{summaryType}</Content>
+        </Content>
         {BreadcrumbPath}
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar>
               <ToolbarContent>
-                <ToolbarItem widths={{ default: "300px" }}>
+                <ToolbarItem>
                   <SearchInput
                     placeholder="Search questions"
                     value={searchValue}
@@ -203,12 +202,12 @@ const QuestionnaireSummary: React.FC<QuestionnaireSummaryProps> = ({
                           hideAnswerKey={summaryType === SummaryType.Assessment}
                         />
                         {section?.comment && (
-                          <TextContent className={spacing.myMd}>
-                            <Text component="h4">Section comments</Text>
-                            <Text key={index} component="p">
+                          <Content className={spacing.myMd}>
+                            <Content component="h4">Section comments</Content>
+                            <Content key={index} component="p">
                               {section.comment}
-                            </Text>
-                          </TextContent>
+                            </Content>
+                          </Content>
                         )}
                       </Tab>
                     );

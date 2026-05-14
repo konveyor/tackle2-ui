@@ -6,13 +6,13 @@ export const AppPlaceholder: React.FC = () => {
     <Bullseye>
       {/* tabIndex needed for focus trap compatibility when used inside modals */}
       <div
-        className="pf-v5-u-display-flex pf-v5-u-flex-direction-column"
+        className="pf-v6-u-display-flex pf-v6-u-flex-direction-column"
         tabIndex={0}
       >
         <div>
           <Spinner />
         </div>
-        <div className="pf-v5-c-content">
+        <div className="pf-v6-c-content">
           <h3>Loading...</h3>
         </div>
       </div>

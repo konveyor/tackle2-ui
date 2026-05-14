@@ -20,17 +20,15 @@ import { unique } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Content,
   Gallery,
-  Modal,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target } from "@app/api/models";
@@ -245,16 +243,16 @@ export const MigrationTargets: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.customTargets")}</Text>
-        </TextContent>
-        <TextContent>
-          <Text>{t("terms.customTargetsDetails")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("terms.customTargets")}</Content>
+        </Content>
+        <Content>
+          <Content component="p">{t("terms.customTargetsDetails")}</Content>
+        </Content>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Toolbar
           {...toolbarProps}
           clearAllFilters={() => filterToolbarProps.setFilterValues({})}
@@ -262,7 +260,7 @@ export const MigrationTargets: FC = () => {
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} breakpoint="md" />
             {targetsWriteAccess && (
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <Button
                     id="create-target"
@@ -278,7 +276,7 @@ export const MigrationTargets: FC = () => {
           </ToolbarContent>
         </Toolbar>
       </PageSection>
-      <PageSection style={{ paddingBlockStart: 0 }}>
+      <PageSection hasBodyWrapper={false} style={{ paddingBlockStart: 0 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

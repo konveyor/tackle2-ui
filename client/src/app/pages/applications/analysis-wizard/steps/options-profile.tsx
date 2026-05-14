@@ -2,11 +2,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Checkbox,
+  Content,
   Flex,
   FlexItem,
   Form,
-  Text,
-  TextContent,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
@@ -52,12 +51,14 @@ export const OptionsProfile: React.FC<OptionsProfileProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.options")}
         </Title>
-        <Text>{t("wizard.label.profileOptionsDescription")}</Text>
-      </TextContent>
+        <Content component="p">
+          {t("wizard.label.profileOptionsDescription")}
+        </Content>
+      </Content>
 
       <Checkbox
         className={spacing.mtLg}

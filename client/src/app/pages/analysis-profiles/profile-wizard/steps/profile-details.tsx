@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Form, Text, TextContent, Title } from "@patternfly/react-core";
+import { Content, Form, Title } from "@patternfly/react-core";
 
 import { AnalysisProfile } from "@app/api/models";
 import { HookFormPFTextInput } from "@app/components/HookFormPFFields";
@@ -82,14 +82,14 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("analysisProfileWizard.steps.profileDetails.title")}
         </Title>
-        <Text>
+        <Content component="p">
           {t("analysisProfileWizard.steps.profileDetails.description")}
-        </Text>
-      </TextContent>
+        </Content>
+      </Content>
 
       <HookFormPFTextInput
         control={control}

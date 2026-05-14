@@ -3,6 +3,8 @@ import "./manage-columns-modal.css";
 import { useState } from "react";
 import {
   Button,
+  Content,
+  ContentVariants,
   DataList,
   DataListCell,
   DataListCheck,
@@ -10,11 +12,8 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
-  Modal,
-  Text,
-  TextContent,
-  TextVariants,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
 
@@ -66,9 +65,9 @@ export const ManageColumnsModal = <TColumnKey extends string>({
       isOpen={true}
       variant="small"
       description={
-        <TextContent>
-          <Text component={TextVariants.p}>{description}</Text>
-        </TextContent>
+        <Content>
+          <Content component={ContentVariants.p}>{description}</Content>
+        </Content>
       }
       onClose={onClose}
       actions={[
@@ -90,7 +89,7 @@ export const ManageColumnsModal = <TColumnKey extends string>({
               <DataListControl>
                 <DataListCheck
                   aria-labelledby={`check-${id}`}
-                  checked={isVisible || isIdentity}
+                  isChecked={isVisible || isIdentity}
                   isDisabled={isIdentity}
                   onChange={(e, checked) => onSelect(id, checked)}
                 />

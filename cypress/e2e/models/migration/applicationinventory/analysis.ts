@@ -187,7 +187,7 @@ export class Analysis extends Application {
     cy.get(modeId).should("be.checked");
 
     if (mode === "profile") {
-      cy.contains(button, "Next").should("have.class", "pf-m-disabled");
+      cy.contains(button, "Next").should("be.disabled");
 
       if (profileName) {
         cy.get(analysisProfileSelect).click();
@@ -200,7 +200,7 @@ export class Analysis extends Application {
   protected uploadBinary() {
     this.binary.forEach((binaryList) => {
       uploadApplications(binaryList);
-      cy.get("span.pf-v5-c-progress__measure", { timeout: 5000 * SEC }).should(
+      cy.get("span.pf-v6-c-progress__measure", { timeout: 5000 * SEC }).should(
         "contain",
         "100%"
       );
@@ -210,8 +210,7 @@ export class Analysis extends Application {
 
   protected isNextEnabled() {
     cy.contains(button, "Next", { timeout: 300 * SEC }).should(
-      "not.have.class",
-      "pf-m-disabled"
+      "not.be.disabled"
     );
   }
 
@@ -462,7 +461,7 @@ export class Analysis extends Application {
   static validateTopActionMenu(rbacRules: RbacValidationRules) {
     Application.open();
     if (rbacRules["Top action menu"]["Not available"]) {
-      cy.get(".pf-v5-c-page__main-section")
+      cy.get(".pf-v6-c-page__main-section")
         .eq(1)
         .within(() => {
           doesExistSelector(kebabTopMenuButton, false);
@@ -470,7 +469,7 @@ export class Analysis extends Application {
     } else {
       cy.wait(SEC);
 
-      cy.get(".pf-v5-c-page__main-section")
+      cy.get(".pf-v6-c-page__main-section")
         .eq(1)
         .within(() => {
           clickWithin(kebabTopMenuButton, button);
@@ -581,7 +580,7 @@ export class Analysis extends Application {
     clickByText(actionMenuItem, analysisLogView);
     cy.wait(3 * SEC);
 
-    cy.get(".pf-v5-c-code-editor__code", { timeout: 10000 })
+    cy.get(".pf-v6-c-code-editor__code", { timeout: 10000 })
       .should("be.visible")
       .click()
       .wait(1 * SEC)
@@ -593,7 +592,7 @@ export class Analysis extends Application {
       .clear()
       .type(`${searchText}`);
 
-    cy.get(".pf-v5-c-code-editor__code", { timeout: 10000 }).then(($editor) => {
+    cy.get(".pf-v6-c-code-editor__code", { timeout: 10000 }).then(($editor) => {
       expect($editor.text()).to.contain(searchText);
     });
   }

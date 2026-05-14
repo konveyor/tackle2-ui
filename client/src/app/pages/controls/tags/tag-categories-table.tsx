@@ -6,15 +6,12 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Modal,
-  ModalVariant,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
   ExpandableRowContent,
@@ -29,6 +26,7 @@ import {
 import {
   COLOR_NAMES_BY_HEX_VALUE,
   DEFAULT_REFETCH_INTERVAL,
+  normalizeHex,
 } from "@app/Constants";
 import { Tag, TagCategory } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -203,8 +201,9 @@ export const Tags: React.FC = () => {
             what: t("terms.color").toLowerCase(),
           }) + "...",
         getItemValue: (item) => {
-          const hex = item?.colour || "";
-          const colorLabel = COLOR_NAMES_BY_HEX_VALUE[hex.toLowerCase()];
+          const hex =
+            item?.colour || getTagCategoryFallbackColor(item ?? undefined);
+          const colorLabel = COLOR_NAMES_BY_HEX_VALUE[normalizeHex(hex)];
           return colorLabel || hex;
         },
       },
@@ -243,13 +242,14 @@ export const Tags: React.FC = () => {
       >
         <div
           style={{
-            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            backgroundColor:
+              "var(--pf-t--global--background--color--primary--default)",
           }}
         >
           <Toolbar {...toolbarProps}>
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              <ToolbarGroup variant="button-group">
+              <ToolbarGroup variant="action-group">
                 <RBAC
                   allowedPermissions={controlsWriteScopes}
                   rbacType={RBAC_TYPE.Scope}
@@ -302,18 +302,18 @@ export const Tags: React.FC = () => {
               isError={!!fetchError}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={
-                      <>
-                        {t("composed.noDataStateTitle", {
-                          what: t("terms.tags").toLowerCase(),
-                        })}
-                      </>
-                    }
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                    headingLevel="h2"
-                  />
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={
+                    <>
+                      {t("composed.noDataStateTitle", {
+                        what: t("terms.tags").toLowerCase(),
+                      })}
+                    </>
+                  }
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("terms.create"),
@@ -378,14 +378,12 @@ export const Tags: React.FC = () => {
                                 onDelete={setTagToDelete}
                               />
                             ) : (
-                              <EmptyState variant="sm">
-                                <EmptyStateHeader
-                                  titleText={
-                                    <>{t("message.noTagsAvailable")}</>
-                                  }
-                                  icon={<EmptyStateIcon icon={CubesIcon} />}
-                                  headingLevel="h4"
-                                />
+                              <EmptyState
+                                headingLevel="h4"
+                                icon={CubesIcon}
+                                titleText={<>{t("message.noTagsAvailable")}</>}
+                                variant="sm"
+                              >
                                 <EmptyStateBody>
                                   {t("message.noAssociatedTags")}
                                 </EmptyStateBody>

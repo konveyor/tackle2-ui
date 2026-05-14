@@ -5,14 +5,12 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Content,
   Flex,
   FlexItem,
   PageSection,
-  PageSectionVariants,
   Stack,
   StackItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { Questionnaire } from "@app/api/models";
@@ -66,10 +64,10 @@ export const Reports: React.FC = () => {
     React.useState<number>(ALL_QUESTIONNAIRES);
 
   const pageHeaderSection = (
-    <PageSection variant={PageSectionVariants.light}>
-      <TextContent>
-        <Text component="h1">{t("terms.reports")}</Text>
-      </TextContent>
+    <PageSection hasBodyWrapper={false}>
+      <Content>
+        <Content component="h1">{t("terms.reports")}</Content>
+      </Content>
     </PageSection>
   );
 
@@ -81,7 +79,7 @@ export const Reports: React.FC = () => {
     return (
       <>
         {pageHeaderSection}
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <StateError />
         </PageSection>
       </>
@@ -121,7 +119,7 @@ export const Reports: React.FC = () => {
   return (
     <>
       {pageHeaderSection}
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={
             isApplicationsFetching ||
@@ -137,12 +135,12 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card isClickable isSelectable>
                   <CardHeader>
-                    <TextContent>
+                    <Content>
                       <Flex>
                         <FlexItem>
-                          <Text component="h3">
+                          <Content component="h3">
                             {t("terms.currentLandscape")}
-                          </Text>
+                          </Content>
                         </FlexItem>
                         <FlexItem>
                           <SimpleSelect
@@ -167,7 +165,7 @@ export const Reports: React.FC = () => {
                           />
                         </FlexItem>
                       </Flex>
-                    </TextContent>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <ApplicationLandscape
@@ -180,9 +178,11 @@ export const Reports: React.FC = () => {
               <StackItem>
                 <Card>
                   <CardHeader>
-                    <TextContent>
-                      <Text component="h3">{t("terms.identifiedRisks")}</Text>
-                    </TextContent>
+                    <Content>
+                      <Content component="h3">
+                        {t("terms.identifiedRisks")}
+                      </Content>
+                    </Content>
                   </CardHeader>
                   <CardBody>
                     <IdentifiedRisksTable />

@@ -6,12 +6,11 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Content,
   FormSection,
   Grid,
   GridItem,
   PageSection,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import { BanIcon } from "@patternfly/react-icons";
 
@@ -65,16 +64,16 @@ const ReviewPage: React.FC = () => {
   if (fetchError) {
     return (
       <>
-        <PageSection variant="light">
+        <PageSection hasBodyWrapper={false}>
           <PageHeader
             title={t("terms.review")}
             description={
-              <Text component="p">{t("message.reviewInstructions")}</Text>
+              <Content component="p">{t("message.reviewInstructions")}</Content>
             }
             breadcrumbs={breadcrumbs}
           />
         </PageSection>
-        <PageSection variant="light">
+        <PageSection hasBodyWrapper={false}>
           <Bullseye>
             <SimpleEmptyState
               icon={BanIcon}
@@ -88,22 +87,22 @@ const ReviewPage: React.FC = () => {
   }
   return (
     <>
-      <PageSection variant="light">
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.review")}
           description={
-            <Text component="p">{t("message.reviewInstructions")}</Text>
+            <Content component="p">{t("message.reviewInstructions")}</Content>
           }
           breadcrumbs={breadcrumbs}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             <ConditionalRender when={isFetching} then={<AppPlaceholder />}>
               <Grid hasGutter>
                 <GridItem md={5}>
-                  <div className="pf-v5-c-form">
+                  <div className="pf-v6-c-form">
                     <FormSection></FormSection>
                     <FormSection>
                       <ReviewForm
@@ -130,12 +129,12 @@ const ReviewPage: React.FC = () => {
         </Card>
       </PageSection>
       {application?.assessments?.length || archetype?.assessments?.length ? (
-        <PageSection>
+        <PageSection hasBodyWrapper={false}>
           <Card>
             <CardHeader>
-              <TextContent>
-                <Text component="h3">{t("terms.assessmentSummary")}</Text>
-              </TextContent>
+              <Content>
+                <Content component="h3">{t("terms.assessmentSummary")}</Content>
+              </Content>
             </CardHeader>
             <CardBody>
               <IdentifiedRisksTable

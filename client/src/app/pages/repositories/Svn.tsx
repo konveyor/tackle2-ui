@@ -4,11 +4,9 @@ import {
   Alert,
   Card,
   CardBody,
+  Content,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import "./Repositories.css";
@@ -26,12 +24,12 @@ export const RepositoriesSvn: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.svnConfig")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("terms.svnConfig")}</Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <Card>
           <CardBody>
             {svnInsecureSetting.isError && (

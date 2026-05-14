@@ -3,10 +3,8 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import {
+  Content,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -255,15 +253,16 @@ export const TasksPage: FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("titles.taskManager")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("titles.taskManager")}</Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div
           style={{
-            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            backgroundColor:
+              "var(--pf-t--global--background--color--primary--default)",
           }}
         >
           <Toolbar {...toolbarProps} clearAllFilters={clearFilters}>

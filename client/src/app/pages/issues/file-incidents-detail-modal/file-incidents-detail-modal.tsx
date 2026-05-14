@@ -3,15 +3,14 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
+  Content,
   Grid,
   GridItem,
-  Modal,
   Tab,
   Tabs,
-  Text,
-  TextContent,
   Truncate,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisInsight, AnalysisReportFile } from "@app/api/models";
@@ -110,12 +109,14 @@ export const FileIncidentsDetailModal: React.FC<
                       />
                     </GridItem>
                     <GridItem span={6} className={spacing.plSm}>
-                      <TextContent>
-                        <Text component="h2">
+                      <Content>
+                        <Content component="h2">
                           <Truncate content={issueTitle} />
-                        </Text>
-                        <Text component="small">Line {incident.line}</Text>
-                      </TextContent>
+                        </Content>
+                        <Content component="small">
+                          Line {incident.line}
+                        </Content>
+                      </Content>
                       <InsightDescriptionAndLinks
                         className={spacing.mtLg}
                         description={incident.message}

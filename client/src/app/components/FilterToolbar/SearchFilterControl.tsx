@@ -46,8 +46,8 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
   return (
     <ToolbarFilter
       id={`filter-control-${category.categoryKey}`}
-      chips={filterValue || []}
-      deleteChip={() => setFilterValue([])}
+      labels={filterValue || []}
+      deleteLabel={() => setFilterValue([])}
       categoryName={category.title}
       showToolbarItem={showToolbarItem}
     >
@@ -69,14 +69,13 @@ export const SearchFilterControl = <TItem, TFilterCategoryKey extends string>({
         </InputGroupItem>
         <InputGroupItem>
           <Button
+            icon={<SearchIcon />}
             variant={ButtonVariant.control}
             ouiaId={`search-for-${category.categoryKey}-button`}
             aria-label="search button for search input"
             onClick={onFilterSubmit}
             isDisabled={isDisabled}
-          >
-            <SearchIcon />
-          </Button>
+          />
         </InputGroupItem>
       </InputGroup>
     </ToolbarFilter>

@@ -4,16 +4,12 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
   EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -164,19 +160,22 @@ export const AnalysisProfiles: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("titles.analysisProfiles")}</Text>
-        </TextContent>
-        <TextContent>
-          <Text>{t("terms.analysisProfilesDescription")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("titles.analysisProfiles")}</Content>
+        </Content>
+        <Content>
+          <Content component="p">
+            {t("terms.analysisProfilesDescription")}
+          </Content>
+        </Content>
       </PageSection>
 
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <div
           style={{
-            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            backgroundColor:
+              "var(--pf-t--global--background--color--primary--default)",
           }}
         >
           <Toolbar
@@ -186,7 +185,7 @@ export const AnalysisProfiles: React.FC = () => {
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
               {isArchitect && (
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       id="create-analysis-profile"
@@ -228,14 +227,14 @@ export const AnalysisProfiles: React.FC = () => {
               isError={!!error}
               isNoData={currentPageItems.length === 0}
               noDataEmptyState={
-                <EmptyState variant="sm">
-                  <EmptyStateHeader
-                    titleText={t("composed.noDataStateTitle", {
-                      what: t("terms.analysisProfiles").toLowerCase(),
-                    })}
-                    headingLevel="h2"
-                    icon={<EmptyStateIcon icon={CubesIcon} />}
-                  />
+                <EmptyState
+                  headingLevel="h2"
+                  icon={CubesIcon}
+                  titleText={t("composed.noDataStateTitle", {
+                    what: t("terms.analysisProfiles").toLowerCase(),
+                  })}
+                  variant="sm"
+                >
                   <EmptyStateBody>
                     {t("composed.noDataStateBody", {
                       how: t("actions.create"),

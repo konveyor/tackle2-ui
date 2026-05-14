@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Modal } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { IdentityForm, IdentityFormProps } from "./identity-form";
 

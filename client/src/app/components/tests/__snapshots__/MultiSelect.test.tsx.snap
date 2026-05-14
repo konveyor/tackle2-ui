@@ -6,23 +6,23 @@ exports[`MultiSelect Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <div
-        class="pf-v5-c-menu-toggle pf-m-full-width pf-m-typeahead"
+        class="pf-v6-c-menu-toggle pf-m-full-width pf-m-typeahead"
       >
         <div
-          class="pf-v5-c-text-input-group pf-m-plain"
+          class="pf-v6-c-text-input-group pf-m-plain"
         >
           <div
             autocomplete="off"
-            class="pf-v5-c-text-input-group__main"
+            class="pf-v6-c-text-input-group__main"
           >
             <span
-              class="pf-v5-c-text-input-group__text"
+              class="pf-v6-c-text-input-group__text"
             >
               <input
                 aria-controls="my-selection-listbox"
                 aria-expanded="false"
                 aria-label="Type to filter"
-                class="pf-v5-c-text-input-group__text-input"
+                class="pf-v6-c-text-input-group__text-input"
                 id="my-selection-input"
                 role="combobox"
                 type="text"
@@ -31,28 +31,26 @@ exports[`MultiSelect Renders without crashing 1`] = `
             </span>
           </div>
           <div
-            class="pf-v5-c-text-input-group__utilities"
+            class="pf-v6-c-text-input-group__utilities"
           />
         </div>
         <button
           aria-expanded="false"
           aria-label="Menu toggle"
-          class="pf-v5-c-menu-toggle__button"
+          class="pf-v6-c-menu-toggle__button"
           data-ouia-component-id="my-selection"
-          data-ouia-component-type="PF5/MenuToggle"
+          data-ouia-component-type="PF6/MenuToggle"
           data-ouia-safe="true"
           tabindex="-1"
           type="button"
         >
           <span
-            class="pf-v5-c-menu-toggle__controls"
+            class="pf-v6-c-menu-toggle__controls"
           >
             <span
-              class="pf-v5-c-menu-toggle__toggle-icon"
+              class="pf-v6-c-menu-toggle__toggle-icon"
             >
-              <test-file-stub
-                aria-hidden="true"
-              />
+              <test-file-stub />
             </span>
           </span>
         </button>
@@ -61,23 +59,23 @@ exports[`MultiSelect Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <div
-      class="pf-v5-c-menu-toggle pf-m-full-width pf-m-typeahead"
+      class="pf-v6-c-menu-toggle pf-m-full-width pf-m-typeahead"
     >
       <div
-        class="pf-v5-c-text-input-group pf-m-plain"
+        class="pf-v6-c-text-input-group pf-m-plain"
       >
         <div
           autocomplete="off"
-          class="pf-v5-c-text-input-group__main"
+          class="pf-v6-c-text-input-group__main"
         >
           <span
-            class="pf-v5-c-text-input-group__text"
+            class="pf-v6-c-text-input-group__text"
           >
             <input
               aria-controls="my-selection-listbox"
               aria-expanded="false"
               aria-label="Type to filter"
-              class="pf-v5-c-text-input-group__text-input"
+              class="pf-v6-c-text-input-group__text-input"
               id="my-selection-input"
               role="combobox"
               type="text"
@@ -86,28 +84,26 @@ exports[`MultiSelect Renders without crashing 1`] = `
           </span>
         </div>
         <div
-          class="pf-v5-c-text-input-group__utilities"
+          class="pf-v6-c-text-input-group__utilities"
         />
       </div>
       <button
         aria-expanded="false"
         aria-label="Menu toggle"
-        class="pf-v5-c-menu-toggle__button"
+        class="pf-v6-c-menu-toggle__button"
         data-ouia-component-id="my-selection"
-        data-ouia-component-type="PF5/MenuToggle"
+        data-ouia-component-type="PF6/MenuToggle"
         data-ouia-safe="true"
         tabindex="-1"
         type="button"
       >
         <span
-          class="pf-v5-c-menu-toggle__controls"
+          class="pf-v6-c-menu-toggle__controls"
         >
           <span
-            class="pf-v5-c-menu-toggle__toggle-icon"
+            class="pf-v6-c-menu-toggle__toggle-icon"
           >
-            <test-file-stub
-              aria-hidden="true"
-            />
+            <test-file-stub />
           </span>
         </span>
       </button>

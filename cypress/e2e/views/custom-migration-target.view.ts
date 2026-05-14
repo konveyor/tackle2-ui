@@ -1,7 +1,7 @@
 import { categoryProvider, filterToggle } from "../types/filter-categories";
 
 export const sourcesToggle = "#sources-toggle";
-export const sourcesList = "ul#formSources-id.pf-v5-c-select__menu";
+export const sourcesList = "ul#formSources-id.pf-v6-c-select__menu";
 export const CustomMigrationTargetView = {
   createSubmitButton: "button[id='identity-form-submit']:contains('Create')",
   editSubmitButton: "button[id='identity-form-submit']:contains('Save')",
@@ -24,7 +24,7 @@ export const CustomMigrationTargetView = {
   credentialsInput: "#associated-credentials-select-toggle-input",
   retrieveFromARepositoryRadio: "#repository",
   dragButton: 'button[id*="drag-button"]',
-  card: ".pf-v5-c-card",
+  card: ".pf-v6-c-card",
   cardContainer: 'div[class*="gallery"][class*="gutter"]',
   filterLanguageDropdown: filterToggle(categoryProvider),
   formLanguageDropdown:

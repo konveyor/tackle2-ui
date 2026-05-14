@@ -399,13 +399,13 @@ export class Application {
     this.selectApplicationRow();
     cy.get(rightSideMenu, { timeout: 10 * SEC }).should("be.visible");
     cy.get(rightSideMenu).within(() => {
-      cy.get("span.pf-v5-c-tabs__item-text", { timeout: 10 * SEC }).should(
+      cy.get("span.pf-v6-c-tabs__item-text", { timeout: 10 * SEC }).should(
         "be.visible"
       );
       clickTab(tab);
     });
     if (tab == "Tags")
-      cy.get("div[class='pf-v5-c-toolbar__item']", { timeout: 60 * SEC });
+      cy.get("div[class='pf-v6-c-toolbar__item']", { timeout: 60 * SEC });
   }
 
   closeApplicationDetails(): void {
@@ -752,7 +752,7 @@ export class Application {
       .closest(trTag)
       .within(() => {
         cy.get(columnSelector).within(() => {
-          cy.get(".pf-v5-svg")
+          cy.get(".pf-v6-svg")
             .eq(1)
             .should("have.attr", "role", "img")
             .and("be.visible");

@@ -6,6 +6,7 @@ import {
   Masthead,
   MastheadBrand,
   MastheadContent,
+  MastheadLogo,
   MastheadMain,
   MastheadToggle,
   PageToggleButton,
@@ -15,7 +16,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { BarsIcon, HelpIcon } from "@patternfly/react-icons";
+import { HelpIcon } from "@patternfly/react-icons";
 
 import { TaskNotificationBadge } from "@app/components/task-manager/TaskNotificaitonBadge";
 import { useBranding } from "@app/hooks/useBranding";
@@ -38,8 +39,8 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to always show */}
         <ToolbarGroup
           id="header-toolbar-tasks"
-          variant="icon-button-group"
-          align={{ default: "alignRight" }}
+          variant="action-group-plain"
+          align={{ default: "alignEnd" }}
         >
           <ToolbarItem>
             <TaskNotificationBadge />
@@ -49,8 +50,8 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to show at desktop sizes */}
         <ToolbarGroup
           id="header-toolbar-desktop"
-          variant="icon-button-group"
-          spacer={{ default: "spacerNone", md: "spacerMd" }}
+          variant="action-group-plain"
+          gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{
             default: "hidden",
             "2xl": "visible",
@@ -64,13 +65,12 @@ export const HeaderApp: React.FC = () => {
               {({ toggleModal }) => {
                 return (
                   <Button
+                    icon={<HelpIcon />}
                     id="about-button"
                     aria-label="about button"
                     variant={ButtonVariant.plain}
                     onClick={toggleModal}
-                  >
-                    <HelpIcon />
-                  </Button>
+                  />
                 );
               }}
             </AppAboutModalState>
@@ -80,8 +80,8 @@ export const HeaderApp: React.FC = () => {
         {/* toolbar items to show at mobile sizes */}
         <ToolbarGroup
           id="header-toolbar-mobile"
-          variant="icon-button-group"
-          spacer={{ default: "spacerNone", md: "spacerMd" }}
+          variant="action-group-plain"
+          gap={{ default: "gapNone", md: "gapMd" }}
           visibility={{ lg: "hidden" }}
         >
           <ToolbarItem>
@@ -117,29 +117,33 @@ export const HeaderApp: React.FC = () => {
 
   return (
     <Masthead>
-      <MastheadToggle>
-        <PageToggleButton variant="plain" aria-label="Global navigation">
-          <BarsIcon />
-        </PageToggleButton>
-      </MastheadToggle>
       <MastheadMain>
+        <MastheadToggle>
+          <PageToggleButton
+            isHamburgerButton
+            variant="plain"
+            aria-label="Global navigation"
+          />
+        </MastheadToggle>
         <MastheadBrand>
-          {leftBrand ? (
-            <Brand
-              src={leftBrand.src}
-              alt={leftBrand.alt}
-              heights={{ default: leftBrand.height }}
-            />
-          ) : null}
-          {leftTitle ? (
-            <Title
-              className="logo-pointer"
-              headingLevel={leftTitle?.heading ?? "h1"}
-              size={leftTitle?.size ?? "2xl"}
-            >
-              {leftTitle.text}
-            </Title>
-          ) : null}
+          <MastheadLogo>
+            {leftBrand ? (
+              <Brand
+                src={leftBrand.src}
+                alt={leftBrand.alt}
+                heights={{ default: leftBrand.height }}
+              />
+            ) : null}
+            {leftTitle ? (
+              <Title
+                className="logo-pointer"
+                headingLevel={leftTitle?.heading ?? "h1"}
+                size={leftTitle?.size ?? "2xl"}
+              >
+                {leftTitle.text}
+              </Title>
+            ) : null}
+          </MastheadLogo>
         </MastheadBrand>
       </MastheadMain>
       <MastheadContent>{toolbar}</MastheadContent>

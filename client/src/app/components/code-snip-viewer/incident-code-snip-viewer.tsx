@@ -4,8 +4,6 @@ import { CodeEditor, Language } from "@patternfly/react-code-editor";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
@@ -34,12 +32,12 @@ export const IncidentCodeSnipViewer: React.FC<IIncidentCodeSnipViewerProps> = ({
 
   if (!parsed.valid) {
     return (
-      <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateHeader
-          titleText={t("message.noCodesSnippetAvailableTitle")}
-          headingLevel="h4"
-          icon={<EmptyStateIcon icon={CubesIcon} />}
-        />
+      <EmptyState
+        headingLevel="h4"
+        icon={CubesIcon}
+        titleText={t("message.noCodesSnippetAvailableTitle")}
+        variant={EmptyStateVariant.sm}
+      >
         <EmptyStateBody>
           {t("message.noCodesSnippetAvailableBody")}
         </EmptyStateBody>

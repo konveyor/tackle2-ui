@@ -5,12 +5,12 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
-  Modal,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { TrashIcon, UnlinkIcon } from "@patternfly/react-icons";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -166,7 +166,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         ticket={getTicketByApplication(tickets, app.id)}
                       />
                     </Td>
-                    <Td className={alignment.textAlignRight}>
+                    <Td className={alignment.textAlignEnd}>
                       {ticket?.id && (
                         <Tooltip
                           content={t("message.unlinkTicket")}
@@ -181,6 +181,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         </Tooltip>
                       )}
                       <Button
+                        icon={<TrashIcon />}
                         type="button"
                         variant="plain"
                         onClick={() => {
@@ -204,9 +205,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                             removeApplication(migrationWave, app.id);
                           }
                         }}
-                      >
-                        <TrashIcon />
-                      </Button>
+                      />
                     </Td>
                   </TableRowContentWithControls>
                 </Tr>

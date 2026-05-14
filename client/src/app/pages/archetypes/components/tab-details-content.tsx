@@ -2,14 +2,13 @@ import { useMemo } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
   DescriptionListTerm,
   Stack,
   StackItem,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -114,13 +113,13 @@ export const TabDetailsContent: React.FC<{
           <DescriptionListDescription>
             <Stack>
               <StackItem>
-                <TextContent>
-                  <Text>
+                <Content>
+                  <Content component="p">
                     {t("terms.stakeholder", {
                       count: archetype.stakeholders?.length ?? 0,
                     })}
-                  </Text>
-                </TextContent>
+                  </Content>
+                </Content>
               </StackItem>
               <StackItem>
                 {(archetype.stakeholders?.length ?? 0) > 0 ? (
@@ -134,13 +133,13 @@ export const TabDetailsContent: React.FC<{
           <DescriptionListDescription>
             <Stack>
               <StackItem>
-                <TextContent>
-                  <Text>
+                <Content>
+                  <Content component="p">
                     {t("terms.stakeholderGroup", {
                       count: archetype.stakeholderGroups?.length ?? 0,
                     })}
-                  </Text>
-                </TextContent>
+                  </Content>
+                </Content>
               </StackItem>
               <StackItem>
                 {(archetype.stakeholderGroups?.length ?? 0) > 0 ? (

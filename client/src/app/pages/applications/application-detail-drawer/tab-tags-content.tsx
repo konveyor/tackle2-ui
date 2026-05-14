@@ -2,10 +2,9 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Bullseye,
+  Content,
+  ContentVariants,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
@@ -24,15 +23,15 @@ export const TabTagsContent: React.FC<{
     <>
       {isTaskRunning ? (
         <Bullseye className={spacing.mtLg}>
-          <TextContent>
-            <Text component={TextVariants.h3}>
+          <Content>
+            <Content component={ContentVariants.h3}>
               {t("message.taskInProgressForTags")}
               <Spinner
                 isInline
                 aria-label="spinner when a new analysis is running"
               />
-            </Text>
-          </TextContent>
+            </Content>
+          </Content>
         </Bullseye>
       ) : null}
 

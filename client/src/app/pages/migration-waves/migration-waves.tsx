@@ -5,27 +5,22 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   ButtonVariant,
+  Content,
   Dropdown,
   DropdownItem,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   MenuToggle,
   MenuToggleElement,
-  Modal,
-  ModalVariant,
   OverflowMenu,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import {
   CubesIcon,
   EllipsisVIcon,
@@ -275,19 +270,20 @@ export const MigrationWaves: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.migrationWaves")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">{t("terms.migrationWaves")}</Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(migrationWaves || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
@@ -295,7 +291,7 @@ export const MigrationWaves: React.FC = () => {
                 <ToolbarBulkExpander {...toolbarBulkExpanderProps} />
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                     allowedPermissions={[]}
                     rbacType={RBAC_TYPE.Scope}
@@ -391,12 +387,12 @@ export const MigrationWaves: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noMigrationWavesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noMigrationWavesAvailable")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       Use the filter menu above to select your migration wave.
                     </EmptyStateBody>

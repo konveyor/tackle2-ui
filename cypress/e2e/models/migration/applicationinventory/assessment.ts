@@ -304,7 +304,7 @@ export class Assessment {
         .within(() => {
           cy.wait(SEC);
           if (archetypeName) {
-            cy.get("span.pf-v5-c-label__text").each((item) => {
+            cy.get("span.pf-v6-c-label__text").each((item) => {
               if (Cypress.$(item).text().includes(name)) {
                 if (list[i] == "Proposed action")
                   expect(Cypress.$(item).text()).to.be.oneOf(actionList);

@@ -24,7 +24,7 @@ export const privatePassphraseInput =
 export const createBtn = "#create-credential-button";
 export const selectType = '[data-ouia-component-id="type-select-toggle"]';
 export const modalBoxBody = "#confirm-dialog";
-export const defaultIcon = "svg.pf-v5-svg";
+export const defaultIcon = "svg.pf-v6-svg";
 export enum credLabels {
   name = 'td[data-label="Name"]',
   description = 'td[data-label="Description"]',

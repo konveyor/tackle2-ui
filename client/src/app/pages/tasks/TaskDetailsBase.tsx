@@ -53,7 +53,7 @@ export const TaskDetailsBase: FC<{
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={formatTitle(taskName)}
           breadcrumbs={[
@@ -72,10 +72,11 @@ export const TaskDetailsBase: FC<{
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false} isFilled>
         <div
           style={{
-            backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+            backgroundColor:
+              "var(--pf-t--global--background--color--primary--default)",
           }}
           className="simple-task-viewer-container"
         >

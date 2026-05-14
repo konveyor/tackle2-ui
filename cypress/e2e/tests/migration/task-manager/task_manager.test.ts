@@ -103,8 +103,8 @@ describe(["@tier2", "@tier2_A"], "Task Manager", () => {
     // Automates Polarion TC MTA-557
     cy.get(taskNotificationBadge).click();
     clickWithin(
-      "div.pf-v5-c-notification-drawer",
-      "div.pf-v5-c-notification-drawer__header-action"
+      "div.pf-v6-c-notification-drawer",
+      "div.pf-v6-c-notification-drawer__header-action"
     );
     cy.get("h1", { timeout: 35 * SEC }).should("contain", "Task Manager");
     validateTextPresence(

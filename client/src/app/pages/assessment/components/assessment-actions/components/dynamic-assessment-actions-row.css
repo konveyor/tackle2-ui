@@ -1,10 +1,14 @@
 .continue-button {
-  background-color: var(--pf-v5-global--success-color--100) !important;
+  background-color: var(
+    --pf-t--global--color--status--success--default
+  ) !important;
   margin-right: 10px;
 }
 
 .retake-button {
-  background-color: var(--pf-v5-global--warning-color--100) !important  ;
+  background-color: var(
+    --pf-t--global--color--status--warning--default
+  ) !important;
   margin-right: 10px;
 }
 

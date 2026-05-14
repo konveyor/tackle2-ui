@@ -5,11 +5,10 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
+  Content,
   ExpandableSectionToggle,
   Popover,
   Spinner,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -56,9 +55,11 @@ const TrackerStatus = ({
               hasAutoWidth
               onHidden={() => setIsExpanded(false)}
               bodyContent={
-                <TextContent>
-                  <Text>{t("message.jiraInstanceNotConnected", { name })}</Text>
-                  <Text>{t("message.reasonForError")}</Text>
+                <Content>
+                  <Content component="p">
+                    {t("message.jiraInstanceNotConnected", { name })}
+                  </Content>
+                  <Content component="p">{t("message.reasonForError")}</Content>
                   <CodeBlock
                     className="tracker-status-code"
                     actions={[
@@ -82,7 +83,7 @@ const TrackerStatus = ({
                       {isExpanded ? messageRest : ""}
                     </CodeBlockCode>
                   </CodeBlock>
-                </TextContent>
+                </Content>
               }
             >
               <Button isInline variant="link">

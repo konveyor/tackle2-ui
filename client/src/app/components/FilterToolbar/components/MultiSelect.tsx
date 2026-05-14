@@ -3,9 +3,8 @@ import { useTranslation } from "react-i18next";
 import {
   Badge,
   Button,
-  Chip,
-  ChipGroup,
   Label,
+  LabelGroup,
   MenuToggle,
   MenuToggleElement,
   MenuToggleProps,
@@ -246,12 +245,13 @@ export const MultiSelect: FC<MultiSelectProps> = ({
           aria-controls={`${toggleId}-listbox`}
         >
           {hasChips && (
-            <ChipGroup
+            <LabelGroup
               aria-label="Current selections"
-              ouiaId={`${toggleId}-chip-group`}
+              data-ouia-component-id={`${toggleId}-chip-group`}
             >
               {values?.map((value) => (
-                <Chip
+                <Label
+                  variant="outline"
                   key={value}
                   /**
                    * for testing purposes, we cannot rely on text inside the chip as
@@ -261,7 +261,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({
                    * aria-label is not used at the chip level
                    * as a workaround, we use a span with the aria-label
                    */
-                  onClick={(ev) => {
+                  onClose={(ev) => {
                     ev.stopPropagation();
                     onSelect(value);
                   }}
@@ -269,22 +269,21 @@ export const MultiSelect: FC<MultiSelectProps> = ({
                   <span aria-label={getDisplayValue(value, options)}>
                     {getDisplayValueForChip(value, options)}
                   </span>
-                </Chip>
+                </Label>
               ))}
-            </ChipGroup>
+            </LabelGroup>
           )}
         </TextInputGroupMain>
 
         <TextInputGroupUtilities>
           {(!!inputValue || !!values?.length) && (
             <Button
+              icon={<TimesIcon aria-hidden />}
               variant="plain"
               onClick={onClearButtonClick}
               ouiaId={`${toggleId}-clear-button`}
               aria-label={t("actions.clearInputValue")}
-            >
-              <TimesIcon aria-hidden />
-            </Button>
+            />
           )}
           {values?.length && hasBadge ? (
             <Badge

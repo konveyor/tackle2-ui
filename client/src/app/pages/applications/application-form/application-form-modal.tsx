@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, ButtonVariant, Modal } from "@patternfly/react-core";
+import { Button, ButtonVariant } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 

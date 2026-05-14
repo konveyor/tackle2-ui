@@ -215,6 +215,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
       {assessment ? (
         <Td isActionCell className="actions-col">
           <Button
+            icon={<TrashIcon />}
             type="button"
             variant="plain"
             onClick={() => {
@@ -226,9 +227,7 @@ const DynamicAssessmentActionsRow: FunctionComponent<
                 archetypeId: archetype?.id,
               });
             }}
-          >
-            <TrashIcon />
-          </Button>
+          />
         </Td>
       ) : null}
     </>

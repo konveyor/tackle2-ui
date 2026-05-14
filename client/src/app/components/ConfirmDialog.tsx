@@ -1,12 +1,10 @@
 import * as React from "react";
+import { Alert, Button, ButtonVariant } from "@patternfly/react-core";
 import {
-  Alert,
-  Button,
-  ButtonVariant,
   Modal,
   ModalProps,
   ModalVariant,
-} from "@patternfly/react-core";
+} from "@patternfly/react-core/deprecated";
 
 export interface ConfirmDialogProps {
   isOpen: boolean;

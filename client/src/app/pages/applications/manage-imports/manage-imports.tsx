@@ -8,9 +8,6 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Modal,
   PageSection,
   Popover,
   Toolbar,
@@ -18,6 +15,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -151,7 +149,7 @@ export const ManageImports: React.FC = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.applicationImports")}
           breadcrumbs={[
@@ -166,20 +164,21 @@ export const ManageImports: React.FC = () => {
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(importSummaries || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -238,14 +237,14 @@ export const ManageImports: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("composed.noDataStateTitle", {
-                        what: t("terms.importSummary").toLowerCase(),
-                      })}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.importSummary").toLowerCase(),
+                    })}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("actions.import"),

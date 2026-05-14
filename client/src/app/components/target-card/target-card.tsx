@@ -6,7 +6,6 @@ import {
   CardBody,
   CardHeader,
   DropdownItem,
-  EmptyStateIcon,
   Flex,
   FlexItem,
   Label,
@@ -119,7 +118,6 @@ export const TargetCard: React.FC<TargetCardProps> = ({
       isSelected={isCardSelected}
       isFullHeight
       isCompact
-      isFlat
     >
       <CardHeader
         selectableActions={{
@@ -161,7 +159,7 @@ export const TargetCard: React.FC<TargetCardProps> = ({
         <Stack hasGutter>
           <StackItem>
             <Bullseye>
-              <EmptyStateIcon color="black" icon={TargetLogo} />
+              <TargetLogo />
             </Bullseye>
           </StackItem>
           <StackItem>

@@ -40,7 +40,7 @@ export const MultiInputSelection: React.FC<MultiInputSelectionProps> = ({
       {optionsWithUiId.map((option) => {
         const answerUniqueId = `${questionFieldName}-${option._ui_unique_id}`;
         return (
-          <StackItem key={option._ui_unique_id} className="pf-v5-u-pb-xs">
+          <StackItem key={option._ui_unique_id} className="pf-v6-u-pb-xs">
             <HookFormPFGroupController
               control={control}
               name={questionFieldName as `questions.${string}`}

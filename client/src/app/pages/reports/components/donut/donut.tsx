@@ -1,15 +1,14 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ChartDonut } from "@patternfly/react-charts";
+import { ChartDonut } from "@patternfly/react-charts/victory";
 import {
   Bullseye,
+  Content,
+  ContentVariants,
   Stack,
   StackItem,
-  Text,
-  TextContent,
-  TextVariants,
 } from "@patternfly/react-core";
-import { global_palette_black_300 as black } from "@patternfly/react-tokens";
+import { chart_color_black_200 as black } from "@patternfly/react-tokens";
 
 export interface IDonutProps {
   id: string;
@@ -61,15 +60,15 @@ export const Donut: React.FC<IDonutProps> = ({
         </Bullseye>
       </StackItem>
       <StackItem style={{ width: "100%" }}>
-        <TextContent className="pf-v5-u-text-align-center">
-          <Text component="h3">{riskLabel}</Text>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+        <Content className="pf-v6-u-text-align-center">
+          <Content component="h3">{riskLabel}</Content>
+          <Content
+            component={ContentVariants.small}
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {riskDescription}
-          </Text>
-        </TextContent>
+          </Content>
+        </Content>
       </StackItem>
     </Stack>
   );

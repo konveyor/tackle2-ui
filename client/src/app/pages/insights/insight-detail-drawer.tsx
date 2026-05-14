@@ -1,11 +1,10 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Content,
   Tab,
   TabTitleText,
   Tabs,
-  Text,
-  TextContent,
   Title,
 } from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
@@ -52,14 +51,14 @@ export const InsightDetailDrawer: React.FC<IInsightDetailDrawerProps> = ({
       pageKey="affected-applications"
       drawerPanelContentProps={{ defaultSize: "600px" }}
       header={
-        <TextContent>
-          <Text component="small" className={spacing.mb_0}>
+        <Content>
+          <Content component="small" className={spacing.mb_0}>
             {t("terms.insight")}
-          </Text>
+          </Content>
           <Title headingLevel="h2" size="lg" className={spacing.mtXs}>
             {insight ? getInsightTitle(insight) : ""}
           </Title>
-        </TextContent>
+        </Content>
       }
     >
       {isFetching ? (

@@ -129,7 +129,8 @@ export const AllInsightsTable: React.FC<IAllInsightsTableProps> = ({
   return (
     <div
       style={{
-        backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+        backgroundColor:
+          "var(--pf-t--global--background--color--primary--default)",
       }}
     >
       <Toolbar {...toolbarProps}>

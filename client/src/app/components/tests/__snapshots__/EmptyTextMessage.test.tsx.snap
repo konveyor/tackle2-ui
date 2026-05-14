@@ -6,9 +6,9 @@ exports[`EmptyTextMessage Renders without crashing 1`] = `
   "baseElement": <body>
     <div>
       <p
-        class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-        data-ouia-component-id="OUIA-Generated-Text-2"
-        data-ouia-component-type="PF5/Text"
+        class="pf-v6-c-content--p pf-v6-u-color-200 pf-v6-u-font-weight-light"
+        data-ouia-component-id="OUIA-Generated-Content-2"
+        data-ouia-component-type="PF6/Content"
         data-ouia-safe="true"
         data-pf-content="true"
       >
@@ -20,9 +20,9 @@ exports[`EmptyTextMessage Renders without crashing 1`] = `
   </body>,
   "container": <div>
     <p
-      class="pf-v5-u-color-200 pf-v5-u-font-weight-light"
-      data-ouia-component-id="OUIA-Generated-Text-2"
-      data-ouia-component-type="PF5/Text"
+      class="pf-v6-c-content--p pf-v6-u-color-200 pf-v6-u-font-weight-light"
+      data-ouia-component-id="OUIA-Generated-Content-2"
+      data-ouia-component-type="PF6/Content"
       data-ouia-safe="true"
       data-pf-content="true"
     >

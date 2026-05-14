@@ -3,10 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  Content,
   PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
 } from "@patternfly/react-core";
 
 import { AssessmentActionsRoute, Paths } from "@app/Paths";
@@ -27,10 +25,10 @@ const AssessmentActions: React.FC = () => {
 
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">Assessment Actions</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">Assessment Actions</Content>
+        </Content>
         <Breadcrumb>
           {isArchetype ? (
             <BreadcrumbItem>
@@ -46,22 +44,22 @@ const AssessmentActions: React.FC = () => {
           </BreadcrumbItem>
         </Breadcrumb>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         {isArchetype ? (
           <ConditionalRender when={!archetype} then={<AppPlaceholder />}>
-            <TextContent>
+            <Content>
               {archetype ? (
                 <AssessmentActionsTable archetype={archetype} />
               ) : null}
-            </TextContent>
+            </Content>
           </ConditionalRender>
         ) : (
           <ConditionalRender when={!application} then={<AppPlaceholder />}>
-            <TextContent>
+            <Content>
               {application ? (
                 <AssessmentActionsTable application={application} />
               ) : null}
-            </TextContent>
+            </Content>
           </ConditionalRender>
         )}
       </PageSection>

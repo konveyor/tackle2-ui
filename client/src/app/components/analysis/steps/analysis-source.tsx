@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Alert, Form, TextContent, Title } from "@patternfly/react-core";
+import { Alert, Content, Form, Title } from "@patternfly/react-core";
 
 import { Application, Taskgroup } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
@@ -250,11 +250,11 @@ export const AnalysisSource: React.FC<AnalysisSourceProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.analysisSource")}
         </Title>
-      </TextContent>
+      </Content>
       <HookFormPFGroupController
         control={control}
         name="mode"

@@ -7,8 +7,6 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   PageSection,
   Toolbar,
   ToolbarContent,
@@ -120,7 +118,7 @@ export const ManageImportsDetails: React.FC = () => {
 
   return (
     <>
-      <PageSection variant="light">
+      <PageSection hasBodyWrapper={false}>
         <PageHeader
           title={t("terms.errorReport")}
           breadcrumbs={[
@@ -139,20 +137,21 @@ export const ManageImportsDetails: React.FC = () => {
           ]}
         />
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(imports || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
                       type="button"
@@ -181,14 +180,14 @@ export const ManageImportsDetails: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("composed.noDataStateTitle", {
-                        what: t("terms.imports").toLowerCase(),
-                      })}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("composed.noDataStateTitle", {
+                      what: t("terms.imports").toLowerCase(),
+                    })}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("composed.noDataStateBody", {
                         how: t("terms.create"),

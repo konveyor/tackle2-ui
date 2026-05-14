@@ -6,12 +6,11 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Checkbox,
+  Content,
   Flex,
   FlexItem,
   Form,
   FormGroup,
-  Text,
-  TextContent,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
@@ -170,12 +169,12 @@ export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.title.advancedOptions")}
         </Title>
-        <Text>{t("wizard.label.advancedOptions")}</Text>
-      </TextContent>
+        <Content component="p">{t("wizard.label.advancedOptions")}</Content>
+      </Content>
 
       {/* TODO: Rotate the GroupOfLabels color so each group has a different color */}
       <FormGroup

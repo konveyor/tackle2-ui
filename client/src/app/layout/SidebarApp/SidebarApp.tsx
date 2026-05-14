@@ -22,7 +22,6 @@ import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect"
 import keycloak from "@app/keycloak";
 import { checkAccess } from "@app/utils/rbac-utils";
 
-import { LayoutTheme } from "../LayoutUtils";
 import "./SidebarApp.css";
 
 const PersonaDefinition = {
@@ -109,7 +108,7 @@ const PersonaSidebar: FC<{
 
   const history = useHistory();
   return (
-    <PageSidebar theme={LayoutTheme}>
+    <PageSidebar>
       <div className="perspective">
         <SimpleSelect
           toggleId="persona-select"
@@ -130,7 +129,7 @@ const PersonaSidebar: FC<{
         />
       </div>
       <PageSidebarBody>
-        <Nav id="nav-primary" aria-label="Nav" theme={LayoutTheme}>
+        <Nav id="nav-primary" aria-label="Nav">
           {children}
         </Nav>
       </PageSidebarBody>

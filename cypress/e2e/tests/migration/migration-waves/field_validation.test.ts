@@ -100,7 +100,6 @@ describe(["@tier2", "@tier2_B"], "Migration Waves Validations", () => {
     // End date should be greater than start date
     cy.get(`button[aria-label="${nowDateLabel}"]`).should("be.disabled");
     cy.get(`button[aria-label="${dateTomorrowLabel}"]`)
-      .eq(1)
       .should("be.enabled")
       .click({ force: true, multiple: true });
     cy.get(commonView.submitButton).should("be.enabled");

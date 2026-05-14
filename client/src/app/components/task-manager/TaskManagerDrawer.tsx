@@ -9,8 +9,6 @@ import {
   DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
   MenuToggle,
   MenuToggleElement,
@@ -87,12 +85,12 @@ export const TaskManagerDrawer = forwardRef((_props, ref) => {
       </NotificationDrawerHeader>
       <NotificationDrawerBody>
         {tasks.length == 0 ? (
-          <EmptyState variant={EmptyStateVariant.full}>
-            <EmptyStateHeader
-              headingLevel="h2"
-              titleText={t("message.noQueuedTasksTitle")}
-              icon={<EmptyStateIcon icon={CubesIcon} />}
-            />
+          <EmptyState
+            headingLevel="h2"
+            icon={CubesIcon}
+            titleText={t("message.noQueuedTasksTitle")}
+            variant={EmptyStateVariant.full}
+          >
             <EmptyStateBody>
               No tasks are currently ready, postponed, blocked, pending or
               running. Completed and cancelled tasks may be viewed on the full

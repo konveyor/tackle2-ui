@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next";
 import {
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   EmptyStateVariant,
 } from "@patternfly/react-core";
 import { CubesIcon } from "@patternfly/react-icons";
@@ -26,12 +24,12 @@ export const NoEntitySelected: React.FC<NoEntitySelectedProps> = ({
 
   return (
     <div className="drawer-tabs-container">
-      <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateHeader
-          titleText={t(title, { entity: entityName })}
-          headingLevel="h4"
-          icon={<EmptyStateIcon icon={CubesIcon} />}
-        />
+      <EmptyState
+        headingLevel="h4"
+        icon={CubesIcon}
+        titleText={t(title, { entity: entityName })}
+        variant={EmptyStateVariant.sm}
+      >
         <EmptyStateBody>
           {t(description, { entity: entityName })}
         </EmptyStateBody>

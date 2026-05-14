@@ -5,8 +5,6 @@ import {
   Button,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -195,7 +193,8 @@ export const SingleApplicationInsightsTable: React.FC<
   return (
     <div
       style={{
-        backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+        backgroundColor:
+          "var(--pf-t--global--background--color--primary--default)",
       }}
     >
       <Toolbar {...toolbarProps}>
@@ -272,12 +271,12 @@ export const SingleApplicationInsightsTable: React.FC<
           isError={!!fetchError}
           isNoData={totalItemCount === 0 || selectedAppId === null}
           noDataEmptyState={
-            <EmptyState variant="sm">
-              <EmptyStateHeader
-                titleText={t("message.selectApplicationFromFilterMenu")}
-                icon={<EmptyStateIcon icon={CubesIcon} />}
-                headingLevel="h2"
-              />
+            <EmptyState
+              headingLevel="h2"
+              icon={CubesIcon}
+              titleText={t("message.selectApplicationFromFilterMenu")}
+              variant="sm"
+            >
               <EmptyStateBody>
                 {t("message.selectApplicationFromFilterMenuDescription")}
               </EmptyStateBody>

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   Button,
+  Content,
+  ContentVariants,
   DescriptionList,
   DescriptionListDescription,
   DescriptionListGroup,
@@ -12,9 +14,6 @@ import {
   List,
   ListItem,
   Spinner,
-  Text,
-  TextContent,
-  TextVariants,
   Title,
   Tooltip,
 } from "@patternfly/react-core";
@@ -68,8 +67,8 @@ export const TabDetailsContent: React.FC<{
   const { t } = useTranslation();
   return (
     <DrawerTabContent>
-      <TextContent className={spacing.mtMd}>
-        <Text component="small">{application.description}</Text>
+      <Content className={spacing.mtMd}>
+        <Content component="small">{application.description}</Content>
         <List isPlain>
           <ListItem>
             <Link to={getIssuesSingleAppSelectedLocation(application.id)}>
@@ -87,16 +86,16 @@ export const TabDetailsContent: React.FC<{
             </Link>
           </ListItem>
         </List>
-      </TextContent>
+      </Content>
 
       <DrawerTabContentSection label={t("terms.effort")}>
-        <Text component="small">
+        <Content component="small">
           {application?.effort !== 0 && application?.effort !== undefined ? (
             application?.effort
           ) : (
             <EmptyTextMessage message={t("terms.unassigned")} />
           )}
-        </Text>
+        </Content>
       </DrawerTabContentSection>
 
       <DrawerTabContentSection label={t("terms.archetypes")}>
@@ -150,12 +149,12 @@ export const TabDetailsContent: React.FC<{
       </DrawerTabContentSection>
 
       <DrawerTabContentSection label={t("terms.riskFromApplication")}>
-        <Text component="small" cy-data="risk">
+        <Content component="small" cy-data="risk">
           <RiskLabel risk={application?.risk} />
-        </Text>
+        </Content>
       </DrawerTabContentSection>
 
-      <TextContent className={spacing.mtLg}>
+      <Content className={spacing.mtLg}>
         <Grid>
           <GridItem span={6}>
             <Title headingLevel="h3" size="md">
@@ -175,22 +174,22 @@ export const TabDetailsContent: React.FC<{
             />
           </GridItem>
         </Grid>
-      </TextContent>
+      </Content>
 
       <DrawerTabContentSection>
         <DrawerTabContentSection label={t("terms.owner")}>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          <Content
+            component={ContentVariants.small}
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.owner?.name ?? <EmptyTextMessage />}
-          </Text>
+          </Content>
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.contributors")}>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          <Content
+            component={ContentVariants.small}
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.contributors?.length ? (
               application.contributors
@@ -199,7 +198,7 @@ export const TabDetailsContent: React.FC<{
             ) : (
               <EmptyTextMessage />
             )}
-          </Text>
+          </Content>
         </DrawerTabContentSection>
 
         {/* TODO: Extract and add source code details render to common components and reuse where repositories are rendered */}
@@ -208,23 +207,23 @@ export const TabDetailsContent: React.FC<{
           application.repository.kind &&
           application.repository.url ? (
             <>
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.repositoryType")}
                 {": "}
-              </Text>
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              </Content>
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.kind}
-              </Text>
+              </Content>
               <br />
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 <ExternalLink
                   href={application?.repository?.url ?? ""}
@@ -232,61 +231,61 @@ export const TabDetailsContent: React.FC<{
                 >
                   {application?.repository?.url}
                 </ExternalLink>
-              </Text>
+              </Content>
               <br />
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.branch")}
                 {": "}
-              </Text>
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              </Content>
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.branch}
-              </Text>
+              </Content>
               <br />
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {t("terms.rootPath")}
                 {": "}
-              </Text>
-              <Text
-                component={TextVariants.small}
-                className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+              </Content>
+              <Content
+                component={ContentVariants.small}
+                className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
               >
                 {application?.repository?.path}
-              </Text>
+              </Content>
             </>
           ) : (
-            <Text
-              component={TextVariants.small}
-              className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+            <Content
+              component={ContentVariants.small}
+              className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
             >
               <EmptyTextMessage />
-            </Text>
+            </Content>
           )}
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.binary")}>
-          <Text
-            component={TextVariants.small}
-            className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+          <Content
+            component={ContentVariants.small}
+            className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
           >
             {application?.binary || <EmptyTextMessage />}
-          </Text>
+          </Content>
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.businessService")}>
-          <Text component="small">
+          <Content component="small">
             {application.direct.businessService?.name || (
               <EmptyTextMessage message={t("terms.unassigned")} />
             )}
-          </Text>
+          </Content>
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.migrationWave")}>
@@ -294,9 +293,9 @@ export const TabDetailsContent: React.FC<{
         </DrawerTabContentSection>
 
         <DrawerTabContentSection label={t("terms.commentsFromApplication")}>
-          <Text component="small" cy-data="comments">
+          <Content component="small" cy-data="comments">
             {application?.comments || <EmptyTextMessage />}
-          </Text>
+          </Content>
         </DrawerTabContentSection>
       </DrawerTabContentSection>
     </DrawerTabContent>
@@ -314,9 +313,9 @@ const MigrationWaveDetails: React.FC<{
   );
 
   return (
-    <Text
-      component={TextVariants.small}
-      className="pf-v5-u-color-200 pf-v5-u-font-weight-light"
+    <Content
+      component={ContentVariants.small}
+      className="pf-v6-u-color-200 pf-v6-u-font-weight-light"
     >
       {application?.migrationWave ? (
         `Wave name: ${application?.migrationWave.name}`
@@ -351,6 +350,6 @@ const MigrationWaveDetails: React.FC<{
           </Tooltip>
         )
       ) : null}
-    </Text>
+    </Content>
   );
 };

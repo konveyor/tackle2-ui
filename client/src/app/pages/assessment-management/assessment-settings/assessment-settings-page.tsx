@@ -6,27 +6,22 @@ import { useHistory } from "react-router-dom";
 import {
   Button,
   ButtonVariant,
+  Content,
   Dropdown,
   DropdownItem,
   EmptyState,
   EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
   List,
   MenuToggle,
   MenuToggleElement,
-  Modal,
-  ModalVariant,
   PageSection,
-  PageSectionVariants,
   Switch,
-  Text,
-  TextContent,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon, EllipsisVIcon, LockIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -160,25 +155,28 @@ const AssessmentSettings: React.FC = () => {
   const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
   return (
     <>
-      <PageSection variant={PageSectionVariants.light}>
-        <TextContent>
-          <Text component="h1">{t("terms.assessmentQuestionnaires")}</Text>
-        </TextContent>
+      <PageSection hasBodyWrapper={false}>
+        <Content>
+          <Content component="h1">
+            {t("terms.assessmentQuestionnaires")}
+          </Content>
+        </Content>
       </PageSection>
-      <PageSection>
+      <PageSection hasBodyWrapper={false}>
         <ConditionalRender
           when={isFetching && !(questionnaires || fetchError)}
           then={<AppPlaceholder />}
         >
           <div
             style={{
-              backgroundColor: "var(--pf-v5-global--BackgroundColor--100)",
+              backgroundColor:
+                "var(--pf-t--global--background--color--primary--default)",
             }}
           >
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="button-group">
+                <ToolbarGroup variant="action-group">
                   {/* <RBAC
                         allowedPermissions={[]}
                         rbacType={RBAC_TYPE.Scope}
@@ -242,12 +240,12 @@ const AssessmentSettings: React.FC = () => {
                 isError={!!fetchError}
                 isNoData={currentPageItems.length === 0}
                 noDataEmptyState={
-                  <EmptyState variant="sm">
-                    <EmptyStateHeader
-                      titleText={t("message.noQuestionnairesAvailable")}
-                      icon={<EmptyStateIcon icon={CubesIcon} />}
-                      headingLevel="h2"
-                    />
+                  <EmptyState
+                    headingLevel="h2"
+                    icon={CubesIcon}
+                    titleText={t("message.noQuestionnairesAvailable")}
+                    variant="sm"
+                  >
                     <EmptyStateBody>
                       {t("message.noQuestionnairesAvailableBody")}
                     </EmptyStateBody>
@@ -279,7 +277,6 @@ const AssessmentSettings: React.FC = () => {
                             <Switch
                               id={`required-switch-${questionnaire.id}`}
                               label="Yes"
-                              labelOff="No"
                               isChecked={questionnaire.required}
                               onChange={() => {
                                 updateQuestionnaire({

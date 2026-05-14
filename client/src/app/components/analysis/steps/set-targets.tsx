@@ -3,11 +3,10 @@ import { unique } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
+  Content,
   Form,
   Gallery,
   GalleryItem,
-  Text,
-  TextContent,
   Title,
   Toolbar,
   ToolbarContent,
@@ -262,12 +261,12 @@ export const SetTargets: FC<SetTargetsProps> = ({
         event.preventDefault();
       }}
     >
-      <TextContent>
+      <Content>
         <Title headingLevel="h3" size="xl">
           {t("wizard.terms.setTargets")}
         </Title>
-        <Text>{t("wizard.label.setTargets")}</Text>
-      </TextContent>
+        <Content component="p">{t("wizard.label.setTargets")}</Content>
+      </Content>
       <Toolbar
         {...toolbarProps}
         clearAllFilters={() => filterToolbarProps.setFilterValues({})}

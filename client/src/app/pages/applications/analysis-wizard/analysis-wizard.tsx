@@ -1,13 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Modal,
-  ModalVariant,
   Truncate,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
+import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { Application } from "@app/api/models";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";

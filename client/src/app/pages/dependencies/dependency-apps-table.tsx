@@ -2,8 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
-  Text,
-  TextContent,
+  Content,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -270,7 +269,7 @@ const DependencyManagementColumn = ({
   const isJavaFile = appDependency.dependency.name.endsWith(".jar");
   const isJavaDependency = hasJavaLabel && isJavaFile;
 
-  return <TextContent>{isJavaDependency ? "Embedded" : "Managed"}</TextContent>;
+  return <Content>{isJavaDependency ? "Embedded" : "Managed"}</Content>;
 };
 
 const DependencyVersionColumn = ({
@@ -297,14 +296,14 @@ const DependencyVersionColumn = ({
   }
 
   return (
-    <TextContent>
+    <Content>
       {mavenCentralLink ? (
         <ExternalLink isInline href={mavenCentralLink}>
           {version}
         </ExternalLink>
       ) : (
-        <Text>{version}</Text>
+        <Content component="p">{version}</Content>
       )}
-    </TextContent>
+    </Content>
   );
 };
