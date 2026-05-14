@@ -2,7 +2,7 @@ import * as React from "react";
 import { Redirect, Route } from "react-router-dom";
 
 import { isAuthRequired } from "@app/Constants";
-import keycloak from "@app/keycloak";
+import { useAuth } from "@app/auth";
 
 import { checkAccess } from "../utils/rbac-utils";
 
@@ -19,14 +19,17 @@ export const RouteWrapper = ({
   path,
   exact,
 }: IRouteWrapperProps) => {
-  const token = keycloak.tokenParsed || undefined;
-  const userRoles = token?.realm_access?.roles || [],
-    access = checkAccess(userRoles, roles);
+  const { isAuthenticated, isLoaded, realmRoles } = useAuth();
 
-  if (!token && isAuthRequired) {
-    //TODO: Handle token expiry & auto logout
+  // Still loading the OIDC session — don't redirect prematurely.
+  if (!isLoaded) return null;
+
+  const access = checkAccess(realmRoles, roles);
+
+  if (!isAuthenticated && isAuthRequired) {
+    // Not signed in — redirect to login (OIDC provider handles the actual login page).
     return <Redirect to="/login" />;
-  } else if (token && !access) {
+  } else if (isAuthenticated && !access) {
     return <Redirect to="/applications" />;
   }
 

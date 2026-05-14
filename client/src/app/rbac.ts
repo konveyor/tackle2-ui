@@ -1,7 +1,17 @@
+/**
+ * rbac.ts
+ *
+ * Role and scope constants for Tackle RBAC.
+ *
+ * The RBAC component and checkAccess utility remain here.
+ * Token claims are now sourced from the auth module (useAuth hook) instead of
+ * the keycloak singleton directly.
+ */
+
 import type { ReactNode } from "react";
 
 import { isAuthRequired } from "./Constants";
-import keycloak from "./keycloak";
+import { useAuth } from "./auth";
 import { checkAccess } from "./utils/rbac-utils";
 
 interface RBACProps {
@@ -16,16 +26,14 @@ export enum RBAC_TYPE {
 }
 
 export const RBAC = ({ allowedPermissions, rbacType, children }: RBACProps) => {
+  const { realmRoles, scopes } = useAuth();
+
   if (isAuthRequired) {
-    const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {
-      const userRoles = token?.realm_access?.roles || [],
-        access = checkAccess(userRoles, allowedPermissions);
+      const access = checkAccess(realmRoles, allowedPermissions);
       return access && children;
     } else if (rbacType === RBAC_TYPE.Scope) {
-      const userScopes: string[] = token?.scope.split(" ") || [];
-      const access = checkAccess(userScopes, allowedPermissions);
-
+      const access = checkAccess(scopes, allowedPermissions);
       return access && children;
     }
   } else {

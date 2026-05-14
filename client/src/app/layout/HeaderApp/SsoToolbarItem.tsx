@@ -1,6 +1,5 @@
 import { useState } from "react";
 import * as React from "react";
-import { useKeycloak } from "@react-keycloak/web";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -13,15 +12,25 @@ import {
 } from "@patternfly/react-core";
 
 import { LocalStorageKey, isAuthRequired } from "@app/Constants";
+import { MasqueradeDevPanel, useAuth } from "@app/auth";
 
+/**
+ * SsoToolbarItem
+ *
+ * - AUTH_REQUIRED=true  → shows the real username + logout/manage-account menu
+ * - AUTH_REQUIRED=false → shows the MasqueradeDevPanel (role switcher) instead
+ */
 export const SsoToolbarItem: React.FC = () => {
-  return isAuthRequired ? <AuthEnabledSsoToolbarItem /> : <></>;
+  return isAuthRequired ? (
+    <AuthEnabledSsoToolbarItem />
+  ) : (
+    <MasqueradeDevPanel />
+  );
 };
 
 export const AuthEnabledSsoToolbarItem: React.FC = () => {
   const { t } = useTranslation();
-
-  const { keycloak } = useKeycloak();
+  const { username, signOut, manageAccount } = useAuth();
   const history = useHistory();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -46,8 +55,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
             id="sso-actions-toggle"
             onClick={() => onDropdownToggle(!isDropdownOpen)}
           >
-            {keycloak?.idTokenParsed?.["preferred_username"] ??
-              "DefaultUsername"}
+            {username}
           </MenuToggle>
         )}
       >
@@ -57,7 +65,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               id="manage-account"
               key="sso_user_management"
               component="button"
-              onClick={() => keycloak.accountManagement()}
+              onClick={() => manageAccount()}
             >
               {t("actions.manageAccount")}
             </DropdownItem>
@@ -66,17 +74,8 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               key="sso_logout"
               onClick={() => {
                 window.localStorage.removeItem(LocalStorageKey.selectedPersona);
-                {
-                  keycloak
-                    .logout()
-                    .then(() => {
-                      history.push("/");
-                    })
-                    .catch((err) => {
-                      console.error("Logout failed:", err);
-                      history.push("/");
-                    });
-                }
+                signOut();
+                history.push("/");
               }}
             >
               {t("actions.logout")}

@@ -10,15 +10,41 @@ import "@app/yup";
 
 configure({ reactStrictMode: true });
 
-const mockInitialized = false;
-
-jest.mock("@react-keycloak/web", () => {
-  const originalModule = jest.requireActual("@react-keycloak/web");
+// Mock the auth module so tests don't need a real OIDC provider.
+// useAuth returns a fully-authenticated state with admin roles by default.
+// Override per-test with jest.spyOn(authModule, "useAuth").mockReturnValue(...)
+jest.mock("@app/auth", () => {
+  const actual = jest.requireActual("@app/auth");
   return {
-    ...originalModule,
-    useKeycloak: () => [mockInitialized],
+    ...actual,
+    useAuth: () => ({
+      isLoaded: true,
+      isAuthenticated: true,
+      username: "test-user",
+      realmRoles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
+      scopes: [],
+      signIn: jest.fn(),
+      signOut: jest.fn(),
+      manageAccount: jest.fn(),
+    }),
+    useHasRealmRoles: () => true,
+    useHasScopes: () => true,
   };
 });
+
+// Also mock react-oidc-context so any component that calls useAuth from
+// react-oidc-context directly doesn't blow up without a provider.
+jest.mock("react-oidc-context", () => ({
+  useAuth: () => ({
+    isLoading: false,
+    isAuthenticated: true,
+    user: null,
+    error: undefined,
+    signinRedirect: jest.fn(),
+    signoutRedirect: jest.fn(),
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
