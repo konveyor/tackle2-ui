@@ -45,20 +45,27 @@ export type MasqueradePreset = keyof typeof MASQUERADE_PRESETS;
 /**
  * Read the active masquerade roles.
  * Safety: returns [] if auth is required, so this can never leak into prod.
+ * In production builds, localStorage overrides are also ignored — the build-time
+ * env var or the admin default is always used, so stale dev-session values stored
+ * in the browser cannot change the effective roles.
  */
 export const getMasqueradeRoles = (): string[] => {
   if (isAuthRequired) return [];
 
-  // 1. localStorage override
-  try {
-    const lsRoles = window.localStorage.getItem(LS_ROLES_KEY);
-    if (lsRoles)
-      return lsRoles
-        .split(",")
-        .map((r) => r.trim())
-        .filter(Boolean);
-  } catch {
-    // localStorage unavailable (e.g. private browsing in some browsers)
+  // 1. localStorage override — only in development builds.
+  // process.env.NODE_ENV is replaced by webpack at build time, so this branch is
+  // dead code in production bundles and the localStorage read never happens.
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const lsRoles = window.localStorage.getItem(LS_ROLES_KEY);
+      if (lsRoles)
+        return lsRoles
+          .split(",")
+          .map((r) => r.trim())
+          .filter(Boolean);
+    } catch {
+      // localStorage unavailable (e.g. private browsing in some browsers)
+    }
   }
 
   // 2. Build-time env var (webpack DefinePlugin injects MASQUERADE_ROLES)
@@ -79,15 +86,18 @@ export const getMasqueradeRoles = (): string[] => {
 /**
  * Read the active masquerade scopes.
  * Safety: returns [] if auth is required.
+ * In production builds, localStorage overrides are ignored (same reason as roles).
  */
 export const getMasqueradeScopes = (): string[] => {
   if (isAuthRequired) return [];
 
-  try {
-    const lsScopes = window.localStorage.getItem(LS_SCOPES_KEY);
-    if (lsScopes) return lsScopes.split(" ").filter(Boolean);
-  } catch {
-    // ignore
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      const lsScopes = window.localStorage.getItem(LS_SCOPES_KEY);
+      if (lsScopes) return lsScopes.split(" ").filter(Boolean);
+    } catch {
+      // ignore
+    }
   }
 
   const envScopes =

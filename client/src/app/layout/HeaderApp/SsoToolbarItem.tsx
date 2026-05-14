@@ -17,15 +17,24 @@ import { MasqueradeDevPanel, useAuth } from "@app/auth";
 /**
  * SsoToolbarItem
  *
- * - AUTH_REQUIRED=true  → shows the real username + logout/manage-account menu
- * - AUTH_REQUIRED=false → shows the MasqueradeDevPanel (role switcher) instead
+ * - AUTH_REQUIRED=true                              → real username + logout/manage-account menu
+ * - AUTH_REQUIRED=false + NODE_ENV=development      → MasqueradeDevPanel (role switcher)
+ * - AUTH_REQUIRED=false + NODE_ENV=production       → nothing (user pinned to admin roles)
+ *
+ * The NODE_ENV check uses process.env.NODE_ENV so webpack can replace it with the
+ * literal string "production" at build time and tree-shake the dev panel out of
+ * production bundles entirely.
  */
 export const SsoToolbarItem: React.FC = () => {
-  return isAuthRequired ? (
-    <AuthEnabledSsoToolbarItem />
-  ) : (
-    <MasqueradeDevPanel />
-  );
+  if (isAuthRequired) {
+    return <AuthEnabledSsoToolbarItem />;
+  }
+  if (process.env.NODE_ENV !== "production") {
+    return <MasqueradeDevPanel />;
+  }
+  // Production no-auth mode: no switcher, no user menu.
+  // RBAC hooks return admin roles by default via masquerade.ts.
+  return null;
 };
 
 export const AuthEnabledSsoToolbarItem: React.FC = () => {
