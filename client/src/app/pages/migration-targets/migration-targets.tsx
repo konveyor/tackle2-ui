@@ -32,14 +32,13 @@ import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target } from "@app/api/models";
+import { useHasScopes } from "@app/auth";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import keycloak from "@app/keycloak";
 import { useSetting, useSettingMutation } from "@app/queries/settings";
 import { useDeleteTargetMutation, useFetchTargets } from "@app/queries/targets";
 import { targetsWriteScopes } from "@app/rbac";
-import { checkAccess } from "@app/utils/rbac-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { CustomTargetForm } from "./components/custom-target-form";
@@ -52,9 +51,7 @@ export const MigrationTargets: FC = () => {
   const { pushNotification } = useContext(NotificationsContext);
 
   // RBAC access check for write operations (architect users)
-  const token = keycloak.tokenParsed || undefined;
-  const userScopes: string[] = token?.scope?.split(" ") || [];
-  const targetsWriteAccess = checkAccess(userScopes, targetsWriteScopes);
+  const targetsWriteAccess = useHasScopes(targetsWriteScopes);
 
   const { targetsInOrder } = useFetchTargets();
 

@@ -105,8 +105,8 @@ updates:
 
       "auth-libraries":
         patterns:
-          - "@react-keycloak/*"
-          - "keycloak-js"
+          - "oidc-client-ts"
+          - "react-oidc-context"
 
       "xml-yaml-processing":
         patterns:
