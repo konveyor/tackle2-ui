@@ -409,7 +409,7 @@ export class MigrationWave {
 
     applications.forEach((application) => {
       cy.contains(application.name)
-        .parent()
+        .parent("tr")
         .within(() => {
           cy.get(MigrationWaveView.unlinkApplicationButton).click({
             force: true,
