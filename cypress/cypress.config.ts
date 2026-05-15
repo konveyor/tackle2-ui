@@ -9,6 +9,8 @@ const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
 const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
+const viewportWidth = 1920;
+const viewportHeight = 1080;
 
 export default defineConfig({
   // Cypress.env() values
@@ -34,8 +36,8 @@ export default defineConfig({
   },
 
   // Cypress.config() values
-  viewportWidth: 1920,
-  viewportHeight: 1080,
+  viewportWidth: viewportWidth,
+  viewportHeight: viewportHeight,
   video: false,
   videosFolder: "run/videos",
   screenshotsFolder: "run/screenshots",
@@ -141,8 +143,8 @@ export default defineConfig({
 
           // the browser width and height we want to get
           // our screenshots and videos will be of that resolution
-          const width = 1920;
-          const height = 1080;
+          const width = viewportWidth;
+          const height = viewportHeight;
 
           console.log(
             "setting the browser window size to %d x %d",
