@@ -175,6 +175,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         >
                           <Button
                             variant="link"
+                            ouiaId="unlink-application"
                             icon={<UnlinkIcon />}
                             onClick={() => deleteTicket(ticket.id)}
                           />
@@ -184,6 +185,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                         icon={<TrashIcon />}
                         type="button"
                         variant="plain"
+                        ouiaId="delete-application"
                         onClick={() => {
                           const updatedApplications =
                             migrationWave.applications.filter(

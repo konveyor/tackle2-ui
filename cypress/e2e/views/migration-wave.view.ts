@@ -21,7 +21,8 @@ export enum MigrationWaveView {
   issueTypeSelectToggle = "[data-ouia-component-id='issue-type-select-toggle']",
   createTrackerButton = "#create-tracker",
   waveExpanded = "pf-m-expanded",
-  kebabToggle = "[data-ouia-component-type='PF6/MenuToggle']",
+  removeApplicationButton = "[data-ouia-component-id='delete-application']",
+  unlinkApplicationButton = "[data-ouia-component-id='unlink-application']",
 }
 
 export enum MigrationWavesSpecialColumns {

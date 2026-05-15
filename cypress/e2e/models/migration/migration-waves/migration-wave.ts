@@ -23,7 +23,6 @@ import {
 } from "../../../types/constants";
 import { selectBox } from "../../../views/applicationinventory.view";
 import {
-  actionMenuItem,
   cancelButton,
   confirmButton,
   itemsSelectInsideDialog,
@@ -397,9 +396,8 @@ export class MigrationWave {
       cy.contains(application.name)
         .parent()
         .within(() => {
-          cy.get(MigrationWaveView.kebabToggle).click();
+          cy.get(MigrationWaveView.removeApplicationButton).click();
         });
-      cy.get(actionMenuItem).contains("Delete").click({ force: true });
     });
     this.removeApplicationsFromModel(applications);
   }
@@ -411,11 +409,12 @@ export class MigrationWave {
 
     applications.forEach((application) => {
       cy.contains(application.name)
-        .parent("tr")
+        .parent()
         .within(() => {
-          cy.get(MigrationWaveView.kebabToggle).click();
+          cy.get(MigrationWaveView.unlinkApplicationButton).click({
+            force: true,
+          });
         });
-      cy.get(actionMenuItem).contains("Unlink").click({ force: true });
     });
   }
 
