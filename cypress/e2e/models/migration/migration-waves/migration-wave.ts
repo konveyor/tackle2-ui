@@ -409,13 +409,11 @@ export class MigrationWave {
 
     applications.forEach((application) => {
       cy.contains(application.name)
-        .parent()
+        .parent("tr")
         .within(() => {
           cy.get(MigrationWaveView.unlinkApplicationButton).click({
             force: true,
           });
-          // Need to wait until the application is unlinked from Jira and reflected in the wave
-          cy.wait(3 * SEC);
         });
     });
   }
