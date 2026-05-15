@@ -178,7 +178,9 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
                             ouiaId="unlink-application"
                             icon={<UnlinkIcon />}
                             onClick={() => deleteTicket(ticket.id)}
-                          />
+                          >
+                            Unlink
+                          </Button>
                         </Tooltip>
                       )}
                       <Button
