@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { Application, JsonDocument, New } from "../models";
+import { Application, ApplicationManifest, New } from "../models";
 import { hub, template } from "../rest";
 
 const APPLICATIONS = hub`/applications`;
@@ -24,7 +24,9 @@ export const getApplicationById = (id: number | string) =>
 
 export const getApplicationManifest = (applicationId: number | string) =>
   axios
-    .get<JsonDocument>(template(APPLICATION_MANIFEST, { id: applicationId }))
+    .get<ApplicationManifest>(
+      template(APPLICATION_MANIFEST, { id: applicationId })
+    )
     .then((response) => response.data);
 
 export const getApplications = () =>

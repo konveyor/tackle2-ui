@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
+import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
 import { tagify } from "cypress-tags";
@@ -122,7 +123,14 @@ export default defineConfig({
           process.env.CYPRESS_jira_stage_basic_password;
       }
 
-      // Plugins
+      on(
+        "file:preprocessor",
+        createBundler({
+          sourcemap: true,
+          sourcesContent: true,
+        })
+      );
+
       on("file:preprocessor", tagify(config));
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);

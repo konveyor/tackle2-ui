@@ -942,7 +942,7 @@
     "title": "Generate Assets",
     "description_one": "Generate deployment assets for application {{first}}.",
     "description_other": "Generate deployment assets for {{count}} selected applications.",
-    "noApplicationsReady": "No applications are ready for asset generation. Applications must have completed configuration retrieval and have target platforms configured.",
+    "noApplicationsReady": "No applications are ready for asset generation. Applications must have an assets repository configured.",
     "noTasksSubmitted": "No asset generation tasks were submitted.",
     "toast": {
       "submittedOk": "Asset generation tasks submitted",
@@ -979,8 +979,8 @@
     "review": {
       "stepTitle": "Review",
       "title": "Review details",
-      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's discovery manifest, target profile, input parameters, and generator settings.",
-      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' discovery manifests, target profile, input parameters, and generator settings.",
+      "description_one": "This application is ready to use {{targetProfile}} to generate assets. Assets will be generated based on the application's profile, target profile, input parameters, and generator settings.",
+      "description_other": "These applications are ready to use {{targetProfile}} to generate assets. Assets will be generated based on the applications' profiles, target profile, input parameters, and generator settings.",
       "selectedApplications_one": "Selected application",
       "selectedApplications_other": "Selected applications ({{count}})"
     },
