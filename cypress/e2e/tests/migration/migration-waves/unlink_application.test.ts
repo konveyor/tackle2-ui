@@ -131,7 +131,8 @@ describe(
         migrationWave.clickWaveStatus();
         migrationWave.unlinkApplications(applications);
         Jira.openList();
-        cy.get(tdTag)
+        // wait for the apps to be unlinked
+        cy.get(tdTag, { timeout: 120 * SEC })
           .contains(jiraCloudInstance.name)
           .closest(trTag)
           .within(() => {
