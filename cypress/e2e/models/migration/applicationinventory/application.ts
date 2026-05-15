@@ -509,32 +509,32 @@ export class Application {
       .closest(trTag)
       .within(() => {
         click(sideKebabMenu);
-        doesExistButton(
-          assessAppButton,
-          rbacRules["Application actions"]["Assess"]
-        );
-        doesExistButton(
-          reviewAppButton,
-          rbacRules["Application actions"]["Review"]
-        );
-        doesExistText(
-          "Discard assessment",
-          rbacRules["Application actions"]["Discard assessment"]
-        );
-        doesExistText(
-          "Discard review",
-          rbacRules["Application actions"]["Discard review"]
-        );
-        doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
-        doesExistText(
-          "Manage dependencies",
-          rbacRules["Application actions"]["Manage dependencies"]
-        );
-        doesExistText(
-          "Manage credentials",
-          rbacRules["Application actions"]["Manage credentials"]
-        );
       });
+    doesExistButton(
+      assessAppButton,
+      rbacRules["Application actions"]["Assess"]
+    );
+    doesExistButton(
+      reviewAppButton,
+      rbacRules["Application actions"]["Review"]
+    );
+    doesExistText(
+      "Discard assessment",
+      rbacRules["Application actions"]["Discard assessment"]
+    );
+    doesExistText(
+      "Discard review",
+      rbacRules["Application actions"]["Discard review"]
+    );
+    doesExistText("Delete", rbacRules["Application actions"]["Delete"]);
+    doesExistText(
+      "Manage dependencies",
+      rbacRules["Application actions"]["Manage dependencies"]
+    );
+    doesExistText(
+      "Manage credentials",
+      rbacRules["Application actions"]["Manage credentials"]
+    );
   }
 
   validateUploadBinary(rbacRules: RbacValidationRules): void {
