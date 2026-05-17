@@ -9,6 +9,8 @@ const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
 const cypressFsPlugins = require("cypress-fs/plugins");
 const cypressMochawesomeReporter = require("cypress-mochawesome-reporter/plugin");
+const viewportWidth = 1920;
+const viewportHeight = 1080;
 
 export default defineConfig({
   // Cypress.env() values
@@ -34,8 +36,8 @@ export default defineConfig({
   },
 
   // Cypress.config() values
-  viewportWidth: 1920,
-  viewportHeight: 1080,
+  viewportWidth: viewportWidth,
+  viewportHeight: viewportHeight,
   video: false,
   videosFolder: "run/videos",
   screenshotsFolder: "run/screenshots",
@@ -127,6 +129,51 @@ export default defineConfig({
       cypressFastFail(on, config);
       cypressFsPlugins(on, config);
       cypressMochawesomeReporter(on, config);
+      on(
+        "before:browser:launch",
+        (
+          browser: Cypress.Browser,
+          launchOptions: Cypress.BeforeBrowserLaunchOptions
+        ) => {
+          console.log(
+            "launching browser %s is headless? %s",
+            browser.name,
+            browser.isHeadless
+          );
+
+          // the browser width and height we want to get
+          // our screenshots and videos will be of that resolution
+          const width = viewportWidth;
+          const height = viewportHeight;
+
+          console.log(
+            "setting the browser window size to %d x %d",
+            width,
+            height
+          );
+
+          if (browser.name === "chrome" && browser.isHeadless) {
+            launchOptions.args.push(`--window-size=${width},${height}`);
+
+            // force screen to be non-retina and just use our given resolution
+            launchOptions.args.push("--force-device-scale-factor=1");
+          }
+
+          if (browser.name === "electron" && browser.isHeadless) {
+            // might not work on CI for some reason
+            launchOptions.preferences.width = width;
+            launchOptions.preferences.height = height;
+          }
+
+          if (browser.name === "firefox" && browser.isHeadless) {
+            launchOptions.args.push(`--width=${width}`);
+            launchOptions.args.push(`--height=${height}`);
+          }
+
+          // IMPORTANT: return the updated browser launch options
+          return launchOptions;
+        }
+      );
 
       on("task", { downloadFile });
       on("task", verifyDownloadTasks);
