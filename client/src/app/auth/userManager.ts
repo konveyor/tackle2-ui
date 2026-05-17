@@ -23,7 +23,7 @@ const clientId = ENV.KEYCLOAK_CLIENT_ID || "tackle-ui";
 const settings: UserManagerSettings = {
   authority: `/auth/realms/${realm}`,
   client_id: clientId,
-  redirect_uri: window.location.origin + window.location.pathname,
+  redirect_uri: window.location.origin,
   post_logout_redirect_uri: window.location.origin,
   response_type: "code", // Authorization Code + PKCE (oidc-client-ts default for SPAs)
   scope: "openid profile email",

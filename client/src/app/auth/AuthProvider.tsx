@@ -4,21 +4,25 @@
  * Replaces KeycloakProvider.tsx as the single authentication bootstrap component.
  *
  * Behaviour:
- *  - AUTH_REQUIRED === true  → wraps children in AuthProvider from react-oidc-context,
- *                              which redirects to Keycloak for login on mount.
+ *  - AUTH_REQUIRED === true  → wraps children in AuthProvider from react-oidc-context.
+ *                              On mount, if no session exists, automatically redirects
+ *                              to Keycloak for login (mirrors the old `onLoad: "login-required"`
+ *                              behaviour from @react-keycloak/web).
  *  - AUTH_REQUIRED !== true  → renders children directly; masquerade context is provided
  *                              via the same hook surface (useAuth, useHasRealmRoles, etc.)
  *                              so RBAC-gated components see synthetic roles from localStorage.
  *
- * Axios interceptors are initialised inside the auth-enabled path so they run only
- * once the OIDC session is ready.
+ * Axios interceptors are initialised only after the user is authenticated so that the
+ * Bearer token is guaranteed to be present on the first API call.
  */
 
 import { Suspense, useEffect } from "react";
 import * as React from "react";
 import {
   AuthProvider as OidcAuthProvider,
+  hasAuthParams,
   useAuth as useOidcAuth,
+  useAutoSignin,
 } from "react-oidc-context";
 
 import { isAuthRequired } from "@app/Constants";
@@ -45,18 +49,30 @@ const NoAuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 };
 
 // ── Auth-enabled path ─────────────────────────────────────────────────────────
-// Inner component: starts interceptors after the OIDC session is ready.
+// Inner component: drives the OIDC sign-in flow and gates children on authentication.
 
 const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
   const auth = useOidcAuth();
 
+  // Automatically redirect to Keycloak if not authenticated and no auth
+  // params are present in the URL (i.e. we are not returning from a redirect).
+  // useAutoSignin calls signinRedirect() exactly once and guards against
+  // double-calls via an internal hasTriedSignin flag.
+  useAutoSignin();
+
+  // Start interceptors only after a real authenticated session is available.
+  // This ensures the Bearer token is present for the first API call.
   useEffect(() => {
-    if (!auth.isLoading) {
+    if (auth.isAuthenticated) {
       initInterceptors();
     }
-  }, [auth.isLoading]);
+  }, [auth.isAuthenticated]);
 
-  if (auth.isLoading) {
+  // Show the loading placeholder while:
+  //  - the OIDC library is still initialising
+  //  - we are processing the callback (code/state params in the URL)
+  //  - we are not yet authenticated (about to redirect, or mid-redirect)
+  if (auth.isLoading || hasAuthParams() || !auth.isAuthenticated) {
     return <AppPlaceholder />;
   }
 
@@ -75,7 +91,6 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
 const AuthEnabledProvider: React.FC<AuthProviderProps> = ({ children }) => (
   <OidcAuthProvider
     userManager={userManager}
-    // Automatically redirect to Keycloak if not signed in.
     onSigninCallback={() => {
       // After the OIDC redirect-back, remove the code/state query params from the URL.
       window.history.replaceState({}, document.title, window.location.pathname);

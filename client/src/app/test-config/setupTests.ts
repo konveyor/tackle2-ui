@@ -43,6 +43,14 @@ jest.mock("react-oidc-context", () => ({
     signinRedirect: jest.fn(),
     signoutRedirect: jest.fn(),
   }),
+  // useAutoSignin is called inside AuthReadyGate; no-op in tests.
+  useAutoSignin: () => ({
+    isLoading: false,
+    isAuthenticated: true,
+    error: undefined,
+  }),
+  // hasAuthParams checks the URL for OIDC callback params; always false in tests.
+  hasAuthParams: () => false,
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 

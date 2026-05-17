@@ -16,7 +16,13 @@ import axios from "axios";
 import { isAuthRequired } from "@app/Constants";
 import { userManager } from "@app/auth/userManager";
 
+// Guard against duplicate interceptor registration (e.g. React StrictMode double-invoke).
+let _initialized = false;
+
 export const initInterceptors = () => {
+  if (_initialized) return;
+  _initialized = true;
+
   // ── Request: attach Bearer token ──────────────────────────────────────────
   axios.interceptors.request.use(
     async (config) => {
