@@ -1019,6 +1019,34 @@ export interface Generator {
   /** all profiles currently referencing this generator */ profiles?: Ref[];
 }
 
+export interface MigratorSourceRepository {
+  url: string;
+  branch?: string;
+  identity?: Ref;
+}
+
+export interface MigratorAssetRepository {
+  url: string;
+  branch: string;
+  identity?: Ref;
+}
+
+export interface MigratorPallet {
+  yaml?: string;
+  archetype?: Ref;
+  skills?: string[];
+}
+
+export interface MigratorConfig {
+  id: number;
+  name: string;
+  description?: string;
+  sourceRepository: MigratorSourceRepository;
+  assetRepository: MigratorAssetRepository;
+  pallet?: MigratorPallet;
+  migrationTarget?: string;
+}
+
 // Could use https://www.npmjs.com/package/@types/json-schema in future if needed
 export interface JsonSchemaObject {
   $schema?: "https://json-schema.org/draft/2020-12/schema" | string;
