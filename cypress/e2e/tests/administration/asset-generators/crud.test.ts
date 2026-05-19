@@ -26,26 +26,73 @@ import {
 import { AssetGenerator } from "../../../models/administration/asset-generators/asset-generator";
 import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
-import { Application } from "../../../models/migration/applicationinventory/application";
 import { Archetype } from "../../../models/migration/archetypes/archetype";
 import { TargetProfile } from "../../../models/migration/archetypes/target-profile";
+import { TaskManager } from "../../../models/migration/task-manager/task-manager";
 import {
   CredentialType,
-  MIN,
+  TaskKind,
+  TaskStatus,
   defaultGenerator,
 } from "../../../types/constants";
 import { successAlertMessage } from "../../../views/common.view";
 
+function createGitHubBranch(branchName: string, githubToken: string) {
+  cy.log("Creating GitHub branch:", branchName);
+
+  return cy
+    .request({
+      method: "GET",
+      url: "https://api.github.com/repos/jortel/hack/git/refs/heads/main",
+      headers: {
+        Authorization: `token ${githubToken}`,
+      },
+    })
+    .then((response) => {
+      const mainSha = response.body.object.sha;
+      cy.log("Main branch SHA:", mainSha);
+
+      return cy.request({
+        method: "POST",
+        url: "https://api.github.com/repos/jortel/hack/git/refs",
+        headers: {
+          Authorization: `token ${githubToken}`,
+        },
+        body: {
+          ref: `refs/heads/${branchName}`,
+          sha: mainSha,
+        },
+      });
+    })
+    .then((createBranchResponse) => {
+      cy.log("Branch created successfully:", createBranchResponse.status);
+    });
+}
+
+function deleteGitHubBranch(branchName: string, githubToken: string) {
+  return cy.request({
+    method: "DELETE",
+    url: `https://api.github.com/repos/jortel/hack/git/refs/heads/${branchName}`,
+    headers: {
+      Authorization: `token ${githubToken}`,
+    },
+    failOnStatusCode: false,
+  });
+}
+
 describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
-  before("Load fixture data", function () {
+  before("Login", function () {
+    login();
+    cy.visit("/");
+  });
+
+  beforeEach("Load fixture data", function () {
     cy.fixture("generator").then((generatorFixture) => {
       this.generatorFixture = generatorFixture;
     });
     cy.fixture("application").then((appData) => {
       this.appData = appData;
     });
-    login();
-    cy.visit("/");
   });
 
   it("Perform CRUD tests on asset generator", function () {
@@ -81,90 +128,58 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
   });
 
   it("Test asset generation end-to-end", function () {
-    // login();
-
     const tagName = "Apache Aries";
     const branchName = `test-asset-gen-${Date.now()}`;
     const githubToken = Cypress.env("git_password");
+    const appData = this.appData;
 
-    cy.request({
-      method: "GET",
-      url: "https://api.github.com/repos/jortel/hack/git/refs/heads/main",
-      headers: {
-        Authorization: `token ${githubToken}`,
-      },
-    }).then((response) => {
-      const mainSha = response.body.object.sha;
-
-      cy.request({
-        method: "POST",
-        url: "https://api.github.com/repos/jortel/hack/git/refs",
-        headers: {
-          Authorization: `token ${githubToken}`,
-        },
-        body: {
-          ref: `refs/heads/${branchName}`,
-          sha: mainSha,
-        },
+    createGitHubBranch(branchName, githubToken).then(() => {
+      const credential = new CredentialsSourceControlUsername({
+        name: `asset-gen-cred-${data.getRandomWord(5)}`,
+        description: "Credential for asset generation test",
+        username: Cypress.env("git_user"),
+        password: githubToken,
+        type: CredentialType.sourceControl,
       });
-    });
+      credential.create();
 
-    const credential = new CredentialsSourceControlUsername({
-      name: `asset-gen-cred-${data.getRandomWord(5)}`,
-      description: "Credential for asset generation test",
-      username: Cypress.env("git_user"),
-      password: githubToken,
-      type: CredentialType.sourceControl,
-    });
-    credential.create();
+      const application = new Analysis(
+        getRandomApplicationData("asset-gen-test", {
+          assetData: appData["asset-generator-repo"],
+        }),
+        {} as any
+      );
+      application.tags = [tagName];
+      application.assetBranch = branchName;
+      application.create();
+      application.manageCredentials(undefined, undefined, credential.name);
 
-    const application = new Analysis(
-      getRandomApplicationData("asset-gen-test", {
-        sourceData: this.appData["asset-generator-repo"],
-      }),
-      {} as any
-    );
-    application.tags = [tagName];
-    application.branch = branchName;
-    application.create();
+      const archetype = new Archetype(
+        `asset-gen-archetype-${data.getRandomWord(5)}`,
+        [tagName],
+        []
+      );
+      archetype.create();
 
-    Application.open();
-    application.manageCredentials(credential.name);
+      const targetProfile = new TargetProfile(
+        `asset-gen-profile-${data.getRandomWord(5)}`,
+        [defaultGenerator]
+      );
+      targetProfile.create(archetype.name);
+      application.generateAssets(targetProfile.name);
 
-    const archetype = new Archetype(
-      `asset-gen-archetype-${data.getRandomWord(5)}`,
-      [tagName],
-      []
-    );
-    archetype.create();
+      TaskManager.verifyTaskStatus(
+        application.name,
+        TaskKind.assetGeneration,
+        TaskStatus.succeeded
+      );
 
-    const targetProfile = new TargetProfile(
-      `asset-gen-profile-${data.getRandomWord(5)}`,
-      [defaultGenerator]
-    );
-    targetProfile.create(archetype.name);
-    checkSuccessAlert(
-      successAlertMessage,
-      `Success alert:Target profile was successfully created.`,
-      true
-    );
+      application.delete();
+      targetProfile.delete();
+      archetype.delete();
+      credential.delete();
 
-    application.generateAssets(targetProfile.name);
-
-    cy.wait(2 * MIN);
-
-    application.delete();
-    targetProfile.delete();
-    archetype.delete();
-    credential.delete();
-
-    cy.request({
-      method: "DELETE",
-      url: `https://api.github.com/repos/jortel/hack/git/refs/heads/${branchName}`,
-      headers: {
-        Authorization: `token ${githubToken}`,
-      },
-      failOnStatusCode: false,
+      deleteGitHubBranch(branchName, githubToken);
     });
   });
 });

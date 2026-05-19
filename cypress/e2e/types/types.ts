@@ -91,6 +91,10 @@ export type applicationData = {
   sourceRepo?: string;
   branch?: string;
   rootPath?: string;
+  assetRepoType?: string;
+  assetRepo?: string;
+  assetBranch?: string;
+  assetRootPath?: string;
   group?: string;
   artifact?: string;
   version?: string;

@@ -88,6 +88,13 @@ export const sourceRepository = "input[id=sourceRepository]";
 export const branch = "input[id=branch]";
 export const rootPath = "input[id=rootPath]";
 
+//Fields related to asset repository
+export const assetRepoTypeSelect =
+  '[data-ouia-component-id="asset-repo-type-toggle"]';
+export const assetRepository = "input[id=assetRepository]";
+export const assetBranch = "input[id=assetBranch]";
+export const assetRootPath = "input[id=assetRootPath]";
+
 //Fields related to analysis - binary mode
 export const group = "input[name=group]";
 export const artifact = "input[name=artifact]";

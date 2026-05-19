@@ -74,6 +74,10 @@ import {
   applicationOwnerInput,
   applicationTagsSelect,
   artifact,
+  assetBranch,
+  assetRepoTypeSelect,
+  assetRepository,
+  assetRootPath,
   branch,
   group,
   kebabMenu,
@@ -124,6 +128,10 @@ export class Application {
   sourceRepo?: string;
   branch?: string;
   rootPath?: string;
+  assetRepoType?: string;
+  assetRepo?: string;
+  assetBranch?: string;
+  assetRootPath?: string;
   group?: string;
   artifact?: string;
   version?: string;
@@ -149,6 +157,10 @@ export class Application {
       sourceRepo,
       branch,
       rootPath,
+      assetRepoType,
+      assetRepo,
+      assetBranch,
+      assetRootPath,
       group,
       artifact,
       version,
@@ -166,6 +178,10 @@ export class Application {
     if (sourceRepo) this.sourceRepo = sourceRepo;
     if (branch) this.branch = branch;
     if (rootPath) this.rootPath = rootPath;
+    if (assetRepoType) this.assetRepoType = assetRepoType;
+    if (assetRepo) this.assetRepo = assetRepo;
+    if (assetBranch) this.assetBranch = assetBranch;
+    if (assetRootPath) this.assetRootPath = assetRootPath;
     if (group) this.group = group;
     if (artifact) this.artifact = artifact;
     if (version) this.version = version;
@@ -249,6 +265,17 @@ export class Application {
     if (this.rootPath) inputText(rootPath, this.rootPath);
   }
 
+  protected fillAssetRepoFields(): void {
+    isElementExpanded("button", "Asset repository").then((isExpanded) => {
+      if (!isExpanded) {
+        clickByText(button, "Asset repository");
+      }
+    });
+    inputText(assetRepository, this.assetRepo);
+    if (this.assetBranch) inputText(assetBranch, this.assetBranch);
+    if (this.assetRootPath) inputText(assetRootPath, this.assetRootPath);
+  }
+
   protected fillBinaryModeFields(): void {
     //Fields relevant to binary mode analysis
     clickByText(button, "Binary");
@@ -274,6 +301,7 @@ export class Application {
       if (this.tags) this.selectTags(this.tags);
       if (this.owner) this.selectOwner(this.owner);
       if (this.sourceRepo) this.fillSourceModeFields();
+      if (this.assetRepo) this.fillAssetRepoFields();
       if (this.group) this.fillBinaryModeFields();
       submitForm();
       cy.wait("@postApplication").then((interception) => {
@@ -1074,26 +1102,19 @@ export class Application {
   generateAssets(targetProfileName: string): void {
     Application.open();
     clickItemInKebabMenu(this.name, "Generate assets");
-
-    cy.get('[data-ouia-component-id="target-profile-select-toggle"]', {
-      timeout: 10 * SEC,
-    }).should("be.visible");
-
-    selectFormItems(
-      '[data-ouia-component-id="target-profile-select-toggle"]',
-      targetProfileName
-    );
+    cy.get(tdTag)
+      .contains(targetProfileName)
+      .closest(trTag)
+      .within(() => {
+        cy.get("input[name='radioGroup'][type='radio']").click();
+      });
 
     clickByText(button, "Next");
     cy.wait(SEC);
-
     clickByText(button, "Next");
     cy.wait(SEC);
-
-    clickByText(button, "Next");
-
-    cy.contains("Asset generation task(s) submitted", { timeout: 30 * SEC });
-
+    clickByText(button, "Generate assets");
+    cy.contains("Successful Submission", { timeout: 30 * SEC });
     clickByText(button, "Close");
   }
 
