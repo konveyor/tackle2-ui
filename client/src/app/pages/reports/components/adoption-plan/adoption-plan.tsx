@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -36,11 +36,10 @@ export const AdoptionPlan: React.FC = () => {
 
   const {
     data: adoptionPlan,
-    refetch: refreshChart,
     error: fetchError,
     isFetching,
   } = useQuery<ApplicationAdoptionPlan[]>({
-    queryKey: ["adoptionPlan", applications.length],
+    queryKey: ["adoptionPlan", applications],
     queryFn: async () =>
       (
         await getApplicationAdoptionPlan(
@@ -49,10 +48,6 @@ export const AdoptionPlan: React.FC = () => {
       ).data,
     onError: (error) => console.log("error, ", error),
   });
-
-  useEffect(() => {
-    refreshChart();
-  }, [applications, refreshChart]);
 
   // Process data
   const chartData: IChartData[] = useMemo(() => {
