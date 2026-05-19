@@ -13,6 +13,7 @@
  *   useHasScopes()       — true if the current user has ANY of the given scopes
  */
 
+import { jwtDecode } from "jwt-decode";
 import { useAuth as useOidcAuth } from "react-oidc-context";
 
 import { isAuthRequired } from "@app/Constants";
@@ -20,6 +21,27 @@ import { isAuthRequired } from "@app/Constants";
 import { getMasqueradeRoles, getMasqueradeScopes } from "./masquerade";
 import { AuthState } from "./types";
 import { accountManagementUrl, userManager } from "./userManager";
+
+/**
+ * Decode realm roles from an OIDC access token.
+ *
+ * Keycloak puts realm roles in the access token's `realm_access.roles` claim,
+ * NOT in the ID token (`user.profile`). We must decode the access token JWT
+ * ourselves to retrieve them.
+ */
+function getRealmRolesFromAccessToken(
+  accessToken: string | undefined
+): string[] {
+  if (!accessToken) return [];
+  try {
+    const claims = jwtDecode<{ realm_access?: { roles?: string[] } }>(
+      accessToken
+    );
+    return claims.realm_access?.roles ?? [];
+  } catch {
+    return [];
+  }
+}
 
 // ── useAuth ───────────────────────────────────────────────────────────────────
 
@@ -52,13 +74,10 @@ export const useAuth = (): AuthState => {
   const user = oidcAuth.user ?? null;
   const profile = user?.profile ?? null;
 
-  const realmRoles: string[] = (profile as Record<string, unknown> | null)
-    ? ((
-        (profile as Record<string, unknown>)["realm_access"] as
-          | { roles?: string[] }
-          | undefined
-      )?.roles ?? [])
-    : [];
+  // Keycloak puts realm roles in the ACCESS token, not the ID token.
+  // user.profile is the parsed ID token — realm_access is absent there.
+  // Decode the access token JWT directly to get the real roles.
+  const realmRoles: string[] = getRealmRolesFromAccessToken(user?.access_token);
 
   const scopes: string[] = user?.scope?.split(" ").filter(Boolean) ?? [];
 
