@@ -1,6 +1,5 @@
 import { useState } from "react";
 import * as React from "react";
-import { useKeycloak } from "@react-keycloak/web";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -13,15 +12,34 @@ import {
 } from "@patternfly/react-core";
 
 import { LocalStorageKey, isAuthRequired } from "@app/Constants";
+import { MasqueradeDevPanel, useAuth } from "@app/auth";
 
+/**
+ * SsoToolbarItem
+ *
+ * - AUTH_REQUIRED=true                              → real username + logout/manage-account menu
+ * - AUTH_REQUIRED=false + NODE_ENV=development      → MasqueradeDevPanel (role switcher)
+ * - AUTH_REQUIRED=false + NODE_ENV=production       → nothing (user pinned to admin roles)
+ *
+ * The NODE_ENV check uses process.env.NODE_ENV so webpack can replace it with the
+ * literal string "production" at build time and tree-shake the dev panel out of
+ * production bundles entirely.
+ */
 export const SsoToolbarItem: React.FC = () => {
-  return isAuthRequired ? <AuthEnabledSsoToolbarItem /> : <></>;
+  if (isAuthRequired) {
+    return <AuthEnabledSsoToolbarItem />;
+  }
+  if (process.env.NODE_ENV !== "production") {
+    return <MasqueradeDevPanel />;
+  }
+  // Production no-auth mode: no switcher, no user menu.
+  // RBAC hooks return admin roles by default via masquerade.ts.
+  return null;
 };
 
 export const AuthEnabledSsoToolbarItem: React.FC = () => {
   const { t } = useTranslation();
-
-  const { keycloak } = useKeycloak();
+  const { username, signOut, manageAccount } = useAuth();
   const history = useHistory();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -46,8 +64,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
             id="sso-actions-toggle"
             onClick={() => onDropdownToggle(!isDropdownOpen)}
           >
-            {keycloak?.idTokenParsed?.["preferred_username"] ??
-              "DefaultUsername"}
+            {username}
           </MenuToggle>
         )}
       >
@@ -57,7 +74,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               id="manage-account"
               key="sso_user_management"
               component="button"
-              onClick={() => keycloak.accountManagement()}
+              onClick={() => manageAccount()}
             >
               {t("actions.manageAccount")}
             </DropdownItem>
@@ -66,17 +83,8 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               key="sso_logout"
               onClick={() => {
                 window.localStorage.removeItem(LocalStorageKey.selectedPersona);
-                {
-                  keycloak
-                    .logout()
-                    .then(() => {
-                      history.push("/");
-                    })
-                    .catch((err) => {
-                      console.error("Logout failed:", err);
-                      history.push("/");
-                    });
-                }
+                signOut();
+                history.push("/");
               }}
             >
               {t("actions.logout")}

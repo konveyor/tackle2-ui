@@ -1,41 +1,10 @@
-import { Suspense } from "react";
-import * as React from "react";
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-
-import { initInterceptors } from "@app/axios-config";
-import { ENV } from "@app/env";
-import keycloak from "@app/keycloak";
-
-import { AppPlaceholder } from "./AppPlaceholder";
-
-interface IKeycloakProviderProps {
-  children: React.ReactNode;
-}
-
-export const KeycloakProvider: React.FC<IKeycloakProviderProps> = ({
-  children,
-}) => {
-  return ENV.AUTH_REQUIRED !== "true" ? (
-    <>{children}</>
-  ) : (
-    <AuthEnabledKeycloakProvider>{children}</AuthEnabledKeycloakProvider>
-  );
-};
-
-const AuthEnabledKeycloakProvider: React.FC<IKeycloakProviderProps> = ({
-  children,
-}) => {
-  React.useEffect(() => {
-    initInterceptors();
-  }, []);
-
-  return (
-    <ReactKeycloakProvider
-      authClient={keycloak}
-      initOptions={{ onLoad: "login-required" }}
-      LoadingComponent={<AppPlaceholder />}
-    >
-      <Suspense fallback={<AppPlaceholder />}>{children}</Suspense>
-    </ReactKeycloakProvider>
-  );
-};
+/**
+ * KeycloakProvider.tsx — re-exports AuthProvider for backwards compatibility.
+ *
+ * This file exists only to avoid touching any import sites that reference
+ * "@app/components/KeycloakProvider" directly. New code should import
+ * AuthProvider from "@app/auth" instead.
+ *
+ * @deprecated Import from "@app/auth" directly.
+ */
+export { AuthProvider as KeycloakProvider } from "@app/auth";

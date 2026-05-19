@@ -31,6 +31,7 @@ import {
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Paths } from "@app/Paths";
 import { Archetype } from "@app/api/models";
+import { useHasScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -46,7 +47,6 @@ import {
   deserializeFilterUrlParams,
   useLocalTableControls,
 } from "@app/hooks/table-controls";
-import keycloak from "@app/keycloak";
 import { useFetchArchetypes } from "@app/queries/archetypes";
 import {
   archetypesWriteScopes,
@@ -54,7 +54,6 @@ import {
   reviewsWriteScopes,
 } from "@app/rbac";
 import { filterAndAddSeparator } from "@app/utils/grouping";
-import { checkAccess } from "@app/utils/rbac-utils";
 import { formatPath } from "@app/utils/utils";
 
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
@@ -226,11 +225,9 @@ const Archetypes: React.FC = () => {
     }
   };
 
-  const token = keycloak.tokenParsed;
-  const userScopes: string[] = token?.scope.split(" ") || [],
-    archetypeWriteAccess = checkAccess(userScopes, archetypesWriteScopes),
-    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
-    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
+  const archetypeWriteAccess = useHasScopes(archetypesWriteScopes);
+  const assessmentWriteAccess = useHasScopes(assessmentWriteScopes);
+  const reviewsWriteAccess = useHasScopes(reviewsWriteScopes);
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;

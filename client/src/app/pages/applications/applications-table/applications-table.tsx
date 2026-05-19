@@ -37,6 +37,7 @@ import {
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
+import { useHasScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -60,7 +61,6 @@ import { ToolbarBulkSelector } from "@app/components/ToolbarBulkSelector";
 import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
 import { useBulkSelection } from "@app/hooks/selection/useBulkSelection";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import keycloak from "@app/keycloak";
 import {
   useBulkDeleteApplicationMutation,
   useFetchApplications,
@@ -88,7 +88,6 @@ import {
   tasksWriteScopes,
 } from "@app/rbac";
 import { filterAndAddSeparator } from "@app/utils/grouping";
-import { checkAccess } from "@app/utils/rbac-utils";
 import { normalizeRisk } from "@app/utils/type-utils";
 import {
   formatPath,
@@ -122,7 +121,6 @@ export const ApplicationsTable: FC = () => {
   const { pushNotification } = useContext(NotificationsContext);
 
   const history = useHistory();
-  const token = keycloak.tokenParsed;
 
   // ----- State for the modals
   const [saveApplicationModalState, setSaveApplicationModalState] = useState<
@@ -339,6 +337,7 @@ export const ApplicationsTable: FC = () => {
         }),
         variant: "success",
       });
+    // eslint-disable-next-line react-hooks/immutability
     clearActiveItem();
     setApplicationsToDelete([]);
   };
@@ -694,16 +693,15 @@ export const ApplicationsTable: FC = () => {
     setTasksToCancel(runningTasksToCancel);
   };
 
-  const userScopes: string[] = token?.scope.split(" ") || [],
-    importWriteAccess = checkAccess(userScopes, importsWriteScopes),
-    applicationWriteAccess = checkAccess(userScopes, applicationsWriteScopes),
-    assessmentWriteAccess = checkAccess(userScopes, assessmentWriteScopes),
-    credentialsReadAccess = checkAccess(userScopes, credentialsReadScopes),
-    dependenciesWriteAccess = checkAccess(userScopes, dependenciesWriteScopes),
-    analysesReadAccess = checkAccess(userScopes, analysesReadScopes),
-    tasksReadAccess = checkAccess(userScopes, tasksReadScopes),
-    tasksWriteAccess = checkAccess(userScopes, tasksWriteScopes),
-    reviewsWriteAccess = checkAccess(userScopes, reviewsWriteScopes);
+  const importWriteAccess = useHasScopes(importsWriteScopes);
+  const applicationWriteAccess = useHasScopes(applicationsWriteScopes);
+  const assessmentWriteAccess = useHasScopes(assessmentWriteScopes);
+  const credentialsReadAccess = useHasScopes(credentialsReadScopes);
+  const dependenciesWriteAccess = useHasScopes(dependenciesWriteScopes);
+  const analysesReadAccess = useHasScopes(analysesReadScopes);
+  const tasksReadAccess = useHasScopes(tasksReadScopes);
+  const tasksWriteAccess = useHasScopes(tasksWriteScopes);
+  const reviewsWriteAccess = useHasScopes(reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
     (index) => (
