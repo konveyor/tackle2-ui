@@ -145,13 +145,13 @@ describe(
     });
 
     // Automates Polarion TC 415
-    it.skip("Bug Tackle-3111: Export to Jira Cloud and unlink applications from App Inventory", function () {
-      // https://github.com/konveyor/tackle2-ui/issues/3111
+    it("Bug Tackle-3111: Export to Jira Cloud and unlink applications from App Inventory", function () {
       exportWave().then(() => {
         Application.open(true);
         applications.forEach((app) => app.unlinkJiraTicket());
         Jira.openList();
-        cy.get(tdTag)
+        // wait for the apps to be unlinked
+        cy.get(tdTag, { timeout: 120 * SEC })
           .contains(jiraCloudInstance.name)
           .closest(trTag)
           .within(() => {

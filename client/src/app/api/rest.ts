@@ -365,16 +365,15 @@ export const getTrackerProjectIssuetypes = (
 // Tickets
 //
 export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {
-  const promises: AxiosPromise[] = [];
-
-  applications.map((app) => {
-    const appPayload: New<Ticket> = {
-      ...payload,
-      application: { id: app.id, name: app.name },
-    };
-    return [...promises, axios.post(TICKETS, appPayload)];
-  });
-  return Promise.all<AxiosPromise<Ticket>>(promises);
+  return Promise.all(
+    applications.map((app) => {
+      const appPayload: New<Ticket> = {
+        ...payload,
+        application: { id: app.id, name: app.name },
+      };
+      return axios.post(TICKETS, appPayload);
+    })
+  );
 };
 
 export const getTickets = (): Promise<Ticket[]> =>

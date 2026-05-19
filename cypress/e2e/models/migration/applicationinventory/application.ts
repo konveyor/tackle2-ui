@@ -961,15 +961,9 @@ export class Application {
   unlinkJiraTicket(): void {
     Application.open();
     sidedrawerTab(this.name, details);
-    cy.contains("small", "Ticket")
-      .next()
-      .children("div")
-      .eq(0)
-      .children("button.pf-m-link")
-      .eq(0)
-      .click({ force: true });
-    // Need to wait until the application is unlinked from Jira and reflected in the wave
-    cy.wait(3 * SEC);
+    cy.get("[data-ouia-component-id='unlink-ticket-button']").click({
+      force: true,
+    });
     this.closeApplicationDetails();
   }
   validateOverrideAssessmentMessage(archetypes: Archetype[]): void {
