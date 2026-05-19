@@ -1312,7 +1312,6 @@ export function getRandomApplicationData(
 
   if (options) {
     if (options.assetData) {
-      appdata["assetRepoType"] = options.assetData.repoType;
       appdata["assetRepo"] = options.assetData.sourceRepo;
       appdata["assetBranch"] = options.assetData.branch;
       appdata["assetRootPath"] = options.assetData.rootPath;

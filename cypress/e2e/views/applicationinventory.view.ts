@@ -89,8 +89,6 @@ export const branch = "input[id=branch]";
 export const rootPath = "input[id=rootPath]";
 
 //Fields related to asset repository
-export const assetRepoTypeSelect =
-  '[data-ouia-component-id="asset-repo-type-toggle"]';
 export const assetRepository = "input[id=assetRepository]";
 export const assetBranch = "input[id=assetBranch]";
 export const assetRootPath = "input[id=assetRootPath]";

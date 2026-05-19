@@ -75,7 +75,6 @@ import {
   applicationTagsSelect,
   artifact,
   assetBranch,
-  assetRepoTypeSelect,
   assetRepository,
   assetRootPath,
   branch,
@@ -128,7 +127,6 @@ export class Application {
   sourceRepo?: string;
   branch?: string;
   rootPath?: string;
-  assetRepoType?: string;
   assetRepo?: string;
   assetBranch?: string;
   assetRootPath?: string;
@@ -157,7 +155,6 @@ export class Application {
       sourceRepo,
       branch,
       rootPath,
-      assetRepoType,
       assetRepo,
       assetBranch,
       assetRootPath,
@@ -178,7 +175,6 @@ export class Application {
     if (sourceRepo) this.sourceRepo = sourceRepo;
     if (branch) this.branch = branch;
     if (rootPath) this.rootPath = rootPath;
-    if (assetRepoType) this.assetRepoType = assetRepoType;
     if (assetRepo) this.assetRepo = assetRepo;
     if (assetBranch) this.assetBranch = assetBranch;
     if (assetRootPath) this.assetRootPath = assetRootPath;

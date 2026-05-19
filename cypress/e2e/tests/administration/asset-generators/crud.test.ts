@@ -83,6 +83,10 @@ function deleteGitHubBranch(branchName: string, githubToken: string) {
 describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
   let testBranchName: string | null = null;
   let githubToken: string;
+  let testApplication: Analysis | null = null;
+  let testTargetProfile: TargetProfile | null = null;
+  let testArchetype: Archetype | null = null;
+  let testCredential: CredentialsSourceControlUsername | null = null;
 
   before("Login", function () {
     login();
@@ -90,9 +94,26 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
     githubToken = Cypress.env("git_password");
   });
 
-  after("Cleanup GitHub branch", function () {
+  afterEach("Cleanup test resources", function () {
+    if (testApplication) {
+      testApplication.delete();
+      testApplication = null;
+    }
+    if (testTargetProfile) {
+      testTargetProfile.delete();
+      testTargetProfile = null;
+    }
+    if (testArchetype) {
+      testArchetype.delete();
+      testArchetype = null;
+    }
+    if (testCredential) {
+      testCredential.delete();
+      testCredential = null;
+    }
     if (testBranchName) {
       deleteGitHubBranch(testBranchName, githubToken);
+      testBranchName = null;
     }
   });
 
@@ -144,50 +165,49 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
     const appData = this.appData;
 
     createGitHubBranch(branchName, githubToken).then(() => {
-      const credential = new CredentialsSourceControlUsername({
+      testCredential = new CredentialsSourceControlUsername({
         name: `asset-gen-cred-${data.getRandomWord(5)}`,
         description: "Credential for asset generation test",
         username: Cypress.env("git_user"),
         password: githubToken,
         type: CredentialType.sourceControl,
       });
-      credential.create();
+      testCredential.create();
 
-      const application = new Analysis(
+      testApplication = new Analysis(
         getRandomApplicationData("asset-gen-test", {
           assetData: appData["asset-generator-repo"],
         }),
         {} as any
       );
-      application.tags = [tagName];
-      application.assetBranch = branchName;
-      application.create();
-      application.manageCredentials(undefined, undefined, credential.name);
+      testApplication.tags = [tagName];
+      testApplication.assetBranch = branchName;
+      testApplication.create();
+      testApplication.manageCredentials(
+        undefined,
+        undefined,
+        testCredential.name
+      );
 
-      const archetype = new Archetype(
+      testArchetype = new Archetype(
         `asset-gen-archetype-${data.getRandomWord(5)}`,
         [tagName],
         []
       );
-      archetype.create();
+      testArchetype.create();
 
-      const targetProfile = new TargetProfile(
+      testTargetProfile = new TargetProfile(
         `asset-gen-profile-${data.getRandomWord(5)}`,
         [defaultGenerator]
       );
-      targetProfile.create(archetype.name);
-      application.generateAssets(targetProfile.name);
+      testTargetProfile.create(testArchetype.name);
+      testApplication.generateAssets(testTargetProfile.name);
 
       TaskManager.verifyTaskStatus(
-        application.name,
+        testApplication.name,
         TaskKind.assetGeneration,
         TaskStatus.succeeded
       );
-
-      application.delete();
-      targetProfile.delete();
-      archetype.delete();
-      credential.delete();
     });
   });
 });
