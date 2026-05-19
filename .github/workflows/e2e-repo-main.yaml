@@ -31,6 +31,8 @@ jobs:
       ui_image: ${{ steps.build-ui-image.outputs.ui_image }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.test_ref }}
 
       - name: Build UI image
         id: build-ui-image

@@ -344,6 +344,8 @@ const MigrationWaveDetails: React.FC<{
           >
             <Button
               variant="link"
+              ouiaId="unlink-ticket-button"
+              aria-label={t("message.unlinkTicket")}
               icon={<UnlinkIcon />}
               onClick={() => deleteTicket(matchingTicket.id)}
             />
