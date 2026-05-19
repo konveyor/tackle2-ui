@@ -171,7 +171,16 @@ export default defineConfig([
       "@tanstack/query": tanstackQuery,
     },
     rules: {
-      "@tanstack/query/exhaustive-deps": "error",
+      "@tanstack/query/exhaustive-deps": [
+        "error",
+        {
+          allowlist: {
+            // Internal hook helpers pass queryFn as a stable function parameter;
+            // it is always a module-level import and is not a meaningful cache dimension.
+            variables: ["queryFn"],
+          },
+        },
+      ],
       "@tanstack/query/stable-query-client": "error",
     },
   },
