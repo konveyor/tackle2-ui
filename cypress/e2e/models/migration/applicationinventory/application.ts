@@ -1071,6 +1071,32 @@ export class Application {
     });
   }
 
+  generateAssets(targetProfileName: string): void {
+    Application.open();
+    clickItemInKebabMenu(this.name, "Generate assets");
+
+    cy.get('[data-ouia-component-id="target-profile-select-toggle"]', {
+      timeout: 10 * SEC,
+    }).should("be.visible");
+
+    selectFormItems(
+      '[data-ouia-component-id="target-profile-select-toggle"]',
+      targetProfileName
+    );
+
+    clickByText(button, "Next");
+    cy.wait(SEC);
+
+    clickByText(button, "Next");
+    cy.wait(SEC);
+
+    clickByText(button, "Next");
+
+    cy.contains("Asset generation task(s) submitted", { timeout: 30 * SEC });
+
+    clickByText(button, "Close");
+  }
+
   /** Delete an application via the API (no UI interaction). */
   deleteViaApi(headers?: Record<string, string>): void {
     if (this.id) {
