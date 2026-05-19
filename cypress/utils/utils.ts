@@ -1287,7 +1287,7 @@ export function generateMultipleCredentials(amount: number): Credentials[] {
 
 export function getRandomApplicationData(
   appName?,
-  options?: { sourceData?; binaryData? },
+  options?: { sourceData?; binaryData?; assetData? },
   tags?
 ): applicationData {
   let name = data.getAppName();
@@ -1307,6 +1307,14 @@ export function getRandomApplicationData(
       appdata["sourceRepo"] = options.sourceData.sourceRepo;
       appdata["branch"] = options.sourceData.branch;
       appdata["rootPath"] = options.sourceData.rootPath;
+    }
+  }
+
+  if (options) {
+    if (options.assetData) {
+      appdata["assetRepo"] = options.assetData.sourceRepo;
+      appdata["assetBranch"] = options.assetData.branch;
+      appdata["assetRootPath"] = options.assetData.rootPath;
     }
   }
 

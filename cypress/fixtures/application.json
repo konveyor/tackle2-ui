@@ -98,5 +98,9 @@
     "repoType": "Git",
     "sourceRepo": "https://github.com/konveyor/analyzer-lsp",
     "rootPath": "examples/nodejs"
+  },
+  "asset-generator-repo": {
+    "repoType": "Git",
+    "sourceRepo": "https://github.com/jortel/hack"
   }
 }

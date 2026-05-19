@@ -24,6 +24,7 @@ export const sourceCredential =
   '[data-ouia-component-id="source-credentials-toggle"]';
 export const mavenCredential =
   '[data-ouia-component-id="maven-settings-toggle"]';
+export const assetRepoCredential = '[data-ouia-component-id="asset-toggle"]';
 export const nextButton = "button[type=submit]";
 export const addRules =
   "div > footer[class='pf-v6-c-modal-box__footer'] > button";

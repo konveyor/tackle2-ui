@@ -62,6 +62,7 @@ import {
   analysisDetails,
   analysisProfileNameInput,
   analysisProfileSelect,
+  assetRepoCredential,
   closeWizard,
   effortColumn,
   expandAll,
@@ -446,7 +447,11 @@ export class Analysis extends Application {
     cy.wait(2 * SEC);
   }
 
-  manageCredentials(sourceCred?: string, mavenCred?: string): void {
+  manageCredentials(
+    sourceCred?: string,
+    mavenCred?: string,
+    assetCred?: string
+  ): void {
     cy.wait(2 * SEC);
     clickItemInKebabMenu(this.name, manageCredentials);
     if (sourceCred) {
@@ -454,6 +459,9 @@ export class Analysis extends Application {
     }
     if (mavenCred) {
       selectFormItems(mavenCredential, mavenCred);
+    }
+    if (assetCred) {
+      selectFormItems(assetRepoCredential, assetCred);
     }
     clickByText(button, save);
   }

@@ -258,6 +258,7 @@ export enum TaskKind {
   analyzer = "analyzer",
   techDiscovery = "tech-discovery",
   languageDiscovery = "language-discovery",
+  assetGeneration = "asset-generation",
 }
 
 export enum TaskFilter {

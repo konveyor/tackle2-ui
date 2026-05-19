@@ -15,24 +15,122 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
+import * as data from "../../../../utils/data_utils";
 import {
-  getRandomAssetGeneratorData,
-  getRandomNumber,
-} from "../../../../utils/data_utils";
-import { checkSuccessAlert, exists, notExists } from "../../../../utils/utils";
+  checkSuccessAlert,
+  exists,
+  getRandomApplicationData,
+  login,
+  notExists,
+} from "../../../../utils/utils";
 import { AssetGenerator } from "../../../models/administration/asset-generators/asset-generator";
+import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
+import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { Archetype } from "../../../models/migration/archetypes/archetype";
+import { TargetProfile } from "../../../models/migration/archetypes/target-profile";
+import { TaskManager } from "../../../models/migration/task-manager/task-manager";
+import {
+  CredentialType,
+  TaskKind,
+  TaskStatus,
+  defaultGenerator,
+} from "../../../types/constants";
 import { successAlertMessage } from "../../../views/common.view";
 
+function createGitHubBranch(branchName: string, githubToken: string) {
+  cy.log("Creating GitHub branch:", branchName);
+
+  return cy
+    .request({
+      method: "GET",
+      url: "https://api.github.com/repos/jortel/hack/git/refs/heads/main",
+      headers: {
+        Authorization: `token ${githubToken}`,
+      },
+    })
+    .then((response) => {
+      const mainSha = response.body.object.sha;
+      cy.log("Main branch SHA:", mainSha);
+
+      return cy.request({
+        method: "POST",
+        url: "https://api.github.com/repos/jortel/hack/git/refs",
+        headers: {
+          Authorization: `token ${githubToken}`,
+        },
+        body: {
+          ref: `refs/heads/${branchName}`,
+          sha: mainSha,
+        },
+      });
+    })
+    .then((createBranchResponse) => {
+      cy.log("Branch created successfully:", createBranchResponse.status);
+    });
+}
+
+function deleteGitHubBranch(branchName: string, githubToken: string) {
+  return cy.request({
+    method: "DELETE",
+    url: `https://api.github.com/repos/jortel/hack/git/refs/heads/${branchName}`,
+    headers: {
+      Authorization: `token ${githubToken}`,
+    },
+    failOnStatusCode: false,
+  });
+}
+
 describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
-  before("Load fixture data", function () {
+  let testBranchName: string | null = null;
+  let githubToken: string;
+  let testApplication: Analysis | null = null;
+  let testTargetProfile: TargetProfile | null = null;
+  let testArchetype: Archetype | null = null;
+  let testCredential: CredentialsSourceControlUsername | null = null;
+
+  before("Login", function () {
+    login();
+    cy.visit("/");
+    githubToken = Cypress.env("git_password");
+  });
+
+  afterEach("Cleanup test resources", function () {
+    if (testApplication) {
+      testApplication.delete();
+      testApplication = null;
+    }
+    if (testTargetProfile) {
+      testTargetProfile.delete();
+      testTargetProfile = null;
+    }
+    if (testArchetype) {
+      testArchetype.delete();
+      testArchetype = null;
+    }
+    if (testCredential) {
+      testCredential.delete();
+      testCredential = null;
+    }
+    if (testBranchName) {
+      deleteGitHubBranch(testBranchName, githubToken);
+      testBranchName = null;
+    }
+  });
+
+  beforeEach("Load fixture data", function () {
     cy.fixture("generator").then((generatorFixture) => {
       this.generatorFixture = generatorFixture;
+    });
+    cy.fixture("application").then((appData) => {
+      this.appData = appData;
     });
   });
 
   it("Perform CRUD tests on asset generator", function () {
     const generator = new AssetGenerator(
-      getRandomAssetGeneratorData(this.generatorFixture["cf-k8s-helm-chart"])
+      data.getRandomAssetGeneratorData(
+        this.generatorFixture["cf-k8s-helm-chart"]
+      )
     );
     generator.create();
     checkSuccessAlert(
@@ -42,7 +140,7 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
     );
     exists(generator.name);
 
-    const newName = `Generator-updatedName-${getRandomNumber()}`;
+    const newName = `Generator-updatedName-${data.getRandomNumber()}`;
     generator.edit({ name: newName });
     checkSuccessAlert(
       successAlertMessage,
@@ -58,5 +156,58 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
       true
     );
     notExists(generator.name);
+  });
+
+  it("Test asset generation end-to-end", function () {
+    const tagName = "Apache Aries";
+    const branchName = `test-asset-gen-${Date.now()}`;
+    testBranchName = branchName;
+    const appData = this.appData;
+
+    createGitHubBranch(branchName, githubToken).then(() => {
+      testCredential = new CredentialsSourceControlUsername({
+        name: `asset-gen-cred-${data.getRandomWord(5)}`,
+        description: "Credential for asset generation test",
+        username: Cypress.env("git_user"),
+        password: githubToken,
+        type: CredentialType.sourceControl,
+      });
+      testCredential.create();
+
+      testApplication = new Analysis(
+        getRandomApplicationData("asset-gen-test", {
+          assetData: appData["asset-generator-repo"],
+        }),
+        {} as any
+      );
+      testApplication.tags = [tagName];
+      testApplication.assetBranch = branchName;
+      testApplication.create();
+      testApplication.manageCredentials(
+        undefined,
+        undefined,
+        testCredential.name
+      );
+
+      testArchetype = new Archetype(
+        `asset-gen-archetype-${data.getRandomWord(5)}`,
+        [tagName],
+        []
+      );
+      testArchetype.create();
+
+      testTargetProfile = new TargetProfile(
+        `asset-gen-profile-${data.getRandomWord(5)}`,
+        [defaultGenerator]
+      );
+      testTargetProfile.create(testArchetype.name);
+      testApplication.generateAssets(testTargetProfile.name);
+
+      TaskManager.verifyTaskStatus(
+        testApplication.name,
+        TaskKind.assetGeneration,
+        TaskStatus.succeeded
+      );
+    });
   });
 });
