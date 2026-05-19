@@ -81,9 +81,19 @@ function deleteGitHubBranch(branchName: string, githubToken: string) {
 }
 
 describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
+  let testBranchName: string | null = null;
+  let githubToken: string;
+
   before("Login", function () {
     login();
     cy.visit("/");
+    githubToken = Cypress.env("git_password");
+  });
+
+  after("Cleanup GitHub branch", function () {
+    if (testBranchName) {
+      deleteGitHubBranch(testBranchName, githubToken);
+    }
   });
 
   beforeEach("Load fixture data", function () {
@@ -130,7 +140,7 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
   it("Test asset generation end-to-end", function () {
     const tagName = "Apache Aries";
     const branchName = `test-asset-gen-${Date.now()}`;
-    const githubToken = Cypress.env("git_password");
+    testBranchName = branchName;
     const appData = this.appData;
 
     createGitHubBranch(branchName, githubToken).then(() => {
@@ -178,8 +188,6 @@ describe(["@tier2", "@tier2_A"], "CRUD operations on Asset Generators", () => {
       targetProfile.delete();
       archetype.delete();
       credential.delete();
-
-      deleteGitHubBranch(branchName, githubToken);
     });
   });
 });
