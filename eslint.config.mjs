@@ -217,6 +217,7 @@ export default defineConfig([
     "**/coverage/",
     "**/dist/",
     "**/generated/",
+    "**/client/public/mockServiceWorker.js",
     "cypress/cypress/",
     "cypress/run/",
   ]),
