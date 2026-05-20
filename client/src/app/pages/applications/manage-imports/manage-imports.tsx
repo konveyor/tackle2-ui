@@ -17,7 +17,15 @@ import {
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import {
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
 import { ApplicationImportSummary } from "@app/api/models";
@@ -331,28 +339,20 @@ export const ManageImports: React.FC = () => {
                             <span>-</span>
                           )}
                         </Td>
-                        <Td width={10}>
-                          <KebabDropdown
-                            dropdownItems={[
-                              <DropdownItem
-                                key="delete-import-summary"
-                                component="button"
-                                onClick={() => deleteRow(importSummary)}
-                              >
-                                {t("actions.delete")}
-                              </DropdownItem>,
+                        <Td isActionCell width={10}>
+                          <ActionsColumn
+                            items={[
                               importSummary.importStatus === "Completed" &&
-                                importSummary.invalidCount > 0 && (
-                                  <DropdownItem
-                                    key="view-error-report"
-                                    onClick={() =>
-                                      viewRowDetails(importSummary)
-                                    }
-                                  >
-                                    {t("actions.viewErrorReport")}
-                                  </DropdownItem>
-                                ),
-                            ]}
+                                importSummary.invalidCount > 0 && {
+                                  title: t("actions.viewErrorReport"),
+                                  onClick: () => viewRowDetails(importSummary),
+                                },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => deleteRow(importSummary),
+                                isDanger: true,
+                              },
+                            ].filter(Boolean)}
                           />
                         </Td>
                       </Tr>

@@ -7,13 +7,9 @@ import {
   Button,
   ButtonVariant,
   Content,
-  Dropdown,
-  DropdownItem,
   EmptyState,
   EmptyStateBody,
   List,
-  MenuToggle,
-  MenuToggleElement,
   PageSection,
   Switch,
   Toolbar,
@@ -22,15 +18,22 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
-import { CubesIcon, EllipsisVIcon, LockIcon } from "@patternfly/react-icons";
+import { CubesIcon, LockIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import {
+  ActionsColumn,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 
 import { Paths } from "@app/Paths";
 import { Questionnaire } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
-import { ConditionalTooltip } from "@app/components/ConditionalTooltip";
 import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -44,12 +47,12 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ImportQuestionnaireForm } from "@app/pages/assessment-management/import-questionnaire-form/import-questionnaire-form";
 import {
   useDeleteQuestionnaireMutation,
+  useDownloadQuestionnaire,
   useFetchQuestionnaires,
   useUpdateQuestionnaireMutation,
 } from "@app/queries/questionnaires";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
-import { ExportQuestionnaireDropdownItem } from "./components/export-questionnaire-dropdown-item";
 import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
 import { QuestionnaireThresholdsColumn } from "./components/questionnaire-thresholds-column";
 
@@ -90,11 +93,9 @@ const AssessmentSettings: React.FC = () => {
     onSaveQuestionnaireError
   );
 
-  const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
+  const { mutate: downloadQuestionnaire } = useDownloadQuestionnaire();
 
-  const [questionnaireForKebab, setQuestionnaireForKebab] = React.useState<
-    number | null
-  >(null);
+  const [isImportModal, setIsImportModal] = React.useState<boolean>(false);
 
   const [questionnaireToDelete, setQuestionnaireToDelete] =
     React.useState<Questionnaire>();
@@ -316,77 +317,41 @@ const AssessmentSettings: React.FC = () => {
                           >
                             {formattedDate}
                           </Td>
-                          <Td width={10}>
-                            <Dropdown
-                              isOpen={
-                                questionnaireForKebab === questionnaire.id
-                              }
-                              onSelect={() => setQuestionnaireForKebab(null)}
-                              onOpenChange={() =>
-                                setQuestionnaireForKebab(null)
-                              }
-                              toggle={(
-                                toggleRef: React.Ref<MenuToggleElement>
-                              ) => (
-                                <MenuToggle
-                                  ref={toggleRef}
-                                  aria-label="kebab dropdown toggle"
-                                  variant="plain"
-                                  onClick={() => {
-                                    if (
-                                      questionnaireForKebab === questionnaire.id
-                                    ) {
-                                      setQuestionnaireForKebab(null);
-                                    } else {
-                                      setQuestionnaireForKebab(
-                                        questionnaire.id
-                                      );
-                                    }
-                                  }}
-                                >
-                                  <EllipsisVIcon />
-                                </MenuToggle>
-                              )}
-                              shouldFocusToggleOnSelect
-                            >
-                              <ExportQuestionnaireDropdownItem
-                                id={questionnaire.id}
-                              />
-                              <DropdownItem
-                                key="view"
-                                component="button"
-                                onClick={() => {
-                                  history.push(
-                                    formatPath(Paths.questionnaire, {
-                                      questionnaireId: questionnaire.id,
-                                    })
-                                  );
-                                }}
-                              >
-                                {t("actions.view")}
-                              </DropdownItem>
-                              <ConditionalTooltip
-                                key="system-questionnaire"
-                                isTooltipEnabled={
-                                  questionnaire.builtin === true
-                                }
-                                content={
-                                  "Disabled because it is a system questionnaire."
-                                }
-                              >
-                                <DropdownItem
-                                  key="delete"
-                                  isAriaDisabled={
+                          <Td isActionCell width={10}>
+                            <ActionsColumn
+                              items={[
+                                {
+                                  title: t("actions.export"),
+                                  onClick: () =>
+                                    downloadQuestionnaire(questionnaire.id),
+                                },
+                                {
+                                  title: t("actions.view"),
+                                  onClick: () => {
+                                    history.push(
+                                      formatPath(Paths.questionnaire, {
+                                        questionnaireId: questionnaire.id,
+                                      })
+                                    );
+                                  },
+                                },
+                                {
+                                  title: t("actions.delete"),
+                                  onClick: () =>
+                                    setQuestionnaireToDelete(questionnaire),
+                                  isDanger: true,
+                                  isAriaDisabled:
+                                    questionnaire.builtin === true,
+                                  tooltipProps:
                                     questionnaire.builtin === true
-                                  }
-                                  onClick={() =>
-                                    setQuestionnaireToDelete(questionnaire)
-                                  }
-                                >
-                                  {t("actions.delete")}
-                                </DropdownItem>
-                              </ConditionalTooltip>
-                            </Dropdown>
+                                      ? {
+                                          content:
+                                            "Disabled because it is a system questionnaire.",
+                                        }
+                                      : undefined,
+                                },
+                              ]}
+                            />
                           </Td>
                         </TableRowContentWithControls>
                       </Tr>
