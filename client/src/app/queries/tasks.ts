@@ -100,10 +100,10 @@ export const useInfiniteServerTasks = (
   initialParams: HubRequestParams,
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
+  // usually the params are part of the key
+  // infinite query tracks the actual params for all pages under one key
+  // eslint-disable-next-line @tanstack/query/exhaustive-deps
   return useInfiniteQuery({
-    // usually the params are part of the key
-    // infinite query tracks the actual params for all pages under one key
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [TasksQueryKey],
     queryFn: async ({ pageParam = initialParams }) =>
       await getServerTasks(pageParam),
