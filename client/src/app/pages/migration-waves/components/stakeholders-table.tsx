@@ -32,7 +32,7 @@ export const WaveStakeholdersTable: React.FC<IWaveStakeholdersTableProps> = ({
     },
     isSortEnabled: true,
     isPaginationEnabled: true,
-    hasActionsColumn: true,
+    hasActionsColumn: false,
     getSortValues: (stakeholder) => ({
       name: stakeholder.name || "",
       jobFunction: stakeholder.jobFunction?.name || "",

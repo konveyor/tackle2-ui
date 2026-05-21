@@ -114,7 +114,7 @@ export const ManageApplicationsForm: React.FC<ManageApplicationsFormProps> = ({
     isExpansionEnabled: true,
     isSelectionEnabled: true,
     expandableVariant: "compound",
-    hasActionsColumn: true,
+    hasActionsColumn: false,
     filterCategories: [
       {
         categoryKey: "name",

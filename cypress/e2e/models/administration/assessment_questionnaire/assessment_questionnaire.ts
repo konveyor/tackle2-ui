@@ -12,7 +12,7 @@ import {
   legacyPathfinder,
   trTag,
 } from "../../../types/constants";
-import { actionButton } from "../../../views/applicationinventory.view";
+import { sideKebabMenu } from "../../../views/applicationinventory.view";
 import {
   QuestionnaireBreadcrumb,
   confirmDeletion,
@@ -51,7 +51,7 @@ export class AssessmentQuestionnaire {
     cy.contains(fileName, { timeout: 120 * SEC })
       .closest("tr")
       .within(() => {
-        click(actionButton);
+        click(sideKebabMenu);
       });
     clickByText(button, operation);
   }
@@ -125,7 +125,7 @@ export class AssessmentQuestionnaire {
           if (rowName == legacyPathfinder) {
             continue;
           }
-          cy.wrap($rows.eq(i).find(actionButton)).click({ force: true });
+          cy.wrap($rows.eq(i).find(sideKebabMenu)).click({ force: true });
           cy.get("li.pf-v6-c-menu__list-item")
             .contains("Delete")
             .then(($delete_btn) => {
@@ -135,7 +135,7 @@ export class AssessmentQuestionnaire {
                 clickByText(button, deleteAction);
               } else {
                 // close menu if nothing to do
-                cy.get(actionButton).eq(0).click({ force: true });
+                cy.wrap($rows.eq(i).find(sideKebabMenu)).click({ force: true });
               }
             });
         }

@@ -105,7 +105,6 @@ import {
   firstPageButton,
   itemsPerPageToggleButton,
   lastPageButton,
-  manageImportsActionsButton,
   modal,
   nextPageButton,
   optionMenu,
@@ -1523,9 +1522,7 @@ export function deleteAllImports(tableSelector: string = commonTable) {
         .find(trTag)
         .then(($rows) => {
           for (let i = 0; i < $rows.length - 1; i++) {
-            cy.get(manageImportsActionsButton, { timeout: 10000 })
-              .eq(1)
-              .click();
+            cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
             cy.get("ul[role=menu] > li").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(2 * SEC);

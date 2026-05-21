@@ -80,7 +80,7 @@ export const ManageImportsDetails: React.FC = () => {
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
-    hasActionsColumn: true,
+    hasActionsColumn: false,
     filterCategories: [
       {
         categoryKey: "name",
