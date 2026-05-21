@@ -34,6 +34,13 @@ const applicationWithSource = {
   repository: { url: "https://github.com/example/repo" },
 };
 
+const applicationWithSource2 = {
+  id: 12,
+  name: "SourceApp2",
+  migrationWave: null,
+  repository: { url: "https://github.com/example/repo2" },
+};
+
 const mockAnalysisProfile = {
   id: 1,
   name: "Test Profile",
@@ -369,7 +376,7 @@ describe("<AnalysisWizard />", () => {
       await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
     });
 
-    it("enables Next button when a profile is selected", async () => {
+    it("enables Next button when a profile is selected and all apps are compatible", async () => {
       server.use(
         rest.get("/hub/analysis/profiles", (_, res, ctx) =>
           res(ctx.json([mockAnalysisProfile]))
@@ -378,7 +385,7 @@ describe("<AnalysisWizard />", () => {
 
       render(
         <AnalysisWizard
-          applications={[applicationOnlyName1, applicationWithSource]}
+          applications={[applicationWithSource, applicationWithSource2]}
           isOpen={isAnalyzeModalOpen}
           onClose={() => {
             setAnalyzeModalOpen(false);
@@ -457,6 +464,95 @@ describe("<AnalysisWizard />", () => {
       // Next button should be enabled (manual is always valid)
       const nextButton = screen.getByRole("button", { name: /next/i });
       expect(nextButton).toBeEnabled();
+    });
+
+    it("shows warning and disables Next when apps lack source repo in profile mode", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationOnlyName1, applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Wait for and select the profile
+      const profileDropdown = await screen.findByRole("button", {
+        name: /analysis profile selection/i,
+      });
+      await userEvent.click(profileDropdown);
+
+      const profileOption = await screen.findByRole("option", {
+        name: "Test Profile",
+        hidden: true,
+      });
+      await userEvent.click(profileOption);
+
+      // Warning alert should be displayed
+      const alert = await screen.findByText(/warning alert:/i);
+      await waitFor(() => expect(alert).toBeVisible());
+
+      // Next button should remain disabled
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(nextButton).toHaveAttribute("disabled", ""));
+    });
+
+    it("enables Next when all apps have source repo in profile mode", async () => {
+      server.use(
+        rest.get("/hub/analysis/profiles", (_, res, ctx) =>
+          res(ctx.json([mockAnalysisProfile]))
+        )
+      );
+
+      render(
+        <AnalysisWizard
+          applications={[applicationWithSource]}
+          isOpen={isAnalyzeModalOpen}
+          onClose={() => {
+            setAnalyzeModalOpen(false);
+          }}
+        />
+      );
+
+      // Select profile mode
+      const profileRadio = await screen.findByRole("radio", {
+        name: /wizard\.label\.useAnalysisProfile/i,
+      });
+      await userEvent.click(profileRadio);
+
+      // Wait for and select the profile
+      const profileDropdown = await screen.findByRole("button", {
+        name: /analysis profile selection/i,
+      });
+      await userEvent.click(profileDropdown);
+
+      const profileOption = await screen.findByRole("option", {
+        name: "Test Profile",
+        hidden: true,
+      });
+      await userEvent.click(profileOption);
+
+      // No warning alert should be present
+      await waitFor(() => {
+        expect(screen.queryByText(/warning alert:/i)).not.toBeInTheDocument();
+      });
+
+      // Next button should be enabled
+      const nextButton = screen.getByRole("button", { name: /next/i });
+      await waitFor(() => expect(nextButton).toBeEnabled());
     });
   });
 });

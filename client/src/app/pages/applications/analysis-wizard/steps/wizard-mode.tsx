@@ -1,12 +1,20 @@
 import * as React from "react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Content, Form, FormGroup, Radio, Title } from "@patternfly/react-core";
+import {
+  Alert,
+  Content,
+  Form,
+  FormGroup,
+  Radio,
+  Title,
+} from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Application } from "@app/api/models";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
+import { isModeSupported } from "@app/components/analysis/steps/analysis-source";
 import { useAvailableAnalysisProfiles } from "@app/hooks/useAvailableAnalysisProfiles";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { useFetchArchetypes } from "@app/queries/archetypes";
@@ -53,14 +61,25 @@ export const WizardMode: React.FC<WizardModeProps> = ({
     archetypes
   );
 
+  const areApplicationsCompatibleWithProfile = useMemo(() => {
+    if (!selectedProfile || applications.length === 0) {
+      return true;
+    }
+
+    const analysisMode = selectedProfile.mode?.withDeps
+      ? "source-code-deps"
+      : "source-code";
+
+    return applications.every((app) => isModeSupported(app, analysisMode));
+  }, [selectedProfile, applications]);
+
   // Calculate validity
   const isValid = useMemo(() => {
     if (flowMode === "manual") {
       return true;
     }
-    // Profile mode: valid when a profile is selected
-    return selectedProfile !== null;
-  }, [flowMode, selectedProfile]);
+    return selectedProfile !== null && areApplicationsCompatibleWithProfile;
+  }, [flowMode, selectedProfile, areApplicationsCompatibleWithProfile]);
 
   // Notify parent of state changes
   useEffect(() => {
@@ -154,6 +173,22 @@ export const WizardMode: React.FC<WizardModeProps> = ({
                 </Content>
               )}
             </FormGroup>
+          )}
+
+          {selectedProfile && !areApplicationsCompatibleWithProfile && (
+            <Alert
+              variant="warning"
+              isInline
+              title={t("wizard.label.notAllAnalyzable")}
+              className={spacing.mtMd}
+            >
+              <p>
+                {t(
+                  "wizard.label.profileRequiresSourceCode",
+                  "The selected analysis profile requires all applications to have a source code repository configured. Some selected applications are missing a repository URL."
+                )}
+              </p>
+            </Alert>
           )}
         </div>
       )}
