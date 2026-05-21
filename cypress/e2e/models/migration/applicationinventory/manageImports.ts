@@ -26,11 +26,11 @@ import {
   button,
   migration,
 } from "../../../types/constants";
-import { applicationsActionButton } from "../../../views/applicationinventory.view";
 import {
-  actionMenuItem,
-  manageImportsActionsButton,
-} from "../../../views/common.view";
+  applicationsActionButton,
+  sideKebabMenu,
+} from "../../../views/applicationinventory.view";
+import { actionMenuItem } from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 
 export class ManageImports {
@@ -61,7 +61,7 @@ export class ManageImports {
   public openErrorReport(): void {
     // Open error report for the first row
     cy.get("table > tbody > tr").eq(0).as("firstRow");
-    cy.get("@firstRow").find(manageImportsActionsButton).click();
+    cy.get("@firstRow").find(sideKebabMenu).click();
     // PF6 renders kebab menu via Popper/portal outside the table row
     cy.get(actionMenuItem, { timeout: 5 * SEC })
       .contains("View error report")
