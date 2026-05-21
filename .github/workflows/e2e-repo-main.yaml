@@ -15,6 +15,9 @@ on:
       install_konveyor_version:
         type: string
         default: main
+      image_ref:
+        type: string
+        default: main
       test_ref:
         type: string
         default: main
@@ -32,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.test_ref }}
+          ref: ${{ inputs.image_ref }}
 
       - name: Build UI image
         id: build-ui-image
