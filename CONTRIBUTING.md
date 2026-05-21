@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to the Konveyor UI. This document covers conventions, processes, and standards specific to this repository.
 
-For initial setup (cloning, installing dependencies, running the dev server), see [README.md](README.md#quick-start).
+For development setup (cloning, installing dependencies, running the dev server), see [docs/development.md](docs/development.md).
 
 ## Coding Standards
 
@@ -18,63 +18,15 @@ For initial setup (cloning, installing dependencies, running the dev server), se
 
 See [docs/development.md](docs/development.md) for file naming conventions, styling guidelines, and the form development guide (react-hook-form + PatternFly wrappers).
 
-### Import Order
-
-ESLint enforces import ordering (via `eslint-plugin-import-x`):
-
-1. Node.js built-ins
-2. `react` (pinned first)
-3. External libraries
-4. `@patternfly/**` (pinned after external)
-5. `@konveyor-ui/**` and `@app/**` (internal)
-6. Parent and sibling imports
-
 ### Internationalization
 
-All user-facing strings use `react-i18next`. Translation files live in `client/public/locales/{lang}/translation.json`. Use the `useTranslation` hook (`const { t } = useTranslation()`) to access translated strings. See [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md) for adding new languages.
-
-## Linting and Formatting
-
-The project uses ESLint (flat config) and Prettier. Run from the repo root:
-
-```bash
-npm run lint          # ESLint check
-npm run lint:fix      # ESLint auto-fix
-npm run format:check  # Prettier dry-run
-npm run format        # Prettier auto-format
-```
-
-A `husky` + `lint-staged` pre-commit hook runs automatically on staged files.
+See [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md) for translation conventions and adding new languages.
 
 ## Testing
 
 - **Unit tests** — see [docs/tests.md](docs/tests.md) for conventions, test environment, and commands.
 - **End-to-end tests** — see [cypress/README.md](cypress/README.md) for Cypress setup, page object models, and CI integration.
 
-## Pull Request Process
+## Pull Requests and Versioning
 
-- PRs target the `main` branch for new features and bug fixes.
-- CVE and security fixes are cherry-picked to active release branches (`release-0.8`, `release-0.9`) with the branch name prefixed in the PR title (e.g., `[release-0.9] :bug: Fix vulnerability`).
-- All PRs require CI to pass and at least one approval from a [code owner](CODEOWNERS). Cypress test changes require additional approval from test maintainers.
-- Follow the [Konveyor PR process](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md#pull-request-pr-process) for versioning and branching conventions.
-
-### PR Title Conventions
-
-PR titles use a gitmoji prefix to categorize the change:
-
-- `:sparkles:` -- new feature
-- `:bug:` -- bug fix
-- `:seedling:` -- dependency or infrastructure update
-- `:ghost:` -- dependency bump (Dependabot)
-- `:test_tube:` -- test addition or fix
-
-### AI-Assisted Contributions
-
-When AI tools assist with a PR, note this in the PR description using either:
-
-- `Assisted-by: {tool-name}` (e.g., `Assisted-by: Claude Sonnet 4.6 (Anthropic)`)
-- `AI Attribution: AIA Human-AI blend, Human-initiated, Reviewed, {model}`
-
-## Versioning
-
-The project follows [Konveyor's versioning guidelines](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md). See [VERSIONING.md](VERSIONING.md) for details.
+Follow the [Konveyor PR process](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md#pull-request-pr-process) for branching, versioning, and PR conventions. See [VERSIONING.md](VERSIONING.md) for project-specific versioning details.

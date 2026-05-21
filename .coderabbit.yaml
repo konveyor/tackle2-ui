@@ -2,44 +2,44 @@
 
 language: en-US
 
+instructions: >
+  Read AGENTS.md for the full list of coding standards, conventions, and review guidelines.
+
 reviews:
   auto_review:
     enabled: true
     drafts: false
-  profile: concise
+  profile: chill
   path_instructions:
     - path: client/src/app/api/**
       instructions: >
-        Verify API model types match the Hub OpenAPI spec.
+        Verify API model types match the Hub OpenAPI spec
+        (https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json).
         Check that REST functions use the `hub` tagged template.
     - path: client/src/app/queries/**
       instructions: >
-        Ensure query keys are exported constants.
         Verify mutations invalidate relevant query caches on success.
-        Check TanStack Query exhaustive-deps compliance.
-    - path: client/src/app/components/FilterToolbar/**
-      instructions: >
-        Check that Select components use FilterSelectOptionProps.
-        Verify toggle IDs are unique across instances.
-        Ensure aria-labels are human-readable, not ID-like.
     - path: client/src/app/pages/**
       instructions: >
-        Forms must use react-hook-form with yup validation.
-        Check import ordering (react, external, @patternfly, @app).
-        Verify ID checks use explicit null guards, not truthy checks.
+        Verify ID checks use explicit null guards (`id != null`), not truthy checks.
     - path: cypress/e2e/**
       instructions: >
-        Ensure selectors scope to the active element (listbox, modal, dialog).
         Verify page object model patterns are followed.
         Check that assertions do not rely on timing - use Cypress retry-ability.
+    - path: client/public/locales/**
+      instructions: >
+        Verify translation keys match usage in source code.
+        Check for missing or unused keys.
+    - path: branding/**
+      instructions: >
+        Verify branding assets are consistent across themes.
+        Check that logos and colors match the design system.
 
   path_filters:
     - "!**/package-lock.json"
     - "!**/dist/**"
     - "!**/node_modules/**"
     - "!**/coverage/**"
-    - "!client/public/locales/**"
-    - "!branding/**"
 
 chat:
   auto_reply: true
