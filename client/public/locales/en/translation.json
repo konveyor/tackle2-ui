@@ -320,7 +320,8 @@
     "updateFailed": "Update failed.",
     "updateRequestSubmitted": "Update request submitted.",
     "noApplicationsForAssignment": "No applications are available for assignment.",
-    "noApplicationsForExport": "No applications are available for export."
+    "noApplicationsForExport": "No applications are available for export.",
+    "systemQuestionnaireDisabled": "Disabled because it is a system questionnaire."
   },
   "proposedActions": {
     "refactor": "Refactor",

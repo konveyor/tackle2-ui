@@ -345,8 +345,9 @@ const AssessmentSettings: React.FC = () => {
                                   tooltipProps:
                                     questionnaire.builtin === true
                                       ? {
-                                          content:
-                                            "Disabled because it is a system questionnaire.",
+                                          content: t(
+                                            "message.systemQuestionnaireDisabled"
+                                          ),
                                         }
                                       : undefined,
                                 },

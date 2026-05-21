@@ -135,7 +135,7 @@ export class AssessmentQuestionnaire {
                 clickByText(button, deleteAction);
               } else {
                 // close menu if nothing to do
-                cy.get(sideKebabMenu).eq(0).click({ force: true });
+                cy.wrap($rows.eq(i).find(sideKebabMenu)).click({ force: true });
               }
             });
         }
