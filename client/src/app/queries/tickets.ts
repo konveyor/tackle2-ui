@@ -24,7 +24,10 @@ export const useCreateTicketsMutation = (
       queryClient.invalidateQueries({ queryKey: [TicketsQueryKey] });
       onSuccess();
     },
-    onError: onError,
+    onError: (err: AxiosError) => {
+      queryClient.invalidateQueries({ queryKey: [TicketsQueryKey] });
+      onError(err);
+    },
   });
 };
 
