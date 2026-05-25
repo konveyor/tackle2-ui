@@ -1,11 +1,6 @@
 import { useState } from "react";
 import dayjs from "dayjs";
 
-export type UpdatableId = {
-  id: number;
-  expirationTime: dayjs.ConfigType;
-};
-
 const useUpdatingTrackerIds = () => {
   const [updatingTrackerIds, setUpdatingTrackerIds] = useState<
     Map<number, dayjs.Dayjs>

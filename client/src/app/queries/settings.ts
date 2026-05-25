@@ -4,7 +4,7 @@ import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { SettingTypes } from "@app/api/models";
 import { getSettingById, updateSetting } from "@app/api/rest";
 
-export const SettingQueryKey = "setting";
+const SettingQueryKey = "setting";
 
 export const useSetting = <K extends keyof SettingTypes>(
   key: K,

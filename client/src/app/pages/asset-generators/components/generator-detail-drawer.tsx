@@ -21,7 +21,7 @@ import { parametersToArray } from "../utils";
 
 import GeneratorCollectionTable from "./generator-collection-table";
 
-export interface IGeneratorDetailDrawerProps {
+interface IGeneratorDetailDrawerProps {
   onCloseClick: () => void;
   generator: Generator | null;
 }

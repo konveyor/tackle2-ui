@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 
-export const DEFAULT_KIND = "cloudfoundry";
+const CLOUDFOUNDRY_KIND = "cloudfoundry";
 
-export const KIND_MAP: Map<
+const KIND_MAP: Map<
   string,
   { labelKey: string; urlTooltipKey: string; credentialTooltipKey: string }
 > = new Map([
   [
-    "cloudfoundry",
+    CLOUDFOUNDRY_KIND,
     {
       labelKey: "platformKind.cloudfoundry.label",
       urlTooltipKey: "platformKind.cloudfoundry.urlTooltip",

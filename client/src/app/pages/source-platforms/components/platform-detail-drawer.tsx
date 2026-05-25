@@ -25,7 +25,7 @@ import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 
 import PlatformAppsTable from "./platform-applications-table";
 
-export interface IPlatformDetailDrawerProps {
+interface IPlatformDetailDrawerProps {
   onCloseClick: () => void;
   platform: SourcePlatform | null;
 }

@@ -19,7 +19,7 @@ import {
 import { TabDetailsContent } from "./tab-details-content";
 import { WizardBasedTabDetails } from "./wizard-based-tab-details";
 
-export interface IAnalysisProfileDetailDrawerProps {
+interface IAnalysisProfileDetailDrawerProps {
   onCloseClick: () => void;
   analysisProfile: AnalysisProfile | null;
 }

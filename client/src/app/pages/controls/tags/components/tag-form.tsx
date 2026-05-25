@@ -29,7 +29,7 @@ import {
 import { ITagCategoryDropdown } from "@app/utils/model-utils";
 import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 
-export interface FormValues {
+interface FormValues {
   name: string;
   tagCategory: string;
 }

@@ -40,7 +40,7 @@ import { useTargetLabels } from "../hooks/useTargetLabels";
 
 import { CustomRulesStepState } from "./custom-rules";
 
-export interface AdvancedOptionsValues {
+interface AdvancedOptionsValues {
   additionalTargetLabels: TargetLabel[];
   additionalSourceLabels: TargetLabel[];
 
@@ -56,7 +56,7 @@ export interface AdvancedOptionsState extends AdvancedOptionsValues {
   isValid: boolean;
 }
 
-export const useAdvancedOptionsSchema = ({
+const useAdvancedOptionsSchema = ({
   existingProfiles = [],
   showSaveAsProfile = true,
 }: {
@@ -102,7 +102,7 @@ interface OptionsAdvancedProps {
   showSaveAsProfile?: boolean;
 }
 
-export const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
+const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   selectedTargets,
   customRules,
   onStateChanged,

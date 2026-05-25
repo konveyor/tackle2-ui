@@ -71,11 +71,8 @@ import {
   applicationData,
 } from "../e2e/types/types";
 import {
-  codeEditorControls,
   manageCredentials,
   mavenCredential,
-  menuList,
-  menuToggle,
   sourceCredential,
 } from "../e2e/views/analysis.view";
 import {
@@ -105,7 +102,6 @@ import {
   firstPageButton,
   itemsPerPageToggleButton,
   lastPageButton,
-  modal,
   nextPageButton,
   optionMenu,
   pageNumInput,
@@ -182,21 +178,6 @@ export function click(
   }
   cy.get(fieldId, { log, timeout: 30 * SEC })
     .eq(number)
-    .click({ log, force: isForced });
-}
-
-export function clickWithFocus(
-  fieldId: string,
-  isForced = true,
-  log = false,
-  number = 0
-): void {
-  if (!log) {
-    cy.log(`Click ${fieldId}`);
-  }
-  cy.get(fieldId, { log, timeout: 30 * SEC })
-    .eq(number)
-    .focus()
     .click({ log, force: isForced });
 }
 
@@ -338,10 +319,6 @@ export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
     }
     return cy.wrap({} as Record<string, string>);
   });
-}
-
-export function resetURL(): void {
-  Application.open(true);
 }
 
 export function selectItemsPerPage(items: number): void {
@@ -640,37 +617,6 @@ export function clickOnSortButton(
       }
       cy.wrap($tableHeader).should("have.attr", "aria-sort", sortCriteria);
     });
-}
-
-export function generateRandomDateRange(
-  minDate?: Date,
-  maxDate?: Date
-): { start: Date; end: Date } {
-  if (!minDate) minDate = new Date();
-
-  // If maxDate is not provided, use one year from now
-  if (!maxDate) {
-    maxDate = new Date(minDate.getTime());
-    maxDate.setFullYear(maxDate.getFullYear() + 1);
-  }
-
-  const dateRangeInMs = maxDate.getTime() - minDate.getTime();
-
-  if (dateRangeInMs <= 0) {
-    throw new Error("Invalid date range");
-  }
-
-  // Calculate start date and end date
-  const startOffset = Math.random() * dateRangeInMs;
-  const startDate = new Date(minDate.getTime() + startOffset);
-
-  const endOffset = Math.random() * (dateRangeInMs - startOffset);
-  const endDate = new Date(startDate.getTime() + endOffset);
-
-  return {
-    start: startDate,
-    end: endDate,
-  };
 }
 
 export function getTableColumnData(columnName: string): Array<string> {
@@ -1253,37 +1199,6 @@ export function createMultipleTags(numberoftags: number): Array<Tag> {
   return tagList;
 }
 
-export function generateMultipleCredentials(amount: number): Credentials[] {
-  cy.pause();
-  const newCredentialsList = [];
-  const createdCredentialsList = [];
-  for (let i = 0; i < Math.ceil((10 - amount) / 4); i++) {
-    newCredentialsList.push(
-      new CredentialsProxy(getRandomCredentialsData(CredentialType.proxy))
-    );
-    newCredentialsList.push(
-      new CredentialsMaven(getRandomCredentialsData(CredentialType.maven))
-    );
-    newCredentialsList.push(
-      new CredentialsSourceControlUsername(
-        getRandomCredentialsData(CredentialType.sourceControl)
-      )
-    );
-    newCredentialsList.push(
-      new CredentialsSourceControlKey(
-        getRandomCredentialsData(CredentialType.sourceControl)
-      )
-    );
-  }
-  cy.pause();
-  newCredentialsList.forEach((currentCredential) => {
-    currentCredential.create();
-    createdCredentialsList.push(currentCredential);
-  });
-  cy.pause();
-  return createdCredentialsList;
-}
-
 export function getRandomApplicationData(
   appName?,
   options?: { sourceData?; binaryData? },
@@ -1470,7 +1385,7 @@ export function deleteAllTagsAndTagCategories(): void {
     });
 }
 
-export function isTableEmpty(
+function isTableEmpty(
   tableSelector: string = commonTable
 ): Cypress.Chainable<boolean> {
   return cy
@@ -1499,16 +1414,6 @@ export function deleteAllRows(tableSelector: string = commonTable) {
   });
 }
 
-export function assertSuccessPopupAndClose() {
-  cy.get(successAlertMessage, {
-    timeout: 3 * SEC,
-  })
-    .should("be.visible")
-    .within(() => {
-      cy.get('button[aria-label^="Close"]').click();
-    });
-}
-
 export function checkRowCount(expectedCount: number) {
   cy.get("td[data-label=Name]").then(($rows) => {
     cy.wrap($rows.length).should("eq", expectedCount);
@@ -1526,24 +1431,6 @@ export function deleteAllImports(tableSelector: string = commonTable) {
             cy.get("ul[role=menu] > li").contains("Delete").click();
             cy.get(confirmButton).click();
             cy.wait(2 * SEC);
-          }
-        });
-    }
-  });
-}
-
-export function deleteAllItems(tableSelector: string = commonTable) {
-  // This method is for pages like applications that have rows inside tbody
-  isTableEmpty().then((empty) => {
-    if (!empty) {
-      cy.get(`${tableSelector} tbody`)
-        .find(trTag)
-        .then(($rows) => {
-          for (let i = 0; i < $rows.length; i++) {
-            cy.get(sideKebabMenu, { timeout: 10000 }).eq(0).click();
-            cy.get("ul[role=menu] > li").contains("Delete").click();
-            cy.get(confirmButton).click();
-            cy.wait(1 * SEC);
           }
         });
     }
@@ -1590,12 +1477,6 @@ export function deleteAllJiraConnections() {
   getAuthHeaders().then((headers) => {
     Jira.deleteAllViaApi(headers);
   });
-}
-
-export function deleteAllProfiles() {
-  AnalysisProfile.open();
-  selectItemsPerPage(100);
-  deleteAllRows();
 }
 
 export function deleteApplicationTableRows(): void {
@@ -1698,10 +1579,6 @@ export function selectUserPerspective(userType: string): void {
   clickByText(button, userType);
 }
 
-export function selectWithinModal(selector: string): void {
-  clickWithin(modal, selector);
-}
-
 /**
  * Executes a function inside a specified HTML element
  * @param selector parent element
@@ -1754,19 +1631,6 @@ export function selectCheckBox(
 ): void {
   cy.get(selector, { timeout: 120 * SEC }).then(($checkbox) => {
     if (!$checkbox.prop("checked")) {
-      click(selector, isForced, log);
-    }
-  });
-}
-
-//function to unselect checkboxes
-export function unSelectCheckBox(
-  selector: string,
-  isForced = false,
-  log = false
-): void {
-  cy.get(selector, { timeout: 120 * SEC }).then(($checkbox) => {
-    if ($checkbox.prop("checked")) {
       click(selector, isForced, log);
     }
   });
@@ -2132,18 +1996,7 @@ export function cleanupDownloads(): void {
   ).then((result) => cy.log(result.stdout));
 }
 
-export function selectAssessmentApplications(apps: string): void {
-  clickWithin(modal, "button[aria-label='Select']");
-  clickByText(button, `Select ${apps}`, false, true);
-  clickWithin(modal, "button[aria-label='Select']", false, true);
-  cy.get("div").then(($div) => {
-    if ($div.text().includes("in-progress or complete assessment")) {
-      selectCheckBox("#confirm-copy-checkbox");
-    }
-  });
-}
-
-export function closeModalWindow(): void {
+function closeModalWindow(): void {
   click(closeModal, false, true);
 }
 
@@ -2600,7 +2453,7 @@ export function validateCheckBoxIsDisabled(
     .and(`${isChecked ? "" : "not."}be.checked`);
 }
 
-export function getCheckboxSelector(text: string) {
+function getCheckboxSelector(text: string) {
   const [first, ...rest] = text.split(" ");
   text = rest.length ? first.toLowerCase() + rest.join("") : text.toLowerCase();
   return `input[aria-labelledby='check-${text.replace(/\s+/g, "")}']`;
@@ -2619,15 +2472,6 @@ export function selectColumns(
       });
       clickByText(button, buttonText, true);
     });
-}
-
-export function selectLogView(logName: string): void {
-  cy.get(codeEditorControls).within(() => {
-    cy.get(menuToggle).click();
-    cy.get(menuList).within(() => {
-      clickByText(button, logName);
-    });
-  });
 }
 
 /**
@@ -2666,7 +2510,7 @@ export function getUniqueNamesMap<T extends { name: string }>(
  * - Collapsing all sequences of whitespace into a single space.
  * - Trimming leading and trailing whitespace.
  */
-export function normalizeText(text: string): string {
+function normalizeText(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 

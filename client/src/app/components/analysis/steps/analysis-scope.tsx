@@ -10,9 +10,9 @@ import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 
 // Scope step
-export type AnalysisScopeType = "app" | "app,oss" | "app,oss,select";
+type AnalysisScopeType = "app" | "app,oss" | "app,oss,select";
 
-export interface AnalysisScopeValues {
+interface AnalysisScopeValues {
   withKnownLibs: AnalysisScopeType;
   includedPackages: string[];
   hasExcludedPackages: boolean;
@@ -23,7 +23,7 @@ export interface AnalysisScopeState extends AnalysisScopeValues {
   isValid: boolean;
 }
 
-export const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
+const useAnalysisScopeSchema = (): yup.SchemaOf<AnalysisScopeValues> => {
   const { t } = useTranslation();
   return yup.object({
     withKnownLibs: yup

@@ -53,36 +53,6 @@ export const devRoles = ["tackle-admin", "tackle-architect", "tackle-migrator"];
 
 export const adminRoles = ["tackle-admin"];
 
-export const readScopes = [
-  "addons:get",
-  "applications:get",
-  "businessservices:get",
-  "dependencies:get",
-  "identities:get",
-  "imports:get",
-  "jobFunctions:get",
-  "proxies:get",
-  "reviews:get",
-  "settings:get",
-  "stakeholdergroups:get",
-  "stakeholders:get",
-  "tags:get",
-  "tagcategories:get",
-  "tasks:get",
-];
-
-export const adminWriteScopes = [
-  "addons:post",
-  "addons:put",
-  "addons:delete",
-  "identities:put",
-  "identities:post",
-  "identities:delete",
-  "proxies:put",
-  "proxies:post",
-  "proxies:delete",
-];
-
 export const controlsWriteScopes = [
   "businessservices:put",
   "businessservices:post",
@@ -135,17 +105,6 @@ export const assessmentWriteScopes = [
   "archetypes.assessments:post",
   "archetypes.assessments:delete",
 ];
-export const assessmentReadScopes = [
-  "applications.assessments:get",
-  "archetypes.assessments:get",
-];
-
-export const modifiedPathfinderWriteScopes = [
-  "assessments:put",
-  "assessments:patch",
-  "assessments:delete",
-];
-
 export const importsWriteScopes = [
   "imports:put",
   "imports:post",
@@ -163,11 +122,6 @@ export const tasksWriteScopes = [
   "taskgroups:delete",
 ];
 
-export const credentialsWriteScopes = [
-  "identities:put",
-  "identities:post",
-  "identities:delete",
-];
 export const credentialsReadScopes = ["identities:get"];
 
 export const reviewsWriteScopes = [
@@ -175,11 +129,8 @@ export const reviewsWriteScopes = [
   "reviews:post",
   "reviews:delete",
 ];
-export const reviewsReadScopes = ["reviews:get"];
-
 export const targetsWriteScopes = [
   "targets:put",
   "targets:post",
   "targets:delete",
 ];
-export const targetsReadScopes = ["targets:get"];

@@ -19,7 +19,7 @@ const defaultState: IApplicationSelectionContext = {
   selectItems: () => {},
 };
 
-export const ApplicationSelectionContext =
+const ApplicationSelectionContext =
   React.createContext<IApplicationSelectionContext>(defaultState);
 
 // Component

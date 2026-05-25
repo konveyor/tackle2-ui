@@ -12,14 +12,11 @@ import { HookFormPFGroupController } from "@app/components/HookFormPFFields";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { isNotEmptyString } from "@app/utils/utils";
 
-export const BINARY_ANALYSIS_MODES = ["binary", "binary-upload"] as const;
-export const SOURCE_ANALYSIS_MODES = [
-  "source-code",
-  "source-code-deps",
-] as const;
+const BINARY_ANALYSIS_MODES = ["binary", "binary-upload"] as const;
+const SOURCE_ANALYSIS_MODES = ["source-code", "source-code-deps"] as const;
 
 // Analysis mode (source)
-export const ANALYSIS_MODES = [
+const ANALYSIS_MODES = [
   ...BINARY_ANALYSIS_MODES,
   ...SOURCE_ANALYSIS_MODES,
 ] as const;
@@ -70,7 +67,7 @@ const filterAnalyzableApplications = (
 /**
  * Get analyzable applications grouped by mode
  */
-export const useAnalyzableApplicationsByMode = (
+const useAnalyzableApplicationsByMode = (
   applications: Application[]
 ): Record<AnalysisMode, Application[]> =>
   React.useMemo(

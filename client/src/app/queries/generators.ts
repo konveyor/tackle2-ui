@@ -6,13 +6,12 @@ import { Generator } from "@app/api/models";
 import {
   createGenerator,
   deleteGenerator,
-  getGeneratorById,
   getGenerators,
   updateGenerator,
 } from "@app/api/rest";
 
-export const GENERATORS_QUERY_KEY = "generators";
-export const GENERATOR_QUERY_KEY = "generator";
+const GENERATORS_QUERY_KEY = "generators";
+const GENERATOR_QUERY_KEY = "generator";
 
 export const useFetchGenerators = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
@@ -30,22 +29,6 @@ export const useFetchGenerators = (
     isSuccess,
     fetchError: error,
     refetch,
-  };
-};
-
-export const useFetchGeneratorById = (id?: number | string) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: [GENERATOR_QUERY_KEY, id],
-    queryFn: () =>
-      id === undefined ? Promise.resolve(undefined) : getGeneratorById(id),
-    onError: (error: AxiosError) => console.log("error, ", error),
-    enabled: id !== undefined,
-  });
-
-  return {
-    generator: data,
-    isLoading,
-    fetchError: error,
   };
 };
 

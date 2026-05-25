@@ -27,7 +27,7 @@ import { duplicateNameCheck, universalComparator } from "@app/utils/utils";
 
 import { useArchetypeMutations } from "../hooks/useArchetypeMutations";
 
-export interface ArchetypeFormValues {
+interface ArchetypeFormValues {
   name: string;
   description?: string;
   comments?: string;
@@ -59,8 +59,6 @@ export const ArchetypeForm: React.FC<ArchetypeFormProps> = (props) => {
     </ConditionalRender>
   );
 };
-
-export default ArchetypeForm;
 
 const ArchetypeFormReady: React.FC<ArchetypeFormProps> = ({
   archetype,

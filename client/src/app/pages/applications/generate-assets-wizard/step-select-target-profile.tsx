@@ -8,11 +8,6 @@ import { intersection } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
-export interface TargetProfileState {
-  selectedProfile?: TargetProfile;
-  isValid: boolean;
-}
-
 const useCommonTargetProfiles = (applications: DecoratedApplication[]) => {
   const commonArchetypes = React.useMemo(
     () =>

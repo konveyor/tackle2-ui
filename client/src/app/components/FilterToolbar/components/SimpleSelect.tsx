@@ -10,7 +10,7 @@ import {
 
 import { FilterSelectOptionProps } from "../FilterToolbar";
 
-export interface SimpleSelectProps {
+interface SimpleSelectProps {
   isScrollable?: boolean;
   options: FilterSelectOptionProps[];
   value?: string;

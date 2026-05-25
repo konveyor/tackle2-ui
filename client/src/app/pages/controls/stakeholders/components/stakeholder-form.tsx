@@ -28,7 +28,7 @@ import {
 } from "@app/queries/stakeholders";
 import { duplicateFieldCheck, duplicateNameCheck } from "@app/utils/utils";
 
-export interface FormValues {
+interface FormValues {
   email: string;
   name: string;
   jobFunctionName?: string;

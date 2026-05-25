@@ -103,7 +103,7 @@ export const getParsedLabel = (label: string | null): ParsedLabel => {
   };
 };
 
-export const getLabels = (labels: string[]) =>
+const getLabels = (labels: string[]) =>
   labels.reduce(
     (map: ILabelMap, label) => {
       const { labelType, labelValue } = getParsedLabel(label);

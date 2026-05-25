@@ -16,7 +16,7 @@ import { ENV } from "@app/env";
 /**
  * Parse the provided MOCK configuration string and return a configuration object.
  */
-export function parseMock(str?: string): {
+function parseMock(str?: string): {
   enabled: boolean;
   passthrough: boolean;
   stub: boolean | "*" | string[];
@@ -74,5 +74,3 @@ export const config = Object.freeze(parseMock(ENV.MOCK));
 if (ENV.NODE_ENV === "development") {
   console.info("MOCK configuration: ", config);
 }
-
-export default config;

@@ -6,7 +6,7 @@ import { IFeaturePersistenceArgs, isPersistenceProvider } from "..";
 /**
  * The currently applied sort parameters
  */
-export interface IActiveSort<TSortableColumnKey extends string> {
+interface IActiveSort<TSortableColumnKey extends string> {
   /**
    * The identifier for the currently sorted column (`columnKey` values come from the keys of the `columnNames` object passed to useTableControlState)
    */

@@ -8,5 +8,3 @@ import { BrandingStrings, brandingStrings } from "@konveyor-ui/common";
 export const useBranding = (): BrandingStrings => {
   return brandingStrings;
 };
-
-export default useBranding;

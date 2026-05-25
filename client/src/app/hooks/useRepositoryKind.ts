@@ -5,7 +5,7 @@ import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToo
 
 export type RepositoryKind = "git" | "subversion" | "" | null;
 
-export const KIND_META: Map<RepositoryKind, { labelKey: string }> = new Map([
+const KIND_META: Map<RepositoryKind, { labelKey: string }> = new Map([
   ["git", { labelKey: "repositoryKind.git" }],
   ["subversion", { labelKey: "repositoryKind.subversion" }],
 ]);

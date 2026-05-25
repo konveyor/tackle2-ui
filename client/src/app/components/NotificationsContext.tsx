@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AlertProps } from "@patternfly/react-core";
 
-export type INotification = {
+type INotification = {
   title: string;
   variant: AlertProps["variant"];
   message?: React.ReactNode;

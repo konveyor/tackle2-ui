@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
-import { MenuToggleProps, ToolbarLabel } from "@patternfly/react-core";
+import { MenuToggleProps } from "@patternfly/react-core";
 
 import {
   AdminPathValues,
@@ -34,12 +34,6 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
   }
 
   return axiosError.message || "Network error";
-};
-
-// ToolbarChip
-
-export const getToolbarChipKey = (value: string | ToolbarLabel) => {
-  return typeof value === "string" ? value : value.key;
 };
 
 // Dates
@@ -134,10 +128,6 @@ export const getToggleStatusFromErrors = (
   return validated === "error" ? "danger" : undefined;
 };
 
-export const getValidatedFromError = (error: unknown | undefined) => {
-  return error ? "error" : "default";
-};
-
 export const standardStrictURLRegex =
   /https:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/;
 
@@ -230,7 +220,7 @@ export const capitalizeFirstLetter = (str: string) =>
  *
  * @param locale to be used by string compareFn
  */
-export const localeNumericCompare = (
+const localeNumericCompare = (
   a: string,
   b: string,
   locale: string = i18n.language
@@ -292,10 +282,6 @@ export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
       value,
     },
   };
-}
-
-export function isEmptyString(value: string | undefined | null): boolean {
-  return value === undefined || value === null || value.trim() === "";
 }
 
 export function isNotEmptyString(value: string | undefined | null): boolean {

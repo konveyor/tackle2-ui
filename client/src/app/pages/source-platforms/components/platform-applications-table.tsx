@@ -14,7 +14,7 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useFetchApplications } from "@app/queries/applications";
 
-export interface IPlatformAppsTableProps {
+interface IPlatformAppsTableProps {
   platformApplications?: Ref[];
 }
 

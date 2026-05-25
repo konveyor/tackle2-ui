@@ -55,7 +55,7 @@ export interface CustomTargetFormProps {
   onCancel: () => void;
 }
 
-export interface CustomTargetFormValues {
+interface CustomTargetFormValues {
   id: number;
   name: string;
   description?: string;

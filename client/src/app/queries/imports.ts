@@ -8,9 +8,9 @@ import {
   getApplicationsImportSummary,
 } from "@app/api/rest";
 
-export const ImportSummariesQueryKey = "importsummaries";
-export const ImportsQueryKey = "imports";
-export const ImportQueryKey = "import";
+const ImportSummariesQueryKey = "importsummaries";
+const ImportsQueryKey = "imports";
+const ImportQueryKey = "import";
 
 export const useFetchImports = (
   importSummaryID: number,

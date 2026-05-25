@@ -66,6 +66,7 @@ export default defineConfig([
       ],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-redeclare": "error",
+      "no-unused-vars": "off",
       "@typescript-eslint/no-unused-expressions": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",

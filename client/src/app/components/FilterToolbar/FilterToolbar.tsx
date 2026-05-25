@@ -32,7 +32,7 @@ export interface FilterSelectOptionProps {
   groupLabel?: string;
 }
 
-export interface IBasicFilterCategory<
+interface IBasicFilterCategory<
   /** The actual API objects we're filtering */
   TItem,
   TFilterCategoryKey extends string, // Unique identifiers for each filter category (inferred from key properties if possible)

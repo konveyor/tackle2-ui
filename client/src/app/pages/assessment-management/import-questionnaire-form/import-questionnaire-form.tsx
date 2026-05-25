@@ -29,7 +29,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 export interface ImportQuestionnaireFormProps {
   onSaved: (response?: Questionnaire) => void;
 }
-export interface ImportQuestionnaireFormValues {
+interface ImportQuestionnaireFormValues {
   yamlFile: string;
 }
 

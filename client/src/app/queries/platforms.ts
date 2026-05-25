@@ -22,8 +22,8 @@ import {
 
 import { PLATFORM_COORDINATES_SCHEMA_QUERY_KEY } from "./schemas";
 
-export const PLATFORMS_QUERY_KEY = "platforms";
-export const PLATFORM_QUERY_KEY = "platform";
+const PLATFORMS_QUERY_KEY = "platforms";
+const PLATFORM_QUERY_KEY = "platform";
 
 export const useFetchPlatforms = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

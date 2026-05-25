@@ -28,7 +28,7 @@ import { ARCHETYPE_QUERY_KEY } from "./archetypes";
 import { QuestionnairesQueryKey } from "./questionnaires";
 
 export const assessmentsQueryKey = "assessments";
-export const assessmentQueryKey = "assessment";
+const assessmentQueryKey = "assessment";
 export const assessmentsByItemIdQueryKey = "assessmentsByItemId";
 
 export const useFetchAssessments = (

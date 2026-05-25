@@ -27,5 +27,3 @@ export const ExternalLink: React.FC<{
     {children}
   </Button>
 );
-
-export default ExternalLink;

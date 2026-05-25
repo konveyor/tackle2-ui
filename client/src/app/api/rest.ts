@@ -8,7 +8,6 @@ import { template } from "radash";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 import {
-  ApplicationAdoptionPlan,
   ApplicationImport,
   ApplicationImportSummary,
   Assessment,
@@ -48,29 +47,25 @@ export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
   return `/hub${path}`;
 }
 
-export const APP_IMPORTS = hub`/imports`;
-export const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
-export const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
+const APP_IMPORTS = hub`/imports`;
+const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
+const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
 export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
-export const ASSESSMENTS = hub`/assessments`;
-export const FACTS = hub`/facts`;
-export const FILES = hub`/files`;
-export const MANIFESTS = hub`/manifests`;
-export const PROXIES = hub`/proxies`;
+const ASSESSMENTS = hub`/assessments`;
+const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
-export const REPORT = hub`/reports`;
-export const REVIEWS = hub`/reviews`;
-export const SETTINGS = hub`/settings`;
-export const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
-export const STAKEHOLDERS = hub`/stakeholders`;
-export const TAG_CATEGORIES = hub`/tagcategories`;
-export const TAGS = hub`/tags`;
-export const TARGETS = hub`/targets`;
-export const TASKGROUPS = hub`/taskgroups`;
-export const TICKETS = hub`/tickets`;
-export const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
-export const TRACKER_PROJECTS = "projects"; // TODO: ????
-export const TRACKERS = hub`/trackers`;
+const REVIEWS = hub`/reviews`;
+const SETTINGS = hub`/settings`;
+const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
+const STAKEHOLDERS = hub`/stakeholders`;
+const TAG_CATEGORIES = hub`/tagcategories`;
+const TAGS = hub`/tags`;
+const TARGETS = hub`/targets`;
+const TASKGROUPS = hub`/taskgroups`;
+const TICKETS = hub`/tickets`;
+const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
+const TRACKER_PROJECTS = "projects"; // TODO: ????
+const TRACKERS = hub`/trackers`;
 
 export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
   json: {
@@ -139,13 +134,6 @@ export const getHubPaginatedResult = <T>(
 //       file under the rest folder.  Typically the query hooks and onSuccess/onError
 //       handlers will need to be updated.
 // ----------
-
-export const getApplicationAdoptionPlan = (applicationIds: number[]) => {
-  return axios.post<ApplicationAdoptionPlan[]>(
-    `${REPORT}/adoptionplan`,
-    applicationIds.map((f) => ({ applicationId: f }))
-  );
-};
 
 // ---------------------------------------
 // Reviews

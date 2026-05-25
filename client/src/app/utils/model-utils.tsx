@@ -1,110 +1,16 @@
 import {
   Application,
-  BusinessService,
   IdRef,
   Identity,
   IdentityKind,
   IssueManagerKind,
-  JobFunction,
   Ref,
-  Stakeholder,
-  StakeholderGroup,
   TagCategory,
-  TagRef,
 } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar";
 
-interface IModel {
-  id?: string | number;
-}
-
-export const isIModelEqual = (a: IModel, b: IModel) => a.id === b.id;
-
-// Business service dropdown
-
-export interface IBusinessServiceDropdown
-  extends Pick<BusinessService, "id" | "name"> {}
-
-export const toIBusinessServiceDropdown = (
-  value: BusinessService
-): IBusinessServiceDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-// Identity dropdown
-export interface IdentityDropdown extends Pick<Identity, "id" | "name"> {}
-
-export const toIdentityDropdown = (value: Identity): IdentityDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-// Stakeholder dropdown
-
-export interface IStakeholderDropdown
-  extends Pick<Stakeholder, "id" | "name" | "email"> {}
-
-export const toIStakeholderDropdown = (
-  value: Stakeholder | undefined
-): IStakeholderDropdown => ({
-  id: value?.id || 0,
-  name: value?.name || "",
-  email: value?.email || "",
-});
-
-// Stakeholder group dropdown
-
-export interface IStakeholderGroupDropdown
-  extends Pick<StakeholderGroup, "id" | "name"> {}
-
-export const toIStakeholderGroupDropdown = (
-  value: StakeholderGroup
-): IStakeholderGroupDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-// Job function dropdown
-
-export interface IJobFunctionDropdown
-  extends Pick<JobFunction, "id" | "name"> {}
-
-export const toIJobFunctionDropdown = (
-  value: JobFunction
-): IJobFunctionDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-// TagCategory
-
 export interface ITagCategoryDropdown
   extends Pick<TagCategory, "id" | "name"> {}
-
-export const toITagCategoryDropdown = (
-  value: TagCategory
-): ITagCategoryDropdown => ({
-  id: value.id,
-  name: value.name,
-});
-
-// Tag
-
-export interface ITagDropdown extends Pick<TagRef, "id" | "name" | "source"> {}
-
-export const toITagDropdown = (value: TagRef): ITagDropdown => ({
-  id: value.id,
-  name: value.name,
-  source: value?.source || "",
-});
-
-// Simple dropdown
-
-export interface ISimpleOptionDropdown<T> {
-  key: T;
-  name: string;
-}
 
 export const getKindIdByRef = (
   identities: Identity[],

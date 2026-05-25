@@ -25,13 +25,13 @@ export interface JiraIssue {
   fields: JiraIssueFields;
 }
 
-export interface JiraIssueFields {
+interface JiraIssueFields {
   summary: string;
   issuetype: JiraIssueType;
   reporter: JiraIssueReporter;
 }
 
-export interface JiraIssueReporter {
+interface JiraIssueReporter {
   self: string;
   accountId: string;
   emailAddress: string;

@@ -3,8 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { isRWXSupported } from "@app/Constants";
 import { deleteCache, getCache } from "@app/api/rest";
 
-export const CacheQueryKey = "cache";
-export const CleanProgressQueryKey = "cleanProgress";
+const CacheQueryKey = "cache";
 
 export const useFetchCache = () =>
   useQuery({

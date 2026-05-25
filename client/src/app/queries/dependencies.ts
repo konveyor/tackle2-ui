@@ -10,8 +10,8 @@ import {
 import { getAppDependencies, getDependencies } from "@app/api/rest";
 import { useWithUiId } from "@app/utils/query-utils";
 
-export const DependenciesQueryKey = "dependencies";
-export const AppDependenciesQueryKey = "appDependencies";
+const DependenciesQueryKey = "dependencies";
+const AppDependenciesQueryKey = "appDependencies";
 
 export const useFetchDependencies = (
   params: HubRequestParams = {},

@@ -6,7 +6,7 @@ import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 import QuestionnairesTable from "./questionnaires-table";
 
-export interface AssessmentActionsTableProps {
+interface AssessmentActionsTableProps {
   application?: Application;
   archetype?: Archetype;
 }

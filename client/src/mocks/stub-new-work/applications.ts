@@ -34,7 +34,7 @@ export const mockApplicationArray: Application[] = [
   },
 ];
 
-export const handlers = [
+const handlers = [
   // Commented out to avoid conflict with the real API
   rest.get(hub`/applications`, (req, res, ctx) => {
     return res(ctx.json(mockApplicationArray));

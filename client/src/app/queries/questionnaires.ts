@@ -14,7 +14,7 @@ import {
 } from "@app/api/rest";
 
 export const QuestionnairesQueryKey = "questionnaires";
-export const QuestionnaireByIdQueryKey = "questionnaireById";
+const QuestionnaireByIdQueryKey = "questionnaireById";
 
 /**
  * For a Questionnaire, walk the structure and sort lists by order if the items
@@ -133,9 +133,7 @@ export const useCreateQuestionnaireMutation = (
   };
 };
 
-export const downloadQuestionnaire = async (
-  id: number | string
-): Promise<void> => {
+const downloadQuestionnaire = async (id: number | string): Promise<void> => {
   const url = `${QUESTIONNAIRES}/${id}`;
 
   try {

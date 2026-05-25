@@ -37,7 +37,7 @@ import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
-export interface FormValues {
+interface FormValues {
   source: number | null;
   maven: number | null;
   asset: number | null;

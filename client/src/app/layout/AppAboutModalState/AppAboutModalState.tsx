@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { AppAboutModal } from "../AppAboutModal";
 
-export interface ChildrenProps {
+interface ChildrenProps {
   isOpen: boolean;
   toggleModal: () => void;
 }

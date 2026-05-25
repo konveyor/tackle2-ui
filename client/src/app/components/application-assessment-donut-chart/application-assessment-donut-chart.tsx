@@ -9,54 +9,17 @@ import {
   Assessment,
   AssessmentWithArchetypeApplications,
   IdRef,
-  Section,
 } from "@app/api/models";
 import { useFetchAssessmentsWithArchetypeApplications } from "@app/queries/assessments";
 
-export interface ChartData {
+interface ChartData {
   red: number;
   amber: number;
   green: number;
   unknown: number;
 }
 
-export const getChartDataFromCategories = (
-  categories: Section[]
-): ChartData => {
-  let green = 0;
-  let amber = 0;
-  let red = 0;
-  let unknown = 0;
-
-  categories
-    .flatMap((f) => f.questions)
-    .flatMap((f) => f.answers)
-    .filter((f) => f.selected === true)
-    .forEach((f) => {
-      switch (f.risk.toLowerCase()) {
-        case "green":
-          green++;
-          break;
-        case "yellow":
-          amber++;
-          break;
-        case "red":
-          red++;
-          break;
-        default:
-          unknown++;
-      }
-    });
-
-  return {
-    red,
-    amber,
-    green,
-    unknown,
-  } as ChartData;
-};
-
-export const getChartDataFromMultipleAssessments = (
+const getChartDataFromMultipleAssessments = (
   assessments: Assessment[]
 ): ChartData => {
   let green = 0,

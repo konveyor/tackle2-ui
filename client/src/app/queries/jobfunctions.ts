@@ -9,7 +9,7 @@ import {
   updateJobFunction,
 } from "@app/api/rest";
 
-export const JobFunctionsQueryKey = "jobfunctions";
+const JobFunctionsQueryKey = "jobfunctions";
 
 export const useFetchJobFunctions = (
   refetchInterval: number | false = false

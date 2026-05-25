@@ -22,7 +22,7 @@ import { ReviewFields } from "@app/components/detail-drawer/review-fields";
 import { TabDetailsContent } from "./tab-details-content";
 import { TabTargetProfiles } from "./tab-target-profiles";
 
-export interface IArchetypeDetailDrawerProps {
+interface IArchetypeDetailDrawerProps {
   onCloseClick: () => void;
   archetype: Archetype | null;
 }

@@ -5,7 +5,6 @@ export const singleAppDropList =
 export const rightSideBar = "div.pf-v6-c-drawer__panel-main";
 export const affectedFilesTable = "table[aria-label='Affected files table']";
 export enum singleApplicationColumns {
-  issue = 'td[data-label="Issue"]',
   category = 'td[data-label="Category"]',
   source = 'td[data-label="Source"]',
   target = 'td[data-label="Target(s)"]',

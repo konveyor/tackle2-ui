@@ -15,8 +15,8 @@ import {
 import { TicketsQueryKey } from "./tickets";
 
 export const TrackersQueryKey = "trackers";
-export const TrackerProjectsQueryKey = "trackerProjects";
-export const TrackerProjectIssuetypesQueryKey = "trackerProjectIssuetypes";
+const TrackerProjectsQueryKey = "trackerProjects";
+const TrackerProjectIssuetypesQueryKey = "trackerProjectIssuetypes";
 
 export const useFetchTrackers = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
@@ -85,7 +85,7 @@ export const useDeleteTrackerMutation = (
   });
 };
 
-export const useFetchTrackerProjects = (
+const useFetchTrackerProjects = (
   trackerId?: number,
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
 ) => {
@@ -107,7 +107,7 @@ export const useFetchTrackerProjects = (
   };
 };
 
-export const useFetchTrackerProjectIssuetypes = (
+const useFetchTrackerProjectIssuetypes = (
   trackerId?: number,
   projectId?: string,
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

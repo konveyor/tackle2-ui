@@ -5,7 +5,7 @@ import { SourcePlatform, TaskDashboard } from "@app/api/models";
 import { useFetchPlatforms } from "@app/queries/platforms";
 import { TaskStates, useFetchTaskDashboard } from "@app/queries/tasks";
 
-export interface TasksGroupedByKind {
+interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];
 }
 

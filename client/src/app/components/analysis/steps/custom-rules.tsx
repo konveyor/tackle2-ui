@@ -31,7 +31,7 @@ import { buildSetOfTargetLabels } from "@app/utils/upload-file-utils";
 import CustomRulesTable from "../components/custom-rules-table";
 import { UploadRulesFiles } from "../components/upload-rules-files";
 
-export interface CustomRulesStepValues {
+interface CustomRulesStepValues {
   rulesKind: "manual" | "repository";
   customRulesFiles: UploadFile[];
   customLabels: TargetLabel[];
@@ -46,7 +46,7 @@ export interface CustomRulesStepState extends CustomRulesStepValues {
   isValid: boolean;
 }
 
-export const useCustomRulesSchema = ({
+const useCustomRulesSchema = ({
   isCustomRuleRequired,
 }: {
   isCustomRuleRequired: boolean;

@@ -1,7 +1,5 @@
 import { categoryProvider, filterToggle } from "../types/filter-categories";
 
-export const sourcesToggle = "#sources-toggle";
-export const sourcesList = "ul#formSources-id.pf-v6-c-select__menu";
 export const CustomMigrationTargetView = {
   createSubmitButton: "button[id='identity-form-submit']:contains('Create')",
   editSubmitButton: "button[id='identity-form-submit']:contains('Save')",

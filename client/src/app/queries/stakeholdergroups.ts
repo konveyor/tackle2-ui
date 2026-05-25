@@ -10,7 +10,7 @@ import {
   updateStakeholderGroup,
 } from "@app/api/rest";
 
-export const StakeholderGroupsQueryKey = "stakeholderGroups";
+const StakeholderGroupsQueryKey = "stakeholderGroups";
 
 export const useFetchStakeholderGroups = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

@@ -7,7 +7,7 @@ import { useFetchQuestionnaires } from "@app/queries/questionnaires";
 
 import QuestionnairesTable from "../../assessment-actions/components/questionnaires-table";
 
-export interface ViewArchetypesTableProps {
+interface ViewArchetypesTableProps {
   archetypeRef?: Ref | null;
 }
 

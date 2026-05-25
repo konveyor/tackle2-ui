@@ -55,5 +55,3 @@ export const DownloadButton: React.FC<IDownloadButtonProps> = ({
     </>
   );
 };
-
-export default DownloadButton;

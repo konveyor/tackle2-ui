@@ -37,7 +37,7 @@ import { arrayToParameters, parametersToArray } from "../../utils";
 import { GeneratorFormRepository as GeneratorRepositorySection } from "./generator-form-repository";
 import { GeneratorFormValues as GeneratorValuesSection } from "./generator-form-values";
 
-export interface GeneratorFormValues {
+interface GeneratorFormValues {
   kind: string;
   name: string;
   description?: string;

@@ -4,12 +4,12 @@ interface BaseOptionProps {
   tooltip?: string | (() => string);
 }
 
-export interface GroupedAutocompleteOptionProps extends BaseOptionProps {
+interface GroupedAutocompleteOptionProps extends BaseOptionProps {
   uniqueId: string;
   group?: string;
 }
 
-export interface AutocompleteOptionProps extends BaseOptionProps {
+interface AutocompleteOptionProps extends BaseOptionProps {
   id: number;
 }
 

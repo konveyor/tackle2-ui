@@ -33,7 +33,7 @@ import { KindSourceForm } from "./kind-source-form";
 
 import "./identity-form.css";
 
-export type UserCredentials = "userpass" | "source";
+type UserCredentials = "userpass" | "source";
 
 interface IdentityFormValues {
   name: string;

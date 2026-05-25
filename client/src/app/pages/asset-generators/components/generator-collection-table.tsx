@@ -18,7 +18,7 @@ interface GeneratorCollectionItem {
   value: string;
 }
 
-export interface GeneratorCollectionTableProps {
+interface GeneratorCollectionTableProps {
   collection?: GeneratorCollectionItem[];
 }
 

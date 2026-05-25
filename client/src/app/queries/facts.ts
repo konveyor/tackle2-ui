@@ -5,7 +5,7 @@ import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { Fact } from "@app/api/models";
 import { getFacts } from "@app/api/rest";
 
-export const FactsQueryKey = "facts";
+const FactsQueryKey = "facts";
 
 export const useFetchFacts = (
   applicationID: number | string | undefined,

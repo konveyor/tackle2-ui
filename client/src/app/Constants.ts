@@ -36,8 +36,6 @@ export const isAuthRequired = ENV.AUTH_REQUIRED !== "false";
 export const uploadLimit = ENV.UI_INGRESS_PROXY_BODY_SIZE || "500m";
 export const isRWXSupported = ENV.RWX_SUPPORTED === "true";
 
-export const DEFAULT_SELECT_MAX_HEIGHT = 200;
-
 export const isDevtoolsEnabled = ENV.DEVTOOLS === "on";
 
 /**
@@ -257,22 +255,6 @@ export const EFFORT_ESTIMATE_LIST: EffortEstimateListType = {
 };
 
 // Application toolbar
-
-export enum ApplicationFilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  BUSINESS_SERVICE = "business_service",
-  TAG = "tag",
-}
-
-// Identity toolbar
-
-export enum IdentityFilterKey {
-  NAME = "name",
-  DESCRIPTION = "description",
-  KIND = "kind",
-  CREATEUSER = "createuser",
-}
 
 export enum LocalStorageKey {
   selectedPersona = "selectedPersona",

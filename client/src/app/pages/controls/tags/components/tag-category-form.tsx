@@ -28,7 +28,7 @@ import {
 } from "@app/queries/tags";
 import { duplicateNameCheck } from "@app/utils/utils";
 
-export interface FormValues {
+interface FormValues {
   name: string;
   color: string | null;
 }

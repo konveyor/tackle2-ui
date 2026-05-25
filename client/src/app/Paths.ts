@@ -83,7 +83,7 @@ export const AdminPaths = {
 
 export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];
 
-export const GeneralPaths = {
+const GeneralPaths = {
   base: "/",
   notFound: "/not-found",
 } as const;
@@ -102,10 +102,6 @@ export const Paths = {
   ...UniversalPaths,
 } as const;
 
-export interface AssessmentRoute {
-  assessmentId: string;
-}
-
 export interface AssessmentActionsRoute {
   applicationId?: string;
   archetypeId?: string;
@@ -123,11 +119,6 @@ export interface ReviewRoute {
 
 export interface ImportSummaryRoute {
   importId: string;
-}
-
-export interface AnalysisDetailsRoute {
-  applicationId: string;
-  taskId: string;
 }
 
 export interface AnalysisDetailsAttachmentRoute {
