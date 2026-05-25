@@ -52,6 +52,7 @@ const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
 const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
 export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
 const ASSESSMENTS = hub`/assessments`;
+export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
 const REVIEWS = hub`/reviews`;

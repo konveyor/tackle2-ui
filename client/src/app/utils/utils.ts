@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import gitUrlParse from "git-url-parse";
-import { MenuToggleProps } from "@patternfly/react-core";
+import { MenuToggleProps, ToolbarLabel } from "@patternfly/react-core";
 
 import {
   AdminPathValues,
@@ -34,6 +34,12 @@ export const getAxiosErrorMessage = (axiosError: AxiosError) => {
   }
 
   return axiosError.message || "Network error";
+};
+
+// ToolbarChip
+
+export const getToolbarChipKey = (value: string | ToolbarLabel) => {
+  return typeof value === "string" ? value : value.key;
 };
 
 // Dates
@@ -126,6 +132,10 @@ export const getToggleStatusFromErrors = (
 ): MenuToggleProps["status"] => {
   const validated = getValidatedFromErrors(error, dirty, isTouched);
   return validated === "error" ? "danger" : undefined;
+};
+
+export const getValidatedFromError = (error: unknown | undefined) => {
+  return error ? "error" : "default";
 };
 
 export const standardStrictURLRegex =

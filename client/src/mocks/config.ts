@@ -16,7 +16,7 @@ import { ENV } from "@app/env";
 /**
  * Parse the provided MOCK configuration string and return a configuration object.
  */
-function parseMock(str?: string): {
+export function parseMock(str?: string): {
   enabled: boolean;
   passthrough: boolean;
   stub: boolean | "*" | string[];

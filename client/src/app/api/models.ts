@@ -783,7 +783,7 @@ export interface Questionnaire {
   updateUser?: string;
 }
 
-interface RiskMessages {
+export interface RiskMessages {
   green: string;
   red: string;
   unknown: string;

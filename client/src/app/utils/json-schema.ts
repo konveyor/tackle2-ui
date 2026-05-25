@@ -77,7 +77,7 @@ const ANNOTATION_KEYWORDS = new Set([
  * @param schema The schema (or sub-schema) to strip.
  * @returns A new object containing only the functional keywords.
  */
-function stripAnnotations<T>(schema: T): T {
+export function stripAnnotations<T>(schema: T): T {
   // Base case: not an object or null, return as-is
   if (typeof schema !== "object" || schema === null) {
     return schema;
@@ -101,6 +101,23 @@ function stripAnnotations<T>(schema: T): T {
 
   return strippedSchema as T;
 }
+
+/**
+ * Checks if an incoming JSON schema is functionally equivalent to
+ * another JSON schema.
+ */
+export const isEquivalentSchema = (
+  schemaA: JsonSchemaObject,
+  schemaB: JsonSchemaObject
+): boolean => {
+  // 1. Strip annotations from the incoming schema
+  const functionalSchemaA = stripAnnotations(schemaA);
+  const functionalSchemaB = stripAnnotations(schemaB);
+
+  // 2. Deep-compare the two functional schemas.
+  // `isEqual` handles deep comparison and is not sensitive to key order.
+  return isEqual(functionalSchemaA, functionalSchemaB);
+};
 
 /**
  * Generates a validator function that checks if an incoming JSON schema is functionally equivalent to
