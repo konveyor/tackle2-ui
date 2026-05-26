@@ -20,7 +20,7 @@ import {
   clickKebabMenuOptionArchetype,
   confirm,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -181,7 +181,7 @@ export class Archetype {
     cancel = false
   ): void {
     Archetype.open();
-    performRowActionByIcon(this.name, commonView.pencilAction);
+    performRowActionBySelector(this.name, commonView.pencilAction);
 
     if (cancel) {
       cancelForm();

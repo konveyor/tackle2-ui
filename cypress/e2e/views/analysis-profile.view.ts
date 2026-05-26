@@ -23,7 +23,7 @@ export const description = "#analysis-profile-description";
 export const createProfileButton = "#create-analysis-profile";
 export const cancelButton = "div.pf-v6-c-wizard__footer-cancel";
 export const submitButton = 'button[type="submit"]';
-export const pencilAction = '[id^="pencil-action"]';
+export const pencilAction = '[data-ouia-component-id="pencil-action"]';
 
 // Language and target selectors
 export const languageListbox = `${filterToggleListbox(categoryProvider)} > li`;

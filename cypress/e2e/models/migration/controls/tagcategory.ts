@@ -22,7 +22,7 @@ import {
   closeSuccessAlert,
   confirm,
   exists,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -151,7 +151,7 @@ export class TagCategory {
 
   edit(updatedValue: { name?: string; color?: string }, cancel = false): void {
     TagCategory.openList();
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
     if (cancel) {
       cancelForm();
     } else {

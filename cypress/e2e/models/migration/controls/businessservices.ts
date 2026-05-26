@@ -22,7 +22,7 @@ import {
   goToPage,
   inputText,
   notExists,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -161,7 +161,7 @@ export class BusinessServices {
     cancel = false
   ): void {
     BusinessServices.openList();
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
 
     if (cancel) {
       cancelForm();

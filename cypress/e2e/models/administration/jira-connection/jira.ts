@@ -6,7 +6,7 @@ import {
   enableSwitch,
   inputText,
   notExists,
-  performRowAction,
+  performRowActionBySelector,
   selectFromDropList,
   selectItemsPerPage,
   selectUserPerspective,
@@ -19,8 +19,6 @@ import {
   SEC,
   administration,
   button,
-  deleteAction,
-  editAction,
   tdTag,
   trTag,
 } from "../../../types/constants";
@@ -36,6 +34,8 @@ import {
   confirmCancelButton,
   filteredBy,
   navLink,
+  pencilAction,
+  trashAction,
 } from "../../../views/common.view";
 import {
   createJiraButton,
@@ -176,7 +176,7 @@ export class Jira {
     toBeCanceled = false
   ): void {
     Jira.openList();
-    performRowAction(this.name, editAction);
+    performRowActionBySelector(this.name, pencilAction);
     const oldValues = this.storeOldValues();
     this.init(jiraConnectionData);
     this.fillName();
@@ -201,7 +201,7 @@ export class Jira {
    */
   public delete(toBeCanceled = false): void {
     Jira.openList();
-    performRowAction(this.name, deleteAction);
+    performRowActionBySelector(this.name, trashAction);
     if (toBeCanceled) {
       click(confirmCancelButton);
     } else {

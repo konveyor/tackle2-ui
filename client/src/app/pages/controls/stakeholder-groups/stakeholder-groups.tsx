@@ -233,7 +233,7 @@ export const StakeholderGroups: React.FC = () => {
                     width={25}
                   />
                   <Th {...getThProps({ columnKey: "count" })} width={40} />
-                  <Th screenReaderText="row actions" width={10} />
+                  <Th screenReaderText={t("actions.rowActions")} width={10} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -290,6 +290,7 @@ export const StakeholderGroups: React.FC = () => {
                             {stakeholderGroup.stakeholders?.length}
                           </Td>
                           <ControlTableActionsColumn
+                            isDeleteEnabled
                             onEdit={() =>
                               setCreateUpdateModalState(stakeholderGroup)
                             }

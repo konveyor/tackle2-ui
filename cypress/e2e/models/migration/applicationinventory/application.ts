@@ -25,7 +25,7 @@ import {
   doesExistText,
   inputText,
   isElementExpanded,
-  performRowActionByIcon,
+  performRowActionBySelector,
   performWithin,
   selectFormItems,
   selectItemsPerPage,
@@ -76,7 +76,6 @@ import {
   artifact,
   branch,
   group,
-  kebabMenu,
   northdependenciesChipGroup,
   northdependenciesDropdownBtn,
   northdependenciesSelectListbox,
@@ -303,7 +302,7 @@ export class Application {
     if (updateAppInfo) {
       this.editApplicationFromApplicationProfile();
     } else {
-      performRowActionByIcon(this.name, commonView.pencilAction);
+      performRowActionBySelector(this.name, commonView.pencilAction);
     }
 
     if (cancel) {
@@ -360,7 +359,7 @@ export class Application {
 
   removeBusinessService(): void {
     cy.wait(2000);
-    performRowActionByIcon(this.name, commonView.pencilAction);
+    performRowActionBySelector(this.name, commonView.pencilAction);
     cy.get(applicationBusinessServiceClearButton).click();
     submitForm();
   }
@@ -486,13 +485,13 @@ export class Application {
 
   public validateAssessButton(rbacRules: RbacValidationRules) {
     Application.open();
-    performRowActionByIcon(this.name, kebabMenu);
+    performRowActionBySelector(this.name, commonView.kebabToggleButton);
     doesExistButton(assessAppButton, rbacRules["Assess"]);
   }
 
   public validateReviewButton(rbacRules: RbacValidationRules) {
     Application.open();
-    performRowActionByIcon(this.name, kebabMenu);
+    performRowActionBySelector(this.name, commonView.kebabToggleButton);
     doesExistButton(reviewAppButton, rbacRules["Review"]);
   }
 
@@ -833,7 +832,7 @@ export class Application {
   // Opens the manage dependencies dialog from application inventory page
   openManageDependencies(): void {
     Application.open();
-    performRowActionByIcon(this.name, kebabMenu);
+    performRowActionBySelector(this.name, commonView.kebabToggleButton);
     clickByText(button, "Manage dependencies");
     cy.get(northdependenciesDropdownBtn, { timeout: 30 * SEC })
       .should("be.visible")

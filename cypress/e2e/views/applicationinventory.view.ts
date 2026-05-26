@@ -4,6 +4,8 @@ import {
   filterToggleInput,
 } from "../types/filter-categories";
 
+import { kebabToggleButton } from "./common.view";
+
 /*
 Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
 
@@ -65,14 +67,12 @@ export const date = "Import Time";
 export const importStatus = "Status";
 export const selectBox = "input[type=checkbox]";
 export const user = "User";
-export const kebabMenu = "#row-actions";
 export const bulkApplicationSelectionCheckBox =
   "input[name='bulk-selected-items-checkbox']";
 export const profileEdit = ".pf-m-1-col > .pf-v6-c-button";
 export const appContributorSelect = "#contributors-select-toggle-input";
 export const appSelectionButton = "button.pf-v6-c-menu-toggle__button";
-// This is on the Application imports page.
-export const sideKebabMenu = "button[aria-label='Kebab toggle']";
+export const sideKebabMenu = kebabToggleButton;
 
 //Fields related to analysis - source mode
 export const sourceRepository = "input[id=sourceRepository]";

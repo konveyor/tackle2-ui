@@ -13,19 +13,9 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  IAction,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Identity } from "@app/api/models";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
@@ -39,6 +29,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { useIdentityKind } from "@app/hooks/useIdentityKind";
 import { useIdentityKindDefaults } from "@app/hooks/useIdentityKindDefaults";
@@ -50,7 +41,7 @@ import {
 } from "@app/queries/identities";
 import { useFetchTargets } from "@app/queries/targets";
 import { useFetchTrackers } from "@app/queries/trackers";
-import { filterAndAddSeparator } from "@app/utils/grouping";
+import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { DefaultLabel } from "./components/DefaultLabel";
@@ -236,8 +227,7 @@ export const Identities: React.FC = () => {
                     />
                     <Th width={25} {...getThProps({ columnKey: "type" })} />
                     <Th {...getThProps({ columnKey: "createdBy" })} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -310,27 +300,39 @@ export const Identities: React.FC = () => {
                           {identity.createUser}
                         </Td>
 
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              id="edit-action"
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() =>
-                                setCreateUpdateModalState(identity)
-                              }
-                            />
-                          </Tooltip>
-                        </Td>
-                        <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={filterAndAddSeparator<IAction>(
-                              (_index) => ({ isSeparator: true }),
+                        <Td isActionCell>
+                          <OverflowActionMenu
+                            toggleId="row-actions"
+                            toggleAriaLabel={t("actions.rowActions")}
+                            items={addSeparatorForOverflow(
+                              (index, isShared) => ({
+                                isSeparator: true,
+                                itemKey: `separator-${index}`,
+                                isShared,
+                              }),
                               [
+                                [
+                                  {
+                                    title: t("actions.edit"),
+                                    "aria-label": t("actions.edit"),
+                                    variant: "plain",
+                                    icon: <PencilAltIcon />,
+                                    itemKey: "edit",
+                                    isShared: true,
+                                    ouiaId: "pencil-action",
+                                    useOnlyIconWhenShared: true,
+                                    tooltipProps: {
+                                      content: t("actions.edit"),
+                                    },
+                                    onClick: () =>
+                                      setCreateUpdateModalState(identity),
+                                  },
+                                ],
                                 [
                                   identityMeta[identity.id]
                                     .okToSetAsDefault && {
                                     title: t("actions.setAsDefault"),
+                                    itemKey: "setAsDefault",
                                     onClick: () => {
                                       if (defaultIdentities[identity.kind]) {
                                         setIdentityToDefault(identity);
@@ -346,6 +348,7 @@ export const Identities: React.FC = () => {
                                   identityMeta[identity.id]
                                     .okToRemoveDefault && {
                                     title: t("actions.removeDefault"),
+                                    itemKey: "removeDefault",
                                     onClick: () => {
                                       setIdentityToRemoveDefault(identity);
                                     },
@@ -355,6 +358,7 @@ export const Identities: React.FC = () => {
                                   {
                                     isDanger: true,
                                     title: t("actions.delete"),
+                                    itemKey: "delete",
                                     onClick: () => {
                                       setIdentityToDelete(identity);
                                     },

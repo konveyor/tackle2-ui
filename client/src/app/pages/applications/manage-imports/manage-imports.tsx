@@ -236,7 +236,7 @@ export const ManageImports: React.FC = () => {
                     <Th {...getThProps({ columnKey: "importStatus" })} />
                     <Th {...getThProps({ columnKey: "validCount" })} />
                     <Th {...getThProps({ columnKey: "invalidCount" })} />
-                    <Th screenReaderText="row actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
