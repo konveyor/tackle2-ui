@@ -49,6 +49,8 @@ export const itemsSelectInsideDialog =
 export const helperBusiness = 'span[class*="helper-text__item"]';
 export const stakeHolderGroupHelper = "div.pf-v6-c-helper-text";
 export const actionMenuItem = "span.pf-v6-c-menu__item-text";
+export const manageImportsActionsButton =
+  "button[aria-label='Table toolbar actions kebab toggle']";
 export const kebabActionButton = "li.pf-v6-c-menu__list-item";
 export const commonTable = "table.pf-v6-c-table.pf-m-grid-md";
 export const tableRowActions = ".pf-v6-c-table__tr.actions-row";
