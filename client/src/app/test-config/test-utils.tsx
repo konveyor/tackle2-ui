@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 
 import { Application, Archetype, Assessment } from "@app/api/models";
+import { AuthProvider } from "@app/auth";
 import {
   INotification,
   NotificationsContext,
@@ -42,11 +43,13 @@ const AllTheProviders: FC<{
   const notificationValue = notifications || createMockNotifications();
 
   return (
-    <QueryClientProvider client={internalQueryClient}>
-      <NotificationsContext.Provider value={notificationValue}>
-        {children}
-      </NotificationsContext.Provider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={internalQueryClient}>
+        <NotificationsContext.Provider value={notificationValue}>
+          {children}
+        </NotificationsContext.Provider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 };
 
