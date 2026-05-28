@@ -1,18 +1,3 @@
-/**
- * A small developer tool rendered inside the SsoToolbarItem when AUTH_REQUIRED
- * is false. Mimics the react-query devtools pattern: visible in dev mode only,
- * absent from production builds.
- *
- * The panel appears as an avatar/user icon in the masthead. Clicking it opens
- * a dropdown that lets the developer switch the masquerade persona (admin,
- * architect, migrator) without restarting the dev server. Changing the persona
- * updates React state via useMasqueradeDispatch, which cascades through the
- * auth context so all RBAC checks re-evaluate without a page reload.
- *
- * This component is only rendered when isAuthRequired === false. The guard lives
- * in SsoToolbarItem — this file can be tree-shaken in prod builds.
- */
-
 import { useState } from "react";
 import * as React from "react";
 import {
@@ -33,6 +18,16 @@ import {
   getCurrentPreset,
 } from "./masquerade";
 
+/**
+ * Developer toolbar item for the MasqueradeAuthStrategy.
+ *
+ * The toolbar item appears as an avatar/user icon in the masthead. Clicking it opens
+ * a dropdown that lets the developer switch the masquerade persona (admin,
+ * architect, migrator) without restarting the dev server.
+ *
+ * Since the MasqueradeAuthStrategy is only selected when NODE_ENV !== "production", this
+ * file is tree-shaken from production bundles.
+ */
 export const MasqueradeDevPanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentPreset, setCurrentPreset] = useState<MasqueradePreset | null>(

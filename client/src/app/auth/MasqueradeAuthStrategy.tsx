@@ -1,21 +1,3 @@
-/**
- * MasqueradeAuthStrategy — development builds where AUTH_REQUIRED is false.
- *
- * Strategy contract: renders children inside AuthStateContext.Provider with a
- * fully-resolved AuthState. Reads roles and scopes from masquerade.ts, which
- * consults localStorage overrides and build-time env vars in that order,
- * defaulting to admin-level access.
- *
- * This strategy pairs with MasqueradeDevPanel in the toolbar: the dev panel
- * calls the dispatch function from MasqueradeDispatchContext to switch
- * personas. Because roles/scopes are held in React state, all context
- * consumers (useAuth, useHasRealmRoles, etc.) re-render automatically —
- * no page reload required.
- *
- * This file is only ever selected when NODE_ENV !== "production", so it is
- * effectively dead code in production bundles.
- */
-
 import {
   Suspense,
   createContext,
@@ -29,6 +11,7 @@ import * as React from "react";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
+import { MasqueradeDevPanel } from "./MasqueradeDevPanel";
 import {
   MASQUERADE_PRESETS,
   MasqueradePreset,
@@ -58,6 +41,27 @@ export const useMasqueradeDispatch = (): MasqueradeDispatchFn => {
   return dispatch;
 };
 
+/**
+ * Auth strategy for development builds where AUTH_REQUIRED is false.
+ *
+ * :important: Note: Masquerade only applies to UI code and is not used for API requests.
+ * With auth disabled, all API requests are understood by the backend as being made with
+ * the admin role.
+ *
+ * Strategy contract: renders children inside AuthStateContext.Provider with a
+ * fully-resolved AuthState. Reads roles and scopes from masquerade.ts, which
+ * consults localStorage overrides and build-time env vars in that order,
+ * defaulting to admin-level access.
+ *
+ * This strategy provides MasqueradeDevPanel as its ToolbarContent. The dev
+ * panel calls the dispatch function from MasqueradeDispatchContext to switch
+ * personas. Because roles/scopes are held in React state, all context
+ * consumers (useAuth, useHasRealmRoles, etc.) re-render automatically —
+ * no page reload required.
+ *
+ * Since the MasqueradeAuthStrategy is only selected when NODE_ENV !== "production", this
+ * file is tree-shaken from production bundles.
+ */
 export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
   children,
 }) => {
@@ -80,6 +84,7 @@ export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
       signIn: () => undefined,
       signOut: () => undefined,
       manageAccount: () => undefined,
+      ToolbarContent: MasqueradeDevPanel,
     }),
     [roles, scopes]
   );

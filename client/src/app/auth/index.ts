@@ -5,7 +5,6 @@
  */
 
 export { AuthProvider } from "./AuthProvider";
-export { MasqueradeDevPanel } from "./MasqueradeDevPanel";
 export {
   useAuth,
   useHasRealmRoles,

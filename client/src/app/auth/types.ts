@@ -1,3 +1,5 @@
+import type { ComponentType } from "react";
+
 /** Realm roles recognized by Tackle. */
 export type TackleRealmRole =
   | "tackle-admin"
@@ -24,4 +26,7 @@ export interface AuthState {
   signOut: () => void;
   /** Open the IdP account-management page. No-op when auth is disabled. */
   manageAccount: () => void;
+
+  /** Strategy-specific toolbar content rendered in the masthead user area. */
+  ToolbarContent: ComponentType | null;
 }

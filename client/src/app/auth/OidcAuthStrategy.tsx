@@ -1,10 +1,4 @@
 /**
- * OidcAuthStrategy — auth-enabled path backed by an OIDC provider via react-oidc-context.
- *
- * Strategy contract: renders children inside AuthStateContext.Provider once a
- * real OIDC session is established. Shows AppPlaceholder while loading or
- * mid-redirect; surfaces an error banner on auth failure.
- *
  * Internal structure:
  *   OidcAuthStrategy  — outer shell, owns the OidcAuthProvider tree and the
  *                       onSigninCallback that strips code/state params from the URL.
@@ -26,6 +20,7 @@ import { initAuthInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
+import { OidcToolbarItem } from "./OidcToolbarItem";
 import type { AuthState } from "./types";
 import { accountManagementUrl, userManager } from "./userManager";
 
@@ -50,6 +45,14 @@ function getRealmRolesFromAccessToken(
   }
 }
 
+/**
+ * This gate is used to determine if the user is authenticated and to redirect
+ * to the OIDC provider if not authenticated and no auth params are present in
+ * the URL (i.e. we are not returning from a redirect).
+ *
+ * It also starts the auth interceptors only after a real authenticated session
+ * is available.
+ */
 const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
   const auth = useOidcAuth();
 
@@ -86,6 +89,7 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
       }),
     manageAccount: () =>
       window.open(accountManagementUrl, "_blank", "noopener"),
+    ToolbarContent: OidcToolbarItem,
   };
 
   // Surface OIDC errors (e.g. failed signinCallback) immediately.
@@ -122,6 +126,13 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
+/**
+ * OidcAuthStrategy — auth-enabled path backed by an OIDC provider via react-oidc-context.
+ *
+ * Strategy contract: renders children inside AuthStateContext.Provider once a
+ * real OIDC session is established. Shows AppPlaceholder while loading or
+ * mid-redirect; surfaces an error banner on auth failure.
+ */
 export const OidcAuthStrategy: React.FC<AuthProviderProps> = ({ children }) => (
   <OidcAuthProvider
     userManager={userManager}
