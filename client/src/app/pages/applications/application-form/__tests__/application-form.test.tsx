@@ -45,26 +45,19 @@ describe("Component: application-form", () => {
 
     // Type in a name -- this is all that should be required right now
     const nameInput = await screen.findByLabelText("Name *");
-    await waitFor(() =>
-      fireEvent.change(nameInput, {
-        target: { value: data.name },
-      })
-    );
-    expect(createButton).toBeEnabled();
+    fireEvent.change(nameInput, { target: { value: data.name } });
+    await waitFor(() => expect(createButton).toBeEnabled());
 
     // select a business service from the mock data
-    await waitFor(() => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: /Business service select dropdown toggle/i,
-        })
-      );
-    });
-    await waitFor(() =>
-      userEvent.click(
-        screen.getByRole("option", { name: data.businessService })
-      )
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Business service select dropdown toggle/i,
+      })
     );
+    const businessServiceOption = await screen.findByRole("option", {
+      name: data.businessService,
+    });
+    await userEvent.click(businessServiceOption);
 
     // open the source code section if it's closed
     const sourceCodeToggle = screen.getByRole("button", {
@@ -72,31 +65,28 @@ describe("Component: application-form", () => {
     });
     expect(sourceCodeToggle).toBeInTheDocument();
     if (sourceCodeToggle.getAttribute("aria-expanded") === "false") {
-      await waitFor(() => {
-        fireEvent.click(sourceCodeToggle);
-      });
+      fireEvent.click(sourceCodeToggle);
     }
     expect(createButton).toBeEnabled();
 
     // select a repository type of 'git'
-    await waitFor(() => {
-      fireEvent.click(
-        screen.getByRole("button", {
-          name: /Type select dropdown toggle/i,
-        })
-      );
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Type select dropdown toggle/i,
+      })
+    );
+    const repoTypeOption = await screen.findByRole("option", {
+      name: data.repoType,
     });
-    await userEvent.click(screen.getByRole("option", { name: data.repoType }));
+    await userEvent.click(repoTypeOption);
     expect(createButton).toBeEnabled();
 
     // type in a valid git repo URL, and the create button should be enabled again
     const sourceRepositoryInput = await screen.findByLabelText(
       "source repository url"
     );
-    await waitFor(() => {
-      fireEvent.change(sourceRepositoryInput, {
-        target: { value: data.repoUrl },
-      });
+    fireEvent.change(sourceRepositoryInput, {
+      target: { value: data.repoUrl },
     });
 
     // Wait for form validation to complete before checking if button is enabled
