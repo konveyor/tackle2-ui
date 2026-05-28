@@ -18,7 +18,7 @@ import { userManager } from "@app/auth/userManager";
 // Guard against duplicate interceptor registration (e.g. React StrictMode double-invoke).
 let _initialized = false;
 
-export const initInterceptors = () => {
+export const initAuthInterceptors = () => {
   if (_initialized) return;
   _initialized = true;
 

@@ -10,10 +10,9 @@
  * production no-auth bundle.
  */
 
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import * as React from "react";
 
-import { initInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
@@ -30,14 +29,8 @@ const NO_AUTH_STATE: AuthState = {
   manageAccount: () => undefined,
 };
 
-export const NoAuthStrategy: React.FC<AuthProviderProps> = ({ children }) => {
-  useEffect(() => {
-    initInterceptors();
-  }, []);
-
-  return (
-    <AuthStateContext.Provider value={NO_AUTH_STATE}>
-      <Suspense fallback={<AppPlaceholder />}>{children}</Suspense>
-    </AuthStateContext.Provider>
-  );
-};
+export const NoAuthStrategy: React.FC<AuthProviderProps> = ({ children }) => (
+  <AuthStateContext.Provider value={NO_AUTH_STATE}>
+    <Suspense fallback={<AppPlaceholder />}>{children}</Suspense>
+  </AuthStateContext.Provider>
+);

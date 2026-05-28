@@ -14,10 +14,9 @@
  * effectively dead code in production bundles.
  */
 
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import * as React from "react";
 
-import { initInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
@@ -27,10 +26,6 @@ import type { AuthState } from "./types";
 export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
   children,
 }) => {
-  useEffect(() => {
-    initInterceptors();
-  }, []);
-
   const authState: AuthState = {
     isLoaded: true,
     isAuthenticated: true,

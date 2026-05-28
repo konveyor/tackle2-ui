@@ -1,1 +1,1 @@
-export { initInterceptors } from "./apiInit";
+export { initAuthInterceptors } from "./apiInit";

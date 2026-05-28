@@ -22,7 +22,7 @@ import {
   useAutoSignin,
 } from "react-oidc-context";
 
-import { initInterceptors } from "@app/axios-config";
+import { initAuthInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
@@ -60,7 +60,7 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
   // Start interceptors only after a real authenticated session is available.
   useEffect(() => {
     if (auth.isAuthenticated) {
-      initInterceptors();
+      initAuthInterceptors();
     }
   }, [auth.isAuthenticated]);
 
