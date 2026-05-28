@@ -4,10 +4,8 @@
  * Request interceptor: attaches the current OIDC access token as a Bearer header.
  *
  * Response interceptor: on 401, attempts a silent token refresh via the OIDC
- * UserManager; retries the request with the new token; redirects to login on failure.
- *
- * When AUTH_REQUIRED is false no token is available, so the Authorization header
- * is simply omitted and 401 responses are passed through unchanged.
+ * UserManager; retries the request once with the new token (guarded by an
+ * `_authRetry` flag to prevent infinite loops); redirects to login on failure.
  */
 
 import axios from "axios";
@@ -19,14 +17,13 @@ import { userManager } from "@app/auth/userManager";
 let _initialized = false;
 
 export const initAuthInterceptors = () => {
+  if (!isAuthRequired) return;
   if (_initialized) return;
   _initialized = true;
 
   // ── Request: attach Bearer token ──────────────────────────────────────────
   axios.interceptors.request.use(
     async (config) => {
-      if (!isAuthRequired) return config;
-
       const user = await userManager.getUser();
       const token = user?.access_token;
       if (token) {
@@ -41,15 +38,19 @@ export const initAuthInterceptors = () => {
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
-      if (!isAuthRequired) return Promise.reject(error);
-
       if (error.response?.status === 401) {
+        if ((error.config as Record<string, unknown>)?._authRetry) {
+          await userManager.signinRedirect();
+          return Promise.reject(error);
+        }
+
         try {
           // signinSilent performs a hidden iframe refresh using the refresh token.
           const refreshedUser = await userManager.signinSilent();
           if (refreshedUser?.access_token) {
             const retryConfig = {
               ...error.config,
+              _authRetry: true,
               headers: {
                 ...error.config.headers,
                 Authorization: `Bearer ${refreshedUser.access_token}`,
@@ -60,6 +61,7 @@ export const initAuthInterceptors = () => {
         } catch {
           // Refresh failed — redirect to login.
           await userManager.signinRedirect();
+          return Promise.reject(error);
         }
       }
       return Promise.reject(error);
