@@ -1,9 +1,8 @@
 /**
- * axios-config/apiInit.ts
- *
- * Centralised Axios interceptors for the Tackle UI.
+ * Centralized Axios interceptors for the Tackle UI.
  *
  * Request interceptor: attaches the current OIDC access token as a Bearer header.
+ *
  * Response interceptor: on 401, attempts a silent token refresh via the OIDC
  * UserManager; retries the request with the new token; redirects to login on failure.
  *

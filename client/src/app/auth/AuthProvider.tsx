@@ -1,18 +1,15 @@
 /**
- * auth/AuthProvider.tsx
+ * The single authentication bootstrap component.
  *
- * Replaces KeycloakProvider.tsx as the single authentication bootstrap component.
- *
- * Behaviour:
+ * Behavior:
  *  - AUTH_REQUIRED === true  → wraps children in AuthProvider from react-oidc-context.
  *                              On mount, if no session exists, automatically redirects
- *                              to Keycloak for login (mirrors the old `onLoad: "login-required"`
- *                              behaviour from @react-keycloak/web).
+ *                              to OIDC provider (e.g. Keycloak) for login.
  *  - AUTH_REQUIRED !== true  → renders children directly; masquerade context is provided
  *                              via the same hook surface (useAuth, useHasRealmRoles, etc.)
  *                              so RBAC-gated components see synthetic roles from localStorage.
  *
- * Axios interceptors are initialised only after the user is authenticated so that the
+ * Axios interceptors are initialized only after the user is authenticated so that the
  * Bearer token is guaranteed to be present on the first API call.
  */
 

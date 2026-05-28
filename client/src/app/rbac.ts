@@ -1,11 +1,9 @@
 /**
- * rbac.ts
- *
- * Role and scope constants for Tackle RBAC.
+ * Role and scope constants for RBAC.
  *
  * The RBAC component and checkAccess utility remain here.
- * Token claims are now sourced from the auth module (useAuth hook) instead of
- * the keycloak singleton directly.
+ *
+ * Token claims are sourced from the auth module (useAuth hook).
  */
 
 import type { ReactNode } from "react";

@@ -1,9 +1,7 @@
 /**
- * auth/masquerade.ts
- *
  * Masquerade support for development environments where AUTH_REQUIRED is false.
  *
- * Allows developers to exercise RBAC-gated UI without a live Keycloak instance
+ * Allows developers to exercise RBAC-gated UI without a live OIDC provider
  * by providing synthetic realm roles and scopes through:
  *   1. Build-time environment variables (MASQUERADE_ROLES, MASQUERADE_SCOPES)
  *   2. Runtime localStorage overrides (gated so they cannot activate when auth is on)

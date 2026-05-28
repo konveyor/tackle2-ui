@@ -1,11 +1,8 @@
 /**
- * auth/userManager.ts
- *
  * Creates and exports a single shared UserManager instance (from oidc-client-ts).
  * The UserManager handles PKCE token storage, refresh, and silent-renew.
  *
- * OIDC authority is derived from the existing env vars so no operator changes
- * are required:
+ * OIDC authority is derived from the env vars:
  *   authority = /auth/realms/{KEYCLOAK_REALM}
  *   client_id = KEYCLOAK_CLIENT_ID
  */
@@ -28,6 +25,7 @@ const settings: UserManagerSettings = {
   response_type: "code", // Authorization Code + PKCE (oidc-client-ts default for SPAs)
   scope: "openid profile email",
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+
   // Automatically try a silent renew 60 s before expiry.
   automaticSilentRenew: true,
 };

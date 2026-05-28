@@ -13,11 +13,3 @@ export {
   useIsArchitect,
 } from "./hooks";
 export type { AuthState, TackleRealmRole } from "./types";
-export {
-  MASQUERADE_PRESETS,
-  clearMasquerade,
-  getCurrentPreset,
-  getMasqueradeRoles,
-  getMasqueradeScopes,
-  setMasqueradePreset,
-} from "./masquerade";
