@@ -7,6 +7,11 @@
  * use these hooks instead. No feature code should import oidc-client-ts or
  * react-oidc-context directly.
  *
+ * The hooks read from AuthStateContext (provided by AuthProvider), which is
+ * populated differently depending on the auth mode:
+ *   - Auth enabled:  live OIDC session data (realm roles decoded from the access token)
+ *   - Auth disabled: masquerade values (synthetic roles from localStorage / env vars)
+ *
  * Hooks:
  *   useAuth()            — full auth state (isLoaded, isAuthenticated, username, signIn/Out…)
  *   useHasRealmRoles()   — true if the current user has ANY of the given roles
@@ -14,35 +19,12 @@
  *   useIsArchitect()     — true if the user is an architect or admin
  */
 
-import { jwtDecode } from "jwt-decode";
-import { useAuth as useOidcAuth } from "react-oidc-context";
+import { useContext } from "react";
 
 import { isAuthRequired } from "@app/Constants";
 
-import { getMasqueradeRoles, getMasqueradeScopes } from "./masquerade";
-import { AuthState } from "./types";
-import { accountManagementUrl, userManager } from "./userManager";
-
-/**
- * Decode realm roles from an OIDC access token.
- *
- * Keycloak puts realm roles in the access token's `realm_access.roles` claim,
- * NOT in the ID token (`user.profile`). We must decode the access token JWT
- * ourselves to retrieve them.
- */
-function getRealmRolesFromAccessToken(
-  accessToken: string | undefined
-): string[] {
-  if (!accessToken) return [];
-  try {
-    const claims = jwtDecode<{ realm_access?: { roles?: string[] } }>(
-      accessToken
-    );
-    return claims.realm_access?.roles ?? [];
-  } catch {
-    return [];
-  }
-}
+import { AuthStateContext } from "./AuthProvider";
+import type { AuthState } from "./types";
 
 // ── useAuth ───────────────────────────────────────────────────────────────────
 
@@ -53,49 +35,14 @@ function getRealmRolesFromAccessToken(
  * All components should use this instead of reaching into oidc-client-ts directly.
  */
 export const useAuth = (): AuthState => {
-  // Always call the OIDC hook (Rules of Hooks) — it's a no-op when AuthProvider
-  // is NoAuthProvider, but calling it conditionally would break hook ordering.
-  const oidcAuth = useOidcAuth();
-
-  if (!isAuthRequired) {
-    // Auth-disabled: return masquerade values through the same shape.
-    return {
-      isLoaded: true,
-      isAuthenticated: true,
-      username: "developer",
-      realmRoles: getMasqueradeRoles(),
-      scopes: getMasqueradeScopes(),
-      signIn: () => undefined,
-      signOut: () => undefined,
-      manageAccount: () => undefined,
-    };
+  const authState = useContext(AuthStateContext);
+  if (!authState) {
+    throw new Error(
+      "useAuth() must be used within <AuthProvider>. " +
+        "Ensure your component tree is wrapped with the AuthProvider from @app/auth."
+    );
   }
-
-  // Auth-enabled: derive state from the OIDC user object.
-  const user = oidcAuth.user ?? null;
-  const profile = user?.profile ?? null;
-
-  // Keycloak puts realm roles in the ACCESS token, not the ID token.
-  // user.profile is the parsed ID token — realm_access is absent there.
-  // Decode the access token JWT directly to get the real roles.
-  const realmRoles: string[] = getRealmRolesFromAccessToken(user?.access_token);
-
-  const scopes: string[] = user?.scope?.split(" ").filter(Boolean) ?? [];
-
-  return {
-    isLoaded: !oidcAuth.isLoading,
-    isAuthenticated: oidcAuth.isAuthenticated,
-    username: profile?.preferred_username ?? profile?.sub ?? "unknown",
-    realmRoles,
-    scopes,
-    signIn: () => userManager.signinRedirect(),
-    signOut: () =>
-      userManager.signoutRedirect({
-        post_logout_redirect_uri: window.location.origin,
-      }),
-    manageAccount: () =>
-      window.open(accountManagementUrl, "_blank", "noopener"),
-  };
+  return authState;
 };
 
 // ── useHasRealmRoles ──────────────────────────────────────────────────────────
@@ -111,7 +58,7 @@ export const useAuth = (): AuthState => {
  */
 export const useHasRealmRoles = (roles: string[]): boolean => {
   const { realmRoles } = useAuth();
-  if (!isAuthRequired) return true; // masquerade default — panel controls specifics
+  if (!isAuthRequired) return true;
   return roles.some((r) => realmRoles.includes(r));
 };
 

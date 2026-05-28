@@ -89,7 +89,7 @@ export const HeaderApp: React.FC = () => {
           </ToolbarItem>
         </ToolbarGroup>
 
-        {/* Show the SSO menu at desktop sizes */}
+        {/* Show the user menu at desktop sizes */}
         <ToolbarGroup
           id="header-toolbar-sso"
           visibility={{

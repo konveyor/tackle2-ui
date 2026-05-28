@@ -1,7 +1,6 @@
 import { useState } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
 import {
   Dropdown,
   DropdownGroup,
@@ -15,7 +14,7 @@ import { LocalStorageKey, isAuthRequired } from "@app/Constants";
 import { MasqueradeDevPanel, useAuth } from "@app/auth";
 
 /**
- * SsoToolbarItem
+ * Show user menu for authenticated users, or the masquerade dev panel for development.
  *
  * - AUTH_REQUIRED=true                              → real username + logout/manage-account menu
  * - AUTH_REQUIRED=false + NODE_ENV=development      → MasqueradeDevPanel (role switcher)
@@ -32,15 +31,13 @@ export const SsoToolbarItem: React.FC = () => {
   if (process.env.NODE_ENV !== "production") {
     return <MasqueradeDevPanel />;
   }
-  // Production no-auth mode: no switcher, no user menu.
-  // RBAC hooks return admin roles by default via masquerade.ts.
+  // Production no-auth mode: no switcher, no user menu, default to admin roles.
   return null;
 };
 
 export const AuthEnabledSsoToolbarItem: React.FC = () => {
   const { t } = useTranslation();
   const { username, signOut, manageAccount } = useAuth();
-  const history = useHistory();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const onDropdownSelect = () => {
@@ -57,6 +54,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
         onSelect={onDropdownSelect}
         isOpen={isDropdownOpen}
         onOpenChange={onDropdownToggle}
+        popperProps={{ position: "end" }}
         toggle={(toggleRef) => (
           <MenuToggle
             isFullHeight
@@ -84,7 +82,6 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               onClick={() => {
                 window.localStorage.removeItem(LocalStorageKey.selectedPersona);
                 signOut();
-                history.push("/");
               }}
             >
               {t("actions.logout")}
