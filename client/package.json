@@ -28,7 +28,7 @@
     "@patternfly/react-charts": "8.4.1",
     "@patternfly/react-code-editor": "6.4.3",
     "@patternfly/react-core": "6.4.3",
-    "@patternfly/react-icons": "^6.4.0",
+    "@patternfly/react-icons": "6.4.0",
     "@patternfly/react-table": "6.4.3",
     "@patternfly/react-tokens": "6.4.0",
     "@tanstack/react-query": "^4.40.1",
