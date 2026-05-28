@@ -1,4 +1,5 @@
 // init @testing-library
+import type { ReactNode } from "react";
 import "@testing-library/jest-dom";
 import { configure } from "@testing-library/react";
 
@@ -51,7 +52,7 @@ jest.mock("react-oidc-context", () => ({
   }),
   // hasAuthParams checks the URL for OIDC callback params; always false in tests.
   hasAuthParams: () => false,
-  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 jest.mock("react-router-dom", () => ({

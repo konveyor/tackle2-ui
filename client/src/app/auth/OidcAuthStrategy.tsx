@@ -54,20 +54,15 @@ function getRealmRolesFromAccessToken(
  * is available.
  */
 const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
-  const auth = useOidcAuth();
-
-  // Automatically redirect to the OIDC provider if not authenticated and no auth
-  // params are present in the URL (i.e. we are not returning from a redirect).
   useAutoSignin();
 
-  // Start interceptors only after a real authenticated session is available.
+  const auth = useOidcAuth();
   useEffect(() => {
     if (auth.isAuthenticated) {
       initAuthInterceptors();
     }
   }, [auth.isAuthenticated]);
 
-  // Derive AuthState from the OIDC session for downstream hooks.
   const user = auth.user ?? null;
   const profile = user?.profile ?? null;
   const realmRoles = getRealmRolesFromAccessToken(user?.access_token);

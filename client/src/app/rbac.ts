@@ -10,7 +10,17 @@ import type { ReactNode } from "react";
 
 import { isAuthRequired } from "./Constants";
 import { useAuth } from "./auth";
-import { checkAccess } from "./utils/rbac-utils";
+
+const checkAccess = (
+  userPermissions: string[],
+  allowedPermissions: string[]
+) => {
+  if (!isAuthRequired) return true;
+  const access = userPermissions.some((userPermission) =>
+    allowedPermissions.includes(userPermission)
+  );
+  return access;
+};
 
 interface RBACProps {
   allowedPermissions: string[];

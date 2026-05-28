@@ -3,9 +3,9 @@
  *
  * Request interceptor: attaches the current OIDC access token as a Bearer header.
  *
- * Response interceptor: on 401, attempts a silent token refresh via the OIDC
- * UserManager; retries the request once with the new token (guarded by an
- * `_authRetry` flag to prevent infinite loops); redirects to login on failure.
+ * Response interceptor: on 401 (Unauthorized), attempts a silent token refresh and retries
+ * the request once with the new token. The refresh is guarded by an `_authRetry` flag to
+ * prevent infinite loops. If the refresh or retry fails, the user is redirected to login.
  */
 
 import axios from "axios";
@@ -40,12 +40,17 @@ export const initAuthInterceptors = () => {
     async (error) => {
       if (error.response?.status === 401) {
         if ((error.config as Record<string, unknown>)?._authRetry) {
-          await userManager.signinRedirect();
+          // Refresh worked, but the retry failed — redirect to login.
+          try {
+            await userManager.signinRedirect();
+          } catch {
+            // just reject the request if the redirect fails
+          }
           return Promise.reject(error);
         }
 
         try {
-          // signinSilent performs a hidden iframe refresh using the refresh token.
+          // Silent refresh using the access token and retry the request.
           const refreshedUser = await userManager.signinSilent();
           if (refreshedUser?.access_token) {
             const retryConfig = {
@@ -59,8 +64,12 @@ export const initAuthInterceptors = () => {
             return axios(retryConfig);
           }
         } catch {
-          // Refresh failed — redirect to login.
-          await userManager.signinRedirect();
+          // Silent refresh failed — redirect to login.
+          try {
+            await userManager.signinRedirect();
+          } catch {
+            // just reject the request if the redirect fails
+          }
           return Promise.reject(error);
         }
       }
