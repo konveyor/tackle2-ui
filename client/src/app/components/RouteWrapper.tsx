@@ -1,9 +1,7 @@
 import * as React from "react";
 import { Redirect, Route } from "react-router-dom";
 
-import { useAuth } from "@app/auth";
-
-import { checkAccess } from "../utils/rbac-utils";
+import { useAuth, useHasRealmRoles } from "@app/auth";
 
 interface IRouteWrapperProps {
   comp: React.ComponentType<Record<string, unknown>>;
@@ -18,14 +16,11 @@ export const RouteWrapper = ({
   path,
   exact,
 }: IRouteWrapperProps) => {
-  const { isLoaded, realmRoles } = useAuth();
+  const { isLoaded } = useAuth();
+  const access = useHasRealmRoles(roles);
 
   // Still loading the OIDC session — don't redirect prematurely.
   if (!isLoaded) return null;
-
-  // Authentication is enforced by AuthReadyGate before any routes render.
-  // Here we only check role-based access control.
-  const access = checkAccess(realmRoles, roles);
 
   if (!access) {
     return <Redirect to="/applications" />;
