@@ -6,7 +6,8 @@
  * The panel appears as an avatar/user icon in the masthead. Clicking it opens
  * a dropdown that lets the developer switch the masquerade persona (admin,
  * architect, migrator) without restarting the dev server. Changing the persona
- * writes to localStorage and triggers a page reload so all RBAC checks re-evaluate.
+ * updates React state via useMasqueradeDispatch, which cascades through the
+ * auth context so all RBAC checks re-evaluate without a page reload.
  *
  * This component is only rendered when isAuthRequired === false. The guard lives
  * in SsoToolbarItem — this file can be tree-shaken in prod builds.
@@ -24,12 +25,12 @@ import {
 } from "@patternfly/react-core";
 import { UserIcon } from "@patternfly/react-icons";
 
+import { useMasqueradeDispatch } from "./MasqueradeAuthStrategy";
+import { useAuth } from "./hooks";
 import {
   MASQUERADE_PRESETS,
   MasqueradePreset,
   getCurrentPreset,
-  getMasqueradeRoles,
-  setMasqueradePreset,
 } from "./masquerade";
 
 export const MasqueradeDevPanel: React.FC = () => {
@@ -37,15 +38,13 @@ export const MasqueradeDevPanel: React.FC = () => {
   const [currentPreset, setCurrentPreset] = useState<MasqueradePreset | null>(
     getCurrentPreset
   );
-
-  const activeRoles = getMasqueradeRoles();
+  const switchPreset = useMasqueradeDispatch();
+  const { realmRoles: activeRoles } = useAuth();
 
   const onSelect = (preset: MasqueradePreset) => {
-    setMasqueradePreset(preset);
+    switchPreset(preset);
     setCurrentPreset(preset);
     setIsOpen(false);
-    // Reload so all hooks re-read from localStorage
-    window.location.reload();
   };
 
   const presetLabel =
