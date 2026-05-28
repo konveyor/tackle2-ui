@@ -11,6 +11,7 @@
  *   useAuth()            — full auth state (isLoaded, isAuthenticated, username, signIn/Out…)
  *   useHasRealmRoles()   — true if the current user has ANY of the given roles
  *   useHasScopes()       — true if the current user has ANY of the given scopes
+ *   useIsArchitect()     — true if the user is an architect or admin
  */
 
 import { jwtDecode } from "jwt-decode";
@@ -128,4 +129,15 @@ export const useHasScopes = (requiredScopes: string[]): boolean => {
   const { scopes } = useAuth();
   if (!isAuthRequired) return true;
   return requiredScopes.some((s) => scopes.includes(s));
+};
+
+// ── useIsArchitect ───────────────────────────────────────────────────────────
+
+/**
+ * True when the current user has architect-level access.
+ * Architects and admins can manage all analysis profiles;
+ * migrators see only profiles attached to their applications' archetypes.
+ */
+export const useIsArchitect = (): boolean => {
+  return useHasRealmRoles(["tackle-architect", "tackle-admin"]);
 };
