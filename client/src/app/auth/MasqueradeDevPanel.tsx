@@ -1,6 +1,4 @@
 /**
- * auth/MasqueradeDevPanel.tsx
- *
  * A small developer tool rendered inside the SsoToolbarItem when AUTH_REQUIRED
  * is false. Mimics the react-query devtools pattern: visible in dev mode only,
  * absent from production builds.
@@ -21,7 +19,6 @@ import {
   DropdownGroup,
   DropdownItem,
   DropdownList,
-  Label,
   MenuToggle,
   ToolbarItem,
 } from "@patternfly/react-core";
@@ -61,6 +58,7 @@ export const MasqueradeDevPanel: React.FC = () => {
       <Dropdown
         isOpen={isOpen}
         onOpenChange={setIsOpen}
+        popperProps={{ position: "end" }}
         toggle={(toggleRef) => (
           <MenuToggle
             isFullHeight
@@ -70,16 +68,7 @@ export const MasqueradeDevPanel: React.FC = () => {
             aria-label="Masquerade dev panel"
             icon={<UserIcon />}
           >
-            <span style={{ marginLeft: "0.25rem" }}>
-              {presetLabel}
-              <Label
-                isCompact
-                color="orange"
-                style={{ marginLeft: "0.5rem", verticalAlign: "middle" }}
-              >
-                DEV
-              </Label>
-            </span>
+            {presetLabel}
           </MenuToggle>
         )}
       >
