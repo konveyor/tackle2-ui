@@ -1,8 +1,14 @@
+/**
+ * OidcToolbarItem — user menu for live OIDC sessions.
+ *
+ * Renders the authenticated user's name with a dropdown offering
+ * "Manage account" and "Logout" actions. Only used when the
+ * OidcAuthStrategy is active (AUTH_REQUIRED === true).
+ */
+
 import { useState } from "react";
 import * as React from "react";
-import { useKeycloak } from "@react-keycloak/web";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
 import {
   Dropdown,
   DropdownGroup,
@@ -12,17 +18,13 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 
-import { LocalStorageKey, isAuthRequired } from "@app/Constants";
+import { LocalStorageKey } from "@app/Constants";
 
-export const SsoToolbarItem: React.FC = () => {
-  return isAuthRequired ? <AuthEnabledSsoToolbarItem /> : <></>;
-};
+import { useAuth } from "./hooks";
 
-export const AuthEnabledSsoToolbarItem: React.FC = () => {
+export const OidcToolbarItem: React.FC = () => {
   const { t } = useTranslation();
-
-  const { keycloak } = useKeycloak();
-  const history = useHistory();
+  const { username, signOut, manageAccount } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const onDropdownSelect = () => {
@@ -39,6 +41,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
         onSelect={onDropdownSelect}
         isOpen={isDropdownOpen}
         onOpenChange={onDropdownToggle}
+        popperProps={{ position: "end" }}
         toggle={(toggleRef) => (
           <MenuToggle
             isFullHeight
@@ -46,8 +49,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
             id="sso-actions-toggle"
             onClick={() => onDropdownToggle(!isDropdownOpen)}
           >
-            {keycloak?.idTokenParsed?.["preferred_username"] ??
-              "DefaultUsername"}
+            {username}
           </MenuToggle>
         )}
       >
@@ -57,7 +59,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               id="manage-account"
               key="sso_user_management"
               component="button"
-              onClick={() => keycloak.accountManagement()}
+              onClick={() => manageAccount()}
             >
               {t("actions.manageAccount")}
             </DropdownItem>
@@ -66,17 +68,7 @@ export const AuthEnabledSsoToolbarItem: React.FC = () => {
               key="sso_logout"
               onClick={() => {
                 window.localStorage.removeItem(LocalStorageKey.selectedPersona);
-                {
-                  keycloak
-                    .logout()
-                    .then(() => {
-                      history.push("/");
-                    })
-                    .catch((err) => {
-                      console.error("Logout failed:", err);
-                      history.push("/");
-                    });
-                }
+                signOut();
               }}
             >
               {t("actions.logout")}

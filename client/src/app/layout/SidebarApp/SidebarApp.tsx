@@ -18,9 +18,8 @@ import {
   migrationRoutes,
   universalRoutes,
 } from "@app/Routes";
+import { useHasRealmRoles } from "@app/auth";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
-import keycloak from "@app/keycloak";
-import { checkAccess } from "@app/utils/rbac-utils";
 
 import "./SidebarApp.css";
 
@@ -92,9 +91,7 @@ const PersonaSidebar: FC<{
   selectedPersona: PersonaType;
   setLastPersona: (persona: PersonaType) => void;
 }> = ({ children, selectedPersona, setLastPersona }) => {
-  const token = keycloak.tokenParsed || undefined;
-  const userRoles = token?.realm_access?.roles || [];
-  const adminAccess = checkAccess(userRoles, ["tackle-admin"]);
+  const adminAccess = useHasRealmRoles(["tackle-admin"]);
 
   useEffect(() => {
     setLastPersona(selectedPersona);

@@ -1,8 +1,26 @@
+/**
+ * Role and scope constants for RBAC.
+ *
+ * The RBAC component and checkAccess utility remain here.
+ *
+ * Token claims are sourced from the auth module (useAuth hook).
+ */
+
 import type { ReactNode } from "react";
 
 import { isAuthRequired } from "./Constants";
-import keycloak from "./keycloak";
-import { checkAccess } from "./utils/rbac-utils";
+import { useAuth } from "./auth";
+
+const checkAccess = (
+  userPermissions: string[],
+  allowedPermissions: string[]
+) => {
+  if (!isAuthRequired) return true;
+  const access = userPermissions.some((userPermission) =>
+    allowedPermissions.includes(userPermission)
+  );
+  return access;
+};
 
 interface RBACProps {
   allowedPermissions: string[];
@@ -16,16 +34,14 @@ export enum RBAC_TYPE {
 }
 
 export const RBAC = ({ allowedPermissions, rbacType, children }: RBACProps) => {
+  const { realmRoles, scopes } = useAuth();
+
   if (isAuthRequired) {
-    const token = keycloak.tokenParsed || undefined;
     if (rbacType === RBAC_TYPE.Role) {
-      const userRoles = token?.realm_access?.roles || [],
-        access = checkAccess(userRoles, allowedPermissions);
+      const access = checkAccess(realmRoles, allowedPermissions);
       return access && children;
     } else if (rbacType === RBAC_TYPE.Scope) {
-      const userScopes: string[] = token?.scope.split(" ") || [];
-      const access = checkAccess(userScopes, allowedPermissions);
-
+      const access = checkAccess(scopes, allowedPermissions);
       return access && children;
     }
   } else {

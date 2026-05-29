@@ -28,6 +28,7 @@ import {
 } from "@patternfly/react-table";
 
 import { AnalysisProfile, Archetype } from "@app/api/models";
+import { useIsArchitect } from "@app/auth";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -38,7 +39,6 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import {
   useDeleteAnalysisProfileMutation,
   useFetchAnalysisProfiles,

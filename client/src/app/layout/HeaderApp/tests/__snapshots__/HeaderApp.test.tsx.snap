@@ -161,7 +161,7 @@ exports[`Test snapshot 1`] = `
                 </div>
                 <div
                   class="pf-v6-c-toolbar__group pf-m-hidden pf-m-visible-on-md"
-                  id="header-toolbar-sso"
+                  id="header-toolbar-auth-provider"
                 />
               </div>
             </div>
@@ -335,7 +335,7 @@ exports[`Test snapshot 1`] = `
               </div>
               <div
                 class="pf-v6-c-toolbar__group pf-m-hidden pf-m-visible-on-md"
-                id="header-toolbar-sso"
+                id="header-toolbar-auth-provider"
               />
             </div>
           </div>

@@ -23,8 +23,8 @@ import { useBranding } from "@app/hooks/useBranding";
 
 import { AppAboutModalState } from "../AppAboutModalState";
 
+import { AuthProviderToolbarItem } from "./AuthProviderToolbarItem";
 import { MobileDropdown } from "./MobileDropdown";
-import { SsoToolbarItem } from "./SsoToolbarItem";
 
 import "./header.css";
 
@@ -89,15 +89,15 @@ export const HeaderApp: React.FC = () => {
           </ToolbarItem>
         </ToolbarGroup>
 
-        {/* Show the SSO menu at desktop sizes */}
+        {/* Show the toolbar content for the active auth strategy at desktop sizes */}
         <ToolbarGroup
-          id="header-toolbar-sso"
+          id="header-toolbar-auth-provider"
           visibility={{
             default: "hidden",
             md: "visible",
           }}
         >
-          <SsoToolbarItem />
+          <AuthProviderToolbarItem />
         </ToolbarGroup>
 
         {rightBrand ? (

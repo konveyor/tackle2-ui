@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
 
 import App from "@app/App";
-import { KeycloakProvider } from "@app/components/KeycloakProvider";
+import { AuthProvider } from "@app/auth";
 import { ENV } from "@app/env";
 
 import "@app/dayjs";
@@ -19,12 +19,12 @@ const renderApp = () => {
   const container = document.getElementById("root");
   const root = createRoot(container!);
   root.render(
-    <KeycloakProvider>
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <App />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </KeycloakProvider>
+    </AuthProvider>
   );
 };
 

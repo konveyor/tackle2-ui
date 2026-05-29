@@ -19,6 +19,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
 import { TargetLabelSchema } from "@app/api/schemas";
+import { useIsArchitect } from "@app/auth";
 import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
@@ -26,7 +27,6 @@ import {
 } from "@app/components/HookFormPFFields";
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
-import { useIsArchitect } from "@app/hooks/useIsArchitect";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import {

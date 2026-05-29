@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 
 import { AnalysisProfile, Application, Archetype } from "@app/api/models";
-
-import { useIsArchitect } from "./useIsArchitect";
+import { useIsArchitect } from "@app/auth";
 
 /**
  * Hook to filter analysis profiles based on user role and selected applications.
