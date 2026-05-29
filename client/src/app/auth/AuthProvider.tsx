@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   if (isAuthRequired) {
     return <OidcAuthStrategy>{children}</OidcAuthStrategy>;
   }
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "development") {
     return <MasqueradeAuthStrategy>{children}</MasqueradeAuthStrategy>;
   }
   return <NoAuthStrategy>{children}</NoAuthStrategy>;
