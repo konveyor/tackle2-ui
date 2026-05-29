@@ -20,7 +20,7 @@ import {
 } from "@app/utils/application-assessment-status";
 import { universalComparator } from "@app/utils/utils";
 
-export interface TasksGroupedByKind {
+interface TasksGroupedByKind {
   [key: string]: TaskDashboard[];
 }
 

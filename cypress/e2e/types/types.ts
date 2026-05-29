@@ -42,21 +42,6 @@ export type CredentialsMavenData = {
   isDefault?: boolean;
 };
 
-export type CredentialsJiraBasicData = {
-  type: string;
-  name?: string;
-  description?: string;
-  email?: string;
-  token?: string;
-};
-
-export type CredentialsJiraTokenData = {
-  type: string;
-  name?: string;
-  description?: string;
-  key?: string;
-};
-
 export type CredentialsJiraData = {
   type: string;
   name?: string;

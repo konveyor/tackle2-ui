@@ -13,7 +13,6 @@ import {
   HEADERS,
   createApplication,
   createApplicationDependency,
-  deleteApplication,
   deleteApplicationDependency,
   deleteBulkApplications,
   getApplicationById,
@@ -26,10 +25,9 @@ import {
 
 import { assessmentsByItemIdQueryKey } from "./assessments";
 
-export const ApplicationDependencyQueryKey = "applicationdependencies";
+const ApplicationDependencyQueryKey = "applicationdependencies";
 export const ApplicationsQueryKey = "applications";
-export const ReportQueryKey = "report";
-export const ApplicationManifestQueryKey = "applicationManifest";
+const ApplicationManifestQueryKey = "applicationManifest";
 interface DownloadOptions {
   application: Application;
   mimeType: MimeType;
@@ -63,7 +61,7 @@ export const useFetchApplications = (
   };
 };
 
-export const ApplicationQueryKey = "application";
+const ApplicationQueryKey = "application";
 
 export const useFetchApplicationById = (
   id?: number | string,
@@ -196,21 +194,6 @@ export const useCreateApplicationMutation = (
     onSuccess: (application: Application, payload: New<Application>) => {
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
       onSuccess(application, payload);
-    },
-    onError: onError,
-  });
-};
-
-export const useDeleteApplicationMutation = (
-  onSuccess: (id: number) => void,
-  onError: (err: AxiosError) => void
-) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id }: { id: number }) => deleteApplication(id),
-    onSuccess: (_res, vars) => {
-      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
-      onSuccess(vars.id);
     },
     onError: onError,
   });

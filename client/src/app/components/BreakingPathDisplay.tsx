@@ -27,5 +27,3 @@ export const BreakingPathDisplay: React.FC<BreakingPathDisplayProps> = ({
 
   return <>{formattedPath}</>;
 };
-
-export default BreakingPathDisplay;

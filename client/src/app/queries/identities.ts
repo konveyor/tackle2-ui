@@ -11,7 +11,7 @@ import {
   updateIdentity,
 } from "@app/api/rest";
 
-export const IdentitiesQueryKey = "identities";
+const IdentitiesQueryKey = "identities";
 
 export const useUpdateIdentityMutation = (
   onSuccess?: (identity: Identity) => void,

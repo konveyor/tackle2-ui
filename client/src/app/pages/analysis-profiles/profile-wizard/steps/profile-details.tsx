@@ -11,7 +11,7 @@ import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
 import { duplicateNameCheck } from "@app/utils/utils";
 
-export interface ProfileDetailsValues {
+interface ProfileDetailsValues {
   name: string;
   description?: string;
 }
@@ -20,7 +20,7 @@ export interface ProfileDetailsState extends ProfileDetailsValues {
   isValid: boolean;
 }
 
-export const useProfileDetailsSchema = ({
+const useProfileDetailsSchema = ({
   existingProfiles = [],
   currentProfile = null,
 }: {

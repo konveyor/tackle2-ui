@@ -51,9 +51,9 @@ import { CustomWizardFooter } from "../custom-wizard-footer";
 import { QuestionnaireForm } from "../questionnaire-form";
 import { WizardStepNavDescription } from "../wizard-step-nav-description";
 
-export const SAVE_ACTION_KEY = "saveAction";
+const SAVE_ACTION_KEY = "saveAction";
 
-export enum SAVE_ACTION_VALUE {
+enum SAVE_ACTION_VALUE {
   SAVE,
   SAVE_AND_REVIEW,
   SAVE_AS_DRAFT,

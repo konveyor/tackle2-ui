@@ -14,7 +14,7 @@ import {
 
 import { useSetting } from "./settings";
 
-export const TargetsQueryKey = "targets";
+const TargetsQueryKey = "targets";
 
 export const useFetchTargets = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

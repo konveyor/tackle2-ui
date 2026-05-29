@@ -20,7 +20,6 @@ export enum TaskManagerColumns {
   application = 'td[data-label="Application"]',
   status = 'td[data-label="Status"]',
   kind = 'td[data-label="Kind"]',
-  priority = 'td[data-label="Priority"]',
   createdBy = 'td[data-label="Created By"]',
 }
 export const tasksTable = "table[aria-label='Tasks table']";

@@ -15,7 +15,7 @@ import { assessmentsQueryKey } from "./assessments";
 import { BusinessServicesQueryKey } from "./businessservices";
 import { MigrationWavesQueryKey } from "./migration-waves";
 
-export const StakeholdersQueryKey = "stakeholders";
+const StakeholdersQueryKey = "stakeholders";
 
 const getRole = (stakeholder: Stakeholder): Role => {
   if (stakeholder.owns && stakeholder.owns.length > 0) {

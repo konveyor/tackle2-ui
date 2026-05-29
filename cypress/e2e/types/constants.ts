@@ -30,23 +30,14 @@ import {
   categoryTarget,
 } from "./filter-categories";
 export const sourceCode = "Source code";
-export const answer = "Answer";
-export const applicationName = "Application name";
-export const application = "Application";
 export const applicationInventory = "Application inventory";
 export const customMigrationTargets = "Custom migration targets";
 export const migrationWaves = "Migration waves";
-export const assess = "Assess";
-export const assessment = "Assessment";
-export const analysis = "Analysis";
 export const analysisProfiles = "Analysis Profiles";
 export const analyzeButton = "Analyze";
-export const artifact = "Artifact";
 export const businessServices = "Business services";
 export const businessService = "Business Service";
-export const businessServiceLower = "Business service";
 export const button = "button";
-export const category = "Category";
 export const clearAllFilters = "Clear all filters";
 export const controls = "Controls";
 export const color = "Color";
@@ -62,48 +53,32 @@ export const editAction = "Edit";
 export const startDate = "Start date";
 export const endDate = "End date";
 export const exportToIssueManagerAction = "Export to Issue Manager";
-export const description = "Description";
 export const displayName = "Name";
-export const effort = "Effort";
 export const email = "Email";
-export const group = "Stakeholder groups";
 export const groupCount = "Group count";
 export const git = "Git";
 export const invalidEmailMsg = "This field requires a valid email.";
 export const jobFunctions = "Job functions";
 export const jobFunction = "Job function";
-export const member = "Member";
 export const memberCount = "Member count";
 export const name = "Name";
-export const next = "Next";
 export const priority = "Priority";
-export const question = "Question";
 export const rank = "Rank";
 export const review = "Review";
-export const risk = "Risk";
-export const archetypes = "Archetypes";
 export const owner = "Owner";
-export const createdBy = "Created By";
-export const reports = "Reports";
-export const repositoryType = "Repository type";
 export const save = "Save";
 export const cancel = "Cancel";
 export const taskDetails = "Task details";
 export const stakeholders = "Stakeholders";
 export const stakeholderGroups = "Stakeholder groups";
 export const subversion = "Subversion";
-export const tag = "Tag";
 export const tagCount = "Tag count";
 export const tags = "Tags";
 export const tdTag = "td";
 export const trTag = "tr";
 export const tagCategory = "Tag category";
-export const tagName = "Tag name";
 export const selectNone = "Select none";
 export const manageApplications = "Manage applications";
-export const adoptionCandidateDistribution = "Adoption candidate distribution";
-export const identiFiedRisks = "Identified risks";
-export const suggestedAdoptionPlan = "Suggested adoption plan";
 export const assessmentQuestionnaires = "Assessment questionnaires";
 export const legacyPathfinder = "Legacy Pathfinder";
 export const cloudNative = "Cloud Native";
@@ -124,8 +99,6 @@ export const MustbeAValidRepositoryURL = "Must be a valid repository URL.";
 export const defaultGenerator = "CloudFoundry-Openshift";
 
 // Error helper messages general to all views
-export const duplicateErrMsg =
-  "ERROR: duplicate key value violates unique constraint";
 export const duplicateEmail =
   "A stakeholder with this email address already exists. Use a different email address.";
 export const duplicateApplication =
@@ -141,7 +114,6 @@ export const duplicateStakeholderGroupName =
 export const duplicateBusinessService =
   "A business service with this name already exists. Use a different name.";
 
-export const fieldReqMsg = "This field is required.";
 export const max40CharMsg = "This field must contain fewer than 40 characters.";
 export const max120CharsMsg =
   "This field must contain fewer than 120 characters.";
@@ -155,8 +127,6 @@ export const administration = "Administration";
 export const migration = "Migration";
 export const general = "General";
 export const instanceName = "Instance name";
-export const cantDeleteJiraAlert =
-  "Danger alert:This instance contains issues associated with applications and cannot be deleted";
 export const singleApplication = "Single application";
 export enum CredentialType {
   proxy = "Proxy",

@@ -6,10 +6,6 @@ import { StarIcon } from "@patternfly/react-icons";
 import { Identity } from "@app/api/models";
 import { useIdentityKind } from "@app/hooks/useIdentityKind";
 
-export interface DefaultLabelProps {
-  identity: Identity;
-}
-
 export const DefaultLabel: React.FC<{ identity: Identity }> = ({
   identity,
 }) => {

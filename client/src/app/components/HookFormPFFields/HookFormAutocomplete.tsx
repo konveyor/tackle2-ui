@@ -75,5 +75,3 @@ export const HookFormAutocomplete = <FormValues extends FieldValues>({
     }
   />
 );
-
-export default HookFormAutocomplete;

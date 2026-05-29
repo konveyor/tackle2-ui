@@ -13,9 +13,9 @@ import {
 
 import { ApplicationsQueryKey } from "./applications";
 
-export const reviewQueryKey = "review";
-export const reviewsByItemIdQueryKey = "reviewsByItemId";
-export const reviewsQueryKey = "reviews";
+const reviewQueryKey = "review";
+const reviewsByItemIdQueryKey = "reviewsByItemId";
+const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

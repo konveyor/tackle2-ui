@@ -134,7 +134,7 @@ const PersonaSidebar: FC<{
   );
 };
 
-export const MigrationSidebar = ({
+const MigrationSidebar = ({
   setLastPersona,
 }: {
   setLastPersona: (persona: PersonaType) => void;
@@ -237,7 +237,7 @@ export const MigrationSidebar = ({
   );
 };
 
-export const AdminSidebar = ({
+const AdminSidebar = ({
   setLastPersona,
 }: {
   setLastPersona: (persona: PersonaType) => void;

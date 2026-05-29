@@ -74,5 +74,3 @@ export const config = Object.freeze(parseMock(ENV.MOCK));
 if (ENV.NODE_ENV === "development") {
   console.info("MOCK configuration: ", config);
 }
-
-export default config;

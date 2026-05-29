@@ -12,7 +12,7 @@ export interface ApplicationAssessmentStatus {
   inheritedStatus: AggregateAssessmentStatus;
 }
 
-export type AggregateAssessmentStatus = "none" | "partial" | "complete";
+type AggregateAssessmentStatus = "none" | "partial" | "complete";
 
 const chooseAssessmentStatus = (
   containerAssessed?: boolean,

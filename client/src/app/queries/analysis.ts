@@ -25,17 +25,17 @@ import {
 } from "@app/api/rest";
 import { useWithUiId } from "@app/utils/query-utils";
 
-export const AllIssuesQueryKey = "analysis-all-issues";
-export const AppIssuesQueryKey = "analysis-app-issues";
-export const IssueAppsQueryKey = "analysis-issue-apps";
+const AllIssuesQueryKey = "analysis-all-issues";
+const AppIssuesQueryKey = "analysis-app-issues";
+const IssueAppsQueryKey = "analysis-issue-apps";
 
-export const AllInsightsQueryKey = "analysis-all-insights";
-export const AppInsightsQueryKey = "analysis-app-insights";
-export const InsightAppsQueryKey = "analysis-insight-apps";
+const AllInsightsQueryKey = "analysis-all-insights";
+const AppInsightsQueryKey = "analysis-app-insights";
+const InsightAppsQueryKey = "analysis-insight-apps";
 
-export const InsightQueryKey = "analysis-insight";
-export const IncidentsQueryKey = "analysis-insight-incidents";
-export const InsightFilesQueryKey = "analysis-insight-files";
+const InsightQueryKey = "analysis-insight";
+const IncidentsQueryKey = "analysis-insight-incidents";
+const InsightFilesQueryKey = "analysis-insight-files";
 
 export interface AnalysisQueryResults<E> {
   result: HubPaginatedResult<E>;

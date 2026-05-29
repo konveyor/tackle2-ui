@@ -14,8 +14,8 @@ import {
 } from "@app/api/rest";
 import { universalComparator } from "@app/utils/utils";
 
-export const TagsQueryKey = "tags";
-export const TagCategoriesQueryKey = "tagcategories";
+const TagsQueryKey = "tags";
+const TagCategoriesQueryKey = "tagcategories";
 
 export const useFetchTags = (refetchInterval: number | false = false) => {
   const { data, isLoading, error, refetch } = useQuery({

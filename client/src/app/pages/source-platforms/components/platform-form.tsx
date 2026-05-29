@@ -32,7 +32,7 @@ import {
 } from "@app/queries/platforms";
 import { duplicateNameCheck, getAxiosErrorMessage } from "@app/utils/utils";
 
-export interface PlatformFormValues {
+interface PlatformFormValues {
   kind: string;
   name: string;
   url: string;

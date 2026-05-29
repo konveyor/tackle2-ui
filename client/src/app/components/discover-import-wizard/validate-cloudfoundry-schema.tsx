@@ -46,7 +46,7 @@ const SUPPORTED_SCHEMA: JsonSchemaObject = {
  * Check the given schema and return if it is functionally equivalent to the schema used
  * to build CloudFoundry forms.
  */
-export const validateCloudFoundrySchema = validatorGenerator(SUPPORTED_SCHEMA);
+const validateCloudFoundrySchema = validatorGenerator(SUPPORTED_SCHEMA);
 
 export const useCloudFoundryCheck = (
   platform: SourcePlatform,

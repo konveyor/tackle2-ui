@@ -6,7 +6,7 @@ import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
 /**
  * The currently applied pagination parameters
  */
-export interface IActivePagination {
+interface IActivePagination {
   /**
    * The current page number on the user's pagination controls (counting from 1)
    */

@@ -6,13 +6,11 @@ import { BusinessService, New } from "@app/api/models";
 import {
   createBusinessService,
   deleteBusinessService,
-  getBusinessServiceById,
   getBusinessServices,
   updateBusinessService,
 } from "@app/api/rest";
 
 export const BusinessServicesQueryKey = "businessservices";
-export const BusinessServiceQueryKey = "businessservice";
 
 export const useFetchBusinessServices = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
@@ -30,23 +28,6 @@ export const useFetchBusinessServices = (
     isSuccess,
     fetchError: error as AxiosError,
     refetch,
-  };
-};
-
-export const useFetchBusinessServiceById = (
-  id: number | string,
-  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
-) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: [BusinessServicesQueryKey, id],
-    queryFn: () => getBusinessServiceById(id),
-    onError: (error: AxiosError) => console.log("error, ", error),
-    refetchInterval,
-  });
-  return {
-    businessService: data,
-    isFetching: isLoading,
-    fetchError: error as AxiosError,
   };
 };
 

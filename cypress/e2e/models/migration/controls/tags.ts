@@ -49,11 +49,6 @@ import {
 
 import { TagCategory } from "./tagcategory";
 
-export function clickTags(): void {
-  clickByText(navMenu, controls);
-  clickByText(navTab, tags);
-}
-
 export function fillName(name: string): void {
   inputText(nameInput, name);
 }

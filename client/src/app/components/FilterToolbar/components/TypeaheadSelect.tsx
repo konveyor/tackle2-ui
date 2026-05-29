@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import { MultiSelect, MultiSelectProps } from "./MultiSelect";
 
-export type TypeaheadSelectProps = Omit<
+type TypeaheadSelectProps = Omit<
   MultiSelectProps,
   "values" | "onSelect" | "variant" | "onClear"
 > & {

@@ -27,7 +27,7 @@ import { useFetchTargets } from "@app/queries/targets";
 import { toLabelValue } from "@app/utils/rules-utils";
 import { universalComparator } from "@app/utils/utils";
 
-export interface SetTargetsValues {
+interface SetTargetsValues {
   targetStatus: Record<
     string,
     {

@@ -20,8 +20,6 @@ limitations under the License.
 */
 export const name = "#analysis-profile-name";
 export const description = "#analysis-profile-description";
-export const profileNameColumn = "td[data-label='Name']";
-export const profileDescriptionColumn = "td[data-label='Description']";
 export const createProfileButton = "#create-analysis-profile";
 export const cancelButton = "div.pf-v6-c-wizard__footer-cancel";
 export const submitButton = 'button[type="submit"]';
@@ -34,8 +32,6 @@ export const checkboxInput = "input[type=checkbox]";
 export const wizardMainBody = ".pf-v6-c-wizard__main-body";
 export const targetOpenJDKSelect = "#target-OpenJDK-select";
 export const targetCamelSelect = "#target-Camel-select";
-export const fileInput = "input[type=file]";
-export const progressMeasure = "span.pf-v6-c-progress__measure";
 export const ossCheckbox = "#oss";
 export const ruleLabelToExclude = "#ruleTagToExclude";
 export const addPackageToInclude = "#add-package-to-include";

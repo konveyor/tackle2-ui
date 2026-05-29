@@ -153,13 +153,13 @@ export const getFilterHubRequestParams = <
  * - Given a string or number, returns it as a string with quotes (`"`) around it.
  * - Adds an escape character before any existing quote (`"`) characters in the string.
  */
-export const wrapInQuotesAndEscape = (value: string | number): string =>
+const wrapInQuotesAndEscape = (value: string | number): string =>
   `"${String(value).replace('"', '\\"')}"`;
 
 /**
  * Converts a single filter object (HubFilter, the higher-level inspectable type) to the query string filter format used by the hub API
  */
-export const serializeFilterForHub = (filter: HubFilter): string => {
+const serializeFilterForHub = (filter: HubFilter): string => {
   const { field, operator, value } = filter;
   const joinedValue =
     typeof value === "string"

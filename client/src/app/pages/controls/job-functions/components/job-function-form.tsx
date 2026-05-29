@@ -21,7 +21,7 @@ import {
 } from "@app/queries/jobfunctions";
 import { duplicateNameCheck } from "@app/utils/utils";
 
-export interface FormValues {
+interface FormValues {
   name: string;
 }
 

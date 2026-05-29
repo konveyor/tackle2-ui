@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
 import { getProxies, updateProxy } from "@app/api/rest";
 
-export const ProxiesTasksQueryKey = "proxies";
+const ProxiesTasksQueryKey = "proxies";
 
 export const useFetchProxies = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL

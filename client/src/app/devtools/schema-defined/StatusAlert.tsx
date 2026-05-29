@@ -8,7 +8,7 @@ import {
 
 import type { StatusType } from "./schema-defined-page";
 
-export const STATUS_MAP: Record<
+const STATUS_MAP: Record<
   StatusType,
   {
     document: string;

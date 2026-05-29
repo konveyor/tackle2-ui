@@ -29,7 +29,7 @@ export type IconedStatusPreset =
   | "Scheduled"
   | "Unknown";
 
-export type IconedStatusStatusType =
+type IconedStatusStatusType =
   | "custom"
   | "info"
   | "success"

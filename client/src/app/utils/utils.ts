@@ -230,7 +230,7 @@ export const capitalizeFirstLetter = (str: string) =>
  *
  * @param locale to be used by string compareFn
  */
-export const localeNumericCompare = (
+const localeNumericCompare = (
   a: string,
   b: string,
   locale: string = i18n.language
@@ -292,10 +292,6 @@ export function wrapAsEvent(value: unknown, name: string = "wrapped-as-event") {
       value,
     },
   };
-}
-
-export function isEmptyString(value: string | undefined | null): boolean {
-  return value === undefined || value === null || value.trim() === "";
 }
 
 export function isNotEmptyString(value: string | undefined | null): boolean {

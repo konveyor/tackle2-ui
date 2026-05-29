@@ -18,7 +18,7 @@ import {
 import { InsightDescriptionAndLinks } from "../components";
 import { parseReportLabels } from "../helpers";
 
-export const ExpandedFieldHeading: React.FC<{
+const ExpandedFieldHeading: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   return (

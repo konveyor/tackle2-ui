@@ -95,9 +95,7 @@ export type PersistTarget =
  * - Extra args needed for persisting state both at the table level and in each use[Feature]State hook.
  * - Not required if using the default "state" PersistTarget
  */
-export type ICommonPersistenceArgs<
-  TPersistenceKeyPrefix extends string = string,
-> = {
+type ICommonPersistenceArgs<TPersistenceKeyPrefix extends string = string> = {
   /**
    * A short string uniquely identifying a specific table. Automatically prepended to any key used in state persistence (e.g. in a URL parameter or localStorage).
    * - Optional: Only omit if this table will not be rendered at the same time as any other tables.

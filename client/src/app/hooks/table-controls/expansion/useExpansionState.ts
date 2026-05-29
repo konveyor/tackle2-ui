@@ -11,7 +11,7 @@ import { IFeaturePersistenceArgs, isPersistenceProvider } from "../types";
  *   - true if the row is expanded (for single-expand)
  *   - false if the row and all its cells are collapsed (for both single-expand and compound-expand).
  */
-export type TExpandedCells<TColumnKey extends string> = Record<
+type TExpandedCells<TColumnKey extends string> = Record<
   string,
   TColumnKey | boolean
 >;

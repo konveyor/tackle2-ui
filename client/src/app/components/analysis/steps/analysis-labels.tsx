@@ -29,7 +29,7 @@ import { useTargetLabels } from "../hooks/useTargetLabels";
 
 import { CustomRulesStepState } from "./custom-rules";
 
-export interface AnalysisLabelsValues {
+interface AnalysisLabelsValues {
   additionalTargetLabels: TargetLabel[];
   additionalSourceLabels: TargetLabel[];
   excludedLabels: string[];
@@ -39,14 +39,13 @@ export interface AnalysisLabelsState extends AnalysisLabelsValues {
   isValid: boolean;
 }
 
-export const useAnalysisLabelsSchema =
-  (): yup.SchemaOf<AnalysisLabelsValues> => {
-    return yup.object({
-      additionalTargetLabels: yup.array().of(TargetLabelSchema),
-      additionalSourceLabels: yup.array().of(TargetLabelSchema),
-      excludedLabels: yup.array().of(yup.string().defined()),
-    });
-  };
+const useAnalysisLabelsSchema = (): yup.SchemaOf<AnalysisLabelsValues> => {
+  return yup.object({
+    additionalTargetLabels: yup.array().of(TargetLabelSchema),
+    additionalSourceLabels: yup.array().of(TargetLabelSchema),
+    excludedLabels: yup.array().of(yup.string().defined()),
+  });
+};
 
 interface AnalysisLabelsProps {
   selectedTargets: [Target, TargetLabel | null][];

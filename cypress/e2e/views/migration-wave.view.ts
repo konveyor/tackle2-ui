@@ -3,7 +3,6 @@ import { MigrationWave } from "../models/migration/migration-waves/migration-wav
 export enum MigrationWaveView {
   generalDatePicker = ".pf-v6-c-date-picker",
   calendarButton = "[aria-label='Toggle date picker']",
-  submitButton = "#migration-wave-form-submit",
   nameInput = "#name",
   startDateInput = "input[aria-label='startDateStr']",
   endDateInput = "input[aria-label='endDateStr']",

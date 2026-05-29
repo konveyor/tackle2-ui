@@ -60,7 +60,7 @@ export const getAffectedAppsUrl = ({
   })}`;
 };
 
-export const getInsightTitle = (
+const getInsightTitle = (
   insightReport:
     | UiAnalysisReportInsight
     | AnalysisInsight

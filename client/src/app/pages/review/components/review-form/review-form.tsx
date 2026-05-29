@@ -35,7 +35,7 @@ import {
   useUpdateReviewMutation,
 } from "@app/queries/reviews";
 
-export interface FormValues {
+interface FormValues {
   action: ProposedAction;
   effort: EffortEstimate;
   criticality?: number;

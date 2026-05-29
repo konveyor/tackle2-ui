@@ -11,7 +11,7 @@ export interface ColumnAnalysisStatusProps {
   state: TaskState;
 }
 
-export const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
+const taskStateToAnalyze: Map<TaskState, IconedStatusPreset> = new Map([
   ["not supported", "Canceled"],
   ["Canceled", "Canceled"],
   ["Created", "Scheduled"],

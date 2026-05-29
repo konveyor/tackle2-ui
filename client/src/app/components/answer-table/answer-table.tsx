@@ -27,7 +27,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import RiskIcon from "../risk-icon/risk-icon";
 
-export interface IAnswerTableProps {
+interface IAnswerTableProps {
   answers: Answer[];
   hideAnswerKey?: boolean;
 }

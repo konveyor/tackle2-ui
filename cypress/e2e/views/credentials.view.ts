@@ -19,15 +19,12 @@ export const isDefaultCheckbox = "input[name='default']";
 export const usernameInput = "#user";
 export const passwordInput = "#password";
 export const keyInput = "#key";
-export const privatePassphraseInput =
-  "input[aria-label='Private Key Passphrase']";
 export const createBtn = "#create-credential-button";
 export const selectType = '[data-ouia-component-id="type-select-toggle"]';
 export const modalBoxBody = "#confirm-dialog";
 export const defaultIcon = "svg.pf-v6-svg";
 export enum credLabels {
   name = 'td[data-label="Name"]',
-  description = 'td[data-label="Description"]',
   type = 'td[data-label="Type"]',
   createdBy = 'td[data-label="Created by"]',
 }

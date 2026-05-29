@@ -34,7 +34,7 @@ export interface IApplicationDetailDrawerProps
   onEditClick: () => void;
 }
 
-export enum TabKey {
+enum TabKey {
   Details = 0,
   Tags,
   Reports,

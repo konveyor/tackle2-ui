@@ -24,12 +24,9 @@ export const sourceCredential =
   '[data-ouia-component-id="source-credentials-toggle"]';
 export const mavenCredential =
   '[data-ouia-component-id="maven-settings-toggle"]';
-export const nextButton = "button[type=submit]";
 export const addRules =
   "div > footer[class='pf-v6-c-modal-box__footer'] > button";
 export const fileName = "div[class='fileName']";
-export const reportStoryPoints =
-  "div[class='effortPoints total'] > span[class='points']";
 export const enableTransactionAnalysis = "input[name=enableTransactionReport]";
 export const enableEnhancedAnalysisDetails =
   "#enable-advanced-analysis-details-checkbox";
@@ -42,7 +39,6 @@ export const tabsPanel = "ul > li > a";
 export const expandAll = "#expandAll";
 export const panelBody = "div.panel-body";
 export const analyzeManuallyButton = "#select";
-export const addButton = "#add-package-to-include";
 export const enterPackageName = "#packageToInclude";
 export const enterPackageNameToExclude = "#packageToExclude";
 export const analysisDetails = /analysis details$/i;

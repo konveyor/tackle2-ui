@@ -13,15 +13,14 @@ import { AnalysisProfile, New, Ref, UploadFile } from "@app/api/models";
 import {
   createAnalysisProfile,
   deleteAnalysisProfile,
-  getAnalysisProfileById,
   getAnalysisProfiles,
   getTextFileById,
   updateAnalysisProfile,
 } from "@app/api/rest";
 
-export const ANALYSIS_PROFILES_QUERY_KEY = "analysis-profiles";
-export const ANALYSIS_PROFILE_QUERY_KEY = "analysis-profile";
-export const CUSTOM_RULES_FILES_QUERY_KEY = "custom-rules-files";
+const ANALYSIS_PROFILES_QUERY_KEY = "analysis-profiles";
+const ANALYSIS_PROFILE_QUERY_KEY = "analysis-profile";
+const CUSTOM_RULES_FILES_QUERY_KEY = "custom-rules-files";
 
 export const useFetchAnalysisProfiles = (
   refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
@@ -44,28 +43,6 @@ export const useFetchAnalysisProfiles = (
     isSuccess,
     error,
     refetch,
-  };
-};
-
-export const useFetchAnalysisProfileById = (
-  id?: number | string,
-  refetchInterval: number | false = DEFAULT_REFETCH_INTERVAL
-) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: [ANALYSIS_PROFILE_QUERY_KEY, String(id)],
-    queryFn: () =>
-      id === undefined
-        ? Promise.resolve(undefined)
-        : getAnalysisProfileById(id),
-    onError: (error: AxiosError) => console.log("error, ", error),
-    enabled: id !== undefined,
-    refetchInterval,
-  });
-
-  return {
-    analysisProfile: data,
-    isFetching: isLoading,
-    fetchError: error,
   };
 };
 

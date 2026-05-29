@@ -1,11 +1,16 @@
 import * as React from "react";
-import { Pagination, PaginationVariant } from "@patternfly/react-core";
+import {
+  Pagination,
+  PaginationProps,
+  PaginationVariant,
+} from "@patternfly/react-core";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
-import { PaginationStateProps } from "@app/hooks/useLegacyPaginationState";
-
 export interface SimplePaginationProps {
-  paginationProps: PaginationStateProps;
+  paginationProps: Pick<
+    PaginationProps,
+    "itemCount" | "perPage" | "page" | "onSetPage" | "onPerPageSelect"
+  >;
   isTop: boolean;
   isCompact?: boolean;
   noMargin?: boolean;

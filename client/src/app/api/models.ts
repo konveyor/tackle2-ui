@@ -124,7 +124,7 @@ export type ProposedAction =
 
 export type EffortEstimate = "small" | "medium" | "large" | "extra_large";
 
-export type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
+type ImportSummaryStatus = "Completed" | "In Progress" | "Failed";
 
 export interface Repository<Kind = string> {
   kind?: Kind;
@@ -134,7 +134,7 @@ export interface Repository<Kind = string> {
 }
 
 /** A JSON document with its schema */
-export interface Document {
+interface Document {
   content: JsonDocument;
   /** name of the schema */ schema: string;
 }
@@ -257,66 +257,6 @@ export interface Proxy {
   enabled: boolean;
 }
 
-// Pagination
-
-export interface BusinessServicePage {
-  _embedded: {
-    "business-service": BusinessService[];
-  };
-  total_count: number;
-}
-
-export interface StakeholderPage {
-  _embedded: {
-    stakeholder: Stakeholder[];
-  };
-  total_count: number;
-}
-
-export interface StakeholderGroupPage {
-  _embedded: {
-    "stakeholder-group": StakeholderGroup[];
-  };
-  total_count: number;
-}
-
-export type JobFunctionPage = Array<JobFunction>;
-
-export interface TagCategoryPage {
-  _embedded: {
-    "tag-type": TagCategory[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationPage {
-  _embedded: {
-    application: Application[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationDependencyPage {
-  _embedded: {
-    "applications-dependency": ApplicationDependency[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationImportSummaryPage {
-  _embedded: {
-    "import-summary": ApplicationImportSummary[];
-  };
-  total_count: number;
-}
-
-export interface ApplicationImportPage {
-  _embedded: {
-    "application-import": ApplicationImport[];
-  };
-  total_count: number;
-}
-
 export type SettingTypes = {
   "git.insecure.enabled": boolean;
   "mvn.dependencies.update.forced": boolean;
@@ -376,12 +316,6 @@ export interface Task<DataType> {
   attached?: TaskAttachment[];
 }
 
-export interface AnalysisTask
-  extends Omit<Task<AnalysisTaskData>, "application" | "platform"> {
-  kind: "analysis";
-  application: Ref;
-}
-
 export interface ApplicationManifestTask
   extends Omit<Task<EmptyObject>, "application" | "platform"> {
   kind: "application-manifest";
@@ -422,11 +356,11 @@ export interface TaskDashboard {
   errors?: number;
 }
 
-export interface TaskPolicy {
+interface TaskPolicy {
   isolated?: boolean;
 }
 
-export interface TTL {
+interface TTL {
   created?: number;
   pending?: number;
   running?: number;
@@ -434,14 +368,14 @@ export interface TTL {
   failed?: number;
 }
 
-export interface TaskEvent {
+interface TaskEvent {
   kind: string;
   count: number;
   reason?: string;
   last: string; // time
 }
 
-export interface TaskError {
+interface TaskError {
   severity: string;
   description: string;
 }
@@ -541,21 +475,16 @@ export interface Cache {
   exists: boolean;
 }
 
-export interface ITypeOptions {
-  key: string;
-  value: string;
-}
-
-export interface RulesetImage {
+interface RulesetImage {
   id: number;
   name?: string;
 }
 
-export enum RulesetKind {
+enum RulesetKind {
   CATEGORY = "category",
 }
 
-export interface Ruleset {
+interface Ruleset {
   id: number;
   kind?: RulesetKind;
   name: string;
@@ -580,7 +509,7 @@ export interface Target {
   provider?: string;
 }
 
-export interface Metadata {
+interface Metadata {
   target: string;
   source?: string;
   otherLabels?: string[];
@@ -716,7 +645,7 @@ export interface AnalysisInsightLink {
   title: string;
 }
 
-export interface AnalysisFacts extends Record<string, unknown> {}
+interface AnalysisFacts extends Record<string, unknown> {}
 
 /** HUB RuleReport - Insight / Ruleset+Rule summary */
 export interface AnalysisReportInsight {
@@ -917,29 +846,9 @@ export interface Assessment
   stakeholderGroups?: Ref[];
   required?: boolean;
 }
-export interface QuestionnaireTag {
+interface QuestionnaireTag {
   category: string;
   tag: string;
-}
-
-//TODO: update to use new api
-export interface AssessmentRisk {
-  assessmentId: number;
-  applicationId: number;
-  risk: Risk;
-}
-
-export interface AssessmentQuestionRisk {
-  category: string;
-  question: string;
-  answer: string;
-  applications: number[];
-}
-
-export interface AssessmentConfidence {
-  assessmentId: number;
-  applicationId: number;
-  confidence: number;
 }
 
 export interface TargetProfile {
@@ -982,11 +891,6 @@ export interface AssessmentWithArchetypeApplications
   extends AssessmentWithSectionOrder {
   archetypeApplications: Ref[];
 }
-export interface AssessmentsWithArchetype {
-  archetype: Archetype;
-  assessments: Assessment[];
-}
-
 export enum StakeholderType {
   Stakeholder = "Stakeholder",
   StakeholderGroup = "Stakeholder Group",
@@ -1082,21 +986,21 @@ export interface TargetedSchema {
 // Analysis Profiles
 // Based on: https://github.com/konveyor/tackle2-hub/blob/main/api/profile.go
 
-export interface AnalysisProfileMode {
+interface AnalysisProfileMode {
   withDeps: boolean;
 }
 
-export interface AnalysisProfilePackages {
+interface AnalysisProfilePackages {
   included?: string[];
   excluded?: string[];
 }
 
-export interface AnalysisProfileScope {
+interface AnalysisProfileScope {
   withKnownLibs: boolean;
   packages: AnalysisProfilePackages;
 }
 
-export interface AnalysisProfileLabels {
+interface AnalysisProfileLabels {
   included?: string[];
   excluded?: string[];
 }
@@ -1107,7 +1011,7 @@ export interface AnalysisProfileTarget {
   selection?: string;
 }
 
-export interface AnalysisProfileRules {
+interface AnalysisProfileRules {
   labels: AnalysisProfileLabels;
   repository?: Repository;
   identity?: Ref;

@@ -59,7 +59,7 @@ const hasAssetRepository = (application: DecoratedApplication | null) => {
   return !!application?.assets?.kind && !!application?.assets?.url;
 };
 
-export const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
+const ApplicationFormReady: React.FC<ApplicationFormProps> = ({
   form,
   data: {
     tagItems,

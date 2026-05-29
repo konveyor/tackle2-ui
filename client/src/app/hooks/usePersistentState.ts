@@ -19,7 +19,7 @@ type PersistToProvider<TValue> = {
   deserialize: () => TValue;
 };
 
-export type PersistToUrlParamsOptions<
+type PersistToUrlParamsOptions<
   TValue,
   TPersistenceKeyPrefix extends string,
   TURLParamKey extends string,
@@ -128,7 +128,7 @@ const usePersistenceProvider = <TValue>({
   return [deserialize() ?? defaultValue, serialize];
 };
 
-export const isPersistenceProviderOptions = <
+const isPersistenceProviderOptions = <
   TValue,
   TPersistenceKeyPrefix extends string,
   TURLParamKey extends string,

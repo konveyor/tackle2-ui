@@ -29,7 +29,7 @@ import { useFetchStakeholders } from "@app/queries/stakeholders";
 import { matchItemsToRef } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
 
-export interface FormValues {
+interface FormValues {
   name: string;
   description: string;
   owner: string;

@@ -197,7 +197,7 @@ const mockAssessmentArray: Assessment[] = [
   },
 ];
 
-export const handlers = [
+const handlers = [
   rest.get(hub`/questionnaires`, (req, res, ctx) => {
     return res(ctx.json(questionnaireData));
   }),

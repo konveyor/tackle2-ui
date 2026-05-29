@@ -19,24 +19,19 @@ export const cancelButton = "#cancel";
 export const closeButton = "button[aria-label=Close]";
 export const confirmButton = "#confirm-dialog-button";
 export const confirmCancelButton = "#confirm-cancel-button";
-export const editButton = "button[aria-label=edit]";
-export const deleteButton = "button[aria-label=delete]";
 export const removeButton = "button[aria-label='Remove']";
-export const clearAllButton = "button[aria-label='Clear all']";
 export const controlsForm = "form.pf-v6-c-form";
 export const filteredBy = '[data-ouia-component-id="filtered-by"]';
 export const expandRow = "button[aria-label=Details]";
 export const successAlertMessage = ".pf-m-success";
 export const successIcon = "span.pf-v6-c-icon__content.pf-m-success";
 export const errorAlertMessage = ".pf-m-error";
-export const pageTitle = "section.pf-v6-c-page__main-section.pf-m-light h1";
 export const infoAlertMessage = ".pf-m-info";
 export const alertBody = 'div[id*="pf-modal-part"]';
 export const alertTitle = "h4[class*='alert__title']";
 export const appTable = ".pf-v6-c-table";
 export const expandableRow = ".pf-c-expandable-row";
 export const helper = "span.pf-v6-c-helper-text__item-text";
-export const filterInput = "input[type='search']";
 export const inputText = "input[type='text']";
 export const nextPageButton = "button[aria-label='Go to next page']";
 export const prevPageButton = "button[aria-label='Go to previous page']";
@@ -54,15 +49,14 @@ export const itemsSelectInsideDialog =
 export const helperBusiness = 'span[class*="helper-text__item"]';
 export const stakeHolderGroupHelper = "div.pf-v6-c-helper-text";
 export const actionMenuItem = "span.pf-v6-c-menu__item-text";
-export const kebabMenuItem = "a.pf-c-dropdown__menu-item";
+export const manageImportsActionsButton =
+  "button[aria-label='Table toolbar actions kebab toggle']";
 export const kebabActionButton = "li.pf-v6-c-menu__list-item";
 export const commonTable = "table.pf-v6-c-table.pf-m-grid-md";
 export const tableRowActions = ".pf-v6-c-table__tr.actions-row";
 export const tableHead = "thead[class='pf-v6-c-table__thead']";
 export const plainButton = "button.pf-v6-c-button.pf-m-plain";
-export const footer = "footer";
-export const manageImportsActionsButton =
-  "button[aria-label='Table toolbar actions kebab toggle']";
+export const radioButtonLabel = "div.pf-v6-c-radio";
 export const nextButton = "button[cy-data='next']";
 export const saveAndReviewButton = "button[cy-data='save-and-review']";
 export const span = "span";
@@ -73,11 +67,6 @@ export const issues = "Issues";
 export const dependencies = "Dependencies";
 export const technologies = "Technologies";
 
-export const specialFilter = "#select-multi-typeahead-checkbox-listbox";
-export const filterDropDownContainer =
-  "div.pf-v6-c-toolbar__group.pf-m-toggle-group.pf-m-filter-group.pf-m-show";
-export const actionSelectToggle = "span.pf-v6-c-menu-toggle__controls";
-export const radioButtonLabel = "div.pf-v6-c-radio";
 export const radioButton = '*[class^="pf-v6-c-radio__input"]';
 export const splitItem = "div.pf-v6-l-split__item";
 export const taskNotificationBadge = "#task-notification-badge";
@@ -112,5 +101,3 @@ export const downloadFormatDetails = {
 export const downloadTaskButton = "button[aria-label='Download code']";
 
 // Task Manager drawer
-export const taskDrawerItemTitle =
-  "h2.pf-v6-c-notification-drawer__list-item-header-title";

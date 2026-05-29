@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const selectInput = "input[placeholder='Select']";
 export const criticalityInput = "input[name='criticality']";
 export const priorityInput = "input[name='priority']";
 export const reviewColumnSelector = "td[data-label='Review']";

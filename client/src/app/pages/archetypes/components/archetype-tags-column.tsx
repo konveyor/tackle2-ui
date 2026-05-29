@@ -6,7 +6,7 @@ import type { Archetype, Tag, TagCategory } from "@app/api/models";
 import { LabelCustomColor } from "@app/components/LabelCustomColor";
 
 // copied from application-tag-label.tsx
-export const getTagCategoryFallbackColor = (category?: TagCategory) => {
+const getTagCategoryFallbackColor = (category?: TagCategory) => {
   if (!category?.id) return COLOR_HEX_VALUES_BY_NAME.gray;
   const colorValues = Object.values(COLOR_HEX_VALUES_BY_NAME);
   return colorValues[category?.id % colorValues.length];

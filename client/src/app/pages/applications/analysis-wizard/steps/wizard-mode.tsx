@@ -14,7 +14,7 @@ import { useFetchArchetypes } from "@app/queries/archetypes";
 // Wizard flow mode - Manual vs Analysis Profile
 export type WizardFlowMode = "manual" | "profile";
 
-export interface WizardFlowModeValues {
+interface WizardFlowModeValues {
   flowMode: WizardFlowMode;
   selectedProfile: AnalysisProfile | null;
 }
