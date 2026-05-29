@@ -19,6 +19,8 @@ export interface AuthState {
   realmRoles: string[];
   /** Space-separated scopes from the access-token `scope` claim, split into an array. */
   scopes: string[];
+  /** When true, all scope checks pass regardless of the `scopes` array contents. */
+  allScopesGranted: boolean;
 
   /** Sign in — redirects to the IdP. No-op when auth is disabled. */
   signIn: () => void;

@@ -81,6 +81,7 @@ export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
       username: "developer",
       realmRoles: roles,
       scopes,
+      allScopesGranted: false,
       signIn: () => undefined,
       signOut: () => undefined,
       manageAccount: () => undefined,

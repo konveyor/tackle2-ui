@@ -77,6 +77,7 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
       "unknown",
     realmRoles,
     scopes,
+    allScopesGranted: false,
     signIn: () => auth.signinRedirect(),
     signOut: () =>
       auth.signoutRedirect({

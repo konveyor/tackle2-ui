@@ -37,7 +37,8 @@ export const useHasRealmRoles = (roles: string[]): boolean => {
  *   const canWrite = useHasScopes(applicationsWriteScopes);
  */
 export const useHasScopes = (requiredScopes: string[]): boolean => {
-  const { scopes } = useAuth();
+  const { scopes, allScopesGranted } = useAuth();
+  if (allScopesGranted) return true;
   return requiredScopes.some((s) => scopes.includes(s));
 };
 

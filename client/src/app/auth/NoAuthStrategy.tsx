@@ -12,6 +12,7 @@ const NO_AUTH_STATE: AuthState = {
   username: "admin",
   realmRoles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
   scopes: [],
+  allScopesGranted: true,
   signIn: () => undefined,
   signOut: () => undefined,
   manageAccount: () => undefined,

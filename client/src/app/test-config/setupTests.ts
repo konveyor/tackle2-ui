@@ -24,6 +24,7 @@ jest.mock("@app/auth", () => {
       username: "test-user",
       realmRoles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
       scopes: [],
+      allScopesGranted: true,
       signIn: jest.fn(),
       signOut: jest.fn(),
       manageAccount: jest.fn(),
