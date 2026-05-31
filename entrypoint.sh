@@ -8,17 +8,33 @@ if [[ -z "$TACKLE_HUB_URL" ]]; then
 fi
 
 if [[ $AUTH_REQUIRED != "false" ]]; then
-  if [[ -z "$KEYCLOAK_REALM" ]]; then
-    echo "You must provide KEYCLOAK_REALM environment variable" 1>&2
+  if [[ -z "$OIDC_ISSUER" && -z "$OIDC_CLIENT_ID" && -z "$KEYCLOAK_REALM" && -z "$KEYCLOAK_CLIENT_ID" && -z "$KEYCLOAK_SERVER_URL" ]]; then
+    echo "Further configuration via environment variables is required to enable authentication."
+    echo "For Hub OIDC deployments, you must provide OIDC_ISSUER and OIDC_CLIENT_ID."
+    echo "For legacy Keycloak deployments, you must provide KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID, and KEYCLOAK_SERVER_URL."
     exit 1
   fi
-  if [[ -z "$KEYCLOAK_CLIENT_ID" ]]; then
-    echo "You must provide KEYCLOAK_CLIENT_ID environment variable" 1>&2
-    exit 1
-  fi
-  if [[ -z "$KEYCLOAK_SERVER_URL" ]]; then
-    echo "You must provide KEYCLOAK_SERVER_URL environment variable" 1>&2
-    exit 1
+
+  if [[ -n "$OIDC_ISSUER" ]]; then
+    # Hub OIDC mode: OIDC_ISSUER is set by the operator;
+    if [[ -z "$OIDC_CLIENT_ID" ]]; then
+      echo "You must provide OIDC_CLIENT_ID environment variable" 1>&2
+      exit 1
+    fi
+  else
+    # Legacy Keycloak mode: all three Keycloak vars are required.
+    if [[ -z "$KEYCLOAK_REALM" ]]; then
+      echo "You must provide KEYCLOAK_REALM environment variable" 1>&2
+      exit 1
+    fi
+    if [[ -z "$KEYCLOAK_CLIENT_ID" ]]; then
+      echo "You must provide KEYCLOAK_CLIENT_ID environment variable" 1>&2
+      exit 1
+    fi
+    if [[ -z "$KEYCLOAK_SERVER_URL" ]]; then
+      echo "You must provide KEYCLOAK_SERVER_URL environment variable" 1>&2
+      exit 1
+    fi
   fi
 fi
 

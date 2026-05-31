@@ -22,10 +22,16 @@ export type KonveyorEnvType = {
   /** Enable RBAC authentication/authorization */
   AUTH_REQUIRED: "true" | "false";
 
-  /** SSO / Keycloak realm */
+  /**
+   * SSO / Keycloak realm (to support upgrading from Keycloak to Hub OIDC)
+   * @deprecated use OIDC configurations instead (OIDC_CLIENT_ID)
+   */
   KEYCLOAK_REALM: string;
 
-  /** SSO / Keycloak client id */
+  /**
+   * SSO / Keycloak client id (to support upgrading from Keycloak to Hub OIDC)
+   * @deprecated use OIDC configurations instead (OIDC_CLIENT_ID)
+   */
   KEYCLOAK_CLIENT_ID: string;
 
   /** UI upload file size limit in megabytes (MB), suffixed with "m" */
@@ -37,7 +43,10 @@ export type KonveyorEnvType = {
   /** The listen port for the UI's server */
   PORT?: string;
 
-  /** Target URL for the UI server's `/auth` proxy */
+  /**
+   * Target URL for the UI server's `/auth` proxy (to support upgrading from Keycloak to Hub OIDC)
+   * @deprecated use OIDC configurations instead (OIDC_ISSUER)
+   */
   KEYCLOAK_SERVER_URL?: string;
 
   /** Target URL for the UI server's `/hub` proxy */
@@ -48,6 +57,12 @@ export type KonveyorEnvType = {
 
   /** Location of branding files (relative paths computed from the project source root) */
   BRANDING?: string;
+
+  /** Hub OIDC issuer URL (full external URL, e.g. https://host/oidc). When set, the UI uses Hub's built-in OIDC provider instead of Keycloak. */
+  OIDC_ISSUER?: string;
+
+  /** OIDC client ID for the UI (e.g. "web-ui"). When set alongside OIDC_ISSUER, overrides KEYCLOAK_CLIENT_ID. */
+  OIDC_CLIENT_ID?: string;
 };
 
 /**
@@ -82,6 +97,8 @@ export const buildKonveyorEnv = ({
   TACKLE_HUB_URL,
   KAI_LLM_PROXY_URL,
   BRANDING,
+  OIDC_ISSUER,
+  OIDC_CLIENT_ID,
 }: Partial<KonveyorEnvType> = {}): KonveyorEnvType => ({
   NODE_ENV,
   PORT,
@@ -99,6 +116,8 @@ export const buildKonveyorEnv = ({
   TACKLE_HUB_URL,
   KAI_LLM_PROXY_URL,
   BRANDING,
+  OIDC_ISSUER,
+  OIDC_CLIENT_ID,
 });
 
 /**
