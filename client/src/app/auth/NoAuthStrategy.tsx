@@ -15,7 +15,7 @@ const NO_AUTH_STATE: AuthState = {
   allScopesGranted: true,
   signIn: () => undefined,
   signOut: () => undefined,
-  manageAccount: () => undefined,
+  manageAccount: undefined,
   ToolbarContent: null,
 };
 

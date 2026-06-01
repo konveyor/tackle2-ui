@@ -30,9 +30,8 @@ import {
  */
 export const MasqueradeDevPanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentPreset, setCurrentPreset] = useState<MasqueradePreset | null>(
-    getCurrentPreset
-  );
+  const [currentPreset, setCurrentPreset] =
+    useState<MasqueradePreset>(getCurrentPreset);
   const switchPreset = useMasqueradeDispatch();
   const { realmRoles: activeRoles } = useAuth();
 
@@ -42,10 +41,7 @@ export const MasqueradeDevPanel: React.FC = () => {
     setIsOpen(false);
   };
 
-  const presetLabel =
-    currentPreset && MASQUERADE_PRESETS[currentPreset]
-      ? MASQUERADE_PRESETS[currentPreset].label
-      : "Dev";
+  const presetLabel = MASQUERADE_PRESETS[currentPreset].label;
 
   return (
     <ToolbarItem>

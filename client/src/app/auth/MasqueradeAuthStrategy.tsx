@@ -15,9 +15,8 @@ import { MasqueradeDevPanel } from "./MasqueradeDevPanel";
 import {
   MASQUERADE_PRESETS,
   MasqueradePreset,
-  getMasqueradeRoles,
-  getMasqueradeScopes,
-  setMasqueradePreset,
+  getCurrentPreset,
+  setCurrentPreset,
 } from "./masquerade";
 import type { AuthState } from "./types";
 
@@ -47,48 +46,33 @@ export const useMasqueradeDispatch = (): MasqueradeDispatchFn => {
  * :important: Note: Masquerade only applies to UI code and is not used for API requests.
  * With auth disabled, all API requests are understood by the backend as being made with
  * the admin role.
- *
- * Strategy contract: renders children inside AuthStateContext.Provider with a
- * fully-resolved AuthState. Reads roles and scopes from masquerade.ts, which
- * consults localStorage overrides and build-time env vars in that order,
- * defaulting to admin-level access.
- *
- * This strategy provides MasqueradeDevPanel as its ToolbarContent. The dev
- * panel calls the dispatch function from MasqueradeDispatchContext to switch
- * personas. Because roles/scopes are held in React state, all context
- * consumers (useAuth, useHasRealmRoles, etc.) re-render automatically —
- * no page reload required.
- *
- * Since the MasqueradeAuthStrategy is only selected when NODE_ENV !== "production", this
- * file is tree-shaken from production bundles.
  */
 export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
   children,
 }) => {
-  const [roles, setRoles] = useState(getMasqueradeRoles);
-  const [scopes, setScopes] = useState(getMasqueradeScopes);
+  const [preset, setPreset] = useState<MasqueradePreset>(getCurrentPreset);
 
-  const switchPreset = useCallback((preset: MasqueradePreset) => {
-    setMasqueradePreset(preset);
-    setRoles(MASQUERADE_PRESETS[preset].roles.slice());
-    setScopes(MASQUERADE_PRESETS[preset].scopes.slice());
+  const switchPreset = useCallback((next: MasqueradePreset) => {
+    setCurrentPreset(next);
+    setPreset(next);
   }, []);
 
-  const authState: AuthState = useMemo(
-    () => ({
+  const authState: AuthState = useMemo(() => {
+    const { roles, scopes, allScopesGranted } = MASQUERADE_PRESETS[preset];
+
+    return {
       isLoaded: true,
       isAuthenticated: true,
       username: "developer",
-      realmRoles: roles,
-      scopes,
-      allScopesGranted: false,
+      realmRoles: roles.slice(),
+      scopes: scopes.slice(),
+      allScopesGranted,
       signIn: () => undefined,
       signOut: () => undefined,
-      manageAccount: () => undefined,
+      manageAccount: undefined,
       ToolbarContent: MasqueradeDevPanel,
-    }),
-    [roles, scopes]
-  );
+    };
+  }, [preset]);
 
   return (
     <MasqueradeDispatchContext.Provider value={switchPreset}>
