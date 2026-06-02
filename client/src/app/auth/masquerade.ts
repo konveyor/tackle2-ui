@@ -49,7 +49,7 @@ export const getCurrentPreset = (): MasqueradePreset => {
 
   try {
     const stored = window.localStorage.getItem(LS_PRESET_KEY);
-    if (stored && stored in MASQUERADE_PRESETS) {
+    if (stored && Object.hasOwn(MASQUERADE_PRESETS, stored)) {
       return stored as MasqueradePreset;
     }
   } catch {
