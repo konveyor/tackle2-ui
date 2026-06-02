@@ -83,8 +83,9 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
       auth.signoutRedirect({
         post_logout_redirect_uri: window.location.origin,
       }),
-    manageAccount: () =>
-      window.open(accountManagementUrl, "_blank", "noopener"),
+    manageAccount: accountManagementUrl
+      ? () => window.open(accountManagementUrl, "_blank", "noopener")
+      : undefined,
     ToolbarContent: OidcToolbarItem,
   };
 
