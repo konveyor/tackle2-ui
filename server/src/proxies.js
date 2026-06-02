@@ -54,24 +54,25 @@ const redirectIfUnauthorized = (proxyRes, req, res) => {
 };
 
 /**
- * Set the RFC 7239 `Forwarded` header and the legacy `X-Forwarded-*` headers
- * on the proxied request, but only when an upstream proxy has not already set
- * them.  This covers three deployment scenarios:
+ * Set the RFC 7239 `Forwarded` header on the proxied request, but only when an
+ * upstream proxy has not already set one.  This covers three deployment
+ * scenarios:
  *
- *  1. Dev (direct access) — no upstream proxy; no forwarded headers on the
- *     incoming request.  We set them all so Hub sees the correct client context.
+ *  1. Dev (direct access) — no upstream proxy; no forwarded headers arrive.
+ *     We derive `for`, `host`, and `proto` from the socket/request directly.
  *
- *  2. Vanilla K8s (e.g. minikube + ingress-nginx) — the ingress controller sets
- *     X-Forwarded-For/Proto/Host before the request reaches the pod.  We
- *     preserve those values and derive the RFC 7239 Forwarded header from them.
+ *  2. Vanilla K8s (e.g. minikube + ingress-nginx) — the ingress controller
+ *     sets `X-Forwarded-For`, `X-Forwarded-Proto`, and `X-Forwarded-Host`
+ *     before the request reaches the pod, but does not set `Forwarded`.  We
+ *     synthesize the RFC 7239 header from those legacy values so Hub gets a
+ *     standard header that reflects the real client context.
  *
- *  3. OpenShift — HAProxy at the edge sets X-Forwarded-For/Host and also
- *     injects a Forwarded header.  We do not overwrite any of them (the same
- *     Forwarded header that broke Keycloak on OpenShift when set by the auth
- *     proxy is already correctly present).
+ *  3. OpenShift — HAProxy at the edge injects a `Forwarded` header itself.
+ *     We leave it untouched (this avoids the duplicate-header problem that
+ *     previously broke Keycloak on OpenShift).
  *
  * Notes:
- * - IPv6 addresses in the Forwarded `for=` token are bracketed and quoted per
+ * - IPv6 addresses in the `for=` token are bracketed and quoted per
  *   RFC 7239 §6.
  * - `req.socket.encrypted` is used instead of `req.protocol` for the protocol
  *   fallback, because `req.protocol` in Express reflects the internal pod
@@ -80,51 +81,31 @@ const redirectIfUnauthorized = (proxyRes, req, res) => {
  * @type OnProxyEvent["proxyReq"]
  */
 const setForwardedHeader = (proxyReq, req, _res) => {
-  // --- X-Forwarded-* (legacy, set only if absent) ---
-  if (!req.headers["x-forwarded-for"] && req.socket.remoteAddress) {
-    proxyReq.setHeader("X-Forwarded-For", req.socket.remoteAddress);
+  if (req.headers["forwarded"]) return;
+
+  const parts = [];
+
+  const clientIp =
+    String(req.headers["x-forwarded-for"] ?? "")
+      .split(",")[0]
+      .trim() || req.socket.remoteAddress;
+  if (clientIp) {
+    const forValue = clientIp.includes(":") ? `"[${clientIp}]"` : clientIp;
+    parts.push(`for=${forValue}`);
   }
 
-  if (!req.headers["x-real-ip"] && req.socket.remoteAddress) {
-    proxyReq.setHeader("X-Real-IP", req.socket.remoteAddress);
+  const host = req.headers["x-forwarded-host"] ?? req.headers.host;
+  if (host) {
+    parts.push(`host="${host}"`);
   }
 
-  if (!req.headers["x-forwarded-host"] && req.headers.host) {
-    proxyReq.setHeader("X-Forwarded-Host", req.headers.host);
-  }
+  const proto =
+    String(req.headers["x-forwarded-proto"] ?? "")
+      .split(",")[0]
+      .trim() || (req.socket.encrypted ? "https" : "http");
+  parts.push(`proto=${proto}`);
 
-  if (!req.headers["x-forwarded-proto"]) {
-    proxyReq.setHeader(
-      "X-Forwarded-Proto",
-      req.socket.encrypted ? "https" : "http"
-    );
-  }
-
-  // --- RFC 7239 Forwarded (set only if absent) ---
-  if (!req.headers["forwarded"]) {
-    const parts = [];
-
-    if (req.socket.remoteAddress) {
-      const ip = req.socket.remoteAddress;
-      // IPv6 addresses must be bracketed and quoted per RFC 7239 §6
-      const forValue = ip.includes(":") ? `"[${ip}]"` : ip;
-      parts.push(`for=${forValue}`);
-    }
-
-    if (req.headers.host) {
-      parts.push(`host="${req.headers.host}"`);
-    }
-
-    // Use x-forwarded-proto when already present (set by upstream or by us
-    // above); fall back to the socket's encryption state.
-    const proto =
-      String(req.headers["x-forwarded-proto"] ?? "")
-        .split(",")[0]
-        .trim() || (req.socket.encrypted ? "https" : "http");
-    parts.push(`proto=${proto}`);
-
-    proxyReq.setHeader("Forwarded", parts.join(";"));
-  }
+  proxyReq.setHeader("Forwarded", parts.join(";"));
 };
 
 /** @type Record<string, Options> */
