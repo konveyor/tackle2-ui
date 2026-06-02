@@ -21,7 +21,7 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
   elif [[ -z "$OIDC_ISSUER" && -n "$OIDC_CLIENT_ID" ]]; then
     echo "You must provide OIDC_ISSUER environment variable" 1>&2
     exit 1
-  elif [[ -n "$OIDC_ISSUER" && -n "$OIDC_CLIENT_ID" ]]; then
+  elif [[ -z "$OIDC_ISSUER" && -z "$OIDC_CLIENT_ID" ]]; then
     # Legacy Keycloak mode: all three Keycloak vars are required.
     if [[ -z "$KEYCLOAK_REALM" ]]; then
       echo "You must provide KEYCLOAK_REALM environment variable" 1>&2
