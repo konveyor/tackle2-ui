@@ -15,7 +15,7 @@ const LS_PRESET_KEY = "tackle-masquerade-preset";
 export const MASQUERADE_PRESETS = {
   noAuth: {
     label: "No Auth",
-    roles: [] as string[],
+    roles: ["tackle-admin", "tackle-architect", "tackle-migrator"] as string[],
     scopes: [] as string[],
     allScopesGranted: true,
   },
