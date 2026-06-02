@@ -26,8 +26,8 @@ export interface AuthState {
   signIn: () => void;
   /** Sign out — ends the OIDC session. No-op when auth is disabled. */
   signOut: () => void;
-  /** Open the IdP account-management page. No-op when auth is disabled. */
-  manageAccount: () => void;
+  /** If set, opens the IdP account-management page. */
+  manageAccount?: () => void;
 
   /** Strategy-specific toolbar content rendered in the masthead user area. */
   ToolbarContent: ComponentType | null;

@@ -55,14 +55,16 @@ export const OidcToolbarItem: React.FC = () => {
       >
         <DropdownGroup key="sso">
           <DropdownList>
-            <DropdownItem
-              id="manage-account"
-              key="sso_user_management"
-              component="button"
-              onClick={() => manageAccount()}
-            >
-              {t("actions.manageAccount")}
-            </DropdownItem>
+            {manageAccount && (
+              <DropdownItem
+                id="manage-account"
+                key="sso_user_management"
+                component="button"
+                onClick={() => manageAccount()}
+              >
+                {t("actions.manageAccount")}
+              </DropdownItem>
+            )}
             <DropdownItem
               id="logout"
               key="sso_logout"
