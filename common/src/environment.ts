@@ -24,7 +24,7 @@ export type KonveyorEnvType = {
 
   /**
    * SSO / Keycloak realm (to support upgrading from Keycloak to Hub OIDC)
-   * @deprecated use OIDC configurations instead (OIDC_CLIENT_ID)
+   * @deprecated use OIDC configurations instead (OIDC_ISSUER)
    */
   KEYCLOAK_REALM: string;
 
