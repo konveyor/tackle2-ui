@@ -29,6 +29,7 @@ app.set("x-powered-by", false);
 
 // Setup proxies for auth and hub
 app.use(createProxyMiddleware(proxies.auth));
+app.use(createProxyMiddleware(proxies.oidc));
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
 app.use(createProxyMiddleware(proxies.kaiLLMProxy));

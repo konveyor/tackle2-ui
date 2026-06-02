@@ -77,7 +77,7 @@
     "axios": "^1.16.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5"
+    "http-proxy-middleware": "~4.0.0"
   },
   "overrides": {
     "follow-redirects": "^1.16.0",
