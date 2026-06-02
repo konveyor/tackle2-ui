@@ -19,7 +19,7 @@ import {
   clickByText,
   clickItemInKebabMenu,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -199,7 +199,7 @@ export class Stakeholdergroups {
   ): void {
     Stakeholdergroups.openList();
     cy.wait(2000);
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
     if (cancel) {
       cancelForm();
     } else {

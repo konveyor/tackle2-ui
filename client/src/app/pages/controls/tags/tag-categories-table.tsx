@@ -356,12 +356,13 @@ export const Tags: React.FC = () => {
                         >
                           {tagCategory.tags?.length || 0}
                         </Td>
-                        {/* TODO: Convert to pencil-action / row-actions Td isActionCell */}
                         <ControlTableActionsColumn
-                          isDeleteEnabled={!!tagCategory.tags?.length}
-                          deleteTooltipMessage={t(
-                            "message.cannotDeleteNonEmptyTagCategory"
-                          )}
+                          isDeleteEnabled={!tagCategory.tags?.length}
+                          deleteTooltipMessage={
+                            tagCategory.tags?.length
+                              ? t("message.cannotDeleteNonEmptyTagCategory")
+                              : undefined
+                          }
                           onEdit={() => setTagCategoryModalState(tagCategory)}
                           onDelete={() => setTagCategoryToDelete(tagCategory)}
                         />

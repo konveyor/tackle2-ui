@@ -165,7 +165,7 @@ export const TabTasksContent: React.FC<{
                 modifier="nowrap"
               />
               <Th {...getThProps({ columnKey: "status" })} modifier="nowrap" />
-              <Th screenReaderText="row actions" />
+              <Th screenReaderText={t("actions.rowActions")} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>
@@ -203,11 +203,7 @@ export const TabTasksContent: React.FC<{
                       }
                     />
                   </Td>
-                  <Td
-                    key={`row-actions-${task.id}`}
-                    isActionCell
-                    id={`row-actions-${task.id}`}
-                  >
+                  <Td isActionCell>
                     <TaskActionColumn task={task} />
                   </Td>
                 </TableRowContentWithControls>

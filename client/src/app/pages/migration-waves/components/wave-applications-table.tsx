@@ -98,7 +98,7 @@ export const WaveApplicationsTable: React.FC<IWaveApplicationsTableProps> = ({
               <Th {...getThProps({ columnKey: "description" })} />
               <Th {...getThProps({ columnKey: "businessService" })} />
               <Th {...getThProps({ columnKey: "owner" })} />
-              <Th screenReaderText="row actions" />
+              <Th screenReaderText={t("actions.rowActions")} />
             </TableHeaderContentWithControls>
           </Tr>
         </Thead>

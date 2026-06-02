@@ -13,19 +13,10 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { SourcePlatform } from "@app/api/models";
@@ -41,9 +32,11 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { DiscoverImportWizard } from "@app/components/discover-import-wizard";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import { usePlatformKindList } from "@app/hooks/usePlatformKindList";
 import { useDeletePlatformMutation } from "@app/queries/platforms";
+import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ColumnPlatformName } from "./components/column-platform-name";
@@ -242,8 +235,7 @@ export const SourcePlatforms: React.FC = () => {
                     <Th {...getThProps({ columnKey: "name" })} />
                     <Th {...getThProps({ columnKey: "platformKind" })} />
                     <Th {...getThProps({ columnKey: "applications" })} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -283,33 +275,52 @@ export const SourcePlatforms: React.FC = () => {
                           <LinkToPlatformApplications platform={platform} />
                         </Td>
 
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() => setPlatformToEdit(platform)}
-                            />
-                          </Tooltip>
-                        </Td>
-                        <Td isActionCell id="row-actions">
-                          <ActionsColumn
-                            items={[
-                              ...[
-                                {
-                                  title: t("actions.discoverApplications"),
-                                  onClick: () => discoverImport(platform),
-                                },
-                              ],
-                              { isSeparator: true },
-                              ...[
-                                {
-                                  title: t("actions.delete"),
-                                  onClick: () => setPlatformToDelete(platform),
-                                  isDanger: true,
-                                },
-                              ],
-                            ]}
+                        <Td isActionCell>
+                          <OverflowActionMenu
+                            toggleId="row-actions"
+                            toggleAriaLabel={t("actions.rowActions")}
+                            items={addSeparatorForOverflow(
+                              (index, isShared) => ({
+                                isSeparator: true,
+                                itemKey: `separator-${index}`,
+                                isShared,
+                              }),
+                              [
+                                [
+                                  {
+                                    title: t("actions.edit"),
+                                    "aria-label": t("actions.edit"),
+                                    itemKey: "edit",
+                                    onClick: () => setPlatformToEdit(platform),
+                                    variant: "plain",
+                                    icon: <PencilAltIcon />,
+                                    ouiaId: "pencil-action",
+                                    useOnlyIconWhenShared: true,
+                                    isShared: true,
+                                    tooltipProps: {
+                                      content: t("actions.edit"),
+                                    },
+                                  },
+                                ],
+                                [
+                                  {
+                                    title: t("actions.discoverApplications"),
+                                    itemKey: "discoverApplications",
+                                    onClick: () => discoverImport(platform),
+                                  },
+                                ],
+
+                                [
+                                  {
+                                    title: t("actions.delete"),
+                                    itemKey: "delete",
+                                    onClick: () =>
+                                      setPlatformToDelete(platform),
+                                    isDanger: true,
+                                  },
+                                ],
+                              ]
+                            )}
                           />
                         </Td>
                       </TableRowContentWithControls>

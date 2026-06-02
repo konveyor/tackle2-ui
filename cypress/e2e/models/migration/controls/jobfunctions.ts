@@ -20,7 +20,7 @@ import {
   clickItemInKebabMenu,
   inputText,
   notExists,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -125,7 +125,7 @@ export class Jobfunctions {
 
   edit(updatedName: string, cancel = false): void {
     Jobfunctions.openList();
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
 
     if (cancel) {
       cancelForm();

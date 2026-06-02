@@ -23,7 +23,7 @@ import {
   confirm,
   expandRowDetails,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -124,7 +124,7 @@ export class Tag {
   ): void {
     Tag.openList();
     expandRowDetails(this.tagCategory);
-    performRowActionByIcon(this.name, commonView.pencilIcon);
+    performRowActionBySelector(this.name, commonView.pencilAction);
     if (cancel) {
       cancelForm();
     } else {

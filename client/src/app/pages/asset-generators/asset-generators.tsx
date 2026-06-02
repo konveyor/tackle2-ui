@@ -13,7 +13,6 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
@@ -32,6 +31,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 import {
   useDeleteGeneratorMutation,
@@ -310,26 +310,42 @@ const AssetGenerators: FC = () => {
                         <Td {...getTdProps({ columnKey: "values" })}>
                           {Object.keys(generator?.values || {}).length}
                         </Td>
-
-                        <Td isActionCell id="pencil-action">
-                          <Tooltip content={t("actions.edit")}>
-                            <Button
-                              variant="plain"
-                              icon={<PencilAltIcon />}
-                              onClick={() => handleEditGenerator(generator)}
-                            />
-                          </Tooltip>
-                        </Td>
-
-                        <Td isActionCell id="delete-action">
-                          <Tooltip content={t("actions.delete")}>
-                            <Button
-                              variant="plain"
-                              icon={<TrashIcon />}
-                              onClick={() => handleDeleteGenerator(generator)}
-                              isDanger={true}
-                            />
-                          </Tooltip>
+                        <Td isActionCell>
+                          <OverflowActionMenu
+                            toggleId="row-actions"
+                            toggleAriaLabel={t("actions.rowActions")}
+                            items={[
+                              {
+                                title: t("actions.edit"),
+                                icon: <PencilAltIcon />,
+                                "aria-label": t("actions.edit"),
+                                ouiaId: "pencil-action",
+                                useOnlyIconWhenShared: true,
+                                tooltipProps: {
+                                  content: t("actions.edit"),
+                                },
+                                isShared: true,
+                                variant: "plain",
+                                itemKey: "edit",
+                                onClick: () => handleEditGenerator(generator),
+                              },
+                              {
+                                title: t("actions.delete"),
+                                isDanger: true,
+                                icon: <TrashIcon />,
+                                "aria-label": t("actions.delete"),
+                                ouiaId: "delete-action",
+                                useOnlyIconWhenShared: true,
+                                tooltipProps: {
+                                  content: t("actions.delete"),
+                                },
+                                isShared: true,
+                                variant: "plain",
+                                itemKey: "delete",
+                                onClick: () => handleDeleteGenerator(generator),
+                              },
+                            ]}
+                          />
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

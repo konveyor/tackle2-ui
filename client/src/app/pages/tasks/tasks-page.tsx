@@ -296,7 +296,7 @@ export const TasksPage: FC = () => {
                         info={tooltips[id]}
                       />
                     ))}
-                  <Th screenReaderText="row actions" />
+                  <Th screenReaderText={t("actions.rowActions")} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -332,11 +332,7 @@ export const TasksPage: FC = () => {
                               {cells[columnKey]}
                             </Td>
                           ))}
-                        <Td
-                          key={`row-actions-${task.id}`}
-                          isActionCell
-                          id={`row-actions-${task.id}`}
-                        >
+                        <Td isActionCell>
                           <TaskActionColumn task={task} />
                         </Td>
                       </TableRowContentWithControls>

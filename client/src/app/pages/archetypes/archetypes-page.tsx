@@ -13,20 +13,10 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
-import {
-  ActionsColumn,
-  IAction,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-} from "@patternfly/react-table";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Paths } from "@app/Paths";
@@ -43,6 +33,7 @@ import {
   TableHeaderContentWithControls,
   TableRowContentWithControls,
 } from "@app/components/TableControls";
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import {
   deserializeFilterUrlParams,
   useLocalTableControls,
@@ -53,7 +44,7 @@ import {
   assessmentWriteScopes,
   reviewsWriteScopes,
 } from "@app/rbac";
-import { filterAndAddSeparator } from "@app/utils/grouping";
+import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { formatPath } from "@app/utils/utils";
 
 import ArchetypeDetailDrawer from "./components/archetype-detail-drawer";
@@ -302,8 +293,7 @@ const Archetypes: React.FC = () => {
                       width={10}
                     />
                     <Th {...getThProps({ columnKey: "review" })} width={10} />
-                    <Th screenReaderText="primary action" />
-                    <Th screenReaderText="secondary actions" />
+                    <Th screenReaderText={t("actions.rowActions")} />
                   </TableHeaderContentWithControls>
                 </Tr>
               </Thead>
@@ -382,31 +372,44 @@ const Archetypes: React.FC = () => {
                             }
                           />
                         </Td>
-                        {archetypeWriteAccess && (
-                          <Td isActionCell id="pencil-action">
-                            <Tooltip content={t("actions.edit")}>
-                              <Button
-                                variant="plain"
-                                icon={<PencilAltIcon />}
-                                onClick={() => setArchetypeToEdit(archetype)}
-                              />
-                            </Tooltip>
-                          </Td>
-                        )}
-                        <Td isActionCell id="row-actions">
+                        <Td isActionCell>
                           {(archetypeWriteAccess ||
                             assessmentWriteAccess ||
                             reviewsWriteAccess ||
                             (archetype?.assessments?.length &&
                               assessmentWriteAccess) ||
                             (archetype?.review && reviewsWriteAccess)) && (
-                            <ActionsColumn
-                              items={filterAndAddSeparator<IAction>(
-                                (_index) => ({ isSeparator: true }),
+                            <OverflowActionMenu
+                              toggleId="row-actions"
+                              toggleAriaLabel={t("actions.rowActions")}
+                              items={addSeparatorForOverflow(
+                                (index, isShared) => ({
+                                  isSeparator: true,
+                                  itemKey: `separator-${index}`,
+                                  isShared,
+                                }),
                                 [
                                   [
                                     archetypeWriteAccess && {
+                                      title: t("actions.edit"),
+                                      "aria-label": t("actions.edit"),
+                                      itemKey: "edit",
+                                      onClick: () =>
+                                        setArchetypeToEdit(archetype),
+                                      variant: "plain",
+                                      icon: <PencilAltIcon />,
+                                      ouiaId: "pencil-action",
+                                      isShared: true,
+                                      useOnlyIconWhenShared: true,
+                                      tooltipProps: {
+                                        content: t("actions.edit"),
+                                      },
+                                    },
+                                  ],
+                                  [
+                                    archetypeWriteAccess && {
                                       title: t("actions.manageTargetProfiles"),
+                                      itemKey: "manageTargetProfiles",
                                       onClick: () =>
                                         history.push(
                                           formatPath(
@@ -419,28 +422,33 @@ const Archetypes: React.FC = () => {
                                     },
                                     archetypeWriteAccess && {
                                       title: t("actions.duplicate"),
+                                      itemKey: "duplicate",
                                       onClick: () =>
                                         setArchetypeToDuplicate(archetype),
                                     },
                                     assessmentWriteAccess && {
                                       title: t("actions.assess"),
+                                      itemKey: "assess",
                                       onClick: () =>
                                         assessSelectedArchetype(archetype),
                                     },
                                     archetype?.assessments?.length &&
                                       assessmentWriteAccess && {
                                         title: t("actions.discardAssessment"),
+                                        itemKey: "discardAssessment",
                                         onClick: () =>
                                           setAssessmentToDiscard(archetype),
                                       },
                                     reviewsWriteAccess && {
                                       title: t("actions.review"),
+                                      itemKey: "review",
                                       onClick: () =>
                                         reviewSelectedArchetype(archetype),
                                     },
                                     archetype?.review &&
                                       reviewsWriteAccess && {
                                         title: t("actions.discardReview"),
+                                        itemKey: "discardReview",
                                         onClick: () =>
                                           setReviewToDiscard(archetype),
                                       },
@@ -448,6 +456,7 @@ const Archetypes: React.FC = () => {
                                   [
                                     archetypeWriteAccess && {
                                       title: t("actions.delete"),
+                                      itemKey: "delete",
                                       onClick: () =>
                                         setArchetypeToDelete(archetype),
                                       isDanger: true,
