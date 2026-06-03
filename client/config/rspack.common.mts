@@ -1,15 +1,18 @@
+import { createRequire } from "node:module";
 import path from "path";
 
 import { rspack } from "@rspack/core";
 import type { Configuration } from "@rspack/core";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 
-import { brandingAssetPath } from "@konveyor-ui/common";
-
 import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const brandingPath = brandingAssetPath();
+const _require = createRequire(import.meta.url);
+export const brandingPath = path.resolve(
+  path.dirname(_require.resolve("@konveyor-ui/common/package.json")),
+  "dist/branding"
+);
 const manifestPath = path.resolve(brandingPath, "manifest.json");
 
 const config: Configuration = {

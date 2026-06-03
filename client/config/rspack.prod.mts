@@ -6,13 +6,11 @@ import type { Configuration } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import { merge } from "rspack-merge";
 
-import { brandingAssetPath } from "@konveyor-ui/common";
-
-import commonRspackConfiguration from "./rspack.common.mjs";
+import commonRspackConfiguration, { brandingPath } from "./rspack.common.mjs";
 import { stylePaths } from "./stylePaths";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
+const faviconPath = path.resolve(brandingPath, "favicon.ico");
 
 const config = merge(commonRspackConfiguration, {
   mode: "production",

@@ -50,7 +50,7 @@ export default defineConfig({
   ],
   output: {
     target: "node",
-    copy: [{ from: `${brandingPath}/*`, to: "branding" }],
+    copy: [{ from: "**/*", to: "branding", context: brandingPath }],
   },
   tools: {
     rspack: {

@@ -11,16 +11,15 @@ import { TsCheckerRspackPlugin } from "ts-checker-rspack-plugin";
 import {
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
-  brandingAssetPath,
   brandingStrings,
   encodeEnv,
 } from "@konveyor-ui/common";
 
-import commonRspackConfiguration from "./rspack.common.mjs";
+import commonRspackConfiguration, { brandingPath } from "./rspack.common.mjs";
 import { stylePaths } from "./stylePaths";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
+const faviconPath = path.resolve(brandingPath, "favicon.ico");
 
 interface RspackDevConfiguration extends Configuration {
   devServer?: DevServerConfiguration;
@@ -52,6 +51,7 @@ const config: RspackDevConfiguration = mergeWithRules({
     },
     hot: true,
   },
+  lazyCompilation: false,
 
   module: {
     rules: [

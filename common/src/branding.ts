@@ -1,6 +1,3 @@
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 export interface MastheadBrand {
   src: string;
   alt: string;
@@ -41,10 +38,3 @@ export interface BrandingStrings {
 import stringsJson from "@konveyor-ui/branding/strings.js";
 
 export const brandingStrings = stringsJson as unknown as BrandingStrings;
-
-/**
- * Return the resolved path for the branding assets in the built output.
- * Uses import.meta.url so it works in both ESM and CJS (via Rslib shim).
- */
-export const brandingAssetPath = () =>
-  join(dirname(fileURLToPath(import.meta.url)), "branding");
