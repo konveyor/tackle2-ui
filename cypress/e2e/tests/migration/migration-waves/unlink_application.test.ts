@@ -37,11 +37,10 @@ import {
   JiraIssueTypes,
   JiraType,
   SEC,
-  button,
-  deleteAction,
   tdTag,
   trTag,
 } from "../../../types/constants";
+import { trashAction } from "../../../views/common.view";
 
 import Chainable = Cypress.Chainable;
 
@@ -135,12 +134,9 @@ describe(
         cy.get(tdTag, { timeout: 120 * SEC })
           .contains(jiraCloudInstance.name)
           .closest(trTag)
-          .within(() => {
-            cy.contains(button, deleteAction).should(
-              "not.have.class",
-              "pf-m-aria-disabled"
-            );
-          });
+          .scrollIntoView()
+          .find(trashAction)
+          .should("not.be.disabled");
       });
     });
 
@@ -154,12 +150,9 @@ describe(
         cy.get(tdTag, { timeout: 120 * SEC })
           .contains(jiraCloudInstance.name)
           .closest(trTag)
-          .within(() => {
-            cy.contains(button, deleteAction).should(
-              "not.have.class",
-              "pf-m-aria-disabled"
-            );
-          });
+          .scrollIntoView()
+          .find(trashAction)
+          .should("not.be.disabled");
       });
     });
 
