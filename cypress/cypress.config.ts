@@ -78,7 +78,6 @@ export default defineConfig({
     fixturesFolder: "fixtures",
 
     setupNodeEvents(on, config) {
-      config.env.initialPassword = process.env.CYPRESS_INITIAL_PASSWORD;
       config.env.user = process.env.CYPRESS_USER;
       config.env.pass = process.env.CYPRESS_PASSWORD;
       config.env.keycloakAdminPassword =

@@ -235,32 +235,6 @@ export function login(
         inputText(loginView.userNameInput, username);
         inputText(loginView.userPasswordInput, password);
         click(loginView.loginButton);
-
-        // If login fails, try the initialPassword
-        cy.get("body").then(($body) => {
-          const txt = $body.find("*:contains('Invalid username or password')");
-          if (txt.length > 0) {
-            cy.log("Try logging in with the initial password");
-            inputText(
-              loginView.userPasswordInput,
-              Cypress.env("initialPassword")
-            );
-            click(loginView.loginButton);
-          }
-        });
-
-        // Update the password if it needs to be updated
-        cy.get("body").then(($body) => {
-          const txt = $body.find(
-            "*:contains('You need to change your password')"
-          );
-          if (txt.length > 0) {
-            cy.log("Attempting to change the password");
-            inputText(loginView.changePasswordInput, password);
-            inputText(loginView.confirmPasswordInput, password);
-            click(loginView.submitButton);
-          }
-        });
       } else {
         cy.log("AUTH is disabled, just look for applications page");
       }
