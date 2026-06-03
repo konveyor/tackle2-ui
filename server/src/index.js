@@ -22,7 +22,7 @@ debugMode && console.log("KONVEYOR_ENV", KONVEYOR_ENV);
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const port = parseInt(KONVEYOR_ENV.PORT, 10) || developmentMode ? 9000 : 8080;
+const port = parseInt(KONVEYOR_ENV.PORT, 10) || (developmentMode ? 9000 : 8080);
 
 const app = express();
 app.set("x-powered-by", false);
@@ -57,7 +57,13 @@ const server = app.listen(port, (error) => {
   if (error) {
     throw error; // e.g. EADDRINUSE
   }
-  console.log(`Server listening on port::${port}`);
+  if (developmentMode) {
+    console.log(
+      `Development mode - server listening at: http://localhost:${port}`
+    );
+  } else {
+    console.log(`Server listening on port::${port}`);
+  }
 });
 
 // Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)

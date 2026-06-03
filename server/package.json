@@ -10,8 +10,8 @@
     "format:check": "prettier --ignore-path ../.gitignore --ignore-path ../.prettierignore --ignore-unknown --check .",
     "lint": "eslint --max-warnings=0 .",
     "lint:fix": "eslint --max-warnings=0 --fix .",
-    "build": "NODE_ENV=production rollup -c",
-    "start:dev": "NODE_ENV=development ROLLUP_RUN=true rollup -c -w",
+    "build": "NODE_ENV=production rslib build",
+    "start:dev": "NODE_ENV=development rslib build --watch",
     "start": "npm run build && node --enable-source-maps dist/index.js"
   },
   "dependencies": {
