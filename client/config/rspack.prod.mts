@@ -1,5 +1,4 @@
 import fs from "fs";
-import { createRequire } from "module";
 import path from "path";
 
 import { rspack } from "@rspack/core";
@@ -7,15 +6,13 @@ import type { Configuration } from "@rspack/core";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import { merge } from "rspack-merge";
 
-// Force CJS resolution so @konveyor-ui/common/dist/index.cjs is used.
-const _require = createRequire(__filename);
-const { brandingAssetPath } = _require("@konveyor-ui/common");
+import { brandingAssetPath } from "@konveyor-ui/common";
 
-import commonRspackConfiguration from "./rspack.common";
+import commonRspackConfiguration from "./rspack.common.mjs";
 import { stylePaths } from "./stylePaths";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingAssetPath() as string, "favicon.ico");
+const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
 
 const config = merge(commonRspackConfiguration, {
   mode: "production",

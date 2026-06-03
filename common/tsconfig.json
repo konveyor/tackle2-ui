@@ -24,10 +24,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "inlineSources": true,
-    "removeComments": true,
-
-    "paths": {
-      "@branding/strings.json": ["./src/branding-strings-stub.json"]
-    }
+    "removeComments": true
   }
 }

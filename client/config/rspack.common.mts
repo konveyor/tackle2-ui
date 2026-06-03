@@ -1,19 +1,15 @@
-import { createRequire } from "module";
 import path from "path";
 
 import { rspack } from "@rspack/core";
 import type { Configuration } from "@rspack/core";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 
-// Force CJS resolution so @konveyor-ui/common/dist/index.cjs is used.
-// The .mjs build uses require.resolve() which is unavailable in ESM context.
-const _require = createRequire(__filename);
-const { brandingAssetPath } = _require("@konveyor-ui/common");
+import { brandingAssetPath } from "@konveyor-ui/common";
 
 import { LANGUAGES_BY_FILE_EXTENSION } from "./monacoConstants";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const brandingPath = brandingAssetPath() as string;
+const brandingPath = brandingAssetPath();
 const manifestPath = path.resolve(brandingPath, "manifest.json");
 
 const config: Configuration = {

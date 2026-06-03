@@ -1,4 +1,3 @@
-import { createRequire } from "module";
 import path from "path";
 
 import { rspack } from "@rspack/core";
@@ -9,21 +8,19 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import { mergeWithRules } from "rspack-merge";
 import { TsCheckerRspackPlugin } from "ts-checker-rspack-plugin";
 
-// Force CJS resolution so @konveyor-ui/common/dist/index.cjs is used.
-const _require = createRequire(__filename);
-const {
+import {
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
   brandingAssetPath,
   brandingStrings,
   encodeEnv,
-} = _require("@konveyor-ui/common");
+} from "@konveyor-ui/common";
 
-import commonRspackConfiguration from "./rspack.common";
+import commonRspackConfiguration from "./rspack.common.mjs";
 import { stylePaths } from "./stylePaths";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingAssetPath() as string, "favicon.ico");
+const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
 
 interface RspackDevConfiguration extends Configuration {
   devServer?: DevServerConfiguration;
