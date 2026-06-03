@@ -4,10 +4,17 @@
  *
  * The selected preset is persisted in localStorage. On first load (no key
  * present), "noAuth" is used as the default — giving full access with no
- * role constraints. Roles and scopes flow out via the MasqueradeAuthStrategy.
+ * scope constraints. Scopes flow out via the MasqueradeAuthStrategy.
  */
 
 import { isAuthRequired } from "@app/Constants";
+
+import {
+  adminScopes,
+  architectScopes,
+  migratorScopes,
+  projectManagerScopes,
+} from "./roles-to-scopes";
 
 const LS_PRESET_KEY = "tackle-masquerade-preset";
 
@@ -15,26 +22,27 @@ const LS_PRESET_KEY = "tackle-masquerade-preset";
 export const MASQUERADE_PRESETS = {
   noAuth: {
     label: "No Auth",
-    roles: ["tackle-admin", "tackle-architect", "tackle-migrator"] as string[],
     scopes: [] as string[],
     allScopesGranted: true,
   },
   admin: {
     label: "Admin",
-    roles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
-    scopes: [] as string[],
+    scopes: adminScopes,
     allScopesGranted: false,
   },
   architect: {
     label: "Architect",
-    roles: ["tackle-architect", "tackle-migrator"],
-    scopes: [] as string[],
+    scopes: architectScopes,
     allScopesGranted: false,
   },
   migrator: {
     label: "Migrator",
-    roles: ["tackle-migrator"],
-    scopes: [] as string[],
+    scopes: migratorScopes,
+    allScopesGranted: false,
+  },
+  projectManager: {
+    label: "Project Manager",
+    scopes: projectManagerScopes,
     allScopesGranted: false,
   },
 } as const;

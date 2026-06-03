@@ -10,8 +10,7 @@ const NO_AUTH_STATE: AuthState = {
   isLoaded: true,
   isAuthenticated: true,
   username: "admin",
-  realmRoles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
-  scopes: [],
+  scopes: new Set<string>(),
   allScopesGranted: true,
   signIn: () => undefined,
   signOut: () => undefined,
@@ -24,7 +23,7 @@ const NO_AUTH_STATE: AuthState = {
  *
  * Strategy contract: renders children inside AuthStateContext.Provider with a
  * fully-resolved AuthState. No OIDC provider, no masquerade logic, no
- * localStorage reads. Hardcodes admin-level access so every RBAC gate passes.
+ * localStorage reads. Sets allScopesGranted: true so every scope gate passes.
  *
  * Tree-shaking note: this file has zero dependency on masquerade.ts, so the
  * masquerade module (and its localStorage access) is never included in a

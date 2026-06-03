@@ -18,7 +18,8 @@ import {
   migrationRoutes,
   universalRoutes,
 } from "@app/Routes";
-import { useHasRealmRoles } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
+import { adminViewScopes } from "@app/auth/roles-to-scopes";
 import SimpleSelect from "@app/components/FilterToolbar/components/SimpleSelect";
 
 import "./SidebarApp.css";
@@ -91,7 +92,7 @@ const PersonaSidebar: FC<{
   selectedPersona: PersonaType;
   setLastPersona: (persona: PersonaType) => void;
 }> = ({ children, selectedPersona, setLastPersona }) => {
-  const adminAccess = useHasRealmRoles(["tackle-admin"]);
+  const adminAccess = useHasSomeScopes(adminViewScopes);
 
   useEffect(() => {
     setLastPersona(selectedPersona);

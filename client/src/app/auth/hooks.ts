@@ -20,31 +20,25 @@ export const useAuth = (): AuthState => {
 };
 
 /**
- * Returns true when the current user has at least one of the supplied realm roles.
+ * Returns true when the current user has **at least one** of the supplied scopes.
  *
  * @example
- *   const canAdmin = useHasRealmRoles(["tackle-admin"]);
+ *   const canWrite = useHasSomeScopes(applicationsWriteScopes);
  */
-export const useHasRealmRoles = (roles: string[]): boolean => {
-  const { realmRoles } = useAuth();
-  return roles.some((r) => realmRoles.includes(r));
-};
-
-/**
- * Returns true when the current user has at least one of the supplied scopes.
- *
- * @example
- *   const canWrite = useHasScopes(applicationsWriteScopes);
- */
-export const useHasScopes = (requiredScopes: string[]): boolean => {
+export const useHasSomeScopes = (requiredScopes: string[]): boolean => {
   const { scopes, allScopesGranted } = useAuth();
   if (allScopesGranted) return true;
-  return requiredScopes.some((s) => scopes.includes(s));
+  return requiredScopes.some((s) => scopes.has(s));
 };
 
 /**
- * Is the user in the architect or admin role?
+ * Returns true when the current user has **all** of the supplied scopes.
+ *
+ * @example
+ *   const canManage = useHasAllScopes(["applications:put", "applications:delete"]);
  */
-export const useIsArchitect = (): boolean => {
-  return useHasRealmRoles(["tackle-architect", "tackle-admin"]);
+export const useHasAllScopes = (requiredScopes: string[]): boolean => {
+  const { scopes, allScopesGranted } = useAuth();
+  if (allScopesGranted) return true;
+  return requiredScopes.every((s) => scopes.has(s));
 };

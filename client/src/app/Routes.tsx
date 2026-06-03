@@ -14,11 +14,11 @@ import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ErrorFallback } from "@app/components/ErrorFallback";
 
 import { isDevtoolsEnabled } from "./Constants";
+import { adminViewScopes, migrationViewScopes } from "./auth/roles-to-scopes";
 import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
-import { adminRoles, devRoles } from "./rbac";
 
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
@@ -351,7 +351,7 @@ export const AppRoutes = () => {
               <RouteWrapper
                 comp={comp}
                 key={index}
-                roles={devRoles}
+                requiredScopes={migrationViewScopes}
                 path={path}
                 exact={exact}
               />
@@ -361,7 +361,7 @@ export const AppRoutes = () => {
             <RouteWrapper
               comp={comp}
               key={index}
-              roles={adminRoles}
+              requiredScopes={adminViewScopes}
               path={path}
               exact={exact}
             />
@@ -370,7 +370,7 @@ export const AppRoutes = () => {
             <RouteWrapper
               comp={comp}
               key={index}
-              roles={devRoles}
+              requiredScopes={migrationViewScopes}
               path={path}
               exact={exact}
             />

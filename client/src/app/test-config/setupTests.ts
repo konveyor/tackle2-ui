@@ -12,8 +12,8 @@ import "@app/yup";
 configure({ reactStrictMode: true });
 
 // Mock the auth module so tests don't need a real OIDC provider.
-// useAuth returns a fully-authenticated state with admin roles by default.
-// Override per-test with jest.spyOn(authModule, "useAuth").mockReturnValue(...)
+// useAuth returns a fully-authenticated state with allScopesGranted: true by default
+// so all scope gates pass. Override per-test with jest.spyOn(authModule, "useAuth").mockReturnValue(...)
 jest.mock("@app/auth", () => {
   const actual = jest.requireActual("@app/auth");
   return {
@@ -22,15 +22,12 @@ jest.mock("@app/auth", () => {
       isLoaded: true,
       isAuthenticated: true,
       username: "test-user",
-      realmRoles: ["tackle-admin", "tackle-architect", "tackle-migrator"],
-      scopes: [],
+      scopes: new Set<string>(),
       allScopesGranted: true,
       signIn: jest.fn(),
       signOut: jest.fn(),
       manageAccount: jest.fn(),
     }),
-    useHasRealmRoles: () => true,
-    useHasScopes: () => true,
   };
 });
 

@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 
 import { AnalysisProfile, Application, Archetype } from "@app/api/models";
-import { useIsArchitect } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
+import { analysisProfileWriteScopes } from "@app/scopes";
 
 /**
  * Hook to filter analysis profiles based on user role and selected applications.
  *
- * - Architects/Admins: Can access all analysis profiles
- * - Migrators: Can only access profiles attached to the selected applications' archetypes
+ * - Users with analysis profile write scopes (architect/admin): Can access all analysis profiles
+ * - Users without write scopes (migrators): Can only access profiles attached to the selected applications' archetypes
  *   via archetype.profiles[].analysisProfile
  */
 export const useAvailableAnalysisProfiles = (
@@ -15,11 +16,11 @@ export const useAvailableAnalysisProfiles = (
   allProfiles: AnalysisProfile[],
   archetypes: Archetype[]
 ): AnalysisProfile[] => {
-  const isArchitect = useIsArchitect();
+  const canWriteProfiles = useHasSomeScopes(analysisProfileWriteScopes);
 
   return useMemo(() => {
     // Architects and admins can see all profiles
-    if (isArchitect) {
+    if (canWriteProfiles) {
       return allProfiles;
     }
 
@@ -43,5 +44,5 @@ export const useAvailableAnalysisProfiles = (
 
     // 3. Filter allProfiles to only include those in profileIdsFromArchetypes
     return allProfiles.filter((p) => profileIdsFromArchetypes.has(p.id));
-  }, [isArchitect, applications, allProfiles, archetypes]);
+  }, [canWriteProfiles, applications, allProfiles, archetypes]);
 };

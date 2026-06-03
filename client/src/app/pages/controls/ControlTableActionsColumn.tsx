@@ -4,7 +4,7 @@ import { PencilAltIcon } from "@patternfly/react-icons";
 import { Td } from "@patternfly/react-table";
 
 import { OverflowActionMenu } from "@app/components/overflow-action-menu";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 
 export interface ControlTableActionsColumnProps {
   isDeleteEnabled: boolean;
@@ -18,7 +18,7 @@ export const ControlTableActionsColumn: React.FC<
 > = ({ isDeleteEnabled, deleteTooltipMessage = "", onEdit, onDelete }) => {
   const { t } = useTranslation();
   return (
-    <RBAC allowedPermissions={controlsWriteScopes} rbacType={RBAC_TYPE.Scope}>
+    <ScopeGate requiredScopes={controlsWriteScopes}>
       <Td isActionCell>
         <OverflowActionMenu
           breakpoint="lg"
@@ -54,6 +54,6 @@ export const ControlTableActionsColumn: React.FC<
           ]}
         />
       </Td>
-    </RBAC>
+    </ScopeGate>
   );
 };
