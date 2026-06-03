@@ -27,7 +27,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { Paths } from "@app/Paths";
 import { Assessment, Ref, TaskState } from "@app/api/models";
 import { getArchetypeById, getTasksByIds } from "@app/api/rest";
-import { useHasScopes } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ApplicationDependenciesForm } from "@app/components/ApplicationDependenciesFormContainer/ApplicationDependenciesForm";
 import { ConditionalRender } from "@app/components/ConditionalRender";
@@ -66,8 +66,7 @@ import {
   useFetchTaskDashboard,
 } from "@app/queries/tasks";
 import {
-  RBAC,
-  RBAC_TYPE,
+  ScopeGate,
   analysesReadScopes,
   applicationsWriteScopes,
   assessmentWriteScopes,
@@ -77,7 +76,7 @@ import {
   reviewsWriteScopes,
   tasksReadScopes,
   tasksWriteScopes,
-} from "@app/rbac";
+} from "@app/scopes";
 import {
   addSeparatorForOverflow,
   filterAndAddSeparator,
@@ -686,15 +685,15 @@ export const ApplicationsTable: FC = () => {
     setTasksToCancel(runningTasksToCancel);
   };
 
-  const importWriteAccess = useHasScopes(importsWriteScopes);
-  const applicationWriteAccess = useHasScopes(applicationsWriteScopes);
-  const assessmentWriteAccess = useHasScopes(assessmentWriteScopes);
-  const credentialsReadAccess = useHasScopes(credentialsReadScopes);
-  const dependenciesWriteAccess = useHasScopes(dependenciesWriteScopes);
-  const analysesReadAccess = useHasScopes(analysesReadScopes);
-  const tasksReadAccess = useHasScopes(tasksReadScopes);
-  const tasksWriteAccess = useHasScopes(tasksWriteScopes);
-  const reviewsWriteAccess = useHasScopes(reviewsWriteScopes);
+  const importWriteAccess = useHasSomeScopes(importsWriteScopes);
+  const applicationWriteAccess = useHasSomeScopes(applicationsWriteScopes);
+  const assessmentWriteAccess = useHasSomeScopes(assessmentWriteScopes);
+  const credentialsReadAccess = useHasSomeScopes(credentialsReadScopes);
+  const dependenciesWriteAccess = useHasSomeScopes(dependenciesWriteScopes);
+  const analysesReadAccess = useHasSomeScopes(analysesReadScopes);
+  const tasksReadAccess = useHasSomeScopes(tasksReadScopes);
+  const tasksWriteAccess = useHasSomeScopes(tasksWriteScopes);
+  const reviewsWriteAccess = useHasSomeScopes(reviewsWriteScopes);
 
   const toolbarKebabItems = filterAndAddSeparator(
     (index) => (
@@ -961,10 +960,7 @@ export const ApplicationsTable: FC = () => {
             />
             <ToolbarGroup variant="action-group">
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={applicationsWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={applicationsWriteScopes}>
                   <Button
                     type="button"
                     id="create-application"
@@ -976,13 +972,10 @@ export const ApplicationsTable: FC = () => {
                   >
                     {t("actions.createNew")}
                   </Button>
-                </RBAC>
+                </ScopeGate>
               </ToolbarItem>
               <ToolbarItem>
-                <RBAC
-                  allowedPermissions={tasksWriteScopes}
-                  rbacType={RBAC_TYPE.Scope}
-                >
+                <ScopeGate requiredScopes={tasksWriteScopes}>
                   <ToolbarItem>
                     <ConditionalTooltip
                       isTooltipEnabled={selectedRowsHaveExistingAnalysis}
@@ -1009,7 +1002,7 @@ export const ApplicationsTable: FC = () => {
                       </Button>
                     </ConditionalTooltip>
                   </ToolbarItem>
-                </RBAC>
+                </ScopeGate>
               </ToolbarItem>
             </ToolbarGroup>
             <ToolbarGroup variant="action-group-plain">

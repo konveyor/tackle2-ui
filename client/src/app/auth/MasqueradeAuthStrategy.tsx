@@ -58,14 +58,13 @@ export const MasqueradeAuthStrategy: React.FC<AuthProviderProps> = ({
   }, []);
 
   const authState: AuthState = useMemo(() => {
-    const { roles, scopes, allScopesGranted } = MASQUERADE_PRESETS[preset];
+    const { scopes, allScopesGranted } = MASQUERADE_PRESETS[preset];
 
     return {
       isLoaded: true,
       isAuthenticated: true,
       username: "developer",
-      realmRoles: roles.slice(),
-      scopes: scopes.slice(),
+      scopes: new Set(scopes),
       allScopesGranted,
       signIn: () => undefined,
       signOut: () => undefined,

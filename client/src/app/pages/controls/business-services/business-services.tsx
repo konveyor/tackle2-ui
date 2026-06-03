@@ -33,7 +33,7 @@ import {
   useDeleteBusinessServiceMutation,
   useFetchBusinessServices,
 } from "@app/queries/businessservices";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
@@ -187,10 +187,7 @@ export const BusinessServices: React.FC = () => {
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="action-group">
                 <ToolbarItem>
-                  <RBAC
-                    allowedPermissions={controlsWriteScopes}
-                    rbacType={RBAC_TYPE.Scope}
-                  >
+                  <ScopeGate requiredScopes={controlsWriteScopes}>
                     <Button
                       type="button"
                       id="create-business-service"
@@ -200,7 +197,7 @@ export const BusinessServices: React.FC = () => {
                     >
                       {t("actions.createNew")}
                     </Button>
-                  </RBAC>
+                  </ScopeGate>
                 </ToolbarItem>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>

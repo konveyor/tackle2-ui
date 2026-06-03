@@ -5,10 +5,5 @@
  */
 
 export { AuthProvider } from "./AuthProvider";
-export {
-  useAuth,
-  useHasRealmRoles,
-  useHasScopes,
-  useIsArchitect,
-} from "./hooks";
-export type { AuthState, TackleRealmRole } from "./types";
+export { useAuth, useHasAllScopes, useHasSomeScopes } from "./hooks";
+export type { AuthState } from "./types";

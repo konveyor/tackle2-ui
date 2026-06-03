@@ -8,7 +8,6 @@
 
 import { Suspense, useEffect } from "react";
 import * as React from "react";
-import { jwtDecode } from "jwt-decode";
 import {
   AuthProvider as OidcAuthProvider,
   hasAuthParams,
@@ -23,27 +22,6 @@ import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
 import { OidcToolbarItem } from "./OidcToolbarItem";
 import type { AuthState } from "./types";
 import { accountManagementUrl, userManager } from "./userManager";
-
-/**
- * Decode realm roles from an OIDC access token.
- *
- * Keycloak puts realm roles in the access token's `realm_access.roles` claim,
- * NOT in the ID token (`user.profile`). We must decode the access token JWT
- * ourselves to retrieve them.
- */
-function getRealmRolesFromAccessToken(
-  accessToken: string | undefined
-): string[] {
-  if (!accessToken) return [];
-  try {
-    const claims = jwtDecode<{ realm_access?: { roles?: string[] } }>(
-      accessToken
-    );
-    return claims.realm_access?.roles ?? [];
-  } catch {
-    return [];
-  }
-}
 
 /**
  * This gate is used to determine if the user is authenticated and to redirect
@@ -65,8 +43,7 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
 
   const user = auth.user ?? null;
   const profile = user?.profile ?? null;
-  const realmRoles = getRealmRolesFromAccessToken(user?.access_token);
-  const scopes: string[] = user?.scope?.split(" ").filter(Boolean) ?? [];
+  const scopes = new Set<string>(user?.scope?.split(" ").filter(Boolean) ?? []);
 
   const authState: AuthState = {
     isLoaded: !auth.isLoading,
@@ -75,7 +52,6 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
       (profile?.preferred_username as string | undefined) ??
       profile?.sub ??
       "unknown",
-    realmRoles,
     scopes,
     allScopesGranted: false,
     signIn: () => auth.signinRedirect(),

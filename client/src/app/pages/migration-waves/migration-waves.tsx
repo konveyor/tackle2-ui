@@ -35,6 +35,7 @@ import {
 } from "@patternfly/react-table";
 
 import { MigrationWave, Ref, Ticket, WaveWithStatus } from "@app/api/models";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -61,6 +62,7 @@ import {
 } from "@app/queries/migration-waves";
 import { useFetchTickets } from "@app/queries/tickets";
 import { useFetchTrackers } from "@app/queries/trackers";
+import { migrationWaveWriteScopes } from "@app/scopes";
 import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { toRefs } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
@@ -264,8 +266,7 @@ export const MigrationWaves: React.FC = () => {
     currentPageItems,
   });
 
-  // TODO: Check RBAC access
-  const rbacWriteAccess = true; // checkAccess(userScopes, migrationWaveWriteScopes);
+  const rbacWriteAccess = useHasSomeScopes(migrationWaveWriteScopes);
 
   return (
     <>
@@ -291,22 +292,19 @@ export const MigrationWaves: React.FC = () => {
                 <ToolbarBulkSelector {...toolbarBulkSelectorProps!} />
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="action-group">
-                  {/* <RBAC
-                    allowedPermissions={[]}
-                    rbacType={RBAC_TYPE.Scope}
-                  > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-migration-wave"
-                      aria-label="Create new migration-wave"
-                      variant={ButtonVariant.primary}
-                      onClick={openCreateWaveModal}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
+                  {rbacWriteAccess && (
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="create-migration-wave"
+                        aria-label="Create new migration-wave"
+                        variant={ButtonVariant.primary}
+                        onClick={openCreateWaveModal}
+                      >
+                        {t("actions.createNew")}
+                      </Button>
+                    </ToolbarItem>
+                  )}
                   {rbacWriteAccess ? (
                     <ToolbarItem id="toolbar-kebab">
                       <Dropdown

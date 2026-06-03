@@ -11,7 +11,6 @@ import {
 import { UserIcon } from "@patternfly/react-icons";
 
 import { useMasqueradeDispatch } from "./MasqueradeAuthStrategy";
-import { useAuth } from "./hooks";
 import {
   MASQUERADE_PRESETS,
   MasqueradePreset,
@@ -30,10 +29,8 @@ import {
  */
 export const MasqueradeDevPanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentPreset, setCurrentPreset] =
-    useState<MasqueradePreset>(getCurrentPreset);
+  const [currentPreset, setCurrentPreset] = useState(getCurrentPreset);
   const switchPreset = useMasqueradeDispatch();
-  const { realmRoles: activeRoles } = useAuth();
 
   const onSelect = (preset: MasqueradePreset) => {
     switchPreset(preset);
@@ -41,7 +38,10 @@ export const MasqueradeDevPanel: React.FC = () => {
     setIsOpen(false);
   };
 
-  const presetLabel = MASQUERADE_PRESETS[currentPreset].label;
+  const activePreset = MASQUERADE_PRESETS[currentPreset];
+  const scopeCount = activePreset.allScopesGranted
+    ? "all"
+    : `${activePreset.scopes.length}`;
 
   return (
     <ToolbarItem>
@@ -58,12 +58,12 @@ export const MasqueradeDevPanel: React.FC = () => {
             aria-label="Masquerade dev panel"
             icon={<UserIcon />}
           >
-            {presetLabel}
+            {activePreset.label}
           </MenuToggle>
         )}
       >
         <DropdownGroup
-          label={`Active roles: ${activeRoles.length ? activeRoles.join(", ") : "none"}`}
+          label={`Active scopes: ${scopeCount}`}
           key="masquerade-group"
         >
           <DropdownList>
@@ -84,7 +84,9 @@ export const MasqueradeDevPanel: React.FC = () => {
                       color: "var(--pf-v6-global--Color--200)",
                     }}
                   >
-                    {MASQUERADE_PRESETS[preset].roles.join(", ")}
+                    {MASQUERADE_PRESETS[preset].allScopesGranted
+                      ? "all scopes"
+                      : `${MASQUERADE_PRESETS[preset].scopes.length} scopes`}
                   </span>
                 </DropdownItem>
               )

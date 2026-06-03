@@ -21,7 +21,7 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { TablePersistenceKeyPrefix } from "@app/Constants";
 import { Paths } from "@app/Paths";
 import { Archetype } from "@app/api/models";
-import { useHasScopes } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -43,7 +43,7 @@ import {
   archetypesWriteScopes,
   assessmentWriteScopes,
   reviewsWriteScopes,
-} from "@app/rbac";
+} from "@app/scopes";
 import { addSeparatorForOverflow } from "@app/utils/grouping";
 import { formatPath } from "@app/utils/utils";
 
@@ -216,9 +216,9 @@ const Archetypes: React.FC = () => {
     }
   };
 
-  const archetypeWriteAccess = useHasScopes(archetypesWriteScopes);
-  const assessmentWriteAccess = useHasScopes(assessmentWriteScopes);
-  const reviewsWriteAccess = useHasScopes(reviewsWriteScopes);
+  const archetypeWriteAccess = useHasSomeScopes(archetypesWriteScopes);
+  const assessmentWriteAccess = useHasSomeScopes(assessmentWriteScopes);
+  const reviewsWriteAccess = useHasSomeScopes(reviewsWriteScopes);
 
   const clearFilters = () => {
     const currentPath = history.location.pathname;

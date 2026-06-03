@@ -1,23 +1,23 @@
 import * as React from "react";
 import { Redirect, Route } from "react-router-dom";
 
-import { useAuth, useHasRealmRoles } from "@app/auth";
+import { useAuth, useHasSomeScopes } from "@app/auth";
 
 interface IRouteWrapperProps {
   comp: React.ComponentType<Record<string, unknown>>;
-  roles: string[];
+  requiredScopes: string[];
   path: string;
   exact?: boolean;
 }
 
 export const RouteWrapper = ({
   comp: Component,
-  roles,
+  requiredScopes,
   path,
   exact,
 }: IRouteWrapperProps) => {
   const { isLoaded } = useAuth();
-  const access = useHasRealmRoles(roles);
+  const access = useHasSomeScopes(requiredScopes);
 
   // Still loading the OIDC session — don't redirect prematurely.
   if (!isLoaded) return null;

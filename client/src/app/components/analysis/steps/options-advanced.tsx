@@ -19,7 +19,7 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { AnalysisProfile, Target, TargetLabel } from "@app/api/models";
 import { TargetLabelSchema } from "@app/api/schemas";
-import { useIsArchitect } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
 import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
@@ -28,6 +28,7 @@ import {
 import { StringListField } from "@app/components/StringListField";
 import { useFormChangeHandler } from "@app/hooks/useFormChangeHandler";
 import { useFetchAnalysisProfiles } from "@app/queries/analysis-profiles";
+import { analysisProfileWriteScopes } from "@app/scopes";
 import { parseAndGroupLabels, parseLabels } from "@app/utils/rules-utils";
 import {
   duplicateNameCheck,
@@ -160,7 +161,7 @@ const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
   );
 
   const customLabels = parseAndGroupLabels(customRules.customLabels);
-  const canSaveAsProfile = useIsArchitect();
+  const canWriteProfile = useHasSomeScopes(analysisProfileWriteScopes);
 
   return (
     <Form
@@ -345,7 +346,7 @@ const OptionsAdvanced: React.FC<OptionsAdvancedProps> = ({
         className={spacing.mtMd}
       />
 
-      {showSaveAsProfile && canSaveAsProfile && (
+      {showSaveAsProfile && canWriteProfile && (
         <>
           <Checkbox
             className={spacing.mtMd}

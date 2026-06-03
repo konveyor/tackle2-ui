@@ -32,6 +32,7 @@ import {
 
 import { Paths } from "@app/Paths";
 import { Questionnaire } from "@app/api/models";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import ConfirmDeleteDialog from "@app/components/ConfirmDeleteDialog/ConfirmDeleteDialog";
@@ -51,6 +52,7 @@ import {
   useFetchQuestionnaires,
   useUpdateQuestionnaireMutation,
 } from "@app/queries/questionnaires";
+import { questionnaireWriteScopes } from "@app/scopes";
 import { formatPath, getAxiosErrorMessage } from "@app/utils/utils";
 
 import { QuestionnaireQuestionsColumn } from "./components/questionnaire-questions-column";
@@ -152,8 +154,7 @@ const AssessmentSettings: React.FC = () => {
     },
   } = tableControls;
 
-  // TODO: Check RBAC access
-  const rbacWriteAccess = true; // checkAccess(userScopes, questionnaireWriteScopes);
+  const rbacWriteAccess = useHasSomeScopes(questionnaireWriteScopes);
   return (
     <>
       <PageSection hasBodyWrapper={false}>
@@ -177,26 +178,21 @@ const AssessmentSettings: React.FC = () => {
             <Toolbar {...toolbarProps}>
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
-                <ToolbarGroup variant="action-group">
-                  {/* <RBAC
-                        allowedPermissions={[]}
-                        rbacType={RBAC_TYPE.Scope}
-                      > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="import-questionnaire"
-                      aria-label="Import questionnaire"
-                      variant={ButtonVariant.primary}
-                      onClick={() => setIsImportModal(true)}
-                    >
-                      {t("dialog.title.import", {
-                        what: t("terms.questionnaire").toLowerCase(),
-                      })}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
-                  {rbacWriteAccess ? (
+                {rbacWriteAccess ? (
+                  <ToolbarGroup variant="action-group">
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="import-questionnaire"
+                        aria-label="Import questionnaire"
+                        variant={ButtonVariant.primary}
+                        onClick={() => setIsImportModal(true)}
+                      >
+                        {t("dialog.title.import", {
+                          what: t("terms.questionnaire").toLowerCase(),
+                        })}
+                      </Button>
+                    </ToolbarItem>
                     <ToolbarItem>
                       <Button
                         type="button"
@@ -212,8 +208,8 @@ const AssessmentSettings: React.FC = () => {
                         })}
                       </Button>
                     </ToolbarItem>
-                  ) : null}
-                </ToolbarGroup>
+                  </ToolbarGroup>
+                ) : null}
                 <ToolbarItem {...paginationToolbarItemProps}>
                   <SimplePagination
                     idPrefix="questionnaire-table"

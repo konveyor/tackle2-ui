@@ -19,7 +19,7 @@ import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { AnalysisProfile, Archetype } from "@app/api/models";
-import { useIsArchitect } from "@app/auth";
+import { useHasSomeScopes } from "@app/auth";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -36,6 +36,7 @@ import {
   useFetchAnalysisProfiles,
 } from "@app/queries/analysis-profiles";
 import { useFetchArchetypes } from "@app/queries/archetypes";
+import { analysisProfileWriteScopes } from "@app/scopes";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
 import AnalysisProfileDetailDrawer from "./components/analysis-profile-detail-drawer";
@@ -64,7 +65,7 @@ const useArchetypesUsingAnalysisProfile = (
 export const AnalysisProfiles: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
-  const isArchitect = useIsArchitect();
+  const canWriteProfile = useHasSomeScopes(analysisProfileWriteScopes);
 
   const [openCreateProfile, setOpenCreateProfile] =
     React.useState<boolean>(false);
@@ -176,7 +177,7 @@ export const AnalysisProfiles: React.FC = () => {
           >
             <ToolbarContent>
               <FilterToolbar {...filterToolbarProps} />
-              {isArchitect && (
+              {canWriteProfile && (
                 <ToolbarGroup variant="action-group">
                   <ToolbarItem>
                     <Button
@@ -233,7 +234,7 @@ export const AnalysisProfiles: React.FC = () => {
                       what: t("terms.analysisProfile").toLowerCase(),
                     })}
                   </EmptyStateBody>
-                  {isArchitect && (
+                  {canWriteProfile && (
                     <EmptyStateFooter>
                       <EmptyStateActions>
                         <Button
@@ -268,7 +269,7 @@ export const AnalysisProfiles: React.FC = () => {
                       >
                         {profile.description || "-"}
                       </Td>
-                      {isArchitect && (
+                      {canWriteProfile && (
                         <Td isActionCell>
                           <OverflowActionMenu
                             toggleId="row-actions"

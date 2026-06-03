@@ -45,7 +45,7 @@ import {
   useDeleteStakeholderGroupMutation,
   useFetchStakeholderGroups,
 } from "@app/queries/stakeholdergroups";
-import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
+import { ScopeGate, controlsWriteScopes } from "@app/scopes";
 import { getAxiosErrorMessage, numStr } from "@app/utils/utils";
 
 import { ControlTableActionsColumn } from "../ControlTableActionsColumn";
@@ -198,10 +198,7 @@ export const StakeholderGroups: React.FC = () => {
               <FilterToolbar {...filterToolbarProps} />
               <ToolbarGroup variant="action-group">
                 <ToolbarItem>
-                  <RBAC
-                    allowedPermissions={controlsWriteScopes}
-                    rbacType={RBAC_TYPE.Scope}
-                  >
+                  <ScopeGate requiredScopes={controlsWriteScopes}>
                     <Button
                       type="button"
                       id="create-stakeholder-group"
@@ -211,7 +208,7 @@ export const StakeholderGroups: React.FC = () => {
                     >
                       {t("actions.createNew")}
                     </Button>
-                  </RBAC>
+                  </ScopeGate>
                 </ToolbarItem>
               </ToolbarGroup>
               <ToolbarItem {...paginationToolbarItemProps}>

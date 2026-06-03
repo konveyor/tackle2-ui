@@ -18,6 +18,7 @@ import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import { Tracker } from "@app/api/models";
+import { useHasSomeScopes } from "@app/auth";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 import { ConditionalRender } from "@app/components/ConditionalRender";
 import { ConfirmDialog } from "@app/components/ConfirmDialog";
@@ -37,7 +38,7 @@ import {
   useDeleteTrackerMutation,
   useFetchTrackers,
 } from "@app/queries/trackers";
-import { RBAC, RBAC_TYPE, applicationsWriteScopes } from "@app/rbac";
+import { ScopeGate, trackerWriteScopes } from "@app/scopes";
 import { IssueManagerOptions, findOption } from "@app/utils/model-utils";
 import { getAxiosErrorMessage } from "@app/utils/utils";
 
@@ -48,6 +49,7 @@ import useUpdatingTrackerIds from "./useUpdatingTrackerIds";
 export const JiraTrackers: React.FC = () => {
   const { t } = useTranslation();
   const { pushNotification } = React.useContext(NotificationsContext);
+  const canWrite = useHasSomeScopes(trackerWriteScopes);
 
   const [trackerModalState, setTrackerModalState] = React.useState<
     "create" | Tracker | null
@@ -176,22 +178,19 @@ export const JiraTrackers: React.FC = () => {
               <ToolbarContent>
                 <FilterToolbar {...filterToolbarProps} />
                 <ToolbarGroup variant="action-group">
-                  {/* <RBAC
-                    allowedPermissions={[]}
-                    rbacType={RBAC_TYPE.Scope}
-                  > */}
-                  <ToolbarItem>
-                    <Button
-                      type="button"
-                      id="create-Tracker"
-                      aria-label="Create new tracker"
-                      variant={ButtonVariant.primary}
-                      onClick={() => setTrackerModalState("create")}
-                    >
-                      {t("actions.createNew")}
-                    </Button>
-                  </ToolbarItem>
-                  {/* </RBAC> */}
+                  {canWrite && (
+                    <ToolbarItem>
+                      <Button
+                        type="button"
+                        id="create-Tracker"
+                        aria-label="Create new tracker"
+                        variant={ButtonVariant.primary}
+                        onClick={() => setTrackerModalState("create")}
+                      >
+                        {t("actions.createNew")}
+                      </Button>
+                    </ToolbarItem>
+                  )}
                   {/* {jiraDropdownItems.length ? (
                     <ToolbarItem>
                       <KebabDropdown
@@ -283,10 +282,7 @@ export const JiraTrackers: React.FC = () => {
                           />
                         </Td>
                         <Td width={20} isActionCell>
-                          <RBAC
-                            allowedPermissions={applicationsWriteScopes}
-                            rbacType={RBAC_TYPE.Scope}
-                          >
+                          <ScopeGate requiredScopes={trackerWriteScopes}>
                             <OverflowActionMenu
                               breakpoint="lg"
                               toggleId="row-actions"
@@ -332,7 +328,7 @@ export const JiraTrackers: React.FC = () => {
                                 },
                               ]}
                             />
-                          </RBAC>
+                          </ScopeGate>
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>
