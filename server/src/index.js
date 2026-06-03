@@ -54,7 +54,13 @@ const server = app.listen(port, (error) => {
   if (error) {
     throw error; // e.g. EADDRINUSE
   }
-  console.log(`Server listening on port::${port}`);
+  if (developmentMode) {
+    console.log(
+      `Development mode - server listening at: http://localhost:${port}`
+    );
+  } else {
+    console.log(`Server listening on port ${port}`);
+  }
 });
 
 // Handle shutdown signals Ctrl-C (SIGINT) and default podman/docker stop (SIGTERM)
@@ -66,9 +72,9 @@ const shutdown = async (signal) => {
     return;
   }
 
-  console.log(`${signal} - Stopping server on port::${port}`);
+  console.log(`${signal} - Stopping server on port ${port}`);
   await httpTerminator.terminate();
-  console.log(`${signal} - Stopped server on port::${port}`);
+  console.log(`${signal} - Stopped server on port ${port}`);
 };
 
 process.on("SIGINT", shutdown);
