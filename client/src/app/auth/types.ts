@@ -11,7 +11,7 @@ export interface AuthState {
   username: string;
   /** OAuth2 scopes from the access-token `scope` claim. */
   scopes: ReadonlySet<string>;
-  /** When true, all scope checks pass regardless of the `scopes` array contents. */
+  /** When true, all scope checks pass regardless of the contents of `scopes`. */
   allScopesGranted: boolean;
 
   /** Sign in — redirects to the IdP. No-op when auth is disabled. */

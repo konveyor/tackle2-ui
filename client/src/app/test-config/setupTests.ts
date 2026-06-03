@@ -28,8 +28,6 @@ jest.mock("@app/auth", () => {
       signOut: jest.fn(),
       manageAccount: jest.fn(),
     }),
-    useHasSomeScopes: () => true,
-    useHasAllScopes: () => true,
   };
 });
 
