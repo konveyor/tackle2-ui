@@ -320,7 +320,7 @@ export class Credentials {
       .contains(cred.name, { timeout: 120 * SEC })
       .closest(trTag)
       .within(() => {
-        click("#edit-action");
+        click(commonView.pencilAction);
       });
   }
 

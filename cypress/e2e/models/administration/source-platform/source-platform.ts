@@ -20,7 +20,7 @@ import {
   clickItemInKebabMenu,
   inputText,
   next,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -122,7 +122,7 @@ export class SourcePlatform {
     cancel = false
   ): void {
     SourcePlatform.open();
-    performRowActionByIcon(this.name, commonView.pencilAction);
+    performRowActionBySelector(this.name, commonView.pencilAction);
 
     if (cancel) {
       cancelForm();

@@ -219,7 +219,7 @@ export const BusinessServices: React.FC = () => {
                   <Th {...getThProps({ columnKey: "name" })} />
                   <Th {...getThProps({ columnKey: "description" })} />
                   <Th {...getThProps({ columnKey: "owner" })} />
-                  <Th screenReaderText="row actions" />
+                  <Th screenReaderText={t("actions.rowActions")} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -278,10 +278,14 @@ export const BusinessServices: React.FC = () => {
                           {businessService.owner?.name}
                         </Td>
                         <ControlTableActionsColumn
-                          isDeleteEnabled={isAssignedToApplication}
-                          deleteTooltipMessage={t(
-                            "message.cannotRemoveBusinessServiceAssociatedWithApplication"
-                          )}
+                          isDeleteEnabled={!isAssignedToApplication}
+                          deleteTooltipMessage={
+                            isAssignedToApplication
+                              ? t(
+                                  "message.cannotRemoveBusinessServiceAssociatedWithApplication"
+                                )
+                              : undefined
+                          }
                           onEdit={() =>
                             setCreateUpdateModalState(businessService)
                           }

@@ -1,30 +1,11 @@
 import {
-  chart_color_black_500 as black,
-  chart_color_blue_300 as blue,
-  chart_color_green_300 as green,
-  chart_color_orange_300 as orange,
+  chart_color_blue_200 as blue,
+  chart_color_green_200 as green,
+  chart_color_orange_200 as orange,
+  chart_color_purple_200 as purple,
+  chart_color_teal_300 as cyan,
+  t_color_black as black,
 } from "@patternfly/react-tokens";
-
-const gray = {
-  name: "--pf-t--global--text--color--200",
-  value: "#6a6e73",
-  var: "var(--pf-t--global--text--color--200)",
-};
-const cyan = {
-  name: "--pf-t--chart--color--teal--300",
-  value: "#009596",
-  var: "var(--pf-t--chart--color--teal--300)",
-};
-const gold = {
-  name: "--pf-t--chart--color--gold--300",
-  value: "#f4c145",
-  var: "var(--pf-t--chart--color--gold--300)",
-};
-const purple = {
-  name: "--pf-t--chart--color--purple--300",
-  value: "#a18fff",
-  var: "var(--pf-t--chart--color--purple--300)",
-};
 
 import { EffortEstimate, ProposedAction, Risk } from "@app/api/models";
 
@@ -63,16 +44,25 @@ export const UI_UNIQUE_ID = "_ui_unique_id";
 // t('colors.gray')
 // t('colors.black')
 
+const pv5_global_palette_black_1000 = "#030303";
+const pv5_global_palette_blue_300 = "#2B9AF3";
+const pv5_global_palette_cyan_300 = "#009596";
+const pv5_global_palette_gold_300 = "#F4C145";
+const pv5_global_palette_black_500 = "#8A8D90";
+const pv5_global_palette_green_300 = "#6EC664";
+const pv5_global_palette_orange_300 = "#EC7A08";
+const pv5_global_palette_purple_600 = "#40199A";
+
 // Colors from https://sashamaps.net/docs/resources/20-colors/ with some colors removed for being too bright
 // and closest equivalent PF colors swapped in where applicable
 export const COLOR_HEX_VALUES_BY_NAME = {
   red: "#d95f55", // (PF red is weird because 100 is too close to Maroon and 50 is too bright)
-  green: green.value,
-  gold: gold.value,
-  blue: blue.value,
-  orange: orange.value,
-  purple: purple.value,
-  cyan: cyan.value,
+  green: pv5_global_palette_green_300,
+  gold: pv5_global_palette_gold_300,
+  blue: pv5_global_palette_blue_300,
+  orange: pv5_global_palette_orange_300,
+  purple: pv5_global_palette_purple_600,
+  cyan: pv5_global_palette_cyan_300,
   magenta: "#f032e6",
   lime: "#bfef45",
   teal: "#469990",
@@ -80,8 +70,8 @@ export const COLOR_HEX_VALUES_BY_NAME = {
   maroon: "#800000",
   olive: "#808000",
   navy: "#000075",
-  gray: gray.value,
-  black: black.value,
+  gray: pv5_global_palette_black_500,
+  black: pv5_global_palette_black_1000,
 } as const;
 
 /**

@@ -71,8 +71,9 @@ export const radioButton = '*[class^="pf-v6-c-radio__input"]';
 export const splitItem = "div.pf-v6-l-split__item";
 export const taskNotificationBadge = "#task-notification-badge";
 export const modalConfirm = "#modal-confirm";
-export const kebabToggleButton = 'button[aria-label="Kebab toggle"]';
-
+// target both OverflowActionMenu and ActionsColumn
+export const kebabToggleButton =
+  "[data-ouia-component-id='row-actions'], button[aria-label='Kebab toggle']";
 // Application/Archetype side drawer
 export enum sideDrawer {
   risk = "h4.pf-v6-c-title.pf-m-md",
@@ -83,9 +84,8 @@ export enum sideDrawer {
   labelText = "span.pf-v6-c-label__text",
 }
 export const closeAbout = "button[aria-label='Close Dialog']";
-export const pencilIcon = "#action";
-export const pencilAction = "#pencil-action";
-
+export const pencilAction = '[data-ouia-component-id="pencil-action"]';
+export const trashAction = '[data-ouia-component-id="trash-action"]';
 // Task details page
 export const taskDetailsEditor = "div[class='pf-v6-c-code-editor__code']";
 export const downloadFormatDetails = {

@@ -4,7 +4,7 @@ import {
   clickByText,
   clickJs,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -28,7 +28,7 @@ import {
   itemsSelectInsideDialog,
   kebabToggleButton,
   modal,
-  pencilIcon,
+  pencilAction,
 } from "../../../views/common.view";
 import { submitButton } from "../../../views/login.view";
 import { navMenu } from "../../../views/menu.view";
@@ -92,7 +92,7 @@ export class MigrationWave {
 
   public edit(updateValues: Partial<MigrationWave>) {
     MigrationWave.open();
-    performRowActionByIcon(this.name, pencilIcon);
+    performRowActionBySelector(this.name, pencilAction);
     this.fillForm(updateValues);
     submitForm();
   }

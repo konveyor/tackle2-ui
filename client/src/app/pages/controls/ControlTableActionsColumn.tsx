@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, OverflowMenu, Tooltip } from "@patternfly/react-core";
 import { PencilAltIcon } from "@patternfly/react-icons";
-import { ActionsColumn, Td } from "@patternfly/react-table";
+import { Td } from "@patternfly/react-table";
 
+import { OverflowActionMenu } from "@app/components/overflow-action-menu";
 import { RBAC, RBAC_TYPE, controlsWriteScopes } from "@app/rbac";
 
 export interface ControlTableActionsColumnProps {
-  isDeleteEnabled?: boolean;
+  isDeleteEnabled: boolean;
   deleteTooltipMessage?: string;
   onEdit: () => void;
   onDelete: () => void;
@@ -15,34 +15,44 @@ export interface ControlTableActionsColumnProps {
 
 export const ControlTableActionsColumn: React.FC<
   ControlTableActionsColumnProps
-> = ({
-  isDeleteEnabled = false,
-  deleteTooltipMessage = "",
-  onEdit,
-  onDelete,
-}) => {
+> = ({ isDeleteEnabled, deleteTooltipMessage = "", onEdit, onDelete }) => {
   const { t } = useTranslation();
   return (
     <RBAC allowedPermissions={controlsWriteScopes} rbacType={RBAC_TYPE.Scope}>
-      <Td isActionCell id="action">
-        <OverflowMenu breakpoint="sm">
-          <Tooltip content={t("actions.edit")}>
-            <Button variant="plain" icon={<PencilAltIcon />} onClick={onEdit} />
-          </Tooltip>
-          <ActionsColumn
-            items={[
-              {
-                isAriaDisabled: isDeleteEnabled,
-                tooltipProps: {
-                  content: isDeleteEnabled ? deleteTooltipMessage : "",
-                },
-                isDanger: isDeleteEnabled == false,
-                title: t("actions.delete"),
-                onClick: onDelete,
+      <Td isActionCell>
+        <OverflowActionMenu
+          breakpoint="lg"
+          toggleId="row-actions"
+          toggleAriaLabel={t("actions.rowActions")}
+          items={[
+            {
+              title: t("actions.edit"),
+              onClick: onEdit,
+              itemKey: "edit",
+              variant: "plain",
+              icon: <PencilAltIcon />,
+              ouiaId: "pencil-action",
+              useOnlyIconWhenShared: true,
+              isShared: true,
+              "aria-label": t("actions.edit"),
+              tooltipProps: {
+                content: t("actions.edit"),
               },
-            ]}
-          />
-        </OverflowMenu>
+            },
+            {
+              title: t("actions.delete"),
+              onClick: onDelete,
+              itemKey: "delete",
+              isDanger: true,
+              isAriaDisabled: !isDeleteEnabled,
+              tooltipProps: deleteTooltipMessage
+                ? {
+                    content: deleteTooltipMessage,
+                  }
+                : undefined,
+            },
+          ]}
+        />
       </Td>
     </RBAC>
   );

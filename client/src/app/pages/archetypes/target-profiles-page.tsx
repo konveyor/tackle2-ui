@@ -143,7 +143,7 @@ const TargetProfilesPage: React.FC = () => {
                   <Th>{t("terms.name")}</Th>
                   <Th>{t("terms.generators")}</Th>
                   <Th>{t("terms.analysisProfile")}</Th>
-                  <Th screenReaderText="Actions" />
+                  <Th screenReaderText={t("actions.rowActions")} />
                 </Tr>
               </Thead>
               <ConditionalTableBody

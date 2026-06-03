@@ -177,7 +177,7 @@ export const JobFunctions: React.FC = () => {
               <Tr>
                 <TableHeaderContentWithControls {...tableControls}>
                   <Th {...getThProps({ columnKey: "name" })} width={90} />
-                  <Th screenReaderText="row actions" />
+                  <Th screenReaderText={t("actions.rowActions")} />
                 </TableHeaderContentWithControls>
               </Tr>
             </Thead>
@@ -224,10 +224,14 @@ export const JobFunctions: React.FC = () => {
                           {jobFunction.name}
                         </Td>
                         <ControlTableActionsColumn
-                          isDeleteEnabled={!!jobFunction.stakeholders}
-                          deleteTooltipMessage={t(
-                            "message.cannotDeleteJobFunctionWithStakeholders"
-                          )}
+                          isDeleteEnabled={!jobFunction.stakeholders?.length}
+                          deleteTooltipMessage={
+                            jobFunction.stakeholders?.length
+                              ? t(
+                                  "message.cannotDeleteJobFunctionWithStakeholders"
+                                )
+                              : undefined
+                          }
                           onEdit={() => setCreateUpdateModalState(jobFunction)}
                           onDelete={() => deleteRow(jobFunction)}
                         />

@@ -24,5 +24,5 @@ export enum GeneratorView {
   repositoryBranchInput = "input[id='branch']",
   repositoryRootPathInput = "input[id='path']",
   createNewButton = "button[id='create-new-generator']",
-  deleteAction = "td[id='delete-action']",
+  deleteAction = '[data-ouia-component-id="delete-action"]',
 }

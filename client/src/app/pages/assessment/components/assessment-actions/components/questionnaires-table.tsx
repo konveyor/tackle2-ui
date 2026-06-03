@@ -1,6 +1,7 @@
 import "./questionnaires-table.css";
 import { useState } from "react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
 import {
@@ -40,6 +41,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
   tableName,
   isLoading,
 }) => {
+  const { t } = useTranslation();
   const tableControls = useLocalTableControls({
     tableName: "questionnaires-table",
     idProperty: "id",
@@ -79,7 +81,7 @@ const QuestionnairesTable: React.FC<QuestionnairesTableProps> = ({
             <TableHeaderContentWithControls {...tableControls}>
               <Th {...getThProps({ columnKey: "questionnaires" })} />
               {application || archetype ? (
-                <Th screenReaderText="row actions" />
+                <Th screenReaderText={t("actions.rowActions")} />
               ) : null}
             </TableHeaderContentWithControls>
           </Tr>

@@ -26,7 +26,7 @@ export const TagTable: React.FC<TabTableProps> = ({
       <Thead noWrap>
         <Tr>
           <Th>{t("terms.tagName")}</Th>
-          <Th screenReaderText="row actions" />
+          <Th screenReaderText={t("actions.rowActions")} />
         </Tr>
       </Thead>
       <Tbody>
@@ -36,6 +36,7 @@ export const TagTable: React.FC<TabTableProps> = ({
             <Tr key={tag.name}>
               <Td>{tag.name}</Td>
               <ControlTableActionsColumn
+                isDeleteEnabled
                 onEdit={() => onEdit(tag)}
                 onDelete={() => onDelete(tag)}
               />

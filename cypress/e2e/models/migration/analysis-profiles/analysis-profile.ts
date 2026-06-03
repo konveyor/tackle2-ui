@@ -21,7 +21,7 @@ import {
   doesExistSelector,
   inputText,
   next,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectItemsPerPage,
   selectRow,
   selectUserPerspective,
@@ -312,7 +312,7 @@ export class AnalysisProfile {
 
   edit(updatedData: Partial<AnalysisProfile>, cancel = false) {
     AnalysisProfile.open();
-    performRowActionByIcon(this.name, pencilAction);
+    performRowActionBySelector(this.name, pencilAction);
 
     if (cancel) {
       click(cancelButton);

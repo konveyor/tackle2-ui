@@ -20,7 +20,7 @@ import {
   clickItemInKebabMenu,
   inputText,
   notExists,
-  performRowActionByIcon,
+  performRowActionBySelector,
   removeMember,
   selectFormItems,
   selectItemsPerPage,
@@ -120,7 +120,7 @@ export class Stakeholders {
   }
 
   removeJobfunction(): void {
-    performRowActionByIcon(this.email, commonView.pencilIcon);
+    performRowActionBySelector(this.email, commonView.pencilAction);
     click(removeJobFunction);
     submitForm();
   }
@@ -155,7 +155,7 @@ export class Stakeholders {
     Stakeholders.openList();
     selectItemsPerPage(100);
     cy.wait(2000);
-    performRowActionByIcon(this.email, commonView.pencilIcon);
+    performRowActionBySelector(this.email, commonView.pencilAction);
     if (cancel) {
       cancelForm();
     } else {

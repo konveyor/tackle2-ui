@@ -23,7 +23,7 @@ import {
   click,
   clickByText,
   inputText,
-  performRowActionByIcon,
+  performRowActionBySelector,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -115,7 +115,7 @@ export class AssetGenerator implements Omit<Generator, "id"> {
 
   delete(cancel = false): void {
     AssetGenerator.open();
-    performRowActionByIcon(this.name, GeneratorView.deleteAction);
+    performRowActionBySelector(this.name, GeneratorView.deleteAction);
     if (cancel) {
       cancelForm();
     } else click(confirmButton);
@@ -123,7 +123,7 @@ export class AssetGenerator implements Omit<Generator, "id"> {
 
   edit(updatedValues: Partial<AssetGeneratorData>, cancel = false): void {
     AssetGenerator.open();
-    performRowActionByIcon(this.name, pencilAction);
+    performRowActionBySelector(this.name, pencilAction);
 
     if (cancel) {
       cancelForm();
