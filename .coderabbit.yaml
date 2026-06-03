@@ -2,10 +2,9 @@
 
 language: en-US
 
-instructions: >
-  Read AGENTS.md for the full list of coding standards, conventions, and review guidelines.
-
 reviews:
+  instructions: >
+    Read AGENTS.md for the full list of coding standards, conventions, and review guidelines.
   auto_review:
     enabled: true
     drafts: false
