@@ -9,8 +9,8 @@ on:
     paths-ignore:
       - "docs/**"
       - "hack/**"
-      - "*.md"
-      - "*.mdc"
+      - "**/*.md"
+      - "**/*.mdc"
       - ".coderabbit.yaml"
     branches:
       - "main"
@@ -38,6 +38,9 @@ on:
 #       - 'main'
 #       - 'release-*'
 ##
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-global-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
