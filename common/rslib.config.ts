@@ -47,6 +47,18 @@ export default defineConfig({
         },
       },
     },
+    {
+      format: "cjs",
+      output: {
+        distPath: "./dist",
+        filename: {
+          js: "index.cjs",
+        },
+        sourceMap: {
+          js: "source-map",
+        },
+      },
+    },
   ],
   output: {
     target: "node",
