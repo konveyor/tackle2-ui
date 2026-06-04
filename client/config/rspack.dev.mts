@@ -1,33 +1,31 @@
 import path from "path";
 
-import ReactRefreshWebpackPlugin from "@pmmmwh/react-refresh-webpack-plugin";
-import CopyPlugin from "copy-webpack-plugin";
-import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import { rspack } from "@rspack/core";
+import type { Configuration } from "@rspack/core";
+import type { Configuration as DevServerConfiguration } from "@rspack/dev-server";
+import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import ReactRefreshTypeScript from "react-refresh-typescript";
-import type { Configuration as WebpackConfiguration } from "webpack";
-import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
-import { mergeWithRules } from "webpack-merge";
+import { mergeWithRules } from "rspack-merge";
+import { TsCheckerRspackPlugin } from "ts-checker-rspack-plugin";
 
 import {
   KONVEYOR_ENV,
   SERVER_ENV_KEYS,
-  brandingAssetPath,
   brandingStrings,
   encodeEnv,
 } from "@konveyor-ui/common";
 
+import commonRspackConfiguration, { brandingPath } from "./rspack.common.mjs";
 import { stylePaths } from "./stylePaths";
-import commonWebpackConfiguration from "./webpack.common";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
-const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
+const faviconPath = path.resolve(brandingPath, "favicon.ico");
 
-interface Configuration extends WebpackConfiguration {
+interface RspackDevConfiguration extends Configuration {
   devServer?: DevServerConfiguration;
 }
 
-const config: Configuration = mergeWithRules({
+const config: RspackDevConfiguration = mergeWithRules({
   module: {
     rules: {
       test: "match",
@@ -37,7 +35,7 @@ const config: Configuration = mergeWithRules({
       },
     },
   },
-})(commonWebpackConfiguration, {
+})(commonRspackConfiguration, {
   mode: "development",
   devtool: "eval-source-map",
   output: {
@@ -53,6 +51,7 @@ const config: Configuration = mergeWithRules({
     },
     hot: true,
   },
+  lazyCompilation: false,
 
   module: {
     rules: [
@@ -60,14 +59,22 @@ const config: Configuration = mergeWithRules({
         test: /\.[jt]sx?$/,
         exclude: /node_modules/,
         use: {
-          loader: "ts-loader",
+          loader: "builtin:swc-loader",
           options: {
-            transpileOnly: true, // HMR in webpack-dev-server requires transpileOnly
-            getCustomTransformers: () => ({
-              before: [ReactRefreshTypeScript()],
-            }),
+            jsc: {
+              parser: { syntax: "typescript", tsx: true },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                  development: true,
+                  refresh: true,
+                },
+              },
+            },
+            detectSyntax: "auto",
           },
         },
+        type: "javascript/auto",
       },
       {
         test: /\.css$/,
@@ -78,13 +85,13 @@ const config: Configuration = mergeWithRules({
   },
 
   plugins: [
-    new ReactRefreshWebpackPlugin(),
-    new ForkTsCheckerWebpackPlugin({
+    new ReactRefreshRspackPlugin(),
+    new TsCheckerRspackPlugin({
       typescript: {
         mode: "readonly",
       },
     }),
-    new CopyPlugin({
+    new rspack.CopyRspackPlugin({
       patterns: [
         {
           from: pathTo("../public/mockServiceWorker.js"),
@@ -115,5 +122,6 @@ const config: Configuration = mergeWithRules({
     // ignore watching everything except @konveyor-ui packages
     ignored: /node_modules\/(?!@konveyor-ui\/)/,
   },
-} as Configuration);
+} as RspackDevConfiguration);
+
 export default config;

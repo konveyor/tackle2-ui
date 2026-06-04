@@ -30,18 +30,11 @@ export interface BrandingStrings {
   };
 }
 
-// Note: Typescript will look at the `paths` definition to resolve this import
-//       to a stub JSON file.  In the next rollup build step, that import will
-//       be replaced by the rollup virtual plugin with a dynamically generated
-//       JSON import with the actual branding information.
-import stringsJson from "@branding/strings.json";
+// Note: Typescript resolves this import with the module declaration in `virtual-modules.d.ts`
+//       at type check time. In the rslib build step, the module is dynamically generated and
+//       provided by a the virtual modules plugin.  The contents of the virtual module is pulled
+//       from a defined branding JSON file with the actual branding content.
+// eslint-disable-next-line import-x/no-unresolved
+import stringsJson from "@konveyor-ui/branding/strings.js";
 
 export const brandingStrings = stringsJson as unknown as BrandingStrings;
-
-/**
- * Return the `node_modules/` resolved path for the branding assets.
- */
-export const brandingAssetPath = () =>
-  require
-    .resolve("@konveyor-ui/common/package.json")
-    .replace(/(.)\/package.json$/, "$1") + "/dist/branding";

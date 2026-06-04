@@ -46,7 +46,7 @@ const config: JestConfigWithTsJest = {
     "^.+\\.[cm]?[jt]sx?$": "ts-jest",
   },
   transformIgnorePatterns: [
-    "node_modules/(?!(keycloak-js|react-error-boundary|lodash-es)/)", // process esm only modules
+    "node_modules/(?!(react-error-boundary|lodash-es)/)", // process esm only modules
   ],
 
   // Code to set up the testing framework before each test file in the suite is executed
