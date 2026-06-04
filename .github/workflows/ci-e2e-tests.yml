@@ -1,4 +1,4 @@
-name: CI (global konveyor CI)
+name: CI (e2e tests)
 
 on:
   push:
@@ -10,6 +10,8 @@ on:
       - "docs/**"
       - "hack/**"
       - "*.md"
+      - "*.mdc"
+      - ".coderabbit.yaml"
     branches:
       - "main"
 

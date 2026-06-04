@@ -6,6 +6,8 @@ on:
       - "docs/**"
       - "hack/**"
       - "*.md"
+      - "*.mdc"
+      - ".coderabbit.yaml"
     branches:
       - "main"
       - "release-*"
