@@ -236,11 +236,13 @@ describe(
     it("Validate Technologies Tab", function () {
       cy.contains("a", staticReportAppName).click();
       cy.contains("button > span", technologies).click();
-      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+      validateTextPresence("div.pf-v6-c-label-group", reportData.technology);
     });
 
     it("Validate Issues Menu", function () {
-      cy.contains("nav > ul > a", issues).click();
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html#/issues/applications`
+      );
       selectItemsPerPageInReport(100);
       validateTextPresence(tdTag, reportData.name);
       validateTextPresence(tdTag, reportData.category);
@@ -248,7 +250,9 @@ describe(
     });
 
     it("Validate Dependencies Menu", function () {
-      cy.contains("nav > ul > a", dependencies).click();
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html#/dependencies/applications`
+      );
       selectItemsPerPageInReport(100);
       validateTextPresence(tdTag, reportData.dependency);
     });
