@@ -1,4 +1,4 @@
-import axios, { RawAxiosRequestHeaders } from "axios";
+import axios, { AxiosPromise, RawAxiosRequestHeaders } from "axios";
 import { template } from "radash";
 
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
