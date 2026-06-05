@@ -278,7 +278,7 @@ function useFileUploader(
   );
 
   const { mutate: uploadTaskgroupFile } = useUploadTaskgroupFileMutation(
-    (_, { file }) => {
+    ({ file }) => {
       const ruleFileContext = fileContextRef.current.get(file.name);
       onSuccess(file, undefined, ruleFileContext);
       fileContextRef.current.delete(file.name);
