@@ -18,7 +18,6 @@ import {
   Proxy,
   Questionnaire,
   Ref,
-  Review,
   Setting,
   SettingTypes,
   Stakeholder,
@@ -55,7 +54,6 @@ const ASSESSMENTS = hub`/assessments`;
 export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
-const REVIEWS = hub`/reviews`;
 const SETTINGS = hub`/settings`;
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
 const STAKEHOLDERS = hub`/stakeholders`;
@@ -100,6 +98,7 @@ export * from "./rest/job-functions";
 export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
+export * from "./rest/reviews";
 export * from "./rest/tasks";
 
 /**
@@ -135,29 +134,6 @@ export const getHubPaginatedResult = <T>(
 //       file under the rest folder.  Typically the query hooks and onSuccess/onError
 //       handlers will need to be updated.
 // ----------
-
-// ---------------------------------------
-// Reviews
-//
-export const getReviews = (): Promise<Review[]> => {
-  return axios.get(`${REVIEWS}`).then((response) => response.data);
-};
-
-export const getReviewById = (id: number | string): Promise<Review> => {
-  return axios.get(`${REVIEWS}/${id}`).then((response) => response.data);
-};
-
-export const createReview = (obj: New<Review>): Promise<Review> => {
-  return axios.post(`${REVIEWS}`, obj);
-};
-
-export const updateReview = (obj: Review): Promise<Review> => {
-  return axios.put(`${REVIEWS}/${obj.id}`, obj);
-};
-
-export const deleteReview = (id: number): Promise<Review> => {
-  return axios.delete(`${REVIEWS}/${id}`);
-};
 
 // ---------------------------------------
 // Assessments
