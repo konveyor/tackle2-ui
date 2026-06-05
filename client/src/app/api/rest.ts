@@ -23,8 +23,6 @@ import {
   SettingTypes,
   Stakeholder,
   StakeholderGroup,
-  Tag,
-  TagCategory,
   Target,
   Taskgroup,
   Ticket,
@@ -59,8 +57,6 @@ const REVIEWS = hub`/reviews`;
 const SETTINGS = hub`/settings`;
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
 const STAKEHOLDERS = hub`/stakeholders`;
-const TAG_CATEGORIES = hub`/tagcategories`;
-const TAGS = hub`/tags`;
 const TARGETS = hub`/targets`;
 const TASKGROUPS = hub`/taskgroups`;
 const TICKETS = hub`/tickets`;
@@ -101,6 +97,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/tags";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -405,42 +402,6 @@ export const updateStakeholderGroup = (
   obj: StakeholderGroup
 ): Promise<StakeholderGroup> =>
   axios.put(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
-
-// ---------------------------------------
-// Tags
-//
-export const getTags = (): Promise<Tag[]> =>
-  axios.get(TAGS).then((response) => response.data);
-
-export const getTagById = (id: number | string): Promise<Tag> =>
-  axios.get(`${TAGS}/${id}`).then((response) => response.data);
-
-export const createTag = (obj: New<Tag>): Promise<Tag> => axios.post(TAGS, obj);
-
-export const deleteTag = (id: number): Promise<Tag> =>
-  axios.delete(`${TAGS}/${id}`);
-
-export const updateTag = (obj: Tag): Promise<Tag> =>
-  axios.put(`${TAGS}/${obj.id}`, obj);
-
-// ---------------------------------------
-// Tag categories
-//
-export const getTagCategories = (): Promise<Array<TagCategory>> =>
-  axios.get(TAG_CATEGORIES).then((response) => response.data);
-
-export const getTagCategoryById = (id: number): Promise<TagCategory> =>
-  axios.get(`${TAG_CATEGORIES}/${id}`).then((response) => response.data);
-
-export const deleteTagCategory = (id: number): Promise<TagCategory> =>
-  axios.delete(`${TAG_CATEGORIES}/${id}`);
-
-export const createTagCategory = (
-  obj: New<TagCategory>
-): Promise<TagCategory> => axios.post(TAG_CATEGORIES, obj);
-
-export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
-  axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
 
 // ---------------------------------------
 // Facts
