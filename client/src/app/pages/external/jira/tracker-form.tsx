@@ -87,7 +87,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     addUpdatingTrackerId(tracker.id);
   };
 
-  const onUpdateTrackerSuccess = (_response: unknown, tracker: Tracker) => {
+  const onUpdateTrackerSuccess = (tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
