@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
-import { Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
+import { New, Role, Stakeholder, StakeholderWithRole } from "@app/api/models";
 import {
   createStakeholder,
   deleteStakeholder,
@@ -37,12 +37,11 @@ export const useFetchStakeholders = (
     queryFn: getStakeholders,
     onError: (error: AxiosError) => console.log("error, ", error),
     refetchInterval,
-    select: (stakeholders): StakeholderWithRole[] => {
-      const stakeholdersWithRole = stakeholders.map((stakeholder) => {
-        return { ...stakeholder, role: getRole(stakeholder) };
-      });
-      return stakeholdersWithRole;
-    },
+    select: (stakeholders): StakeholderWithRole[] =>
+      stakeholders.map((stakeholder) => ({
+        ...stakeholder,
+        role: getRole(stakeholder),
+      })),
   });
   return {
     stakeholders: data || [],
@@ -55,15 +54,15 @@ export const useFetchStakeholders = (
 };
 
 export const useCreateStakeholderMutation = (
-  onSuccess: (res: unknown) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createStakeholder,
-    onSuccess: (res) => {
-      onSuccess(res);
+    mutationFn: (obj: New<Stakeholder>) => createStakeholder(obj),
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [StakeholdersQueryKey] });
     },
     onError,
@@ -71,15 +70,15 @@ export const useCreateStakeholderMutation = (
 };
 
 export const useUpdateStakeholderMutation = (
-  onSuccess: (res: unknown) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: updateStakeholder,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [StakeholdersQueryKey] });
       queryClient.invalidateQueries({ queryKey: [BusinessServicesQueryKey] });
       queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
@@ -91,15 +90,15 @@ export const useUpdateStakeholderMutation = (
 };
 
 export const useDeleteStakeholderMutation = (
-  onSuccess: (res: unknown) => void,
+  onSuccess: () => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: deleteStakeholder,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: () => {
+      onSuccess();
       queryClient.invalidateQueries({ queryKey: [StakeholdersQueryKey] });
       queryClient.invalidateQueries({ queryKey: [BusinessServicesQueryKey] });
       queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
