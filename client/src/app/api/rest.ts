@@ -1,8 +1,4 @@
-import axios, {
-  AxiosPromise,
-  AxiosResponse,
-  RawAxiosRequestHeaders,
-} from "axios";
+import axios, { AxiosResponse, RawAxiosRequestHeaders } from "axios";
 import { template } from "radash";
 
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -26,7 +22,6 @@ import {
   Tag,
   TagCategory,
   Target,
-  Taskgroup,
   Ticket,
   Tracker,
   TrackerProject,
@@ -62,7 +57,6 @@ const STAKEHOLDERS = hub`/stakeholders`;
 const TAG_CATEGORIES = hub`/tagcategories`;
 const TAGS = hub`/tags`;
 const TARGETS = hub`/targets`;
-const TASKGROUPS = hub`/taskgroups`;
 const TICKETS = hub`/tickets`;
 const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 const TRACKER_PROJECTS = "projects"; // TODO: ????
@@ -101,6 +95,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/task-groups";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -245,47 +240,6 @@ export const getApplicationSummaryCSV = (id: string) => {
       headers: { Accept: "text/csv" },
     }
   );
-};
-
-// ---------------------------------------
-// Task Groups
-//
-export const createTaskgroup = (obj: New<Taskgroup>) =>
-  axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
-
-export const submitTaskgroup = (obj: Taskgroup) =>
-  axios
-    .put<void>(`${TASKGROUPS}/${obj.id}/submit`, obj)
-    .then((response) => response.data);
-
-export const deleteTaskgroup = (id: number): AxiosPromise =>
-  axios.delete(`${TASKGROUPS}/${id}`);
-
-// returns a 204 and no content with a successful upload
-export const uploadFileTaskgroup = ({
-  id,
-  path,
-  file,
-}: {
-  id: number;
-  path: string;
-  file: File;
-}) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  return axios.post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: HEADERS.form,
-  });
-};
-
-export const removeFileTaskgroup = ({
-  id,
-  path,
-}: {
-  id: number;
-  path: string;
-}) => {
-  return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
 };
 
 // ---------------------------------------
