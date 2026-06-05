@@ -1,8 +1,4 @@
-import axios, {
-  AxiosPromise,
-  AxiosResponse,
-  RawAxiosRequestHeaders,
-} from "axios";
+import axios, { RawAxiosRequestHeaders } from "axios";
 import { template } from "radash";
 
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
@@ -25,7 +21,6 @@ import {
   StakeholderGroup,
   Tag,
   TagCategory,
-  Target,
   Taskgroup,
   Ticket,
   Tracker,
@@ -61,7 +56,6 @@ const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
 const STAKEHOLDERS = hub`/stakeholders`;
 const TAG_CATEGORIES = hub`/tagcategories`;
 const TAGS = hub`/tags`;
-const TARGETS = hub`/targets`;
 const TASKGROUPS = hub`/taskgroups`;
 const TICKETS = hub`/tickets`;
 const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
@@ -101,6 +95,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/targets";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -287,22 +282,6 @@ export const removeFileTaskgroup = ({
 }) => {
   return axios.delete<Taskgroup>(`${TASKGROUPS}/${id}/bucket/${path}`);
 };
-
-// ---------------------------------------
-// Targets
-//
-export const updateTarget = (obj: Target) =>
-  axios.put<Target>(`${TARGETS}/${obj.id}`, obj);
-
-export const createTarget = (
-  obj: New<Target>
-): Promise<AxiosResponse<Target>> => axios.post<Target>(TARGETS, obj);
-
-export const deleteTarget = (id: number): Promise<Target> =>
-  axios.delete(`${TARGETS}/${id}`);
-
-export const getTargets = (): Promise<Target[]> =>
-  axios.get(TARGETS).then((response) => response.data);
 
 // ---------------------------------------
 // Settings

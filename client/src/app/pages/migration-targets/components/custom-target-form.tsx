@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 import { unique } from "radash";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -51,7 +51,7 @@ import defaultImage from "./default.png";
 export interface CustomTargetFormProps {
   target?: Target | null;
   targetOrder: number[];
-  onSaved: (response: AxiosResponse<Target>) => void;
+  onSaved: (target: Target) => void;
   onCancel: () => void;
 }
 
@@ -82,7 +82,7 @@ const targetRulesetsToReadFiles = (target?: Target) =>
   }) || [];
 
 const useTargetQueryHooks = (
-  onSaved: (response: AxiosResponse<Target>) => void,
+  onSaved: (target: Target) => void,
   reset: () => void
 ) => {
   const { pushNotification } = useContext(NotificationsContext);
@@ -90,9 +90,9 @@ const useTargetQueryHooks = (
   const { mutateAsync: createImageFileAsync } = useCreateFileMutation();
 
   const { mutateAsync: createTargetAsync } = useCreateTargetMutation(
-    (response: AxiosResponse<Target>) => {
+    (target: Target) => {
       // TODO: Consider any removed files and delete them from hub if necessary
-      onSaved(response);
+      onSaved(target);
       reset();
     },
     (error: AxiosError) => {
@@ -103,9 +103,9 @@ const useTargetQueryHooks = (
     }
   );
 
-  const onUpdateTargetSuccess = (response: AxiosResponse<Target>) => {
+  const onUpdateTargetSuccess = (target: Target) => {
     // TODO: Consider any removed files and delete them from hub if necessary
-    onSaved(response);
+    onSaved(target);
     reset();
   };
 
@@ -391,7 +391,7 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
       let newTargetId: number | undefined;
       try {
         const response = await createTargetAsync(payload);
-        newTargetId = response.data.id;
+        newTargetId = response.id;
       } catch {
         /* ignore */
       }
