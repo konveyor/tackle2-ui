@@ -15,7 +15,6 @@ import {
   HubRequestParams,
   InitialAssessment,
   New,
-  Proxy,
   Questionnaire,
   Ref,
   Review,
@@ -53,7 +52,6 @@ const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
 export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
 const ASSESSMENTS = hub`/assessments`;
 export const FILES = hub`/files`;
-const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
 const REVIEWS = hub`/reviews`;
 const SETTINGS = hub`/settings`;
@@ -101,6 +99,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/proxies";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -452,15 +451,6 @@ export const getFacts = (id: number | string | undefined) =>
         .get<UnstructuredFact>(hub`/applications/${id}/facts`)
         .then((response) => response.data)
     : Promise.reject();
-
-// ---------------------------------------
-// Proxies
-//
-export const getProxies = (): Promise<Proxy[]> =>
-  axios.get(PROXIES).then((response) => response.data);
-
-export const updateProxy = (obj: Proxy): Promise<Proxy> =>
-  axios.put(`${PROXIES}/${obj.id}`, obj);
 
 // ---------------------------------------
 // Questionnaires
