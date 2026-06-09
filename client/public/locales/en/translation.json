@@ -271,6 +271,10 @@
     "cyclicDependenciesNotAllowed": "Cyclic dependencies are not allowed.",
     "noAnswers": "Are you sure you want to close the assessment? There are no answers to save.",
     "noArchetypesCreatedTitle": "No archetypes have been created",
+    "noUsersFoundTitle": "No users found",
+    "noTokensFoundTitle": "No tokens found",
+    "noRolesFoundTitle": "No roles found",
+    "noPermissionsFoundTitle": "No permissions found",
     "noArchetypesCreatedDescription": "Create a new archetype to get started.",
     "noAssociatedTags": "This tag category has no associated tags.",
     "noCodesSnippetAvailableBody": "No code snippet was created for this incident.",
@@ -361,8 +365,13 @@
     "group": {
       "applications": "Applications",
       "analysisResults": "Analysis Results",
-      "configuration": "Configuration"
-    }
+      "configuration": "Configuration",
+      "userManagement": "User Management"
+    },
+    "users": "Users",
+    "tokens": "Tokens",
+    "roles": "Roles",
+    "permissions": "Permissions"
   },
   "taskState": {
     "Canceled": "Canceled",
@@ -657,7 +666,15 @@
     "platformDrawer": "Platform details",
     "taskManager": "Task Manager",
     "task": "Task",
-    "taskWithId": "Task {{taskId}}"
+    "taskWithId": "Task {{taskId}}",
+    "users": "Users",
+    "userTable": "User table",
+    "tokens": "Tokens",
+    "tokenTable": "Token table",
+    "roles": "Roles",
+    "roleTable": "Role table",
+    "permissions": "Permissions",
+    "permissionTable": "Permission table"
   },
   "toastr": {
     "success": {
