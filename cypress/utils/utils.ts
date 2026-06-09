@@ -256,9 +256,25 @@ export function logout(userName?: string): void {
 }
 
 /**
+ * Check if a JWT token is expired
+ * Returns true if expired, invalid, or cannot be decoded
+ */
+function isExpiredToken(token: string): boolean {
+  try {
+    const [, payload] = token.split(".");
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const { exp } = JSON.parse(atob(normalized));
+    return typeof exp !== "number" || exp * 1000 <= Date.now() + 30_000;
+  } catch {
+    return true;
+  }
+}
+
+/**
  * Return authorization headers for direct API calls (`cy.request`).
  *
  * With OIDC authentication, retrieves the access token from sessionStorage.
+ * Validates token expiration and skips expired tokens.
  * Returns `{ Authorization: "Bearer <token>" }` when auth is enabled.
  * Otherwise returns an empty object so callers can always spread/pass headers
  * without branching.
@@ -277,22 +293,25 @@ export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
           if (oidcUserData) {
             try {
               const userData = JSON.parse(oidcUserData);
-              if (userData.access_token) {
+              if (
+                userData.access_token &&
+                !isExpiredToken(userData.access_token)
+              ) {
                 return { Authorization: `Bearer ${userData.access_token}` };
               }
-            } catch (e) {
+            } catch {
               // Fall through
             }
           }
         }
 
         const localToken = win.localStorage.getItem("token");
-        if (localToken) {
+        if (localToken && !isExpiredToken(localToken)) {
           return { Authorization: `Bearer ${localToken}` };
         }
 
         throw new Error(
-          "No authentication token found in sessionStorage or localStorage"
+          "No valid authentication token found; refresh the session before direct API calls"
         );
       });
     }
@@ -2577,7 +2596,7 @@ export function safeParseJson(body: any, fallback: any = []): any {
     if (body.trim()) {
       try {
         return JSON.parse(body);
-      } catch (e) {
+      } catch {
         cy.log(`Failed to parse JSON response: ${body.substring(0, 100)}...`);
         return fallback;
       }

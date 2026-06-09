@@ -71,7 +71,7 @@ export function getRoleByName(
  */
 export function getRoleId(roleName: string): Cypress.Chainable<number> {
   return getRoleByName(roleName).then((role) => {
-    if (!role || !role.id) {
+    if (!role || role.id == null || role.id <= 0) {
       throw new Error(`Role '${roleName}' not found`);
     }
     return role.id;
@@ -251,17 +251,19 @@ export function deleteUserById(userId: number): Cypress.Chainable<unknown> {
         failOnStatusCode: false,
       })
       .then((response) => {
+        const responseText =
+          typeof response.body === "string"
+            ? response.body
+            : JSON.stringify(response.body);
+
         if (response.status === 204) {
           cy.log(`User ${userId} deleted successfully`);
-        } else if (
-          response.status === 400 &&
-          response.body?.includes("seeded")
-        ) {
+        } else if (response.status === 400 && responseText.includes("seeded")) {
           cy.log(`Cannot delete seeded user ${userId} (ID < 1000)`);
           throw new Error(`Cannot delete seeded user ${userId}`);
         } else {
           throw new Error(
-            `Failed to delete user ${userId}: ${response.status} - ${JSON.stringify(response.body)}`
+            `Failed to delete user ${userId}: ${response.status} - ${responseText}`
           );
         }
       });
@@ -273,7 +275,7 @@ export function deleteUserById(userId: number): Cypress.Chainable<unknown> {
  */
 export function deleteUserByLogin(login: string): Cypress.Chainable<unknown> {
   return getUserByLogin(login).then((user) => {
-    if (!user || !user.id) {
+    if (!user || user.id == null || user.id <= 0) {
       cy.log(`User '${login}' not found, skipping deletion`);
       return;
     }

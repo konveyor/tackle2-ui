@@ -57,10 +57,15 @@ let adminAnalysisProfile: AnalysisProfile;
 let arch1Profile1: AnalysisProfile;
 let arch1Profile2: AnalysisProfile;
 let arch2Profile: AnalysisProfile;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let archetype1: Archetype;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let archetype2: Archetype;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile1: TargetProfile;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile2: TargetProfile;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile3: TargetProfile;
 let appWithArchetype: Analysis;
 
@@ -290,6 +295,7 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
+      userMigrator.logout();
     });
 
     after("Clean up", function () {

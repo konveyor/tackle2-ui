@@ -526,7 +526,7 @@ export class MigrationWave {
         if (body.trim()) {
           try {
             body = JSON.parse(body);
-          } catch (e) {
+          } catch {
             cy.log(`Failed to parse migration waves response: ${body}`);
             body = [];
           }

@@ -1089,7 +1089,7 @@ export class Application {
         if (body.trim()) {
           try {
             body = JSON.parse(body);
-          } catch (e) {
+          } catch {
             cy.log(`Failed to parse applications response: ${body}`);
             body = [];
           }
