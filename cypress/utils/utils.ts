@@ -2591,18 +2591,18 @@ export function isElementExpanded(
   });
 }
 
-export function safeParseJson(body: any, fallback: any = []): any {
+export function safeParseJson<T>(body: unknown, fallback: T): T {
   if (typeof body === "string") {
-    if (body.trim()) {
-      try {
-        return JSON.parse(body);
-      } catch {
-        cy.log(`Failed to parse JSON response: ${body.substring(0, 100)}...`);
-        return fallback;
-      }
-    } else {
+    if (!body.trim()) {
       return fallback;
     }
+    try {
+      return JSON.parse(body) as T;
+    } catch {
+      throw new Error(
+        `Failed to parse JSON response body (first 100 chars): ${body.substring(0, 100)}`
+      );
+    }
   }
-  return body;
+  return (body ?? fallback) as T;
 }

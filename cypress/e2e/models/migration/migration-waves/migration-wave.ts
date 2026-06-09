@@ -5,6 +5,7 @@ import {
   clickJs,
   inputText,
   performRowActionBySelector,
+  safeParseJson,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -521,19 +522,7 @@ export class MigrationWave {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      let body = res.body;
-      if (typeof body === "string") {
-        if (body.trim()) {
-          try {
-            body = JSON.parse(body);
-          } catch {
-            cy.log(`Failed to parse migration waves response: ${body}`);
-            body = [];
-          }
-        } else {
-          body = [];
-        }
-      }
+      const body = safeParseJson(res.body, []);
       const items = Array.isArray(body) ? body : [];
       items.forEach((item: { id: number }) => {
         cy.request({

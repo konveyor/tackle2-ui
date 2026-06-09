@@ -27,6 +27,7 @@ import {
   isElementExpanded,
   performRowActionBySelector,
   performWithin,
+  safeParseJson,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -1084,19 +1085,7 @@ export class Application {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      let body = res.body;
-      if (typeof body === "string") {
-        if (body.trim()) {
-          try {
-            body = JSON.parse(body);
-          } catch {
-            cy.log(`Failed to parse applications response: ${body}`);
-            body = [];
-          }
-        } else {
-          body = [];
-        }
-      }
+      const body = safeParseJson(res.body, []);
       const items = Array.isArray(body) ? body : [];
       items.forEach((app: { id: number }) => {
         cy.request({
