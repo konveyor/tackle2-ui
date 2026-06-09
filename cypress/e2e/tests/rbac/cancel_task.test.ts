@@ -22,9 +22,7 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
-import { User } from "../../models/keycloak/users/user";
-import { UserArchitect } from "../../models/keycloak/users/userArchitect";
-import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { UserArchitect, UserMigrator } from "../../models/hub/users";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { TaskManager } from "../../models/migration/task-manager/task-manager";
 import { TaskStatus } from "../../types/constants";
@@ -55,13 +53,11 @@ describe(
             applicationsList.push(bookServerApp);
           }
           applicationsList.forEach((application) => application.create());
+
+          userMigrator.create();
+          userArchitect.create();
         });
       });
-
-      // Creating RBAC users
-      User.loginKeycloakAdmin();
-      userMigrator.create();
-      userArchitect.create();
     });
 
     beforeEach("Load data", function () {

@@ -24,6 +24,7 @@ import {
   expandRowDetails,
   inputText,
   performRowActionBySelector,
+  safeParseJson,
   selectItemsPerPage,
   selectUserPerspective,
   submitForm,
@@ -209,8 +210,7 @@ export class Tag {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      const body =
-        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const body = safeParseJson(res.body, []);
       const items = Array.isArray(body) ? body : [];
       items.forEach((tag: { id: number }) => {
         cy.request({

@@ -24,9 +24,7 @@ import {
   next,
   selectItemsPerPage,
 } from "../../../utils/utils";
-import { User } from "../../models/keycloak/users/user";
-import { UserArchitect } from "../../models/keycloak/users/userArchitect";
-import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { UserArchitect, UserMigrator } from "../../models/hub/users";
 import { AnalysisWizardHelpers } from "../../models/migration/analysis-profiles/analysis-wizard-helpers";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
@@ -49,11 +47,9 @@ describe(
     const migrator = new UserMigrator(data.getRandomUserData());
 
     before("Create test data", function () {
-      User.loginKeycloakAdmin();
+      login();
       architect.create();
       migrator.create();
-
-      login();
       cy.visit("/");
       cy.fixture("custom-rules").then((customMigrationTargets) => {
         const targetData = customMigrationTargets.rules_from_bookServerApp;
@@ -118,7 +114,6 @@ describe(
       cy.visit("/");
       analysis.delete();
       target.delete();
-      User.loginKeycloakAdmin();
       architect.delete();
       migrator.delete();
     });

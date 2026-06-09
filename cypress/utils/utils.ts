@@ -252,7 +252,7 @@ export function logout(userName?: string): void {
   clickByText(button, userName);
   cy.wait(0.5 * SEC);
   click("#logout");
-  cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
+  cy.get("h1", { timeout: 15 * SEC }).contains("Tackle Login");
 }
 
 /**
@@ -2570,4 +2570,20 @@ export function isElementExpanded(
   return cy.contains(element, elementText).then(($element) => {
     return $element.attr("aria-expanded") === "true";
   });
+}
+
+export function safeParseJson(body: any, fallback: any = []): any {
+  if (typeof body === "string") {
+    if (body.trim()) {
+      try {
+        return JSON.parse(body);
+      } catch (e) {
+        cy.log(`Failed to parse JSON response: ${body.substring(0, 100)}...`);
+        return fallback;
+      }
+    } else {
+      return fallback;
+    }
+  }
+  return body;
 }

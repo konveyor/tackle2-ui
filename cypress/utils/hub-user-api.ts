@@ -16,7 +16,7 @@ limitations under the License.
 
 import { HubRef, HubRole, HubUser } from "../e2e/types/types";
 
-import { getAuthHeaders } from "./utils";
+import { getAuthHeaders, safeParseJson } from "./utils";
 
 /**
  * Hub API User Management Utilities
@@ -41,11 +41,7 @@ export function getAllRoles(): Cypress.Chainable<HubRole[]> {
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-
-        let roles = response.body;
-        if (typeof roles === "string") {
-          roles = JSON.parse(roles);
-        }
+        const roles = safeParseJson(response.body, []);
 
         if (!Array.isArray(roles)) {
           throw new Error(
@@ -118,11 +114,7 @@ export function createUser(userData: {
       })
       .then((response) => {
         if (response.status === 201) {
-          let body = response.body;
-          if (typeof body === "string") {
-            body = JSON.parse(body);
-          }
-          return body as HubUser;
+          return safeParseJson(response.body, {}) as HubUser;
         } else {
           throw new Error(
             `Failed to create user '${userData.login}': ${response.status} - ${JSON.stringify(response.body)}`
@@ -134,6 +126,7 @@ export function createUser(userData: {
 
 /**
  * Create a user with a specific role name
+ * If user already exists, delete it first to ensure clean state
  */
 export function createUserWithRole(
   login: string,
@@ -142,13 +135,15 @@ export function createUserWithRole(
   password: string,
   roleName: string
 ): Cypress.Chainable<HubUser> {
-  return getRoleId(roleName).then((roleId) => {
-    return createUser({
-      login,
-      name,
-      email,
-      password,
-      roleIds: [roleId],
+  return deleteUserByLogin(login).then(() => {
+    return getRoleId(roleName).then((roleId) => {
+      return createUser({
+        login,
+        name,
+        email,
+        password,
+        roleIds: [roleId],
+      });
     });
   });
 }
@@ -169,11 +164,7 @@ export function getAllUsers(): Cypress.Chainable<HubUser[]> {
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-
-        let users = response.body;
-        if (typeof users === "string") {
-          users = JSON.parse(users);
-        }
+        const users = safeParseJson(response.body, []);
 
         if (!Array.isArray(users)) {
           throw new Error(
@@ -214,11 +205,7 @@ export function getUserById(userId: number): Cypress.Chainable<HubUser> {
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-        let body = response.body;
-        if (typeof body === "string") {
-          body = JSON.parse(body);
-        }
-        return body as HubUser;
+        return safeParseJson(response.body, {}) as HubUser;
       });
   });
 }

@@ -30,8 +30,7 @@ import {
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { CredentialsMaven } from "../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../models/administration/credentials/credentialsSourceControlUsername";
-import { User } from "../../models/keycloak/users/user";
-import { UserAdmin } from "../../models/keycloak/users/userAdmin";
+import { UserAdmin } from "../../models/hub/users";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Archetype } from "../../models/migration/archetypes/archetype";
 import { BusinessServices } from "../../models/migration/controls/businessservices";
@@ -257,8 +256,6 @@ describe(["@pre-upgrade"], "Creating pre-requisites before an upgrade", () => {
     userAdmin.username = this.upgradeData.adminUser;
     userAdmin.password = Cypress.env("pass");
 
-    //Logging in as keycloak admin to create new user
-    User.loginKeycloakAdmin();
     userAdmin.create();
   });
 });

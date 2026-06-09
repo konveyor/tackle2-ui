@@ -7,6 +7,7 @@ import {
   inputText,
   notExists,
   performRowActionBySelector,
+  safeParseJson,
   selectFromDropList,
   selectItemsPerPage,
   selectUserPerspective,
@@ -220,8 +221,7 @@ export class Jira {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      const body =
-        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const body = safeParseJson(res.body, []);
       const items = Array.isArray(body) ? body : [];
       items.forEach((item: { id: number }) => {
         cy.request({

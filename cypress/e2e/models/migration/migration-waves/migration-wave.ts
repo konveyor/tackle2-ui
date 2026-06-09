@@ -521,8 +521,19 @@ export class MigrationWave {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      const body =
-        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      let body = res.body;
+      if (typeof body === "string") {
+        if (body.trim()) {
+          try {
+            body = JSON.parse(body);
+          } catch (e) {
+            cy.log(`Failed to parse migration waves response: ${body}`);
+            body = [];
+          }
+        } else {
+          body = [];
+        }
+      }
       const items = Array.isArray(body) ? body : [];
       items.forEach((item: { id: number }) => {
         cy.request({

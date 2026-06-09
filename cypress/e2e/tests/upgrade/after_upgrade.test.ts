@@ -35,7 +35,7 @@ import { AssessmentQuestionnaire } from "../../models/administration/assessment_
 import { Credentials } from "../../models/administration/credentials/credentials";
 import { GeneralConfig } from "../../models/administration/general/generalConfig";
 import { MavenConfiguration } from "../../models/administration/repositories/maven";
-import { UserAdmin } from "../../models/keycloak/users/userAdmin";
+import { UserAdmin } from "../../models/hub/users";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
 import { Archetype } from "../../models/migration/archetypes/archetype";

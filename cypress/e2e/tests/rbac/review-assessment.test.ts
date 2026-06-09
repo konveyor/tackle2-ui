@@ -24,8 +24,7 @@ import {
   login,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { User } from "../../models/keycloak/users/user";
-import { UserArchitect } from "../../models/keycloak/users/userArchitect";
+import { UserArchitect } from "../../models/hub/users";
 import { Application } from "../../models/migration/applicationinventory/application";
 import { Archetype } from "../../models/migration/archetypes/archetype";
 import { Stakeholders } from "../../models/migration/controls/stakeholders";
@@ -43,9 +42,8 @@ describe(
     const architect = new UserArchitect(data.getRandomUserData());
 
     before("Create test data", function () {
-      User.loginKeycloakAdmin();
-      architect.create();
       login();
+      architect.create();
       cy.visit("/");
       AssessmentQuestionnaire.deleteAllQuestionnaires();
       AssessmentQuestionnaire.enable(legacyPathfinder);
@@ -94,7 +92,6 @@ describe(
       cy.visit("/");
       application[0].delete();
       deleteByList(tags);
-      User.loginKeycloakAdmin();
       architect.delete();
     });
   }

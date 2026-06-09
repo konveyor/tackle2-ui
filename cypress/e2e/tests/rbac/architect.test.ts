@@ -20,6 +20,8 @@ import {
   createArchetypeWithProfiles,
   createMultipleStakeholders,
   createMultipleTags,
+  deleteAllAnalysisProfiles,
+  deleteAllArchetypes,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
   deleteByList,
@@ -28,9 +30,7 @@ import {
   login,
 } from "../../../utils/utils";
 import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { User } from "../../models/keycloak/users/user";
-import { UserArchitect } from "../../models/keycloak/users/userArchitect";
-import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { UserArchitect, UserMigrator } from "../../models/hub/users";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
@@ -104,7 +104,6 @@ describe(
       application.create();
       application.perform_review("low");
       application.perform_assessment("low", stakeholders);
-      User.loginKeycloakAdmin();
       userArchitect.create();
       userMigrator.create();
     });
@@ -260,6 +259,7 @@ describe(
     });
 
     it("Migrator, Perform analysis using architect-created profile", function () {
+      userArchitect.logout();
       userMigrator.login();
 
       // Verify analysis profile (not linked to archetype) is NOT visible
@@ -297,42 +297,10 @@ describe(
       cy.visit("/");
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
-
-      if (archetype1) {
-        if (targetProfile1) {
-          targetProfile1.open(archetype1.name);
-          targetProfile1.delete();
-        }
-        if (targetProfile2) {
-          targetProfile2.open(archetype1.name);
-          targetProfile2.delete();
-        }
-        archetype1.delete();
-      }
-
-      if (archetype2) {
-        if (targetProfile3) {
-          targetProfile3.open(archetype2.name);
-          targetProfile3.delete();
-        }
-        archetype2.delete();
-      }
-
-      if (arch1Profile1) {
-        arch1Profile1.delete();
-      }
-      if (arch1Profile2) {
-        arch1Profile2.delete();
-      }
-      if (arch2Profile) {
-        arch2Profile.delete();
-      }
-      if (adminAnalysisProfile) {
-        adminAnalysisProfile.delete();
-      }
+      deleteAllArchetypes();
+      deleteAllAnalysisProfiles();
       deleteByList(stakeholders);
       deleteByList(tags);
-      User.loginKeycloakAdmin();
       userArchitect.delete();
       userMigrator.delete();
     });
