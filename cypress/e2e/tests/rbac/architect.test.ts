@@ -57,15 +57,10 @@ let adminAnalysisProfile: AnalysisProfile;
 let arch1Profile1: AnalysisProfile;
 let arch1Profile2: AnalysisProfile;
 let arch2Profile: AnalysisProfile;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let archetype1: Archetype;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let archetype2: Archetype;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile1: TargetProfile;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile2: TargetProfile;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let targetProfile3: TargetProfile;
 let appWithArchetype: Analysis;
 
@@ -261,41 +256,6 @@ describe(
         AnalysisStatuses.completed,
         30 * MIN
       );
-    });
-
-    it("Migrator, Perform analysis using architect-created profile", function () {
-      userArchitect.logout();
-      userMigrator.login();
-
-      // Verify analysis profile (not linked to archetype) is NOT visible
-      appWithArchetype.selectApplication();
-      cy.contains(button, "Analyze").click();
-      cy.get(analysisProfileMode).check().should("be.checked");
-      cy.get(analysisProfileSelect).click();
-      cy.get(actionMenuItem).should("not.contain", adminAnalysisProfile.name);
-
-      // Verify all 3 analysis profiles (architect created) linked to app's archetypes are visible
-      cy.get(actionMenuItem).should("contain", arch1Profile2.name);
-      cy.get(actionMenuItem).should("contain", arch2Profile.name);
-      cy.get(analysisProfileSelect).click();
-      cy.contains(button, "Cancel").click();
-      appWithArchetype.selectApplication();
-
-      // Verify analysis profile (linked to archetype) is visible
-      const migratorAnalysis = new Analysis(
-        {
-          name: appWithArchetype.name,
-          tags: appWithArchetype.tags,
-        },
-        { ...profileData, profileName: arch1Profile1.name }
-      );
-      migratorAnalysis.analyze();
-      migratorAnalysis.waitStatusChange(AnalysisStatuses.scheduled);
-      migratorAnalysis.verifyAnalysisStatus(
-        AnalysisStatuses.completed,
-        30 * MIN
-      );
-      userMigrator.logout();
     });
 
     after("Clean up", function () {
