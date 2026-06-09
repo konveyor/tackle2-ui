@@ -234,7 +234,7 @@ export function login(
         // Attempt login
         inputText(loginView.userNameInput, username);
         inputText(loginView.userPasswordInput, password);
-        click(loginView.loginButton);
+        click(loginView.submitButton);
       } else {
         cy.log("AUTH is disabled, just look for applications page");
       }
@@ -258,38 +258,43 @@ export function logout(userName?: string): void {
 /**
  * Return authorization headers for direct API calls (`cy.request`).
  *
- * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
- * and returns `{ Authorization: "Bearer <token>" }`.
+ * With OIDC authentication, retrieves the access token from sessionStorage.
+ * Returns `{ Authorization: "Bearer <token>" }` when auth is enabled.
  * Otherwise returns an empty object so callers can always spread/pass headers
  * without branching.
  */
 export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
   return cy.uiEnvironmentConfig().then((env) => {
     if (env["AUTH_REQUIRED"] === "true") {
-      return cy
-        .request({
-          method: "POST",
-          url: "/hub/auth/login",
-          body: {
-            user: Cypress.env("user"),
-            password: Cypress.env("pass"),
-          },
-          failOnStatusCode: false,
-        })
-        .then((res) => {
-          if (res.status !== 200 && res.status !== 201) {
-            throw new Error(
-              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
-            );
+      return cy.window().then((win) => {
+        const sessionKeys = Object.keys(win.sessionStorage);
+        const oidcUserKey = sessionKeys.find((key) =>
+          key.startsWith("oidc.user:")
+        );
+
+        if (oidcUserKey) {
+          const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
+          if (oidcUserData) {
+            try {
+              const userData = JSON.parse(oidcUserData);
+              if (userData.access_token) {
+                return { Authorization: `Bearer ${userData.access_token}` };
+              }
+            } catch (e) {
+              // Fall through
+            }
           }
-          const token = res.body?.token;
-          if (!token) {
-            throw new Error(
-              `Auth login response missing token: ${JSON.stringify(res.body)}`
-            );
-          }
-          return { Authorization: `Bearer ${token}` } as Record<string, string>;
-        });
+        }
+
+        const localToken = win.localStorage.getItem("token");
+        if (localToken) {
+          return { Authorization: `Bearer ${localToken}` };
+        }
+
+        throw new Error(
+          "No authentication token found in sessionStorage or localStorage"
+        );
+      });
     }
     return cy.wrap({} as Record<string, string>);
   });

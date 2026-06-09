@@ -153,9 +153,9 @@ export enum UserCredentials {
 }
 
 export enum UserRoles {
-  admin = "tackle-admin",
-  architect = "tackle-architect",
-  migrator = "tackle-migrator",
+  admin = "admin",
+  architect = "architect",
+  migrator = "migrator",
 }
 
 export enum AnalysisStatuses {

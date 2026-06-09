@@ -16,6 +16,8 @@ limitations under the License.
 
 import { HubRef, HubRole, HubUser } from "../e2e/types/types";
 
+import { getAuthHeaders } from "./utils";
+
 /**
  * Hub API User Management Utilities
  * These functions replace the old Keycloak UI-based user management
@@ -24,42 +26,34 @@ import { HubRef, HubRole, HubUser } from "../e2e/types/types";
 const hubApiUrl = Cypress.config("baseUrl") + "/hub";
 
 /**
- * Get authentication token from the current session
- * This assumes the user is already logged in via the UI
- */
-function getAuthToken(): Cypress.Chainable<string> {
-  return cy.getCookie("token").then((cookie): Cypress.Chainable<string> => {
-    if (cookie && cookie.value) {
-      return cy.wrap(cookie.value);
-    }
-    // Fallback: try to get token from localStorage or session
-    return cy.window().then((win) => {
-      const token = win.localStorage.getItem("token");
-      if (token) {
-        return token;
-      }
-      throw new Error("No authentication token found. Please login first.");
-    });
-  });
-}
-
-/**
  * Get all available roles from the Hub API
  */
 export function getAllRoles(): Cypress.Chainable<HubRole[]> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "GET",
         url: `${hubApiUrl}/roles`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-        return response.body as HubRole[];
+
+        let roles = response.body;
+        if (typeof roles === "string") {
+          roles = JSON.parse(roles);
+        }
+
+        if (!Array.isArray(roles)) {
+          throw new Error(
+            `Expected roles to be an array, got: ${typeof roles}. Response: ${JSON.stringify(roles)}`
+          );
+        }
+
+        return roles as HubRole[];
       });
   });
 }
@@ -110,13 +104,13 @@ export function createUser(userData: {
     roles: roles,
   };
 
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "POST",
         url: `${hubApiUrl}/users`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
         body: userPayload,
@@ -124,8 +118,11 @@ export function createUser(userData: {
       })
       .then((response) => {
         if (response.status === 201) {
-          cy.log(`User '${userData.login}' created successfully`);
-          return response.body as HubUser;
+          let body = response.body;
+          if (typeof body === "string") {
+            body = JSON.parse(body);
+          }
+          return body as HubUser;
         } else {
           throw new Error(
             `Failed to create user '${userData.login}': ${response.status} - ${JSON.stringify(response.body)}`
@@ -160,19 +157,31 @@ export function createUserWithRole(
  * Get all users
  */
 export function getAllUsers(): Cypress.Chainable<HubUser[]> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "GET",
         url: `${hubApiUrl}/users`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-        return response.body as HubUser[];
+
+        let users = response.body;
+        if (typeof users === "string") {
+          users = JSON.parse(users);
+        }
+
+        if (!Array.isArray(users)) {
+          throw new Error(
+            `Expected users to be an array, got: ${typeof users}. Response: ${JSON.stringify(users)}`
+          );
+        }
+
+        return users as HubUser[];
       });
   });
 }
@@ -193,19 +202,23 @@ export function getUserByLogin(
  * Get user by ID
  */
 export function getUserById(userId: number): Cypress.Chainable<HubUser> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "GET",
         url: `${hubApiUrl}/users/${userId}`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
       })
       .then((response) => {
         expect(response.status).to.eq(200);
-        return response.body as HubUser;
+        let body = response.body;
+        if (typeof body === "string") {
+          body = JSON.parse(body);
+        }
+        return body as HubUser;
       });
   });
 }
@@ -217,13 +230,13 @@ export function updateUser(
   userId: number,
   updates: Partial<HubUser>
 ): Cypress.Chainable<unknown> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "PUT",
         url: `${hubApiUrl}/users/${userId}`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
         body: updates,
@@ -239,13 +252,13 @@ export function updateUser(
  * Delete a user by ID
  */
 export function deleteUserById(userId: number): Cypress.Chainable<unknown> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "DELETE",
         url: `${hubApiUrl}/users/${userId}`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
         failOnStatusCode: false,
@@ -288,13 +301,13 @@ export function getCurrentUser(): Cypress.Chainable<{
   user?: HubUser;
   scopes?: string[];
 }> {
-  return getAuthToken().then((token) => {
+  return getAuthHeaders().then((headers) => {
     return cy
       .request({
         method: "GET",
         url: `${hubApiUrl}/auth/me`,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...headers,
           "Content-Type": "application/json",
         },
       })
