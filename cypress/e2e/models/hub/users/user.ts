@@ -51,7 +51,7 @@ export class User {
     this.email = email || `${username}@example.com`;
     this.userEnabled = userEnabled ?? true;
     this.roles = roles || [];
-    this.firstLogin = true;
+    this.firstLogin = false; // OIDC users can login immediately without "first login" flow
   }
 
   /**
