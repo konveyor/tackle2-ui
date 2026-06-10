@@ -22,17 +22,23 @@ AUTH_HEADER="Authorization: Basic $(echo -n "${HUB_USER}:${HUB_PASSWORD}" | base
 export AUTH_HEADER
 
 # Test authentication by making a simple API call
-test_response=$(curl -kSs -w "\n%{http_code}" \
+http_code=$(curl -kSs -o /dev/null -w "%{http_code}" \
   -H "${AUTH_HEADER}" \
   "${host}/applications?limit=1")
 
-http_code=$(echo "$test_response" | tail -n1)
-
-if [[ "$http_code" == "401" || "$http_code" == "403" ]]; then
-  echo "ERROR: Authentication failed with HTTP $http_code" >&2
-  echo "Please check your credentials (HUB_USER, HUB_PASSWORD)" >&2
-  exit 1
-fi
+case "$http_code" in
+  200) ;;
+  401|403)
+    echo "ERROR: Authentication failed with HTTP $http_code" >&2
+    echo "Please check your credentials (HUB_USER, HUB_PASSWORD)" >&2
+    exit 1
+    ;;
+  *)
+    echo "ERROR: Hub preflight failed with HTTP $http_code" >&2
+    echo "Please check HOST and Hub availability." >&2
+    exit 1
+    ;;
+esac
 
 # Function to delete applications by name pattern
 delete_applications() {

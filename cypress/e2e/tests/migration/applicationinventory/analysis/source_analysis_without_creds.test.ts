@@ -242,7 +242,9 @@ describe(
     });
 
     it("Validate Issues Menu", function () {
-      cy.contains("nav > ul > a", issues).click();
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html#/issues/applications`
+      );
       selectItemsPerPageInReport(100);
       validateTextPresence(tdTag, reportData.name);
       validateTextPresence(tdTag, reportData.category);
@@ -250,7 +252,9 @@ describe(
     });
 
     it("Validate Dependencies Menu", function () {
-      cy.contains("nav > ul > a", dependencies).click();
+      cy.visit(
+        `./run/downloads/analysis-report-app-${staticReportAppName}/index.html#/dependencies/applications`
+      );
       selectItemsPerPageInReport(100);
       validateTextPresence(tdTag, reportData.dependency);
     });
