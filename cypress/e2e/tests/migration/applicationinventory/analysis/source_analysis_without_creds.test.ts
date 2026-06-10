@@ -26,6 +26,7 @@ import {
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
+  login,
   validateTextPresence,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
@@ -72,6 +73,7 @@ const selectItemsPerPageInReport = (items: number) => {
 
 describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   before("Clean up pre-existing test data", function () {
+    login();
     deleteApplicationTableRows();
     deleteAllAnalysisProfiles();
   });
@@ -236,7 +238,7 @@ describe(
     it("Validate Technologies Tab", function () {
       cy.contains("a", staticReportAppName).click();
       cy.contains("button > span", technologies).click();
-      validateTextPresence("div.pf-v5-c-label-group", reportData.technology);
+      validateTextPresence("div.pf-v6-c-label-group", reportData.technology);
     });
 
     it("Validate Issues Menu", function () {
