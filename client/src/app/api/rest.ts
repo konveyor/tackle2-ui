@@ -101,6 +101,10 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/tokens";
+export * from "./rest/roles";
+export * from "./rest/permissions";
+export * from "./rest/users";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with

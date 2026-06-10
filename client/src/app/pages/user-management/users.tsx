@@ -2,6 +2,7 @@ import { type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Content,
+  Label,
   PageSection,
   Toolbar,
   ToolbarContent,
@@ -31,19 +32,20 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
 import { User } from "./types";
-import { useUsers } from "./use-users";
+import { useFetchUsers } from "./use-users";
 
 export const UsersPage: FC = () => {
   const { t } = useTranslation();
 
-  const users = useUsers();
+  const { users } = useFetchUsers();
   const tableControls = useLocalTableControls({
     tableName: "users-table",
     idProperty: "id",
-    dataNameProperty: "name",
+    dataNameProperty: "login",
     items: users,
     columnNames: {
       id: "ID",
+      login: "Login",
       name: "Name",
       email: "Email",
       roles: "Roles",
@@ -54,22 +56,21 @@ export const UsersPage: FC = () => {
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
     hasActionsColumn: true,
-    sortableColumns: ["id", "name", "email"],
+    sortableColumns: ["id", "login", "name", "email"],
     initialSort: { columnKey: "id", direction: "desc" },
     getSortValues: (user) => ({
       id: user?.id?.toString() || "",
       name: user?.name || "",
       email: user?.email || "",
+      login: user?.login || "",
     }),
     filterCategories: [
       {
-        categoryKey: "id",
-        title: "ID",
-        type: FilterType.numsearch,
-        placeholderText: t("actions.filterBy", {
-          what: "ID...",
-        }),
-        getItemValue: (user) => user?.id?.toString() || "",
+        categoryKey: "login",
+        title: "Login",
+        type: FilterType.search,
+        placeholderText: "Filter by login...",
+        getItemValue: (user) => user?.login || "",
       },
       {
         categoryKey: "name",
@@ -84,6 +85,15 @@ export const UsersPage: FC = () => {
         type: FilterType.search,
         placeholderText: "Filter by email...",
         getItemValue: (user) => user?.email || "",
+      },
+      {
+        categoryKey: "id",
+        title: "ID",
+        type: FilterType.numsearch,
+        placeholderText: t("actions.filterBy", {
+          what: "ID...",
+        }),
+        getItemValue: (user) => user?.id?.toString() || "",
       },
     ],
     initialItemsPerPage: 10,
@@ -110,11 +120,13 @@ export const UsersPage: FC = () => {
     priority: { tooltip: t("tooltip.priority") },
   };
 
-  const toCells = ({ id, name, email, roles, tokens }: User) => ({
+  const toCells = ({ id, login, name, email, roles, tokens }: User) => ({
     id,
-    name,
-    email,
-    roles: roles.length || "-",
+    login,
+    name: name || "-",
+    email: email || "-",
+    roles:
+      roles?.map((role) => <Label key={role.id}>{role.name}</Label>) || "-",
     tokens: tokens.length || "-",
   });
 

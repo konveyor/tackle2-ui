@@ -1,20 +1,21 @@
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+import { getPermissions } from "@app/api/rest";
+
 import { Permission } from "./types";
 
-export const usePermissions = (): Permission[] => [
-  {
-    id: 1,
-    createUser: "test",
-    updateUser: "test",
-    createTime: "2021-01-01",
-    name: "test",
-    scope: "test",
-  },
-  {
-    id: 2,
-    createUser: "test",
-    updateUser: "test",
-    createTime: "2021-01-01",
-    name: "test",
-    scope: "test",
-  },
-];
+export const PermissionsQueryKey = "permissions";
+
+export const useFetchPermissions = () => {
+  const { data, isLoading, error } = useQuery<Permission[], AxiosError>({
+    queryKey: [PermissionsQueryKey],
+    queryFn: getPermissions,
+  });
+
+  return {
+    permissions: data ?? [],
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};

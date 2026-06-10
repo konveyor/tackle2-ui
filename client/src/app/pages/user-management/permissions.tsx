@@ -30,12 +30,12 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
 import { Permission } from "./types";
-import { usePermissions } from "./use-permissions";
+import { useFetchPermissions } from "./use-permissions";
 
 export const PermissionsPage: FC = () => {
   const { t } = useTranslation();
 
-  const permissions = usePermissions();
+  const { permissions } = useFetchPermissions();
   const tableControls = useLocalTableControls({
     tableName: "permissions-table",
     idProperty: "id",

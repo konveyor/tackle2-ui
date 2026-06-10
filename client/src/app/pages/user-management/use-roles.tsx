@@ -1,30 +1,21 @@
+import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+
+import { getRoles } from "@app/api/rest";
+
 import { Role } from "./types";
 
-export const useRoles = (): Role[] => [
-  {
-    id: 1,
-    createUser: "test",
-    updateUser: "test",
-    createTime: "2021-01-01",
-    name: "test",
-    permissions: [
-      {
-        id: 1,
-        name: "test",
-      },
-    ],
-  },
-  {
-    id: 2,
-    createUser: "test",
-    updateUser: "test",
-    createTime: "2021-01-01",
-    name: "test",
-    permissions: [
-      {
-        id: 1,
-        name: "test",
-      },
-    ],
-  },
-];
+export const RolesQueryKey = "roles";
+
+export const useFetchRoles = () => {
+  const { data, isLoading, error } = useQuery<Role[], AxiosError>({
+    queryKey: [RolesQueryKey],
+    queryFn: getRoles,
+  });
+
+  return {
+    roles: data ?? [],
+    isFetching: isLoading,
+    fetchError: error,
+  };
+};

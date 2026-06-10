@@ -2,6 +2,9 @@ import { type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Content,
+  Label,
+  LabelGroup,
+  LabelProps,
   PageSection,
   Toolbar,
   ToolbarContent,
@@ -31,12 +34,42 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
 import { Token } from "./types";
-import { useTokens } from "./use-tokens";
+import { useFetchTokens } from "./use-tokens";
+import { useFetchUsers } from "./use-users";
+
+const verbToColor = (verb: string): LabelProps["color"] => {
+  switch (verb.toUpperCase()) {
+    case "GET":
+      return "blue";
+    case "POST":
+      return "green";
+    case "PUT":
+      return "orange";
+    case "DELETE":
+      return "red";
+    case "PATCH":
+      return "purple";
+    case "HEAD":
+      return "teal";
+  }
+  return "grey";
+};
+
+const sortGetLast = (a: string, b: string) => {
+  if (a.toUpperCase() === "GET") return 1;
+  if (b.toUpperCase() === "GET") return -1;
+  return a.toUpperCase().localeCompare(b.toUpperCase());
+};
 
 export const TokensPage: FC = () => {
   const { t } = useTranslation();
 
-  const tokens = useTokens();
+  const { tokens } = useFetchTokens();
+  const { users } = useFetchUsers();
+  const loginById = Object.fromEntries(
+    users.map(({ id, login }) => [String(id), login])
+  );
+
   const tableControls = useLocalTableControls({
     tableName: "tokens-table",
     idProperty: "id",
@@ -44,32 +77,32 @@ export const TokensPage: FC = () => {
     items: tokens,
     columnNames: {
       id: "ID",
+      login: "Login",
       kind: "Kind",
-      subject: "Subject",
       scopes: "Scopes",
       issued: "Issued",
       expiration: "Expiration",
-      lifespan: "Lifespan (h)",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
     hasActionsColumn: true,
-    sortableColumns: ["id", "kind", "subject"],
+    sortableColumns: ["id", "kind"],
     initialSort: { columnKey: "id", direction: "desc" },
     getSortValues: (token) => ({
       id: token?.id?.toString() || "",
       kind: token?.kind || "",
-      subject: token?.subject || "",
+      login: token?.user?.id ? loginById[String(token.user.id)] : "",
     }),
     filterCategories: [
       {
-        categoryKey: "id",
-        title: "ID",
-        type: FilterType.numsearch,
-        placeholderText: t("actions.filterBy", { what: "ID..." }),
-        getItemValue: (token) => token?.id?.toString() || "",
+        categoryKey: "login",
+        title: "Login",
+        type: FilterType.search,
+        placeholderText: "Filter by login...",
+        getItemValue: (token) =>
+          token?.user?.id ? loginById[String(token.user.id)] : "",
       },
       {
         categoryKey: "kind",
@@ -79,11 +112,11 @@ export const TokensPage: FC = () => {
         getItemValue: (token) => token?.kind || "",
       },
       {
-        categoryKey: "subject",
-        title: "Subject",
-        type: FilterType.search,
-        placeholderText: "Filter by subject...",
-        getItemValue: (token) => token?.subject || "",
+        categoryKey: "id",
+        title: "ID",
+        type: FilterType.numsearch,
+        placeholderText: t("actions.filterBy", { what: "ID..." }),
+        getItemValue: (token) => token?.id?.toString() || "",
       },
     ],
     initialItemsPerPage: 10,
@@ -108,22 +141,49 @@ export const TokensPage: FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {};
 
-  const toCells = ({
+  const toCells = ({ id, kind, user, scopes, issued, expiration }: Token) => ({
     id,
     kind,
-    subject,
-    scopes,
-    issued,
-    expiration,
-    lifespan,
-  }: Token) => ({
-    id,
-    kind,
-    subject: subject || "-",
-    scopes: scopes || "-",
+    login: user?.id ? loginById[String(user.id)] : "",
+    scopes: scopes
+      ?.split(" ")
+      .filter(Boolean)
+      .map((scope) => {
+        const [resource, verb] = scope.split(":");
+        return resource && verb ? [resource, verb] : [scope, ""];
+      })
+      .reduce(
+        (acc, curr) => {
+          const group = acc.find((group) => group.resource === curr[0]);
+          if (group) {
+            group.verbs.push(curr[1]);
+          } else {
+            acc.push({ resource: curr[0], verbs: [curr[1]] });
+          }
+          return acc;
+        },
+        [] as { resource: string; verbs: string[] }[]
+      )
+      .map((group) => (
+        <LabelGroup
+          key={group.resource}
+          categoryName={group.resource}
+          numLabels={4}
+          isCompact
+        >
+          {group.verbs
+            .filter(Boolean)
+            .toSorted(sortGetLast)
+
+            .map((verb) => (
+              <Label key={verb} color={verbToColor(verb)} isCompact>
+                {verb}
+              </Label>
+            ))}
+        </LabelGroup>
+      )),
     issued: issued || "-",
     expiration: expiration || "-",
-    lifespan: lifespan ?? "-",
   });
 
   return (

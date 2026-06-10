@@ -31,12 +31,12 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
 import { Role } from "./types";
-import { useRoles } from "./use-roles";
+import { useFetchRoles } from "./use-roles";
 
 export const RolesPage: FC = () => {
   const { t } = useTranslation();
 
-  const roles = useRoles();
+  const { roles } = useFetchRoles();
   const tableControls = useLocalTableControls({
     tableName: "roles-table",
     idProperty: "id",
