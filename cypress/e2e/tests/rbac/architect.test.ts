@@ -44,7 +44,7 @@ describe(
 
     beforeEach("Persist session", function () {
       cy.fixture("rbac").then(function (rbacRules) {
-        this.rbacRules = rbacRules["migrator"];
+        this.rbacRules = rbacRules["architect"];
       });
       userArchitect.login();
     });

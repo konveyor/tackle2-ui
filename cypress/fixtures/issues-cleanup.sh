@@ -15,40 +15,23 @@ if [[ ! "$host" =~ ^https?:// ]]; then
   host="https://${host}"
 fi
 
-auth_response=$(curl -kSs -w "\n%{http_code}" \
-  -H "Content-Type: application/json" \
-  -d "{\"user\":\"${HUB_USER}\",\"password\":\"${HUB_PASSWORD}\"}" \
-  "${host}/auth/login")
+# Use HTTP Basic Authentication for local Hub users
+# Encode credentials for Basic Auth
+AUTH_HEADER="Authorization: Basic $(echo -n "${HUB_USER}:${HUB_PASSWORD}" | base64 -w 0)"
+export AUTH_HEADER
 
-http_code=$(echo "$auth_response" | tail -n1)
-response_body=$(echo "$auth_response" | sed '$d')
+# Test authentication by making a simple API call
+test_response=$(curl -kSs -w "\n%{http_code}" \
+  -H "${AUTH_HEADER}" \
+  "${host}/applications?limit=1")
 
-if [[ "$http_code" != "200" && "$http_code" != "201" ]]; then
+http_code=$(echo "$test_response" | tail -n1)
+
+if [[ "$http_code" == "401" || "$http_code" == "403" ]]; then
   echo "ERROR: Authentication failed with HTTP $http_code" >&2
+  echo "Please check your credentials (HUB_USER, HUB_PASSWORD)" >&2
   exit 1
 fi
-
-TOKEN=$(echo "$response_body" | jq -r ".token")
-
-if [[ "$TOKEN" == "null" ]]; then
-  echo "ERROR: Authentication response missing token field" >&2
-  exit 1
-fi
-
-# If token is empty, verify auth is actually disabled by testing API access
-if [[ -z "$TOKEN" ]]; then
-  test_response=$(curl -kSs -w "\n%{http_code}" "${host}/applications")
-  test_code=$(echo "$test_response" | tail -n1)
-
-  if [[ "$test_code" == "401" || "$test_code" == "403" ]]; then
-    echo "ERROR: Authentication required but token is empty" >&2
-    echo "The server requires authentication but returned an empty token." >&2
-    echo "Please check your credentials (HUB_USER, HUB_PASSWORD) or server configuration." >&2
-    exit 1
-  fi
-fi
-
-export TOKEN
 echo "Cleaning up issues test data..."
 
 # Delete applications by name pattern
@@ -58,7 +41,7 @@ for i in {0..2}; do
 
   # Get application by name
   app_response=$(curl -kSs -X GET \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/applications?name=${app_name}")
 
   app_id=$(echo $app_response | jq -r '.[0].id // empty')
@@ -66,7 +49,7 @@ for i in {0..2}; do
   if [[ -n "$app_id" && "$app_id" != "null" ]]; then
     echo "  Deleting application: ${app_name} (ID: ${app_id})"
     curl -kSs -X DELETE \
-      -H "Authorization: Bearer ${TOKEN}" \
+      -H "${AUTH_HEADER}" \
       "${host}/applications/${app_id}"
     echo "  Deleted ${app_name}"
   else
@@ -78,7 +61,7 @@ app_name="IssuesFilteringApp2_0"
 echo "Looking for application: ${app_name}"
 
 app_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/applications?name=${app_name}")
 
 app_id=$(echo $app_response | jq -r '.[0].id // empty')
@@ -86,7 +69,7 @@ app_id=$(echo $app_response | jq -r '.[0].id // empty')
 if [[ -n "$app_id" && "$app_id" != "null" ]]; then
   echo "  Deleting application: ${app_name} (ID: ${app_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/applications/${app_id}"
   echo "  Deleted ${app_name}"
 else
@@ -97,7 +80,7 @@ fi
 echo ""
 echo "Cleaning up archetype..."
 archetype_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/archetypes")
 
 archetype_id=$(echo $archetype_response | jq -r '.[] | select(.name=="IssuesArchetype") | .id // empty')
@@ -105,7 +88,7 @@ archetype_id=$(echo $archetype_response | jq -r '.[] | select(.name=="IssuesArch
 if [[ -n "$archetype_id" && "$archetype_id" != "null" ]]; then
   echo "  Deleting archetype: IssuesArchetype (ID: ${archetype_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/archetypes/${archetype_id}"
   echo "  Deleted IssuesArchetype"
 else
@@ -116,7 +99,7 @@ fi
 echo ""
 echo "Cleaning up business services..."
 bs_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/businessservices")
 
 bs1_id=$(echo $bs_response | jq -r '.[] | select(.name=="BookServer Business Service") | .id // empty')
@@ -125,7 +108,7 @@ bs2_id=$(echo $bs_response | jq -r '.[] | select(.name=="Coolstore Business Serv
 if [[ -n "$bs1_id" && "$bs1_id" != "null" ]]; then
   echo "  Deleting business service: BookServer Business Service (ID: ${bs1_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/businessservices/${bs1_id}"
   echo "  Deleted BookServer Business Service"
 else
@@ -135,7 +118,7 @@ fi
 if [[ -n "$bs2_id" && "$bs2_id" != "null" ]]; then
   echo "  Deleting business service: Coolstore Business Service (ID: ${bs2_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/businessservices/${bs2_id}"
   echo "  Deleted Coolstore Business Service"
 else
@@ -146,7 +129,7 @@ fi
 echo ""
 echo "Cleaning up stakeholder groups..."
 shg_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/stakeholdergroups")
 
 shg1_id=$(echo $shg_response | jq -r '.[] | select(.name=="Issues StakeholderGroup 1") | .id // empty')
@@ -155,7 +138,7 @@ shg2_id=$(echo $shg_response | jq -r '.[] | select(.name=="Issues StakeholderGro
 if [[ -n "$shg1_id" && "$shg1_id" != "null" ]]; then
   echo "  Deleting stakeholder group: Issues StakeholderGroup 1 (ID: ${shg1_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/stakeholdergroups/${shg1_id}"
   echo "  Deleted Issues StakeholderGroup 1"
 else
@@ -165,7 +148,7 @@ fi
 if [[ -n "$shg2_id" && "$shg2_id" != "null" ]]; then
   echo "  Deleting stakeholder group: Issues StakeholderGroup 2 (ID: ${shg2_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/stakeholdergroups/${shg2_id}"
   echo "  Deleted Issues StakeholderGroup 2"
 else
@@ -176,7 +159,7 @@ fi
 echo ""
 echo "Cleaning up stakeholders..."
 sh_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/stakeholders")
 
 sh1_id=$(echo $sh_response | jq -r '.[] | select(.email=="stakeholder1@issues.test") | .id // empty')
@@ -185,7 +168,7 @@ sh2_id=$(echo $sh_response | jq -r '.[] | select(.email=="stakeholder2@issues.te
 if [[ -n "$sh1_id" && "$sh1_id" != "null" ]]; then
   echo "  Deleting stakeholder: stakeholder1@issues.test (ID: ${sh1_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/stakeholders/${sh1_id}"
   echo "  Deleted stakeholder1@issues.test"
 else
@@ -195,7 +178,7 @@ fi
 if [[ -n "$sh2_id" && "$sh2_id" != "null" ]]; then
   echo "  Deleting stakeholder: stakeholder2@issues.test (ID: ${sh2_id})"
   curl -kSs -X DELETE \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     "${host}/stakeholders/${sh2_id}"
   echo "  Deleted stakeholder2@issues.test"
 else

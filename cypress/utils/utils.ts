@@ -463,6 +463,7 @@ export function removeMember(memberName: string): void {
 
 export function exists(value: string, tableSelector = appTable): void {
   selectItemsPerPage(100);
+  cy.wait(1000);
   cy.get("body").then(($body) => {
     const $table = $body.find(tableSelector);
     if (

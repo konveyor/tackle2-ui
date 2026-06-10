@@ -16,45 +16,28 @@ if [[ ! "$host" =~ ^https?:// ]]; then
   host="https://${host}"
 fi
 
-auth_response=$(curl -kSs -w "\n%{http_code}" \
-  -H "Content-Type: application/json" \
-  -d "{\"user\":\"${HUB_USER}\",\"password\":\"${HUB_PASSWORD}\"}" \
-  "${host}/auth/login")
+# Use HTTP Basic Authentication for local Hub users
+# Encode credentials for Basic Auth
+AUTH_HEADER="Authorization: Basic $(echo -n "${HUB_USER}:${HUB_PASSWORD}" | base64 -w 0)"
+export AUTH_HEADER
 
-http_code=$(echo "$auth_response" | tail -n1)
-response_body=$(echo "$auth_response" | sed '$d')
+# Test authentication by making a simple API call
+test_response=$(curl -kSs -w "\n%{http_code}" \
+  -H "${AUTH_HEADER}" \
+  "${host}/applications?limit=1")
 
-if [[ "$http_code" != "200" && "$http_code" != "201" ]]; then
+http_code=$(echo "$test_response" | tail -n1)
+
+if [[ "$http_code" == "401" || "$http_code" == "403" ]]; then
   echo "ERROR: Authentication failed with HTTP $http_code" >&2
+  echo "Please check your credentials (HUB_USER, HUB_PASSWORD)" >&2
   exit 1
 fi
-
-TOKEN=$(echo "$response_body" | jq -r ".token")
-
-if [[ "$TOKEN" == "null" ]]; then
-  echo "ERROR: Authentication response missing token field" >&2
-  exit 1
-fi
-
-# If token is empty, verify auth is actually disabled by testing API access
-if [[ -z "$TOKEN" ]]; then
-  test_response=$(curl -kSs -w "\n%{http_code}" "${host}/applications")
-  test_code=$(echo "$test_response" | tail -n1)
-
-  if [[ "$test_code" == "401" || "$test_code" == "403" ]]; then
-    echo "ERROR: Authentication required but token is empty" >&2
-    echo "The server requires authentication but returned an empty token." >&2
-    echo "Please check your credentials (HUB_USER, HUB_PASSWORD) or server configuration." >&2
-    exit 1
-  fi
-fi
-
-export TOKEN
 
 # Get existing tags
 echo "Getting existing tags..."
 tags_response=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/tags")
 
 # Find "EJB XML" tag
@@ -85,14 +68,14 @@ echo "Getting or creating stakeholders..."
 
 # Check if stakeholders already exist
 sh_list=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/stakeholders")
 sh1_id=$(echo $sh_list | jq -r '.[] | select(.email=="stakeholder1@issues.test") | .id // empty')
 
 if [[ -z "$sh1_id" || "$sh1_id" == "null" ]]; then
   echo "Creating stakeholder 1..."
   sh1_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"email":"stakeholder1@issues.test","name":"Issues Stakeholder 1"}' \
     "${host}/stakeholders")
@@ -112,7 +95,7 @@ sh2_id=$(echo $sh_list | jq -r '.[] | select(.email=="stakeholder2@issues.test")
 if [[ -z "$sh2_id" || "$sh2_id" == "null" ]]; then
   echo "Creating stakeholder 2..."
   sh2_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"email":"stakeholder2@issues.test","name":"Issues Stakeholder 2"}' \
     "${host}/stakeholders")
@@ -136,14 +119,14 @@ echo "Getting or creating stakeholder groups..."
 
 # Check if stakeholder groups already exist
 shg_list=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/stakeholdergroups")
 shg1_id=$(echo $shg_list | jq -r '.[] | select(.name=="Issues StakeholderGroup 1") | .id // empty')
 
 if [[ -z "$shg1_id" || "$shg1_id" == "null" ]]; then
   echo "Creating stakeholder group 1..."
   shg1_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Issues StakeholderGroup 1","description":"Group 1"}' \
     "${host}/stakeholdergroups")
@@ -163,7 +146,7 @@ shg2_id=$(echo $shg_list | jq -r '.[] | select(.name=="Issues StakeholderGroup 2
 if [[ -z "$shg2_id" || "$shg2_id" == "null" ]]; then
   echo "Creating stakeholder group 2..."
   shg2_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Issues StakeholderGroup 2","description":"Group 2"}' \
     "${host}/stakeholdergroups")
@@ -187,14 +170,14 @@ echo "Getting or creating business services..."
 
 # Check if BookServer Business Service already exists
 bs_list=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/businessservices")
 bs1_id=$(echo $bs_list | jq -r '.[] | select(.name=="BookServer Business Service") | .id // empty')
 
 if [[ -z "$bs1_id" || "$bs1_id" == "null" ]]; then
   echo "Creating BookServer Business Service..."
   bs1_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"name":"BookServer Business Service","description":"Business service for bookserver apps"}' \
     "${host}/businessservices")
@@ -215,7 +198,7 @@ bs2_id=$(echo $bs_list | jq -r '.[] | select(.name=="Coolstore Business Service"
 if [[ -z "$bs2_id" || "$bs2_id" == "null" ]]; then
   echo "Creating Coolstore Business Service..."
   bs2_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d '{"name":"Coolstore Business Service","description":"Business service for coolstore app"}' \
     "${host}/businessservices")
@@ -239,7 +222,7 @@ echo "Getting or creating archetype..."
 
 # Check if archetype already exists
 archetype_list=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/archetypes")
 archetype_id=$(echo $archetype_list | jq -r '.[] | select(.name=="IssuesArchetype") | .id // empty')
 archetype_name="IssuesArchetype"
@@ -247,7 +230,7 @@ archetype_name="IssuesArchetype"
 if [[ -z "$archetype_id" || "$archetype_id" == "null" ]]; then
   echo "Creating archetype..."
   archetype_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"IssuesArchetype\",\"description\":\"Archetype for issues tests\",\"criteria\":[{\"id\":${tag1_id}}],\"tags\":[{\"id\":${tag2_id}}],\"stakeholders\":[{\"id\":${sh1_id}},{\"id\":${sh2_id}}],\"stakeholderGroups\":[{\"id\":${shg1_id}},{\"id\":${shg2_id}}]}" \
     "${host}/archetypes")
@@ -730,7 +713,7 @@ echo "Getting or creating bookserver applications..."
 
 # Get existing applications
 apps_list=$(curl -kSs -X GET \
-  -H "Authorization: Bearer ${TOKEN}" \
+  -H "${AUTH_HEADER}" \
   "${host}/applications")
 
 for i in {0..2}; do
@@ -742,7 +725,7 @@ for i in {0..2}; do
   if [[ -z "$app_id" || "$app_id" == "null" ]]; then
     echo "Creating application: ${app_name}..."
     app_response=$(curl -kSs -X POST \
-      -H "Authorization: Bearer ${TOKEN}" \
+      -H "${AUTH_HEADER}" \
       -H "Content-Type: application/json" \
       -d "{\"name\":\"${app_name}\",\"businessService\":{\"id\":${bs1_id}}}" \
       "${host}/applications")
@@ -764,7 +747,7 @@ for i in {0..2}; do
     echo "  Uploading analysis for ${app_name}..."
     tmp="/tmp/analysis-response-${i}.json"
     code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
-      -H "Authorization: Bearer ${TOKEN}" \
+      -H "${AUTH_HEADER}" \
       -F "file=@${manifest_file};type=application/x-yaml" \
       -H 'Accept:application/x-yaml' \
       "${host}/applications/${app_id}/analyses")
@@ -804,7 +787,7 @@ app_id=$(echo $apps_list | jq -r ".[] | select(.name==\"${app_name}\") | .id // 
 if [[ -z "$app_id" || "$app_id" == "null" ]]; then
   echo "Creating application: ${app_name}..."
   app_response=$(curl -kSs -X POST \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"${app_name}\",\"businessService\":{\"id\":${bs2_id}},\"tags\":[{\"id\":${tag1_id}},{\"id\":${tag2_id}}]}" \
     "${host}/applications")
@@ -826,7 +809,7 @@ if [[ -z "$app_id" || "$app_id" == "null" ]]; then
   echo "  Uploading analysis for ${app_name}..."
   tmp="/tmp/analysis-response-coolstore.json"
   code=$(curl -kSs -o ${tmp} -w "%{http_code}" \
-    -H "Authorization: Bearer ${TOKEN}" \
+    -H "${AUTH_HEADER}" \
     -F "file=@${manifest_file};type=application/x-yaml" \
     -H 'Accept:application/x-yaml' \
     "${host}/applications/${app_id}/analyses")
