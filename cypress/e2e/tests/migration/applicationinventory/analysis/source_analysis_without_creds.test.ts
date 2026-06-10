@@ -186,6 +186,8 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   });
 
   after("Perform test data clean up", function () {
+    login();
+    cy.visit("/");
     deleteBulkApplicationsByApi(applicationIds);
     credentialsList.forEach((credential) => credential.delete());
     profilesToDelete.forEach((profile) => profile.delete());
