@@ -118,6 +118,7 @@ export default {
     },
 
     on: {
+      proxyReq: setForwardedHeader,
       proxyRes: redirectIfUnauthorized,
     },
   },
@@ -133,6 +134,7 @@ export default {
     },
 
     on: {
+      proxyReq: setForwardedHeader,
       proxyRes: redirectIfUnauthorized,
     },
   },

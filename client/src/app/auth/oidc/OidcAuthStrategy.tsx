@@ -6,7 +6,7 @@
  *                       the error / loading / authenticated sub-states.
  */
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useMemo } from "react";
 import * as React from "react";
 import {
   AuthProvider as OidcAuthProvider,
@@ -15,7 +15,6 @@ import {
   useAutoSignin,
 } from "react-oidc-context";
 
-import { initAuthInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
 import { AuthProviderProps, AuthStateContext } from "../AuthProvider";
@@ -28,54 +27,45 @@ import { accountManagementUrl, userManager } from "./userManager";
  * This gate is used to determine if the user is authenticated and to redirect
  * to the OIDC provider if not authenticated and no auth params are present in
  * the URL (i.e. we are not returning from a redirect).
- *
- * It also starts the auth interceptors only after a real authenticated session
- * is available.
  */
 const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
-  useAutoSignin();
+  const { isAuthenticated, isLoading, error } = useAutoSignin();
 
-  const auth = useOidcAuth();
-  useEffect(() => {
-    if (auth.isAuthenticated) {
-      initAuthInterceptors();
-    }
-  }, [auth.isAuthenticated]);
+  const { user, signinRedirect, signoutRedirect } = useOidcAuth();
 
-  const user = auth.user ?? null;
-  const profile = user?.profile ?? null;
-  const scopes = new Set<string>(user?.scope?.split(" ").filter(Boolean) ?? []);
+  const authState: AuthState = useMemo(() => {
+    const profile = user?.profile ?? null;
+    const scopes = new Set<string>(
+      user?.scope?.split(" ").filter(Boolean) ?? []
+    );
 
-  const authState: AuthState = {
-    isLoaded: !auth.isLoading,
-    isAuthenticated: auth.isAuthenticated,
-    username:
-      (profile?.preferred_username as string | undefined) ??
-      profile?.sub ??
-      "unknown",
-    scopes,
-    allScopesGranted: false,
-    signIn: () => auth.signinRedirect(),
-    signOut: () =>
-      auth.signoutRedirect({
-        post_logout_redirect_uri: window.location.origin,
-      }),
-    manageAccount: accountManagementUrl
-      ? () => window.open(accountManagementUrl, "_blank", "noopener")
-      : undefined,
-    ToolbarContent: OidcToolbarItem,
-  };
+    return {
+      isLoaded: !isLoading,
+      isAuthenticated,
+      username: profile?.preferred_username ?? profile?.sub ?? "unknown",
+      scopes,
+      allScopesGranted: false,
+
+      signIn: () => signinRedirect(),
+      signOut: () => signoutRedirect(),
+      manageAccount: accountManagementUrl
+        ? () => window.open(accountManagementUrl, "_blank", "noopener")
+        : undefined,
+
+      ToolbarContent: OidcToolbarItem,
+    };
+  }, [isLoading, isAuthenticated, user, signinRedirect, signoutRedirect]);
 
   // Surface OIDC errors (e.g. failed signinCallback) immediately.
   // This check must precede the hasAuthParams() gate: if the callback
   // failed, the code/state params are never stripped from the URL, so
   // hasAuthParams() stays true and the user would be stuck on the
   // loading spinner forever.
-  if (auth.error) {
+  if (error) {
     return (
       <AuthStateContext.Provider value={authState}>
         <div role="alert" style={{ padding: "2rem" }}>
-          <strong>Authentication error:</strong> {auth.error.message}
+          <strong>Authentication error:</strong> {error.message}
         </div>
       </AuthStateContext.Provider>
     );
@@ -85,7 +75,7 @@ const AuthReadyGate: React.FC<AuthProviderProps> = ({ children }) => {
   //  - the OIDC library is still initializing
   //  - we are processing the callback (code/state params in the URL)
   //  - we are not yet authenticated (about to redirect, or mid-redirect)
-  if (auth.isLoading || hasAuthParams() || !auth.isAuthenticated) {
+  if (isLoading || hasAuthParams() || !isAuthenticated) {
     return (
       <AuthStateContext.Provider value={authState}>
         <AppPlaceholder />

@@ -1,5 +1,5 @@
 /**
- * Centralized Axios interceptors for the Tackle UI.
+ * Axios auth interceptors.
  *
  * Request interceptor: attaches the current OIDC access token as a Bearer header.
  *
@@ -13,14 +13,7 @@ import axios from "axios";
 import { isAuthRequired } from "@app/Constants";
 import { userManager } from "@app/auth/oidc/userManager";
 
-// Guard against duplicate interceptor registration (e.g. React StrictMode double-invoke).
-let _initialized = false;
-
-export const initAuthInterceptors = () => {
-  if (!isAuthRequired) return;
-  if (_initialized) return;
-  _initialized = true;
-
+const initAuthInterceptors = () => {
   // ── Request: attach Bearer token ──────────────────────────────────────────
   axios.interceptors.request.use(
     async (config) => {
@@ -77,3 +70,7 @@ export const initAuthInterceptors = () => {
     }
   );
 };
+
+if (isAuthRequired) {
+  initAuthInterceptors();
+}
