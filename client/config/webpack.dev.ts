@@ -10,11 +10,9 @@ import type { Configuration as DevServerConfiguration } from "webpack-dev-server
 import { mergeWithRules } from "webpack-merge";
 
 import {
-  KONVEYOR_ENV,
-  SERVER_ENV_KEYS,
+  type ClientEnv,
   brandingAssetPath,
   brandingStrings,
-  encodeEnv,
 } from "@konveyor-ui/common";
 
 import { stylePaths } from "./stylePaths";
@@ -22,6 +20,21 @@ import commonWebpackConfiguration from "./webpack.common";
 
 const pathTo = (relativePath: string) => path.resolve(__dirname, relativePath);
 const faviconPath = path.resolve(brandingAssetPath(), "favicon.ico");
+
+/** Build the client env blob from the current process.env for dev-mode HTML injection. */
+const devClientEnv = (env: ClientEnv = process.env as unknown as ClientEnv) =>
+  btoa(
+    JSON.stringify({
+      NODE_ENV: env.NODE_ENV ?? "development",
+      VERSION: env.VERSION ?? "99.0.0",
+      MOCK: env.MOCK ?? "off",
+      DEVTOOLS: env.DEVTOOLS ?? "off",
+      UI_INGRESS_PROXY_BODY_SIZE: env.UI_INGRESS_PROXY_BODY_SIZE ?? "500m",
+      RWX_SUPPORTED: env.RWX_SUPPORTED ?? "true",
+      AUTH_REQUIRED: env.AUTH_REQUIRED ?? "false",
+      OIDC_CLIENT_ID: env.OIDC_CLIENT_ID ?? "web-ui",
+    } as ClientEnv)
+  );
 
 interface Configuration extends WebpackConfiguration {
   devServer?: DevServerConfiguration;
@@ -47,7 +60,7 @@ const config: Configuration = mergeWithRules({
   },
 
   devServer: {
-    port: 9003,
+    port: 9001,
     historyApiFallback: {
       disableDotRule: true,
     },
@@ -97,7 +110,7 @@ const config: Configuration = mergeWithRules({
       filename: "index.html",
       template: pathTo("../public/index.html.ejs"),
       templateParameters: {
-        _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
+        _env: devClientEnv(),
         branding: brandingStrings,
       },
       favicon: faviconPath,

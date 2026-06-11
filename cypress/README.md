@@ -13,7 +13,7 @@ cp -i .env.example .env
 # Run tests in interactive mode against localhost:9000
 npm run e2e:open:local
 
-# OR run tests headlessly
+# OR run tests headless
 npm run e2e:run:local
 ```
 
@@ -321,7 +321,7 @@ npm run e2e:run:local -- --spec "$(node scripts/findTierFiles.mjs ci)"
 - **Runs on**: Stage, production, and nightly on [Konveyor CI](https://github.com/konveyor/ci)
 - **Tests Include**:
   - Custom migration targets CRUD and validation
-  - Source analysis on bookserver app (without credentials)
+  - Source analysis on book server app (without credentials)
   - Source + dependency analysis validation
   - Migration waves CRUD and application association
 

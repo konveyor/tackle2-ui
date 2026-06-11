@@ -20,7 +20,7 @@ import {
 
 import { LocalStorageKey } from "@app/Constants";
 
-import { useAuth } from "./hooks";
+import { useAuth } from "../hooks";
 
 export const OidcToolbarItem: React.FC = () => {
   const { t } = useTranslation();

@@ -5,6 +5,7 @@
     "cloudfoundry",
     "colour",
     "coreutils",
+    "dotenvx",
     "iconed",
     "konveyor",
     "ouia",

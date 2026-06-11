@@ -10,7 +10,9 @@ import * as React from "react";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
-import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
+import { AuthProviderProps, AuthStateContext } from "../AuthProvider";
+import type { AuthState } from "../types";
+
 import { MasqueradeDevPanel } from "./MasqueradeDevPanel";
 import {
   MASQUERADE_PRESETS,
@@ -18,7 +20,6 @@ import {
   getCurrentPreset,
   setCurrentPreset,
 } from "./masquerade";
-import type { AuthState } from "./types";
 
 type MasqueradeDispatchFn = (preset: MasqueradePreset) => void;
 

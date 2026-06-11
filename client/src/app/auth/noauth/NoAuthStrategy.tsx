@@ -3,8 +3,8 @@ import * as React from "react";
 
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
-import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
-import type { AuthState } from "./types";
+import { AuthProviderProps, AuthStateContext } from "../AuthProvider";
+import type { AuthState } from "../types";
 
 const NO_AUTH_STATE: AuthState = {
   isLoaded: true,

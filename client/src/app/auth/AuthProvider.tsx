@@ -20,9 +20,9 @@ import * as React from "react";
 
 import { isAuthRequired } from "@app/Constants";
 
-import { MasqueradeAuthStrategy } from "./MasqueradeAuthStrategy";
-import { NoAuthStrategy } from "./NoAuthStrategy";
-import { OidcAuthStrategy } from "./OidcAuthStrategy";
+import { MasqueradeAuthStrategy } from "./masquerade/MasqueradeAuthStrategy";
+import { NoAuthStrategy } from "./noauth/NoAuthStrategy";
+import { OidcAuthStrategy } from "./oidc/OidcAuthStrategy";
 import type { AuthState } from "./types";
 
 export interface AuthProviderProps {
