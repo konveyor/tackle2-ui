@@ -1,8 +1,9 @@
 import axios from "axios";
 
+import { User } from "@app/pages/user-management/types";
+
 import { New } from "../models";
 import { HEADERS, hub, template } from "../rest";
-import { User } from "@app/pages/user-management/types";
 
 const USERS = hub`/users`;
 const USER = hub`/users/{{id}}`;

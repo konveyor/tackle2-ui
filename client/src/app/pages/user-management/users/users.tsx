@@ -1,11 +1,13 @@
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Content,
   Label,
   PageSection,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
@@ -29,15 +31,20 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
-import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
+import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
+import { User } from "../types";
 
-import { User } from "./types";
-import { useFetchUsers } from "./use-users";
+import { useFetchUsers, useUserActionsWithNotifications } from "./use-users";
+import { UserCreateModal, UserEditModal } from "./user-modal";
 
 export const UsersPage: FC = () => {
   const { t } = useTranslation();
 
   const { users } = useFetchUsers();
+  const { deleteUser } = useUserActionsWithNotifications();
+  const [userToEdit, setUserToEdit] = useState<User | undefined>(undefined);
+  const [openCreateUserModal, setOpenCreateUserModal] = useState(false);
+
   const tableControls = useLocalTableControls({
     tableName: "users-table",
     idProperty: "id",
@@ -141,6 +148,18 @@ export const UsersPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="action-group">
+              <ToolbarItem>
+                <Button
+                  type="button"
+                  aria-label={t("actions.createNewUser")}
+                  variant="primary"
+                  onClick={() => setOpenCreateUserModal(true)}
+                >
+                  {t("actions.createNew")}
+                </Button>
+              </ToolbarItem>
+            </ToolbarGroup>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -212,11 +231,11 @@ export const UsersPage: FC = () => {
                           items={[
                             {
                               title: t("actions.edit"),
-                              onClick: () => console.log("edit user"),
+                              onClick: () => setUserToEdit(user),
                             },
                             {
                               title: t("actions.delete"),
-                              onClick: () => console.log("delete user"),
+                              onClick: () => deleteUser(user),
                               isDanger: true,
                             },
                           ]}
@@ -234,6 +253,14 @@ export const UsersPage: FC = () => {
           paginationProps={paginationProps}
         />
       </PageSection>
+      <UserCreateModal
+        isOpen={openCreateUserModal}
+        onClose={() => setOpenCreateUserModal(false)}
+      />
+      <UserEditModal
+        user={userToEdit}
+        onClose={() => setUserToEdit(undefined)}
+      />
     </>
   );
 };

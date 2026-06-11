@@ -35,7 +35,7 @@ import { ManageColumnsToolbar } from "../applications/applications-table/compone
 
 import { Token } from "./types";
 import { useFetchTokens } from "./use-tokens";
-import { useFetchUsers } from "./use-users";
+import { useFetchUsers } from "./users/use-users";
 
 const verbToColor = (verb: string): LabelProps["color"] => {
   switch (verb.toUpperCase()) {

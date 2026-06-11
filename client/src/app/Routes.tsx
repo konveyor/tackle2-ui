@@ -19,7 +19,7 @@ import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
-import { UsersPage } from "./pages/user-management/users";
+import { UsersPage } from "./pages/user-management/users/users";
 import { TokensPage } from "./pages/user-management/tokens";
 import { RolesPage } from "./pages/user-management/roles";
 import { PermissionsPage } from "./pages/user-management/permissions";
