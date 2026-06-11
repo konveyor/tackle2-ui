@@ -31,7 +31,6 @@ import {
   Tracker,
   TrackerProject,
   TrackerProjectIssuetype,
-  UnstructuredFact,
 } from "./models";
 
 export { template };
@@ -101,6 +100,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/facts";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -441,17 +441,6 @@ export const createTagCategory = (
 
 export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
   axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
-
-// ---------------------------------------
-// Facts
-//
-export const getFacts = (id: number | string | undefined) =>
-  // TODO: Address this when moving to structured facts api
-  id
-    ? axios
-        .get<UnstructuredFact>(hub`/applications/${id}/facts`)
-        .then((response) => response.data)
-    : Promise.reject();
 
 // ---------------------------------------
 // Proxies
