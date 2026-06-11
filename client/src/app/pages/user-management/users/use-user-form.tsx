@@ -4,6 +4,8 @@ import { create as array } from "yup/lib/array";
 import { create as object } from "yup/lib/object";
 import { create as string } from "yup/lib/string";
 
+import { NewUser } from "@app/api/rest";
+
 import { User } from "../types";
 
 import { useUserActionsWithNotifications } from "./use-users";
@@ -41,10 +43,11 @@ export const useUserForm = (user?: User, onClose?: () => void) => {
   });
 
   const onValidSubmit = (values: UserFormValues) => {
-    const userToSave = valuesToUser(values, user ?? DEFAULT_USER, isEdit);
     if (isEdit) {
+      const userToSave = valuesToExistingUser(values, user!);
       editUser(userToSave, { onSuccess: onClose });
     } else {
+      const userToSave = valuesToNewUser(values);
       createUser(userToSave, { onSuccess: onClose });
     }
   };
@@ -68,18 +71,23 @@ export type UserFormValues = Pick<
   "name" | "email" | "roles" | "login" | "password"
 >;
 
-export const valuesToUser = (
+/** Build the minimal payload for POST /users (only fields the hub accepts). */
+export const valuesToNewUser = (values: UserFormValues): NewUser => ({
+  login: values.login,
+  name: values.name,
+  email: values.email,
+  password: values.password,
+  roles: values.roles,
+});
+
+/** Build the full user object for PUT /users/:id, only updating password when provided. */
+export const valuesToExistingUser = (
   values: UserFormValues,
-  user: User,
-  isEdit: boolean
-): User => {
-  return {
-    ...user,
-    login: values.login,
-    name: values.name,
-    email: values.email,
-    roles: values.roles,
-    // On edit, only update password if a new value was entered
-    ...(isEdit && !values.password ? {} : { password: values.password }),
-  };
-};
+  user: User
+): User => ({
+  ...user,
+  name: values.name,
+  email: values.email,
+  roles: values.roles,
+  ...(values.password ? { password: values.password } : {}),
+});
