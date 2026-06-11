@@ -8,8 +8,6 @@ import { template } from "radash";
 import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 
 import {
-  ApplicationImport,
-  ApplicationImportSummary,
   Assessment,
   HubPaginatedResult,
   HubRequestParams,
@@ -47,10 +45,6 @@ export function hub(tsa: TemplateStringsArray, ...vals: unknown[]): string {
   return `/hub${path}`;
 }
 
-const APP_IMPORTS = hub`/imports`;
-const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
-const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
-export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
 const ASSESSMENTS = hub`/assessments`;
 export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
@@ -101,6 +95,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/imports";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -208,43 +203,6 @@ export const getAssessmentById = (id: number | string): Promise<Assessment> => {
 
 export const deleteAssessment = (id: number) => {
   return axios.delete<void>(`${ASSESSMENTS}/${id}`);
-};
-
-// ---------------------------------------
-// Application Import
-//
-export const getApplicationsImportSummary = (): Promise<
-  ApplicationImportSummary[]
-> => axios.get(APP_IMPORTS_SUMMARY).then((response) => response.data);
-
-export const getApplicationImportSummaryById = (
-  id: number | string
-): Promise<ApplicationImportSummary> =>
-  axios.get(`${APP_IMPORTS_SUMMARY}/${id}`).then((response) => response.data);
-
-export const deleteApplicationImportSummary = (
-  id: number
-): Promise<ApplicationImportSummary> =>
-  axios.delete(`${APP_IMPORTS_SUMMARY}/${id}`);
-
-export const getApplicationImports = (
-  importSummaryID: number,
-  isValid: boolean | string
-): Promise<ApplicationImport[]> =>
-  axios
-    .get(
-      `${APP_IMPORTS}?importSummary.id=${importSummaryID}&isValid=${isValid}`
-    )
-    .then((response) => response.data);
-
-export const getApplicationSummaryCSV = (id: string) => {
-  return axios.get<ArrayBuffer>(
-    `${APP_IMPORTS_SUMMARY_CSV}?importSummary.id=${id}`,
-    {
-      responseType: "arraybuffer",
-      headers: { Accept: "text/csv" },
-    }
-  );
 };
 
 // ---------------------------------------
