@@ -14,7 +14,7 @@ import {
   architectScopes,
   migratorScopes,
   projectManagerScopes,
-} from "./roles-to-scopes";
+} from "../roles-to-scopes";
 
 const LS_PRESET_KEY = "tackle-masquerade-preset";
 

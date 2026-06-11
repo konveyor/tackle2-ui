@@ -1,36 +1,15 @@
 /** @import { Logger, Options, OnProxyEvent } from "http-proxy-middleware/dist/types.js" */
-import * as cookie from "cookie";
 
-import { KONVEYOR_ENV } from "@konveyor-ui/common";
+import { serverConfig } from "./serverConfig.js";
 
 /** @type Logger */
-const logger =
-  process.env.DEBUG === "1"
-    ? console
-    : {
-        info() {},
-        warn: console.warn,
-        error: console.error,
-      };
-
-/**
- * Add the Bearer token to the request if it is not already present, AND if
- * the token is part of the request as a cookie.
- *
- * Note: With Hub OIDC + react-oidc-context, tokens are stored in sessionStorage
- * and injected into requests by Axios interceptors (initAuthInterceptors). The
- * keycloak_cookie mechanism is a Keycloak-specific legacy retained for backward
- * compatibility with deployments still using the /auth (Keycloak) proxy path.
- *
- * @type OnProxyEvent["proxyReq"]
- */
-const addBearerTokenIfNeeded = (proxyReq, req, _res) => {
-  const cookies = cookie.parse(req.headers.cookie ?? "");
-  const bearerToken = cookies.keycloak_cookie;
-  if (bearerToken && !req.headers["authorization"]) {
-    proxyReq.setHeader("Authorization", `Bearer ${bearerToken}`);
-  }
-};
+const logger = serverConfig.DEBUG
+  ? console
+  : {
+      info() {},
+      warn: console.warn,
+      error: console.error,
+    };
 
 /**
  * Server-side safety net: redirect the browser back to "/" if a non-JSON
@@ -112,44 +91,13 @@ const setForwardedHeader = (proxyReq, req, _res) => {
 export default {
   devServer: {
     pathFilter: "/",
-    target: "http://localhost:9003",
+    target: "http://localhost:9001",
     logger,
-  },
-
-  auth: {
-    pathFilter: "/auth",
-    target: KONVEYOR_ENV.KEYCLOAK_SERVER_URL || "http://localhost:9001",
-    logger,
-
-    changeOrigin: true,
-
-    on: {
-      proxyReq(proxyReq, req, _res) {
-        // Keycloak needs these header set so we can function in Kubernetes (non-OpenShift)
-        // https://www.keycloak.org/server/reverseproxy
-        //
-        // Note, on OpenShift, this works as the haproxy implementation
-        // for the OpenShift route is setting these for us automatically
-        //
-        // We saw problems with including the below broke the OpenShift route
-        //  {"X-Forwarded-Proto", req.protocol} broke the OpenShift
-        //  {"X-Forwarded-Port", req.socket.localPort}
-        //  {"Forwarded", `for=${req.socket.remoteAddress};proto=${req.protocol};host=${req.headers.host}`}
-        // so we are not including even though they are customary
-        //
-        req.socket.remoteAddress &&
-          proxyReq.setHeader("X-Forwarded-For", req.socket.remoteAddress);
-        req.socket.remoteAddress &&
-          proxyReq.setHeader("X-Real-IP", req.socket.remoteAddress);
-        req.headers.host &&
-          proxyReq.setHeader("X-Forwarded-Host", req.headers.host);
-      },
-    },
   },
 
   oidc: {
     pathFilter: "/oidc",
-    target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
+    target: serverConfig.TACKLE_HUB_URL || "http://localhost:9002",
     logger,
 
     changeOrigin: true,
@@ -161,7 +109,7 @@ export default {
 
   hub: {
     pathFilter: "/hub",
-    target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
+    target: serverConfig.TACKLE_HUB_URL || "http://localhost:9002",
     logger,
 
     changeOrigin: true,
@@ -170,14 +118,13 @@ export default {
     },
 
     on: {
-      proxyReq: addBearerTokenIfNeeded,
       proxyRes: redirectIfUnauthorized,
     },
   },
 
   kai: {
     pathFilter: "/kai",
-    target: KONVEYOR_ENV.TACKLE_HUB_URL || "http://localhost:9002",
+    target: serverConfig.TACKLE_HUB_URL || "http://localhost:9002",
     logger,
 
     changeOrigin: true,
@@ -186,14 +133,13 @@ export default {
     },
 
     on: {
-      proxyReq: addBearerTokenIfNeeded,
       proxyRes: redirectIfUnauthorized,
     },
   },
 
   kaiLLMProxy: {
     pathFilter: "/llm-proxy",
-    target: KONVEYOR_ENV.KAI_LLM_PROXY_URL || "http://localhost:9004",
+    target: serverConfig.KAI_LLM_PROXY_URL || "http://localhost:9003",
     logger,
 
     changeOrigin: true,
@@ -201,8 +147,6 @@ export default {
       "^/llm-proxy": "",
     },
 
-    on: {
-      proxyReq: addBearerTokenIfNeeded,
-    },
+    on: {},
   },
 };
