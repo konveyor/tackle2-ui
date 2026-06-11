@@ -152,11 +152,11 @@ export const UsersPage: FC = () => {
               <ToolbarItem>
                 <Button
                   type="button"
-                  aria-label={t("actions.createNewUser")}
+                  aria-label={t("titles.createUser")}
                   variant="primary"
                   onClick={() => setOpenCreateUserModal(true)}
                 >
-                  {t("actions.createNew")}
+                  {t("actions.create")}
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>

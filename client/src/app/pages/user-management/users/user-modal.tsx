@@ -38,7 +38,7 @@ const UserModal: FC<UserModalProps> = ({ isOpen, user, onClose }) => {
       {isOpen && (
         <Modal isOpen onClose={onClose} variant="medium">
           <ModalHeader
-            title={user ? t("tiles.editUser") : t("tiles.createUser")}
+            title={user ? t("titles.editUser") : t("titles.createUser")}
           />
           <ModalBody>
             <UserForm form={form} onClose={onClose} onSubmit={onSubmit} />
