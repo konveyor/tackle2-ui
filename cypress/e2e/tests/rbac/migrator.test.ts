@@ -21,8 +21,7 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
-import { User } from "../../models/keycloak/users/user";
-import { UserMigrator } from "../../models/keycloak/users/userMigrator";
+import { UserMigrator } from "../../models/hub/users";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
@@ -40,7 +39,6 @@ describe(
 
       application.create();
       application.perform_review("low");
-      User.loginKeycloakAdmin();
       userMigrator.create();
     });
 
@@ -79,7 +77,6 @@ describe(
       login();
       cy.visit("/");
       deleteApplicationTableRows();
-      User.loginKeycloakAdmin();
       userMigrator.delete();
     });
   }

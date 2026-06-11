@@ -26,6 +26,7 @@ import {
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
+  login,
   validateTextPresence,
 } from "../../../../../utils/utils";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
@@ -72,6 +73,7 @@ const selectItemsPerPageInReport = (items: number) => {
 
 describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   before("Clean up pre-existing test data", function () {
+    login();
     deleteApplicationTableRows();
     deleteAllAnalysisProfiles();
   });
@@ -184,6 +186,8 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   });
 
   after("Perform test data clean up", function () {
+    login();
+    cy.visit("/");
     deleteBulkApplicationsByApi(applicationIds);
     credentialsList.forEach((credential) => credential.delete());
     profilesToDelete.forEach((profile) => profile.delete());

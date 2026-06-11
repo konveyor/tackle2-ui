@@ -234,7 +234,7 @@ export function login(
         // Attempt login
         inputText(loginView.userNameInput, username);
         inputText(loginView.userPasswordInput, password);
-        click(loginView.loginButton);
+        click(loginView.submitButton);
       } else {
         cy.log("AUTH is disabled, just look for applications page");
       }
@@ -252,44 +252,68 @@ export function logout(userName?: string): void {
   clickByText(button, userName);
   cy.wait(0.5 * SEC);
   click("#logout");
-  cy.get("h1", { timeout: 15 * SEC }).contains("Sign in to your account");
+  cy.get("h1", { timeout: 15 * SEC }).contains("Tackle Login");
+}
+
+/**
+ * Check if a JWT token is expired
+ * Returns true if expired, invalid, or cannot be decoded
+ */
+function isExpiredToken(token: string): boolean {
+  try {
+    const [, payload] = token.split(".");
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const { exp } = JSON.parse(atob(normalized));
+    return typeof exp !== "number" || exp * 1000 <= Date.now() + 30_000;
+  } catch {
+    return true;
+  }
 }
 
 /**
  * Return authorization headers for direct API calls (`cy.request`).
  *
- * When `AUTH_REQUIRED` is `"true"`, authenticates via `POST /hub/auth/login`
- * and returns `{ Authorization: "Bearer <token>" }`.
+ * With OIDC authentication, retrieves the access token from sessionStorage.
+ * Validates token expiration and skips expired tokens.
+ * Returns `{ Authorization: "Bearer <token>" }` when auth is enabled.
  * Otherwise returns an empty object so callers can always spread/pass headers
  * without branching.
  */
 export function getAuthHeaders(): Cypress.Chainable<Record<string, string>> {
   return cy.uiEnvironmentConfig().then((env) => {
     if (env["AUTH_REQUIRED"] === "true") {
-      return cy
-        .request({
-          method: "POST",
-          url: "/hub/auth/login",
-          body: {
-            user: Cypress.env("user"),
-            password: Cypress.env("pass"),
-          },
-          failOnStatusCode: false,
-        })
-        .then((res) => {
-          if (res.status !== 200 && res.status !== 201) {
-            throw new Error(
-              `Auth login failed with status ${res.status}: ${JSON.stringify(res.body)}`
-            );
+      return cy.window().then((win) => {
+        const sessionKeys = Object.keys(win.sessionStorage);
+        const oidcUserKey = sessionKeys.find((key) =>
+          key.startsWith("oidc.user:")
+        );
+
+        if (oidcUserKey) {
+          const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
+          if (oidcUserData) {
+            try {
+              const userData = JSON.parse(oidcUserData);
+              if (
+                userData.access_token &&
+                !isExpiredToken(userData.access_token)
+              ) {
+                return { Authorization: `Bearer ${userData.access_token}` };
+              }
+            } catch {
+              // Fall through
+            }
           }
-          const token = res.body?.token;
-          if (!token) {
-            throw new Error(
-              `Auth login response missing token: ${JSON.stringify(res.body)}`
-            );
-          }
-          return { Authorization: `Bearer ${token}` } as Record<string, string>;
-        });
+        }
+
+        const localToken = win.localStorage.getItem("token");
+        if (localToken && !isExpiredToken(localToken)) {
+          return { Authorization: `Bearer ${localToken}` };
+        }
+
+        throw new Error(
+          "No valid authentication token found; refresh the session before direct API calls"
+        );
+      });
     }
     return cy.wrap({} as Record<string, string>);
   });
@@ -439,6 +463,7 @@ export function removeMember(memberName: string): void {
 
 export function exists(value: string, tableSelector = appTable): void {
   selectItemsPerPage(100);
+  cy.wait(1000);
   cy.get("body").then(($body) => {
     const $table = $body.find(tableSelector);
     if (
@@ -1460,46 +1485,21 @@ export function deleteApplicationTableRows(): void {
 }
 
 export function deleteBulkApplicationsByApi(appIds: number[]): void {
-  cy.uiEnvironmentConfig().then((env) => {
-    if (env["AUTH_REQUIRED"] === "true") {
-      // Get token via login API
-      cy.request({
-        method: "POST",
-        url: `${getUrl()}/hub/auth/login`,
-        body: {
-          user: Cypress.env("user"),
-          password: Cypress.env("pass"),
-        },
-      }).then((loginResponse) => {
-        const token = loginResponse.body.token;
-        cy.request({
-          method: "DELETE",
-          url: `${getUrl()}/hub/applications`,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: appIds,
-          failOnStatusCode: false,
-        }).then((response) => {
-          expect(response.status).to.eq(204);
-        });
-      });
-    } else {
-      // Auth disabled
-      cy.request({
-        method: "DELETE",
-        url: `${getUrl()}/hub/applications`,
-        headers: { "Content-Type": "application/json" },
-        body: appIds,
-        failOnStatusCode: false,
-      }).then((response) => {
-        expect(response.status).to.eq(204);
-      });
-    }
+  getAuthHeaders().then((headers) => {
+    cy.request({
+      method: "DELETE",
+      url: `${getUrl()}/hub/applications`,
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+      },
+      body: appIds,
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(204);
+    });
   });
 }
-
 export function validatePageTitle(pageTitle: string) {
   return cy.get("h1").then((h1) => {
     return h1.text().includes(pageTitle);
@@ -2565,4 +2565,20 @@ export function isElementExpanded(
   return cy.contains(element, elementText).then(($element) => {
     return $element.attr("aria-expanded") === "true";
   });
+}
+
+export function safeParseJson<T>(body: unknown, fallback: T): T {
+  if (typeof body === "string") {
+    if (!body.trim()) {
+      return fallback;
+    }
+    try {
+      return JSON.parse(body) as T;
+    } catch {
+      throw new Error(
+        `Failed to parse JSON response body (first 100 chars): ${body.substring(0, 100)}`
+      );
+    }
+  }
+  return (body ?? fallback) as T;
 }

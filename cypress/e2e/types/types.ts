@@ -9,6 +9,44 @@ import {
   RepositoryType,
 } from "./constants";
 
+// Hub API User Management Types
+export interface HubResource {
+  id?: number;
+  createUser?: string;
+  updateUser?: string;
+  createTime?: string;
+}
+
+export interface HubRef {
+  id: number;
+  name?: string;
+}
+
+export interface HubPermission extends HubResource {
+  name: string;
+  scope: string;
+}
+
+export interface HubRole extends HubResource {
+  name: string;
+  permissions?: HubRef[];
+}
+
+export interface HubUser extends HubResource {
+  subject?: string;
+  login: string;
+  name?: string;
+  password: string;
+  email: string;
+  roles?: HubRef[];
+  tokens?: HubRef[];
+}
+
+export interface HubAuthMe {
+  user?: HubUser;
+  scopes?: string[];
+}
+
 export type CredentialsSourceControlData = {
   type: string;
   name?: string;

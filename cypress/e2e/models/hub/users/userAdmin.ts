@@ -4,8 +4,6 @@ import { User } from "./user";
 
 export class UserAdmin extends User {
   create() {
-    super.create();
-    this.definePassword();
-    this.addRole(UserRoles.admin);
+    this.createWithRole(UserRoles.admin);
   }
 }

@@ -27,6 +27,7 @@ import {
   isElementExpanded,
   performRowActionBySelector,
   performWithin,
+  safeParseJson,
   selectFormItems,
   selectItemsPerPage,
   selectUserPerspective,
@@ -1084,8 +1085,7 @@ export class Application {
       ...(headers && { headers }),
       failOnStatusCode: false,
     }).then((res) => {
-      const body =
-        typeof res.body === "string" ? JSON.parse(res.body) : res.body;
+      const body = safeParseJson(res.body, []);
       const items = Array.isArray(body) ? body : [];
       items.forEach((app: { id: number }) => {
         cy.request({
