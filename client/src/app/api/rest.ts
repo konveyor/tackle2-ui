@@ -16,7 +16,6 @@ import {
   InitialAssessment,
   New,
   Proxy,
-  Questionnaire,
   Ref,
   Review,
   Setting,
@@ -54,7 +53,6 @@ export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
 const ASSESSMENTS = hub`/assessments`;
 export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
-export const QUESTIONNAIRES = hub`/questionnaires`;
 const REVIEWS = hub`/reviews`;
 const SETTINGS = hub`/settings`;
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
@@ -101,6 +99,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/questionnaires";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -461,24 +460,3 @@ export const getProxies = (): Promise<Proxy[]> =>
 
 export const updateProxy = (obj: Proxy): Promise<Proxy> =>
   axios.put(`${PROXIES}/${obj.id}`, obj);
-
-// ---------------------------------------
-// Questionnaires
-//
-export const getQuestionnaires = (): Promise<Questionnaire[]> =>
-  axios.get(QUESTIONNAIRES).then((response) => response.data);
-
-export const getQuestionnaireById = <T>(id: number | string): Promise<T> =>
-  axios.get(`${QUESTIONNAIRES}/${id}`).then((response) => response.data);
-
-export const createQuestionnaire = (
-  obj: Questionnaire
-): Promise<Questionnaire> =>
-  axios.post(`${QUESTIONNAIRES}`, obj).then((response) => response.data);
-
-export const updateQuestionnaire = (
-  obj: Questionnaire
-): Promise<Questionnaire> => axios.put(`${QUESTIONNAIRES}/${obj.id}`, obj);
-
-export const deleteQuestionnaire = (id: number): Promise<Questionnaire> =>
-  axios.delete(`${QUESTIONNAIRES}/${id}`);
