@@ -6,29 +6,22 @@ import { default as express } from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { createHttpTerminator } from "http-terminator";
 
-import {
-  KONVEYOR_ENV,
-  SERVER_ENV_KEYS,
-  brandingStrings,
-  encodeEnv,
-} from "@konveyor-ui/common";
+import { brandingStrings } from "@konveyor-ui/common";
 
-import proxies from "./proxies";
-
-const developmentMode = KONVEYOR_ENV.NODE_ENV === "development";
-const debugMode = process.env.DEBUG === "1";
-debugMode && console.log("KONVEYOR_ENV", KONVEYOR_ENV);
+import proxies from "./proxies.js";
+import { serializeClientConfig, serverConfig } from "./serverConfig.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const pathToClientDist = path.join(__dirname, "../../client/dist");
 
-const port = parseInt(KONVEYOR_ENV.PORT, 10) || developmentMode ? 9000 : 8080;
+const developmentMode = serverConfig.NODE_ENV === "development";
+serverConfig.DEBUG && console.log("serverConfig", serverConfig);
+const port = parseInt(serverConfig.PORT, 10) || (developmentMode ? 9000 : 8080);
 
 const app = express();
 app.set("x-powered-by", false);
 
-// Setup proxies for auth and hub
-app.use(createProxyMiddleware(proxies.auth));
+// Setup proxies that should always be available
 app.use(createProxyMiddleware(proxies.oidc));
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));
@@ -36,6 +29,7 @@ app.use(createProxyMiddleware(proxies.kaiLLMProxy));
 
 // In development, proxy to the dev server, otherwise serve the client/dist content
 if (developmentMode) {
+  // NOTE: The dev server is responsible for populating the client config `window._env`
   console.log("** development mode - proxying to webpack-dev-server **");
   app.use(createProxyMiddleware(proxies.devServer));
 } else {
@@ -46,7 +40,7 @@ if (developmentMode) {
 
   app.get("*splat", (_, res) => {
     res.render("index.html.ejs", {
-      _env: encodeEnv(KONVEYOR_ENV, SERVER_ENV_KEYS),
+      _env: serializeClientConfig(),
       branding: brandingStrings,
     });
   });

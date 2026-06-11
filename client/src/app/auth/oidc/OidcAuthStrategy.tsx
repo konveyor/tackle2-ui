@@ -18,9 +18,10 @@ import {
 import { initAuthInterceptors } from "@app/axios-config";
 import { AppPlaceholder } from "@app/components/AppPlaceholder";
 
-import { AuthProviderProps, AuthStateContext } from "./AuthProvider";
+import { AuthProviderProps, AuthStateContext } from "../AuthProvider";
+import type { AuthState } from "../types";
+
 import { OidcToolbarItem } from "./OidcToolbarItem";
-import type { AuthState } from "./types";
 import { accountManagementUrl, userManager } from "./userManager";
 
 /**

@@ -11,7 +11,7 @@
 import axios from "axios";
 
 import { isAuthRequired } from "@app/Constants";
-import { userManager } from "@app/auth/userManager";
+import { userManager } from "@app/auth/oidc/userManager";
 
 // Guard against duplicate interceptor registration (e.g. React StrictMode double-invoke).
 let _initialized = false;
