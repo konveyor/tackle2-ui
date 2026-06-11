@@ -19,8 +19,6 @@ import {
   Questionnaire,
   Ref,
   Review,
-  Setting,
-  SettingTypes,
   Stakeholder,
   StakeholderGroup,
   Tag,
@@ -56,7 +54,6 @@ export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
 const REVIEWS = hub`/reviews`;
-const SETTINGS = hub`/settings`;
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
 const STAKEHOLDERS = hub`/stakeholders`;
 const TAG_CATEGORIES = hub`/tagcategories`;
@@ -101,6 +98,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/settings";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -303,22 +301,6 @@ export const deleteTarget = (id: number): Promise<Target> =>
 
 export const getTargets = (): Promise<Target[]> =>
   axios.get(TARGETS).then((response) => response.data);
-
-// ---------------------------------------
-// Settings
-//
-export const getSettingById = <K extends keyof SettingTypes>(
-  id: K
-): Promise<SettingTypes[K]> =>
-  axios.get(`${SETTINGS}/${id}`).then((response) => response.data);
-
-export const updateSetting = <K extends keyof SettingTypes>(
-  obj: Setting<K>
-): Promise<Setting<K>> =>
-  axios.put(
-    `${SETTINGS}/${obj.key}`,
-    typeof obj.value == "boolean" ? obj.value.toString() : obj.value
-  );
 
 // ---------------------------------------
 // Trackers
