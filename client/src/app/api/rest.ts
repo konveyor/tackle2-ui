@@ -28,9 +28,6 @@ import {
   Target,
   Taskgroup,
   Ticket,
-  Tracker,
-  TrackerProject,
-  TrackerProjectIssuetype,
   UnstructuredFact,
 } from "./models";
 
@@ -64,9 +61,6 @@ const TAGS = hub`/tags`;
 const TARGETS = hub`/targets`;
 const TASKGROUPS = hub`/taskgroups`;
 const TICKETS = hub`/tickets`;
-const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
-const TRACKER_PROJECTS = "projects"; // TODO: ????
-const TRACKERS = hub`/trackers`;
 
 export const HEADERS: Record<string, RawAxiosRequestHeaders> = {
   json: {
@@ -101,6 +95,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/trackers";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -319,36 +314,6 @@ export const updateSetting = <K extends keyof SettingTypes>(
     `${SETTINGS}/${obj.key}`,
     typeof obj.value == "boolean" ? obj.value.toString() : obj.value
   );
-
-// ---------------------------------------
-// Trackers
-//
-export const getTrackers = (): Promise<Tracker[]> =>
-  axios.get(TRACKERS).then((response) => response.data);
-
-export const createTracker = (obj: Tracker): Promise<Tracker> =>
-  axios.post(TRACKERS, obj).then((res) => res.data);
-
-export const updateTracker = (obj: Tracker): Promise<Tracker> =>
-  axios.put(`${TRACKERS}/${obj.id}`, obj);
-
-export const deleteTracker = (id: number): Promise<Tracker> =>
-  axios.delete(`${TRACKERS}/${id}`);
-
-export const getTrackerProjects = (id: number): Promise<TrackerProject[]> =>
-  axios
-    .get(`${TRACKERS}/${id}/${TRACKER_PROJECTS}`)
-    .then((response) => response.data);
-
-export const getTrackerProjectIssuetypes = (
-  trackerId: number,
-  projectId: string
-): Promise<TrackerProjectIssuetype[]> =>
-  axios
-    .get(
-      `${TRACKERS}/${trackerId}/${TRACKER_PROJECTS}/${projectId}/${TRACKER_PROJECT_ISSUETYPES}`
-    )
-    .then((response) => response.data);
 
 // ---------------------------------------
 // Tickets
