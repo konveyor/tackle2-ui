@@ -32,7 +32,10 @@ export const UserEditModal: FC<Omit<UserModalProps, "isOpen">> = ({
 const UserModal: FC<UserModalProps> = ({ isOpen, user, onClose }) => {
   const { t } = useTranslation();
 
-  const { form, onSubmit, isSubmitDisabled } = useUserForm(user);
+  const { form, onSubmit, isSubmitDisabled, isEdit } = useUserForm(
+    user,
+    onClose
+  );
   return (
     <>
       {isOpen && (
@@ -41,7 +44,12 @@ const UserModal: FC<UserModalProps> = ({ isOpen, user, onClose }) => {
             title={user ? t("titles.editUser") : t("titles.createUser")}
           />
           <ModalBody>
-            <UserForm form={form} onClose={onClose} onSubmit={onSubmit} />
+            <UserForm
+              form={form}
+              isEdit={isEdit}
+              onClose={onClose}
+              onSubmit={onSubmit}
+            />
           </ModalBody>
           <ModalFooter>
             <Button

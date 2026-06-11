@@ -22,24 +22,30 @@ const DEFAULT_USER: User = {
   createTime: "",
 };
 
-export const useUserForm = (user?: User) => {
+export const useUserForm = (user?: User, onClose?: () => void) => {
   const { editUser, createUser } = useUserActionsWithNotifications();
+  const isEdit = !!user;
+
   const validationSchema = object().shape({
+    login: string().required().min(1),
+    password: isEdit ? string().max(72) : string().required().max(72),
     name: string().required(),
     email: string().email().required(),
-    roles: array().of(string()).required(),
+    roles: array().of(object()).required(),
   });
+
   const form = useForm<UserFormValues>({
     defaultValues: user ?? DEFAULT_USER,
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
+
   const onValidSubmit = (values: UserFormValues) => {
-    const userToSave = valuesToUser(values, user ?? DEFAULT_USER);
-    if (user) {
-      editUser(userToSave);
+    const userToSave = valuesToUser(values, user ?? DEFAULT_USER, isEdit);
+    if (isEdit) {
+      editUser(userToSave, { onSuccess: onClose });
     } else {
-      createUser(userToSave);
+      createUser(userToSave, { onSuccess: onClose });
     }
   };
 
@@ -49,16 +55,31 @@ export const useUserForm = (user?: User) => {
   } = form;
   const isSubmitDisabled = !isValid || isSubmitting || isValidating || !isDirty;
 
-  return { form, onSubmit: handleSubmit(onValidSubmit), isSubmitDisabled };
+  return {
+    form,
+    onSubmit: handleSubmit(onValidSubmit),
+    isSubmitDisabled,
+    isEdit,
+  };
 };
 
-export type UserFormValues = Pick<User, "name" | "email" | "roles">;
+export type UserFormValues = Pick<
+  User,
+  "name" | "email" | "roles" | "login" | "password"
+>;
 
-export const valuesToUser = (values: UserFormValues, user: User): User => {
+export const valuesToUser = (
+  values: UserFormValues,
+  user: User,
+  isEdit: boolean
+): User => {
   return {
     ...user,
+    login: values.login,
     name: values.name,
     email: values.email,
     roles: values.roles,
+    // On edit, only update password if a new value was entered
+    ...(isEdit && !values.password ? {} : { password: values.password }),
   };
 };
