@@ -1,1 +1,0 @@
-export { initAuthInterceptors } from "./apiInit";
