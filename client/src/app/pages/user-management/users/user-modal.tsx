@@ -32,7 +32,7 @@ export const UserEditModal: FC<Omit<UserModalProps, "isOpen">> = ({
 const UserModal: FC<UserModalProps> = ({ isOpen, user, onClose }) => {
   const { t } = useTranslation();
 
-  const { form, onSubmit, isSubmitDisabled, isEdit } = useUserForm(
+  const { form, onSubmit, isSubmitDisabled, isEdit, isSeeded } = useUserForm(
     user,
     onClose
   );
@@ -47,6 +47,7 @@ const UserModal: FC<UserModalProps> = ({ isOpen, user, onClose }) => {
             <UserForm
               form={form}
               isEdit={isEdit}
+              isSeeded={isSeeded}
               onClose={onClose}
               onSubmit={onSubmit}
             />

@@ -1,13 +1,16 @@
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Content,
   PageSection,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
+  ActionsColumn,
   Table,
   Tbody,
   Td,
@@ -29,13 +32,20 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
+import { PermissionCreateModal } from "./permissions/permission-modal";
+import {
+  useFetchPermissions,
+  usePermissionActionsWithNotifications,
+} from "./permissions/use-permissions";
 import { Permission } from "./types";
-import { useFetchPermissions } from "./use-permissions";
 
 export const PermissionsPage: FC = () => {
   const { t } = useTranslation();
 
   const { permissions } = useFetchPermissions();
+  const { deletePermission } = usePermissionActionsWithNotifications();
+  const [createOpen, setCreateOpen] = useState(false);
+
   const tableControls = useLocalTableControls({
     tableName: "permissions-table",
     idProperty: "id",
@@ -50,7 +60,7 @@ export const PermissionsPage: FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
-    hasActionsColumn: false,
+    hasActionsColumn: true,
     sortableColumns: ["id", "name", "scope"],
     initialSort: { columnKey: "id", direction: "desc" },
     getSortValues: (permission) => ({
@@ -120,6 +130,17 @@ export const PermissionsPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="action-group">
+              <ToolbarItem>
+                <Button
+                  variant="primary"
+                  aria-label={t("titles.createPermission")}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  {t("actions.create")}
+                </Button>
+              </ToolbarItem>
+            </ToolbarGroup>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -152,6 +173,7 @@ export const PermissionsPage: FC = () => {
                       info={tooltips[id]}
                     />
                   ))}
+                <Th screenReaderText={t("actions.rowActions")} />
               </TableHeaderContentWithControls>
             </Tr>
           </Thead>
@@ -185,6 +207,17 @@ export const PermissionsPage: FC = () => {
                             {cells[columnKey]}
                           </Td>
                         ))}
+                      <Td isActionCell>
+                        <ActionsColumn
+                          items={[
+                            {
+                              title: t("actions.delete"),
+                              onClick: () => deletePermission(permission),
+                              isDanger: true,
+                            },
+                          ]}
+                        />
+                      </Td>
                     </TableRowContentWithControls>
                   </Tr>
                 ))}
@@ -197,6 +230,10 @@ export const PermissionsPage: FC = () => {
           paginationProps={paginationProps}
         />
       </PageSection>
+      <PermissionCreateModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
     </>
   );
 };

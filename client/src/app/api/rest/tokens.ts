@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { HEADERS, hub, template } from "../rest";
-import { Token } from "@app/pages/user-management/types";
+import { PersonalAccessToken, Token } from "@app/pages/user-management/types";
 
 const TOKENS = hub`/auth/tokens`;
 const TOKEN = hub`/auth/tokens/{{id}}`;
@@ -14,8 +14,12 @@ export const getTokenById = (id: number): Promise<Token> =>
     .get<Token>(template(TOKEN, { id }), { headers: HEADERS.json })
     .then((r) => r.data);
 
-export const createToken = (token: Partial<Token>): Promise<Token> =>
-  axios.post<Token>(TOKENS, token).then((r) => r.data);
+/** POST /auth/tokens — creates an api-key token. Returns PAT with one-time plaintext secret. */
+export const createToken = (
+  token: Pick<PersonalAccessToken, "lifespan" | "expiration">
+): Promise<PersonalAccessToken> =>
+  axios.post<PersonalAccessToken>(TOKENS, token).then((r) => r.data);
 
+/** DELETE /auth/tokens/{id} — revokes a token. */
 export const deleteToken = (token: Token): Promise<void> =>
   axios.delete<void>(template(TOKEN, { id: token.id })).then(() => undefined);

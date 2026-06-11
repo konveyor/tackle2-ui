@@ -16,11 +16,12 @@ import { UserFormValues } from "./use-user-form";
 export interface UserFormProps {
   form: UseFormReturn<UserFormValues>;
   isEdit: boolean;
+  isSeeded: boolean;
   onClose: () => void;
   onSubmit: () => void;
 }
 
-export const UserForm: FC<UserFormProps> = ({ form, isEdit }) => {
+export const UserForm: FC<UserFormProps> = ({ form, isEdit, isSeeded }) => {
   const { t } = useTranslation();
   const { control } = form;
   const { roles } = useFetchRoles();
@@ -68,6 +69,7 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit }) => {
         name="roles"
         label={t("terms.roles")}
         fieldId="roles"
+        helperText={isSeeded ? t("message.seededUserRolesReadOnly") : undefined}
         renderInput={({ field: { value, onChange } }) => {
           const selectedNames = (value ?? []).map(
             (r) => r.name ?? String(r.id)
@@ -77,6 +79,7 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit }) => {
               toggleId="roles-select-toggle"
               toggleAriaLabel="Roles select dropdown toggle"
               hasChips
+              isDisabled={isSeeded}
               values={selectedNames}
               options={roleOptions}
               placeholderText={t("composed.selectMany", {

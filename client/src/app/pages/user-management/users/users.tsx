@@ -35,6 +35,7 @@ import { ManageColumnsToolbar } from "../../applications/applications-table/comp
 import { User } from "../types";
 
 import { useFetchUsers, useUserActionsWithNotifications } from "./use-users";
+import { isSeededUser } from "./use-user-form";
 import { UserCreateModal, UserEditModal } from "./user-modal";
 
 export const UsersPage: FC = () => {
@@ -237,6 +238,14 @@ export const UsersPage: FC = () => {
                               title: t("actions.delete"),
                               onClick: () => deleteUser(user),
                               isDanger: true,
+                              isDisabled: isSeededUser(user),
+                              tooltipProps: isSeededUser(user)
+                                ? {
+                                    content: t(
+                                      "message.seededUserCannotBeDeleted"
+                                    ),
+                                  }
+                                : undefined,
                             },
                           ]}
                         />

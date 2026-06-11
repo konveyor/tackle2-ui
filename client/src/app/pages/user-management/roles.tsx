@@ -1,10 +1,12 @@
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Content,
   PageSection,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
@@ -30,13 +32,21 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
+import { RoleCreateModal, RoleEditModal } from "./roles/role-modal";
+import {
+  useFetchRoles,
+  useRoleActionsWithNotifications,
+} from "./roles/use-roles";
 import { Role } from "./types";
-import { useFetchRoles } from "./use-roles";
 
 export const RolesPage: FC = () => {
   const { t } = useTranslation();
 
   const { roles } = useFetchRoles();
+  const { deleteRole } = useRoleActionsWithNotifications();
+  const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
+  const [createOpen, setCreateOpen] = useState(false);
+
   const tableControls = useLocalTableControls({
     tableName: "roles-table",
     idProperty: "id",
@@ -113,6 +123,17 @@ export const RolesPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="action-group">
+              <ToolbarItem>
+                <Button
+                  variant="primary"
+                  aria-label={t("titles.createRole")}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  {t("actions.create")}
+                </Button>
+              </ToolbarItem>
+            </ToolbarGroup>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -184,11 +205,11 @@ export const RolesPage: FC = () => {
                           items={[
                             {
                               title: t("actions.edit"),
-                              onClick: () => console.log("edit role"),
+                              onClick: () => setRoleToEdit(role),
                             },
                             {
                               title: t("actions.delete"),
-                              onClick: () => console.log("delete role"),
+                              onClick: () => deleteRole(role),
                               isDanger: true,
                             },
                           ]}
@@ -206,6 +227,15 @@ export const RolesPage: FC = () => {
           paginationProps={paginationProps}
         />
       </PageSection>
+
+      <RoleCreateModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
+      <RoleEditModal
+        role={roleToEdit}
+        onClose={() => setRoleToEdit(undefined)}
+      />
     </>
   );
 };

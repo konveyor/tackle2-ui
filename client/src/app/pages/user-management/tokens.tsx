@@ -1,6 +1,7 @@
-import { type FC, type ReactNode } from "react";
+import { type FC, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Button,
   Content,
   Label,
   LabelGroup,
@@ -8,6 +9,7 @@ import {
   PageSection,
   Toolbar,
   ToolbarContent,
+  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
@@ -34,7 +36,11 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
 
 import { Token } from "./types";
-import { useFetchTokens } from "./use-tokens";
+import { TokenCreateModal } from "./tokens/token-modal";
+import {
+  useFetchTokens,
+  useTokenActionsWithNotifications,
+} from "./tokens/use-tokens";
 import { useFetchUsers } from "./users/use-users";
 
 const verbToColor = (verb: string): LabelProps["color"] => {
@@ -65,7 +71,9 @@ export const TokensPage: FC = () => {
   const { t } = useTranslation();
 
   const { tokens } = useFetchTokens();
+  const { deleteToken } = useTokenActionsWithNotifications();
   const { users } = useFetchUsers();
+  const [createOpen, setCreateOpen] = useState(false);
   const loginById = Object.fromEntries(
     users.map(({ id, login }) => [String(id), login])
   );
@@ -197,6 +205,17 @@ export const TokensPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
+            <ToolbarGroup variant="action-group">
+              <ToolbarItem>
+                <Button
+                  variant="primary"
+                  aria-label={t("titles.createToken")}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  {t("actions.create")}
+                </Button>
+              </ToolbarItem>
+            </ToolbarGroup>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -268,7 +287,7 @@ export const TokensPage: FC = () => {
                           items={[
                             {
                               title: t("actions.delete"),
-                              onClick: () => console.log("delete token"),
+                              onClick: () => deleteToken(token),
                               isDanger: true,
                             },
                           ]}
@@ -286,6 +305,10 @@ export const TokensPage: FC = () => {
           paginationProps={paginationProps}
         />
       </PageSection>
+      <TokenCreateModal
+        isOpen={createOpen}
+        onClose={() => setCreateOpen(false)}
+      />
     </>
   );
 };
