@@ -9,20 +9,16 @@ tackle2-ui is the frontend for [Konveyor](https://konveyor.io), an application m
 ```text
 +-------------------+        +-----------------+        +------------------+
 |   Browser         | <----> | tackle2-ui      | <----> | tackle2-hub      |
-|   (React SPA)     |        | (Express proxy) |        | (REST API)       |
-+-------------------+        +--------+--------+        +------------------+
-                                      |
-                                      v
-                              +-----------------+
-                              | Keycloak SSO    |
-                              | (Authentication)|
-                              +-----------------+
+|   (React SPA)     |        | (Express proxy) |        | (REST API +      |
++-------------------+        +-----------------+        |  OIDC provider)  |
+                                                        +------------------+
 ```
 
 - **Browser** -- Serves the React + PatternFly single-page application.
-- **tackle2-ui server** -- An Express.js process that serves static assets in production and proxies `/hub` requests to the Hub API and `/auth` requests to Keycloak SSO. In development, it additionally proxies to webpack-dev-server.
-- **tackle2-hub** -- The Konveyor Hub REST API. Manages applications, assessments, analyses, tasks, identities, and all domain entities. The [OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) defines the API contract.
-- **Keycloak SSO** -- Provides authentication when `AUTH_REQUIRED` is enabled. Enforces role-based access control (RBAC) with roles: `tackle-admin`, `tackle-architect`, `tackle-migrator`.
+- **tackle2-ui server** -- An Express.js process that serves static assets in production and proxies `/hub`, `/oidc`, and `/kai` requests to the Hub API. In development, it additionally proxies to webpack-dev-server.
+- **tackle2-hub** -- The Konveyor Hub REST API. Manages applications, assessments, analyses, tasks, identities, and all domain entities. Also hosts the OIDC provider for authentication. The [OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) defines the API contract.
+
+When `AUTH_REQUIRED` is enabled, the Hub's built-in OIDC provider handles authentication. Access control is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`). The legacy Keycloak SSO integration has been removed.
 
 ## Monorepo Structure
 
@@ -41,11 +37,11 @@ Build order: `common` (first) -> `client` + `server` (parallel) -> `cypress` (te
 
 ### Routing
 
-The application uses `react-router-dom` with three route groups, each gated by RBAC roles:
+The application uses `react-router-dom` with three route groups, each gated by scopes:
 
-- **Developer perspective** (`DevPaths`) -- Applications, archetypes, assessments, analysis, migration waves, issues, insights, dependencies, reports, migration targets. Accessible to all authenticated roles.
-- **Administrator perspective** (`AdminPaths`) -- General settings, identities, repositories, proxies, assessment management, Jira integration, source platforms, asset generators. Restricted to `tackle-admin`.
-- **Universal paths** (`UniversalPaths`) -- Tasks. Accessible to all roles.
+- **Developer perspective** (`DevPaths`) -- Applications, archetypes, assessments, analysis, migration waves, issues, insights, dependencies, reports, migration targets. Accessible with standard read scopes.
+- **Administrator perspective** (`AdminPaths`) -- General settings, identities, repositories, proxies, assessment management, Jira integration, source platforms, asset generators. Requires admin-level scopes.
+- **Universal paths** (`UniversalPaths`) -- Tasks. Accessible to all authenticated users.
 
 Pages are lazy-loaded with `React.lazy()` and wrapped in `ErrorBoundary` + `Suspense`.
 
@@ -58,7 +54,7 @@ Pages are lazy-loaded with `React.lazy()` and wrapped in `ErrorBoundary` + `Susp
 
 ## Data Flow
 
-Requests flow from page components through TanStack Query hooks to the Hub API. The Express server proxies all `/hub` and `/auth` requests to their respective backend services.
+Requests flow from page components through TanStack Query hooks to the Hub API. The Express server proxies `/hub`, `/oidc`, and `/kai` requests to the Hub.
 
 ### API Layer
 
@@ -81,12 +77,12 @@ The UI supports build-time branding via the `BRANDING` environment variable. The
 
 | Category | Key Libraries |
 |---|---|
-| UI framework | React 18, PatternFly 5 |
+| UI framework | React 18, PatternFly 6 |
 | Routing | react-router-dom 5 |
 | Server state | TanStack Query 4, Axios |
 | Form state | react-hook-form, yup |
 | Internationalization | i18next, react-i18next |
-| Auth | keycloak-js, @react-keycloak/web |
+| Auth | oidc-client-ts, react-oidc-context |
 | Code editor | Monaco Editor |
 | Charts | @patternfly/react-charts |
 | Drag & drop | @dnd-kit/core, @dnd-kit/sortable |

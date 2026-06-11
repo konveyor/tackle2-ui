@@ -29,13 +29,14 @@ tackle2-ui/
       queries/                # TanStack Query hooks (~28 files, one per domain)
       Paths.ts                # Route path constants (DevPaths, AdminPaths, UniversalPaths)
       Routes.tsx              # React Router config with lazy-loaded pages
-      rbac.ts                 # Role and scope definitions (tackle-admin, tackle-architect, tackle-migrator)
+      scopes.ts               # Scope constants and ScopeGate component (OAuth2 resource:verb pairs)
+      auth/                   # AuthProvider, OIDC integration, masquerade, role-to-scope mapping
       i18n.ts                 # i18next configuration (English default, HTTP backend)
     public/locales/en/        # Translation JSON files
   server/                     # Express.js proxy server
     src/
       index.js                # Server entry point
-      proxies.js              # Proxy routes: /hub -> Hub API, /auth -> Keycloak SSO
+      proxies.js              # Proxy routes: /hub, /oidc, /kai -> Hub API; /llm-proxy -> LLM proxy
   common/                     # Shared package (@konveyor-ui/common)
     src/
       branding.ts             # Branding configuration types
@@ -62,13 +63,13 @@ tackle2-ui/
 
 ### Component Conventions
 
-- **Select components** are in active migration from PF4 to PF5/PF6. The current hierarchy:
-  - `SimpleSelect` -- single-value selection (PF5 `Select` + `MenuToggle`)
+- **Select components** use the PatternFly 6 `Select` and `MenuToggle`:
+  - `SimpleSelect` -- single-value selection
   - `TypeaheadSelect` -- single-value with search (`MultiSelectBase` with `showSelectedInToggle`)
   - `MultiSelect` -- multi-value selection with chips
   - All use `FilterSelectOptionProps` (`{ value: string, label: string }`) for options
 - **Filter components** in `FilterToolbar/` handle both client-side and server-side (hub) filtering. The `categoryKey` prop drives HTML IDs and test selectors.
-- **RBAC** is enforced through roles (`tackle-admin`, `tackle-architect`, `tackle-migrator`) and fine-grained scopes. The `RBAC` component wraps protected UI sections.
+- **Access control** is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`, `businessservices:put`). The `ScopeGate` component wraps protected UI sections. Scope constants are grouped in `scopes.ts`; the role-to-scope mapping lives in `auth/roles-to-scopes.ts`.
 
 ### Testing Patterns
 
@@ -81,9 +82,9 @@ tackle2-ui/
 | Variable | Purpose | Default |
 |---|---|---|
 | `TACKLE_HUB_URL` | Hub REST API endpoint | `http://localhost:9002` |
-| `SSO_SERVER_URL` | Keycloak SSO endpoint | `http://localhost:9001` |
+| `AUTH_REQUIRED` | Enable OIDC authentication | `false` |
+| `OIDC_CLIENT_ID` | OIDC client identifier | `web-ui` |
 | `BRANDING` | Path to custom branding assets | `branding/` (default Konveyor brand) |
-| `AUTH_REQUIRED` | Enable Keycloak authentication | Environment-dependent |
 
 ## Review Guidelines
 
@@ -97,18 +98,20 @@ When reviewing or generating code changes, verify:
 - [ ] Table data uses the `table-controls` hook system, not manual filtering/sorting
 - [ ] Cypress selectors scope to the active element (listbox, modal) rather than the full page
 - [ ] API types in `models.ts` match the [Hub OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json)
+- [ ] Access control uses `ScopeGate` or `useHasSomeScopes` with scope constants from `scopes.ts`, not role checks
 
 ## Dependencies
 
 | Package | Purpose |
 |---|---|
 | `react` / `react-dom` | UI framework |
-| `@patternfly/react-core` | Component library (migrating from PF4 to PF6) |
+| `@patternfly/react-core` | Component library (PatternFly 6) |
 | `@tanstack/react-query` | Server state management |
 | `react-hook-form` / `yup` | Form management and validation |
 | `axios` | HTTP client |
 | `react-i18next` / `i18next` | Internationalization |
 | `react-router-dom` | Client-side routing |
+| `oidc-client-ts` / `react-oidc-context` | OIDC authentication |
 | `monaco-editor` | Code snippet viewer (analysis issues/insights) |
 | `express` | Dev/prod server with proxy capabilities |
 | `cypress` | End-to-end testing framework |

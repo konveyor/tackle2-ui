@@ -2,7 +2,9 @@
 
 Thank you for your interest in contributing to the Konveyor UI. This document covers conventions, processes, and standards specific to this repository.
 
-For development setup, coding standards, and conventions, see [docs/development.md](docs/development.md). For internationalization, see [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md).
+## Coding Standards
+
+For development setup, coding standards, and conventions, see [docs/development.md](docs/development.md). For internationalization, see [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md). For additional patterns and review guidelines, see [AGENTS.md](AGENTS.md).
 
 ## Testing
 
