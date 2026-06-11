@@ -10,10 +10,8 @@ import { serializeRequestParamsForHub } from "@app/hooks/table-controls";
 import {
   ApplicationImport,
   ApplicationImportSummary,
-  Assessment,
   HubPaginatedResult,
   HubRequestParams,
-  InitialAssessment,
   New,
   Proxy,
   Questionnaire,
@@ -51,7 +49,6 @@ const APP_IMPORTS = hub`/imports`;
 const APP_IMPORTS_SUMMARY = hub`/importsummaries`;
 const APP_IMPORTS_SUMMARY_CSV = hub`/importsummaries/download`;
 export const APP_IMPORTS_SUMMARY_UPLOAD = hub`/importsummaries/upload`;
-const ASSESSMENTS = hub`/assessments`;
 export const FILES = hub`/files`;
 const PROXIES = hub`/proxies`;
 export const QUESTIONNAIRES = hub`/questionnaires`;
@@ -101,6 +98,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/assessments";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -157,57 +155,6 @@ export const updateReview = (obj: Review): Promise<Review> => {
 
 export const deleteReview = (id: number): Promise<Review> => {
   return axios.delete(`${REVIEWS}/${id}`);
-};
-
-// ---------------------------------------
-// Assessments
-//
-export const getAssessments = () =>
-  axios.get<Assessment[]>(ASSESSMENTS).then((response) => response.data);
-
-export const getAssessmentsByItemId = (
-  isArchetype: boolean,
-  itemId?: number | string
-): Promise<Assessment[]> => {
-  if (!itemId) return Promise.resolve([]);
-  if (isArchetype) {
-    return axios
-      .get(hub`/archetypes/${itemId}/assessments`)
-      .then((response) => response.data);
-  } else {
-    return axios
-      .get(hub`/applications/${itemId}/assessments`)
-      .then((response) => response.data);
-  }
-};
-
-export const createAssessment = (
-  obj: InitialAssessment,
-  isArchetype: boolean
-): Promise<Assessment> => {
-  if (isArchetype) {
-    return axios
-      .post(hub`/archetypes/${obj?.archetype?.id}/assessments`, obj)
-      .then((response) => response.data);
-  } else {
-    return axios
-      .post(hub`/applications/${obj?.application?.id}/assessments`, obj)
-      .then((response) => response.data);
-  }
-};
-
-export const updateAssessment = (obj: Assessment): Promise<Assessment> => {
-  return axios
-    .put(`${ASSESSMENTS}/${obj.id}`, obj)
-    .then((response) => response.data);
-};
-
-export const getAssessmentById = (id: number | string): Promise<Assessment> => {
-  return axios.get(`${ASSESSMENTS}/${id}`).then((response) => response.data);
-};
-
-export const deleteAssessment = (id: number) => {
-  return axios.delete<void>(`${ASSESSMENTS}/${id}`);
 };
 
 // ---------------------------------------
