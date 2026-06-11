@@ -1,4 +1,4 @@
-name: Nightly CI (global konveyor CI @main)
+name: Nightly CI (e2e tests @main)
 
 on:
   schedule:
@@ -8,4 +8,4 @@ on:
 
 jobs:
   nightly:
-    uses: ./.github/workflows/ci-global.yml
+    uses: ./.github/workflows/ci-e2e-tests.yml

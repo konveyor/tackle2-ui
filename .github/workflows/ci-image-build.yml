@@ -5,7 +5,9 @@ on:
     paths-ignore:
       - "docs/**"
       - "hack/**"
-      - "*.md"
+      - "**/*.md"
+      - "**/*.mdc"
+      - ".coderabbit.yaml"
     branches:
       - "main"
       - "release-*"
@@ -25,7 +27,7 @@ jobs:
 
       - name: What files changed?
         id: changed
-        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v46
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323
         with:
           files: |
             Dockerfile
