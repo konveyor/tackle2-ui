@@ -1,5 +1,4 @@
 /** @import { Logger, Options, OnProxyEvent } from "http-proxy-middleware/dist/types.js" */
-import * as cookie from "cookie";
 
 import { serverConfig } from "./serverConfig.js";
 
@@ -12,25 +11,6 @@ const logger =
         warn: console.warn,
         error: console.error,
       };
-
-/**
- * Add the Bearer token to the request if it is not already present, AND if
- * the token is part of the request as a cookie.
- *
- * Note: With Hub OIDC + react-oidc-context, tokens are stored in sessionStorage
- * and injected into requests by Axios interceptors (initAuthInterceptors). The
- * keycloak_cookie mechanism is a Keycloak-specific legacy retained for backward
- * compatibility with deployments still using the /auth (Keycloak) proxy path.
- *
- * @type OnProxyEvent["proxyReq"]
- */
-const addBearerTokenIfNeeded = (proxyReq, req, _res) => {
-  const cookies = cookie.parse(req.headers.cookie ?? "");
-  const bearerToken = cookies.keycloak_cookie;
-  if (bearerToken && !req.headers["authorization"]) {
-    proxyReq.setHeader("Authorization", `Bearer ${bearerToken}`);
-  }
-};
 
 /**
  * Server-side safety net: redirect the browser back to "/" if a non-JSON
@@ -139,7 +119,6 @@ export default {
     },
 
     on: {
-      proxyReq: addBearerTokenIfNeeded,
       proxyRes: redirectIfUnauthorized,
     },
   },
@@ -155,7 +134,6 @@ export default {
     },
 
     on: {
-      proxyReq: addBearerTokenIfNeeded,
       proxyRes: redirectIfUnauthorized,
     },
   },
@@ -170,8 +148,6 @@ export default {
       "^/llm-proxy": "",
     },
 
-    on: {
-      proxyReq: addBearerTokenIfNeeded,
-    },
+    on: {},
   },
 };
