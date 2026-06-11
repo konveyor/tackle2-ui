@@ -3,14 +3,13 @@
 import { serverConfig } from "./serverConfig.js";
 
 /** @type Logger */
-const logger =
-  process.env.DEBUG === "1"
-    ? console
-    : {
-        info() {},
-        warn: console.warn,
-        error: console.error,
-      };
+const logger = serverConfig.DEBUG
+  ? console
+  : {
+      info() {},
+      warn: console.warn,
+      error: console.error,
+    };
 
 /**
  * Server-side safety net: redirect the browser back to "/" if a non-JSON

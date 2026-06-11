@@ -9,7 +9,7 @@
 export const serverConfig = {
   NODE_ENV: process.env.NODE_ENV ?? "production",
   DEBUG: process.env.DEBUG === "1",
-  PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : undefined,
+  PORT: process.env.PORT,
   BRANDING: process.env.BRANDING,
 
   TACKLE_HUB_URL: process.env.TACKLE_HUB_URL,
@@ -24,7 +24,7 @@ export const serverConfig = {
  * @type {ClientEnv}
  */
 export const clientConfig = {
-  NODE_ENV: serverConfig.nodeEnv,
+  NODE_ENV: serverConfig.NODE_ENV,
   VERSION: process.env.VERSION ?? "99.0.0",
   MOCK: process.env.MOCK ?? "off",
   DEVTOOLS: process.env.DEVTOOLS ?? "off",
