@@ -21,7 +21,6 @@ import {
   Review,
   Setting,
   SettingTypes,
-  Stakeholder,
   StakeholderGroup,
   Tag,
   TagCategory,
@@ -58,7 +57,6 @@ export const QUESTIONNAIRES = hub`/questionnaires`;
 const REVIEWS = hub`/reviews`;
 const SETTINGS = hub`/settings`;
 const STAKEHOLDER_GROUPS = hub`/stakeholdergroups`;
-const STAKEHOLDERS = hub`/stakeholders`;
 const TAG_CATEGORIES = hub`/tagcategories`;
 const TAGS = hub`/tags`;
 const TARGETS = hub`/targets`;
@@ -101,6 +99,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/stakeholders";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -370,22 +369,6 @@ export const getTickets = (): Promise<Ticket[]> =>
 
 export const deleteTicket = (id: number): Promise<Ticket> =>
   axios.delete(`${TICKETS}/${id}`);
-
-// ---------------------------------------
-// Stakeholders
-//
-export const getStakeholders = (): Promise<Stakeholder[]> =>
-  axios.get(STAKEHOLDERS).then((response) => response.data);
-
-export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
-  axios.delete(`${STAKEHOLDERS}/${id}`);
-
-export const createStakeholder = (
-  obj: New<Stakeholder>
-): Promise<Stakeholder> => axios.post(STAKEHOLDERS, obj);
-
-export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
-  axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
 
 // ---------------------------------------
 // Stakeholder groups
