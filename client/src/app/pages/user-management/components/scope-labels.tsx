@@ -52,8 +52,8 @@ export const ScopeLabels: FC<{
   <>
     <LabelGroup
       isVertical
-      categoryName={group.resource}
       numLabels={group.verbs.length}
+      categoryName={group.resource}
       isCompact
     >
       {group.verbs

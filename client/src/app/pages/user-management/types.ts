@@ -36,12 +36,6 @@ export interface AuthMe {
   scopes: string[];
 }
 
-// /** Foreign-key reference. */
-// interface Ref {
-//   id: number;
-//   name?: string;
-// }
-
 /** Token REST resource (returned by GET). */
 export interface Token extends UserManagementResource {
   kind: string; // "api-key" | "access"
@@ -79,11 +73,3 @@ export interface Grant extends UserManagementResource {
   issued: string; // ISO 8601
   expiration: string; // ISO 8601
 }
-
-// /** Response from GET /auth/me. */
-// interface AuthMe {
-//   user?: User;
-//   identity?: IdpIdentity;
-//   client?: IdpClient;
-//   scopes: string[];
-// }

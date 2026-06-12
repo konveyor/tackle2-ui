@@ -31,6 +31,8 @@ export interface BaseHookFormPFGroupControllerProps<
   className?: string;
   formGroupProps?: FormGroupProps;
   helperTextTestId?: string;
+  /** Native react-hook-form validation rules forwarded to <Controller rules={...}>. */
+  rules?: ControllerProps<TFieldValues, TName>["rules"];
 }
 
 export interface HookFormPFGroupControllerProps<
@@ -55,11 +57,13 @@ export const HookFormPFGroupController = <
   className,
   formGroupProps = {},
   helperTextTestId,
+  rules,
   renderInput,
 }: HookFormPFGroupControllerProps<TFieldValues, TName>) => (
   <Controller<TFieldValues, TName>
     control={control}
     name={name}
+    rules={rules}
     render={({ field, fieldState, formState }) => {
       const { isDirty, isTouched, error } = fieldState;
       const shouldDisplayError =
@@ -119,6 +123,7 @@ export const extractGroupControllerProps = <
     className,
     formGroupProps,
     helperTextTestId,
+    rules,
     ...remainingProps
   } = props;
   return {
@@ -134,6 +139,7 @@ export const extractGroupControllerProps = <
       className,
       formGroupProps,
       helperTextTestId,
+      rules,
     },
     remainingProps,
   };

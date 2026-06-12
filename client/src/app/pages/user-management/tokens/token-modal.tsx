@@ -33,32 +33,56 @@ const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
     null
   );
 
-  const form = useForm<TokenFormValues>({ defaultValues: TOKEN_FORM_DEFAULTS });
-  const { mutate: createToken, isPending } = useCreateTokenMutation((pat) =>
-    setRevealedPat(pat)
-  );
+  const form = useForm<TokenFormValues>({
+    defaultValues: TOKEN_FORM_DEFAULTS,
+    mode: "onChange",
+  });
+  const {
+    formState: { isValid },
+  } = form;
+  const {
+    mutate: createToken,
+    isPending,
+    error,
+  } = useCreateTokenMutation((pat) => setRevealedPat(pat));
 
   const handleSubmit = form.handleSubmit((values) => {
-    const lifespanHours = parseInt(values.lifespan, 10);
-    createToken({
-      ...(lifespanHours > 0 ? { lifespan: lifespanHours } : {}),
-    });
+    createToken(
+      values.lifespan !== "" ? { lifespan: values.lifespan as number } : {}
+    );
   });
 
-  if (revealedPat) {
+  if (revealedPat || error) {
     return (
       <Modal isOpen onClose={onClose} variant="medium">
-        <ModalHeader title={t("titles.tokenCreated")} />
+        <ModalHeader
+          title={
+            revealedPat
+              ? t("titles.tokenCreated")
+              : t("titles.tokenCreationFailed")
+          }
+        />
         <ModalBody>
-          <Alert
-            variant="warning"
-            isInline
-            title={t("message.tokenOnlyShownOnce")}
-          />
-          <br />
-          <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
-            {revealedPat.token ?? ""}
-          </ClipboardCopy>
+          {revealedPat != null && (
+            <>
+              <Alert
+                variant="warning"
+                isInline
+                title={t("message.tokenOnlyShownOnce")}
+              />
+              <br />
+              <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
+                {revealedPat.token ?? ""}
+              </ClipboardCopy>
+            </>
+          )}
+          {!!error && (
+            <Alert
+              variant="danger"
+              isInline
+              title={t("titles.tokenCreationFailed")}
+            />
+          )}
         </ModalBody>
         <ModalFooter>
           <Button variant="primary" onClick={onClose}>
@@ -85,7 +109,7 @@ const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
         <ModalFooter>
           <Button
             variant="primary"
-            isDisabled={isPending}
+            isDisabled={isPending || !isValid}
             onClick={handleSubmit}
           >
             {t("actions.create")}
