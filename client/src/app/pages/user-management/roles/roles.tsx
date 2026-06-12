@@ -11,6 +11,7 @@ import {
 } from "@patternfly/react-core";
 import {
   ActionsColumn,
+  ExpandableRowContent,
   Table,
   Tbody,
   Td,
@@ -31,10 +32,15 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
+import { ScopeLabels, groupScopes } from "../components/scope-labels";
+import { useFetchPermissions } from "../permissions/use-permissions";
 import { Role } from "../types";
 
 import { RoleCreateModal, RoleEditModal } from "./role-modal";
 import { useFetchRoles, useRoleActionsWithNotifications } from "./use-roles";
+
+/** Built-in / seeded roles cannot be edited or deleted. */
+const isSeededRole = (role: Role) => role.id < 1000;
 
 export const RolesPage: FC = () => {
   const { t } = useTranslation();
@@ -43,6 +49,7 @@ export const RolesPage: FC = () => {
   const { deleteRole } = useRoleActionsWithNotifications();
   const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
   const [createOpen, setCreateOpen] = useState(false);
+  const { permissions: allPermissions = [] } = useFetchPermissions();
 
   const tableControls = useLocalTableControls({
     tableName: "roles-table",
@@ -58,6 +65,8 @@ export const RolesPage: FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
+    isExpansionEnabled: true,
+    expandableVariant: "compound",
     hasActionsColumn: true,
     sortableColumns: ["id", "name"],
     initialSort: { columnKey: "id", direction: "desc" },
@@ -97,7 +106,9 @@ export const RolesPage: FC = () => {
       getTrProps,
       getTdProps,
       getColumnVisibility,
+      getExpandedContentTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
     columnState,
   } = tableControls;
 
@@ -106,7 +117,7 @@ export const RolesPage: FC = () => {
   const toCells = ({ id, name, permissions }: Role) => ({
     id,
     name,
-    permissions: permissions.length || "-",
+    permissions: permissions.length,
   });
 
   return (
@@ -178,44 +189,89 @@ export const RolesPage: FC = () => {
           >
             <Tbody>
               {currentPageItems
-                .map((role): [Role, { [p: string]: ReactNode }] => [
+                .map((role): [Role, ReturnType<typeof toCells>] => [
                   role,
                   toCells(role),
                 ])
                 .map(([role, cells], rowIndex) => (
-                  <Tr key={role.id} {...getTrProps({ item: role })}>
-                    <TableRowContentWithControls
-                      {...tableControls}
-                      item={role}
-                      rowIndex={rowIndex}
-                    >
-                      {columnState.columns
-                        .filter(({ id }) => getColumnVisibility(id))
-                        .map(({ id: columnKey }) => (
-                          <Td
-                            key={`${columnKey}_${role.id}`}
-                            {...getTdProps({ columnKey })}
-                          >
-                            {cells[columnKey]}
-                          </Td>
-                        ))}
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setRoleToEdit(role),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => deleteRole(role),
-                              isDanger: true,
-                            },
-                          ]}
-                        />
-                      </Td>
-                    </TableRowContentWithControls>
-                  </Tr>
+                  <>
+                    <Tr key={role.id} {...getTrProps({ item: role })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={role}
+                        rowIndex={rowIndex}
+                      >
+                        {columnState.columns
+                          .filter(({ id }) => getColumnVisibility(id))
+                          .map(({ id: columnKey }) => (
+                            <Td
+                              key={`${columnKey}_${role.id}`}
+                              {...getTdProps({
+                                columnKey,
+                                isCompoundExpandToggle:
+                                  columnKey === "permissions",
+                                item: role,
+                                rowIndex,
+                              })}
+                            >
+                              {cells[columnKey]}
+                            </Td>
+                          ))}
+                        <Td isActionCell>
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.edit"),
+                                onClick: () => setRoleToEdit(role),
+                                isAriaDisabled: isSeededRole(role),
+                                tooltipProps: isSeededRole(role)
+                                  ? {
+                                      content: t(
+                                        "message.seededRoleCannotBeModified"
+                                      ),
+                                    }
+                                  : undefined,
+                              },
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => deleteRole(role),
+                                isDanger: true,
+                                isAriaDisabled: isSeededRole(role),
+                                tooltipProps: isSeededRole(role)
+                                  ? {
+                                      content: t(
+                                        "message.seededRoleCannotBeDeleted"
+                                      ),
+                                    }
+                                  : undefined,
+                              },
+                            ]}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                    {isCellExpanded(role) ? (
+                      <Tr isExpanded key={`${role.id}-expanded`}>
+                        <Td />
+                        <Td
+                          colSpan={numRenderedColumns - 1}
+                          {...getExpandedContentTdProps({ item: role })}
+                        >
+                          <ExpandableRowContent>
+                            {groupScopes(
+                              allPermissions
+                                .filter(({ id }) =>
+                                  role.permissions.some((p) => p.id === id)
+                                )
+                                .map((p) => p.scope)
+                            ).map((group) => (
+                              <ScopeLabels key={group.resource} group={group} />
+                            ))}
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </>
                 ))}
             </Tbody>
           </ConditionalTableBody>

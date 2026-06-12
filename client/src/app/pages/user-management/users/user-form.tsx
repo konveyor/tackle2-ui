@@ -64,6 +64,14 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit, isSeeded }) => {
         isRequired={!isEdit}
         helperText={t("message.passwordMaxLength")}
       />
+      <HookFormPFTextInput
+        control={control}
+        name="confirmPassword"
+        label={t("terms.confirmPassword")}
+        fieldId="confirmPassword"
+        type="password"
+        isRequired={!isEdit}
+      />
       <HookFormPFGroupController
         control={control}
         name="roles"

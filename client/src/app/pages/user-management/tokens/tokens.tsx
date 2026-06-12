@@ -1,11 +1,8 @@
-import { type FC, type ReactNode, useState } from "react";
+import { type FC, ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
   Content,
-  Label,
-  LabelGroup,
-  LabelProps,
   PageSection,
   Toolbar,
   ToolbarContent,
@@ -14,6 +11,7 @@ import {
 } from "@patternfly/react-core";
 import {
   ActionsColumn,
+  ExpandableRowContent,
   Table,
   Tbody,
   Td,
@@ -34,34 +32,23 @@ import {
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
+import { DateCell } from "../components/date-cell";
+import {
+  ScopeLabels,
+  groupScopes,
+  parseScopes,
+} from "../components/scope-labels";
 import { Token } from "../types";
 import { useFetchUsers } from "../users/use-users";
 
 import { TokenCreateModal } from "./token-modal";
 import { useFetchTokens, useTokenActionsWithNotifications } from "./use-tokens";
 
-const verbToColor = (verb: string): LabelProps["color"] => {
-  switch (verb.toUpperCase()) {
-    case "GET":
-      return "blue";
-    case "POST":
-      return "green";
-    case "PUT":
-      return "orange";
-    case "DELETE":
-      return "red";
-    case "PATCH":
-      return "purple";
-    case "HEAD":
-      return "teal";
-  }
-  return "grey";
-};
-
-const sortGetLast = (a: string, b: string) => {
-  if (a.toUpperCase() === "GET") return 1;
-  if (b.toUpperCase() === "GET") return -1;
-  return a.toUpperCase().localeCompare(b.toUpperCase());
+/** Categorise a token kind into one of the three filter buckets. */
+const kindCategory = (kind: string) => {
+  if (kind === "access") return "access";
+  if (kind === "api-key") return "api-key";
+  return "other";
 };
 
 export const TokensPage: FC = () => {
@@ -92,10 +79,12 @@ export const TokensPage: FC = () => {
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
+    isExpansionEnabled: true,
+    expandableVariant: "compound",
     hasActionsColumn: true,
     sortableColumns: ["id", "kind"],
     initialSort: { columnKey: "id", direction: "desc" },
-    getSortValues: (token) => ({
+    getSortValues: (token: Token) => ({
       id: token?.id?.toString() || "",
       kind: token?.kind || "",
       login: token?.user?.id ? loginById[String(token.user.id)] : "",
@@ -112,9 +101,13 @@ export const TokensPage: FC = () => {
       {
         categoryKey: "kind",
         title: "Kind",
-        type: FilterType.search,
-        placeholderText: "Filter by kind...",
-        getItemValue: (token) => token?.kind || "",
+        type: FilterType.multiselect,
+        selectOptions: [
+          { value: "access", label: t("terms.tokenKindAccess") },
+          { value: "api-key", label: t("terms.tokenKindApi") },
+          { value: "other", label: t("terms.tokenKindOther") },
+        ],
+        getItemValue: (token) => kindCategory(token?.kind || ""),
       },
       {
         categoryKey: "id",
@@ -140,7 +133,9 @@ export const TokensPage: FC = () => {
       getTrProps,
       getTdProps,
       getColumnVisibility,
+      getExpandedContentTdProps,
     },
+    expansionDerivedState: { isCellExpanded },
     columnState,
   } = tableControls;
 
@@ -150,45 +145,9 @@ export const TokensPage: FC = () => {
     id,
     kind,
     login: user?.id ? loginById[String(user.id)] : "",
-    scopes: scopes
-      ?.split(" ")
-      .filter(Boolean)
-      .map((scope) => {
-        const [resource, verb] = scope.split(":");
-        return resource && verb ? [resource, verb] : [scope, ""];
-      })
-      .reduce(
-        (acc, curr) => {
-          const group = acc.find((group) => group.resource === curr[0]);
-          if (group) {
-            group.verbs.push(curr[1]);
-          } else {
-            acc.push({ resource: curr[0], verbs: [curr[1]] });
-          }
-          return acc;
-        },
-        [] as { resource: string; verbs: string[] }[]
-      )
-      .map((group) => (
-        <LabelGroup
-          key={group.resource}
-          categoryName={group.resource}
-          numLabels={4}
-          isCompact
-        >
-          {group.verbs
-            .filter(Boolean)
-            .toSorted(sortGetLast)
-
-            .map((verb) => (
-              <Label key={verb} color={verbToColor(verb)} isCompact>
-                {verb}
-              </Label>
-            ))}
-        </LabelGroup>
-      )),
-    issued: issued || "-",
-    expiration: expiration || "-",
+    scopes: parseScopes(scopes).length,
+    issued: <DateCell raw={issued} />,
+    expiration: <DateCell raw={expiration} />,
   });
 
   return (
@@ -265,35 +224,62 @@ export const TokensPage: FC = () => {
                   toCells(token),
                 ])
                 .map(([token, cells], rowIndex) => (
-                  <Tr key={token.id} {...getTrProps({ item: token })}>
-                    <TableRowContentWithControls
-                      {...tableControls}
-                      item={token}
-                      rowIndex={rowIndex}
-                    >
-                      {columnState.columns
-                        .filter(({ id }) => getColumnVisibility(id))
-                        .map(({ id: columnKey }) => (
-                          <Td
-                            key={`${columnKey}_${token.id}`}
-                            {...getTdProps({ columnKey })}
-                          >
-                            {cells[columnKey]}
-                          </Td>
-                        ))}
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => deleteToken(token),
-                              isDanger: true,
-                            },
-                          ]}
-                        />
-                      </Td>
-                    </TableRowContentWithControls>
-                  </Tr>
+                  <>
+                    <Tr key={token.id} {...getTrProps({ item: token })}>
+                      <TableRowContentWithControls
+                        {...tableControls}
+                        item={token}
+                        rowIndex={rowIndex}
+                      >
+                        {columnState.columns
+                          .filter(({ id }) => getColumnVisibility(id))
+                          .map(({ id: columnKey }) => (
+                            <Td
+                              key={`${columnKey}_${token.id}`}
+                              {...getTdProps({
+                                columnKey,
+                                isCompoundExpandToggle: columnKey === "scopes",
+                                item: token,
+                                rowIndex,
+                              })}
+                            >
+                              {cells[columnKey]}
+                            </Td>
+                          ))}
+                        <Td isActionCell>
+                          <ActionsColumn
+                            items={[
+                              {
+                                title: t("actions.delete"),
+                                onClick: () => deleteToken(token),
+                                isDanger: true,
+                              },
+                            ]}
+                          />
+                        </Td>
+                      </TableRowContentWithControls>
+                    </Tr>
+                    {isCellExpanded(token) ? (
+                      <Tr isExpanded key={`${token.id}-expanded`}>
+                        <Td />
+                        <Td
+                          colSpan={numRenderedColumns - 1}
+                          {...getExpandedContentTdProps({ item: token })}
+                        >
+                          <ExpandableRowContent>
+                            {groupScopes(parseScopes(token.scopes)).map(
+                              (group) => (
+                                <ScopeLabels
+                                  key={group.resource}
+                                  group={group}
+                                />
+                              )
+                            )}
+                          </ExpandableRowContent>
+                        </Td>
+                      </Tr>
+                    ) : null}
+                  </>
                 ))}
             </Tbody>
           </ConditionalTableBody>

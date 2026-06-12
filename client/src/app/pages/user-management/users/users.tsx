@@ -240,7 +240,7 @@ export const UsersPage: FC = () => {
                               title: t("actions.delete"),
                               onClick: () => deleteUser(user),
                               isDanger: true,
-                              isDisabled: isSeededUser(user),
+                              isAriaDisabled: isSeededUser(user),
                               tooltipProps: isSeededUser(user)
                                 ? {
                                     content: t(

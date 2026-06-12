@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,14 +17,14 @@ import {
   AngleRightIcon,
 } from "@patternfly/react-icons";
 
-import { Ref } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { toRef } from "@app/utils/model-utils";
 
 import { useFetchPermissions } from "../permissions/use-permissions";
-import { Role } from "../types";
+import { Permission, Role } from "../types";
 
 export type RoleFormValues = Pick<Role, "name" | "permissions">;
 
@@ -39,8 +39,15 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
   const { control } = form;
   const { permissions: allPermissions } = useFetchPermissions();
 
-  const [availableSelected, setAvailableSelected] = useState<Ref[]>([]);
-  const [chosenSelected, setChosenSelected] = useState<Ref[]>([]);
+  const scopeById = useMemo(
+    () => Object.fromEntries(allPermissions.map((p) => [String(p.id), p])),
+    [allPermissions]
+  );
+
+  const [availableSelected, setAvailableSelected] = useState<Permission[]>([]);
+  const [chosenSelected, setChosenSelected] = useState<Permission[]>([]);
+
+  const displayLabel = (p: Permission) => p.scope ?? String(p.id);
 
   return (
     <Form>
@@ -56,24 +63,27 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
         name="permissions"
         label={t("terms.permissions")}
         fieldId="permissions"
-        renderInput={({ field: { value: chosen, onChange } }) => {
-          const chosenIds = new Set(chosen.map((p) => p.id));
-          // Convert available permissions to Ref objects
-          const available: Ref[] = allPermissions
-            .filter((p) => !chosenIds.has(p.id))
-            .map(({ id, name }) => ({ id, name }));
+        renderInput={({ field: { value: chosenRefs, onChange } }) => {
+          const chosenIds = new Set(chosenRefs.map((p) => p.id));
+          const chosen = chosenRefs
+            .map((p) => scopeById[String(p.id)])
+            .filter(Boolean);
 
-          const moveToChosen = (items: Ref[]) => {
-            onChange([...chosen, ...items]);
+          const available: Permission[] = allPermissions.filter(
+            (p) => !chosenIds.has(p.id)
+          );
+
+          const moveToChosen = (items: Permission[]) => {
+            onChange([...chosen, ...items].map(toRef));
             setAvailableSelected([]);
           };
-          const moveToAvailable = (items: Ref[]) => {
+          const moveToAvailable = (items: Permission[]) => {
             const removeIds = new Set(items.map((p) => p.id));
-            onChange(chosen.filter((p) => !removeIds.has(p.id)));
+            onChange(chosen.filter((p) => !removeIds.has(p.id)).map(toRef));
             setChosenSelected([]);
           };
           const moveAllToChosen = () => {
-            onChange([...chosen, ...available]);
+            onChange([...chosen, ...available].map(toRef));
             setAvailableSelected([]);
           };
           const moveAllToAvailable = () => {
@@ -81,13 +91,13 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
             setChosenSelected([]);
           };
 
-          const toggleAvailable = (p: Ref) =>
+          const toggleAvailable = (p: Permission) =>
             setAvailableSelected((prev) =>
               prev.find((s) => s.id === p.id)
                 ? prev.filter((s) => s.id !== p.id)
                 : [...prev, p]
             );
-          const toggleChosen = (p: Ref) =>
+          const toggleChosen = (p: Permission) =>
             setChosenSelected((prev) =>
               prev.find((s) => s.id === p.id)
                 ? prev.filter((s) => s.id !== p.id)
@@ -109,7 +119,7 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
                       }
                       onOptionSelect={() => toggleAvailable(p)}
                     >
-                      {p.name}
+                      {p.scope}
                     </DualListSelectorListItem>
                   ))}
                 </DualListSelectorList>
@@ -162,7 +172,7 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
                       isSelected={!!chosenSelected.find((s) => s.id === p.id)}
                       onOptionSelect={() => toggleChosen(p)}
                     >
-                      {p.name}
+                      {displayLabel(p)}
                     </DualListSelectorListItem>
                   ))}
                 </DualListSelectorList>
