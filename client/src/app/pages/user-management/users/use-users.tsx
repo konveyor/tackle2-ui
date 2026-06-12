@@ -17,7 +17,7 @@ export const useFetchUsers = () => {
 
   return {
     users: data ?? [],
-    isFetching: isLoading,
+    isLoading,
     fetchError: error,
   };
 };

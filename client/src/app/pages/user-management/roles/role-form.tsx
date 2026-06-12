@@ -10,16 +10,18 @@ import {
   DualListSelectorPane,
   Form,
 } from "@patternfly/react-core";
-import AngleDoubleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-double-left-icon";
-import AngleDoubleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-double-right-icon";
-import AngleLeftIcon from "@patternfly/react-icons/dist/esm/icons/angle-left-icon";
-import AngleRightIcon from "@patternfly/react-icons/dist/esm/icons/angle-right-icon";
+import {
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon,
+  AngleLeftIcon,
+  AngleRightIcon,
+} from "@patternfly/react-icons";
 
+import { Ref } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { Ref } from "@app/api/models";
 
 import { useFetchPermissions } from "../permissions/use-permissions";
 import { Role } from "../types";

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import { Ref } from "@app/api/models";
-import { User } from "@app/pages/user-management/types";
+import type { Ref } from "@app/api/models";
+import type { User } from "@app/pages/user-management/types";
 
 import { HEADERS, hub, template } from "../rest";
 

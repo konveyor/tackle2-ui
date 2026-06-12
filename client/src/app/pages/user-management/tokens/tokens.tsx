@@ -33,15 +33,12 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
-import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
+import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
+import { Token } from "../types";
+import { useFetchUsers } from "../users/use-users";
 
-import { Token } from "./types";
-import { TokenCreateModal } from "./tokens/token-modal";
-import {
-  useFetchTokens,
-  useTokenActionsWithNotifications,
-} from "./tokens/use-tokens";
-import { useFetchUsers } from "./users/use-users";
+import { TokenCreateModal } from "./token-modal";
+import { useFetchTokens, useTokenActionsWithNotifications } from "./use-tokens";
 
 const verbToColor = (verb: string): LabelProps["color"] => {
   switch (verb.toUpperCase()) {
@@ -70,7 +67,7 @@ const sortGetLast = (a: string, b: string) => {
 export const TokensPage: FC = () => {
   const { t } = useTranslation();
 
-  const { tokens } = useFetchTokens();
+  const { tokens, isLoading, fetchError } = useFetchTokens();
   const { deleteToken } = useTokenActionsWithNotifications();
   const { users } = useFetchUsers();
   const [createOpen, setCreateOpen] = useState(false);
@@ -254,6 +251,8 @@ export const TokensPage: FC = () => {
           </Thead>
           <ConditionalTableBody
             isNoData={tokens.length === 0}
+            isLoading={isLoading}
+            isError={!!fetchError}
             noDataEmptyState={
               <NoDataEmptyState title={t("message.noTokensFoundTitle")} />
             }

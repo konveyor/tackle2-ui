@@ -9,7 +9,7 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 
-import { useFetchRoles } from "../use-roles";
+import { useFetchRoles } from "../roles/use-roles";
 
 import { UserFormValues } from "./use-user-form";
 

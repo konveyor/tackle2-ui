@@ -1,7 +1,8 @@
 import axios from "axios";
 
+import type { Role } from "@app/pages/user-management/types";
+
 import { HEADERS, hub, template } from "../rest";
-import { Role } from "@app/pages/user-management/types";
 
 const ROLES = hub`/roles`;
 const ROLE = hub`/roles/{{id}}`;
@@ -14,7 +15,7 @@ export const getRoleById = (id: number): Promise<Role> =>
     .get<Role>(template(ROLE, { id }), { headers: HEADERS.json })
     .then((r) => r.data);
 
-/** POST /roles — only name and permissions are sent; server fills in the rest. */
+/** only name and permissions are sent; server fills in the rest. */
 export const createRole = (
   role: Pick<Role, "name" | "permissions">
 ): Promise<Role> => axios.post<Role>(ROLES, role).then((r) => r.data);

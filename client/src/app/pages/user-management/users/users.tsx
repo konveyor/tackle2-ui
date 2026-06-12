@@ -34,14 +34,14 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { User } from "../types";
 
-import { useFetchUsers, useUserActionsWithNotifications } from "./use-users";
 import { isSeededUser } from "./use-user-form";
+import { useFetchUsers, useUserActionsWithNotifications } from "./use-users";
 import { UserCreateModal, UserEditModal } from "./user-modal";
 
 export const UsersPage: FC = () => {
   const { t } = useTranslation();
 
-  const { users } = useFetchUsers();
+  const { users, isLoading, fetchError } = useFetchUsers();
   const { deleteUser } = useUserActionsWithNotifications();
   const [userToEdit, setUserToEdit] = useState<User | undefined>(undefined);
   const [openCreateUserModal, setOpenCreateUserModal] = useState(false);
@@ -199,6 +199,8 @@ export const UsersPage: FC = () => {
           </Thead>
           <ConditionalTableBody
             isNoData={users.length === 0}
+            isLoading={isLoading}
+            isError={!!fetchError}
             noDataEmptyState={
               <NoDataEmptyState title={t("message.noUsersFoundTitle")} />
             }

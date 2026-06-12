@@ -1,7 +1,8 @@
 import axios from "axios";
 
+import type { Permission } from "@app/pages/user-management/types";
+
 import { HEADERS, hub, template } from "../rest";
-import { Permission } from "@app/pages/user-management/types";
 
 const PERMISSIONS = hub`/permissions`;
 const PERMISSION = hub`/permissions/{{id}}`;

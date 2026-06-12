@@ -19,10 +19,10 @@ import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
+import { PermissionsPage } from "./pages/user-management/permissions/permissions";
+import { RolesPage } from "./pages/user-management/roles/roles";
+import { TokensPage } from "./pages/user-management/tokens/tokens";
 import { UsersPage } from "./pages/user-management/users/users";
-import { TokensPage } from "./pages/user-management/tokens";
-import { RolesPage } from "./pages/user-management/roles";
-import { PermissionsPage } from "./pages/user-management/permissions";
 
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(

@@ -3,28 +3,31 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
+  Bullseye,
   Button,
   ClipboardCopy,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "@patternfly/react-core";
 
 import { PersonalAccessToken } from "../types";
 
+import { TOKEN_FORM_DEFAULTS, TokenForm, TokenFormValues } from "./token-form";
 import { useCreateTokenMutation } from "./use-tokens";
-import { TokenForm, TokenFormValues, TOKEN_FORM_DEFAULTS } from "./token-form";
 
 export interface TokenCreateModalProps {
-  isOpen: boolean;
   onClose: () => void;
 }
 
-export const TokenCreateModal: FC<TokenCreateModalProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const TokenCreateModal: FC<
+  TokenCreateModalProps & { isOpen: boolean }
+> = ({ isOpen, onClose }) =>
+  isOpen && <TokenCreateModalInternal onClose={onClose} />;
+
+const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
   const { t } = useTranslation();
   const [revealedPat, setRevealedPat] = useState<PersonalAccessToken | null>(
     null
@@ -42,15 +45,9 @@ export const TokenCreateModal: FC<TokenCreateModalProps> = ({
     });
   });
 
-  const handleClose = () => {
-    setRevealedPat(null);
-    form.reset(TOKEN_FORM_DEFAULTS);
-    onClose();
-  };
-
   if (revealedPat) {
     return (
-      <Modal isOpen onClose={handleClose} variant="medium">
+      <Modal isOpen onClose={onClose} variant="medium">
         <ModalHeader title={t("titles.tokenCreated")} />
         <ModalBody>
           <Alert
@@ -64,7 +61,7 @@ export const TokenCreateModal: FC<TokenCreateModalProps> = ({
           </ClipboardCopy>
         </ModalBody>
         <ModalFooter>
-          <Button variant="primary" onClick={handleClose}>
+          <Button variant="primary" onClick={onClose}>
             {t("actions.close")}
           </Button>
         </ModalFooter>
@@ -74,26 +71,30 @@ export const TokenCreateModal: FC<TokenCreateModalProps> = ({
 
   return (
     <>
-      {isOpen && (
-        <Modal isOpen onClose={handleClose} variant="small">
-          <ModalHeader title={t("titles.createToken")} />
-          <ModalBody>
+      <Modal isOpen onClose={onClose} variant="small">
+        <ModalHeader title={t("titles.createToken")} />
+        <ModalBody style={{ overflow: "hidden" }}>
+          {isPending ? (
+            <Bullseye>
+              <Spinner />
+            </Bullseye>
+          ) : (
             <TokenForm form={form} />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="primary"
-              isDisabled={isPending}
-              onClick={handleSubmit}
-            >
-              {t("actions.create")}
-            </Button>
-            <Button variant="link" onClick={handleClose}>
-              {t("actions.cancel")}
-            </Button>
-          </ModalFooter>
-        </Modal>
-      )}
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="primary"
+            isDisabled={isPending}
+            onClick={handleSubmit}
+          >
+            {t("actions.create")}
+          </Button>
+          <Button variant="link" onClick={onClose}>
+            {t("actions.cancel")}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };

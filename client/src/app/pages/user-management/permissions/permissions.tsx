@@ -1,16 +1,13 @@
-import { type FC, type ReactNode, useState } from "react";
+import { type FC, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Button,
   Content,
   PageSection,
   Toolbar,
   ToolbarContent,
-  ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
 import {
-  ActionsColumn,
   Table,
   Tbody,
   Td,
@@ -30,58 +27,59 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
-import { ManageColumnsToolbar } from "../applications/applications-table/components/manage-columns-toolbar";
+import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
+import { Permission } from "../types";
 
-import { RoleCreateModal, RoleEditModal } from "./roles/role-modal";
-import {
-  useFetchRoles,
-  useRoleActionsWithNotifications,
-} from "./roles/use-roles";
-import { Role } from "./types";
+import { useFetchPermissions } from "./use-permissions";
 
-export const RolesPage: FC = () => {
+export const PermissionsPage: FC = () => {
   const { t } = useTranslation();
 
-  const { roles } = useFetchRoles();
-  const { deleteRole } = useRoleActionsWithNotifications();
-  const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
-  const [createOpen, setCreateOpen] = useState(false);
+  const { permissions, isLoading, fetchError } = useFetchPermissions();
 
   const tableControls = useLocalTableControls({
-    tableName: "roles-table",
+    tableName: "permissions-table",
     idProperty: "id",
     dataNameProperty: "name",
-    items: roles,
+    items: permissions,
     columnNames: {
       id: "ID",
       name: "Name",
-      permissions: "Permissions",
+      scope: "Scope",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
-    hasActionsColumn: true,
-    sortableColumns: ["id", "name"],
-    initialSort: { columnKey: "id", direction: "desc" },
-    getSortValues: (role) => ({
-      id: role?.id?.toString() || "",
-      name: role?.name || "",
+    hasActionsColumn: false,
+    sortableColumns: ["id", "name", "scope"],
+    initialSort: { columnKey: "scope", direction: "desc" },
+    getSortValues: (permission) => ({
+      id: permission?.id?.toString() || "",
+      name: permission?.name || "",
+      scope: permission?.scope || "",
     }),
     filterCategories: [
+      {
+        categoryKey: "scope",
+        title: "Scope",
+        type: FilterType.search,
+        placeholderText: "Filter by scope...",
+        getItemValue: (permission) => permission?.scope || "",
+      },
       {
         categoryKey: "id",
         title: "ID",
         type: FilterType.numsearch,
         placeholderText: t("actions.filterBy", { what: "ID..." }),
-        getItemValue: (role) => role?.id?.toString() || "",
+        getItemValue: (permission) => permission?.id?.toString() || "",
       },
       {
         categoryKey: "name",
         title: "Name",
         type: FilterType.search,
         placeholderText: "Filter by name...",
-        getItemValue: (role) => role?.name || "",
+        getItemValue: (permission) => permission?.name || "",
       },
     ],
     initialItemsPerPage: 10,
@@ -106,34 +104,23 @@ export const RolesPage: FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {};
 
-  const toCells = ({ id, name, permissions }: Role) => ({
+  const toCells = ({ id, name, scope }: Permission) => ({
     id,
     name,
-    permissions: permissions.length || "-",
+    scope,
   });
 
   return (
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">{t("titles.roles")}</Content>
+          <Content component="h1">{t("titles.permissions")}</Content>
         </Content>
       </PageSection>
       <PageSection hasBodyWrapper={false}>
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
-            <ToolbarGroup variant="action-group">
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  aria-label={t("titles.createRole")}
-                  onClick={() => setCreateOpen(true)}
-                >
-                  {t("actions.create")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarGroup>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -141,7 +128,7 @@ export const RolesPage: FC = () => {
             />
             <ToolbarItem {...paginationToolbarItemProps}>
               <SimplePagination
-                idPrefix="roles-table"
+                idPrefix="permissions-table"
                 isTop
                 paginationProps={paginationProps}
               />
@@ -151,8 +138,8 @@ export const RolesPage: FC = () => {
 
         <Table
           {...tableProps}
-          id="roles-table"
-          aria-label={t("titles.roleTable")}
+          id="permissions-table"
+          aria-label={t("titles.permissionTable")}
         >
           <Thead>
             <Tr>
@@ -171,50 +158,37 @@ export const RolesPage: FC = () => {
             </Tr>
           </Thead>
           <ConditionalTableBody
-            isNoData={roles.length === 0}
+            isNoData={permissions.length === 0}
+            isLoading={isLoading}
+            isError={!!fetchError}
             noDataEmptyState={
-              <NoDataEmptyState title={t("message.noRolesFoundTitle")} />
+              <NoDataEmptyState title={t("message.noPermissionsFoundTitle")} />
             }
             numRenderedColumns={numRenderedColumns}
           >
             <Tbody>
               {currentPageItems
-                .map((role): [Role, { [p: string]: ReactNode }] => [
-                  role,
-                  toCells(role),
+                .map((permission): [Permission, { [p: string]: ReactNode }] => [
+                  permission,
+                  toCells(permission),
                 ])
-                .map(([role, cells], rowIndex) => (
-                  <Tr key={role.id} {...getTrProps({ item: role })}>
+                .map(([permission, cells], rowIndex) => (
+                  <Tr key={permission.id} {...getTrProps({ item: permission })}>
                     <TableRowContentWithControls
                       {...tableControls}
-                      item={role}
+                      item={permission}
                       rowIndex={rowIndex}
                     >
                       {columnState.columns
                         .filter(({ id }) => getColumnVisibility(id))
                         .map(({ id: columnKey }) => (
                           <Td
-                            key={`${columnKey}_${role.id}`}
+                            key={`${columnKey}_${permission.id}`}
                             {...getTdProps({ columnKey })}
                           >
                             {cells[columnKey]}
                           </Td>
                         ))}
-                      <Td isActionCell>
-                        <ActionsColumn
-                          items={[
-                            {
-                              title: t("actions.edit"),
-                              onClick: () => setRoleToEdit(role),
-                            },
-                            {
-                              title: t("actions.delete"),
-                              onClick: () => deleteRole(role),
-                              isDanger: true,
-                            },
-                          ]}
-                        />
-                      </Td>
                     </TableRowContentWithControls>
                   </Tr>
                 ))}
@@ -222,22 +196,13 @@ export const RolesPage: FC = () => {
           </ConditionalTableBody>
         </Table>
         <SimplePagination
-          idPrefix="roles-table"
+          idPrefix="permissions-table"
           isTop={false}
           paginationProps={paginationProps}
         />
       </PageSection>
-
-      <RoleCreateModal
-        isOpen={createOpen}
-        onClose={() => setCreateOpen(false)}
-      />
-      <RoleEditModal
-        role={roleToEdit}
-        onClose={() => setRoleToEdit(undefined)}
-      />
     </>
   );
 };
 
-export default RolesPage;
+export default PermissionsPage;

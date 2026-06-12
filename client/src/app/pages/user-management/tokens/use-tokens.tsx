@@ -14,7 +14,7 @@ export const useFetchTokens = () => {
     queryKey: [TokensQueryKey],
     queryFn: getTokens,
   });
-  return { tokens: data ?? [], isFetching: isLoading, fetchError: error };
+  return { tokens: data ?? [], isLoading, fetchError: error };
 };
 
 export const useDeleteTokenMutation = (

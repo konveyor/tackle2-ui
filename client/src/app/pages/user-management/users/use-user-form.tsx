@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { create as array } from "yup/lib/array";
@@ -50,15 +49,6 @@ export const useUserForm = (user?: User, onClose?: () => void) => {
     resolver: yupResolver(validationSchema),
     mode: "all",
   });
-
-  // Reset the form whenever the user prop changes (e.g. modal opened for a different user)
-  useEffect(() => {
-    if (user) {
-      form.reset({ ...user, password: "" });
-    } else {
-      form.reset(DEFAULT_USER);
-    }
-  }, [user?.id]);
 
   const onValidSubmit = (values: UserFormValues) => {
     if (isEdit) {

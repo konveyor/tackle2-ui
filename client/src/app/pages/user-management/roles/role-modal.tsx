@@ -1,7 +1,10 @@
-import { FC, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { FC } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { create as array } from "yup/lib/array";
+import { create as object } from "yup/lib/object";
+import { create as string } from "yup/lib/string";
 import {
   Button,
   Modal,
@@ -9,37 +12,31 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@patternfly/react-core";
-import { create as array } from "yup/lib/array";
-import { create as object } from "yup/lib/object";
-import { create as string } from "yup/lib/string";
 
 import { Role } from "../types";
 
-import { RoleForm, RoleFormValues, ROLE_DEFAULTS } from "./role-form";
+import { ROLE_DEFAULTS, RoleForm, RoleFormValues } from "./role-form";
 import { useRoleActionsWithNotifications } from "./use-roles";
 
 export interface RoleModalProps {
-  isOpen: boolean;
   role?: Role;
   onClose: () => void;
 }
 
-export const RoleCreateModal: FC<Omit<RoleModalProps, "role">> = ({
+export const RoleCreateModal: FC<RoleModalProps & { isOpen: boolean }> = ({
   isOpen,
   onClose,
-}) => <RoleModal isOpen={isOpen} onClose={onClose} />;
+}) => isOpen && <RoleModal onClose={onClose} />;
 
-export const RoleEditModal: FC<Omit<RoleModalProps, "isOpen">> = ({
-  role,
-  onClose,
-}) => <RoleModal isOpen={!!role} role={role} onClose={onClose} />;
+export const RoleEditModal: FC<RoleModalProps> = ({ role, onClose }) =>
+  !!role && <RoleModal role={role} onClose={onClose} />;
 
 const schema = object().shape({
   name: string().required(),
   permissions: array().of(object()).required(),
 });
 
-const RoleModal: FC<RoleModalProps> = ({ isOpen, role, onClose }) => {
+const RoleModal: FC<RoleModalProps> = ({ role, onClose }) => {
   const { t } = useTranslation();
   const { createRole, editRole } = useRoleActionsWithNotifications();
 
@@ -56,15 +53,6 @@ const RoleModal: FC<RoleModalProps> = ({ isOpen, role, onClose }) => {
     formState: { isValid, isSubmitting, isValidating, isDirty },
     reset,
   } = form;
-
-  // Reset whenever the role being edited changes
-  useEffect(() => {
-    if (role) {
-      reset({ name: role.name, permissions: role.permissions });
-    } else {
-      reset(ROLE_DEFAULTS);
-    }
-  }, [role?.id]);
 
   const handleClose = () => {
     reset(ROLE_DEFAULTS);
@@ -84,28 +72,26 @@ const RoleModal: FC<RoleModalProps> = ({ isOpen, role, onClose }) => {
 
   return (
     <>
-      {isOpen && (
-        <Modal isOpen onClose={handleClose} variant="medium">
-          <ModalHeader
-            title={role ? t("titles.editRole") : t("titles.createRole")}
-          />
-          <ModalBody>
-            <RoleForm form={form} />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="primary"
-              isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
-              onClick={onSubmit}
-            >
-              {role ? t("actions.save") : t("actions.create")}
-            </Button>
-            <Button variant="link" onClick={handleClose}>
-              {t("actions.cancel")}
-            </Button>
-          </ModalFooter>
-        </Modal>
-      )}
+      <Modal isOpen onClose={handleClose} variant="medium">
+        <ModalHeader
+          title={role ? t("titles.editRole") : t("titles.createRole")}
+        />
+        <ModalBody>
+          <RoleForm form={form} />
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="primary"
+            isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
+            onClick={onSubmit}
+          >
+            {role ? t("actions.save") : t("actions.create")}
+          </Button>
+          <Button variant="link" onClick={handleClose}>
+            {t("actions.cancel")}
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };
