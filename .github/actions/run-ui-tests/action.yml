@@ -113,8 +113,9 @@ runs:
       env:
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
-        CYPRESS_PASSWORD: Dog8code
-        CYPRESS_INITIAL_PASSWORD: Passw0rd!
+        CYPRESS_PASSWORD: admin
+        HUB_USER: admin
+        HUB_PASSWORD: admin
       with:
         install: false
         working-directory: ./ui-tests
@@ -165,7 +166,9 @@ runs:
         # These should match what is listed in `cypress/.env.example`
         CYPRESS_BASE_URL: "${{ inputs.base_url }}"
         CYPRESS_USER: admin
-        CYPRESS_PASSWORD: Dog8code
+        CYPRESS_PASSWORD: admin
+        HUB_USER: admin
+        HUB_PASSWORD: admin
         CYPRESS_GIT_USER: ${{ inputs.git_user }}
         CYPRESS_GIT_PASSWORD: ${{ inputs.git_password }}
         CYPRESS_SVN_USER: ${{ inputs.svn_user }}
