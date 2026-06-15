@@ -94,6 +94,7 @@ describe(
     });
 
     it("Delete applications - Validate the tasks initiated counter didn't change", function () {
+      login();
       metrics.getValue(metricName).then((initialCounter) => {
         deleteApplicationTableRows();
         metrics.validateMetric(metricName, initialCounter);
