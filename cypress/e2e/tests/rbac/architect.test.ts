@@ -21,7 +21,7 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
-import { UserMigrator } from "../../models/hub/users";
+import { UserArchitect } from "../../models/hub/users";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
@@ -30,7 +30,7 @@ describe(
   ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
   "Architect RBAC operations",
   () => {
-    const userArchitect = new UserMigrator(getRandomUserData());
+    const userArchitect = new UserArchitect(getRandomUserData());
     const application = new Application(getRandomApplicationData());
 
     before("Creating RBAC users, adding roles for them", () => {
