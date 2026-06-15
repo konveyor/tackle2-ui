@@ -8,6 +8,7 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { ScopeGate, rolesReadScopes } from "@app/scopes";
 
 import { useFetchRoles } from "../roles/use-roles";
 
@@ -72,45 +73,50 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit, isSeeded }) => {
         type="password"
         isRequired={!isEdit}
       />
-      <HookFormPFGroupController
-        control={control}
-        name="roles"
-        label={t("terms.roles")}
-        fieldId="roles"
-        helperText={isSeeded ? t("message.seededUserRolesReadOnly") : undefined}
-        renderInput={({ field: { value, onChange } }) => {
-          const selectedNames = (value ?? []).map(
-            (r) => r.name ?? String(r.id)
-          );
-          return (
-            <MultiSelect
-              toggleId="roles-select-toggle"
-              toggleAriaLabel="Roles select dropdown toggle"
-              hasChips
-              isDisabled={isSeeded}
-              values={selectedNames}
-              options={roleOptions}
-              placeholderText={t("composed.selectMany", {
-                what: t("terms.roles").toLowerCase(),
-              })}
-              onSelect={(selection) => {
-                if (!selection) return;
-                const current = value ?? [];
-                const exists = current.find((r) => r.name === selection);
-                if (exists) {
-                  onChange(current.filter((r) => r.name !== selection));
-                } else {
-                  const role = roles.find((r) => r.name === selection);
-                  if (role) {
-                    onChange([...current, { id: role.id, name: role.name }]);
+      <ScopeGate requiredScopes={rolesReadScopes}>
+        <HookFormPFGroupController
+          key={roles.map((r) => r.id).join("_")}
+          control={control}
+          name="roles"
+          label={t("terms.roles")}
+          fieldId="roles"
+          helperText={
+            isSeeded ? t("message.seededUserRolesReadOnly") : undefined
+          }
+          renderInput={({ field: { value, onChange } }) => {
+            const selectedNames = (value ?? []).map(
+              (r) => r.name ?? String(r.id)
+            );
+            return (
+              <MultiSelect
+                toggleId="roles-select-toggle"
+                toggleAriaLabel="Roles select dropdown toggle"
+                hasChips
+                isDisabled={isSeeded}
+                values={selectedNames}
+                options={roleOptions}
+                placeholderText={t("composed.selectMany", {
+                  what: t("terms.roles").toLowerCase(),
+                })}
+                onSelect={(selection) => {
+                  if (!selection) return;
+                  const current = value ?? [];
+                  const exists = current.find((r) => r.name === selection);
+                  if (exists) {
+                    onChange(current.filter((r) => r.name !== selection));
+                  } else {
+                    const role = roles.find((r) => r.name === selection);
+                    if (role) {
+                      onChange([...current, { id: role.id, name: role.name }]);
+                    }
                   }
-                }
-              }}
-              onClear={() => onChange([])}
-            />
-          );
-        }}
-      />
+                }}
+                onClear={() => onChange([])}
+              />
+            );
+          }}
+        />
+      </ScopeGate>
     </Form>
   );
 };

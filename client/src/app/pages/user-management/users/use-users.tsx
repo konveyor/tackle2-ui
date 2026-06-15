@@ -2,12 +2,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
-import { createUser, deleteUser, getUsers, updateUser } from "@app/api/rest";
+import {
+  createUser,
+  deleteUser,
+  getAuthMe,
+  getUsers,
+  updateUser,
+} from "@app/api/rest";
 import { useNotifications } from "@app/components/NotificationsContext";
 
-import { User } from "../types";
+import { AuthMe, User } from "../types";
 
 export const UsersQueryKey = "users";
+export const CurrentUserQueryKey = "current-user";
 
 export const useFetchUsers = () => {
   const { data, isLoading, error } = useQuery<User[], AxiosError>({
@@ -17,6 +24,19 @@ export const useFetchUsers = () => {
 
   return {
     users: data ?? [],
+    isLoading,
+    fetchError: error,
+  };
+};
+
+export const useFetchCurrentUserAndScopes = () => {
+  const { data, isLoading, error } = useQuery<AuthMe, AxiosError>({
+    queryKey: [CurrentUserQueryKey],
+    queryFn: getAuthMe,
+  });
+
+  return {
+    userAndScopes: data,
     isLoading,
     fetchError: error,
   };

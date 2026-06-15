@@ -275,6 +275,11 @@ export const universalRoutes: IRoute<UniversalPathValues>[] = [
     comp: TaskDetails,
     exact: false,
   },
+  {
+    comp: TokensPage,
+    path: Paths.tokens,
+    exact: false,
+  },
 ];
 
 export const administrationRoutes: IRoute<AdminPathValues>[] = [
@@ -332,11 +337,6 @@ export const administrationRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: UsersPage,
     path: Paths.users,
-    exact: false,
-  },
-  {
-    comp: TokensPage,
-    path: Paths.tokens,
     exact: false,
   },
   {

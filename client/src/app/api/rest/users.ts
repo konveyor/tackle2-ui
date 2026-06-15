@@ -1,12 +1,13 @@
 import axios from "axios";
 
 import type { Ref } from "@app/api/models";
-import type { User } from "@app/pages/user-management/types";
+import type { AuthMe, User } from "@app/pages/user-management/types";
 
 import { HEADERS, hub, template } from "../rest";
 
 const USERS = hub`/users`;
 const USER = hub`/users/{{id}}`;
+const AUTH_ME = hub`/auth/self`;
 
 /** Fields accepted by POST /users. Server sets everything else. */
 export interface NewUser {
@@ -19,6 +20,9 @@ export interface NewUser {
 
 export const getUsers = (): Promise<User[]> =>
   axios.get<User[]>(USERS, { headers: HEADERS.json }).then((r) => r.data);
+
+export const getAuthMe = (): Promise<AuthMe> =>
+  axios.get<AuthMe>(AUTH_ME, { headers: HEADERS.json }).then((r) => r.data);
 
 export const getUserById = (id: number): Promise<User> =>
   axios

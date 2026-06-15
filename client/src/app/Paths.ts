@@ -60,6 +60,7 @@ export const UniversalPaths = {
   tasks: "/tasks",
   taskDetails: "/tasks/:taskId",
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
+  tokens: "/tokens",
 } as const;
 
 export type UniversalPathValues =
@@ -80,7 +81,6 @@ export const AdminPaths = {
   sourcePlatforms: "/source-platforms",
   assetGenerators: "/asset-generators",
   users: "/users",
-  tokens: "/tokens",
   roles: "/roles",
   permissions: "/permissions",
 } as const;

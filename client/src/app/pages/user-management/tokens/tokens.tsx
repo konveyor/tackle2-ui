@@ -30,6 +30,7 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { ScopeGate, tokensCreateScopes, tokensDeleteScopes } from "@app/scopes";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { DateCell } from "../components/date-cell";
@@ -157,17 +158,19 @@ export const TokensPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
-            <ToolbarGroup variant="action-group">
-              <ToolbarItem>
-                <Button
-                  variant="primary"
-                  aria-label={t("titles.createToken")}
-                  onClick={() => setCreateOpen(true)}
-                >
-                  {t("actions.create")}
-                </Button>
-              </ToolbarItem>
-            </ToolbarGroup>
+            <ScopeGate requiredScopes={tokensCreateScopes}>
+              <ToolbarGroup variant="action-group">
+                <ToolbarItem>
+                  <Button
+                    variant="primary"
+                    aria-label={t("titles.createToken")}
+                    onClick={() => setCreateOpen(true)}
+                  >
+                    {t("actions.create")}
+                  </Button>
+                </ToolbarItem>
+              </ToolbarGroup>
+            </ScopeGate>
             <ManageColumnsToolbar
               columns={columnState.columns}
               setColumns={columnState.setColumns}
@@ -243,15 +246,17 @@ export const TokensPage: FC = () => {
                             </Td>
                           ))}
                         <Td isActionCell>
-                          <ActionsColumn
-                            items={[
-                              {
-                                title: t("actions.delete"),
-                                onClick: () => deleteToken(token),
-                                isDanger: true,
-                              },
-                            ]}
-                          />
+                          <ScopeGate requiredScopes={tokensDeleteScopes}>
+                            <ActionsColumn
+                              items={[
+                                {
+                                  title: t("actions.delete"),
+                                  onClick: () => deleteToken(token),
+                                  isDanger: true,
+                                },
+                              ]}
+                            />
+                          </ScopeGate>
                         </Td>
                       </TableRowContentWithControls>
                     </Tr>

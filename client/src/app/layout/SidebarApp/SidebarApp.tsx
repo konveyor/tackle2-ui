@@ -346,7 +346,7 @@ const AdminSidebar = ({
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={AdminPaths.tokens} activeClassName="pf-m-current">
+            <NavLink to={UniversalPaths.tokens} activeClassName="pf-m-current">
               {t("sidebar.tokens")}
             </NavLink>
           </NavItem>
