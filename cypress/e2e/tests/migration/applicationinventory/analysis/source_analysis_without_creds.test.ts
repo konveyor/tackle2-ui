@@ -21,18 +21,20 @@ import {
   cleanupDownloads,
   deleteAllAnalysisProfiles,
   deleteApplicationTableRows,
-  deleteBulkApplicationsByApi,
   exists,
+  getAuthHeaders,
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
   validateTextPresence,
 } from "../../../../../utils/utils";
+import { Credentials } from "../../../../models/administration/credentials/credentials";
 import { CredentialsSourceControlUsername } from "../../../../models/administration/credentials/credentialsSourceControlUsername";
 import { GeneralConfig } from "../../../../models/administration/general/generalConfig";
 import { AnalysisProfile } from "../../../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../../../models/migration/applicationinventory/analysis";
+import { Application } from "../../../../models/migration/applicationinventory/application";
 import { TaskManager } from "../../../../models/migration/task-manager/task-manager";
 import {
   AnalysisStatuses,
@@ -178,6 +180,7 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
   });
 
   it("Download static HTML report", function () {
+    login();
     cy.visit("/");
     cleanupDownloads();
     GeneralConfig.enableDownloadReport();
@@ -187,10 +190,11 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
 
   after("Perform test data clean up", function () {
     login();
-    cy.visit("/");
-    deleteBulkApplicationsByApi(applicationIds);
-    credentialsList.forEach((credential) => credential.delete());
-    profilesToDelete.forEach((profile) => profile.delete());
+    getAuthHeaders().then((headers) => {
+      Application.deleteAllViaApi(headers);
+      Credentials.deleteAllViaApi(headers);
+      AnalysisProfile.deleteAllViaApi(headers);
+    });
   });
 });
 

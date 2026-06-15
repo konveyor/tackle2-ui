@@ -219,30 +219,61 @@ export function login(
   cy.log(
     `login a new session or grab the currently logged in session [${sessionId}]`
   );
-  return cy.session(sessionId, () => {
-    cy.visit("/", { timeout: 120 * SEC });
+  return cy.session(
+    sessionId,
+    () => {
+      cy.visit("/", { timeout: 120 * SEC });
 
-    cy.uiEnvironmentConfig().then((env) => {
-      if (env["AUTH_REQUIRED"] === "true") {
-        cy.log("AUTH is enabled, logging in");
+      cy.uiEnvironmentConfig().then((env) => {
+        if (env["AUTH_REQUIRED"] === "true") {
+          cy.log("AUTH is enabled, logging in");
 
-        // Wait up to 30 seconds for the userNameInput field to be visible on the page
-        cy.get(loginView.userNameInput, { timeout: 30 * SEC }).should(
-          "be.visible"
-        );
+          // Wait up to 30 seconds for the userNameInput field to be visible on the page
+          cy.get(loginView.userNameInput, { timeout: 30 * SEC }).should(
+            "be.visible"
+          );
 
-        // Attempt login
-        inputText(loginView.userNameInput, username);
-        inputText(loginView.userPasswordInput, password);
-        click(loginView.submitButton);
-      } else {
-        cy.log("AUTH is disabled, just look for applications page");
-      }
+          // Attempt login
+          inputText(loginView.userNameInput, username);
+          inputText(loginView.userPasswordInput, password);
+          click(loginView.submitButton);
+        } else {
+          cy.log("AUTH is disabled, just look for applications page");
+        }
 
-      // Should be past any auth steps needed, so wait for the url to become "/applications
-      cy.url({ timeout: 1 * MIN }).should("eq", Application.fullUrl);
-    });
-  });
+        // Should be past any auth steps needed, so wait for the url to become "/applications
+        cy.url({ timeout: 1 * MIN }).should("eq", Application.fullUrl);
+      });
+    },
+    {
+      validate: () => {
+        cy.uiEnvironmentConfig().then((env) => {
+          if (env["AUTH_REQUIRED"] !== "true") return;
+
+          cy.window().then((win) => {
+            const sessionKeys = Object.keys(win.sessionStorage);
+            const oidcUserKey = sessionKeys.find((key) =>
+              key.startsWith("oidc.user:")
+            );
+            if (!oidcUserKey) {
+              throw new Error("OIDC session not found");
+            }
+            const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
+            if (!oidcUserData) {
+              throw new Error("OIDC user data not found");
+            }
+            const userData = JSON.parse(oidcUserData);
+            if (
+              !userData.access_token ||
+              isExpiredToken(userData.access_token)
+            ) {
+              throw new Error("OIDC token is expired or missing");
+            }
+          });
+        });
+      },
+    }
+  );
 }
 
 export function logout(userName?: string): void {
