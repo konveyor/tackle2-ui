@@ -18,7 +18,7 @@ React + PatternFly frontend for Konveyor application modernization platform.
 
 - Functional components + hooks only (no class components)
 - Forms: `react-hook-form` + `yup` schemas, PatternFly wrappers in `components/HookFormPFFields/`
-- API data: TanStack Query hooks in `queries/`, REST client in `api/rest.ts`
+- API data: TanStack Query hooks in `queries/`, REST clients in `api/rest.ts` + `api/rest/*.ts`
 - Tables: use `hooks/table-controls/` composable system
 - IDs: explicit null checks (`id != null`), never truthy guards
 - Selects: `SimpleSelect` / `TypeaheadSelect` / `MultiSelect` with `FilterSelectOptionProps`

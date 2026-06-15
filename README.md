@@ -26,7 +26,7 @@ Key capabilities include application inventory management, assessment questionna
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/) >= 20 (see the `engines` block of [package.json](./package.json) for specifics)
+- [Node.js](https://nodejs.org/en/) >= 22 (see the `engines` block of [package.json](./package.json) for specifics)
 - [minikube](https://minikube.sigs.k8s.io/docs/start) (optional): setup your local minikube instance with your container manager of choice
 
 ## Quick start
@@ -90,8 +90,8 @@ the cluster and access Konveyor APIs endpoints by proxy.
 
 The React and Patternfly based UI is composed of web pages served by an http server with proxy capabilities.
 
-- The server component, an express based nodejs server, handles the application code, a proxy to
-  the HUB backend via the `/hub` path, and a proxy to the Keycloak auth backend via the `/auth` path.
+- The server component, an express based nodejs server, handles the application code and proxies
+  to the HUB backend via the `/hub` path and to the Hub's OIDC provider via the `/oidc` path.
 
 - In **production** mode, the application code is served as statically built UI assets. A small
   handler inserts relevant environment information on the root page. This configures how the UI
@@ -103,24 +103,21 @@ The React and Patternfly based UI is composed of web pages served by an http ser
   and defaults to **:9000**.
 
 - The server proxies [server/src/proxies.js](server/src/proxies.js) use the environment
-  variables `TACKLE_HUB_URL` and `SSO_SERVER_URL` to define the proxy endpoints:
+  variable `TACKLE_HUB_URL` to define the proxy endpoint:
   - `/hub` &rarr; `TACKLE_HUB_URL` defines the location of the HUB REST endpoint. If it
     is not defined, the URL `http://localhost:9002` is used by default.
-
-  - `/auth` &rarr; `SSO_SERVER_URL` defines the location of the Keycloak (SSO) instance.
-    If it is not defined, the URL `http://localhost:9001` is used by default.
+  - `/oidc` &rarr; Proxied to the Hub's built-in OIDC provider (same target as `/hub`).
 
 ### Running the UI outside the cluster
 
-To enable running the UI outside the cluster, ports forwardings must be activated to route
-the Konveyor Keycloak (SSO) and Konveyor Hub requests to the services on the cluster. Use
-the script `npm run port-forward` to easily start the forwards. The script `npm run start:dev`
-will also setup port forwarding to all Konveyor services concurrently with starting the dev server.
+To enable running the UI outside the cluster, port forwarding must be activated to route
+Konveyor Hub requests to the services on the cluster. Use the script `npm run port-forward`
+to easily start the forwards. The script `npm run start:dev` will also setup port forwarding
+to all Konveyor services concurrently with starting the dev server.
 
-To manually setup the kubectl port forwards, open a terminal and run each following command separately:
+To manually setup the kubectl port forwards, open a terminal and run the following command:
 
 ```sh
-$ kubectl port-forward svc/tackle-keycloak-sso -n konveyor-tackle 9001:8080
 $ kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080
 ```
 

@@ -26,7 +26,7 @@ The project is an npm workspaces monorepo with four packages:
 
 | Workspace | Package | Purpose |
 |---|---|---|
-| `common/` | `@konveyor-ui/common` | Shared types, branding configuration, environment decoding. Built first; other packages depend on it. |
+| `common/` | `@konveyor-ui/common` | Shared types (`ClientEnv`, `ServerConfig`), branding configuration. Built first; other packages depend on it. |
 | `client/` | `@konveyor-ui/client` | React application. Bundled with webpack. Contains all UI components, pages, hooks, and API layer. |
 | `server/` | `@konveyor-ui/server` | Express.js server. Handles static serving, HTML templating with branding, and API proxying. |
 | `cypress/` | `@konveyor-ui/cypress` | End-to-end test suite. Uses Cypress with page object models. |
@@ -39,8 +39,8 @@ Build order: `common` (first) -> `client` + `server` (parallel) -> `cypress` (te
 
 The application uses `react-router-dom` with three route groups, each gated by scopes:
 
-- **Developer perspective** (`DevPaths`) -- Applications, archetypes, assessments, analysis, migration waves, issues, insights, dependencies, reports, migration targets. Accessible with standard read scopes.
-- **Administrator perspective** (`AdminPaths`) -- General settings, identities, repositories, proxies, assessment management, Jira integration, source platforms, asset generators. Requires admin-level scopes.
+- **Developer perspective** (`DevPaths`) -- Analysis profiles, applications, archetypes, assessments, analysis, migration waves, issues, insights, dependencies, reports, migration targets. Accessible with standard read scopes.
+- **Administrator perspective** (`AdminPaths`) -- General settings, identities, repositories (Git/SVN/Maven), proxies, assessment/questionnaire management, Jira integration, source platforms, asset generators. Requires admin-level scopes.
 - **Universal paths** (`UniversalPaths`) -- Tasks. Accessible to all authenticated users.
 
 Pages are lazy-loaded with `React.lazy()` and wrapped in `ErrorBoundary` + `Suspense`.
@@ -66,7 +66,7 @@ pages/{feature}/          queries/{feature}.ts        api/rest.ts              H
 ```
 
 - `api/models.ts` -- TypeScript interfaces for all Hub domain entities. The `New<T>` utility type omits `id` for creation payloads. The `WithUiId<T>` utility adds a client-generated unique ID for table row selection when hub entities lack one.
-- `api/rest.ts` -- Axios wrapper functions. The `hub` tagged template builds `/hub`-prefixed paths. Request params for hub-side filtering, sorting, and pagination are serialized by `serializeRequestParamsForHub`.
+- `api/rest.ts` and `api/rest/*.ts` -- Axios wrapper functions. The monolithic `rest.ts` is being refactored into per-entity modules under `api/rest/` (e.g., `rest/applications.ts`, `rest/tags.ts`). The `hub` tagged template builds `/hub`-prefixed paths. Request params for hub-side filtering, sorting, and pagination are serialized by `serializeRequestParamsForHub`.
 - `api/schemas.ts` -- Validation schemas for API payloads.
 
 ### Branding

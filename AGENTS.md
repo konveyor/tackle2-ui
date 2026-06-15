@@ -8,23 +8,34 @@ This document provides structural context and conventions for AI agents working 
 tackle2-ui/
   client/                     # React frontend (webpack, PatternFly)
     src/app/
-      api/                    # API models (models.ts), REST client (rest.ts), schemas
-      components/             # ~66 shared components
+      api/                    # API models (models.ts), REST clients (rest.ts + rest/*.ts), schemas
+      components/             # ~60 shared components
         FilterToolbar/        # Table filtering: MultiSelect, TypeaheadSelect, SimpleSelect
         HookFormPFFields/     # react-hook-form + PatternFly integration wrappers
       hooks/                  # Custom hooks (table-controls, selection, persistence)
         table-controls/       # Filtering, sorting, pagination, expansion hooks
       layout/                 # App shell: DefaultLayout, HeaderApp, SidebarApp
       pages/                  # Feature pages (one directory per domain area)
+        analysis-profiles/    # Analysis profile configuration
         applications/         # Application inventory, analysis, assessment
         archetypes/           # Archetype management and target profiles
+        assessment/           # Assessment questionnaire views
+        assessment-management/ # Assessment administration
+        asset-generators/     # Asset generation configuration
         controls/             # Business services, stakeholders, tags, job functions
         dependencies/         # Dependency tracking
-        issues/               # Analysis issues viewer
+        external/             # External redirects
+        general/              # General settings
+        identities/           # Identity/credential management
         insights/             # Analysis insights viewer
+        issues/               # Analysis issues viewer
         migration-targets/    # Custom migration targets
         migration-waves/      # Migration wave planning
+        proxies/              # Proxy configuration
         reports/              # Adoption reports
+        repositories/         # Repository management
+        review/               # Application review
+        source-platforms/     # Source platform configuration
         tasks/                # Background task management
       queries/                # TanStack Query hooks (~28 files, one per domain)
       Paths.ts                # Route path constants (DevPaths, AdminPaths, UniversalPaths)
@@ -36,11 +47,12 @@ tackle2-ui/
   server/                     # Express.js proxy server
     src/
       index.js                # Server entry point
-      proxies.js              # Proxy routes: /hub, /oidc, /kai -> Hub API; /llm-proxy -> LLM proxy
+      serverConfig.js         # Server-side and client-side config from process.env
+      proxies.js              # Proxy routes: /hub -> Hub API, /oidc -> Hub OIDC, /kai -> Kai, /llm-proxy -> LLM proxy
   common/                     # Shared package (@konveyor-ui/common)
     src/
-      branding.ts             # Branding configuration types
-      environment.ts          # Runtime environment decoding
+      branding.ts             # Branding configuration and string types
+      env-types.ts            # ClientEnv and ServerConfig type definitions
   cypress/                    # E2E test suite (Cypress)
     e2e/
       models/                 # Page object models (one class per feature area)
@@ -56,7 +68,7 @@ tackle2-ui/
 
 ### Data Flow
 
-1. **API layer** (`api/rest.ts`) -- Axios-based REST client. All hub endpoints use the `hub` tagged template literal (e.g., `hub`/applications``). Responses are typed against `api/models.ts`.
+1. **API layer** (`api/rest.ts` and `api/rest/*.ts`) -- Axios-based REST client. The monolithic `rest.ts` is being refactored into entity-specific modules under `api/rest/` (e.g., `rest/applications.ts`, `rest/tags.ts`). All hub endpoints use the `hub` tagged template literal (e.g., `hub`/applications``). Responses are typed against `api/models.ts`.
 2. **Query layer** (`queries/*.ts`) -- TanStack Query hooks wrap every API call. Query keys are exported constants (e.g., `ApplicationsQueryKey`). Mutations use `useMutation` with `onSuccess` cache invalidation.
 3. **Table controls** (`hooks/table-controls/`) -- A composable hook system for filtering, sorting, pagination, and expansion. Hub-side filtering serializes filter state into hub request params via `getHubRequestParams`.
 4. **Components** -- Pages compose shared components with table controls hooks. Forms use `react-hook-form` with PatternFly wrappers.
@@ -79,12 +91,22 @@ tackle2-ui/
 
 ### Environment Variables
 
+Server-side variables (used by the Express proxy, not sent to the client):
+
 | Variable | Purpose | Default |
 |---|---|---|
 | `TACKLE_HUB_URL` | Hub REST API endpoint | `http://localhost:9002` |
+| `KAI_LLM_PROXY_URL` | LLM proxy endpoint for Kai | (none) |
+| `PORT` | Server listen port | `9000` (dev) / `8080` (prod) |
+| `BRANDING` | Path to custom branding assets | `branding/` |
+
+Client-side variables (injected into `window._env` via the HTML template):
+
+| Variable | Purpose | Default |
+|---|---|---|
 | `AUTH_REQUIRED` | Enable OIDC authentication | `false` |
 | `OIDC_CLIENT_ID` | OIDC client identifier | `web-ui` |
-| `BRANDING` | Path to custom branding assets | `branding/` (default Konveyor brand) |
+| `VERSION` | Application version string | `99.0.0` |
 
 ## Review Guidelines
 
