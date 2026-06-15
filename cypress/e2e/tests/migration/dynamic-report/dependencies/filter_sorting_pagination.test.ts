@@ -25,7 +25,9 @@ import {
   createMultipleStakeholderGroups,
   createMultipleStakeholders,
   createMultipleTags,
+  deleteAllBusinessServices,
   deleteAllMigrationWaves,
+  deleteAllStakeholderGroups,
   deleteAllStakeholders,
   deleteApplicationTableRows,
   getAuthHeaders,
@@ -75,6 +77,8 @@ describe(
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
       deleteAllStakeholders();
+      deleteAllStakeholderGroups();
+      deleteAllBusinessServices();
       cleanupDependenciesData();
       seedDependenciesData();
 
