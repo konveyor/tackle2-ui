@@ -235,7 +235,8 @@ describe(
 
     sortByList.forEach((column) => {
       it(`Sort dependencies by ${column}`, function () {
-        Dependencies.openList();
+        Dependencies.openList(100);
+        cy.wait(2000);
         validateSortBy(column);
       });
     });
@@ -248,7 +249,7 @@ describe(
     after("Perform test data clean up", function () {
       login();
       getAuthHeaders().then((headers) => {
-        cleanupDependenciesData();
+        // cleanupDependenciesData();
         if (archetype && archetype.id) {
           archetype.deleteViaApi(headers);
         }
