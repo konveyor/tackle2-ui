@@ -17,14 +17,19 @@ limitations under the License.
 
 import { getRandomUserData } from "../../../utils/data_utils";
 import {
+  createMultipleStakeholders,
+  deleteAllStakeholders,
   deleteApplicationTableRows,
   getRandomApplicationData,
   login,
 } from "../../../utils/utils";
+import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
 import { UserArchitect } from "../../models/hub/users";
 import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
 import { Analysis } from "../../models/migration/applicationinventory/analysis";
 import { Application } from "../../models/migration/applicationinventory/application";
+import { Stakeholders } from "../../models/migration/controls/stakeholders";
+import { legacyPathfinder } from "../../types/constants";
 
 describe(
   ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
@@ -32,12 +37,16 @@ describe(
   () => {
     const userArchitect = new UserArchitect(getRandomUserData());
     const application = new Application(getRandomApplicationData());
+    let stakeholders: Stakeholders[];
 
     before("Creating RBAC users, adding roles for them", () => {
       login();
       cy.visit("/");
+      AssessmentQuestionnaire.enable(legacyPathfinder);
+      stakeholders = createMultipleStakeholders(1);
 
       application.create();
+      application.perform_assessment("low", stakeholders);
       application.perform_review("low");
       userArchitect.create();
     });
@@ -77,6 +86,7 @@ describe(
       login();
       cy.visit("/");
       deleteApplicationTableRows();
+      deleteAllStakeholders();
       userArchitect.delete();
     });
   }
