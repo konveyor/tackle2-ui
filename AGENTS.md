@@ -93,20 +93,20 @@ tackle2-ui/
 
 Server-side variables (used by the Express proxy, not sent to the client):
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `TACKLE_HUB_URL` | Hub REST API endpoint | `http://localhost:9002` |
-| `KAI_LLM_PROXY_URL` | LLM proxy endpoint for Kai | (none) |
-| `PORT` | Server listen port | `9000` (dev) / `8080` (prod) |
-| `BRANDING` | Path to custom branding assets | `branding/` |
+| Variable            | Purpose                        | Default                      |
+| ------------------- | ------------------------------ | ---------------------------- |
+| `TACKLE_HUB_URL`    | Hub REST API endpoint          | `http://localhost:9002`      |
+| `KAI_LLM_PROXY_URL` | LLM proxy endpoint for Kai     | (none)                       |
+| `PORT`              | Server listen port             | `9000` (dev) / `8080` (prod) |
+| `BRANDING`          | Path to custom branding assets | `branding/`                  |
 
 Client-side variables (injected into `window._env` via the HTML template):
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `AUTH_REQUIRED` | Enable OIDC authentication | `false` |
-| `OIDC_CLIENT_ID` | OIDC client identifier | `web-ui` |
-| `VERSION` | Application version string | `99.0.0` |
+| Variable         | Purpose                    | Default  |
+| ---------------- | -------------------------- | -------- |
+| `AUTH_REQUIRED`  | Enable OIDC authentication | `false`  |
+| `OIDC_CLIENT_ID` | OIDC client identifier     | `web-ui` |
+| `VERSION`        | Application version string | `99.0.0` |
 
 ## Review Guidelines
 
@@ -124,16 +124,16 @@ When reviewing or generating code changes, verify:
 
 ## Dependencies
 
-| Package | Purpose |
-|---|---|
-| `react` / `react-dom` | UI framework |
-| `@patternfly/react-core` | Component library (PatternFly 6) |
-| `@tanstack/react-query` | Server state management |
-| `react-hook-form` / `yup` | Form management and validation |
-| `axios` | HTTP client |
-| `react-i18next` / `i18next` | Internationalization |
-| `react-router-dom` | Client-side routing |
-| `oidc-client-ts` / `react-oidc-context` | OIDC authentication |
-| `monaco-editor` | Code snippet viewer (analysis issues/insights) |
-| `express` | Dev/prod server with proxy capabilities |
-| `cypress` | End-to-end testing framework |
+| Package                                 | Purpose                                        |
+| --------------------------------------- | ---------------------------------------------- |
+| `react` / `react-dom`                   | UI framework                                   |
+| `@patternfly/react-core`                | Component library (PatternFly 6)               |
+| `@tanstack/react-query`                 | Server state management                        |
+| `react-hook-form` / `yup`               | Form management and validation                 |
+| `axios`                                 | HTTP client                                    |
+| `react-i18next` / `i18next`             | Internationalization                           |
+| `react-router-dom`                      | Client-side routing                            |
+| `oidc-client-ts` / `react-oidc-context` | OIDC authentication                            |
+| `monaco-editor`                         | Code snippet viewer (analysis issues/insights) |
+| `express`                               | Dev/prod server with proxy capabilities        |
+| `cypress`                               | End-to-end testing framework                   |

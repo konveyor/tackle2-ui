@@ -24,12 +24,12 @@ When `AUTH_REQUIRED` is enabled, the Hub's built-in OIDC provider handles authen
 
 The project is an npm workspaces monorepo with four packages:
 
-| Workspace | Package | Purpose |
-|---|---|---|
-| `common/` | `@konveyor-ui/common` | Shared types (`ClientEnv`, `ServerConfig`), branding configuration. Built first; other packages depend on it. |
-| `client/` | `@konveyor-ui/client` | React application. Bundled with webpack. Contains all UI components, pages, hooks, and API layer. |
-| `server/` | `@konveyor-ui/server` | Express.js server. Handles static serving, HTML templating with branding, and API proxying. |
-| `cypress/` | `@konveyor-ui/cypress` | End-to-end test suite. Uses Cypress with page object models. |
+| Workspace  | Package                | Purpose                                                                                                       |
+| ---------- | ---------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `common/`  | `@konveyor-ui/common`  | Shared types (`ClientEnv`, `ServerConfig`), branding configuration. Built first; other packages depend on it. |
+| `client/`  | `@konveyor-ui/client`  | React application. Bundled with webpack. Contains all UI components, pages, hooks, and API layer.             |
+| `server/`  | `@konveyor-ui/server`  | Express.js server. Handles static serving, HTML templating with branding, and API proxying.                   |
+| `cypress/` | `@konveyor-ui/cypress` | End-to-end test suite. Uses Cypress with page object models.                                                  |
 
 Build order: `common` (first) -> `client` + `server` (parallel) -> `cypress` (test-only).
 
@@ -75,20 +75,20 @@ The UI supports build-time branding via the `BRANDING` environment variable. The
 
 ## Dependencies
 
-| Category | Key Libraries |
-|---|---|
-| UI framework | React 18, PatternFly 6 |
-| Routing | react-router-dom 5 |
-| Server state | TanStack Query 4, Axios |
-| Form state | react-hook-form, yup |
-| Internationalization | i18next, react-i18next |
-| Auth | oidc-client-ts, react-oidc-context |
-| Code editor | Monaco Editor |
-| Charts | @patternfly/react-charts |
-| Drag & drop | @dnd-kit/core, @dnd-kit/sortable |
-| Server | Express 5, http-proxy-middleware |
-| E2E testing | Cypress |
-| Unit testing | Jest, @testing-library/react |
+| Category             | Key Libraries                      |
+| -------------------- | ---------------------------------- |
+| UI framework         | React 18, PatternFly 6             |
+| Routing              | react-router-dom 5                 |
+| Server state         | TanStack Query 4, Axios            |
+| Form state           | react-hook-form, yup               |
+| Internationalization | i18next, react-i18next             |
+| Auth                 | oidc-client-ts, react-oidc-context |
+| Code editor          | Monaco Editor                      |
+| Charts               | @patternfly/react-charts           |
+| Drag & drop          | @dnd-kit/core, @dnd-kit/sortable   |
+| Server               | Express 5, http-proxy-middleware   |
+| E2E testing          | Cypress                            |
+| Unit testing         | Jest, @testing-library/react       |
 
 The `common` package is built first and consumed by `client` and `server`. PatternFly version is pinned across all `@patternfly/*` packages to avoid style conflicts.
 
