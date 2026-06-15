@@ -22,6 +22,7 @@ import {
   deleteAllAnalysisProfiles,
   deleteApplicationTableRows,
   exists,
+  getAuthHeaders,
   getProfileNameFromApp,
   getRandomAnalysisData,
   getRandomApplicationData,
@@ -189,23 +190,10 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
 
   after("Perform test data clean up", function () {
     login();
-    cy.visit("/");
-    cy.window().then((win) => {
-      const sessionKeys = Object.keys(win.sessionStorage);
-      const oidcUserKey = sessionKeys.find((key) =>
-        key.startsWith("oidc.user:")
-      );
-      if (oidcUserKey) {
-        const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
-        if (oidcUserData) {
-          const userData = JSON.parse(oidcUserData);
-          const headers = { Authorization: `Bearer ${userData.access_token}` };
-
-          Application.deleteAllViaApi(headers);
-          Credentials.deleteAllViaApi(headers);
-          AnalysisProfile.deleteAllViaApi(headers);
-        }
-      }
+    getAuthHeaders().then((headers) => {
+      Application.deleteAllViaApi(headers);
+      Credentials.deleteAllViaApi(headers);
+      AnalysisProfile.deleteAllViaApi(headers);
     });
   });
 });

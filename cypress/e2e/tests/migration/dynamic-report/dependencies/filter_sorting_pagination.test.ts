@@ -26,6 +26,7 @@ import {
   createMultipleStakeholders,
   createMultipleTags,
   deleteAllMigrationWaves,
+  deleteAllStakeholders,
   deleteApplicationTableRows,
   getAuthHeaders,
   login,
@@ -73,6 +74,7 @@ describe(
       cy.visit("/");
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
+      deleteAllStakeholders();
       cleanupDependenciesData();
       seedDependenciesData();
 
