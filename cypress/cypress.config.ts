@@ -80,8 +80,6 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       config.env.user = process.env.CYPRESS_USER;
       config.env.pass = process.env.CYPRESS_PASSWORD;
-      config.env.keycloakAdminPassword =
-        process.env.CYPRESS_KEYCLOAK_ADMIN_PASSWORD;
       config.env.git_user = process.env.CYPRESS_GIT_USER;
       config.env.git_password = process.env.CYPRESS_GIT_PASSWORD;
       config.env.svn_user = process.env.CYPRESS_SVN_USER;
