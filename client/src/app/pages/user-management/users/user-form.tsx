@@ -8,11 +8,12 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
-import { ScopeGate, rolesReadScopes } from "@app/scopes";
+import { ADMIN_PUT, ScopeGate, rolesReadScopes } from "@app/scopes";
 
 import { useFetchRoles } from "../roles/use-roles";
 
 import { UserFormValues } from "./use-user-form";
+import { useHasAllScopes } from "@app/auth";
 
 export interface UserFormProps {
   form: UseFormReturn<UserFormValues>;
@@ -26,6 +27,7 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit, isSeeded }) => {
   const { t } = useTranslation();
   const { control } = form;
   const { roles } = useFetchRoles();
+  const canEditRoles = useHasAllScopes([ADMIN_PUT]);
 
   const roleOptions = roles.map((role) => ({
     value: role.name,
@@ -92,7 +94,7 @@ export const UserForm: FC<UserFormProps> = ({ form, isEdit, isSeeded }) => {
                 toggleId="roles-select-toggle"
                 toggleAriaLabel="Roles select dropdown toggle"
                 hasChips
-                isDisabled={isSeeded}
+                isDisabled={isSeeded || !canEditRoles}
                 values={selectedNames}
                 options={roleOptions}
                 placeholderText={t("composed.selectMany", {
