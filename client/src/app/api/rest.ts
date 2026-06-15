@@ -17,7 +17,6 @@ import {
   New,
   Proxy,
   Questionnaire,
-  Ref,
   Review,
   Setting,
   SettingTypes,
@@ -27,7 +26,6 @@ import {
   TagCategory,
   Target,
   Taskgroup,
-  Ticket,
   Tracker,
   TrackerProject,
   TrackerProjectIssuetype,
@@ -63,7 +61,6 @@ const TAG_CATEGORIES = hub`/tagcategories`;
 const TAGS = hub`/tags`;
 const TARGETS = hub`/targets`;
 const TASKGROUPS = hub`/taskgroups`;
-const TICKETS = hub`/tickets`;
 const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
 const TRACKER_PROJECTS = "projects"; // TODO: ????
 const TRACKERS = hub`/trackers`;
@@ -101,6 +98,7 @@ export * from "./rest/migration-waves";
 export * from "./rest/platforms";
 export * from "./rest/schemas";
 export * from "./rest/tasks";
+export * from "./rest/tickets";
 
 /**
  * Provide consistent fetch and processing for server side filtering and sorting with
@@ -349,27 +347,6 @@ export const getTrackerProjectIssuetypes = (
       `${TRACKERS}/${trackerId}/${TRACKER_PROJECTS}/${projectId}/${TRACKER_PROJECT_ISSUETYPES}`
     )
     .then((response) => response.data);
-
-// ---------------------------------------
-// Tickets
-//
-export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {
-  return Promise.all(
-    applications.map((app) => {
-      const appPayload: New<Ticket> = {
-        ...payload,
-        application: { id: app.id, name: app.name },
-      };
-      return axios.post(TICKETS, appPayload);
-    })
-  );
-};
-
-export const getTickets = (): Promise<Ticket[]> =>
-  axios.get(TICKETS).then((response) => response.data);
-
-export const deleteTicket = (id: number): Promise<Ticket> =>
-  axios.delete(`${TICKETS}/${id}`);
 
 // ---------------------------------------
 // Stakeholders
