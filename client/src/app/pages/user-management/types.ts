@@ -41,7 +41,7 @@ export interface Token extends UserManagementResource {
   kind: string; // "api-key" | "access"
   authId?: string;
   subject?: string;
-  scopes?: string;
+  scopes?: string[];
   issued?: string; // ISO 8601
   expiration?: string; // ISO 8601
   lifespan?: number; // remaining hours until expiration

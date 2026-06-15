@@ -33,11 +33,7 @@ import { useLocalTableControls } from "@app/hooks/table-controls";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { DateCell } from "../components/date-cell";
-import {
-  ScopeLabels,
-  groupScopes,
-  parseScopes,
-} from "../components/scope-labels";
+import { ScopeLabels, groupScopes } from "../components/scope-labels";
 import { Token } from "../types";
 import { useFetchUsers } from "../users/use-users";
 
@@ -145,7 +141,7 @@ export const TokensPage: FC = () => {
     id,
     kind,
     login: user?.id ? loginById[String(user.id)] : "",
-    scopes: parseScopes(scopes).length,
+    scopes: scopes?.length ?? 0,
     issued: <DateCell raw={issued} />,
     expiration: <DateCell raw={expiration} />,
   });
@@ -267,14 +263,9 @@ export const TokensPage: FC = () => {
                           {...getExpandedContentTdProps({ item: token })}
                         >
                           <ExpandableRowContent>
-                            {groupScopes(parseScopes(token.scopes)).map(
-                              (group) => (
-                                <ScopeLabels
-                                  key={group.resource}
-                                  group={group}
-                                />
-                              )
-                            )}
+                            {groupScopes(token?.scopes ?? []).map((group) => (
+                              <ScopeLabels key={group.resource} group={group} />
+                            ))}
                           </ExpandableRowContent>
                         </Td>
                       </Tr>
