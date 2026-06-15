@@ -3,6 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "@patternfly/react-core";
 
+import { useHasAllScopes } from "@app/auth";
 import { MultiSelect } from "@app/components/FilterToolbar/components/MultiSelect";
 import {
   HookFormPFGroupController,
@@ -13,7 +14,6 @@ import { ADMIN_PUT, ScopeGate, rolesReadScopes } from "@app/scopes";
 import { useFetchRoles } from "../roles/use-roles";
 
 import { UserFormValues } from "./use-user-form";
-import { useHasAllScopes } from "@app/auth";
 
 export interface UserFormProps {
   form: UseFormReturn<UserFormValues>;
