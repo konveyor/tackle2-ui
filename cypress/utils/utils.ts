@@ -247,23 +247,29 @@ export function login(
     },
     {
       validate: () => {
-        // Validate by checking if OIDC token exists and is not expired
-        cy.window().then((win) => {
-          const sessionKeys = Object.keys(win.sessionStorage);
-          const oidcUserKey = sessionKeys.find((key) =>
-            key.startsWith("oidc.user:")
-          );
-          if (!oidcUserKey) {
-            throw new Error("OIDC session not found");
-          }
-          const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
-          if (!oidcUserData) {
-            throw new Error("OIDC user data not found");
-          }
-          const userData = JSON.parse(oidcUserData);
-          if (!userData.access_token || isExpiredToken(userData.access_token)) {
-            throw new Error("OIDC token is expired or missing");
-          }
+        cy.uiEnvironmentConfig().then((env) => {
+          if (env["AUTH_REQUIRED"] !== "true") return;
+
+          cy.window().then((win) => {
+            const sessionKeys = Object.keys(win.sessionStorage);
+            const oidcUserKey = sessionKeys.find((key) =>
+              key.startsWith("oidc.user:")
+            );
+            if (!oidcUserKey) {
+              throw new Error("OIDC session not found");
+            }
+            const oidcUserData = win.sessionStorage.getItem(oidcUserKey);
+            if (!oidcUserData) {
+              throw new Error("OIDC user data not found");
+            }
+            const userData = JSON.parse(oidcUserData);
+            if (
+              !userData.access_token ||
+              isExpiredToken(userData.access_token)
+            ) {
+              throw new Error("OIDC token is expired or missing");
+            }
+          });
         });
       },
     }

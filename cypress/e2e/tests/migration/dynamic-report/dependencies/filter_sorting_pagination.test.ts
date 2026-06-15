@@ -58,12 +58,12 @@ import { rightSideMenu } from "../../../../views/analysis.view";
 const bookServerAppName = "DependenciesFilteringApp1";
 const dayTraderAppName = "DependenciesFilteringApp2";
 
-let businessServiceList: BusinessServices[];
+let businessServiceList: BusinessServices[] = [];
 let archetype: Archetype;
-let stakeholders: Stakeholders[];
-let stakeholderGroups: Stakeholdergroups[];
-let tags: Tag[];
-let tagNames: string[];
+let stakeholders: Stakeholders[] = [];
+let stakeholderGroups: Stakeholdergroups[] = [];
+let tags: Tag[] = [];
+let tagNames: string[] = [];
 
 describe(
   ["@tier3", "@tier3_D"],
@@ -253,8 +253,7 @@ describe(
     after("Perform test data clean up", function () {
       login();
       getAuthHeaders().then((headers) => {
-        // cleanupDependenciesData();
-        if (archetype && archetype.id) {
+        if (archetype?.id != null && archetype.id > 0) {
           archetype.deleteViaApi(headers);
         }
         stakeholders.forEach((sh) => sh.deleteViaApi(headers));
