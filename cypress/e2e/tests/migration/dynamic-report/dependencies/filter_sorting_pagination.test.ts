@@ -27,7 +27,7 @@ import {
   createMultipleTags,
   deleteAllMigrationWaves,
   deleteApplicationTableRows,
-  deleteByList,
+  getAuthHeaders,
   login,
   seedDependenciesData,
   selectItemsPerPage,
@@ -244,12 +244,17 @@ describe(
     });
 
     after("Perform test data clean up", function () {
-      cleanupDependenciesData();
-      archetype.delete();
-      deleteByList(stakeholders);
-      deleteByList(stakeholderGroups);
-      deleteByList(tags);
-      deleteByList(businessServiceList);
+      login();
+      getAuthHeaders().then((headers) => {
+        cleanupDependenciesData();
+        if (archetype && archetype.id) {
+          archetype.deleteViaApi(headers);
+        }
+        stakeholders.forEach((sh) => sh.deleteViaApi(headers));
+        stakeholderGroups.forEach((sg) => sg.deleteViaApi(headers));
+        tags.forEach((tag) => tag.deleteViaApi(headers));
+        businessServiceList.forEach((bs) => bs.deleteViaApi(headers));
+      });
     });
   }
 );
