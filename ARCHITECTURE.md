@@ -16,7 +16,7 @@ tackle2-ui is the frontend for [Konveyor](https://konveyor.io), an application m
 
 - **Browser** -- Serves the React + PatternFly single-page application.
 - **tackle2-ui server** -- An Express.js process that serves static assets in production and proxies `/hub`, `/oidc`, and `/kai` requests to the Hub API. In development, it additionally proxies to webpack-dev-server.
-- **tackle2-hub** -- The Konveyor Hub REST API. Manages applications, assessments, analyses, tasks, identities, and all domain entities. Also hosts the OIDC provider for authentication. The [OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) defines the API contract.
+- **tackle2-hub** -- The Konveyor Hub REST API. Manages applications, assessments, analyses, tasks, identities, and all domain entities. Also hosts the OIDC provider for authentication. The [OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) documents the API contract but may lag behind the implementation — the [Go API source](https://github.com/konveyor/tackle2-hub/tree/main/api) is the authoritative reference.
 
 When `AUTH_REQUIRED` is enabled, the Hub's built-in OIDC provider handles authentication. Access control is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`). The legacy Keycloak SSO integration has been removed.
 
@@ -50,6 +50,7 @@ Pages are lazy-loaded with `React.lazy()` and wrapped in `ErrorBoundary` + `Susp
 - **Server state** -- TanStack Query manages all API data. Each domain entity has a query file in `queries/` exporting `useFetch*`, `useCreate*`, `useUpdate*`, and `useDelete*` hooks. Query keys are exported constants for consistent cache invalidation.
 - **Form state** -- `react-hook-form` manages form values, validation, and submission. Forms are validated against `yup` schemas.
 - **Table state** -- The `hooks/table-controls/` system provides composable hooks for filtering, sorting, pagination, active item tracking, and row expansion. Supports both client-side and hub-side (server) operations.
+- **Wizard state** -- Multi-step wizards use a react/immerjs reducer pattern to collect form state from each step and drive wizard behavior (navigation, validation, submission).
 - **UI state** -- React context provides global state for notifications (`NotificationsProvider`) and background tasks (`TaskManagerProvider`). Persistent UI state uses `usePersistentState` (URL params or localStorage).
 
 ## Data Flow
@@ -108,7 +109,7 @@ The image is published to `quay.io/konveyor/tackle2-ui` and deployed by the [Kon
 GitHub Actions workflows handle:
 
 - **`ci-repo.yml`** -- Repo-level CI: linting, unit tests, build verification. Runs on push and PR.
-- **`ci-global.yml`** -- Global Konveyor CI: deploys the operator with the UI image and runs e2e tests.
+- **`ci-e2e-tests.yml`** -- Run e2e CI: deploys the operator with the UI image and runs e2e tests.
 - **`image-build.yaml`** -- Multi-architecture container image build and push on merge to main and release branches.
 - **`pr-checks.yml`** -- PR-specific checks (file change detection, label validation).
 - **Nightly workflows** -- Scheduled CI and e2e runs for `main` and `release-*` branches.
