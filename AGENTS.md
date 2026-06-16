@@ -9,34 +9,11 @@ tackle2-ui/
   client/                     # React frontend (webpack, PatternFly)
     src/app/
       api/                    # API models (models.ts), REST clients (rest.ts + rest/*.ts), schemas
-      components/             # ~60 shared components
-        FilterToolbar/        # Table filtering: MultiSelect, TypeaheadSelect, SimpleSelect
-        HookFormPFFields/     # react-hook-form + PatternFly integration wrappers
+      components/             # ~60 shared components (FilterToolbar, HookFormPFFields, select wrappers, etc.)
       hooks/                  # Custom hooks (table-controls, selection, persistence)
         table-controls/       # Filtering, sorting, pagination, expansion hooks
       layout/                 # App shell: DefaultLayout, HeaderApp, SidebarApp
-      pages/                  # Feature pages (one directory per domain area)
-        analysis-profiles/    # Analysis profile configuration
-        applications/         # Application inventory, analysis, assessment
-        archetypes/           # Archetype management and target profiles
-        assessment/           # Assessment questionnaire views
-        assessment-management/ # Assessment administration
-        asset-generators/     # Asset generation configuration
-        controls/             # Business services, stakeholders, tags, job functions
-        dependencies/         # Dependency tracking
-        external/             # External redirects
-        general/              # General settings
-        identities/           # Identity/credential management
-        insights/             # Analysis insights viewer
-        issues/               # Analysis issues viewer
-        migration-targets/    # Custom migration targets
-        migration-waves/      # Migration wave planning
-        proxies/              # Proxy configuration
-        reports/              # Adoption reports
-        repositories/         # Repository management
-        review/               # Application review
-        source-platforms/     # Source platform configuration
-        tasks/                # Background task management
+      pages/                  # Feature pages organized by domain (applications, archetypes, controls, etc.)
       queries/                # TanStack Query hooks (~28 files, one per domain)
       Paths.ts                # Route path constants (DevPaths, AdminPaths, UniversalPaths)
       Routes.tsx              # React Router config with lazy-loaded pages
@@ -81,15 +58,19 @@ tackle2-ui/
   - `MultiSelect` -- multi-value selection with chips
   - All use `FilterSelectOptionProps` (`{ value: string, label: string }`) for options
 - **Filter components** in `FilterToolbar/` handle both client-side and server-side (hub) filtering. The `categoryKey` prop drives HTML IDs and test selectors.
-- **Access control** is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`, `businessservices:put`). The `ScopeGate` component wraps protected UI sections. Scope constants are grouped in `scopes.ts`; the role-to-scope mapping lives in `auth/roles-to-scopes.ts`.
+- **Access control** is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`, `businessservices:put`). The `ScopeGate` component or the `useHasSomeScopes` / `useHasAllScopes` hooks gate protected UI sections. Scope constants are grouped in `scopes.ts`; the role-to-scope mapping lives in `auth/roles-to-scopes.ts`.
 
 ### Testing Patterns
 
-- **Unit tests** use `@testing-library/react`. Select elements by role, not by test-specific IDs.
+- **Unit tests** cover two areas:
+  - **Data processing tests** — pure function and data handling tests. High priority — these protect correctness guarantees.
+  - **Component render tests** — `@testing-library/react` with jsdom. Lower priority than data tests and e2e tests. Select elements by role, not by test-specific IDs.
 - **E2E tests** use page object models: `cypress/e2e/models/{domain}/{feature}.ts` encapsulates interactions. Shared selectors live in `cypress/e2e/views/`. Test specs are in `cypress/e2e/tests/`.
 - Cypress `.tsx` test patterns rely on `data-ouia-component-id` (PatternFly OUIA) for stable selectors.
 
 ### Environment Variables
+
+Types and documentation are defined in `common/src/env-types.ts`. Key variables summarized below.
 
 Server-side variables (used by the Express proxy, not sent to the client):
 
@@ -114,13 +95,13 @@ When reviewing or generating code changes, verify:
 
 - [ ] No truthy checks on IDs -- use `id != null` or `id !== undefined`
 - [ ] Select components use `FilterSelectOptionProps` with `value` and `label`
-- [ ] Import order follows the ESLint config (react first, then external, @patternfly, @app)
+- [ ] All changed files pass lint and format:check checks without adding more warnings
 - [ ] New strings are added to `client/public/locales/en/translation.json` and accessed via `t()`
 - [ ] Forms use `react-hook-form` with `yup` schemas, not manual state management
 - [ ] Table data uses the `table-controls` hook system, not manual filtering/sorting
 - [ ] Cypress selectors scope to the active element (listbox, modal) rather than the full page
 - [ ] API types in `models.ts` match the [Hub OpenAPI spec](https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json)
-- [ ] Access control uses `ScopeGate` or `useHasSomeScopes` with scope constants from `scopes.ts`, not role checks
+- [ ] Access control uses `ScopeGate`, `useHasSomeScopes`, or `useHasAllScopes` with scope constants from `scopes.ts`, not role checks
 
 ## Dependencies
 

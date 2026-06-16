@@ -5,6 +5,9 @@ language: en-US
 reviews:
   instructions: >
     Read AGENTS.md for the full list of coding standards, conventions, and review guidelines.
+    PR titles must start with a GitHub emoji shortcode prefix: :sparkles: (feature), :bug: (bugfix),
+    :book: (docs), :seedling: (infra), :warning: (breaking), :ghost: (no-note), or :test_tube: (test).
+    An optional [tag] prefix (e.g. [release-0.9]) may precede the emoji. Flag titles missing the emoji prefix.
   auto_review:
     enabled: true
     drafts: false
@@ -13,7 +16,8 @@ reviews:
     - path: client/src/app/api/**
       instructions: >
         Verify API model types match the Hub OpenAPI spec
-        (https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json).
+        (https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) when available,
+        but note the spec may not always be current — cross-check with actual API behavior.
         Check that REST functions use the `hub` tagged template.
     - path: client/src/app/queries/**
       instructions: >
@@ -25,10 +29,6 @@ reviews:
       instructions: >
         Verify page object model patterns are followed.
         Check that assertions do not rely on timing - use Cypress retry-ability.
-    - path: client/public/locales/**
-      instructions: >
-        Verify translation keys match usage in source code.
-        Check for missing or unused keys.
     - path: branding/**
       instructions: >
         Verify branding assets are consistent across themes.
