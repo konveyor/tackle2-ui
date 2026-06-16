@@ -51,20 +51,20 @@ export const useTokenActionsWithNotifications = () => {
   const { t } = useTranslation();
   const { pushNotification } = useNotifications();
 
-  const { mutate: deleteToken } = useDeleteTokenMutation(
+  const { mutate: revokeToken } = useDeleteTokenMutation(
     () =>
       pushNotification({
         title: t("titles.token"),
-        message: t("message.tokenDeleted"),
+        message: t("message.tokenRevoked"),
         variant: "info",
       }),
     () =>
       pushNotification({
         title: t("titles.token"),
-        message: t("message.tokenDeletionFailed"),
+        message: t("message.tokenRevocationFailed"),
         variant: "danger",
       })
   );
 
-  return { deleteToken };
+  return { revokeToken };
 };

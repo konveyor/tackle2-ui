@@ -96,7 +96,7 @@ const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
   return (
     <>
       <Modal isOpen onClose={onClose} variant="small">
-        <ModalHeader title={t("titles.createToken")} />
+        <ModalHeader title={t("titles.createApiKey")} />
         <ModalBody style={{ overflow: "hidden" }}>
           {isPending ? (
             <Bullseye>

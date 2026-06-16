@@ -1,13 +1,16 @@
 import { type FC, ReactNode, useState } from "react";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Checkbox,
   Content,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import {
   ActionsColumn,
@@ -41,29 +44,46 @@ import { useFetchUsers } from "../users/use-users";
 import { TokenCreateModal } from "./token-modal";
 import { useFetchTokens, useTokenActionsWithNotifications } from "./use-tokens";
 
-/** Categorise a token kind into one of the three filter buckets. */
 const kindCategory = (kind: string) => {
   if (kind === "access") return "access";
   if (kind === "api-key") return "api-key";
   return "other";
 };
 
+const isExpired = (token: Token) => {
+  if (!token.expiration) return false;
+  return dayjs(token.expiration).isBefore(dayjs());
+};
+
+const getLogin = (
+  id: number | undefined,
+  loginById: Record<string, string>
+) => {
+  return id !== undefined ? loginById[String(id)] : "";
+};
+
 export const TokensPage: FC = () => {
   const { t } = useTranslation();
 
   const { tokens, isLoading, fetchError } = useFetchTokens();
-  const { deleteToken } = useTokenActionsWithNotifications();
+  const { revokeToken } = useTokenActionsWithNotifications();
   const { users } = useFetchUsers();
   const [createOpen, setCreateOpen] = useState(false);
+  const [showExpired, setShowExpired] = useState(false);
+
   const loginById = Object.fromEntries(
     users.map(({ id, login }) => [String(id), login])
   );
+
+  const visibleTokens = showExpired
+    ? tokens
+    : tokens.filter((token) => !isExpired(token));
 
   const tableControls = useLocalTableControls({
     tableName: "tokens-table",
     idProperty: "id",
     dataNameProperty: "kind",
-    items: tokens,
+    items: visibleTokens,
     columnNames: {
       id: "ID",
       login: "Login",
@@ -84,7 +104,7 @@ export const TokensPage: FC = () => {
     getSortValues: (token: Token) => ({
       id: token?.id?.toString() || "",
       kind: token?.kind || "",
-      login: token?.user?.id ? loginById[String(token.user.id)] : "",
+      login: getLogin(token?.user?.id, loginById),
     }),
     filterCategories: [
       {
@@ -92,8 +112,7 @@ export const TokensPage: FC = () => {
         title: "Login",
         type: FilterType.search,
         placeholderText: "Filter by login...",
-        getItemValue: (token) =>
-          token?.user?.id ? loginById[String(token.user.id)] : "",
+        getItemValue: (token) => getLogin(token?.user?.id, loginById),
       },
       {
         categoryKey: "kind",
@@ -141,8 +160,23 @@ export const TokensPage: FC = () => {
   const toCells = ({ id, kind, user, scopes, issued, expiration }: Token) => ({
     id,
     kind,
-    login: user?.id ? loginById[String(user.id)] : "",
-    scopes: scopes?.length ?? 0,
+    login: getLogin(user?.id, loginById),
+    scopes:
+      kind === "api-key" ? (
+        <Tooltip
+          content={t("terms.allUserScopes", {
+            login: getLogin(user?.id, loginById) || "????",
+          })}
+        >
+          <span>
+            {t("terms.scopesForLogin", {
+              login: getLogin(user?.id, loginById) || "????",
+            })}
+          </span>
+        </Tooltip>
+      ) : (
+        (scopes?.length ?? 0)
+      ),
     issued: <DateCell raw={issued} />,
     expiration: <DateCell raw={expiration} />,
   });
@@ -158,15 +192,23 @@ export const TokensPage: FC = () => {
         <Toolbar {...toolbarProps}>
           <ToolbarContent>
             <FilterToolbar {...filterToolbarProps} />
+            <ToolbarItem alignSelf="center">
+              <Checkbox
+                id="show-expired-tokens"
+                label={t("terms.showExpiredTokens")}
+                isChecked={showExpired}
+                onChange={(_event, checked) => setShowExpired(checked)}
+              />
+            </ToolbarItem>
             <ScopeGate requiredScopes={tokensCreateScopes}>
               <ToolbarGroup variant="action-group">
                 <ToolbarItem>
                   <Button
                     variant="primary"
-                    aria-label={t("titles.createToken")}
+                    aria-label={t("actions.createApiKey")}
                     onClick={() => setCreateOpen(true)}
                   >
-                    {t("actions.create")}
+                    {t("actions.createApiKey")}
                   </Button>
                 </ToolbarItem>
               </ToolbarGroup>
@@ -188,7 +230,7 @@ export const TokensPage: FC = () => {
 
         <Table
           {...tableProps}
-          id="tokens-table"
+          ouiaId="tokens-table"
           aria-label={t("titles.tokenTable")}
         >
           <Thead>
@@ -208,7 +250,7 @@ export const TokensPage: FC = () => {
             </Tr>
           </Thead>
           <ConditionalTableBody
-            isNoData={tokens.length === 0}
+            isNoData={visibleTokens.length === 0}
             isLoading={isLoading}
             isError={!!fetchError}
             noDataEmptyState={
@@ -237,7 +279,9 @@ export const TokensPage: FC = () => {
                               key={`${columnKey}_${token.id}`}
                               {...getTdProps({
                                 columnKey,
-                                isCompoundExpandToggle: columnKey === "scopes",
+                                isCompoundExpandToggle:
+                                  columnKey === "scopes" &&
+                                  token.kind !== "api-key",
                                 item: token,
                                 rowIndex,
                               })}
@@ -250,8 +294,8 @@ export const TokensPage: FC = () => {
                             <ActionsColumn
                               items={[
                                 {
-                                  title: t("actions.delete"),
-                                  onClick: () => deleteToken(token),
+                                  title: t("actions.revoke"),
+                                  onClick: () => revokeToken(token),
                                   isDanger: true,
                                 },
                               ]}
@@ -268,9 +312,16 @@ export const TokensPage: FC = () => {
                           {...getExpandedContentTdProps({ item: token })}
                         >
                           <ExpandableRowContent>
-                            {groupScopes(token?.scopes ?? []).map((group) => (
-                              <ScopeLabels key={group.resource} group={group} />
-                            ))}
+                            {token.kind === "api-key"
+                              ? null
+                              : groupScopes(token?.scopes ?? []).map(
+                                  (group) => (
+                                    <ScopeLabels
+                                      key={group.resource}
+                                      group={group}
+                                    />
+                                  )
+                                )}
                           </ExpandableRowContent>
                         </Td>
                       </Tr>

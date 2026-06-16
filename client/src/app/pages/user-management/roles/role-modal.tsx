@@ -13,37 +13,62 @@ import {
   ModalHeader,
 } from "@patternfly/react-core";
 
+import { Ref } from "@app/api/models";
+
 import { Role } from "../types";
 
 import { ROLE_DEFAULTS, RoleForm, RoleFormValues } from "./role-form";
 import { useRoleActionsWithNotifications } from "./use-roles";
 
 export interface RoleModalProps {
-  role?: Role;
+  name: string;
+  permissions: Ref[];
+  roleToEdit?: Role;
   onClose: () => void;
 }
 
-export const RoleCreateModal: FC<RoleModalProps & { isOpen: boolean }> = ({
-  isOpen,
-  onClose,
-}) => isOpen && <RoleModal onClose={onClose} />;
+export const RoleCreateModal: FC<{
+  isOpen: boolean;
+  cloneFrom?: Role;
+  onClose: () => void;
+}> = ({ isOpen, cloneFrom, onClose }) =>
+  isOpen && (
+    <RoleModal
+      name={ROLE_DEFAULTS.name}
+      permissions={cloneFrom?.permissions ?? ROLE_DEFAULTS.permissions}
+      onClose={onClose}
+    />
+  );
 
-export const RoleEditModal: FC<RoleModalProps> = ({ role, onClose }) =>
-  !!role && <RoleModal role={role} onClose={onClose} />;
+export const RoleEditModal: FC<{ role?: Role; onClose: () => void }> = ({
+  role,
+  onClose,
+}) =>
+  !!role && (
+    <RoleModal
+      name={role.name}
+      permissions={role.permissions}
+      roleToEdit={role}
+      onClose={onClose}
+    />
+  );
 
 const schema = object().shape({
   name: string().required(),
   permissions: array().of(object()).required(),
 });
 
-const RoleModal: FC<RoleModalProps> = ({ role, onClose }) => {
+const RoleModal: FC<RoleModalProps> = ({
+  name,
+  permissions,
+  roleToEdit,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const { createRole, editRole } = useRoleActionsWithNotifications();
 
   const form = useForm<RoleFormValues>({
-    defaultValues: role
-      ? { name: role.name, permissions: role.permissions }
-      : ROLE_DEFAULTS,
+    defaultValues: { name, permissions },
     resolver: yupResolver(schema),
     mode: "all",
   });
@@ -51,30 +76,24 @@ const RoleModal: FC<RoleModalProps> = ({ role, onClose }) => {
   const {
     handleSubmit,
     formState: { isValid, isSubmitting, isValidating, isDirty },
-    reset,
   } = form;
 
-  const handleClose = () => {
-    reset(ROLE_DEFAULTS);
-    onClose();
-  };
-
   const onSubmit = handleSubmit((values) => {
-    if (role) {
+    if (roleToEdit) {
       editRole(
-        { ...role, name: values.name, permissions: values.permissions },
-        { onSuccess: handleClose }
+        { ...roleToEdit, name: values.name, permissions: values.permissions },
+        { onSuccess: onClose }
       );
     } else {
-      createRole(values, { onSuccess: handleClose });
+      createRole(values, { onSuccess: onClose });
     }
   });
 
   return (
     <>
-      <Modal isOpen onClose={handleClose} variant="medium">
+      <Modal isOpen onClose={onClose} variant="medium">
         <ModalHeader
-          title={role ? t("titles.editRole") : t("titles.createRole")}
+          title={roleToEdit ? t("titles.editRole") : t("titles.createRole")}
         />
         <ModalBody>
           <RoleForm form={form} />
@@ -85,9 +104,9 @@ const RoleModal: FC<RoleModalProps> = ({ role, onClose }) => {
             isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
             onClick={onSubmit}
           >
-            {role ? t("actions.save") : t("actions.create")}
+            {roleToEdit ? t("actions.save") : t("actions.create")}
           </Button>
-          <Button variant="link" onClick={handleClose}>
+          <Button variant="link" onClick={onClose}>
             {t("actions.cancel")}
           </Button>
         </ModalFooter>

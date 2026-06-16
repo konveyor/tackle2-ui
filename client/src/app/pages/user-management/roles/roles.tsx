@@ -49,6 +49,7 @@ export const RolesPage: FC = () => {
   const { deleteRole } = useRoleActionsWithNotifications();
   const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
   const [createOpen, setCreateOpen] = useState(false);
+  const [cloneSource, setCloneSource] = useState<Role | undefined>(undefined);
   const { permissions: allPermissions = [] } = useFetchPermissions();
 
   const tableControls = useLocalTableControls({
@@ -233,6 +234,10 @@ export const RolesPage: FC = () => {
                                   : undefined,
                               },
                               {
+                                title: t("actions.duplicate"),
+                                onClick: () => setCloneSource(role),
+                              },
+                              {
                                 title: t("actions.delete"),
                                 onClick: () => deleteRole(role),
                                 isDanger: true,
@@ -284,8 +289,12 @@ export const RolesPage: FC = () => {
       </PageSection>
 
       <RoleCreateModal
-        isOpen={createOpen}
-        onClose={() => setCreateOpen(false)}
+        isOpen={createOpen || !!cloneSource}
+        cloneFrom={cloneSource}
+        onClose={() => {
+          setCreateOpen(false);
+          setCloneSource(undefined);
+        }}
       />
       <RoleEditModal
         role={roleToEdit}
