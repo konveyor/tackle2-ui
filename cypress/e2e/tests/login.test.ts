@@ -21,7 +21,7 @@ import { migration } from "../types/constants";
 describe(["@ci"], "Log In", () => {
   it("Open the UI and navigate to Migration/Application Inventory page", function () {
     selectUserPerspective(migration);
-    cy.get("h1").should("contain", "Application inventory");
+    cy.get("h1", { timeout: 2000 }).should("contain", "Application inventory");
     cy.screenshot();
   });
 });
