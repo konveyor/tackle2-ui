@@ -3,13 +3,13 @@ import { UseFormReturn } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Form } from "@patternfly/react-core";
 
+import { UserRole as Role } from "@app/api/models";
 import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 
-import { useFetchPermissions } from "../permissions/use-permissions";
-import { Role } from "../types";
+import { useFetchPermissions } from "../../../queries/permissions";
 
 import { DualPermissionsList } from "./dual-permissions-list";
 

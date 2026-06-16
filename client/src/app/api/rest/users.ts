@@ -1,7 +1,6 @@
 import axios from "axios";
 
-import type { Ref } from "@app/api/models";
-import type { AuthMe, User } from "@app/pages/user-management/types";
+import type { AuthMe, Ref, User } from "@app/api/models";
 
 import { HEADERS, hub, template } from "../rest";
 

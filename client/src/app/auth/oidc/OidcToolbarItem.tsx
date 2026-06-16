@@ -23,8 +23,8 @@ import {
 
 import { LocalStorageKey } from "@app/Constants";
 import { UniversalPaths } from "@app/Paths";
-import { useFetchCurrentUserAndScopes } from "@app/pages/user-management/users/use-users";
 import { UserEditModal } from "@app/pages/user-management/users/user-modal";
+import { useFetchCurrentUserAndScopes } from "@app/queries/users";
 import { ScopeGate, tokensReadScopes } from "@app/scopes";
 
 import { useAuth } from "../hooks";

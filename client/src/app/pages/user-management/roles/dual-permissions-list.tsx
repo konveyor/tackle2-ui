@@ -18,9 +18,8 @@ import {
   SearchIcon,
 } from "@patternfly/react-icons";
 
-import { Ref } from "@app/api/models";
+import { Permission, Ref } from "@app/api/models";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
-import { Permission } from "@app/pages/user-management/types";
 import { toRef } from "@app/utils/model-utils";
 
 const toggleSet = (

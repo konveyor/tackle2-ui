@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { Permission } from "@app/pages/user-management/types";
+import type { Permission } from "@app/api/models";
 
 import { HEADERS, hub, template } from "../rest";
 

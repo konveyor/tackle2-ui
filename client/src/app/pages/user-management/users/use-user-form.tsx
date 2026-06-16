@@ -4,9 +4,8 @@ import { create as array } from "yup/lib/array";
 import { create as object } from "yup/lib/object";
 import { create as string } from "yup/lib/string";
 
+import { User } from "@app/api/models";
 import { NewUser } from "@app/api/rest";
-
-import { User } from "../types";
 
 import { useUserActionsWithNotifications } from "./use-users";
 

@@ -8,7 +8,7 @@ import {
   ModalHeader,
 } from "@patternfly/react-core";
 
-import { User } from "../types";
+import { User } from "@app/api/models";
 
 import { useUserForm } from "./use-user-form";
 import { UserForm } from "./user-form";

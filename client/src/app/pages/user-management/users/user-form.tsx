@@ -9,9 +9,8 @@ import {
   HookFormPFGroupController,
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
+import { useFetchRoles } from "@app/queries/roles";
 import { ADMIN_PUT, ScopeGate, rolesReadScopes } from "@app/scopes";
-
-import { useFetchRoles } from "../roles/use-roles";
 
 import { UserFormValues } from "./use-user-form";
 

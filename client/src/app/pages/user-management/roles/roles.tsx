@@ -21,6 +21,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
+import { UserRole as Role } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -30,14 +31,14 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useFetchPermissions } from "@app/queries/permissions";
+import { useFetchRoles } from "@app/queries/roles";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { ScopeLabels, groupScopes } from "../components/scope-labels";
-import { useFetchPermissions } from "../permissions/use-permissions";
-import { Role } from "../types";
 
 import { RoleCreateModal, RoleEditModal } from "./role-modal";
-import { useFetchRoles, useRoleActionsWithNotifications } from "./use-roles";
+import { useRoleActionsWithNotifications } from "./use-roles";
 
 /** Built-in / seeded roles cannot be edited or deleted. */
 const isSeededRole = (role: Role) => role.id < 1000;

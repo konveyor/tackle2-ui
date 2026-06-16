@@ -16,10 +16,10 @@ import {
   Spinner,
 } from "@patternfly/react-core";
 
-import { PersonalAccessToken } from "../types";
+import { PersonalAccessToken } from "@app/api/models";
+import { useCreateTokenMutation } from "@app/queries/tokens";
 
 import { TOKEN_FORM_DEFAULTS, TokenForm, TokenFormValues } from "./token-form";
-import { useCreateTokenMutation } from "./use-tokens";
 
 export interface TokenCreateModalProps {
   onClose: () => void;

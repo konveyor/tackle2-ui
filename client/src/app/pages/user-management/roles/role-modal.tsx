@@ -13,9 +13,7 @@ import {
   ModalHeader,
 } from "@patternfly/react-core";
 
-import { Ref } from "@app/api/models";
-
-import { Role } from "../types";
+import { Ref, UserRole as Role } from "@app/api/models";
 
 import { ROLE_DEFAULTS, RoleForm, RoleFormValues } from "./role-form";
 import { useRoleActionsWithNotifications } from "./use-roles";

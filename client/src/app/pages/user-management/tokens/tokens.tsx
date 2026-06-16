@@ -24,6 +24,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
+import { Token } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -33,16 +34,16 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useFetchTokens } from "@app/queries/tokens";
+import { useFetchUsers } from "@app/queries/users";
 import { ScopeGate, tokensCreateScopes, tokensDeleteScopes } from "@app/scopes";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { DateCell } from "../components/date-cell";
 import { ScopeLabels, groupScopes } from "../components/scope-labels";
-import { Token } from "../types";
-import { useFetchUsers } from "../users/use-users";
 
 import { TokenCreateModal } from "./token-modal";
-import { useFetchTokens, useTokenActionsWithNotifications } from "./use-tokens";
+import { useTokenActionsWithNotifications } from "./use-tokens";
 
 const kindCategory = (kind: string) => {
   if (kind === "access") return "access";

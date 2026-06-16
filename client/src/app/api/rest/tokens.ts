@@ -1,9 +1,6 @@
 import axios from "axios";
 
-import type {
-  PersonalAccessToken,
-  Token,
-} from "@app/pages/user-management/types";
+import type { PersonalAccessToken, Token } from "@app/api/models";
 
 import { HEADERS, hub, template } from "../rest";
 

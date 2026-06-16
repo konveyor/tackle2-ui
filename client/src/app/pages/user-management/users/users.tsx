@@ -21,6 +21,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
+import { User } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -30,12 +31,12 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
+import { useFetchUsers } from "@app/queries/users";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
-import { User } from "../types";
 
 import { isSeededUser } from "./use-user-form";
-import { useFetchUsers, useUserActionsWithNotifications } from "./use-users";
+import { useUserActionsWithNotifications } from "./use-users";
 import { UserCreateModal, UserEditModal } from "./user-modal";
 
 export const UsersPage: FC = () => {

@@ -1,100 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useTranslation } from "react-i18next";
 
-import {
-  createUser,
-  deleteUser,
-  getAuthMe,
-  getUsers,
-  updateUser,
-} from "@app/api/rest";
 import { useNotifications } from "@app/components/NotificationsContext";
-
-import { AuthMe, User } from "../types";
-
-export const UsersQueryKey = "users";
-export const CurrentUserQueryKey = "current-user";
-
-export const useFetchUsers = () => {
-  const { data, isLoading, error } = useQuery<User[], AxiosError>({
-    queryKey: [UsersQueryKey],
-    queryFn: getUsers,
-  });
-
-  return {
-    users: data ?? [],
-    isLoading,
-    fetchError: error,
-  };
-};
-
-export const useFetchCurrentUserAndScopes = () => {
-  const { data, isLoading, error } = useQuery<AuthMe, AxiosError>({
-    queryKey: [CurrentUserQueryKey],
-    queryFn: getAuthMe,
-  });
-
-  return {
-    userAndScopes: data,
-    isLoading,
-    fetchError: error,
-  };
-};
-
-export const useDeleteUserMutation = (
-  onSuccess?: () => void,
-  onError?: () => void
-) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: deleteUser,
-    onSuccess: () => {
-      queryClient
-        .invalidateQueries({ queryKey: [UsersQueryKey] })
-        .then(() => onSuccess?.());
-    },
-    onError: () => {
-      onError?.();
-    },
-  });
-};
-
-export const useUpdateUserMutation = (
-  onSuccess?: () => void,
-  onError?: () => void
-) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: updateUser,
-    onSuccess: () => {
-      queryClient
-        .invalidateQueries({ queryKey: [UsersQueryKey] })
-        .then(() => onSuccess?.());
-    },
-    onError: () => {
-      onError?.();
-    },
-  });
-};
-
-export const useCreateUserMutation = (
-  onSuccess?: () => void,
-  onError?: () => void
-) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: createUser,
-    onSuccess: () => {
-      queryClient
-        .invalidateQueries({ queryKey: [UsersQueryKey] })
-        .then(() => onSuccess?.());
-    },
-    onError: () => {
-      onError?.();
-    },
-  });
-};
+import {
+  useCreateUserMutation,
+  useDeleteUserMutation,
+  useUpdateUserMutation,
+} from "@app/queries/users";
 
 export const useUserActionsWithNotifications = () => {
   const { t } = useTranslation();

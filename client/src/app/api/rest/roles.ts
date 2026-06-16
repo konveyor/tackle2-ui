@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { Role } from "@app/pages/user-management/types";
+import type { UserRole as Role } from "@app/api/models";
 
 import { HEADERS, hub, template } from "../rest";
 

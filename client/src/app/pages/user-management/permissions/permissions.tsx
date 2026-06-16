@@ -17,6 +17,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
+import { Permission } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -27,10 +28,8 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
+import { useFetchPermissions } from "../../../queries/permissions";
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
-import { Permission } from "../types";
-
-import { useFetchPermissions } from "./use-permissions";
 
 export const PermissionsPage: FC = () => {
   const { t } = useTranslation();

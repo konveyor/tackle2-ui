@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
+import { Permission } from "@app/api/models";
 import { getPermissions } from "@app/api/rest";
-
-import { Permission } from "../types";
 
 export const PermissionsQueryKey = "permissions";
 
