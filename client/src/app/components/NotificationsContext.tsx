@@ -47,39 +47,41 @@ export const NotificationsProvider: React.FunctionComponent<
 > = ({ children }: INotificationsProvider) => {
   const [notifications, setNotifications] = React.useState<INotification[]>([]);
 
-  const pushNotification = (
-    notification: INotification,
-    clearNotificationDelay?: number
-  ) => {
-    setNotifications((prevNotifications) => [
-      ...prevNotifications,
-      { ...notificationDefault, ...notification },
-    ]);
+  const pushNotification = React.useCallback(
+    (notification: INotification, clearNotificationDelay?: number) => {
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        { ...notificationDefault, ...notification },
+      ]);
 
-    setTimeout(() => {
-      setNotifications((prevNotifications) => {
-        return prevNotifications.filter(
-          (notif) => notif.title !== notification.title
+      setTimeout(() => {
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter(
+            (notif) => notif.title !== notification.title
+          )
         );
-      });
-    }, clearNotificationDelay || 8000);
-  };
+      }, clearNotificationDelay || 8000);
+    },
+    []
+  );
 
-  const dismissNotification = (title: string) => {
-    const remainingNotifications = notifications.filter(
-      (n) => n.title !== title
+  const dismissNotification = React.useCallback((title: string) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((n) => n.title !== title)
     );
-    setNotifications(remainingNotifications);
-  };
+  }, []);
+
+  const contextValue = React.useMemo(
+    () => ({
+      pushNotification,
+      dismissNotification,
+      notifications,
+    }),
+    [pushNotification, dismissNotification, notifications]
+  );
 
   return (
-    <NotificationsContext.Provider
-      value={{
-        pushNotification,
-        dismissNotification,
-        notifications,
-      }}
-    >
+    <NotificationsContext.Provider value={contextValue}>
       {children}
     </NotificationsContext.Provider>
   );
