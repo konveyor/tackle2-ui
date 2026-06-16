@@ -91,6 +91,7 @@ export const TokensPage: FC = () => {
       scopes: "Scopes",
       issued: "Issued",
       expiration: "Expiration",
+      lifespan: "Lifespan(hours)",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -99,12 +100,15 @@ export const TokensPage: FC = () => {
     isExpansionEnabled: true,
     expandableVariant: "compound",
     hasActionsColumn: true,
-    sortableColumns: ["id", "kind"],
+    sortableColumns: ["id", "kind", "issued", "expiration", "lifespan"],
     initialSort: { columnKey: "id", direction: "desc" },
     getSortValues: (token: Token) => ({
-      id: token?.id?.toString() || "",
-      kind: token?.kind || "",
+      id: token?.id ?? "",
+      kind: token?.kind ?? "",
       login: getLogin(token?.user?.id, loginById),
+      expiration: token?.expiration ?? "",
+      issued: token?.issued ?? "",
+      lifespan: token?.lifespan ?? "",
     }),
     filterCategories: [
       {
@@ -157,7 +161,15 @@ export const TokensPage: FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {};
 
-  const toCells = ({ id, kind, user, scopes, issued, expiration }: Token) => ({
+  const toCells = ({
+    id,
+    kind,
+    user,
+    scopes,
+    issued,
+    expiration,
+    lifespan,
+  }: Token) => ({
     id,
     kind,
     login: getLogin(user?.id, loginById),
@@ -179,6 +191,7 @@ export const TokensPage: FC = () => {
       ),
     issued: <DateCell raw={issued} />,
     expiration: <DateCell raw={expiration} />,
+    lifespan: lifespan ?? "",
   });
 
   return (

@@ -1,6 +1,9 @@
 import { FC, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { TFunction } from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import * as yup from "yup";
 import {
   Alert,
   Bullseye,
@@ -27,6 +30,22 @@ export const TokenCreateModal: FC<
 > = ({ isOpen, onClose }) =>
   isOpen && <TokenCreateModalInternal onClose={onClose} />;
 
+const validationSchema = (t: TFunction) =>
+  yup.object().shape({
+    lifespan: yup
+      .mixed()
+      .test(
+        "positive-integer-or-empty",
+        t("message.lifespanMustBePositiveOrEmpty"),
+        (value) => {
+          if (value === "" || value === undefined || value === null)
+            return true;
+          const n = Number(value);
+          return Number.isFinite(n) && Number.isInteger(n) && n > 0;
+        }
+      ),
+  });
+
 const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
   const { t } = useTranslation();
   const [revealedPat, setRevealedPat] = useState<PersonalAccessToken | null>(
@@ -35,6 +54,7 @@ const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
 
   const form = useForm<TokenFormValues>({
     defaultValues: TOKEN_FORM_DEFAULTS,
+    resolver: yupResolver(validationSchema(t)),
     mode: "onChange",
   });
   const {

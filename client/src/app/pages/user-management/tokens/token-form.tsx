@@ -29,25 +29,6 @@ export const TokenForm: FC<TokenFormProps> = ({ form }) => {
         fieldId="lifespan"
         type="number"
         helperText={t("message.tokenLifespanHint")}
-        rules={{
-          validate: (value) => {
-            // Empty → use server default; that is always valid.
-            if (value === "" || value === undefined || value === null) {
-              return true;
-            }
-            const n = Number(value);
-            if (!Number.isFinite(n)) {
-              return t("message.lifespanMustBeNumber");
-            }
-            if (!Number.isInteger(n)) {
-              return t("message.lifespanMustBeInteger");
-            }
-            if (n <= 0) {
-              return t("message.lifespanMustBePositive");
-            }
-            return true;
-          },
-        }}
       />
     </Form>
   );
