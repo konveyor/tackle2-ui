@@ -15,7 +15,6 @@ import {
   AngleDoubleRightIcon,
   AngleLeftIcon,
   AngleRightIcon,
-  SearchIcon,
 } from "@patternfly/react-icons";
 
 import { Permission, Ref } from "@app/api/models";
@@ -131,7 +130,6 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
       >
         {availableFilter && visibleAvailable.length === 0 && (
           <SimpleEmptyState
-            icon={SearchIcon}
             title={t("message.noResultsFoundTitle")}
             description={t("message.noResultsFoundBody")}
             primaryAction={
@@ -217,7 +215,6 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
         {chosenFilter && visibleChosen.length === 0 && (
           <SimpleEmptyState
             title={t("message.noResultsFoundTitle")}
-            icon={SearchIcon}
             description={t("message.noResultsFoundBody")}
             primaryAction={
               <Button variant="link" onClick={() => setChosenFilter("")}>
