@@ -19,6 +19,10 @@ import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
+import { PermissionsPage } from "./pages/user-management/permissions/permissions";
+import { RolesPage } from "./pages/user-management/roles/roles";
+import { TokensPage } from "./pages/user-management/tokens/tokens";
+import { UsersPage } from "./pages/user-management/users/users";
 
 const Review = lazy(() => import("./pages/review/review-page"));
 const AssessmentSettings = lazy(
@@ -271,6 +275,11 @@ export const universalRoutes: IRoute<UniversalPathValues>[] = [
     comp: TaskDetails,
     exact: false,
   },
+  {
+    comp: TokensPage,
+    path: Paths.tokens,
+    exact: false,
+  },
 ];
 
 export const administrationRoutes: IRoute<AdminPathValues>[] = [
@@ -323,6 +332,21 @@ export const administrationRoutes: IRoute<AdminPathValues>[] = [
   {
     comp: AssetGenerators,
     path: Paths.assetGenerators,
+    exact: false,
+  },
+  {
+    comp: UsersPage,
+    path: Paths.users,
+    exact: false,
+  },
+  {
+    comp: RolesPage,
+    path: Paths.roles,
+    exact: false,
+  },
+  {
+    comp: PermissionsPage,
+    path: Paths.permissions,
     exact: false,
   },
 ];

@@ -334,6 +334,33 @@ const AdminSidebar = ({
             {t("sidebar.tasks")}
           </NavLink>
         </NavItem>
+        <NavExpandable
+          title={t("sidebar.group.userManagement")}
+          srText={t("sidebar.group.userManagement")}
+          groupId="admin-user-management"
+          isExpanded
+        >
+          <NavItem>
+            <NavLink to={AdminPaths.users} activeClassName="pf-m-current">
+              {t("sidebar.users")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={UniversalPaths.tokens} activeClassName="pf-m-current">
+              {t("sidebar.tokens")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={AdminPaths.roles} activeClassName="pf-m-current">
+              {t("sidebar.roles")}
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink to={AdminPaths.permissions} activeClassName="pf-m-current">
+              {t("sidebar.permissions")}
+            </NavLink>
+          </NavItem>
+        </NavExpandable>
       </NavList>
     </PersonaSidebar>
   );

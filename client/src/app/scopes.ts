@@ -140,3 +140,9 @@ export const settingsWriteScopes = [
   "settings:post",
   "settings:delete",
 ];
+
+export const tokensReadScopes = ["tokens:get"];
+export const tokensCreateScopes = ["tokens:post"];
+export const tokensDeleteScopes = ["tokens:delete"];
+export const rolesReadScopes = ["roles:get"];
+export const ADMIN_PUT = "admin:put";

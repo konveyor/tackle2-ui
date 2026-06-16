@@ -60,6 +60,7 @@ export const UniversalPaths = {
   tasks: "/tasks",
   taskDetails: "/tasks/:taskId",
   taskDetailsAttachment: "/tasks/:taskId/attachments/:attachmentId",
+  tokens: "/tokens",
 } as const;
 
 export type UniversalPathValues =
@@ -79,6 +80,9 @@ export const AdminPaths = {
   jira: "/jira",
   sourcePlatforms: "/source-platforms",
   assetGenerators: "/asset-generators",
+  users: "/users",
+  roles: "/roles",
+  permissions: "/permissions",
 } as const;
 
 export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];
