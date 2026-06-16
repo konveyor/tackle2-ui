@@ -25,10 +25,7 @@ import {
   createMultipleStakeholderGroups,
   createMultipleStakeholders,
   createMultipleTags,
-  deleteAllBusinessServices,
   deleteAllMigrationWaves,
-  deleteAllStakeholderGroups,
-  deleteAllStakeholders,
   deleteApplicationTableRows,
   getAuthHeaders,
   login,
@@ -76,9 +73,6 @@ describe(
       cy.visit("/");
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
-      deleteAllStakeholders();
-      deleteAllStakeholderGroups();
-      deleteAllBusinessServices();
       cleanupDependenciesData();
       seedDependenciesData();
 
@@ -252,6 +246,8 @@ describe(
 
     after("Perform test data clean up", function () {
       login();
+      cy.visit("/");
+      cleanupDependenciesData();
       getAuthHeaders().then((headers) => {
         if (archetype?.id != null && archetype.id > 0) {
           archetype.deleteViaApi(headers);

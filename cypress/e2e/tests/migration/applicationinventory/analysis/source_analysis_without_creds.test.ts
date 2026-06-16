@@ -190,10 +190,11 @@ describe(["@tier0"], "Tier 0 Analysis and Static Report validation ", () => {
 
   after("Perform test data clean up", function () {
     login();
+    cy.visit("/");
     getAuthHeaders().then((headers) => {
-      Application.deleteAllViaApi(headers);
-      Credentials.deleteAllViaApi(headers);
-      AnalysisProfile.deleteAllViaApi(headers);
+      staticReportApp.deleteViaApi(headers);
+      credentialsList.forEach((cred) => cred.deleteViaApi(headers));
+      profilesToDelete.forEach((profile) => profile.delete());
     });
   });
 });
