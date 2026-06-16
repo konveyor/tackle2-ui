@@ -50,8 +50,9 @@ export const useDeleteUserMutation = (
   return useMutation({
     mutationFn: deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [UsersQueryKey] });
-      onSuccess?.();
+      queryClient
+        .invalidateQueries({ queryKey: [UsersQueryKey] })
+        .then(() => onSuccess?.());
     },
     onError: () => {
       onError?.();
@@ -67,8 +68,9 @@ export const useUpdateUserMutation = (
   return useMutation({
     mutationFn: updateUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [UsersQueryKey] });
-      onSuccess?.();
+      queryClient
+        .invalidateQueries({ queryKey: [UsersQueryKey] })
+        .then(() => onSuccess?.());
     },
     onError: () => {
       onError?.();
@@ -84,8 +86,9 @@ export const useCreateUserMutation = (
   return useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [UsersQueryKey] });
-      onSuccess?.();
+      queryClient
+        .invalidateQueries({ queryKey: [UsersQueryKey] })
+        .then(() => onSuccess?.());
     },
     onError: () => {
       onError?.();

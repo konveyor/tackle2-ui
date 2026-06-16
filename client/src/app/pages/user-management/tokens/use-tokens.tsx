@@ -25,8 +25,9 @@ export const useDeleteTokenMutation = (
   return useMutation({
     mutationFn: deleteToken,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [TokensQueryKey] });
-      onSuccess?.();
+      queryClient
+        .invalidateQueries({ queryKey: [TokensQueryKey] })
+        .then(() => onSuccess?.());
     },
     onError: () => onError?.(),
   });
@@ -40,8 +41,9 @@ export const useCreateTokenMutation = (
   return useMutation({
     mutationFn: createToken,
     onSuccess: (pat) => {
-      queryClient.invalidateQueries({ queryKey: [TokensQueryKey] });
-      onSuccess?.(pat);
+      queryClient
+        .invalidateQueries({ queryKey: [TokensQueryKey] })
+        .then(() => onSuccess?.(pat));
     },
     onError: () => onError?.(),
   });

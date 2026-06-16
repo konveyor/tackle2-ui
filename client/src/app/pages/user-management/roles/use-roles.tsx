@@ -25,8 +25,9 @@ export const useCreateRoleMutation = (
   return useMutation({
     mutationFn: createRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [RolesQueryKey] });
-      onSuccess?.();
+      queryClient
+        .invalidateQueries({ queryKey: [RolesQueryKey] })
+        .then(() => onSuccess?.());
     },
     onError: () => onError?.(),
   });
@@ -40,7 +41,9 @@ export const useUpdateRoleMutation = (
   return useMutation({
     mutationFn: updateRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [RolesQueryKey] });
+      queryClient
+        .invalidateQueries({ queryKey: [RolesQueryKey] })
+        .then(() => onSuccess?.());
       onSuccess?.();
     },
     onError: () => onError?.(),
@@ -55,7 +58,9 @@ export const useDeleteRoleMutation = (
   return useMutation({
     mutationFn: deleteRole,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [RolesQueryKey] });
+      queryClient
+        .invalidateQueries({ queryKey: [RolesQueryKey] })
+        .then(() => onSuccess?.());
       onSuccess?.();
     },
     onError: () => onError?.(),
