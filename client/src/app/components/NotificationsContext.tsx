@@ -48,19 +48,22 @@ export const NotificationsProvider: React.FunctionComponent<
   const [notifications, setNotifications] = React.useState<INotification[]>([]);
 
   const pushNotification = React.useCallback(
-    (notification: INotification, clearNotificationDelay?: number) => {
+    (notification: INotification, clearNotificationDelay: number = 8000) => {
       setNotifications((prevNotifications) => [
         ...prevNotifications,
         { ...notificationDefault, ...notification },
       ]);
 
-      setTimeout(() => {
-        setNotifications((prevNotifications) =>
-          prevNotifications.filter(
-            (notif) => notif.title !== notification.title
-          )
-        );
-      }, clearNotificationDelay || 8000);
+      setTimeout(
+        () => {
+          setNotifications((prevNotifications) =>
+            prevNotifications.filter(
+              (notif) => notif.title !== notification.title
+            )
+          );
+        },
+        clearNotificationDelay < 0 ? 0 : clearNotificationDelay
+      );
     },
     []
   );
