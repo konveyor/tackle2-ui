@@ -191,7 +191,9 @@ export class User {
       ...(headers && { headers }),
     }).then((response) => {
       const users = response.body;
-      const user = users.find((u: any) => u.login === login);
+      const user = users.find(
+        (u: { login: string; id: number }) => u.login === login
+      );
       if (user) {
         cy.request({
           method: "DELETE",
