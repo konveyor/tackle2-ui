@@ -222,7 +222,6 @@ export function login(
     sessionId,
     () => {
       cy.visit("/", { timeout: 120 * SEC });
-      cy.log("Checking if login is required");
       cy.uiEnvironmentConfig().then((env) => {
         if (env["AUTH_REQUIRED"] === "true") {
           cy.log("AUTH is enabled, logging in");

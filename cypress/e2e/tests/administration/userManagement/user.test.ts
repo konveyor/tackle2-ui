@@ -19,12 +19,22 @@ import { getRandomOidcUserData } from "../../../../utils/data_utils";
 import { exists, login, logout, notExists } from "../../../../utils/utils";
 import { User } from "../../../models/administration/userManagement/user";
 
-describe(["@tier0"], "User CRUD operations", () => {
-  before("Login as admin", () => {
-    login();
+describe(["@tier1"], "User CRUD operations", () => {
+  let authEnabled = false;
+
+  before("Check if auth is enabled and login", () => {
+    cy.uiEnvironmentConfig().then((env) => {
+      authEnabled = env["AUTH_REQUIRED"] === "true";
+      if (authEnabled) {
+        login();
+      }
+    });
   });
 
-  it("Create, edit, and delete user with login verification", () => {
+  it("Create, edit, and delete user with login verification", function () {
+    if (!authEnabled) {
+      this.skip();
+    }
     const userData = getRandomOidcUserData();
     userData.roles = ["migrator"];
     const user = new User(userData);

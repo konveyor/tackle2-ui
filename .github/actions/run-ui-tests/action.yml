@@ -133,11 +133,11 @@ runs:
         cd ui-tests/cypress
         SPEC=$(node scripts/findTierFiles.mjs ${TEST_TAGS})
 
-        # Exclude rbac tests if auth is not required
+        # Exclude rbac and oidc tests if auth is not required
         if [[ "$AUTH_REQUIRED" != "true" ]]; then
-          echo "Auth is disabled - excluding rbac tests"
-          # Filter out any rbac test files from the spec
-          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v '/rbac/' || true; } | tr '\n' ',' | sed 's/,$//')
+          echo "Auth is disabled - excluding rbac and oidc tests"
+          # Filter out any rbac and userManagement test files from the spec
+          SPEC=$(echo "$SPEC" | tr ',' '\n' | { grep -v -e '/rbac/' -e '/userManagement/' || true; } | tr '\n' ',' | sed 's/,$//')
         fi
 
         echo "test_spec=${SPEC}" >> "$GITHUB_ENV"

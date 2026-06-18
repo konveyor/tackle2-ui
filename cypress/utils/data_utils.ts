@@ -352,7 +352,6 @@ export function getRandomUserData(): UserData {
 export function getRandomOidcUserData(): OidcUserData {
   const fullName = getFullName();
   const firstName = fullName.split(" ")[0];
-  const lastName = fullName.split(" ")[1];
   return {
     login: firstName.toLowerCase() + getRandomWord(4),
     name: fullName,
