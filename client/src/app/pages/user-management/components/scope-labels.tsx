@@ -48,22 +48,25 @@ export const groupScopes = (scopes: string[]) =>
 
 export const ScopeLabels: FC<{
   group: { resource: string; verbs: string[] };
-}> = ({ group }) => (
-  <>
-    <LabelGroup
-      isVertical
-      numLabels={group.verbs.length}
-      categoryName={group.resource}
-      isCompact
-    >
-      {group.verbs
-        .filter(Boolean)
-        .toSorted(sortGetLast)
-        .map((verb) => (
+}> = ({ group }) => {
+  const verbs = group.verbs.filter(Boolean);
+  if (verbs.length === 0) {
+    return <Label variant="outline">{group.resource}</Label>;
+  }
+  return (
+    <>
+      <LabelGroup
+        isVertical
+        numLabels={group.verbs.length}
+        categoryName={group.resource}
+        isCompact
+      >
+        {verbs.toSorted(sortGetLast).map((verb) => (
           <Label key={verb} color={verbToColor(verb)} isCompact>
             {verb}
           </Label>
         ))}
-    </LabelGroup>
-  </>
-);
+      </LabelGroup>
+    </>
+  );
+};
