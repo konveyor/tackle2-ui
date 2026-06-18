@@ -173,6 +173,14 @@ export type UserData = {
   roles?: string[];
 };
 
+export type OidcUserData = {
+  login: string;
+  name: string;
+  email: string;
+  password: string;
+  roles?: string[];
+};
+
 export type RbacValidationRules = {
   "Create new"?: boolean;
   "Analysis profile creation"?: boolean;

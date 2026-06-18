@@ -215,7 +215,6 @@ export function login(
    * The sessionId is used to create a new session or to try to recover a previous one
    */
   const sessionId = username + (firstLogin ? "FirstLogin" : "");
-
   cy.log(
     `login a new session or grab the currently logged in session [${sessionId}]`
   );
@@ -223,7 +222,7 @@ export function login(
     sessionId,
     () => {
       cy.visit("/", { timeout: 120 * SEC });
-
+      cy.log("Checking if login is required");
       cy.uiEnvironmentConfig().then((env) => {
         if (env["AUTH_REQUIRED"] === "true") {
           cy.log("AUTH is enabled, logging in");

@@ -29,6 +29,7 @@ import {
   CredentialsJiraData,
   GeneratorRepository,
   JiraConnectionData,
+  OidcUserData,
   ProxyData,
   RulesManualFields,
   RulesRepositoryFields,
@@ -345,6 +346,18 @@ export function getRandomUserData(): UserData {
     lastName: lastName,
     email: getEmail(),
     userEnabled: true,
+  };
+}
+
+export function getRandomOidcUserData(): OidcUserData {
+  const fullName = getFullName();
+  const firstName = fullName.split(" ")[0];
+  const lastName = fullName.split(" ")[1];
+  return {
+    login: firstName.toLowerCase() + getRandomWord(4),
+    name: fullName,
+    email: getEmail(),
+    password: getRandomWord(8) + "1A!",
   };
 }
 
