@@ -19,7 +19,7 @@ import { getRandomOidcUserData } from "../../../../utils/data_utils";
 import { exists, login, logout, notExists } from "../../../../utils/utils";
 import { User } from "../../../models/administration/userManagement/user";
 
-describe(["@tier1"], "User CRUD operations", () => {
+describe(["@tier0", "@tier0_authNeeded"], "User CRUD operations", () => {
   let authEnabled = false;
 
   before("Check if auth is enabled and login", () => {

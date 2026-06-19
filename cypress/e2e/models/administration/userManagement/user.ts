@@ -1,19 +1,3 @@
-/*
-Copyright © 2021 the Konveyor Contributors (https://konveyor.io/)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import {
   cancelForm,
   click,
@@ -24,13 +8,7 @@ import {
   notExists,
   selectUserPerspective,
 } from "../../../../utils/utils";
-import {
-  SEC,
-  administration,
-  button,
-  userManagement,
-  users,
-} from "../../../types/constants";
+import { SEC, administration, button, users } from "../../../types/constants";
 import { OidcUserData } from "../../../types/types";
 import * as commonView from "../../../views/common.view";
 import * as userManagementView from "../../../views/user-management.view";
@@ -69,8 +47,7 @@ export class User {
     cy.url().then(($url) => {
       if ($url != User.fullUrl) {
         selectUserPerspective(administration);
-        clickByText(commonView.navLink, userManagement);
-        clickByText(userManagementView.usersSubmenuLink, users);
+        clickByText(commonView.navLink, users);
         cy.get("h1", { timeout: 60 * SEC }).should("contain", "Users");
       }
     });
@@ -98,11 +75,12 @@ export class User {
 
   protected assignRoles() {
     if (this.roles.length > 0) {
-      click(userManagementView.rolesSelectToggle);
       this.roles.forEach((role) => {
-        clickByText(userManagementView.rolesMenuItem, role);
+        click(userManagementView.rolesSelectToggle);
+        cy.get(userManagementView.rolesMenuListbox)
+          .contains("button", role)
+          .click();
       });
-      cy.get("body").click(0, 0);
     }
   }
 

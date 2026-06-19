@@ -56,6 +56,9 @@ const UserModal: FC<UserModalProps> = ({ user, onClose }) => {
             variant="primary"
             isDisabled={isSubmitDisabled}
             onClick={onSubmit}
+            data-ouia-component-id={
+              user ? "user-save-button" : "user-create-button"
+            }
           >
             {user ? t("actions.save") : t("actions.create")}
           </Button>

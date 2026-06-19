@@ -20,9 +20,13 @@ jobs:
           - "@ci,@tier0,@tier2_A,@tier2_B"
           - "@tier3_A,@tier3_B,@tier3_C"
           - "@tier3_D,@tier3_E,@tier3_F"
+          - "@tier0_authNeeded"
         auth_required:
           - true
           - false
+        exclude:
+          - test_tags: "@tier0_authNeeded"
+            auth_required: false
     name: "Nightly e2e - all tiers"
     uses: ./.github/workflows/e2e-run-ui-tests.yaml
     with:

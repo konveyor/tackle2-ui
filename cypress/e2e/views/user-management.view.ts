@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Navigation
-export const usersSubmenuLink =
-  "section.pf-v6-c-nav__subnav a.pf-v6-c-nav__link";
-
 // Form inputs
 export const loginInput = "#login";
 export const nameInput = "#name";
@@ -25,13 +21,8 @@ export const emailInput = "#email";
 export const passwordInput = "#password";
 export const confirmPasswordInput = "#confirmPassword";
 export const rolesSelectToggle = "#roles-select-toggle-input";
-export const rolesMenuItem = ".pf-v6-c-menu__item-text";
+export const rolesMenuListbox = "#roles-select-toggle-listbox";
 
 // Buttons
-export const createButton = ".pf-v6-c-modal-box__footer button.pf-m-primary";
-export const saveButton = ".pf-v6-c-modal-box__footer button.pf-m-primary";
-
-// Actions
-export const actionsButton = 'button[aria-label="Actions"]';
-export const modalConfirmButton = 'button[data-testid="modal-confirm"]';
-export const modalCancelButton = 'button[data-testid="modal-cancel"]';
+export const createButton = '[data-ouia-component-id="user-create-button"]';
+export const saveButton = '[data-ouia-component-id="user-save-button"]';
