@@ -10,7 +10,6 @@ import {
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import {
   ActionsColumn,
@@ -174,22 +173,7 @@ export const TokensPage: FC = () => {
     id,
     kind,
     login: getLogin(user?.id, loginById),
-    scopes:
-      kind === "api-key" ? (
-        <Tooltip
-          content={t("terms.allUserScopes", {
-            login: getLogin(user?.id, loginById) || "????",
-          })}
-        >
-          <span>
-            {t("terms.scopesForLogin", {
-              login: getLogin(user?.id, loginById) || "????",
-            })}
-          </span>
-        </Tooltip>
-      ) : (
-        (scopes?.length ?? 0)
-      ),
+    scopes: scopes?.length ?? 0,
     issued: <DateCell raw={issued} />,
     expiration: <DateCell raw={expiration} />,
     lifespan: lifespan ?? "",
@@ -293,9 +277,7 @@ export const TokensPage: FC = () => {
                               key={`${columnKey}_${token.id}`}
                               {...getTdProps({
                                 columnKey,
-                                isCompoundExpandToggle:
-                                  columnKey === "scopes" &&
-                                  token.kind !== "api-key",
+                                isCompoundExpandToggle: columnKey === "scopes",
                                 item: token,
                                 rowIndex,
                               })}
@@ -326,16 +308,9 @@ export const TokensPage: FC = () => {
                           {...getExpandedContentTdProps({ item: token })}
                         >
                           <ExpandableRowContent>
-                            {token.kind === "api-key"
-                              ? null
-                              : groupScopes(token?.scopes ?? []).map(
-                                  (group) => (
-                                    <ScopeLabels
-                                      key={group.resource}
-                                      group={group}
-                                    />
-                                  )
-                                )}
+                            {groupScopes(token?.scopes ?? []).map((group) => (
+                              <ScopeLabels key={group.resource} group={group} />
+                            ))}
                           </ExpandableRowContent>
                         </Td>
                       </Tr>

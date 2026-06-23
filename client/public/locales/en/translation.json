@@ -701,8 +701,6 @@
     "tokenKindAccess": "access",
     "tokenKindApi": "api",
     "tokenKindOther": "other",
-    "allUserScopes": "All scopes available for login \"{{login}}\" at the given point in time.",
-    "scopesForLogin": "Scopes for \"{{login}}\"",
     "showExpiredTokens": "Show expired tokens"
   },
   "titles": {
