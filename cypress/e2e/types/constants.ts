@@ -127,6 +127,7 @@ export const administration = "Administration";
 export const migration = "Migration";
 export const userManagement = "User Management";
 export const users = "Users";
+export const tokens = "Tokens";
 export const general = "General";
 export const instanceName = "Instance name";
 export const singleApplication = "Single application";
