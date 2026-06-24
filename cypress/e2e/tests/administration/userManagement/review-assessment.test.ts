@@ -15,28 +15,28 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import * as data from "../../../utils/data_utils";
+import * as data from "../../../../utils/data_utils";
 import {
   createMultipleApplications,
   createMultipleStakeholders,
   createMultipleTags,
   deleteByList,
   login,
-} from "../../../utils/utils";
-import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { UserArchitect } from "../../models/hub/users";
-import { Application } from "../../models/migration/applicationinventory/application";
-import { Archetype } from "../../models/migration/archetypes/archetype";
-import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { Tag } from "../../models/migration/controls/tags";
-import { SEC, legacyPathfinder } from "../../types/constants";
+} from "../../../../utils/utils";
+import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
+import { UserArchitect } from "../../../models/hub/users";
+import { Application } from "../../../models/migration/applicationinventory/application";
+import { Archetype } from "../../../models/migration/archetypes/archetype";
+import { Stakeholders } from "../../../models/migration/controls/stakeholders";
+import { Tag } from "../../../models/migration/controls/tags";
+import { SEC, legacyPathfinder } from "../../../types/constants";
 
 let tags: Tag[];
 let stakeholders: Stakeholders[];
 let application: Application[];
 
 describe(
-  ["@tier2", "@tier2_B"],
+  ["@authNeeded"],
   "Perform assessment and review as Architect",
   function () {
     const architect = new UserArchitect(data.getRandomUserData());

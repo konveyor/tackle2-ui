@@ -15,7 +15,7 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import * as data from "../../../utils/data_utils";
+import * as data from "../../../../utils/data_utils";
 import {
   clickByText,
   getRandomAnalysisData,
@@ -23,21 +23,21 @@ import {
   login,
   next,
   selectItemsPerPage,
-} from "../../../utils/utils";
-import { UserArchitect, UserMigrator } from "../../models/hub/users";
-import { AnalysisWizardHelpers } from "../../models/migration/analysis-profiles/analysis-wizard-helpers";
-import { Analysis } from "../../models/migration/applicationinventory/analysis";
-import { CustomMigrationTarget } from "../../models/migration/custom-migration-targets/custom-migration-target";
+} from "../../../../utils/utils";
+import { UserArchitect, UserMigrator } from "../../../models/hub/users";
+import { AnalysisWizardHelpers } from "../../../models/migration/analysis-profiles/analysis-wizard-helpers";
+import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
 import {
   CustomRuleType,
   SEC,
   analyzeButton,
   button,
-} from "../../types/constants";
-import { RulesRepositoryFields } from "../../types/types";
+} from "../../../types/constants";
+import { RulesRepositoryFields } from "../../../types/types";
 
 describe(
-  ["@tier3", "@tier3_C"],
+  ["@authNeeded"],
   "Custom Migration Targets RBAC operations",
   function () {
     // Polarion TC 317 & 319
