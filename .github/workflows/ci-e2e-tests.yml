@@ -62,7 +62,7 @@ jobs:
           IMG_NAME: ttl.sh/tackle2-ui-${{ github.sha }}:2h
         run: |
           echo "IMG_NAME=${IMG_NAME}" >> "$GITHUB_OUTPUT"
-          docker build --ulimit nofile=4096:4096 . -t ${IMG_NAME}
+          docker build . -t ${IMG_NAME}
           docker push ${IMG_NAME}
 
   determine-ui-tests-ref:
