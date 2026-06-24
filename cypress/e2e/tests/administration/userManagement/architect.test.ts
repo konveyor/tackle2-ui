@@ -31,63 +31,59 @@ import { Application } from "../../../models/migration/applicationinventory/appl
 import { Stakeholders } from "../../../models/migration/controls/stakeholders";
 import { legacyPathfinder } from "../../../types/constants";
 
-describe(
-  ["@tier3", "@tier3_A", "@authNeeded"],
-  "Architect RBAC operations",
-  () => {
-    const userArchitect = new UserArchitect(getRandomUserData());
-    const application = new Application(getRandomApplicationData());
-    let stakeholders: Stakeholders[];
+describe(["@authNeeded"], "Architect RBAC operations", () => {
+  const userArchitect = new UserArchitect(getRandomUserData());
+  const application = new Application(getRandomApplicationData());
+  let stakeholders: Stakeholders[];
 
-    before("Creating RBAC users, adding roles for them", () => {
-      login();
-      cy.visit("/");
-      AssessmentQuestionnaire.enable(legacyPathfinder);
-      stakeholders = createMultipleStakeholders(1);
+  before("Creating RBAC users, adding roles for them", () => {
+    login();
+    cy.visit("/");
+    AssessmentQuestionnaire.enable(legacyPathfinder);
+    stakeholders = createMultipleStakeholders(1);
 
-      application.create();
-      application.perform_assessment("low", stakeholders);
-      application.perform_review("low");
-      userArchitect.create();
+    application.create();
+    application.perform_assessment("low", stakeholders);
+    application.perform_review("low");
+    userArchitect.create();
+  });
+
+  beforeEach("Persist session", function () {
+    cy.fixture("rbac").then(function (rbacRules) {
+      this.rbacRules = rbacRules["architect"];
     });
+    userArchitect.login();
+  });
 
-    beforeEach("Persist session", function () {
-      cy.fixture("rbac").then(function (rbacRules) {
-        this.rbacRules = rbacRules["architect"];
-      });
-      userArchitect.login();
-    });
+  it("Architect, validate create application button", function () {
+    Application.validateCreateAppButton(this.rbacRules);
+  });
 
-    it("Architect, validate create application button", function () {
-      Application.validateCreateAppButton(this.rbacRules);
-    });
+  it("Architect, validate top action menu", function () {
+    Analysis.validateTopActionMenu(this.rbacRules);
+  });
 
-    it("Architect, validate top action menu", function () {
-      Analysis.validateTopActionMenu(this.rbacRules);
-    });
+  it("Architect, validate analyze button", function () {
+    Analysis.validateAnalyzeButton(this.rbacRules);
+  });
 
-    it("Architect, validate analyze button", function () {
-      Analysis.validateAnalyzeButton(this.rbacRules);
-    });
+  it("Architect, validate application context menu", function () {
+    application.validateAppContextMenu(this.rbacRules);
+  });
 
-    it("Architect, validate application context menu", function () {
-      application.validateAppContextMenu(this.rbacRules);
-    });
+  it("Architect, validate ability to upload binary", function () {
+    application.validateUploadBinary(this.rbacRules);
+  });
 
-    it("Architect, validate ability to upload binary", function () {
-      application.validateUploadBinary(this.rbacRules);
-    });
+  it("Architect, validate Analysis Profiles create button", function () {
+    AnalysisProfile.validateCreateButton(this.rbacRules);
+  });
 
-    it("Architect, validate Analysis Profiles create button", function () {
-      AnalysisProfile.validateCreateButton(this.rbacRules);
-    });
-
-    after("", () => {
-      login();
-      cy.visit("/");
-      deleteApplicationTableRows();
-      deleteAllStakeholders();
-      userArchitect.delete();
-    });
-  }
-);
+  after("", () => {
+    login();
+    cy.visit("/");
+    deleteApplicationTableRows();
+    deleteAllStakeholders();
+    userArchitect.delete();
+  });
+});

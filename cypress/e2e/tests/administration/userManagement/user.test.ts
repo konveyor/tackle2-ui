@@ -19,7 +19,7 @@ import { getRandomOidcUserData } from "../../../../utils/data_utils";
 import { exists, login, logout, notExists } from "../../../../utils/utils";
 import { User } from "../../../models/administration/userManagement/user";
 
-describe(["@tier0", "@authNeeded"], "User CRUD operations", () => {
+describe(["@authNeeded"], "User CRUD operations", () => {
   before("Login as admin", () => {
     login();
   });
