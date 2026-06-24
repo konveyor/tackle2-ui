@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
@@ -13,35 +13,29 @@ import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
 
-const usePrevious = <T,>(value: T) => {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-};
-
 export const ErrorFallback = ({
   error,
   resetErrorBoundary,
 }: {
-  error: Error;
+  error: unknown;
   resetErrorBoundary: (...args: Array<unknown>) => void;
 }) => {
   const { t } = useTranslation();
 
   const history = useHistory();
   const { pushNotification } = useContext(NotificationsContext);
-  const prevError = usePrevious(error);
 
-  if (error.message !== prevError?.message) {
+  const errorMessage =
+    error instanceof Error ? error.message : String(error ?? "Unknown error");
+
+  useEffect(() => {
     pushNotification({
       title: "Failed",
-      message: error.message,
+      message: errorMessage,
       variant: "danger",
       timeout: 30000,
     });
-  }
+  }, [errorMessage, pushNotification]);
 
   return (
     <Bullseye>
