@@ -15,19 +15,19 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomUserData } from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../../utils/data_utils";
 import {
   deleteApplicationTableRows,
   getRandomApplicationData,
   login,
-} from "../../../utils/utils";
-import { UserMigrator } from "../../models/hub/users";
-import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
-import { Analysis } from "../../models/migration/applicationinventory/analysis";
-import { Application } from "../../models/migration/applicationinventory/application";
+} from "../../../../utils/utils";
+import { UserMigrator } from "../../../models/hub/users";
+import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
+import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { Application } from "../../../models/migration/applicationinventory/application";
 
 describe(
-  ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
+  ["@tier3", "@tier3_A", "@authNeeded"],
   "Migrator RBAC operations",
   () => {
     const userMigrator = new UserMigrator(getRandomUserData());

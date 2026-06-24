@@ -15,24 +15,24 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomUserData } from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../../utils/data_utils";
 import {
   createMultipleStakeholders,
   deleteAllStakeholders,
   deleteApplicationTableRows,
   getRandomApplicationData,
   login,
-} from "../../../utils/utils";
-import { AssessmentQuestionnaire } from "../../models/administration/assessment_questionnaire/assessment_questionnaire";
-import { UserArchitect } from "../../models/hub/users";
-import { AnalysisProfile } from "../../models/migration/analysis-profiles/analysis-profile";
-import { Analysis } from "../../models/migration/applicationinventory/analysis";
-import { Application } from "../../models/migration/applicationinventory/application";
-import { Stakeholders } from "../../models/migration/controls/stakeholders";
-import { legacyPathfinder } from "../../types/constants";
+} from "../../../../utils/utils";
+import { AssessmentQuestionnaire } from "../../../models/administration/assessment_questionnaire/assessment_questionnaire";
+import { UserArchitect } from "../../../models/hub/users";
+import { AnalysisProfile } from "../../../models/migration/analysis-profiles/analysis-profile";
+import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { Application } from "../../../models/migration/applicationinventory/application";
+import { Stakeholders } from "../../../models/migration/controls/stakeholders";
+import { legacyPathfinder } from "../../../types/constants";
 
 describe(
-  ["@tier3", "@tier3_A", "@rhsso", "@rhbk"],
+  ["@tier3", "@tier3_A", "@authNeeded"],
   "Architect RBAC operations",
   () => {
     const userArchitect = new UserArchitect(getRandomUserData());

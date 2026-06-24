@@ -15,20 +15,20 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { getRandomUserData } from "../../../utils/data_utils";
+import { getRandomUserData } from "../../../../utils/data_utils";
 import {
   deleteApplicationTableRows,
   getRandomAnalysisData,
   getRandomApplicationData,
   login,
-} from "../../../utils/utils";
-import { UserArchitect, UserMigrator } from "../../models/hub/users";
-import { Analysis } from "../../models/migration/applicationinventory/analysis";
-import { TaskManager } from "../../models/migration/task-manager/task-manager";
-import { TaskStatus } from "../../types/constants";
+} from "../../../../utils/utils";
+import { UserArchitect, UserMigrator } from "../../../models/hub/users";
+import { Analysis } from "../../../models/migration/applicationinventory/analysis";
+import { TaskManager } from "../../../models/migration/task-manager/task-manager";
+import { TaskStatus } from "../../../types/constants";
 
 describe(
-  ["@tier3", "@tier3_A"],
+  ["@tier3", "@tier3_A", "@authNeeded"],
   "Cancel task created by another user",
   function () {
     const userMigrator = new UserMigrator(getRandomUserData());
