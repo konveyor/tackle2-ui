@@ -37,7 +37,7 @@ let stakeholders: Stakeholders[];
 let application: Application[];
 
 describe(
-  ["@tier2", "@tier2_B"],
+  ["@authNeeded"],
   "Perform assessment and review as Architect",
   function () {
     const architect = new UserArchitect(data.getRandomUserData());

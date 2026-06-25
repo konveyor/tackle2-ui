@@ -39,7 +39,7 @@ import {
 import { RulesRepositoryFields } from "../../types/types";
 
 describe(
-  ["@tier3", "@tier3_C"],
+  ["@authNeeded"],
   "Custom Migration Targets RBAC operations",
   function () {
     // Polarion TC 317 & 319

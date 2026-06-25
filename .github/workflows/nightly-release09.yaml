@@ -29,7 +29,7 @@ jobs:
     name: "E2E auth tests (release-0.9) - all tiers"
     uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.9
     with:
-      test_tags: "@ci,@tier0,@tier2,@tier3"
+      test_tags: "@ci,@tier0,@tier2,@tier3,@authNeeded"
       feature_auth_required: true
       bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.9
       ui_image: quay.io/konveyor/tackle2-ui:release-0.9
