@@ -4,20 +4,11 @@ Konveyor UI -- React + PatternFly frontend for the application modernization pla
 
 ## Context Files
 
-- [AGENTS.md](AGENTS.md) -- Directory structure, code patterns, review checklist
+- [AGENTS.md](AGENTS.md) -- Directory structure, review checklist, dependencies
 - [ARCHITECTURE.md](ARCHITECTURE.md) -- System design, data flow, deployment
 - [CONTRIBUTING.md](CONTRIBUTING.md) -- Coding standards, PR process, testing
 
-## Quick Reference
-
-- **Stack:** React, TypeScript, PatternFly 6, TanStack Query, react-hook-form + yup, Axios, Express proxy, Cypress E2E
-- **Workspaces:** `common/` (shared), `client/` (React app), `server/` (Express proxy), `cypress/` (E2E tests)
-- **Path alias:** `@app/` -> `client/src/app/` (TS paths in `client/tsconfig.json`)
-- **Workspace package:** `@konveyor-ui/common` -> `common/` (consumed as an npm workspace package via `import ... from "@konveyor-ui/common"`)
-- **API pattern:** `pages/ -> queries/*.ts (TanStack hooks) -> api/rest.ts + api/rest/*.ts (Axios) -> /hub/* (proxy)`
-- **Forms:** Always use `react-hook-form` + `yup`. Wrappers in `components/HookFormPFFields/`
-- **Selects:** `SimpleSelect` (single), `TypeaheadSelect` (single + search), `MultiSelect` (multi + chips)
-- **Access control:** Scope-based (OAuth2 resource:verb pairs). Use `ScopeGate` component, not role checks
+Conventions: see [.cursor/rules/tackle2-ui.mdc](.cursor/rules/tackle2-ui.mdc) or [AGENTS.md](AGENTS.md) for the full list.
 
 ## Key Rules
 

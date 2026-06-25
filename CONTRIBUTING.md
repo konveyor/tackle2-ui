@@ -4,7 +4,7 @@ Thank you for your interest in contributing to the Konveyor UI. This document co
 
 ## Coding Standards
 
-Development setup, coding standards, and conventions are covered in [docs/development.md](docs/development.md). Internationalization: see [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md). Additional patterns and review guidelines are in [AGENTS.md](AGENTS.md). Also see the [Konveyor community contributing guide](https://github.com/konveyor/community/blob/main/CONTRIBUTING.md) for organization-wide conventions.
+Development setup, coding standards, and conventions are covered in [docs/development.md](docs/development.md). Internationalization: see [INTERNATIONALIZATION.md](INTERNATIONALIZATION.md). For additional patterns and review guidelines, see [AGENTS.md](AGENTS.md). The [Konveyor community contributing guide](https://github.com/konveyor/community/blob/main/CONTRIBUTING.md) covers organization-wide conventions.
 
 ## Testing
 
