@@ -91,6 +91,7 @@ jobs:
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
       tackle_ui: ${{ needs.build-and-upload-for-global-ci.outputs.IMG_NAME }}
+      base_tag: "release-0.9"
       run_api_tests: false
       run_ui_tests: true
       ui_test_tags: ${{ matrix.test_tags }}
