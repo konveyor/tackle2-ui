@@ -6,6 +6,10 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
     login();
   });
 
+  afterEach(() => {
+    Token.deleteAllTokensViaAPI(Cypress.env("user"));
+  });
+
   it("Should create API token from UI and authenticate via API", function () {
     // Step 1: Create a new token from the UI
     const token = new Token();
@@ -15,7 +19,7 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
       expect(tokenValue).to.be.a("string");
       expect(tokenValue.length).to.be.greaterThan(20);
 
-      cy.log(`Generated token: ${tokenValue.substring(0, 20)}...`);
+      cy.log("Generated API token");
 
       // Step 2: Test the token by calling /auth/self endpoint
       Token.testTokenViaAPI(tokenValue).then((response) => {
@@ -23,9 +27,7 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
         expect(response.body).to.have.property("user");
         expect(response.body).to.have.property("scopes");
 
-        cy.log("✓ Token successfully authenticated to /auth/self");
-        cy.log(`User: ${JSON.stringify(response.body.user)}`);
-        cy.log(`Scopes: ${response.body.scopes.join(", ")}`);
+        cy.log("Token authenticated to /auth/self");
       });
 
       // Step 3: Test the token by calling /applications endpoint
@@ -59,7 +61,8 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
 
         // Verify our newly created token is in the list
         const createdToken = body.find(
-          (t: { kind: string }) => t.kind === "api-key"
+          (t: { kind: string; token?: string; id?: number }) =>
+            t.kind === "api-key" && !!t.id
         );
         expect(createdToken).to.exist;
       });
@@ -103,7 +106,8 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
 
         // Find api-key tokens
         const apiKeyTokens = body.filter(
-          (t: { kind: string }) => t.kind === "api-key"
+          (t: { kind: string; token?: string; id?: number }) =>
+            t.kind === "api-key" && !!t.id
         );
 
         cy.log(`Found ${apiKeyTokens.length} API key token(s)`);
@@ -126,7 +130,6 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
             ? JSON.parse(authResponse.body)
             : authResponse.body;
         const scopes = body.scopes;
-        cy.log(`Admin token scopes: ${scopes.join(", ")}`);
 
         // Verify admin has comprehensive scopes
         // The actual scopes depend on the admin role configuration

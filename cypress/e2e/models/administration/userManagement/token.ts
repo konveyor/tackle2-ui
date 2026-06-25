@@ -157,7 +157,8 @@ export class Token {
 
       // Filter tokens by login (user.login in the token object)
       const userTokens = tokens.filter(
-        (t: { user?: { id: number; name: string } }) => t.user && login
+        (t: { user?: { login?: string; name?: string } }) =>
+          t.user?.login === login || t.user?.name === login
       );
 
       userTokens.forEach((token: { id: number }) => {
