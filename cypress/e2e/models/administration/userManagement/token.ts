@@ -63,13 +63,8 @@ export class Token {
         return tokenValue;
       })
       .then((tokenValue) => {
-        // Close the modal
         cy.contains("button", "Close").click();
-
-        // Verify we're back on the tokens list
         cy.get("h1", { timeout: 10 * SEC }).should("contain", "Tokens");
-
-        // Return the token value wrapped in a Cypress command
         return cy.wrap(tokenValue as string);
       });
   }
@@ -89,7 +84,7 @@ export class Token {
           Accept: "application/json",
         },
         failOnStatusCode: false,
-        auth: null, // Disable session auth - use only Bearer token
+        auth: null,
       })
       .then((response) => {
         return response;
@@ -109,7 +104,7 @@ export class Token {
         Accept: "application/json",
       },
       failOnStatusCode: false,
-      auth: null, // Disable session auth - use only Bearer token
+      auth: null,
     });
   }
 
@@ -126,7 +121,7 @@ export class Token {
         Accept: "application/json",
       },
       failOnStatusCode: false,
-      auth: null, // Disable session auth - use only Bearer token
+      auth: null,
     });
   }
 
