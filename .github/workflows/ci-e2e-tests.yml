@@ -52,7 +52,7 @@ jobs:
     outputs:
       IMG_NAME: ${{ steps.container.outputs.IMG_NAME }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout_ref }}
 
