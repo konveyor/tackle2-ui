@@ -21,7 +21,7 @@ jobs:
       should-test: ${{ steps.check-changes.outputs.should-test }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -101,7 +101,7 @@ jobs:
 
     steps:
       - name: Checkout merge commit for PR${{ github.event.pull_request.number }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup QEMU to be able to build on ${{ matrix.architecture }}
         if: ${{ matrix.needs-qemu == 'yes' }}

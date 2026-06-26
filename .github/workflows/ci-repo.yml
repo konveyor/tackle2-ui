@@ -33,7 +33,7 @@ jobs:
       should-build: ${{ steps.check-changes.outputs.should-build }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout_ref }}
           fetch-depth: 0
@@ -133,7 +133,7 @@ jobs:
     container: ${{ needs.unit-test-lookup.outputs.builder-image }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.checkout_ref }}
 
