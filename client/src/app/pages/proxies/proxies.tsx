@@ -54,9 +54,6 @@ export const Proxies: React.FC = () => {
             )}
           </CardBody>
         </Card>
-        <Card>
-          <CardBody></CardBody>
-        </Card>
       </PageSection>
     </>
   );

@@ -649,7 +649,7 @@ export const MigrationWaves: React.FC = () => {
         title={t("composed.manage", {
           what: t("terms.applications").toLowerCase(),
         })}
-        width="50%"
+        variant="large"
         isOpen={!!waveToManageModalState}
         onClose={() => setWaveToManageModalState(null)}
       >

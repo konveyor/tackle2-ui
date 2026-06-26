@@ -22,6 +22,9 @@ const app = express();
 app.set("x-powered-by", false);
 
 // Setup proxies that should always be available
+if (developmentMode || serverConfig.KEYCLOAK_SERVER_URL) {
+  app.use(createProxyMiddleware(proxies.auth));
+}
 app.use(createProxyMiddleware(proxies.oidc));
 app.use(createProxyMiddleware(proxies.hub));
 app.use(createProxyMiddleware(proxies.kai));

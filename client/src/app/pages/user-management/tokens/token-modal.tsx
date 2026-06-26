@@ -131,6 +131,7 @@ const TokenCreateModalInternal: FC<TokenCreateModalProps> = ({ onClose }) => {
             variant="primary"
             isDisabled={isPending || !isValid}
             onClick={handleSubmit}
+            ouiaId="token-create-button"
           >
             {t("actions.create")}
           </Button>
