@@ -144,7 +144,7 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
             Accept: "application/json",
           },
           failOnStatusCode: false,
-          auth: null, // Disable session auth - use only Bearer token
+          auth: null,
         }).then((response) => {
           expect(response.status).to.eq(200);
           cy.log("✓ Admin token can access /users endpoint");
@@ -159,7 +159,7 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
             Accept: "application/json",
           },
           failOnStatusCode: false,
-          auth: null, // Disable session auth - use only Bearer token
+          auth: null,
         }).then((response) => {
           expect(response.status).to.eq(200);
           cy.log("✓ Admin token can access /roles endpoint");

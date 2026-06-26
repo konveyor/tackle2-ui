@@ -52,10 +52,8 @@ export class Token {
 
     click(userManagementView.tokenCreateButton);
 
-    // Wait for the token creation success modal
     cy.contains("Token created", { timeout: 10 * SEC }).should("be.visible");
 
-    // Capture the token value from the ClipboardCopy component
     return cy
       .get('input[aria-label="Copyable input"]')
       .invoke("val")
