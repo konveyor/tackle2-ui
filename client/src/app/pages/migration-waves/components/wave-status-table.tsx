@@ -218,7 +218,7 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         title={t("composed.error", {
           what: t("terms.issue"),
         })}
-        width="50%"
+        variant="large"
         isOpen={!!codeModalState}
         onClose={() => setCodeModalState(null)}
       >
