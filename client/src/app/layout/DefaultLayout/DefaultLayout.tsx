@@ -44,6 +44,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
       isNotificationDrawerExpanded={isExpanded}
       notificationDrawer={<TaskManagerDrawer ref={drawerRef} />}
       onNotificationDrawerExpand={() => focusDrawer()}
+      isContentFilled
     >
       <PageContentWithDrawerProvider>
         {children}
