@@ -60,6 +60,25 @@ export interface FormValues {
 
 - If you don't need a `FormGroup` around your field (no external label or errors), you can just render a <Controller> for it yourself. That's what we do for [Switch](https://www.patternfly.org/components/switch) fields (because switch has a built in right-aligned label). ([example](https://github.com/konveyor/tackle2-ui/blob/main/client/src/app/pages/proxies/proxy-form.tsx))
 
+## Component Conventions
+
+### Select components
+
+Select components use the PatternFly 6 `Select` and `MenuToggle`:
+
+- `SimpleSelect` -- single-value selection
+- `TypeaheadSelect` -- single-value with search (`MultiSelectBase` with `showSelectedInToggle`)
+- `MultiSelect` -- multi-value selection with chips
+- All use `FilterSelectOptionProps` (`{ value: string, label: string }`) for options
+
+### Filter components
+
+Filter components in `FilterToolbar/` handle both client-side and server-side (hub) filtering. The `categoryKey` prop drives HTML IDs and test selectors.
+
+### Access control
+
+Access control is scope-based, using OAuth2 resource:verb pairs (e.g., `applications:get`, `businessservices:put`). The `ScopeGate` component or the `useHasSomeScopes` / `useHasAllScopes` hooks gate protected UI sections. Scope constants are grouped in `scopes.ts`; the role-to-scope mapping lives in `auth/roles-to-scopes.ts`.
+
 ## READMEs
 
 For more info about working on the Tackle 2.x UI, check out these READMEs:

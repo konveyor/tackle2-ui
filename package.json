@@ -28,6 +28,7 @@
     "lint:fix": "scripts/eslint-w.sh --fix . && npm run lint:fix -ws --if-present",
     "port-forward:hub": "kubectl port-forward svc/tackle-hub -n konveyor-tackle 9002:8080",
     "port-forward:llm-proxy": "kubectl port-forward svc/llm-proxy -n konveyor-tackle 9003:8321",
+    "port-forward:keycloak": "kubectl port-forward svc/keycloak -n konveyor-tackle 9004:8080",
     "port-forward": "concurrently -c auto 'npm:port-forward:*'"
   },
   "workspaces": [
@@ -76,7 +77,7 @@
     "axios": "^1.16.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "http-proxy-middleware": "~4.0.0"
+    "http-proxy-middleware": "~4.1.1"
   },
   "overrides": {
     "follow-redirects": "^1.16.0",
