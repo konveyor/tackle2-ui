@@ -26,3 +26,10 @@ export const rolesMenuListbox = "#roles-select-toggle-listbox";
 // Buttons
 export const createButton = '[data-ouia-component-id="user-create-button"]';
 export const saveButton = '[data-ouia-component-id="user-save-button"]';
+
+// Token management
+export const createTokenButton =
+  '[data-ouia-component-id="create-token-button"]';
+export const tokenCreateButton =
+  '[data-ouia-component-id="token-create-button"]';
+export const lifespanInput = "#lifespan";

@@ -205,6 +205,7 @@ export const TokensPage: FC = () => {
                     variant="primary"
                     aria-label={t("actions.createApiKey")}
                     onClick={() => setCreateOpen(true)}
+                    ouiaId="create-token-button"
                   >
                     {t("actions.createApiKey")}
                   </Button>
