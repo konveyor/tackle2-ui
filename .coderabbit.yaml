@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+
+reviews:
+  instructions: >
+    Read AGENTS.md for the full list of coding standards, conventions, and review guidelines.
+    PR titles must start with a GitHub emoji shortcode prefix: :sparkles: (feature), :bug: (bugfix),
+    :book: (docs), :seedling: (infra), :warning: (breaking), :ghost: (no-note), or :test_tube: (test).
+    An optional [tag] prefix (e.g. [release-0.9]) may precede the emoji. Flag titles missing the emoji prefix.
+  auto_review:
+    enabled: true
+    drafts: false
+  profile: chill
+  path_instructions:
+    - path: client/src/app/api/**
+      instructions: >
+        Verify API model types match the Hub OpenAPI spec
+        (https://github.com/konveyor/tackle2-hub/blob/main/docs/openapi3.json) when available,
+        but note the spec may not always be current — cross-check with actual API behavior.
+        Check that REST functions use the `hub` tagged template.
+    - path: client/src/app/queries/**
+      instructions: >
+        Verify mutations invalidate relevant query caches on success.
+    - path: client/src/app/pages/**
+      instructions: >
+        Verify ID checks use explicit null guards (`id != null`), not truthy checks.
+    - path: cypress/e2e/**
+      instructions: >
+        Verify page object model patterns are followed.
+        Check that assertions do not rely on timing - use Cypress retry-ability.
+    - path: branding/**
+      instructions: >
+        Verify branding assets are consistent across themes.
+        Check that logos and colors match the design system.
+
+  path_filters:
+    - "!**/package-lock.json"
+    - "!**/dist/**"
+    - "!**/node_modules/**"
+    - "!**/coverage/**"
+
+chat:
+  auto_reply: true

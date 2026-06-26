@@ -1,6 +1,13 @@
 # Testing
 
-This document covers unit testing for the tackle2-ui client. For end-to-end (E2E) testing with Cypress, see [cypress/README.md](/cypress/README.md).
+This document covers testing for the tackle2-ui client.
+
+## Test Priorities
+
+Unit tests cover two areas with different priority levels:
+
+1. **Data processing tests** — pure function and data handling tests. High priority — these protect correctness guarantees.
+2. **Component render tests** — `@testing-library/react` with jsdom. Lower priority than data tests and e2e tests. Select elements by role, not by test-specific IDs.
 
 ## Unit Testing with Jest
 
@@ -22,26 +29,30 @@ This document covers unit testing for the tackle2-ui client. For end-to-end (E2E
 
 - To run a single test, run:
 
-```
+```bash
 npm run test -w client -t 'test name here'
 ```
 
 - To run entire test suite, run:
 
-```
-
+```bash
 npm run test -w client
 ```
 
 - To update snapshot tests, run:
 
-```
+```bash
 npm run test -w client -- -u
-
 ```
 
 - To run tests in `watch` mode to aid in writing tests, run:
 
-```
+```bash
 npm run test -w client -- --watch
 ```
+
+## E2E Testing
+
+For end-to-end testing with Cypress, see [cypress/README.md](/cypress/README.md).
+
+E2E tests use page object models: `cypress/e2e/models/{domain}/{feature}.ts` encapsulates interactions. Shared selectors live in `cypress/e2e/views/`. Test specs are in `cypress/e2e/tests/`. Cypress test patterns rely on `data-ouia-component-id` (PatternFly OUIA) for stable selectors.

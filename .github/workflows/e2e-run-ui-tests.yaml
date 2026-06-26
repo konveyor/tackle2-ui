@@ -96,7 +96,7 @@ jobs:
           cpus: "max"
 
       - name: Checkout the operator so we can pick the install-konveyor version to use dynamically
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: konveyor/operator
           ref: ${{ inputs.install_konveyor_version }}
@@ -182,7 +182,7 @@ jobs:
           echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
 
       - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
