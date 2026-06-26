@@ -18,6 +18,7 @@ import {
   TrProps,
 } from "@patternfly/react-table";
 
+import "./custom-rules.css";
 import { UploadFile } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
@@ -95,6 +96,7 @@ const CustomRulesTable: React.FC<{
       <Toolbar
         {...toolbarProps}
         clearAllFilters={() => filterToolbarProps.setFilterValues({})}
+        className="custom-rules-toolbar-padding-start"
       >
         <ToolbarContent>
           <FilterToolbar {...filterToolbarProps} />
