@@ -95,6 +95,37 @@ export default {
     logger,
   },
 
+  auth: {
+    pathFilter: "/auth",
+    target: serverConfig.KEYCLOAK_SERVER_URL || "http://localhost:9004",
+    logger,
+
+    changeOrigin: true,
+
+    on: {
+      proxyReq(proxyReq, req, _res) {
+        // Keycloak needs these header set so we can function in Kubernetes (non-OpenShift)
+        // https://www.keycloak.org/server/reverseproxy
+        //
+        // Note, on OpenShift, this works as the haproxy implementation
+        // for the OpenShift route is setting these for us automatically
+        //
+        // We saw problems with including the below broke the OpenShift route
+        //  {"X-Forwarded-Proto", req.protocol} broke the OpenShift
+        //  {"X-Forwarded-Port", req.socket.localPort}
+        //  {"Forwarded", `for=${req.socket.remoteAddress};proto=${req.protocol};host=${req.headers.host}`}
+        // so we are not including even though they are customary
+        //
+        req.socket.remoteAddress &&
+          proxyReq.setHeader("X-Forwarded-For", req.socket.remoteAddress);
+        req.socket.remoteAddress &&
+          proxyReq.setHeader("X-Real-IP", req.socket.remoteAddress);
+        req.headers.host &&
+          proxyReq.setHeader("X-Forwarded-Host", req.headers.host);
+      },
+    },
+  },
+
   oidc: {
     pathFilter: "/oidc",
     target: serverConfig.TACKLE_HUB_URL || "http://localhost:9002",

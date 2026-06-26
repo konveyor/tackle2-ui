@@ -14,6 +14,7 @@ export const serverConfig = {
 
   TACKLE_HUB_URL: process.env.TACKLE_HUB_URL,
   KAI_LLM_PROXY_URL: process.env.KAI_LLM_PROXY_URL,
+  KEYCLOAK_SERVER_URL: process.env.KEYCLOAK_SERVER_URL,
 };
 
 /**
