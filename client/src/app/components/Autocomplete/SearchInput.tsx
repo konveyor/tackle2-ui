@@ -54,7 +54,11 @@ export const SearchInputComponent: React.FC<SearchInputProps> = ({
         hint={hint}
         onChange={(event, value) => onSearchChange(value)}
         onClear={onClear}
-        onFocus={() => onKeyHandling(event as any)}
+        onFocus={(event) =>
+          onKeyHandling(
+            event as unknown as React.KeyboardEvent<HTMLInputElement>
+          )
+        }
         onKeyDown={onKeyHandling}
         placeholder={placeholderText}
         aria-label={searchInputAriaLabel}
