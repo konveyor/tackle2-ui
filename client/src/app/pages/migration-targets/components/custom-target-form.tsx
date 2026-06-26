@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError, AxiosResponse } from "axios";
 import { unique } from "radash";
@@ -151,12 +151,15 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
   );
 
   const { t } = useTranslation();
-  const [target, setTarget] = useState(initialTarget);
+  const target = initialTarget;
   const [imageRejectedError, setImageRejectedError] = useState<string | null>(
     null
   );
 
-  const [imageFilename, setImageFilename] = useState("default.png");
+  const [imageFilename, setImageFilename] = useState(() => {
+    if (initialTarget?.image?.id === 1) return "default.png";
+    return initialTarget?.image?.name || "default.png";
+  });
 
   const repositoryTypeOptions = [
     { value: "git", label: "Git" },
@@ -287,19 +290,6 @@ export const CustomTargetForm: React.FC<CustomTargetFormProps> = ({
     }
     return indexes;
   };
-
-  useEffect(() => {
-    setTarget(initialTarget);
-    if (initialTarget?.image?.id === 1) {
-      setImageFilename("default.png");
-    } else {
-      setImageFilename(initialTarget?.image?.name || "default.png");
-    }
-    return () => {
-      setTarget(undefined);
-      setImageFilename("default.png");
-    };
-  }, [initialTarget]);
 
   const values = getValues();
 

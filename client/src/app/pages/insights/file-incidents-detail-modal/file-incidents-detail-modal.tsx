@@ -47,14 +47,11 @@ export const FileIncidentsDetailModal: React.FC<
   });
 
   type IncidentIdOrAll = number | "all";
-  const [activeTabIncidentId, setActiveTabIncidentId] =
-    React.useState<IncidentIdOrAll>();
-  // Auto-select the first tab once incidents are loaded
-  React.useEffect(() => {
-    if (!activeTabIncidentId && !isFetching && firstFiveIncidents.length > 0) {
-      setActiveTabIncidentId(firstFiveIncidents[0].id);
-    }
-  }, [activeTabIncidentId, isFetching, firstFiveIncidents]);
+  const [selectedTabId, setSelectedTabId] = React.useState<IncidentIdOrAll>();
+
+  const activeTabIncidentId =
+    selectedTabId ??
+    (firstFiveIncidents.length > 0 ? firstFiveIncidents[0].id : undefined);
 
   const isLoadingState =
     isFetching ||
@@ -88,7 +85,7 @@ export const FileIncidentsDetailModal: React.FC<
         <Tabs
           activeKey={activeTabIncidentId}
           onSelect={(_event, tabKey) =>
-            setActiveTabIncidentId(tabKey as IncidentIdOrAll)
+            setSelectedTabId(tabKey as IncidentIdOrAll)
           }
         >
           {[
