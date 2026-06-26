@@ -1,6 +1,7 @@
 import {
   click,
   clickByText,
+  clickItemInKebabMenu,
   inputText,
   selectUserPerspective,
 } from "../../../../utils/utils";
@@ -130,15 +131,7 @@ export class Token {
    */
   static revokeTokenByLogin(login: string) {
     Token.openList();
-
-    // Find the row with the login and click the revoke action
-    cy.contains("td", login)
-      .parent("tr")
-      .within(() => {
-        cy.get('button[aria-label="Actions"]').click();
-      });
-
-    cy.contains("button", "Revoke").click();
+    clickItemInKebabMenu(login, "Revoke");
   }
 
   /**

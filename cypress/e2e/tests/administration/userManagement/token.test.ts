@@ -167,4 +167,16 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
       });
     });
   });
+
+  it("Should revoke token via UI", function () {
+    const token = new Token();
+
+    token.create().then(() => {
+      // Revoke the token via UI
+      Token.revokeTokenByLogin(Cypress.env("user"));
+
+      // Verify success message
+      cy.contains("Token successfully revoked").should("be.visible");
+    });
+  });
 });
