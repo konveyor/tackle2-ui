@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
@@ -177,7 +177,6 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     handleSubmit,
     formState: { isSubmitting, isValidating, isValid, isDirty },
     control,
-    watch,
     trigger,
   } = useForm<WaveFormValues>({
     mode: "onChange",
@@ -195,8 +194,8 @@ export const WaveForm: React.FC<WaveFormProps> = ({
     resolver: yupResolver(validationSchema),
   });
 
-  const startDateStr = watch("startDateStr");
-  const endDateStr = watch("endDateStr");
+  const startDateStr = useWatch({ control, name: "startDateStr" });
+  const endDateStr = useWatch({ control, name: "endDateStr" });
   const startDate = dateStrFormatValidator(startDateStr)
     ? dayjs(startDateStr).toDate()
     : null;
