@@ -33,7 +33,7 @@ jobs:
     outputs:
       ui_image: ${{ steps.build-ui-image.outputs.ui_image }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.image_ref }}
 
