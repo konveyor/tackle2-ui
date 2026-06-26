@@ -53,69 +53,77 @@ export const ApplicationTags: React.FC<ApplicationTagsProps> = ({
     Map<number, TagCategory>
   >(new Map());
 
-  const [isFetching, setIsFetching] = useState(false);
-
-  useEffect(() => {
-    if (application.tags) {
-      setIsFetching(true);
-
-      Promise.all(
-        application.tags
-          .map((f) => getTagById(f?.id || ""))
-          .map((p) => p.catch(() => null))
-      )
-        .then((tags) => {
-          const tagsWithSources = tags.reduce((prev, current, index) => {
-            if (current) {
-              const currentTagWithSource: TagWithSource = {
-                ...current,
-                source: application.tags?.[index].source,
-              };
-              return [...prev, currentTagWithSource];
-            } else {
-              // Filter out error responses
-              return prev;
-            }
-          }, [] as Tag[]);
-          const tagCategoryIds = new Set<number>();
-          tagsWithSources.forEach(
-            (tag) => tag.category?.id && tagCategoryIds.add(tag.category?.id)
-          );
-          Promise.all(
-            Array.from(tagCategoryIds).map((tagCategoryId) =>
-              getTagCategoryById(tagCategoryId)
-            )
-          ).then((tagCategories) => {
-            // Tag categories
-            const tagCategoryValidResponses = tagCategories.reduce(
-              (prev, current) => {
-                if (current) {
-                  return [...prev, current];
-                } else {
-                  return prev;
-                }
-              },
-              [] as TagCategory[]
-            );
-
-            const newTagCategoriesById = new Map<number, TagCategory>();
-            tagCategoryValidResponses.forEach((tagCategory) =>
-              newTagCategoriesById.set(tagCategory.id!, tagCategory)
-            );
-
-            setTags(tagsWithSources);
-            setTagCategoriesById(newTagCategoriesById);
-
-            setIsFetching(false);
-          });
-        })
-        .catch(() => {
-          setIsFetching(false);
-        });
-    } else {
+  const [isFetching, setIsFetching] = useState(!!application.tags);
+  const [prevApplication, setPrevApplication] = useState(application);
+  if (prevApplication !== application) {
+    setPrevApplication(application);
+    setIsFetching(!!application.tags);
+    if (!application.tags) {
       setTags([]);
       setTagCategoriesById(new Map());
     }
+  }
+
+  useEffect(() => {
+    if (!application.tags) return;
+
+    let cancelled = false;
+    Promise.all(
+      application.tags
+        .map((f) => getTagById(f?.id || ""))
+        .map((p) => p.catch(() => null))
+    )
+      .then((tags) => {
+        if (cancelled) return;
+        const tagsWithSources = tags.reduce((prev, current, index) => {
+          if (current) {
+            const currentTagWithSource: TagWithSource = {
+              ...current,
+              source: application.tags?.[index].source,
+            };
+            return [...prev, currentTagWithSource];
+          } else {
+            return prev;
+          }
+        }, [] as Tag[]);
+        const tagCategoryIds = new Set<number>();
+        tagsWithSources.forEach(
+          (tag) => tag.category?.id && tagCategoryIds.add(tag.category?.id)
+        );
+        Promise.all(
+          Array.from(tagCategoryIds).map((tagCategoryId) =>
+            getTagCategoryById(tagCategoryId)
+          )
+        ).then((tagCategories) => {
+          if (cancelled) return;
+          const tagCategoryValidResponses = tagCategories.reduce(
+            (prev, current) => {
+              if (current) {
+                return [...prev, current];
+              } else {
+                return prev;
+              }
+            },
+            [] as TagCategory[]
+          );
+
+          const newTagCategoriesById = new Map<number, TagCategory>();
+          tagCategoryValidResponses.forEach((tagCategory) =>
+            newTagCategoriesById.set(tagCategory.id!, tagCategory)
+          );
+
+          setTags(tagsWithSources);
+          setTagCategoriesById(newTagCategoriesById);
+          setIsFetching(false);
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setIsFetching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [application]);
 
   const sources = new Set<string>();

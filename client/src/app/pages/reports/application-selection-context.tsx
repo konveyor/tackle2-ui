@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import * as React from "react";
 
 import { Application } from "@app/api/models";
@@ -32,10 +31,7 @@ export interface IApplicationSelectionContextProviderProps {
 export const ApplicationSelectionContextProvider: React.FC<
   IApplicationSelectionContextProviderProps
 > = ({ applications, children }) => {
-  const [allItems, setAllItems] = useState<Application[]>([]);
-  useEffect(() => {
-    setAllItems([...applications]);
-  }, [applications]);
+  const allItems = applications;
 
   const selectionState = useSelectionState<Application>({
     items: applications,
