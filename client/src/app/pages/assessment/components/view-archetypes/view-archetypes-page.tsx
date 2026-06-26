@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useMemo } from "react";
 import * as React from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -24,17 +24,17 @@ const ViewArchetypes: React.FC = () => {
   const { archetype } = useFetchArchetypeById(archetypeId);
   const { application } = useFetchApplicationById(applicationId);
 
-  const [activeArchetype, setActiveArchetype] = React.useState<Ref | null>(
+  const derivedArchetype = useMemo<Ref | null>(() => {
+    if (archetypeId && archetype) {
+      return { id: parseInt(archetypeId, 10), name: archetype.name };
+    }
+    return null;
+  }, [archetypeId, archetype]);
+
+  const [selectedArchetype, setSelectedArchetype] = React.useState<Ref | null>(
     null
   );
-  useEffect(() => {
-    if (archetypeId && archetype) {
-      setActiveArchetype({
-        id: parseInt(archetypeId, 10),
-        name: archetype.name,
-      });
-    }
-  }, [archetypeId, archetype]);
+  const activeArchetype = selectedArchetype ?? derivedArchetype;
 
   const archetypeOptions =
     application?.archetypes?.map((ref) => ({
@@ -81,7 +81,7 @@ const ViewArchetypes: React.FC = () => {
                   application?.archetypes?.find(
                     (a) => String(a.id) === value
                   ) ?? null;
-                setActiveArchetype(ref);
+                setSelectedArchetype(ref);
               }}
             />
           )}

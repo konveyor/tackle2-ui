@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useMemo } from "react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -40,23 +40,22 @@ export const Controls: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
 
-  const [activeTabKey, setActiveTabKey] = React.useState(0);
   const location = useLocation();
 
-  useEffect(() => {
+  const activeTabKey = useMemo(() => {
     switch (location.pathname) {
       case "/controls/stakeholders":
-        return setActiveTabKey(0);
+        return 0;
       case "/controls/stakeholder-groups":
-        return setActiveTabKey(1);
+        return 1;
       case "/controls/job-functions":
-        return setActiveTabKey(2);
+        return 2;
       case "/controls/business-services":
-        return setActiveTabKey(3);
+        return 3;
       case "/controls/tags":
-        return setActiveTabKey(4);
+        return 4;
       default:
-        return setActiveTabKey(0);
+        return 0;
     }
   }, [location.pathname]);
   return (
@@ -70,8 +69,6 @@ export const Controls: React.FC = () => {
         <Tabs
           activeKey={activeTabKey}
           onSelect={(_event, tabIndex) => {
-            setActiveTabKey(tabIndex as number);
-
             history.push(Paths[tabs[tabIndex as number] as keyof typeof Paths]);
           }}
         >
