@@ -315,88 +315,6 @@ export const ApplicationsTable: FC = () => {
     referencedPlatformRefs,
   } = useDecoratedApplications(baseApplications, tasks);
 
-  const onDeleteApplicationSuccess = (appIDCount: number) => {
-    if (applicationsToDelete.length == 1)
-      pushNotification({
-        title: t("toastr.success.applicationDeleted", {
-          appName: applicationsToDelete[0].name,
-        }),
-        variant: "success",
-      });
-    else
-      pushNotification({
-        title: t("toastr.success.applicationsDeleted", {
-          appIDCount: appIDCount,
-        }),
-        variant: "success",
-      });
-    clearActiveItem();
-    setApplicationsToDelete([]);
-  };
-
-  const onDeleteApplicationError = (error: AxiosError) => {
-    pushNotification({
-      title: getAxiosErrorMessage(error),
-      variant: "danger",
-    });
-    setApplicationsToDelete([]);
-  };
-
-  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
-    onDeleteApplicationSuccess,
-    onDeleteApplicationError
-  );
-
-  const { mutate: deleteReview } = useDeleteReviewMutation(
-    (name) => {
-      pushNotification({
-        title: t("toastr.success.reviewDiscarded", { application: name }),
-        variant: "success",
-      });
-    },
-    (error) => {
-      console.error("Error while deleting review:", error);
-      pushNotification({
-        title: getAxiosErrorMessage(error),
-        variant: "danger",
-      });
-    }
-  );
-  const discardReview = async (application: DecoratedApplication) => {
-    if (application.review) {
-      deleteReview({
-        id: application.review.id,
-        name: application.name,
-      });
-    }
-  };
-
-  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
-    (name) => {
-      pushNotification({
-        title: t("toastr.success.assessmentDiscarded", { application: name }),
-        variant: "success",
-      });
-    },
-    (error) => {
-      console.error("Error while deleting assessments:", error);
-      pushNotification({
-        title: getAxiosErrorMessage(error),
-        variant: "danger",
-      });
-    }
-  );
-  const discardAssessment = async (application: DecoratedApplication) => {
-    if (application.assessments) {
-      application.assessments.forEach((assessment) => {
-        deleteAssessment({
-          assessmentId: assessment.id,
-          applicationName: application.name,
-        });
-      });
-    }
-  };
-
   // ----- Table controls
   const tableControls = useLocalTableControls({
     tableName: "applications",
@@ -650,6 +568,88 @@ export const ApplicationsTable: FC = () => {
     activeItemDerivedState: { activeItem, clearActiveItem },
     columnState,
   } = tableControls;
+
+  const onDeleteApplicationSuccess = (appIDCount: number) => {
+    if (applicationsToDelete.length == 1)
+      pushNotification({
+        title: t("toastr.success.applicationDeleted", {
+          appName: applicationsToDelete[0].name,
+        }),
+        variant: "success",
+      });
+    else
+      pushNotification({
+        title: t("toastr.success.applicationsDeleted", {
+          appIDCount: appIDCount,
+        }),
+        variant: "success",
+      });
+    clearActiveItem();
+    setApplicationsToDelete([]);
+  };
+
+  const onDeleteApplicationError = (error: AxiosError) => {
+    pushNotification({
+      title: getAxiosErrorMessage(error),
+      variant: "danger",
+    });
+    setApplicationsToDelete([]);
+  };
+
+  const { mutate: bulkDeleteApplication } = useBulkDeleteApplicationMutation(
+    onDeleteApplicationSuccess,
+    onDeleteApplicationError
+  );
+
+  const { mutate: deleteReview } = useDeleteReviewMutation(
+    (name) => {
+      pushNotification({
+        title: t("toastr.success.reviewDiscarded", { application: name }),
+        variant: "success",
+      });
+    },
+    (error) => {
+      console.error("Error while deleting review:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
+  );
+  const discardReview = async (application: DecoratedApplication) => {
+    if (application.review) {
+      deleteReview({
+        id: application.review.id,
+        name: application.name,
+      });
+    }
+  };
+
+  const { mutate: deleteAssessment } = useDeleteAssessmentMutation(
+    (name) => {
+      pushNotification({
+        title: t("toastr.success.assessmentDiscarded", { application: name }),
+        variant: "success",
+      });
+    },
+    (error) => {
+      console.error("Error while deleting assessments:", error);
+      pushNotification({
+        title: getAxiosErrorMessage(error),
+        variant: "danger",
+      });
+    }
+  );
+  const discardAssessment = async (application: DecoratedApplication) => {
+    if (application.assessments) {
+      application.assessments.forEach((assessment) => {
+        deleteAssessment({
+          assessmentId: assessment.id,
+          applicationName: application.name,
+        });
+      });
+    }
+  };
 
   const {
     selectedItems: selectedRows,
