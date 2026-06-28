@@ -9,6 +9,7 @@ import { useHistory } from "react-router-dom";
 import * as yup from "yup";
 import {
   ButtonVariant,
+  Flex,
   Wizard,
   WizardHeader,
   WizardStep,
@@ -616,7 +617,12 @@ export const AssessmentWizard: React.FC<AssessmentWizardProps> = ({
                   name={section.name}
                   isDisabled={stepIndex !== currentStep && disableNavigation}
                   navItem={{
-                    children: <WizardStepNavDescription section={section} />,
+                    content: (
+                      <Flex direction={{ default: "column" }}>
+                        {section.name}
+                        <WizardStepNavDescription section={section} />
+                      </Flex>
+                    ),
                   }}
                   footer={getWizardFooter(stepIndex, section)}
                 >
