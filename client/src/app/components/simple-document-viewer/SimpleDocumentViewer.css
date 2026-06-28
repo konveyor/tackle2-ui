@@ -28,7 +28,7 @@
 .simple-task-viewer-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 180px);
+  flex-grow: 1;
 }
 
 .simple-task-viewer-code {
