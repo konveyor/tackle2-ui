@@ -75,13 +75,11 @@ export class Role {
 
     if (cancel) {
       clickByText(button, "Cancel");
-      cy.wait(1000);
       notExists(this.name);
     } else {
       cy.get(userManagementView.roleCreateButton).click();
 
       cy.get(userManagementView.roleDialog).should("not.exist");
-      cy.wait(1000);
       exists(this.name);
     }
   }
@@ -109,7 +107,6 @@ export class Role {
       cy.get(userManagementView.roleSaveButton).click();
 
       cy.get(userManagementView.roleDialog).should("not.exist");
-      cy.wait(1000);
     }
     exists(this.name);
   }
@@ -130,14 +127,12 @@ export class Role {
 
     if (cancel) {
       clickByText(button, "Cancel");
-      cy.wait(1000);
       notExists(newRoleName);
       return null;
     } else {
       cy.get(userManagementView.roleCreateButton).click();
 
       cy.get(userManagementView.roleDialog).should("not.exist");
-      cy.wait(1000);
       exists(newRoleName);
 
       return new Role({ name: newRoleName, permissions: [] });
@@ -147,7 +142,6 @@ export class Role {
   delete(): void {
     Role.openList();
     clickItemInKebabMenu(this.name, "Delete");
-    cy.wait(1000);
     notExists(this.name);
   }
 
