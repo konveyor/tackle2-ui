@@ -115,28 +115,49 @@ export class Role {
     sourceRoleName: string,
     newRoleName: string,
     cancel = false
-  ): Role | null {
-    Role.openList();
-    clickItemInKebabMenu(sourceRoleName, "Duplicate");
+  ): Cypress.Chainable<Role | null> {
+    return cy
+      .request({
+        method: "GET",
+        url: "/hub/roles",
+      })
+      .then((response) => {
+        const roles = Array.isArray(response.body)
+          ? response.body
+          : response.body.data || [];
+        const sourceRole = roles.find(
+          (r: { name: string; permissions?: { name: string }[] }) =>
+            r.name === sourceRoleName
+        );
+        const sourcePermissions = sourceRole?.permissions
+          ? sourceRole.permissions.map((p: { name: string }) => p.name)
+          : [];
 
-    cy.get(userManagementView.roleDialog, { timeout: 10 * SEC }).should(
-      "be.visible"
-    );
+        Role.openList();
+        clickItemInKebabMenu(sourceRoleName, "Duplicate");
 
-    cy.get(userManagementView.roleNameInput).clear().type(newRoleName);
+        cy.get(userManagementView.roleDialog, { timeout: 10 * SEC }).should(
+          "be.visible"
+        );
 
-    if (cancel) {
-      clickByText(button, "Cancel");
-      notExists(newRoleName);
-      return null;
-    } else {
-      cy.get(userManagementView.roleCreateButton).click();
+        cy.get(userManagementView.roleNameInput).clear().type(newRoleName);
 
-      cy.get(userManagementView.roleDialog).should("not.exist");
-      exists(newRoleName);
+        if (cancel) {
+          clickByText(button, "Cancel");
+          notExists(newRoleName);
+          return null;
+        } else {
+          cy.get(userManagementView.roleCreateButton).click();
 
-      return new Role({ name: newRoleName, permissions: [] });
-    }
+          cy.get(userManagementView.roleDialog).should("not.exist");
+          exists(newRoleName);
+
+          return new Role({
+            name: newRoleName,
+            permissions: sourcePermissions,
+          });
+        }
+      });
   }
 
   delete(): void {
@@ -162,7 +183,9 @@ export class Role {
       const roles = Array.isArray(response.body)
         ? response.body
         : response.body.data || [];
-      const role = roles.find((r: any) => r.name === name);
+      const role = roles.find(
+        (r: { name: string; id: number }) => r.name === name
+      );
       if (role && role.id >= 1000) {
         cy.request({
           method: "DELETE",

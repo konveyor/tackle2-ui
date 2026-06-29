@@ -56,14 +56,15 @@ describe(["@tier1"], "Role management tests", () => {
       originalPermissionCount = text;
     });
 
-    const duplicatedRole = Role.duplicate("migrator", duplicatedRoleName);
-    cy.contains("td", duplicatedRoleName).should("exist");
+    Role.duplicate("migrator", duplicatedRoleName).then((duplicatedRole) => {
+      cy.contains("td", duplicatedRoleName).should("exist");
 
-    getColumnText(duplicatedRoleName, "Permissions").then((text) => {
-      expect(text).to.equal(originalPermissionCount);
+      getColumnText(duplicatedRoleName, "Permissions").then((text) => {
+        expect(text).to.equal(originalPermissionCount);
+      });
+
+      duplicatedRole?.deleteViaApi();
     });
-
-    duplicatedRole?.deleteViaApi();
   });
 
   it("Should not allow editing or deleting built-in roles", function () {
