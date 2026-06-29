@@ -116,65 +116,63 @@ export const Reports: React.FC = () => {
     .map((assessment) => toIdRef(assessment))
     .filter(Boolean);
 
+  const waitingForData =
+    isApplicationsFetching || isAssessmentsFetching || isQuestionnairesFetching;
+
   return (
     <>
       {pageHeaderSection}
       <PageSection hasBodyWrapper={false}>
-        <ConditionalRender
-          when={
-            isApplicationsFetching ||
-            isAssessmentsFetching ||
-            isQuestionnairesFetching
-          }
-          then={<AppPlaceholder />}
-        >
+        <ConditionalRender when={waitingForData} then={<AppPlaceholder />}>
           <ApplicationSelectionContextProvider
             applications={applications || []}
           >
             <Stack hasGutter>
-              <StackItem>
-                <Card isClickable isSelectable>
-                  <CardHeader>
-                    <Content>
-                      <Flex>
-                        <FlexItem>
-                          <Content component="h3">
-                            {t("terms.currentLandscape")}
-                          </Content>
-                        </FlexItem>
-                        <FlexItem>
-                          <SimpleSelect
-                            toggleId="select-questionnaires"
-                            toggleAriaLabel="select questionnaires dropdown toggle"
-                            value={selectedQuestionnaireId.toString()}
-                            onSelect={(value) =>
-                              setSelectedQuestionnaireId(Number(value))
-                            }
-                            options={[
-                              {
-                                value: ALL_QUESTIONNAIRES.toString(),
-                                label: "All questionnaires",
-                              },
-                              ...answeredQuestionnaires.map(
-                                (answeredQuestionnaire) => ({
-                                  value: answeredQuestionnaire.id.toString(),
-                                  label: answeredQuestionnaire.name,
-                                })
-                              ),
-                            ]}
-                          />
-                        </FlexItem>
-                      </Flex>
-                    </Content>
-                  </CardHeader>
-                  <CardBody>
-                    <ApplicationLandscape
-                      questionnaire={questionnaire}
-                      assessmentRefs={assessmentRefs}
-                    />
-                  </CardBody>
-                </Card>
-              </StackItem>
+              {applications?.length > 0 && (
+                <StackItem>
+                  <Card isClickable isSelectable>
+                    <CardHeader>
+                      <Content>
+                        <Flex>
+                          <FlexItem>
+                            <Content component="h3">
+                              {t("terms.currentLandscape")}
+                            </Content>
+                          </FlexItem>
+                          <FlexItem>
+                            <SimpleSelect
+                              toggleId="select-questionnaires"
+                              toggleAriaLabel="select questionnaires dropdown toggle"
+                              value={selectedQuestionnaireId.toString()}
+                              onSelect={(value) =>
+                                setSelectedQuestionnaireId(Number(value))
+                              }
+                              options={[
+                                {
+                                  value: ALL_QUESTIONNAIRES.toString(),
+                                  label: "All questionnaires",
+                                },
+                                ...answeredQuestionnaires.map(
+                                  (answeredQuestionnaire) => ({
+                                    value: answeredQuestionnaire.id.toString(),
+                                    label: answeredQuestionnaire.name,
+                                  })
+                                ),
+                              ]}
+                            />
+                          </FlexItem>
+                        </Flex>
+                      </Content>
+                    </CardHeader>
+                    <CardBody>
+                      <ApplicationLandscape
+                        questionnaire={questionnaire}
+                        assessmentRefs={assessmentRefs}
+                      />
+                    </CardBody>
+                  </Card>
+                </StackItem>
+              )}
               <StackItem>
                 <Card>
                   <CardHeader>
