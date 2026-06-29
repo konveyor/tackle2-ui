@@ -139,26 +139,39 @@ export class Token {
     login: string,
     headers?: Record<string, string>
   ) {
-    cy.request({
-      method: "GET",
-      url: "/hub/auth/tokens",
-      ...(headers && { headers }),
-    }).then((response) => {
-      const tokens = response.body;
+    return cy
+      .request({
+        method: "GET",
+        url: "/hub/auth/tokens",
+        ...(headers && { headers }),
+      })
+      .then((response) => {
+        // Handle both array and object responses
+        let tokens = [];
+        if (Array.isArray(response.body)) {
+          tokens = response.body;
+        } else if (response.body && Array.isArray(response.body.data)) {
+          tokens = response.body.data;
+        }
 
-      // Filter tokens by login (user.login in the token object)
-      const userTokens = tokens.filter(
-        (t: { user?: { login?: string; name?: string } }) =>
-          t.user?.login === login || t.user?.name === login
-      );
+        // Filter tokens by login (user.login in the token object)
+        const userTokens = tokens.filter(
+          (t: { user?: { login?: string; name?: string } }) =>
+            t.user?.login === login || t.user?.name === login
+        );
 
-      userTokens.forEach((token: { id: number }) => {
-        cy.request({
-          method: "DELETE",
-          url: `/hub/auth/tokens/${token.id}`,
-          ...(headers && { headers }),
+        cy.log(`Deleting ${userTokens.length} token(s) for user: ${login}`);
+
+        // Delete each token sequentially and wait for completion
+        userTokens.forEach((token: { id: number }) => {
+          cy.request({
+            method: "DELETE",
+            url: `/hub/auth/tokens/${token.id}`,
+            ...(headers && { headers }),
+          }).then(() => {
+            cy.log(`Deleted token ID: ${token.id}`);
+          });
         });
       });
-    });
   }
 }

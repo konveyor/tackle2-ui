@@ -480,6 +480,18 @@ export function validateAnyNumberPresence(fieldId: string): void {
     });
 }
 
+export function getColumnText(
+  rowIdentifier: string,
+  columnName: string
+): Cypress.Chainable<string> {
+  return cy
+    .contains("td", rowIdentifier)
+    .parent("tr")
+    .find(`td[data-label="${columnName}"]`)
+    .invoke("text")
+    .then((text) => text.trim());
+}
+
 export function closeSuccessAlert(): void {
   cy.get(closeSuccessNotification, { timeout: 10 * SEC })
     .first()
@@ -930,7 +942,9 @@ export function performRowActionBySelector(
 }
 
 export function clickItemInKebabMenu(rowItem, itemName: string): void {
-  cy.contains(rowItem)
+  // Search for the row item within table cells only to avoid matching text outside tables
+  cy.get(tdTag)
+    .contains(rowItem)
     .closest(trTag)
     .within(() => {
       click(sideKebabMenu);
