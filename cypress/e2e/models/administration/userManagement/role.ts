@@ -152,10 +152,12 @@ export class Role {
           cy.get(userManagementView.roleDialog).should("not.exist");
           exists(newRoleName);
 
-          return new Role({
-            name: newRoleName,
-            permissions: sourcePermissions,
-          });
+          return cy.wrap(
+            new Role({
+              name: newRoleName,
+              permissions: sourcePermissions,
+            })
+          );
         }
       });
   }

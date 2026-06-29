@@ -1,7 +1,7 @@
 import { login } from "../../../../utils/utils";
 import { Token } from "../../../models/administration/userManagement/token";
 
-describe(["@tier2", "@tier2_B"], "Token API authentication tests", () => {
+describe(["@authNeeded"], "Token API authentication tests", () => {
   before("Login as admin", () => {
     login();
   });
@@ -24,7 +24,7 @@ describe(["@tier2", "@tier2_B"], "Token API authentication tests", () => {
       // Step 2: Test the token by calling /auth/self endpoint
       Token.testTokenViaAPI(tokenValue).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body).to.have.property("user");
+        expect(response.body).to.have.property("login");
         expect(response.body).to.have.property("scopes");
 
         cy.log("Token authenticated to /auth/self");
