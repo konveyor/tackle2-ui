@@ -13,7 +13,7 @@ import * as userManagementView from "../../../views/user-management.view";
 
 export interface RoleData {
   name: string;
-  permissions?: string[]; // Permission scopes like "addon.create", "application.delete"
+  permissions?: string[];
 }
 
 export class Role {
@@ -55,11 +55,9 @@ export class Role {
   protected assignPermissions() {
     if (this.permissions.length > 0) {
       this.permissions.forEach((permissionScope) => {
-        // Find the permission in the available (left) list
         cy.contains(userManagementView.permissionItem, permissionScope).click();
       });
 
-      // Click "Add selected" button (right arrow)
       cy.get(userManagementView.addSelectedButton).click();
     }
   }
@@ -80,16 +78,8 @@ export class Role {
       cy.wait(1000);
       notExists(this.name);
     } else {
-      // Temporary: find button via span and click parent until OUIA ID is added to frontend
-      cy.get(userManagementView.roleDialog).within(() => {
-        cy.contains(userManagementView.roleDialogCreateButtonSpan, "Create")
-          .parent("button")
-          .should("be.visible")
-          .should("not.be.disabled")
-          .click();
-      });
+      cy.get(userManagementView.roleCreateButton).click();
 
-      // Wait for dialog to close
       cy.get(userManagementView.roleDialog).should("not.exist");
       cy.wait(1000);
       exists(this.name);
@@ -105,7 +95,6 @@ export class Role {
       "be.visible"
     );
 
-    // Update instance with new data
     this.name = roleData.name;
     this.permissions = roleData.permissions || [];
 
@@ -113,21 +102,12 @@ export class Role {
     this.assignPermissions();
 
     if (cancel) {
-      // Restore old values if cancelled
       this.name = oldValues.name;
       this.permissions = oldValues.permissions;
       clickByText(button, "Cancel");
     } else {
-      // Save changes
-      cy.get(userManagementView.roleDialog).within(() => {
-        cy.contains(userManagementView.roleDialogCreateButtonSpan, "Save")
-          .parent("button")
-          .should("be.visible")
-          .should("not.be.disabled")
-          .click();
-      });
+      cy.get(userManagementView.roleSaveButton).click();
 
-      // Wait for dialog to close
       cy.get(userManagementView.roleDialog).should("not.exist");
       cy.wait(1000);
     }
@@ -146,7 +126,6 @@ export class Role {
       "be.visible"
     );
 
-    // Clear the pre-filled name and enter new name
     cy.get(userManagementView.roleNameInput).clear().type(newRoleName);
 
     if (cancel) {
@@ -155,21 +134,12 @@ export class Role {
       notExists(newRoleName);
       return null;
     } else {
-      // Save the duplicated role
-      cy.get(userManagementView.roleDialog).within(() => {
-        cy.contains(userManagementView.roleDialogCreateButtonSpan, "Create")
-          .parent("button")
-          .should("be.visible")
-          .should("not.be.disabled")
-          .click();
-      });
+      cy.get(userManagementView.roleCreateButton).click();
 
-      // Wait for dialog to close
       cy.get(userManagementView.roleDialog).should("not.exist");
       cy.wait(1000);
       exists(newRoleName);
 
-      // Return a new Role instance (we don't know the permissions, but name is set)
       return new Role({ name: newRoleName, permissions: [] });
     }
   }
@@ -188,9 +158,6 @@ export class Role {
     };
   }
 
-  /**
-   * Delete a role via API
-   */
   static deleteViaApi(name: string, headers?: Record<string, string>) {
     cy.request({
       method: "GET",
@@ -203,7 +170,6 @@ export class Role {
         : response.body.data || [];
       const role = roles.find((r: any) => r.name === name);
       if (role && role.id >= 1000) {
-        // Only delete custom roles (id >= 1000)
         cy.request({
           method: "DELETE",
           url: `/hub/roles/${role.id}`,

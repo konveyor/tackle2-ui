@@ -14,11 +14,7 @@ describe(["@tier1"], "Role management tests", () => {
     });
 
     role.create();
-
-    // Verify role appears in the list
     cy.contains("td", "Test Custom Role").should("exist");
-
-    // Delete via UI
     role.delete();
   });
 
@@ -27,11 +23,8 @@ describe(["@tier1"], "Role management tests", () => {
       name: "Role with Permissions",
       permissions: ["addons:post", "applications:get"],
     });
-
-    // Create role
     role.create();
 
-    // Verify role appears in the list with permission count
     cy.contains("td", "Role with Permissions").should("exist");
 
     // Verify the role has 2 permissions (shown in the Permissions column)
@@ -54,15 +47,11 @@ describe(["@tier1"], "Role management tests", () => {
     getColumnText("Updated Role Name", "Permissions").then((text) => {
       expect(text).to.equal("5");
     });
-
-    // Cleanup
     role.deleteViaApi();
   });
 
   it("Should duplicate migrator role with same permissions", function () {
     const duplicatedRoleName = "Duplicated Migrator Role";
-
-    // Navigate to Roles page and show 100 items per page
     Role.openList(100);
 
     // Get the permission count of the original migrator role
@@ -73,8 +62,6 @@ describe(["@tier1"], "Role management tests", () => {
 
     // Duplicate the migrator role
     const duplicatedRole = Role.duplicate("migrator", duplicatedRoleName);
-
-    // Verify duplicated role appears in the list
     cy.contains("td", duplicatedRoleName).should("exist");
 
     // Verify the duplicated role has the same number of permissions as the original
