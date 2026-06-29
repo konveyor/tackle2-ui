@@ -9,68 +9,61 @@ describe(["@tier1"], "Role management tests", () => {
 
   it("Should create and delete a custom role without permissions", function () {
     const role = new Role({
-      name: "Test Custom Role",
+      name: `Test Custom Role ${Date.now()}`,
       permissions: [],
     });
 
     role.create();
-    cy.contains("td", "Test Custom Role").should("exist");
+    cy.contains("td", role.name).should("exist");
     role.delete();
   });
 
   it("Should create, edit, and delete a role with specific permissions", function () {
+    const suffix = Date.now();
     const role = new Role({
-      name: "Role with Permissions",
+      name: `Role with Permissions ${suffix}`,
       permissions: ["addons:post", "applications:get"],
     });
     role.create();
 
-    cy.contains("td", "Role with Permissions").should("exist");
+    cy.contains("td", role.name).should("exist");
 
-    // Verify the role has 2 permissions (shown in the Permissions column)
-    cy.contains("td", "Role with Permissions")
+    cy.contains("td", role.name)
       .parent("tr")
       .within(() => {
         cy.contains("2").should("exist");
       });
 
-    // Edit role - change name and add more permissions
     role.edit({
-      name: "Updated Role Name",
+      name: `Updated Role Name ${suffix}`,
       permissions: ["applications:delete", "tasks:get", "buckets:post"],
     });
 
-    // Verify updated role appears in the list
-    cy.contains("td", "Updated Role Name").should("exist");
+    cy.contains("td", role.name).should("exist");
 
-    // Verify the role now has 5 permissions (2 original + 3 new)
-    getColumnText("Updated Role Name", "Permissions").then((text) => {
+    getColumnText(role.name, "Permissions").then((text) => {
       expect(text).to.equal("5");
     });
     role.deleteViaApi();
   });
 
   it("Should duplicate migrator role with same permissions", function () {
-    const duplicatedRoleName = "Duplicated Migrator Role";
+    const duplicatedRoleName = `Duplicated Migrator Role ${Date.now()}`;
     Role.openList(100);
 
-    // Get the permission count of the original migrator role
     let originalPermissionCount: string;
     getColumnText("migrator", "Permissions").then((text) => {
       originalPermissionCount = text;
     });
 
-    // Duplicate the migrator role
     const duplicatedRole = Role.duplicate("migrator", duplicatedRoleName);
     cy.contains("td", duplicatedRoleName).should("exist");
 
-    // Verify the duplicated role has the same number of permissions as the original
     getColumnText(duplicatedRoleName, "Permissions").then((text) => {
       expect(text).to.equal(originalPermissionCount);
     });
 
-    // Cleanup
-    duplicatedRole.deleteViaApi();
+    duplicatedRole?.deleteViaApi();
   });
 
   it("Should not allow editing or deleting built-in roles", function () {
@@ -79,24 +72,23 @@ describe(["@tier1"], "Role management tests", () => {
     Role.openList(100);
 
     builtInRoles.forEach((roleName) => {
-      // Open kebab menu for built-in role
       cy.contains("td", roleName)
         .closest("tr")
         .within(() => {
           click(commonView.kebabToggleButton);
         });
 
-      // Verify Edit and Delete options are disabled (greyed out)
-      cy.get("span.pf-v6-c-menu__item-text")
-        .contains("Edit")
-        .closest("button")
-        .should("have.attr", "aria-disabled", "true");
-      cy.get("span.pf-v6-c-menu__item-text")
-        .contains("Delete")
-        .closest("button")
-        .should("have.attr", "aria-disabled", "true");
+      cy.get('[role="menu"]').within(() => {
+        cy.get("span.pf-v6-c-menu__item-text")
+          .contains("Edit")
+          .closest("button")
+          .should("have.attr", "aria-disabled", "true");
+        cy.get("span.pf-v6-c-menu__item-text")
+          .contains("Delete")
+          .closest("button")
+          .should("have.attr", "aria-disabled", "true");
+      });
 
-      // Close the kebab menu by clicking elsewhere
       cy.get("h1").click();
     });
   });

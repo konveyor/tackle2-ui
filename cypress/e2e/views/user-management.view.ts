@@ -37,7 +37,6 @@ export const lifespanInput = "#lifespan";
 // Role management
 export const roleNameInput = "#name";
 export const rolesMenuItem = '[role="menuitem"]';
-export const confirmButton = 'button[type="button"]';
 export const createRoleButton = 'button[aria-label="Create role"]';
 export const roleDialog = 'div[role="dialog"]';
 export const permissionItem = ".pf-v6-c-dual-list-selector__item-text";

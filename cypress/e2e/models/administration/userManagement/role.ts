@@ -115,7 +115,7 @@ export class Role {
     sourceRoleName: string,
     newRoleName: string,
     cancel = false
-  ): Role {
+  ): Role | null {
     Role.openList();
     clickItemInKebabMenu(sourceRoleName, "Duplicate");
 

@@ -146,30 +146,37 @@ export class Token {
         ...(headers && { headers }),
       })
       .then((response) => {
-        // Handle both array and object responses
-        let tokens = [];
-        if (Array.isArray(response.body)) {
-          tokens = response.body;
-        } else if (response.body && Array.isArray(response.body.data)) {
-          tokens = response.body.data;
+        type TokenRecord = {
+          id?: number;
+          user?: { login?: string; name?: string };
+        };
+
+        const body =
+          typeof response.body === "string"
+            ? JSON.parse(response.body)
+            : response.body;
+
+        let tokens: TokenRecord[] = [];
+        if (Array.isArray(body)) {
+          tokens = body;
+        } else if (body && Array.isArray(body.data)) {
+          tokens = body.data;
         }
 
-        // Filter tokens by login (user.login in the token object)
         const userTokens = tokens.filter(
-          (t: { user?: { login?: string; name?: string } }) =>
-            t.user?.login === login || t.user?.name === login
+          (t): t is TokenRecord & { id: number } =>
+            (t.user?.login === login || t.user?.name === login) && t.id != null
         );
 
-        cy.log(`Deleting ${userTokens.length} token(s) for user: ${login}`);
+        cy.log(`Deleting ${userTokens.length} token(s) for target user`);
 
-        // Delete each token sequentially and wait for completion
-        userTokens.forEach((token: { id: number }) => {
+        userTokens.forEach((token) => {
           cy.request({
             method: "DELETE",
             url: `/hub/auth/tokens/${token.id}`,
             ...(headers && { headers }),
           }).then(() => {
-            cy.log(`Deleted token ID: ${token.id}`);
+            cy.log("Deleted token");
           });
         });
       });
