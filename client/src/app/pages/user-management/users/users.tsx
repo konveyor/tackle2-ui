@@ -2,6 +2,7 @@ import { type FC, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  ButtonVariant,
   Content,
   Label,
   PageSection,
@@ -22,6 +23,7 @@ import {
 } from "@patternfly/react-table";
 
 import { User } from "@app/api/models";
+import { ConfirmDialog } from "@app/components/ConfirmDialog";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -45,6 +47,7 @@ export const UsersPage: FC = () => {
   const { users, isLoading, fetchError } = useFetchUsers();
   const { deleteUser } = useUserActionsWithNotifications();
   const [userToEdit, setUserToEdit] = useState<User | undefined>(undefined);
+  const [userToDelete, setUserToDelete] = useState<User | undefined>(undefined);
   const [openCreateUserModal, setOpenCreateUserModal] = useState(false);
 
   const tableControls = useLocalTableControls({
@@ -239,7 +242,7 @@ export const UsersPage: FC = () => {
                             },
                             {
                               title: t("actions.delete"),
-                              onClick: () => deleteUser(user),
+                              onClick: () => setUserToDelete(user),
                               isDanger: true,
                               isAriaDisabled: isSeededUser(user),
                               tooltipProps: isSeededUser(user)
@@ -273,6 +276,26 @@ export const UsersPage: FC = () => {
         user={userToEdit}
         onClose={() => setUserToEdit(undefined)}
       />
+      {!!userToDelete && (
+        <ConfirmDialog
+          title={t("dialog.title.deleteWithName", {
+            what: t("terms.user").toLowerCase(),
+            name: userToDelete.login,
+          })}
+          isOpen={true}
+          titleIconVariant={"warning"}
+          message={t("dialog.message.delete")}
+          confirmBtnVariant={ButtonVariant.danger}
+          confirmBtnLabel={t("actions.delete")}
+          cancelBtnLabel={t("actions.cancel")}
+          onCancel={() => setUserToDelete(undefined)}
+          onClose={() => setUserToDelete(undefined)}
+          onConfirm={() => {
+            deleteUser(userToDelete);
+            setUserToDelete(undefined);
+          }}
+        />
+      )}
     </>
   );
 };
