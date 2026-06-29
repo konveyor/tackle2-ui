@@ -33,3 +33,8 @@ export const createTokenButton =
 export const tokenCreateButton =
   '[data-ouia-component-id="token-create-button"]';
 export const lifespanInput = "#lifespan";
+
+// Role management
+export const roleNameInput = "#name";
+export const rolesMenuItem = '[role="menuitem"]';
+export const confirmButton = 'button[type="button"]';
