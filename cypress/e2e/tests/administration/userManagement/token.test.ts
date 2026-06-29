@@ -1,7 +1,7 @@
 import { login } from "../../../../utils/utils";
 import { Token } from "../../../models/administration/userManagement/token";
 
-describe(["@authNeeded"], "Token API authentication tests", () => {
+describe(["@tier2", "@tier2_B"], "Token API authentication tests", () => {
   before("Login as admin", () => {
     login();
   });

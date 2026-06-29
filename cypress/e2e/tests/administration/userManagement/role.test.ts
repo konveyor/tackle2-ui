@@ -2,7 +2,7 @@ import { click, getColumnText, login } from "../../../../utils/utils";
 import { Role } from "../../../models/administration/userManagement/role";
 import * as commonView from "../../../views/common.view";
 
-describe(["@tier1"], "Role management tests", () => {
+describe(["@tier2", "@tier2_B"], "Role management tests", () => {
   before("Login as admin", () => {
     login();
   });
