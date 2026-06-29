@@ -151,14 +151,14 @@ export class Token {
           user?: { login?: string; name?: string };
         };
 
-        let body;
+        let body: unknown;
         if (typeof response.body === "string") {
           if (response.body.trim() === "") {
             body = [];
           } else {
             try {
               body = JSON.parse(response.body);
-            } catch (e) {
+            } catch {
               cy.log("Failed to parse response body, treating as empty");
               body = [];
             }
