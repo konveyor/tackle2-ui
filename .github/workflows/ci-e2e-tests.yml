@@ -92,6 +92,7 @@ jobs:
           - "@tier3_D"
           - "@tier3_E"
           - "@tier3_F"
+          - "@authNeeded"
     needs: [build-and-upload-for-global-ci, determine-ui-tests-ref]
     uses: konveyor/ci/.github/workflows/global-ci-bundle.yml@main
     with:
