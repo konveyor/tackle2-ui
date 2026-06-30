@@ -139,26 +139,57 @@ export class Token {
     login: string,
     headers?: Record<string, string>
   ) {
-    cy.request({
-      method: "GET",
-      url: "/hub/auth/tokens",
-      ...(headers && { headers }),
-    }).then((response) => {
-      const tokens = response.body;
+    return cy
+      .request({
+        method: "GET",
+        url: "/hub/auth/tokens",
+        ...(headers && { headers }),
+      })
+      .then((response) => {
+        type TokenRecord = {
+          id?: number;
+          user?: { login?: string; name?: string };
+        };
 
-      // Filter tokens by login (user.login in the token object)
-      const userTokens = tokens.filter(
-        (t: { user?: { login?: string; name?: string } }) =>
-          t.user?.login === login || t.user?.name === login
-      );
+        let body: unknown;
+        if (typeof response.body === "string") {
+          if (response.body.trim() === "") {
+            body = [];
+          } else {
+            try {
+              body = JSON.parse(response.body);
+            } catch {
+              cy.log("Failed to parse response body, treating as empty");
+              body = [];
+            }
+          }
+        } else {
+          body = response.body;
+        }
 
-      userTokens.forEach((token: { id: number }) => {
-        cy.request({
-          method: "DELETE",
-          url: `/hub/auth/tokens/${token.id}`,
-          ...(headers && { headers }),
+        let tokens: TokenRecord[] = [];
+        if (Array.isArray(body)) {
+          tokens = body;
+        } else if (body && Array.isArray(body.data)) {
+          tokens = body.data;
+        }
+
+        const userTokens = tokens.filter(
+          (t): t is TokenRecord & { id: number } =>
+            (t.user?.login === login || t.user?.name === login) && t.id != null
+        );
+
+        cy.log(`Deleting ${userTokens.length} token(s) for target user`);
+
+        userTokens.forEach((token) => {
+          cy.request({
+            method: "DELETE",
+            url: `/hub/auth/tokens/${token.id}`,
+            ...(headers && { headers }),
+          }).then(() => {
+            cy.log("Deleted token");
+          });
         });
       });
-    });
   }
 }

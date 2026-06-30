@@ -33,3 +33,13 @@ export const createTokenButton =
 export const tokenCreateButton =
   '[data-ouia-component-id="token-create-button"]';
 export const lifespanInput = "#lifespan";
+
+// Role management
+export const roleNameInput = "#name";
+export const rolesMenuItem = '[role="menuitem"]';
+export const createRoleButton = 'button[aria-label="Create role"]';
+export const roleDialog = 'div[role="dialog"]';
+export const permissionItem = ".pf-v6-c-dual-list-selector__item-text";
+export const addSelectedButton = 'button[aria-label="Add selected"]';
+export const roleCreateButton = '[data-ouia-component-id="role-create-button"]';
+export const roleSaveButton = '[data-ouia-component-id="role-save-button"]';

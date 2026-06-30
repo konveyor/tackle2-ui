@@ -101,6 +101,7 @@ const RoleModal: FC<RoleModalProps> = ({
             variant="primary"
             isDisabled={!isValid || isSubmitting || isValidating || !isDirty}
             onClick={onSubmit}
+            ouiaId={roleToEdit ? "role-save-button" : "role-create-button"}
           >
             {roleToEdit ? t("actions.save") : t("actions.create")}
           </Button>

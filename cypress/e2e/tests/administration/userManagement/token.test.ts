@@ -24,7 +24,7 @@ describe(["@authNeeded"], "Token API authentication tests", () => {
       // Step 2: Test the token by calling /auth/self endpoint
       Token.testTokenViaAPI(tokenValue).then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body).to.have.property("user");
+        expect(response.body).to.have.property("login");
         expect(response.body).to.have.property("scopes");
 
         cy.log("Token authenticated to /auth/self");
