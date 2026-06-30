@@ -130,7 +130,11 @@ export const Reports: React.FC = () => {
             <Stack hasGutter>
               {applications?.length > 0 && (
                 <StackItem>
-                  <Card isClickable isSelectable>
+                  <Card
+                    ouiaId="current-landscape-card"
+                    isClickable
+                    isSelectable
+                  >
                     <CardHeader>
                       <Content>
                         <Flex>
@@ -174,7 +178,7 @@ export const Reports: React.FC = () => {
                 </StackItem>
               )}
               <StackItem>
-                <Card>
+                <Card ouiaId="identified-risks-card">
                   <CardHeader>
                     <Content>
                       <Content component="h3">
