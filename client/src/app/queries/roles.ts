@@ -41,7 +41,6 @@ export const useUpdateRoleMutation = (
       queryClient
         .invalidateQueries({ queryKey: [RolesQueryKey] })
         .then(() => onSuccess?.());
-      onSuccess?.();
     },
     onError: () => onError?.(),
   });
@@ -58,7 +57,6 @@ export const useDeleteRoleMutation = (
       queryClient
         .invalidateQueries({ queryKey: [RolesQueryKey] })
         .then(() => onSuccess?.());
-      onSuccess?.();
     },
     onError: () => onError?.(),
   });
