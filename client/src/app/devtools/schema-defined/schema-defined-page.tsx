@@ -65,6 +65,77 @@ const asObject = (schema: string | object) => {
   return typeof schema === "string" ? JSON.parse(schema) : schema;
 };
 
+const SchemaActions: React.FC<{
+  onSchemaChange: (schema: object) => void;
+}> = ({ onSchemaChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Dropdown
+      onSelect={() => setIsOpen(false)}
+      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+        <MenuToggle
+          ref={toggleRef}
+          isExpanded={isOpen}
+          onClick={() => setIsOpen((current) => !current)}
+          variant="plain"
+        >
+          <EllipsisVIcon aria-hidden="true" />
+        </MenuToggle>
+      )}
+      isOpen={isOpen}
+      onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+    >
+      <DropdownList>
+        {EXAMPLES.map((example, index) => (
+          <DropdownItem
+            key={`example-${index}`}
+            onClick={() => onSchemaChange(example as object)}
+          >
+            Load Example {index} {example.name ? `- ${example.name}` : ""}
+            {example.title ? `- ${example.title}` : ""}
+          </DropdownItem>
+        ))}
+      </DropdownList>
+    </Dropdown>
+  );
+};
+
+const EditorActions: React.FC<{
+  onLanguageChange: (lang: Language.json | Language.yaml) => void;
+}> = ({ onLanguageChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Dropdown
+      onSelect={() => setIsOpen(false)}
+      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+        <MenuToggle
+          ref={toggleRef}
+          isExpanded={isOpen}
+          onClick={() => setIsOpen((current) => !current)}
+          variant="plain"
+        >
+          <EllipsisVIcon aria-hidden="true" />
+        </MenuToggle>
+      )}
+      isOpen={isOpen}
+      onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+    >
+      <DropdownList>
+        {[Language.json, Language.yaml].map((language, index) => (
+          <DropdownItem
+            key={`language-${index}`}
+            onClick={() =>
+              onLanguageChange(language as Language.json | Language.yaml)
+            }
+          >
+            {language === Language.json ? "JSON" : "YAML"}
+          </DropdownItem>
+        ))}
+      </DropdownList>
+    </Dropdown>
+  );
+};
+
 export const SchemaDefinedPage: React.FC = () => {
   const { t } = useTranslation();
   const [schemaCode, setSchemaCode] = useState<string>(asString(example1));
@@ -116,73 +187,6 @@ export const SchemaDefinedPage: React.FC = () => {
     return "?";
   }, [parsedSchema, currentDocument]);
 
-  const SchemaActions = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    return (
-      <Dropdown
-        onSelect={() => setIsOpen(false)}
-        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            isExpanded={isOpen}
-            onClick={() => setIsOpen((current) => !current)}
-            variant="plain"
-          >
-            <EllipsisVIcon aria-hidden="true" />
-          </MenuToggle>
-        )}
-        isOpen={isOpen}
-        onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-      >
-        <DropdownList>
-          {EXAMPLES.map((example, index) => (
-            <DropdownItem
-              key={`example-${index}`}
-              onClick={() => handleSchemaChange(example as object)}
-            >
-              Load Example {index} {example.name ? `- ${example.name}` : ""}
-              {example.title ? `- ${example.title}` : ""}
-            </DropdownItem>
-          ))}
-        </DropdownList>
-      </Dropdown>
-    );
-  };
-
-  const EditorActions = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    return (
-      <Dropdown
-        onSelect={() => setIsOpen(false)}
-        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            isExpanded={isOpen}
-            onClick={() => setIsOpen((current) => !current)}
-            variant="plain"
-          >
-            <EllipsisVIcon aria-hidden="true" />
-          </MenuToggle>
-        )}
-        isOpen={isOpen}
-        onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-      >
-        <DropdownList>
-          {[Language.json, Language.yaml].map((language, index) => (
-            <DropdownItem
-              key={`language-${index}`}
-              onClick={() =>
-                setEditorLanguage(language as Language.json | Language.yaml)
-              }
-            >
-              {language === Language.json ? "JSON" : "YAML"}
-            </DropdownItem>
-          ))}
-        </DropdownList>
-      </Dropdown>
-    );
-  };
-
   return (
     <>
       <PageSection hasBodyWrapper={false}>
@@ -212,7 +216,13 @@ export const SchemaDefinedPage: React.FC = () => {
             <Grid hasGutter style={{ height: "100%" }}>
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
-                  <CardHeader actions={{ actions: <SchemaActions /> }}>
+                  <CardHeader
+                    actions={{
+                      actions: (
+                        <SchemaActions onSchemaChange={handleSchemaChange} />
+                      ),
+                    }}
+                  >
                     <CardTitle>JSON Schema Editor</CardTitle>
                   </CardHeader>
                   <CardBody className="full-height-container">
@@ -235,7 +245,13 @@ export const SchemaDefinedPage: React.FC = () => {
 
               <GridItem span={6}>
                 <Card isFullHeight isCompact>
-                  <CardHeader actions={{ actions: <EditorActions /> }}>
+                  <CardHeader
+                    actions={{
+                      actions: (
+                        <EditorActions onLanguageChange={setEditorLanguage} />
+                      ),
+                    }}
+                  >
                     <CardTitle>SchemaDefinedFields</CardTitle>
                   </CardHeader>
                   <CardBody className="full-height-container">
