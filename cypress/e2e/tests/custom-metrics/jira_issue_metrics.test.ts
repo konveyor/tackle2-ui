@@ -110,7 +110,10 @@ describe(
           metrics.validateMetric(metricName, counter);
 
           // Delete the jira issues attached to instance
-          jiraInstance.deleteIssues(issues.map((issue) => issue.id));
+          jiraInstance.deleteIssues(
+            issues.map((issue) => issue.id),
+            false
+          );
         });
     });
 
