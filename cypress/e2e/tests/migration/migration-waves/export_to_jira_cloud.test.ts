@@ -184,7 +184,8 @@ describe(
           jiraCloudInstance.deleteIssues(
             Object.values(issuesByIssueType).flatMap((issues) =>
               issues.map((issue) => issue.issue.id)
-            )
+            ),
+            false
           );
         });
       }

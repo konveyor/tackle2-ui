@@ -158,7 +158,10 @@ describe(
 
     after("Clear test data", function () {
       jiraCloudInstance.getIssues(projectName).then((issues: JiraIssue[]) => {
-        jiraCloudInstance.deleteIssues(issues.map((issue) => issue.id));
+        jiraCloudInstance.deleteIssues(
+          issues.map((issue) => issue.id),
+          false
+        );
       });
       deleteAllJiraConnections();
       deleteAllMigrationWaves();

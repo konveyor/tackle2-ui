@@ -320,9 +320,13 @@ export class Jira {
    * Deletes multiple issues by their IDs
    * @param issueIds
    */
-  public deleteIssues(issueIds: string[]): void {
+  public deleteIssues(issueIds: string[], failOnStatusCode = true): void {
     issueIds.forEach((id) =>
-      this.doJiraRequest(`${this.url}/rest/api/2/issue/${id}`, "DELETE")
+      this.doJiraRequest(
+        `${this.url}/rest/api/2/issue/${id}`,
+        "DELETE",
+        failOnStatusCode
+      )
     );
   }
 
@@ -345,7 +349,11 @@ export class Jira {
     return this.doJiraRequest<JiraIssue[]>(url).its("issues");
   }
 
-  private doJiraRequest<T>(url: string, method = "GET"): Cypress.Chainable<T> {
+  private doJiraRequest<T>(
+    url: string,
+    method = "GET",
+    failOnStatusCode = true
+  ): Cypress.Chainable<T> {
     const basicAuth =
       "Basic " +
       Buffer.from(`${this.credential.email}:${this.credential.token}`).toString(
@@ -356,6 +364,7 @@ export class Jira {
       .request({
         url: url,
         method,
+        failOnStatusCode,
         headers: {
           "X-Atlassian-Token": "no-check",
           "User-Agent": "DUMMY-USER-AGENT",
