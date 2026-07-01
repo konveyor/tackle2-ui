@@ -23,7 +23,9 @@ import {
 import { SEC, migration } from "../../../types/constants";
 import { navMenu } from "../../../views/menu.view";
 import {
+  currentLandscapeCard,
   highRiskDonut,
+  identifiedRisksCard,
   lowRiskDonut,
   mediumRiskDonut,
   unknownRiskDonut,
@@ -76,7 +78,21 @@ export class Reports {
     riskDonutSelector: string
   ): Cypress.Chainable<string> {
     Reports.open();
-    return cy.get(riskDonutSelector).eq(0).find("tspan").eq(0).invoke("text");
+    return cy
+      .get(`${currentLandscapeCard},${identifiedRisksCard}`)
+      .then(($elements) => {
+        if ($elements.length > 1) {
+          return cy
+            .get(riskDonutSelector)
+            .eq(0)
+            .find("tspan")
+            .eq(0)
+            .invoke("text");
+        } else {
+          // no charts card, use fallback value
+          return cy.wrap("0");
+        }
+      });
   }
 
   public static getTotalApplicationsValue(

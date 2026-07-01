@@ -15,7 +15,10 @@ limitations under the License.
 */
 
 export const switchToggle = ".pf-v6-c-switch__toggle";
-
+export const currentLandscapeCard =
+  "[data-ouia-component-id='current-landscape-card']";
+export const identifiedRisksCard =
+  "[data-ouia-component-id='identified-risks-card']";
 export const highRiskDonut = "#landscape-donut-red";
 export const mediumRiskDonut = "#landscape-donut-yellow";
 export const lowRiskDonut = "#landscape-donut-green";
