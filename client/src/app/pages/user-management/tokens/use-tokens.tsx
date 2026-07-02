@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
 
 import { useNotifications } from "@app/components/NotificationsContext";
-import { useDeleteTokenMutation } from "@app/queries/tokens";
+import { useRevokeTokenMutation } from "@app/queries/tokens";
 
 export const useTokenActionsWithNotifications = () => {
   const { t } = useTranslation();
   const { pushNotification } = useNotifications();
 
-  const { mutate: revokeToken } = useDeleteTokenMutation(
+  const { mutate: revokeToken } = useRevokeTokenMutation(
     () =>
       pushNotification({
         title: t("titles.token"),

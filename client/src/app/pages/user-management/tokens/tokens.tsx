@@ -292,7 +292,7 @@ export const TokensPage: FC = () => {
                               items={[
                                 {
                                   title: t("actions.revoke"),
-                                  onClick: () => revokeToken(token),
+                                  onClick: () => revokeToken(token.id),
                                   isDanger: true,
                                 },
                               ]}

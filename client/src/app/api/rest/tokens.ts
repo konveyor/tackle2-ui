@@ -6,6 +6,7 @@ import { HEADERS, hub, template } from "../rest";
 
 const TOKENS = hub`/auth/tokens`;
 const TOKEN = hub`/auth/tokens/{{id}}`;
+const TOKEN_REVOKE = hub`/auth/tokens/{{id}}/revoke`;
 
 export const getTokens = (): Promise<Token[]> =>
   axios.get<Token[]>(TOKENS, { headers: HEADERS.json }).then((r) => r.data);
@@ -21,6 +22,12 @@ export const createToken = (
 ): Promise<PersonalAccessToken> =>
   axios.post<PersonalAccessToken>(TOKENS, token).then((r) => r.data);
 
-/** revokes a token. */
+/** deletes and revokes a token. */
 export const deleteToken = (token: Token): Promise<void> =>
   axios.delete<void>(template(TOKEN, { id: token.id })).then(() => undefined);
+
+/** revokes a token - preferred method */
+export const revokeToken = (id: number): Promise<void> =>
+  axios
+    .post<void>(template(TOKEN_REVOKE, { id }), { headers: HEADERS.json })
+    .then(() => undefined);
