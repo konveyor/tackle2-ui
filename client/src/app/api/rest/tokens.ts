@@ -22,12 +22,10 @@ export const createToken = (
 ): Promise<PersonalAccessToken> =>
   axios.post<PersonalAccessToken>(TOKENS, token).then((r) => r.data);
 
-/** deletes and revokes a token. */
-export const deleteToken = (token: Token): Promise<void> =>
-  axios.delete<void>(template(TOKEN, { id: token.id })).then(() => undefined);
-
 /** revokes a token - preferred method */
 export const revokeToken = (id: number): Promise<void> =>
   axios
-    .post<void>(template(TOKEN_REVOKE, { id }), { headers: HEADERS.json })
+    .post<void>(template(TOKEN_REVOKE, { id }), undefined, {
+      headers: HEADERS.json,
+    })
     .then(() => undefined);
