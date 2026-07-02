@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 import { PersonalAccessToken, Token } from "@app/api/models";
-import { createToken, deleteToken, getTokens } from "@app/api/rest";
+import { createToken, getTokens, revokeToken } from "@app/api/rest";
 
 export const TokensQueryKey = "tokens";
 
@@ -14,13 +14,13 @@ export const useFetchTokens = () => {
   return { tokens: data ?? [], isLoading, fetchError: error };
 };
 
-export const useDeleteTokenMutation = (
+export const useRevokeTokenMutation = (
   onSuccess?: () => void,
   onError?: () => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteToken,
+    mutationFn: revokeToken,
     onSuccess: () => {
       queryClient
         .invalidateQueries({ queryKey: [TokensQueryKey] })
