@@ -48,7 +48,7 @@
     "@rollup/plugin-run": "^3.1.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@rollup/plugin-virtual": "^3.0.2",
-    "@tanstack/eslint-plugin-query": "^5.100.6",
+    "@tanstack/eslint-plugin-query": "^5.101.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.19.15",
     "concurrently": "^10.0.3",
@@ -74,7 +74,7 @@
     "wait-on": "^9.0.10"
   },
   "dependencies": {
-    "axios": "^1.16.1",
+    "axios": "^1.18.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "http-proxy-middleware": "~4.1.1"
