@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -17,113 +17,94 @@ import {
   AngleRightIcon,
 } from "@patternfly/react-icons";
 
-import { Permission, Ref } from "@app/api/models";
 import { SimpleEmptyState } from "@app/components/SimpleEmptyState";
-import { toRef } from "@app/utils/model-utils";
 
 const toggleSet = (
-  set: Set<number>,
-  setState: React.Dispatch<React.SetStateAction<Set<number>>>,
-  id: number
+  set: Set<string>,
+  setState: React.Dispatch<React.SetStateAction<Set<string>>>,
+  value: string
 ) => {
   const next = new Set(set);
-  if (next.has(id)) next.delete(id);
-  else next.add(id);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
   setState(next);
 };
 
-export interface DualPermissionsListProps {
-  chosenRefs: Ref[];
-  onChange: (chosenRefs: Ref[]) => void;
-  allPermissions: Permission[];
+export interface DualScopesListProps {
+  chosenScopes: string[];
+  onChange: (chosenScopes: string[]) => void;
+  allScopes: string[];
 }
 
-export const DualPermissionsList: FC<DualPermissionsListProps> = ({
-  chosenRefs,
+export const DualScopesList: FC<DualScopesListProps> = ({
+  chosenScopes,
   onChange,
-  allPermissions,
+  allScopes,
 }) => {
   const { t } = useTranslation();
-  const permissionById = useMemo(
-    () => Object.fromEntries(allPermissions.map((p) => [String(p.id), p])),
-    [allPermissions]
-  );
 
   const [availableFilter, setAvailableFilter] = useState("");
   const [chosenFilter, setChosenFilter] = useState("");
-  const [availableSelected, setAvailableSelected] = useState<Set<number>>(
+  const [availableSelected, setAvailableSelected] = useState<Set<string>>(
     new Set()
   );
-  const [chosenSelected, setChosenSelected] = useState<Set<number>>(new Set());
+  const [chosenSelected, setChosenSelected] = useState<Set<string>>(new Set());
 
-  const displayLabel = (p: Permission) => p.scope ?? String(p.id);
+  const matchesFilter = (scope: string, filter: string) =>
+    !filter || scope.toLowerCase().includes(filter.toLowerCase());
 
-  const matchesFilter = (p: Permission, filter: string) =>
-    !filter || displayLabel(p).toLowerCase().includes(filter.toLowerCase());
-  const chosenIds = new Set(chosenRefs.map((p) => p.id));
-  const chosenPermissions = chosenRefs
-    .map((p) => permissionById[String(p.id)])
-    .filter(Boolean);
-  const availablePermissions = allPermissions.filter(
-    (p) => !chosenIds.has(p.id)
+  const availableScopes = allScopes.filter(
+    (scope) => !chosenScopes.includes(scope)
   );
 
   // show already selected to avoid silent modifications
-  const visibleAvailable = availablePermissions.filter(
-    (p) => matchesFilter(p, availableFilter) || availableSelected.has(p.id)
+  const visibleAvailable = availableScopes.filter(
+    (scope) =>
+      matchesFilter(scope, availableFilter) || availableSelected.has(scope)
   );
-  const visibleChosen = chosenPermissions.filter(
-    (p) => matchesFilter(p, chosenFilter) || chosenSelected.has(p.id)
+  const visibleChosen = chosenScopes.filter(
+    (scope) => matchesFilter(scope, chosenFilter) || chosenSelected.has(scope)
   );
 
-  const moveToChosen = (items: Permission[]) => {
-    onChange([...chosenPermissions, ...items].map(toRef).filter(Boolean));
+  const moveToChosen = (items: string[]) => {
+    onChange([...chosenScopes, ...items]);
     setAvailableSelected(new Set());
   };
-  const moveToAvailable = (items: Permission[]) => {
-    const removeIds = new Set(items.map((p) => p.id));
-    onChange(
-      chosenPermissions
-        .filter((p) => !removeIds.has(p.id))
-        .map(toRef)
-        .filter(Boolean)
-    );
+  const moveToAvailable = (items: string[]) => {
+    const removeScopes = new Set(items);
+    onChange(chosenScopes.filter((scope) => !removeScopes.has(scope)));
     setChosenSelected(new Set());
   };
   const moveAllVisibleToChosen = () => {
-    onChange(
-      [...chosenPermissions, ...visibleAvailable].map(toRef).filter(Boolean)
-    );
+    onChange([...chosenScopes, ...visibleAvailable]);
     setAvailableSelected(new Set());
   };
   const moveAllVisibleToAvailable = () => {
-    const removeIds = new Set(visibleChosen.map((p) => p.id));
-    onChange(
-      chosenPermissions
-        .filter((p) => !removeIds.has(p.id))
-        .map(toRef)
-        .filter(Boolean)
-    );
+    const removeScopes = new Set(visibleChosen);
+    onChange(chosenScopes.filter((scope) => !removeScopes.has(scope)));
     setChosenSelected(new Set());
   };
-  const numAvailSel = visibleAvailable.filter((p) =>
-    availableSelected.has(p.id)
+  const numAvailSel = visibleAvailable.filter((scope) =>
+    availableSelected.has(scope)
   ).length;
-  const numChosenSel = visibleChosen.filter((p) =>
-    chosenSelected.has(p.id)
+  const numChosenSel = visibleChosen.filter((scope) =>
+    chosenSelected.has(scope)
   ).length;
 
   return (
     <DualListSelector>
       <DualListSelectorPane
-        title={t("terms.availablePermissions")}
-        status={`${numAvailSel} of ${visibleAvailable.length} options selected`}
+        title={t("terms.availableScopes")}
+        status={t("message.selectedOptions", {
+          count: numAvailSel,
+          total: visibleAvailable.length,
+        })}
         searchInput={
           <SearchInput
             value={availableFilter}
             onChange={(_event, value) => setAvailableFilter(value)}
             onClear={() => setAvailableFilter("")}
-            aria-label="Search available permissions"
+            aria-label={t("message.searchAvailableScopes")}
           />
         }
         listMinHeight="300px"
@@ -141,15 +122,15 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
         )}
 
         <DualListSelectorList>
-          {visibleAvailable.map((p) => (
+          {visibleAvailable.map((scope) => (
             <DualListSelectorListItem
-              key={p.id}
-              isSelected={availableSelected.has(p.id)}
+              key={scope}
+              isSelected={availableSelected.has(scope)}
               onOptionSelect={() =>
-                toggleSet(availableSelected, setAvailableSelected, p.id)
+                toggleSet(availableSelected, setAvailableSelected, scope)
               }
             >
-              {displayLabel(p)}
+              {scope}
             </DualListSelectorListItem>
           ))}
         </DualListSelectorList>
@@ -160,19 +141,19 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
           isDisabled={numAvailSel === 0}
           onClick={() =>
             moveToChosen(
-              visibleAvailable.filter((p) => availableSelected.has(p.id))
+              visibleAvailable.filter((scope) => availableSelected.has(scope))
             )
           }
-          aria-label="Add selected"
-          tooltipContent="Add selected"
+          aria-label={t("actions.addSelected")}
+          tooltipContent={t("actions.addSelected")}
         >
           <AngleRightIcon />
         </DualListSelectorControl>
         <DualListSelectorControl
           isDisabled={visibleAvailable.length === 0}
           onClick={moveAllVisibleToChosen}
-          aria-label="Add all"
-          tooltipContent="Add all"
+          aria-label={t("actions.addAll")}
+          tooltipContent={t("actions.addAll")}
         >
           <AngleDoubleRightIcon />
         </DualListSelectorControl>
@@ -180,33 +161,36 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
           isDisabled={numChosenSel === 0}
           onClick={() =>
             moveToAvailable(
-              visibleChosen.filter((p) => chosenSelected.has(p.id))
+              visibleChosen.filter((scope) => chosenSelected.has(scope))
             )
           }
-          aria-label="Remove selected"
-          tooltipContent="Remove selected"
+          aria-label={t("actions.removeSelected")}
+          tooltipContent={t("actions.removeSelected")}
         >
           <AngleLeftIcon />
         </DualListSelectorControl>
         <DualListSelectorControl
           isDisabled={visibleChosen.length === 0}
           onClick={moveAllVisibleToAvailable}
-          aria-label="Remove all"
-          tooltipContent="Remove all"
+          aria-label={t("actions.removeAll")}
+          tooltipContent={t("actions.removeAll")}
         >
           <AngleDoubleLeftIcon />
         </DualListSelectorControl>
       </DualListSelectorControlsWrapper>
 
       <DualListSelectorPane
-        title={t("terms.chosenPermissions")}
-        status={`${numChosenSel} of ${visibleChosen.length} options selected`}
+        title={t("terms.chosenScopes")}
+        status={t("message.selectedOptions", {
+          count: numChosenSel,
+          total: visibleChosen.length,
+        })}
         searchInput={
           <SearchInput
             value={chosenFilter}
             onChange={(_event, value) => setChosenFilter(value)}
             onClear={() => setChosenFilter("")}
-            aria-label="Search chosen permissions"
+            aria-label={t("message.searchChosenScopes")}
           />
         }
         listMinHeight="300px"
@@ -224,15 +208,15 @@ export const DualPermissionsList: FC<DualPermissionsListProps> = ({
           />
         )}
         <DualListSelectorList>
-          {visibleChosen.map((p) => (
+          {visibleChosen.map((scope) => (
             <DualListSelectorListItem
-              key={p.id}
-              isSelected={chosenSelected.has(p.id)}
+              key={scope}
+              isSelected={chosenSelected.has(scope)}
               onOptionSelect={() =>
-                toggleSet(chosenSelected, setChosenSelected, p.id)
+                toggleSet(chosenSelected, setChosenSelected, scope)
               }
             >
-              {displayLabel(p)}
+              {scope}
             </DualListSelectorListItem>
           ))}
         </DualListSelectorList>

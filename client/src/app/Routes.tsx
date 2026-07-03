@@ -19,8 +19,8 @@ import { RouteWrapper } from "./components/RouteWrapper";
 import { RepositoriesGit } from "./pages/repositories/Git";
 import { RepositoriesMvn } from "./pages/repositories/Mvn";
 import { RepositoriesSvn } from "./pages/repositories/Svn";
-import { PermissionsPage } from "./pages/user-management/permissions/permissions";
 import { RolesPage } from "./pages/user-management/roles/roles";
+import { ScopesPage } from "./pages/user-management/scopes/scopes";
 import { TokensPage } from "./pages/user-management/tokens/tokens";
 import { UsersPage } from "./pages/user-management/users/users";
 
@@ -345,8 +345,8 @@ export const administrationRoutes: IRoute<AdminPathValues>[] = [
     exact: false,
   },
   {
-    comp: PermissionsPage,
-    path: Paths.permissions,
+    comp: ScopesPage,
+    path: Paths.scopes,
     exact: false,
   },
 ];

@@ -9,13 +9,13 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 
-import { useFetchPermissions } from "../../../queries/permissions";
+import { useFetchScopes } from "../../../queries/scopes";
 
-import { DualPermissionsList } from "./dual-permissions-list";
+import { DualScopesList } from "./dual-scopes-list";
 
-export type RoleFormValues = Pick<Role, "name" | "permissions">;
+export type RoleFormValues = Pick<Role, "name" | "scopes">;
 
-export const ROLE_DEFAULTS: RoleFormValues = { name: "", permissions: [] };
+export const ROLE_DEFAULTS: RoleFormValues = { name: "", scopes: [] };
 
 export interface RoleFormProps {
   form: UseFormReturn<RoleFormValues>;
@@ -24,7 +24,7 @@ export interface RoleFormProps {
 export const RoleForm: FC<RoleFormProps> = ({ form }) => {
   const { t } = useTranslation();
   const { control } = form;
-  const { permissions: allPermissions } = useFetchPermissions();
+  const { scopes: allScopes } = useFetchScopes();
 
   return (
     <Form>
@@ -37,15 +37,15 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
       />
       <HookFormPFGroupController
         control={control}
-        name="permissions"
-        label={t("terms.permissions")}
-        fieldId="permissions"
-        renderInput={({ field: { value: chosenRefs, onChange } }) => {
+        name="scopes"
+        label={t("terms.scopes")}
+        fieldId="scopes"
+        renderInput={({ field: { value: chosenScopes, onChange } }) => {
           return (
-            <DualPermissionsList
-              chosenRefs={chosenRefs}
+            <DualScopesList
+              chosenScopes={chosenScopes}
               onChange={onChange}
-              allPermissions={allPermissions}
+              allScopes={allScopes.map((scope) => scope.name)}
             />
           );
         }}

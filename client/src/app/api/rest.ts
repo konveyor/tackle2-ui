@@ -103,7 +103,7 @@ export * from "./rest/schemas";
 export * from "./rest/tasks";
 export * from "./rest/tokens";
 export * from "./rest/roles";
-export * from "./rest/permissions";
+export * from "./rest/scopes";
 export * from "./rest/users";
 
 /**

@@ -17,7 +17,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 
-import { Permission } from "@app/api/models";
+import { Scope } from "@app/api/models";
 import { FilterToolbar, FilterType } from "@app/components/FilterToolbar";
 import { NoDataEmptyState } from "@app/components/NoDataEmptyState";
 import { SimplePagination } from "@app/components/SimplePagination";
@@ -28,57 +28,66 @@ import {
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
 
-import { useFetchPermissions } from "../../../queries/permissions";
+import { useFetchScopes } from "../../../queries/scopes";
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 
-export const PermissionsPage: FC = () => {
+export const ScopesPage: FC = () => {
   const { t } = useTranslation();
 
-  const { permissions, isLoading, fetchError } = useFetchPermissions();
+  const { scopes, isLoading, fetchError } = useFetchScopes();
+  const defaultVerbs = ["GET", "POST", "PUT", "DELETE", "PATCH"];
+  const usedVerbs = scopes.map((scope) => scope.verb);
 
   const tableControls = useLocalTableControls({
-    tableName: "permissions-table",
-    idProperty: "id",
+    tableName: "scopes-table",
+    idProperty: "name",
     dataNameProperty: "name",
-    items: permissions,
+    items: scopes,
     columnNames: {
-      id: "ID",
       name: "Name",
-      scope: "Scope",
+      resource: "Resource",
+      verb: "Verb",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
     isPaginationEnabled: true,
     isActiveItemEnabled: false,
     hasActionsColumn: false,
-    sortableColumns: ["id", "name", "scope"],
-    initialSort: { columnKey: "scope", direction: "desc" },
-    getSortValues: (permission) => ({
-      id: permission?.id?.toString() || "",
-      name: permission?.name || "",
-      scope: permission?.scope || "",
+    sortableColumns: ["name", "resource", "verb"],
+    initialSort: { columnKey: "name", direction: "asc" },
+    getSortValues: (scope) => ({
+      name: scope?.name || "",
+      resource: scope?.resource || "",
+      verb: scope?.verb?.toUpperCase() || "",
     }),
     filterCategories: [
-      {
-        categoryKey: "scope",
-        title: "Scope",
-        type: FilterType.search,
-        placeholderText: "Filter by scope...",
-        getItemValue: (permission) => permission?.scope || "",
-      },
-      {
-        categoryKey: "id",
-        title: "ID",
-        type: FilterType.numsearch,
-        placeholderText: t("actions.filterBy", { what: "ID..." }),
-        getItemValue: (permission) => permission?.id?.toString() || "",
-      },
       {
         categoryKey: "name",
         title: "Name",
         type: FilterType.search,
         placeholderText: "Filter by name...",
-        getItemValue: (permission) => permission?.name || "",
+        getItemValue: (scope) => scope?.name || "",
+      },
+      {
+        categoryKey: "resource",
+        title: "Resource",
+        type: FilterType.search,
+        placeholderText: "Filter by resource...",
+        getItemValue: (scope) => scope?.resource || "",
+      },
+      {
+        categoryKey: "verb",
+        title: "Verb",
+        selectOptions: Array.from(
+          new Set(
+            [...defaultVerbs, ...usedVerbs].map((verb) => verb.toUpperCase())
+          )
+        )
+          .toSorted()
+          .map((verb) => ({ value: verb, label: verb })),
+        type: FilterType.multiselect,
+        placeholderText: t("actions.filterBy", { what: "Verb..." }),
+        getItemValue: (scope) => scope?.verb?.toUpperCase() || "",
       },
     ],
     initialItemsPerPage: 10,
@@ -103,17 +112,17 @@ export const PermissionsPage: FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {};
 
-  const toCells = ({ id, name, scope }: Permission) => ({
-    id,
+  const toCells = ({ name, resource, verb }: Scope) => ({
     name,
-    scope,
+    resource,
+    verb,
   });
 
   return (
     <>
       <PageSection hasBodyWrapper={false}>
         <Content>
-          <Content component="h1">{t("titles.permissions")}</Content>
+          <Content component="h1">{t("titles.scopes")}</Content>
         </Content>
       </PageSection>
       <PageSection hasBodyWrapper={false}>
@@ -127,7 +136,7 @@ export const PermissionsPage: FC = () => {
             />
             <ToolbarItem {...paginationToolbarItemProps}>
               <SimplePagination
-                idPrefix="permissions-table"
+                idPrefix="scopes-table"
                 isTop
                 paginationProps={paginationProps}
               />
@@ -137,8 +146,8 @@ export const PermissionsPage: FC = () => {
 
         <Table
           {...tableProps}
-          id="permissions-table"
-          aria-label={t("titles.permissionTable")}
+          id="scopes-table"
+          aria-label={t("titles.scopeTable")}
         >
           <Thead>
             <Tr>
@@ -157,32 +166,32 @@ export const PermissionsPage: FC = () => {
             </Tr>
           </Thead>
           <ConditionalTableBody
-            isNoData={permissions.length === 0}
+            isNoData={scopes.length === 0}
             isLoading={isLoading}
             isError={!!fetchError}
             noDataEmptyState={
-              <NoDataEmptyState title={t("message.noPermissionsFoundTitle")} />
+              <NoDataEmptyState title={t("message.noDataAvailableTitle")} />
             }
             numRenderedColumns={numRenderedColumns}
           >
             <Tbody>
               {currentPageItems
-                .map((permission): [Permission, { [p: string]: ReactNode }] => [
-                  permission,
-                  toCells(permission),
+                .map((scope): [Scope, { [p: string]: ReactNode }] => [
+                  scope,
+                  toCells(scope),
                 ])
-                .map(([permission, cells], rowIndex) => (
-                  <Tr key={permission.id} {...getTrProps({ item: permission })}>
+                .map(([scope, cells], rowIndex) => (
+                  <Tr key={scope.name} {...getTrProps({ item: scope })}>
                     <TableRowContentWithControls
                       {...tableControls}
-                      item={permission}
+                      item={scope}
                       rowIndex={rowIndex}
                     >
                       {columnState.columns
                         .filter(({ id }) => getColumnVisibility(id))
                         .map(({ id: columnKey }) => (
                           <Td
-                            key={`${columnKey}_${permission.id}`}
+                            key={`${columnKey}_${scope.name}`}
                             {...getTdProps({ columnKey })}
                           >
                             {cells[columnKey]}
@@ -195,7 +204,7 @@ export const PermissionsPage: FC = () => {
           </ConditionalTableBody>
         </Table>
         <SimplePagination
-          idPrefix="permissions-table"
+          idPrefix="scopes-table"
           isTop={false}
           paginationProps={paginationProps}
         />
@@ -204,4 +213,4 @@ export const PermissionsPage: FC = () => {
   );
 };
 
-export default PermissionsPage;
+export default ScopesPage;

@@ -13,19 +13,19 @@ import * as userManagementView from "../../../views/user-management.view";
 
 export interface RoleData {
   name: string;
-  permissions?: string[];
+  scopes?: string[];
 }
 
 export class Role {
   name: string;
-  permissions: string[];
+  scopes: string[];
   id?: number;
 
   static fullUrl = Cypress.config("baseUrl") + "/users/roles";
 
   constructor(roleData: RoleData) {
     this.name = roleData.name;
-    this.permissions = roleData.permissions || [];
+    this.scopes = roleData.scopes || [];
   }
 
   static openList(itemsPerPage = 10, forceReload = false) {
@@ -52,9 +52,9 @@ export class Role {
     inputText(userManagementView.roleNameInput, this.name);
   }
 
-  protected assignPermissions() {
-    if (this.permissions.length > 0) {
-      this.permissions.forEach((permissionScope) => {
+  protected assignScopes() {
+    if (this.scopes.length > 0) {
+      this.scopes.forEach((permissionScope) => {
         cy.contains(userManagementView.permissionItem, permissionScope).click();
       });
 
@@ -71,7 +71,7 @@ export class Role {
     );
 
     this.fillName();
-    this.assignPermissions();
+    this.assignScopes();
 
     if (cancel) {
       clickByText(button, "Cancel");
@@ -94,14 +94,14 @@ export class Role {
     );
 
     this.name = roleData.name;
-    this.permissions = roleData.permissions || [];
+    this.scopes = roleData.scopes || [];
 
     this.fillName();
-    this.assignPermissions();
+    this.assignScopes();
 
     if (cancel) {
       this.name = oldValues.name;
-      this.permissions = oldValues.permissions;
+      this.scopes = oldValues.scopes;
       clickByText(button, "Cancel");
     } else {
       cy.get(userManagementView.roleSaveButton).click();
@@ -126,12 +126,9 @@ export class Role {
           ? response.body
           : response.body.data || [];
         const sourceRole = roles.find(
-          (r: { name: string; permissions?: { name: string }[] }) =>
-            r.name === sourceRoleName
+          (r: { name: string; scopes?: string[] }) => r.name === sourceRoleName
         );
-        const sourcePermissions = sourceRole?.permissions
-          ? sourceRole.permissions.map((p: { name: string }) => p.name)
-          : [];
+        const sourceScopes = sourceRole?.scopes ?? [];
 
         Role.openList();
         clickItemInKebabMenu(sourceRoleName, "Duplicate");
@@ -155,7 +152,7 @@ export class Role {
           return cy.wrap(
             new Role({
               name: newRoleName,
-              permissions: sourcePermissions,
+              scopes: sourceScopes,
             })
           );
         }
@@ -171,7 +168,7 @@ export class Role {
   protected storeOldValues(): RoleData {
     return {
       name: this.name,
-      permissions: [...this.permissions],
+      scopes: [...this.scopes],
     };
   }
 

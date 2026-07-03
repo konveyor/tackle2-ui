@@ -356,8 +356,8 @@ const AdminSidebar = ({
             </NavLink>
           </NavItem>
           <NavItem>
-            <NavLink to={AdminPaths.permissions} activeClassName="pf-m-current">
-              {t("sidebar.permissions")}
+            <NavLink to={AdminPaths.scopes} activeClassName="pf-m-current">
+              {t("sidebar.scopes")}
             </NavLink>
           </NavItem>
         </NavExpandable>
