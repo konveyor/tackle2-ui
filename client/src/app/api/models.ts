@@ -1047,13 +1047,7 @@ export interface User extends UserManagementResource {
 
 export interface UserRole extends UserManagementResource {
   name: string; // required
-  permissions: Ref[];
-}
-
-/** Permission REST resource (read-only via API). */
-export interface Permission extends UserManagementResource {
-  name: string; // required
-  scope: string; // required, unique
+  scopes: string[];
 }
 
 export interface AuthMe {
@@ -1074,6 +1068,18 @@ export interface Token extends UserManagementResource {
   user?: Ref | null;
   idpIdentity?: Ref | null;
   idpClient?: Ref | null;
+}
+/**
+ * example:{
+ * name: "addons:decrypt"
+ * resource: "addons"
+ * verb: "decrypt"
+ * }
+ */
+export interface Scope {
+  name: string;
+  resource: string;
+  verb: string;
 }
 
 /**

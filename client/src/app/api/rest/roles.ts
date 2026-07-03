@@ -15,9 +15,9 @@ export const getRoleById = (id: number): Promise<Role> =>
     .get<Role>(template(ROLE, { id }), { headers: HEADERS.json })
     .then((r) => r.data);
 
-/** only name and permissions are sent; server fills in the rest. */
+/** only name and scopes are sent; server fills in the rest. */
 export const createRole = (
-  role: Pick<Role, "name" | "permissions">
+  role: Pick<Role, "name" | "scopes">
 ): Promise<Role> => axios.post<Role>(ROLES, role).then((r) => r.data);
 
 export const updateRole = (role: Role): Promise<void> =>

@@ -31,8 +31,8 @@ import {
   TableRowContentWithControls,
 } from "@app/components/TableControls";
 import { useLocalTableControls } from "@app/hooks/table-controls";
-import { useFetchPermissions } from "@app/queries/permissions";
 import { useFetchRoles } from "@app/queries/roles";
+import { useFetchScopes } from "@app/queries/scopes";
 
 import { ManageColumnsToolbar } from "../../applications/applications-table/components/manage-columns-toolbar";
 import { ScopeLabels, groupScopes } from "../components/scope-labels";
@@ -51,7 +51,7 @@ export const RolesPage: FC = () => {
   const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
   const [createOpen, setCreateOpen] = useState(false);
   const [cloneSource, setCloneSource] = useState<Role | undefined>(undefined);
-  const { permissions: allPermissions = [] } = useFetchPermissions();
+  const { scopes: allScopes = [] } = useFetchScopes();
 
   const tableControls = useLocalTableControls({
     tableName: "roles-table",
@@ -61,7 +61,7 @@ export const RolesPage: FC = () => {
     columnNames: {
       id: "ID",
       name: "Name",
-      permissions: "Permissions",
+      scopes: "Scopes",
     },
     isFilterEnabled: true,
     isSortEnabled: true,
@@ -116,10 +116,10 @@ export const RolesPage: FC = () => {
 
   const tooltips: Record<string, ThProps["info"]> = {};
 
-  const toCells = ({ id, name, permissions }: Role) => ({
+  const toCells = ({ id, name, scopes }: Role) => ({
     id,
     name,
-    permissions: permissions.length,
+    scopes: scopes.length,
   });
 
   return (
@@ -210,8 +210,7 @@ export const RolesPage: FC = () => {
                               key={`${columnKey}_${role.id}`}
                               {...getTdProps({
                                 columnKey,
-                                isCompoundExpandToggle:
-                                  columnKey === "permissions",
+                                isCompoundExpandToggle: columnKey === "scopes",
                                 item: role,
                                 rowIndex,
                               })}
@@ -265,11 +264,11 @@ export const RolesPage: FC = () => {
                         >
                           <ExpandableRowContent>
                             {groupScopes(
-                              allPermissions
-                                .filter(({ id }) =>
-                                  role.permissions.some((p) => p.id === id)
+                              allScopes
+                                .filter(({ name }) =>
+                                  role.scopes.some((s) => s === name)
                                 )
-                                .map((p) => p.scope)
+                                .map((s) => s.name)
                             ).map((group) => (
                               <ScopeLabels key={group.resource} group={group} />
                             ))}

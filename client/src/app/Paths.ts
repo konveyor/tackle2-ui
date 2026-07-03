@@ -82,7 +82,7 @@ export const AdminPaths = {
   assetGenerators: "/asset-generators",
   users: "/users",
   roles: "/roles",
-  permissions: "/permissions",
+  scopes: "/scopes",
 } as const;
 
 export type AdminPathValues = (typeof AdminPaths)[keyof typeof AdminPaths];

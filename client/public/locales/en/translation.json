@@ -81,7 +81,11 @@
     "viewErrorReport": "View error report",
     "viewArchetypes": "View archetypes",
     "changeSourcePlatform": "Change source platform",
-    "generateAssets": "Generate assets"
+    "generateAssets": "Generate assets",
+    "addSelected": "Add selected",
+    "addAll": "Add all",
+    "removeSelected": "Remove selected",
+    "removeAll": "Remove all"
   },
   "analysisProfiles": {
     "none": "None",
@@ -293,12 +297,6 @@
     "roleUpdateFailed": "Failed to update role.",
     "roleDeleted": "Role successfully deleted.",
     "roleDeletionFailed": "Failed to delete role.",
-    "noPermissionsFoundTitle": "No permissions found",
-    "permissionCreated": "Permission successfully created.",
-    "permissionCreationFailed": "Failed to create permission.",
-    "permissionDeleted": "Permission successfully deleted.",
-    "permissionDeletionFailed": "Failed to delete permission.",
-    "permissionScopeHint": "Scope format: resource:verb (e.g. applications:get)",
     "seededUserRolesReadOnly": "Roles cannot be changed for built-in users.",
     "seededUserCannotBeDeleted": "Built-in users cannot be deleted.",
     "seededRoleCannotBeModified": "Built-in roles cannot be edited.",
@@ -358,7 +356,10 @@
     "updateRequestSubmitted": "Update request submitted.",
     "noApplicationsForAssignment": "No applications are available for assignment.",
     "noApplicationsForExport": "No applications are available for export.",
-    "systemQuestionnaireDisabled": "Disabled because it is a system questionnaire."
+    "searchAvailableScopes": "Search available scopes",
+    "searchChosenScopes": "Search chosen scopes",
+    "systemQuestionnaireDisabled": "Disabled because it is a system questionnaire.",
+    "selectedOptions": "{{count}} of {{total}} options selected"
   },
   "proposedActions": {
     "refactor": "Refactor",
@@ -403,7 +404,7 @@
     "users": "Users",
     "tokens": "Tokens",
     "roles": "Roles",
-    "permissions": "Permissions"
+    "scopes": "Scopes"
   },
   "taskState": {
     "Canceled": "Canceled",
@@ -690,10 +691,8 @@
     "packagesIncluded": "Packages included",
     "packagesExcluded": "Packages excluded",
     "files": "Files",
-    "permissions": "Permissions",
-    "permission": "Permission",
-    "availablePermissions": "Available permissions",
-    "chosenPermissions": "Chosen permissions",
+    "availableScopes": "Available scopes",
+    "chosenScopes": "Chosen scopes",
     "tokenLifespan": "Lifespan (hours)",
     "confirmPassword": "Confirm password",
     "scope": "Scope",
@@ -730,10 +729,8 @@
     "roleTable": "Role table",
     "createRole": "Create role",
     "editRole": "Edit role",
-    "permission": "Permission",
-    "permissions": "Permissions",
-    "permissionTable": "Permission table",
-    "createPermission": "Create permission"
+    "scopes": "Scopes",
+    "scopeTable": "Scope table"
   },
   "toastr": {
     "success": {

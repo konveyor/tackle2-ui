@@ -13,14 +13,14 @@ import {
   ModalHeader,
 } from "@patternfly/react-core";
 
-import { Ref, UserRole as Role } from "@app/api/models";
+import { UserRole as Role } from "@app/api/models";
 
 import { ROLE_DEFAULTS, RoleForm, RoleFormValues } from "./role-form";
 import { useRoleActionsWithNotifications } from "./use-roles";
 
 export interface RoleModalProps {
   name: string;
-  permissions: Ref[];
+  scopes: string[];
   roleToEdit?: Role;
   onClose: () => void;
 }
@@ -33,7 +33,7 @@ export const RoleCreateModal: FC<{
   isOpen && (
     <RoleModal
       name={ROLE_DEFAULTS.name}
-      permissions={cloneFrom?.permissions ?? ROLE_DEFAULTS.permissions}
+      scopes={cloneFrom?.scopes ?? ROLE_DEFAULTS.scopes}
       onClose={onClose}
     />
   );
@@ -45,7 +45,7 @@ export const RoleEditModal: FC<{ role?: Role; onClose: () => void }> = ({
   !!role && (
     <RoleModal
       name={role.name}
-      permissions={role.permissions}
+      scopes={role.scopes}
       roleToEdit={role}
       onClose={onClose}
     />
@@ -53,12 +53,12 @@ export const RoleEditModal: FC<{ role?: Role; onClose: () => void }> = ({
 
 const schema = object().shape({
   name: string().required(),
-  permissions: array().of(object()).required(),
+  scopes: array().of(string()).required(),
 });
 
 const RoleModal: FC<RoleModalProps> = ({
   name,
-  permissions,
+  scopes,
   roleToEdit,
   onClose,
 }) => {
@@ -66,7 +66,7 @@ const RoleModal: FC<RoleModalProps> = ({
   const { createRole, editRole } = useRoleActionsWithNotifications();
 
   const form = useForm<RoleFormValues>({
-    defaultValues: { name, permissions },
+    defaultValues: { name, scopes },
     resolver: yupResolver(schema),
     mode: "all",
   });
@@ -79,7 +79,7 @@ const RoleModal: FC<RoleModalProps> = ({
   const onSubmit = handleSubmit((values) => {
     if (roleToEdit) {
       editRole(
-        { ...roleToEdit, name: values.name, permissions: values.permissions },
+        { ...roleToEdit, name: values.name, scopes: values.scopes },
         { onSuccess: onClose }
       );
     } else {
