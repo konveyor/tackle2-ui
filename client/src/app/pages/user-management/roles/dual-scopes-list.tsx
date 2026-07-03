@@ -30,13 +30,13 @@ const toggleSet = (
   setState(next);
 };
 
-export interface DualPermissionsListProps {
+export interface DualScopesListProps {
   chosenScopes: string[];
   onChange: (chosenScopes: string[]) => void;
   allScopes: string[];
 }
 
-export const DualPermissionsList: FC<DualPermissionsListProps> = ({
+export const DualScopesList: FC<DualScopesListProps> = ({
   chosenScopes,
   onChange,
   allScopes,

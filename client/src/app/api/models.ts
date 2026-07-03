@@ -1070,10 +1070,11 @@ export interface Token extends UserManagementResource {
   idpClient?: Ref | null;
 }
 /**
- * example:{
- * name: "addons:decrypt"
- * resource: "addons"
- * verb: "decrypt"
+ * @example
+ * {
+ *   name: "addons:decrypt",
+ *   resource: "addons",
+ *   verb: "decrypt"
  * }
  */
 export interface Scope {

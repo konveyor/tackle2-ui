@@ -46,12 +46,22 @@ const isSeededRole = (role: Role) => role.id < 1000;
 export const RolesPage: FC = () => {
   const { t } = useTranslation();
 
-  const { roles, isLoading, fetchError } = useFetchRoles();
+  const {
+    roles,
+    isLoading: isRolesLoading,
+    fetchError: rolesFetchError,
+  } = useFetchRoles();
   const { deleteRole } = useRoleActionsWithNotifications();
   const [roleToEdit, setRoleToEdit] = useState<Role | undefined>(undefined);
   const [createOpen, setCreateOpen] = useState(false);
   const [cloneSource, setCloneSource] = useState<Role | undefined>(undefined);
-  const { scopes: allScopes = [] } = useFetchScopes();
+  const {
+    scopes: allScopes = [],
+    isLoading: isScopesLoading,
+    fetchError: scopesFetchError,
+  } = useFetchScopes();
+  const isLoading = isRolesLoading || isScopesLoading;
+  const fetchError = rolesFetchError || scopesFetchError;
 
   const tableControls = useLocalTableControls({
     tableName: "roles-table",
@@ -59,9 +69,9 @@ export const RolesPage: FC = () => {
     dataNameProperty: "name",
     items: roles,
     columnNames: {
-      id: "ID",
-      name: "Name",
-      scopes: "Scopes",
+      id: t("terms.id"),
+      name: t("terms.name"),
+      scopes: t("terms.scopes"),
     },
     isFilterEnabled: true,
     isSortEnabled: true,

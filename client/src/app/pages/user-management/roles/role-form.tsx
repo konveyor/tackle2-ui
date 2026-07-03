@@ -11,7 +11,7 @@ import {
 
 import { useFetchScopes } from "../../../queries/scopes";
 
-import { DualPermissionsList } from "./dual-permissions-list";
+import { DualScopesList } from "./dual-scopes-list";
 
 export type RoleFormValues = Pick<Role, "name" | "scopes">;
 
@@ -42,7 +42,7 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
         fieldId="scopes"
         renderInput={({ field: { value: chosenScopes, onChange } }) => {
           return (
-            <DualPermissionsList
+            <DualScopesList
               chosenScopes={chosenScopes}
               onChange={onChange}
               allScopes={allScopes.map((scope) => scope.name)}

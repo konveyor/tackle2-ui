@@ -10,7 +10,7 @@ describe(["@authNeeded"], "Role management tests", () => {
   it("Should create and delete a custom role without permissions", function () {
     const role = new Role({
       name: `Test Custom Role ${Date.now()}`,
-      permissions: [],
+      scopes: [],
     });
 
     role.create();
@@ -18,11 +18,11 @@ describe(["@authNeeded"], "Role management tests", () => {
     role.delete();
   });
 
-  it("Should create, edit, and delete a role with specific permissions", function () {
+  it("Should create, edit, and delete a role with specific scopes", function () {
     const suffix = Date.now();
     const role = new Role({
-      name: `Role with Permissions ${suffix}`,
-      permissions: ["addons:post", "applications:get"],
+      name: `Role with Scopes ${suffix}`,
+      scopes: ["addons:post", "applications:get"],
     });
     role.create();
 
@@ -36,12 +36,12 @@ describe(["@authNeeded"], "Role management tests", () => {
 
     role.edit({
       name: `Updated Role Name ${suffix}`,
-      permissions: ["applications:delete", "tasks:get", "buckets:post"],
+      scopes: ["applications:delete", "tasks:get", "buckets:post"],
     });
 
     cy.contains("td", role.name).should("exist");
 
-    getColumnText(role.name, "Permissions").then((text) => {
+    getColumnText(role.name, "Scopes").then((text) => {
       expect(text).to.equal("5");
     });
     role.deleteViaApi();
@@ -52,14 +52,14 @@ describe(["@authNeeded"], "Role management tests", () => {
     Role.openList(100);
 
     let originalPermissionCount: string;
-    getColumnText("migrator", "Permissions").then((text) => {
+    getColumnText("migrator", "Scopes").then((text) => {
       originalPermissionCount = text;
     });
 
     Role.duplicate("migrator", duplicatedRoleName).then((duplicatedRole) => {
       cy.contains("td", duplicatedRoleName).should("exist");
 
-      getColumnText(duplicatedRoleName, "Permissions").then((text) => {
+      getColumnText(duplicatedRoleName, "Scopes").then((text) => {
         expect(text).to.equal(originalPermissionCount);
       });
 
