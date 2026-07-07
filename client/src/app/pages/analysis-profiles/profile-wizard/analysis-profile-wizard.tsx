@@ -63,7 +63,7 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
       <Modal
         isOpen={isOpen}
         aria-label="Analysis profile wizard modal"
-        onClose={onClose}
+        onEscapePress={onClose}
         variant="large"
       >
         <AppPlaceholder />
@@ -135,7 +135,7 @@ const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
     <Modal
       isOpen={isOpen}
       aria-label="Analysis profile wizard modal"
-      onClose={handleCancel}
+      onEscapePress={handleCancel}
       variant="large"
     >
       <Wizard

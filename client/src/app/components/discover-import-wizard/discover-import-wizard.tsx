@@ -97,7 +97,7 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
       variant="large"
       aria-label={t("platformDiscoverWizard.title")}
       isOpen={isOpen}
-      onClose={handleCancel}
+      onEscapePress={handleCancel}
     >
       <Wizard
         onClose={handleCancel}

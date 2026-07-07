@@ -112,7 +112,7 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
     <Modal
       isOpen={isOpen}
       aria-label="Application analysis wizard modal"
-      onClose={handleCancel}
+      onEscapePress={handleCancel}
       variant="large"
     >
       <Wizard

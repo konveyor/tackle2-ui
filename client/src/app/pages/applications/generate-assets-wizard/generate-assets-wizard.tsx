@@ -135,7 +135,7 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
       isOpen={isOpen}
       variant="large"
       aria-label={t("generateAssetsWizard.title")}
-      onClose={handleCancel}
+      onEscapePress={handleCancel}
     >
       <Wizard
         onClose={handleCancel}

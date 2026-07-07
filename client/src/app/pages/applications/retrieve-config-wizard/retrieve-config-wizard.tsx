@@ -144,7 +144,7 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
         variant="large"
         aria-label={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
-        onClose={handleCancel}
+        onEscapePress={handleCancel}
       >
         <Wizard
           onClose={handleCancel}

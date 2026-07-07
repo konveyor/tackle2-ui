@@ -21,7 +21,6 @@ const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
       {isOpen && assessment && (
         <Modal
           isOpen={isOpen}
-          onClose={onRequestClose}
           aria-label="Application assessment wizard modal"
           onEscapePress={onRequestClose}
           variant="large"
