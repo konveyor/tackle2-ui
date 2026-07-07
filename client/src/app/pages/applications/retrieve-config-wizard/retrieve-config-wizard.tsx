@@ -6,11 +6,14 @@ import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 import {
   Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { universalComparator } from "@app/utils/utils";
@@ -118,20 +121,18 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   const readyApplications = watch("ready");
   if (readyApplications.length === 0) {
     return (
-      <Modal
-        variant={ModalVariant.medium}
-        title={t("retrieveConfigWizard.title")}
-        isOpen={isOpen}
-        onClose={handleCancel}
-        footer={
+      <Modal variant="medium" isOpen={isOpen} onClose={handleCancel}>
+        <ModalHeader title={t("retrieveConfigWizard.title")} />
+        <ModalBody>
+          <div style={{ padding: "20px" }}>
+            <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
+          </div>
+        </ModalBody>
+        <ModalFooter>
           <Button variant="primary" onClick={handleCancel}>
             {t("actions.close")}
           </Button>
-        }
-      >
-        <div style={{ padding: "20px" }}>
-          <p>{t("retrieveConfigWizard.noApplicationsWithSourcePlatforms")}</p>
-        </div>
+        </ModalFooter>
       </Modal>
     );
   }
@@ -140,12 +141,10 @@ const RetrieveConfigWizardInner: React.FC<IRetrieveConfigWizard> = ({
   return (
     <FormProvider {...methods}>
       <Modal
-        variant={ModalVariant.large}
+        variant="large"
         aria-label={t("retrieveConfigWizard.title")}
         isOpen={isOpen}
-        showClose={false}
-        hasNoBodyWrapper
-        onEscapePress={handleCancel}
+        onClose={handleCancel}
       >
         <Wizard
           onClose={handleCancel}

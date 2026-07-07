@@ -10,6 +10,9 @@ import {
   EmptyState,
   EmptyStateBody,
   List,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Switch,
   Toolbar,
@@ -17,7 +20,6 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon, LockIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
@@ -367,14 +369,18 @@ const AssessmentSettings: React.FC = () => {
       </PageSection>
       <Modal
         id="import.modal"
-        title={t("dialog.title.import", {
-          what: t("terms.questionnaire").toLowerCase(),
-        })}
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isImportModal}
         onClose={() => setIsImportModal(false)}
       >
-        <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
+        <ModalHeader
+          title={t("dialog.title.import", {
+            what: t("terms.questionnaire").toLowerCase(),
+          })}
+        />
+        <ModalBody>
+          <ImportQuestionnaireForm onSaved={() => setIsImportModal(false)} />
+        </ModalBody>
       </Modal>
       <ConfirmDeleteDialog
         deleteObjectMessage={t("dialog.message.deleteQuestionnaire")}

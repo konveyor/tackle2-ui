@@ -6,12 +6,14 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
   ExpandableRowContent,
@@ -406,44 +408,52 @@ export const Tags: React.FC = () => {
 
       <Modal
         id="create-edit-tag-category-modal"
-        title={
-          tagCategoryToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.tagCategory").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.tagCategory").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isTagCategoryModalOpen}
         onClose={() => setTagCategoryModalState(null)}
       >
-        <TagCategoryForm
-          tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
-          onClose={() => setTagCategoryModalState(null)}
+        <ModalHeader
+          title={
+            tagCategoryToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.tagCategory").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.tagCategory").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TagCategoryForm
+            tagCategory={tagCategoryToUpdate ? tagCategoryToUpdate : undefined}
+            onClose={() => setTagCategoryModalState(null)}
+          />
+        </ModalBody>
       </Modal>
 
       <Modal
         id="create-edit-tag-modal"
-        title={
-          tagToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.tag").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.tag").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isTagModalOpen}
         onClose={() => setTagModalState(null)}
       >
-        <TagForm
-          tag={tagToUpdate ? tagToUpdate : undefined}
-          onClose={() => setTagModalState(null)}
+        <ModalHeader
+          title={
+            tagToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.tag").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.tag").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TagForm
+            tag={tagToUpdate ? tagToUpdate : undefined}
+            onClose={() => setTagModalState(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {!!tagToDelete && (

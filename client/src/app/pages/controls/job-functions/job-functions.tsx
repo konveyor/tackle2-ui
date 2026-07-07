@@ -6,11 +6,13 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -249,20 +251,24 @@ export const JobFunctions: React.FC = () => {
 
       <Modal
         id="create-edit-stakeholder-modal"
-        title={t(
-          jobFunctionToUpdate ? "dialog.title.update" : "dialog.title.new",
-          {
-            what: t("terms.jobFunction").toLowerCase(),
-          }
-        )}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <JobFunctionForm
-          jobFunction={jobFunctionToUpdate}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={t(
+            jobFunctionToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: t("terms.jobFunction").toLowerCase(),
+            }
+          )}
         />
+        <ModalBody>
+          <JobFunctionForm
+            jobFunction={jobFunctionToUpdate}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!jobFunctionToDelete && (

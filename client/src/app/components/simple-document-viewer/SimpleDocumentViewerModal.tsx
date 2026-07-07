@@ -1,5 +1,10 @@
-import { Button } from "@patternfly/react-core";
-import { Modal, ModalProps } from "@patternfly/react-core/deprecated";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
 
 import {
@@ -13,7 +18,7 @@ interface ISimpleDocumentViewerModalProps extends ISimpleDocumentViewerProps {
   title?: string;
 
   /** A callback for when the close button is clicked. */
-  onClose?: ModalProps["onClose"];
+  onClose?: () => void;
 
   /**
    * Position of the modal, `"top"` aligned or `"normal"`/centered on the view.
@@ -56,18 +61,22 @@ export const SimpleDocumentViewerModal = ({
       onClose={onClose}
       variant="large"
       position={position === "top" ? "top" : undefined}
-      title={title ?? `Analysis details for task instance ${documentId}`}
-      actions={[
+    >
+      <ModalHeader
+        title={title ?? `Analysis details for task instance ${documentId}`}
+      />
+      <ModalBody>
+        <SimpleDocumentViewer
+          taskId={documentId}
+          height={isFullHeight ? "full" : undefined}
+          {...rest}
+        />
+      </ModalBody>
+      <ModalFooter>
         <Button key="close" variant="link" onClick={onClose}>
           Close
-        </Button>,
-      ]}
-    >
-      <SimpleDocumentViewer
-        taskId={documentId}
-        height={isFullHeight ? "full" : undefined}
-        {...rest}
-      />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

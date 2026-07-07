@@ -1,5 +1,5 @@
 import { FunctionComponent } from "react";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
+import { Modal } from "@patternfly/react-core";
 
 import { AssessmentWithSectionOrder } from "@app/api/models";
 
@@ -22,11 +22,9 @@ const AssessmentModal: FunctionComponent<AssessmentModalProps> = ({
         <Modal
           isOpen={isOpen}
           onClose={onRequestClose}
-          showClose={false}
           aria-label="Application assessment wizard modal"
-          hasNoBodyWrapper
           onEscapePress={onRequestClose}
-          variant={ModalVariant.large}
+          variant="large"
         >
           <AssessmentWizard assessment={assessment} onClose={onRequestClose} />
         </Modal>

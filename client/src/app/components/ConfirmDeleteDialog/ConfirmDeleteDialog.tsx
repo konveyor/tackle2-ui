@@ -4,13 +4,13 @@ import {
   Button,
   ButtonVariant,
   Content,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalHeaderProps,
   TextInput,
 } from "@patternfly/react-core";
-import {
-  Modal,
-  ModalProps,
-  ModalVariant,
-} from "@patternfly/react-core/deprecated";
 
 import { collapseSpacesAndCompare } from "@app/utils/utils";
 
@@ -25,7 +25,7 @@ type ConfirmDeleteDialogProps = {
   onClose: () => void;
   onConfirmDelete: () => void;
   titleWhat: string;
-  titleIconVariant?: ModalProps["titleIconVariant"];
+  titleIconVariant?: ModalHeaderProps["titleIconVariant"];
 };
 
 const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
@@ -62,57 +62,56 @@ const ConfirmDeleteDialog: FC<ConfirmDeleteDialogProps> = ({
     }
   };
 
-  const confirmBtn = (
-    <Button
-      id="confirm-delete-dialog-button"
-      key="confirm"
-      aria-label="confirm"
-      variant={ButtonVariant.danger}
-      isDisabled={isDisabled}
-      onClick={handleOnConfirmDelete}
-    >
-      {deleteBtnLabel ?? t("actions.delete")}
-    </Button>
-  );
-
-  const cancelBtn = (
-    <Button
-      key="cancel"
-      id="cancel-delete-button"
-      aria-label="cancel"
-      variant={ButtonVariant.link}
-      onClick={handleClose}
-    >
-      {cancelBtnLabel ?? t("actions.cancel")}
-    </Button>
-  );
-
   return (
     <Modal
       id="confirm-delete-dialog"
-      variant={ModalVariant.small}
-      titleIconVariant={titleIconVariant}
+      variant="small"
       isOpen={isOpen}
       onClose={handleClose}
       aria-label="Confirm delete dialog"
-      actions={[confirmBtn, cancelBtn]}
-      title={t("dialog.title.delete", {
-        what: titleWhat,
-      })}
     >
-      <Content component="p">{deleteObjectMessage}</Content>
-      <Content component="p">{t("dialog.message.delete")}</Content>
-      <Content component="p" className="confirm-deletion">
-        <Trans
-          i18nKey="dialog.message.confirmDeletion"
-          values={{ nameToDelete }}
-        />
-      </Content>
-      <TextInput
-        id="confirm-deletion-input"
-        value={nameToDeleteInput}
-        onChange={(_, value) => setNameToDeleteInput(value)}
+      <ModalHeader
+        titleIconVariant={titleIconVariant}
+        title={t("dialog.title.delete", {
+          what: titleWhat,
+        })}
       />
+      <ModalBody>
+        <Content component="p">{deleteObjectMessage}</Content>
+        <Content component="p">{t("dialog.message.delete")}</Content>
+        <Content component="p" className="confirm-deletion">
+          <Trans
+            i18nKey="dialog.message.confirmDeletion"
+            values={{ nameToDelete }}
+          />
+        </Content>
+        <TextInput
+          id="confirm-deletion-input"
+          value={nameToDeleteInput}
+          onChange={(_, value) => setNameToDeleteInput(value)}
+        />
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          id="confirm-delete-dialog-button"
+          key="confirm"
+          aria-label="confirm"
+          variant={ButtonVariant.danger}
+          isDisabled={isDisabled}
+          onClick={handleOnConfirmDelete}
+        >
+          {deleteBtnLabel ?? t("actions.delete")}
+        </Button>
+        <Button
+          key="cancel"
+          id="cancel-delete-button"
+          aria-label="cancel"
+          variant={ButtonVariant.link}
+          onClick={handleClose}
+        >
+          {cancelBtnLabel ?? t("actions.cancel")}
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

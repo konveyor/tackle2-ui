@@ -1,7 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Wizard, WizardHeader, WizardStep } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
+import {
+  Modal,
+  Wizard,
+  WizardHeader,
+  WizardStep,
+} from "@patternfly/react-core";
 
 import { SourcePlatform } from "@app/api/models";
 import { NotificationsContext } from "@app/components/NotificationsContext";
@@ -90,12 +94,10 @@ const DiscoverImportWizardInner: React.FC<IDiscoverImportWizard> = ({
 
   return (
     <Modal
-      variant={ModalVariant.large}
+      variant="large"
       aria-label={t("platformDiscoverWizard.title")}
       isOpen={isOpen}
-      showClose={false}
-      hasNoBodyWrapper
-      onEscapePress={handleCancel}
+      onClose={handleCancel}
     >
       <Wizard
         onClose={handleCancel}

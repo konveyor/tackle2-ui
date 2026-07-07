@@ -8,6 +8,9 @@ import {
   DropdownItem,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Popover,
   Toolbar,
@@ -15,7 +18,6 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import {
   ActionsColumn,
@@ -372,15 +374,17 @@ export const ManageImports: React.FC = () => {
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
-            refetch();
-          }}
-        />
+        <ModalHeader title={t("dialog.title.importApplicationFile")} />
+        <ModalBody>
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+              refetch();
+            }}
+          />
+        </ModalBody>
       </Modal>
       {!!importSummaryToDelete && (
         <ConfirmDialog
