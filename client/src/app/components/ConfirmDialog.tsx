@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   Button,
@@ -30,6 +31,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => void;
   onCancel?: () => void;
   onCustomAction?: () => void;
+  "aria-label"?: string;
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -47,14 +49,16 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
   onCustomAction,
   alertMessage,
+  "aria-label": ariaLabel,
 }) => {
+  const { t } = useTranslation();
   return (
     <Modal
       id="confirm-dialog"
       variant="small"
       isOpen={isOpen}
       onClose={onClose}
-      aria-label="Confirm dialog"
+      aria-label={ariaLabel || t("dialog.title.confirmDialog")}
     >
       <ModalHeader title={title} titleIconVariant={titleIconVariant} />
       <ModalBody>
@@ -67,7 +71,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <Button
           id="confirm-dialog-button"
           key="confirm"
-          aria-label="confirm"
+          aria-label={confirmBtnLabel}
           variant={confirmBtnVariant}
           isDisabled={inProgress}
           onClick={onConfirm}
@@ -90,7 +94,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <Button
             key="cancel"
             id="confirm-cancel-button"
-            aria-label="cancel"
+            aria-label={cancelBtnLabel}
             variant={ButtonVariant.link}
             isDisabled={inProgress}
             onClick={onCancel}
