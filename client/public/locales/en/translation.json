@@ -357,8 +357,8 @@
     "updateRequestSubmitted": "Update request submitted.",
     "noApplicationsForAssignment": "No applications are available for assignment.",
     "noApplicationsForExport": "No applications are available for export.",
-    "searchAvailableScopes": "Search available scopes",
-    "searchChosenScopes": "Search chosen scopes",
+    "searchAvailableOptions": "Search available options",
+    "searchChosenOptions": "Search chosen options",
     "systemQuestionnaireDisabled": "Disabled because it is a system questionnaire.",
     "selectedOptions": "{{count}} of {{total}} options selected"
   },

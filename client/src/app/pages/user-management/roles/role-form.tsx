@@ -9,9 +9,8 @@ import {
   HookFormPFTextInput,
 } from "@app/components/HookFormPFFields";
 
+import { DualListSelector } from "../../../components/dual-list-selector";
 import { useFetchScopes } from "../../../queries/scopes";
-
-import { DualScopesList } from "./dual-scopes-list";
 
 export type RoleFormValues = Pick<Role, "name" | "scopes">;
 
@@ -42,10 +41,12 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
         fieldId="scopes"
         renderInput={({ field: { value: chosenScopes, onChange } }) => {
           return (
-            <DualScopesList
-              chosenScopes={chosenScopes}
+            <DualListSelector
+              chosenOptions={chosenScopes}
               onChange={onChange}
-              allScopes={allScopes.map((scope) => scope.name)}
+              allOptions={allScopes.map((scope) => scope.name)}
+              allOptionsTitle={t("terms.availableScopes")}
+              chosenOptionsTitle={t("terms.chosenScopes")}
             />
           );
         }}

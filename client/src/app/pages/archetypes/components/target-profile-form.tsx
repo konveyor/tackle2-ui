@@ -13,7 +13,6 @@ import {
   ModalHeader,
   Spinner,
 } from "@patternfly/react-core";
-import { DualListSelector } from "@patternfly/react-core/deprecated";
 
 import type {
   AnalysisProfile,
@@ -31,6 +30,7 @@ import { useFetchGenerators } from "@app/queries/generators";
 import { refsToItems, toRef, toRefs } from "@app/utils/model-utils";
 import { duplicateNameCheck } from "@app/utils/utils";
 
+import { DualListSelector } from "../../../components/dual-list-selector";
 import { useAnalysisProfileOptions } from "../hooks/useAnalysisProfileOptions";
 
 interface TargetProfileFormValues {
@@ -87,22 +87,6 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Dual list selector state
-  const [availableOptions, setAvailableOptions] = useState<Generator[]>(() => {
-    if (profile) {
-      return generators.filter(
-        (g) => !profile.generators.some((r) => r.id === g.id)
-      );
-    }
-    return generators;
-  });
-  const [chosenOptions, setChosenOptions] = useState<Generator[]>(() => {
-    if (profile) {
-      return refsToItems(generators, profile.generators);
-    }
-    return [];
-  });
-
   const validationSchema = yup.object().shape({
     name: yup
       .string()
@@ -128,7 +112,6 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
   const {
     handleSubmit,
     control,
-    setValue,
     formState: { isValid },
   } = useForm<TargetProfileFormValues>({
     defaultValues: {
@@ -140,38 +123,13 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
     mode: "all",
   });
 
-  const onListChange = useCallback(
-    (
-      _event: React.MouseEvent,
-      newAvailableOptions: React.ReactNode[],
-      newChosenOptions: React.ReactNode[]
-    ) => {
-      const newAvailable = newAvailableOptions
-        .map((node) => node?.toString())
-        .map((name) => generators.find((g) => g.name === name))
-        .filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      const newChosen = newChosenOptions
-        .map((node) => node?.toString())
-        .map((name) => generators.find((g) => g.name === name))
-        .filter(Boolean)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      setAvailableOptions(newAvailable);
-      setChosenOptions(newChosen);
-      setValue("generators", newChosen, { shouldValidate: true });
-    },
-    [generators, setValue]
-  );
-
   const submitToOnSave = (values: TargetProfileFormValues) => {
     if (!generators) return;
 
     const newProfile: TargetProfile = {
       id: profile?.id ?? 0,
       name: values.name,
-      generators: toRefs(chosenOptions),
+      generators: toRefs(values.generators),
       analysisProfile: toRef(values.analysisProfile ?? undefined),
     };
 
@@ -207,13 +165,16 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
             name="generators"
             label={t("terms.generators")}
             fieldId="target-profile-generators"
-            renderInput={() => (
+            renderInput={({ field: { value: chosenGenerators, onChange } }) => (
               <DualListSelector
-                availableOptions={availableOptions.map(({ name }) => name)}
-                chosenOptions={chosenOptions.map(({ name }) => name)}
-                onListChange={onListChange}
-                id="target-profile-generators-selector"
-                availableOptionsTitle={t("message.generatorsAvailable")}
+                allOptions={generators.map(({ name }) => name)}
+                chosenOptions={chosenGenerators?.map(({ name }) => name) ?? []}
+                onChange={(newGenerators) =>
+                  onChange(
+                    generators.filter((g) => newGenerators.includes(g.name))
+                  )
+                }
+                allOptionsTitle={t("message.generatorsAvailable")}
                 chosenOptionsTitle={t("message.generatorsChosen")}
               />
             )}
