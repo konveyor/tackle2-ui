@@ -15,8 +15,6 @@ limitations under the License.
 */
 /// <reference types="cypress" />
 
-import { confirmButton } from "e2e/views/common.view";
-
 import * as data from "../../../../../utils/data_utils";
 import {
   clickByText,
@@ -40,6 +38,7 @@ import {
 } from "../../../../types/constants";
 import { businessColumnSelector } from "../../../../views/applicationinventory.view";
 import { stakeholdersAndGroupsSelect } from "../../../../views/assessment.view";
+import { confirmButton } from "../../../../views/common.view";
 import { navMenu } from "../../../../views/menu.view";
 
 let stakeholdersList: Array<Stakeholders> = [];
