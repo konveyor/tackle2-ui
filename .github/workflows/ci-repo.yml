@@ -22,7 +22,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: read # required for tj-actions/changed-files
 concurrency:
   group: ci-repo-${{ github.event_name }}-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
