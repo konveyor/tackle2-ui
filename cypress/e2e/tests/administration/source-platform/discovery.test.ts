@@ -90,22 +90,10 @@ describe(["@tier1", "cf"], "Cloud Foundry discovery", () => {
     cy.visit("/");
     deleteApplicationTableRows();
     if (cfInstance) {
-      cy.wrap(null).then(() => {
-        try {
-          cfInstance.delete();
-        } catch (error) {
-          cy.log("Failed to delete CF instance via UI, skipping cleanup");
-        }
-      });
+      cfInstance.delete();
     }
     if (cfCreds) {
-      cy.wrap(null).then(() => {
-        try {
-          cfCreds.delete();
-        } catch (error) {
-          cy.log("Failed to delete credentials via UI, skipping cleanup");
-        }
-      });
+      cfCreds.delete();
     }
   });
 });
