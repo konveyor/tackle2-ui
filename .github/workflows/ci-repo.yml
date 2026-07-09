@@ -20,6 +20,9 @@ on:
         description: Git ref to checkout (defaults to the triggering ref)
         required: false
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-repo-${{ github.event_name }}-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
