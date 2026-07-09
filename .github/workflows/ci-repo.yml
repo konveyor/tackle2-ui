@@ -22,7 +22,7 @@ on:
 
 permissions:
   contents: read
-
+  pull-requests: read
 concurrency:
   group: ci-repo-${{ github.event_name }}-${{ github.ref }}-${{ inputs.checkout_ref || 'main'}}
   cancel-in-progress: true
