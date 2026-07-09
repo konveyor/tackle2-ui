@@ -57,7 +57,7 @@ exports[`Test snapshot 1`] = `
             class="pf-v6-c-masthead__brand"
           >
             <span
-              class="pf-v6-c-masthead__logo"
+              class="pf-v6-c-masthead__logo logo-container"
             >
               <img
                 alt="brand"
@@ -231,7 +231,7 @@ exports[`Test snapshot 1`] = `
           class="pf-v6-c-masthead__brand"
         >
           <span
-            class="pf-v6-c-masthead__logo"
+            class="pf-v6-c-masthead__logo logo-container"
           >
             <img
               alt="brand"
