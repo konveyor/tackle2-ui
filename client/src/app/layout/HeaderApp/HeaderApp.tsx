@@ -126,7 +126,7 @@ export const HeaderApp: React.FC = () => {
           />
         </MastheadToggle>
         <MastheadBrand>
-          <MastheadLogo>
+          <MastheadLogo className="logo-container">
             {leftBrand ? (
               <Brand
                 src={leftBrand.src}
