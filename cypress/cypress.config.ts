@@ -28,7 +28,7 @@ export default defineConfig({
     cloudfoundry_password: "",
     cloudfoundry_url: "https://api.bosh-lite.com",
     rwx_enabled: true,
-    logLevel: "INFO",
+    logLevel: "VERBOSE",
     mtaVersion: "",
     FAIL_FAST_PLUGIN: true,
     FAIL_FAST_ENABLED: false,
