@@ -23,9 +23,14 @@ import {
   getRandomApplicationData,
   login,
 } from "../../../../utils/utils";
+import { CredentialsMaven } from "../../../models/administration/credentials/credentialsMaven";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
 import { CustomMigrationTarget } from "../../../models/migration/custom-migration-targets/custom-migration-target";
-import { AnalysisStatuses, Languages } from "../../../types/constants";
+import {
+  AnalysisStatuses,
+  CredentialType,
+  Languages,
+} from "../../../types/constants";
 import { RulesRepositoryFields } from "../../../types/types";
 
 // Automates Polarion TC MTA-597
@@ -34,6 +39,7 @@ describe(
   "Custom Migration Targets rules trigger validation",
   () => {
     let target: CustomMigrationTarget;
+    let mavenCredential: CredentialsMaven;
     const applications: Analysis[] = [];
     const EXPECTED_EFFORT = 5;
 
@@ -42,6 +48,12 @@ describe(
       cy.visit("/");
       deleteAllMigrationWaves();
       deleteApplicationTableRows();
+
+      // Create Maven credentials for GitHub Packages authentication
+      mavenCredential = new CredentialsMaven(
+        data.getRandomCredentialsData(CredentialType.maven, "None", true)
+      );
+      mavenCredential.create();
     });
 
     beforeEach("Fixtures and Interceptors", function () {
@@ -85,6 +97,7 @@ describe(
           );
           application.create();
           applications.push(application);
+          application.manageCredentials(null, mavenCredential.name);
         }
 
         applications[0].target = [target.name];
@@ -113,6 +126,7 @@ describe(
     after("Clear state", function () {
       target.delete();
       applications.forEach((app) => app.delete());
+      mavenCredential.delete();
     });
   }
 );

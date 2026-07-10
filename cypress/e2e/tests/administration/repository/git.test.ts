@@ -23,6 +23,7 @@ import {
   login,
   writeMavenSettingsFile,
 } from "../../../../utils/utils";
+import { CredentialsMaven } from "../../../models/administration/credentials/credentialsMaven";
 import { CredentialsSourceControlUsername } from "../../../models/administration/credentials/credentialsSourceControlUsername";
 import { GitConfiguration } from "../../../models/administration/repositories/git";
 import { Analysis } from "../../../models/migration/applicationinventory/analysis";
@@ -30,6 +31,7 @@ import { CredentialType, UserCredentials } from "../../../types/constants";
 
 const gitConfiguration = new GitConfiguration();
 let source_credential: CredentialsSourceControlUsername;
+let mavenCredential: CredentialsMaven;
 const applicationsList: Analysis[] = [];
 
 describe(
@@ -39,6 +41,7 @@ describe(
     before("Login", function () {
       login();
       cy.visit("/");
+
       source_credential = new CredentialsSourceControlUsername(
         data.getRandomCredentialsData(
           CredentialType.sourceControl,
@@ -47,6 +50,11 @@ describe(
         )
       );
       source_credential.create();
+
+      mavenCredential = new CredentialsMaven(
+        data.getRandomCredentialsData(CredentialType.maven, "None", true)
+      );
+      mavenCredential.create();
     });
 
     beforeEach("Load data", function () {
@@ -80,7 +88,10 @@ describe(
       application.create();
       applicationsList.push(application);
       cy.wait("@getApplication");
-      application.manageCredentials(source_credential.name);
+      application.manageCredentials(
+        source_credential.name,
+        mavenCredential.name
+      );
       application.analyze();
       application.verifyAnalysisStatus("Completed");
       application.openReport();
@@ -104,7 +115,10 @@ describe(
       application.create();
       applicationsList.push(application);
       cy.wait("@getApplication");
-      application.manageCredentials(source_credential.name);
+      application.manageCredentials(
+        source_credential.name,
+        mavenCredential.name
+      );
       application.analyze();
       application.verifyAnalysisStatus("Failed");
       application.openAnalysisDetails();
@@ -113,6 +127,7 @@ describe(
     after("Perform test data clean up", () => {
       deleteByList(applicationsList);
       source_credential.delete();
+      mavenCredential.delete();
       writeMavenSettingsFile(data.getRandomWord(5), data.getRandomWord(5));
     });
   }

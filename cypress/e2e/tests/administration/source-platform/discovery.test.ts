@@ -86,8 +86,14 @@ describe(["@tier1", "cf"], "Cloud Foundry discovery", () => {
   });
 
   after("Clear test data", function () {
+    login();
+    cy.visit("/");
     deleteApplicationTableRows();
-    cfInstance.delete();
-    cfCreds.delete();
+    if (cfInstance) {
+      cfInstance.delete();
+    }
+    if (cfCreds) {
+      cfCreds.delete();
+    }
   });
 });
