@@ -10,8 +10,11 @@ import {
 } from "../../../../utils/utils";
 import { CredentialType, button } from "../../../types/constants";
 import { CredentialsProxyData } from "../../../types/types";
-import { selectType, usernameInput } from "../../../views/credentials.view";
-import { userPasswordInput } from "../../../views/login.view";
+import {
+  passwordInput,
+  selectType,
+  usernameInput,
+} from "../../../views/credentials.view";
 
 import { Credentials } from "./credentials";
 
@@ -42,7 +45,7 @@ export class CredentialsProxy extends Credentials {
   }
 
   protected fillPassword() {
-    inputText(userPasswordInput, this.password);
+    inputText(passwordInput, this.password);
   }
 
   create(toBeCanceled = false) {
