@@ -281,7 +281,7 @@ export function logout(userName?: string): void {
   clickByText(button, userName);
   cy.wait(0.5 * SEC);
   click("#logout");
-  cy.get("h1", { timeout: 15 * SEC }).contains("Tackle Login");
+  cy.get("h2", { timeout: 15 * SEC }).contains("Log in to your account");
 }
 
 /**

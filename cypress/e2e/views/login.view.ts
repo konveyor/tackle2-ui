@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-export const userNameInput = "#login";
-export const userPasswordInput = "#password";
+export const userNameInput = "#pf-login-username-id";
+export const userPasswordInput = "#pf-login-password-id";
 export const loginButton = "#kc-login";
 export const changePasswordInput = "input[name=password-new]";
 export const confirmPasswordInput = "input[name=password-confirm]";
