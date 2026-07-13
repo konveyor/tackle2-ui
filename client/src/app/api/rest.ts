@@ -318,11 +318,7 @@ export const getSettingById = <K extends keyof SettingTypes>(
 
 export const updateSetting = <K extends keyof SettingTypes>(
   obj: Setting<K>
-): Promise<Setting<K>> =>
-  axios.put(
-    `${SETTINGS}/${obj.key}`,
-    typeof obj.value == "boolean" ? obj.value.toString() : obj.value
-  );
+): Promise<Setting<K>> => axios.put(`${SETTINGS}/${obj.key}`, obj.value);
 
 // ---------------------------------------
 // Trackers
