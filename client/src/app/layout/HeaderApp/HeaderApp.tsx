@@ -102,7 +102,7 @@ export const HeaderApp: React.FC = () => {
 
         {rightBrand ? (
           <ToolbarGroup>
-            <ToolbarItem>
+            <ToolbarItem id="logo-container-right">
               <Brand
                 src={rightBrand.src}
                 alt={rightBrand.alt}

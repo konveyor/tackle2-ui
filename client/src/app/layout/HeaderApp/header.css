@@ -10,3 +10,12 @@
   */
   width: unset;
 }
+
+#logo-container-right {
+  /** existing PF6 rule connected with isFullHeight flag
+  * has specificity (0,3,0) and overrides the styling
+  * applied on the ToolbarItem with alignItems="center"
+  * which results in rule with specificity (0,2,0).
+  */
+  align-items: center;
+}
