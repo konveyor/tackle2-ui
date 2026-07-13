@@ -18,6 +18,7 @@ limitations under the License.
 import { getRandomOidcUserData } from "../../../../utils/data_utils";
 import { exists, login, logout, notExists } from "../../../../utils/utils";
 import { User } from "../../../models/administration/userManagement/user";
+import * as loginView from "../../../views/login.view";
 
 describe(["@authNeeded"], "User CRUD operations", () => {
   before("Login as admin", () => {
@@ -63,8 +64,8 @@ describe(["@authNeeded"], "User CRUD operations", () => {
 
     // Attempt to login as deleted user should fail and stay on login page
     cy.visit("/", { timeout: 120000 });
-    cy.get("#login").type(userData.login);
-    cy.get("#password").type(userData.password);
+    cy.get(loginView.userNameInput).type(userData.login);
+    cy.get(loginView.userPasswordInput).type(userData.password);
     cy.get('button[type="submit"]').click();
 
     // Verify user stays on login page (login failed)

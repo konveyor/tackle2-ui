@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // Form inputs
-export const loginInput = "#login";
+export const loginInput = "#pf-login-username-id";
 export const nameInput = "#name";
 export const emailInput = "#email";
 export const passwordInput = "#password";
