@@ -38,5 +38,5 @@ export const useActiveItemEffects = <TItem>({
     if (!isLoading && activeItemId && !activeItem) {
       clearActiveItem();
     }
-  }, [isLoading, activeItemId, activeItem]); // TODO fix the exhaustive-deps lint warning here without affecting behavior
+  }, [isLoading, activeItemId, activeItem, clearActiveItem]);
 };
