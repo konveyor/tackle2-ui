@@ -3,6 +3,7 @@ name: Nightly e2e (@release-0.10)
 # Runs e2e tests using:
 #  - `:release-0.10` images
 #  - use the konveyor-operator install konveyor action from `release-0.10`
+#  - use e2e test runner workflow from `release-0.10`
 #  - use UI e2e tests from `release-0.10`
 #
 
@@ -34,7 +35,7 @@ jobs:
           - test_tags: "@authNeeded"
             auth_required: false
     name: "Nightly e2e - all tiers"
-    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.10
     with:
       test_tags: ${{ matrix.test_tags }}
       feature_auth_required: ${{ matrix.auth_required }}
