@@ -1,4 +1,10 @@
 name: Nightly e2e (@release-0.10)
+#
+# Runs e2e tests using:
+#  - `:release-0.10` images
+#  - use the konveyor-operator install konveyor action from `release-0.10`
+#  - use UI e2e tests from `release-0.10`
+#
 
 on:
   workflow_dispatch:

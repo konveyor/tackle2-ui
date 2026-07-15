@@ -1,4 +1,10 @@
 name: Nightly e2e (@main)
+#
+# Runs e2e tests using:
+#  - `:latest` images
+#  - use the konveyor-operator install konveyor action from `main`
+#  - use UI e2e tests from `main`
+#
 
 on:
   workflow_dispatch:
