@@ -15,11 +15,11 @@ export const getAssessmentsByItemId = (
   if (!itemId) return Promise.resolve([]);
   if (isArchetype) {
     return axios
-      .get(hub`/archetypes/${itemId}/assessments`)
+      .get<Assessment[]>(hub`/archetypes/${itemId}/assessments`)
       .then((response) => response.data);
   } else {
     return axios
-      .get(hub`/applications/${itemId}/assessments`)
+      .get<Assessment[]>(hub`/applications/${itemId}/assessments`)
       .then((response) => response.data);
   }
 };
@@ -30,25 +30,25 @@ export const createAssessment = (
 ): Promise<Assessment> => {
   if (isArchetype) {
     return axios
-      .post(hub`/archetypes/${obj?.archetype?.id}/assessments`, obj)
+      .post<Assessment>(hub`/archetypes/${obj?.archetype?.id}/assessments`, obj)
       .then((response) => response.data);
   } else {
     return axios
-      .post(hub`/applications/${obj?.application?.id}/assessments`, obj)
+      .post<Assessment>(
+        hub`/applications/${obj?.application?.id}/assessments`,
+        obj
+      )
       .then((response) => response.data);
   }
 };
 
-export const updateAssessment = (obj: Assessment): Promise<Assessment> => {
-  return axios
-    .put(`${ASSESSMENTS}/${obj.id}`, obj)
+export const updateAssessment = (obj: Assessment) =>
+  axios.put<void>(`${ASSESSMENTS}/${obj.id}`, obj);
+
+export const getAssessmentById = (id: number | string) =>
+  axios
+    .get<Assessment>(`${ASSESSMENTS}/${id}`)
     .then((response) => response.data);
-};
 
-export const getAssessmentById = (id: number | string): Promise<Assessment> => {
-  return axios.get(`${ASSESSMENTS}/${id}`).then((response) => response.data);
-};
-
-export const deleteAssessment = (id: number) => {
-  return axios.delete<void>(`${ASSESSMENTS}/${id}`);
-};
+export const deleteAssessment = (id: number) =>
+  axios.delete<void>(`${ASSESSMENTS}/${id}`);
