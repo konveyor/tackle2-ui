@@ -22,8 +22,8 @@ export const useFetchReviews = (
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [reviewsQueryKey],
-    queryFn: () => getReviews(),
-    onError: (error) => console.log("error, ", error),
+    queryFn: getReviews,
+    onError: (error: AxiosError) => console.log("error, ", error),
     refetchInterval,
   });
   return {
@@ -69,8 +69,8 @@ export const useUpdateReviewMutation = (
       queryClient.invalidateQueries({
         queryKey: [
           reviewsByItemIdQueryKey,
-          _?.application?.id,
-          _.archetype?.id,
+          args?.application?.id,
+          args?.archetype?.id,
         ],
       });
       onSuccess?.(args?.application?.name || "");
