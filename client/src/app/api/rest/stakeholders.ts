@@ -5,15 +5,14 @@ import { hub } from "../rest";
 
 const STAKEHOLDERS = hub`/stakeholders`;
 
-export const getStakeholders = (): Promise<Stakeholder[]> =>
-  axios.get(STAKEHOLDERS).then((response) => response.data);
+export const getStakeholders = () =>
+  axios.get<Stakeholder[]>(STAKEHOLDERS).then((response) => response.data);
 
-export const deleteStakeholder = (id: number): Promise<Stakeholder> =>
-  axios.delete(`${STAKEHOLDERS}/${id}`);
+export const createStakeholder = (obj: New<Stakeholder>) =>
+  axios.post<Stakeholder>(STAKEHOLDERS, obj).then((response) => response.data);
 
-export const createStakeholder = (
-  obj: New<Stakeholder>
-): Promise<Stakeholder> => axios.post(STAKEHOLDERS, obj);
+export const updateStakeholder = (obj: Stakeholder) =>
+  axios.put<void>(`${STAKEHOLDERS}/${obj.id}`, obj);
 
-export const updateStakeholder = (obj: Stakeholder): Promise<Stakeholder> =>
-  axios.put(`${STAKEHOLDERS}/${obj.id}`, obj);
+export const deleteStakeholder = (id: number) =>
+  axios.delete<void>(`${STAKEHOLDERS}/${id}`);
