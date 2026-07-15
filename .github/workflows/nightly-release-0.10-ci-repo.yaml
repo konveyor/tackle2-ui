@@ -1,4 +1,4 @@
-name: Nightly CI (repo level @release-0.9)
+name: Nightly CI (repo level @release-0.10)
 
 on:
   schedule:
