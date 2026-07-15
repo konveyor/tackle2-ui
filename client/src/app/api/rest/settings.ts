@@ -5,11 +5,13 @@ import { hub } from "../rest";
 
 const SETTINGS = hub`/settings`;
 
-export const getSettingById = <K extends keyof SettingTypes>(
-  id: K
-): Promise<SettingTypes[K]> =>
-  axios.get(`${SETTINGS}/${id}`).then((response) => response.data);
+export const getSettingById = <K extends keyof SettingTypes>(id: K) =>
+  axios
+    .get<SettingTypes[K]>(`${SETTINGS}/${id}`)
+    .then((response) => response.data);
 
-export const updateSetting = <K extends keyof SettingTypes>(
-  obj: Setting<K>
-): Promise<Setting<K>> => axios.put(`${SETTINGS}/${obj.key}`, obj.value);
+export const updateSetting = <K extends keyof SettingTypes>(obj: Setting<K>) =>
+  axios.put<void>(
+    `${SETTINGS}/${obj.key}`,
+    typeof obj.value == "boolean" ? obj.value.toString() : obj.value
+  );
