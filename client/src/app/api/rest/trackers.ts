@@ -1,35 +1,40 @@
 import axios from "axios";
 
-import { Tracker, TrackerProject, TrackerProjectIssuetype } from "../models";
+import {
+  New,
+  Tracker,
+  TrackerProject,
+  TrackerProjectIssuetype,
+} from "../models";
 import { hub } from "../rest";
 
 const TRACKERS = hub`/trackers`;
-const TRACKER_PROJECT_ISSUETYPES = "issuetypes"; // TODO: ????
-const TRACKER_PROJECTS = "projects"; // TODO: ????
+const TRACKER_PROJECTS = "projects";
+const TRACKER_PROJECT_ISSUETYPES = "issuetypes";
 
-export const getTrackers = (): Promise<Tracker[]> =>
-  axios.get(TRACKERS).then((response) => response.data);
+export const getTrackers = () =>
+  axios.get<Tracker[]>(TRACKERS).then((response) => response.data);
 
-export const createTracker = (obj: Tracker): Promise<Tracker> =>
-  axios.post(TRACKERS, obj).then((res) => res.data);
+export const createTracker = (obj: New<Tracker>) =>
+  axios.post<Tracker>(TRACKERS, obj).then((response) => response.data);
 
-export const updateTracker = (obj: Tracker): Promise<Tracker> =>
-  axios.put(`${TRACKERS}/${obj.id}`, obj);
+export const updateTracker = (obj: Tracker) =>
+  axios.put<void>(`${TRACKERS}/${obj.id}`, obj);
 
-export const deleteTracker = (id: number): Promise<Tracker> =>
-  axios.delete(`${TRACKERS}/${id}`);
+export const deleteTracker = (id: number) =>
+  axios.delete<void>(`${TRACKERS}/${id}`);
 
-export const getTrackerProjects = (id: number): Promise<TrackerProject[]> =>
+export const getTrackerProjects = (id: number) =>
   axios
-    .get(`${TRACKERS}/${id}/${TRACKER_PROJECTS}`)
+    .get<TrackerProject[]>(`${TRACKERS}/${id}/${TRACKER_PROJECTS}`)
     .then((response) => response.data);
 
 export const getTrackerProjectIssuetypes = (
   trackerId: number,
   projectId: string
-): Promise<TrackerProjectIssuetype[]> =>
+) =>
   axios
-    .get(
-      `${TRACKERS}/${trackerId}/${TRACKER_PROJECTS}/${projectId}/${TRACKER_PROJECT_ISSUETYPES}`
-    )
+    .get<
+      TrackerProjectIssuetype[]
+    >(`${TRACKERS}/${trackerId}/${TRACKER_PROJECTS}/${projectId}/${TRACKER_PROJECT_ISSUETYPES}`)
     .then((response) => response.data);
