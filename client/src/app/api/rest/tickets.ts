@@ -5,20 +5,19 @@ import { hub } from "../rest";
 
 const TICKETS = hub`/tickets`;
 
-export const createTickets = (payload: New<Ticket>, applications: Ref[]) => {
-  return Promise.all(
+export const getTickets = () =>
+  axios.get<Ticket[]>(TICKETS).then((response) => response.data);
+
+export const createTickets = (payload: New<Ticket>, applications: Ref[]) =>
+  Promise.all(
     applications.map((app) => {
       const appPayload: New<Ticket> = {
         ...payload,
         application: { id: app.id, name: app.name },
       };
-      return axios.post(TICKETS, appPayload);
+      return axios.post<Ticket>(TICKETS, appPayload).then((r) => r.data);
     })
   );
-};
 
-export const getTickets = (): Promise<Ticket[]> =>
-  axios.get(TICKETS).then((response) => response.data);
-
-export const deleteTicket = (id: number): Promise<Ticket> =>
-  axios.delete(`${TICKETS}/${id}`);
+export const deleteTicket = (id: number) =>
+  axios.delete<void>(`${TICKETS}/${id}`);

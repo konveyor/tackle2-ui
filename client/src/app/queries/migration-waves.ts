@@ -117,14 +117,14 @@ export const useDeleteAllMigrationWavesMutation = (
 };
 
 export const useDeleteTicketMutation = (
-  onSuccess?: (res: unknown) => void,
+  onSuccess?: () => void,
   onError?: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteTicket,
-    onSuccess: (res) => {
-      onSuccess?.(res);
+    onSuccess: () => {
+      onSuccess?.();
       queryClient.invalidateQueries({ queryKey: [MigrationWavesQueryKey] });
       queryClient.invalidateQueries({ queryKey: [TicketsQueryKey] });
     },
