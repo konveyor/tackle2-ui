@@ -1,0 +1,81 @@
+name: Nightly e2e (@release-0.10)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: e2e-nightly-release-0.10-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  nightly-e2e:
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        test_tags:
+          - "@tier2_secretsNeeded,@tier3_secretsNeeded"
+          - "@ci,@tier0,@tier2_A,@tier2_B"
+          - "@tier3_A,@tier3_B,@tier3_C"
+          - "@tier3_D,@tier3_E,@tier3_F"
+          - "@authNeeded"
+        auth_required:
+          - true
+          - false
+        exclude:
+          - test_tags: "@authNeeded"
+            auth_required: false
+    name: "Nightly e2e - all tiers"
+    uses: ./.github/workflows/e2e-run-ui-tests.yaml
+    with:
+      test_tags: ${{ matrix.test_tags }}
+      feature_auth_required: ${{ matrix.auth_required }}
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.10
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.10
+      install_konveyor_version: release-0.10
+      test_ref: release-0.10
+    secrets: inherit
+
+  slack-notification:
+    name: Send Slack notification
+    runs-on: ubuntu-latest
+    needs: [nightly-e2e]
+    if: always()
+    steps:
+      - name: Determine workflow status
+        id: status
+        run: |
+          if [[ "${{ needs.nightly-e2e.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=good" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.nightly-e2e.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=warning" >> $GITHUB_OUTPUT
+            echo "emoji=:warning:" >> $GITHUB_OUTPUT
+          fi
+          echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v3
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "text": "${{ steps.status.outputs.emoji }} *Nightly E2E Tests (@release-0.10)* - ${{ steps.status.outputs.status }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
+                  "footer": "tackle2-ui",
+                  "footer_icon": "https://github.com/konveyor.png",
+                  "ts": ${{ steps.status.outputs.timestamp }}
+                }
+              ]
+            }
