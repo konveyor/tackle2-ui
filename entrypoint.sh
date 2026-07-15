@@ -24,7 +24,6 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
 fi
 
 # Copy the Kube API and service CA bundle to /opt/app-root/src/ca.crt if they exist
-NODE_EXTRA_CA_CERTS=${NODE_EXTRA_CA_CERTS:-/opt/app-root/src/ca.crt}
 
 # Add Kube API CA
 if [ -f "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt" ]; then

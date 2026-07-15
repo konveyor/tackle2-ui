@@ -54,7 +54,6 @@ LABEL name="konveyor/tackle2-ui" \
 COPY --from=builder /opt/app-root/src/dist /opt/app-root/dist/
 
 ENV DEBUG=1
-ENV NODE_EXTRA_CA_CERTS=/opt/app-root/src/ca.crt
 
 WORKDIR /opt/app-root/dist
 ENTRYPOINT ["./entrypoint.sh"]
