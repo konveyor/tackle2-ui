@@ -6,6 +6,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   nightly:
     uses: ./.github/workflows/ci-e2e-tests.yml

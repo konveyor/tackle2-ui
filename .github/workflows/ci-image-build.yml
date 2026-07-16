@@ -14,6 +14,10 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read # required for tj-actions/changed-files
+
 jobs:
   checks:
     runs-on: ubuntu-latest
