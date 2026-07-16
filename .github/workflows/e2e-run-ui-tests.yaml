@@ -83,6 +83,9 @@ on:
         type: string
         default: main
 
+permissions:
+  contents: read
+
 jobs:
   run-test:
     name: "Run tests - ${{ inputs.feature_auth_required && 'auth' || 'noauth' }}, test: ${{ inputs.test_ref }}, tags: ${{ inputs.test_tags }}"

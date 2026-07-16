@@ -12,6 +12,9 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 concurrency:
   group: e2e-nightly-release-0.9-${{ github.ref }}
   cancel-in-progress: true
