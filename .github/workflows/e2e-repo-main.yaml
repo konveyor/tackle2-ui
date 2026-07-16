@@ -22,6 +22,9 @@ on:
         type: string
         default: main
 
+permissions:
+  contents: read
+
 concurrency:
   group: e2e-repo-main-${{ github.ref }}
   cancel-in-progress: true
