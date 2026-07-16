@@ -1,10 +1,10 @@
-name: Nightly e2e (@main)
+name: Nightly e2e (@release-0.10)
 #
 # Runs e2e tests using:
-#  - `:latest` images
-#  - use the konveyor-operator install konveyor action from `main`
-#  - use e2e test runner workflow from `main`
-#  - use UI e2e tests from `main`
+#  - `:release-0.10` images
+#  - use the konveyor-operator install konveyor action from `release-0.10`
+#  - use e2e test runner workflow from `release-0.10`
+#  - use UI e2e tests from `release-0.10`
 #
 
 on:
@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: e2e-nightly-${{ github.ref }}
+  group: e2e-nightly-release-0.10-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -38,14 +38,14 @@ jobs:
           - test_tags: "@authNeeded"
             auth_required: false
     name: "Nightly e2e - all tiers"
-    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@main
+    uses: konveyor/tackle2-ui/.github/workflows/e2e-run-ui-tests.yaml@release-0.10
     with:
       test_tags: ${{ matrix.test_tags }}
       feature_auth_required: ${{ matrix.auth_required }}
-      bundle_image: quay.io/konveyor/tackle2-operator-bundle:latest
-      ui_image: quay.io/konveyor/tackle2-ui:latest
-      install_konveyor_version: main
-      test_ref: main
+      bundle_image: quay.io/konveyor/tackle2-operator-bundle:release-0.10
+      ui_image: quay.io/konveyor/tackle2-ui:release-0.10
+      install_konveyor_version: release-0.10
+      test_ref: release-0.10
     secrets: inherit
 
   slack-notification:
@@ -82,7 +82,7 @@ jobs:
               "attachments": [
                 {
                   "color": "${{ steps.status.outputs.color }}",
-                  "text": "${{ steps.status.outputs.emoji }} *Nightly E2E Tests (@main)* - ${{ steps.status.outputs.status }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
+                  "text": "${{ steps.status.outputs.emoji }} *Nightly E2E Tests (@release-0.10)* - ${{ steps.status.outputs.status }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
                   "footer": "tackle2-ui",
                   "footer_icon": "https://github.com/konveyor.png",
                   "ts": ${{ steps.status.outputs.timestamp }}
