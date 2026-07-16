@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 import createBundler from "@bahmutov/cypress-esbuild-preprocessor";
+import decompress from "@xhmikosr/decompress";
 import { defineConfig } from "cypress";
 import cypressFastFail from "cypress-fail-fast/plugin";
 import { tagify } from "cypress-tags";
-import decompress from "decompress";
 
 const { verifyDownloadTasks } = require("cy-verify-downloads");
 const { downloadFile } = require("cypress-downloadfile/lib/addPlugin");
