@@ -168,6 +168,64 @@ Please read the [Pull Request (PR) Process](https://github.com/konveyor/release-
 section of the [Konveyor versioning and branching doc](https://github.com/konveyor/release-tools/blob/main/VERSIONING.md)
 for more information.
 
+# Container Runtime
+
+When running the built container image (outside of local development), the
+[entrypoint.sh](entrypoint.sh) script starts the Node.js server and assembles a
+CA certificate bundle nodejs uses for TLS connections.
+
+## CA Certificate Handling
+
+Node.js does not use the operating system trust store. The entrypoint builds a
+combined PEM bundle at `/tmp/node-ca-bundle.pem` and sets `NODE_EXTRA_CA_CERTS`
+to point at it. This adds the bundled CAs on top of Node's compiled-in Mozilla
+root CAs.
+
+The following sources are checked automatically:
+
+| Source                       | Path                                                           | When present                                     |
+| ---------------------------- | -------------------------------------------------------------- | ------------------------------------------------ |
+| Kubernetes API server CA     | `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`         | Always on K8s/OpenShift                          |
+| OpenShift service-serving CA | `/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt` | When the operator mounts it                      |
+| Cluster-injected / proxy CAs | `/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem`            | When `trusted_ca_enabled` is set in the operator |
+| Drop-in directory            | `/opt/app-root/ca-certs.d/*.crt`, `*.pem`                      | User-provided (see below)                        |
+
+If none of the sources exist, `NODE_EXTRA_CA_CERTS` is left unset and Node uses
+its built-in Mozilla roots only.
+
+## Adding Custom CA Certificates
+
+To inject a custom CA (e.g. an internal corporate root CA) without rebuilding
+the image, mount a ConfigMap or Secret containing PEM files into the drop-in
+directory `/opt/app-root/ca-certs.d/`. Any file ending in `.crt` or `.pem` will
+be included in the bundle automatically.
+
+**ConfigMap example (Deployment snippet):**
+
+```yaml
+containers:
+  - name: tackle-ui
+    volumeMounts:
+      - name: custom-ca
+        mountPath: /opt/app-root/ca-certs.d
+        readOnly: true
+volumes:
+  - name: custom-ca
+    configMap:
+      name: my-custom-ca
+      items:
+        - key: corporate-root.crt
+          path: corporate-root.crt
+```
+
+On OpenShift, the cluster-wide trusted CA injection mechanism
+(`config.openshift.io/inject-trusted-cabundle: "true"`) can also be used. The
+operator mounts the injected ConfigMap to
+`/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem`, which the entrypoint
+already reads from `ca_sources`. See
+[docs/operator-ca-certs-followup.md](docs/operator-ca-certs-followup.md) for
+operator-side details.
+
 # Testing
 
 ## Unit Tests
