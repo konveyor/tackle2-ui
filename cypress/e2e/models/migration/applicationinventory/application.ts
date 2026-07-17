@@ -94,10 +94,7 @@ import {
   taskIcon,
   version,
 } from "../../../views/applicationinventory.view";
-import {
-  assessmentColumnSelector,
-  continueButton,
-} from "../../../views/assessment.view";
+import { assessmentColumnSelector } from "../../../views/assessment.view";
 import * as commonView from "../../../views/common.view";
 import { navMenu } from "../../../views/menu.view";
 import { reviewColumnSelector } from "../../../views/review.view";
@@ -812,7 +809,7 @@ export class Application {
     Application.open();
     this.selectApplication();
     clickItemInKebabMenu(this.name, selection);
-    cy.get(continueButton).click();
+    cy.get(commonView.confirmButton).click();
   }
 
   selectApps(applicationList: Array<Application>): void {

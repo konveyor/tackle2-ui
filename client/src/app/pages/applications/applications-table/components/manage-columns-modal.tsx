@@ -12,8 +12,11 @@ import {
   DataListItem,
   DataListItemCells,
   DataListItemRow,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 
 import { ColumnState } from "@app/hooks/table-controls/column/useColumnState";
 
@@ -60,52 +63,52 @@ export const ManageColumnsModal = <TColumnKey extends string>({
   };
 
   return (
-    <Modal
-      title={title}
-      isOpen={true}
-      variant="small"
-      description={
-        <Content>
-          <Content component={ContentVariants.p}>{description}</Content>
-        </Content>
-      }
-      onClose={onClose}
-      actions={[
+    <Modal isOpen={true} variant="small" onClose={onClose}>
+      <ModalHeader
+        title={title}
+        description={
+          <Content>
+            <Content component={ContentVariants.p}>{description}</Content>
+          </Content>
+        }
+      />
+      <ModalBody>
+        <DataList aria-label={title} id="table-column-management" isCompact>
+          {editedColumns.map(({ id, label, isVisible, isIdentity }, index) => (
+            <DataListItem key={index}>
+              <DataListItemRow className="custom-data-list-item-row">
+                <DataListControl>
+                  <DataListCheck
+                    aria-labelledby={`check-${id}`}
+                    isChecked={isVisible || isIdentity}
+                    isDisabled={isIdentity}
+                    onChange={(e, checked) => onSelect(id, checked)}
+                  />
+                </DataListControl>
+                <DataListItemCells
+                  className="custom-data-list-cell"
+                  dataListCells={[
+                    <DataListCell key="primary">
+                      <span id={`draggable-${id}`}>{label}</span>
+                    </DataListCell>,
+                  ]}
+                />
+              </DataListItemRow>
+            </DataListItem>
+          ))}
+        </DataList>
+      </ModalBody>
+      <ModalFooter>
         <Button key="save" variant="primary" onClick={onSave}>
           {saveLabel}
-        </Button>,
+        </Button>
         <Button key="cancel" variant="secondary" onClick={onClose}>
           {cancelLabel}
-        </Button>,
+        </Button>
         <Button key="restore" variant="link" onClick={restoreDefaults}>
           {restoreLabel}
-        </Button>,
-      ]}
-    >
-      <DataList aria-label={title} id="table-column-management" isCompact>
-        {editedColumns.map(({ id, label, isVisible, isIdentity }, index) => (
-          <DataListItem key={index}>
-            <DataListItemRow className="custom-data-list-item-row">
-              <DataListControl>
-                <DataListCheck
-                  aria-labelledby={`check-${id}`}
-                  isChecked={isVisible || isIdentity}
-                  isDisabled={isIdentity}
-                  onChange={(e, checked) => onSelect(id, checked)}
-                />
-              </DataListControl>
-              <DataListItemCells
-                className="custom-data-list-cell"
-                dataListCells={[
-                  <DataListCell key="primary">
-                    <span id={`draggable-${id}`}>{label}</span>
-                  </DataListCell>,
-                ]}
-              />
-            </DataListItemRow>
-          </DataListItem>
-        ))}
-      </DataList>
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

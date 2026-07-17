@@ -4,12 +4,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { ActionGroup, Button, Form, Spinner } from "@patternfly/react-core";
 import {
-  DualListSelector,
+  ActionGroup,
+  Button,
+  Form,
   Modal,
-  ModalVariant,
-} from "@patternfly/react-core/deprecated";
+  ModalBody,
+  ModalHeader,
+  Spinner,
+} from "@patternfly/react-core";
+import { DualListSelector } from "@patternfly/react-core/deprecated";
 
 import type {
   AnalysisProfile,
@@ -176,83 +180,87 @@ const TargetProfileFormInner: React.FC<TargetProfileFormPropsInner> = ({
 
   return (
     <Modal
-      variant={ModalVariant.medium}
-      title={
-        profile
-          ? t("dialog.title.updateTargetProfile")
-          : t("dialog.title.newTargetProfile")
-      }
+      variant="medium"
       isOpen={isOpen}
       onClose={onCancel}
       onEscapePress={onCancel}
     >
-      <Form onSubmit={handleSubmit(submitToOnSave)}>
-        <HookFormPFTextInput
-          control={control}
-          name="name"
-          label={t("terms.name")}
-          fieldId="target-profile-name"
-          isRequired
-        />
+      <ModalHeader
+        title={
+          profile
+            ? t("dialog.title.updateTargetProfile")
+            : t("dialog.title.newTargetProfile")
+        }
+      />
+      <ModalBody>
+        <Form onSubmit={handleSubmit(submitToOnSave)}>
+          <HookFormPFTextInput
+            control={control}
+            name="name"
+            label={t("terms.name")}
+            fieldId="target-profile-name"
+            isRequired
+          />
 
-        <HookFormPFGroupController
-          control={control}
-          name="generators"
-          label={t("terms.generators")}
-          fieldId="target-profile-generators"
-          renderInput={() => (
-            <DualListSelector
-              availableOptions={availableOptions.map(({ name }) => name)}
-              chosenOptions={chosenOptions.map(({ name }) => name)}
-              onListChange={onListChange}
-              id="target-profile-generators-selector"
-              availableOptionsTitle={t("message.generatorsAvailable")}
-              chosenOptionsTitle={t("message.generatorsChosen")}
-            />
-          )}
-        />
+          <HookFormPFGroupController
+            control={control}
+            name="generators"
+            label={t("terms.generators")}
+            fieldId="target-profile-generators"
+            renderInput={() => (
+              <DualListSelector
+                availableOptions={availableOptions.map(({ name }) => name)}
+                chosenOptions={chosenOptions.map(({ name }) => name)}
+                onListChange={onListChange}
+                id="target-profile-generators-selector"
+                availableOptionsTitle={t("message.generatorsAvailable")}
+                chosenOptionsTitle={t("message.generatorsChosen")}
+              />
+            )}
+          />
 
-        <HookFormPFGroupController
-          control={control}
-          name="analysisProfile"
-          label={t("terms.analysisProfile")}
-          fieldId="target-profile-analysis-profile"
-          renderInput={({ field: { value, onChange } }) => (
-            <TypeaheadSelect
-              toggleId="analysis-profile-select-toggle"
-              placeholderText={t("composed.selectOne", {
-                what: t("terms.analysisProfile").toLowerCase(),
-              })}
-              toggleAriaLabel="Analysis profile select"
-              ariaLabel="Select analysis profile"
-              value={value ? value?.id.toString() : undefined}
-              options={analysisProfileOptions}
-              onSelect={(selectedId) =>
-                onChange(
-                  selectedId
-                    ? (findProfileById(Number(selectedId)) ?? null)
-                    : null
-                )
-              }
-            />
-          )}
-        />
+          <HookFormPFGroupController
+            control={control}
+            name="analysisProfile"
+            label={t("terms.analysisProfile")}
+            fieldId="target-profile-analysis-profile"
+            renderInput={({ field: { value, onChange } }) => (
+              <TypeaheadSelect
+                toggleId="analysis-profile-select-toggle"
+                placeholderText={t("composed.selectOne", {
+                  what: t("terms.analysisProfile").toLowerCase(),
+                })}
+                toggleAriaLabel="Analysis profile select"
+                ariaLabel="Select analysis profile"
+                value={value ? value?.id.toString() : undefined}
+                options={analysisProfileOptions}
+                onSelect={(selectedId) =>
+                  onChange(
+                    selectedId
+                      ? (findProfileById(Number(selectedId)) ?? null)
+                      : null
+                  )
+                }
+              />
+            )}
+          />
 
-        <ActionGroup>
-          <Button
-            type="button"
-            id="submit"
-            variant="primary"
-            isDisabled={!isValid}
-            onClick={handleSubmit(submitToOnSave)}
-          >
-            {profile ? t("actions.save") : t("actions.create")}
-          </Button>
-          <Button variant="link" onClick={onCancel}>
-            {t("actions.cancel")}
-          </Button>
-        </ActionGroup>
-      </Form>
+          <ActionGroup>
+            <Button
+              type="button"
+              id="submit"
+              variant="primary"
+              isDisabled={!isValid}
+              onClick={handleSubmit(submitToOnSave)}
+            >
+              {profile ? t("actions.save") : t("actions.create")}
+            </Button>
+            <Button variant="link" onClick={onCancel}>
+              {t("actions.cancel")}
+            </Button>
+          </ActionGroup>
+        </Form>
+      </ModalBody>
     </Modal>
   );
 };

@@ -168,6 +168,7 @@
       "applicationAnalysis": "Application analysis",
       "cancel": "Cancel {{what}}?",
       "cancelWithName": "Cancel {{what}} \"{{name}}\"?",
+      "confirmDialog": "Confirm dialog",
       "copyApplicationAssessmentAndReviewFrom": "Copy {{what}} assessment and review",
       "copyApplicationAssessmentFrom": "Copy {{what}} assessment",
       "delete": "Delete {{what}}?",

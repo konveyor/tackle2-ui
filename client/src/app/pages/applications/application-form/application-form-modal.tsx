@@ -1,7 +1,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Button, ButtonVariant } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
+import {
+  Button,
+  ButtonVariant,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "@patternfly/react-core";
 
 import { DecoratedApplication } from "../useDecoratedApplications";
 
@@ -50,16 +56,18 @@ const ApplicationFormModalInner: React.FC<ApplicationFormModalProps> = ({
     });
 
   return (
-    <Modal
-      title={
-        application
-          ? t("dialog.title.updateApplication")
-          : t("dialog.title.newApplication")
-      }
-      variant="medium"
-      isOpen={isOpen}
-      onClose={onClose}
-      actions={[
+    <Modal variant="medium" isOpen={isOpen} onClose={onClose}>
+      <ModalHeader
+        title={
+          application
+            ? t("dialog.title.updateApplication")
+            : t("dialog.title.newApplication")
+        }
+      />
+      <ModalBody>
+        <ApplicationForm application={application} form={form} data={data} />
+      </ModalBody>
+      <ModalFooter>
         <Button
           key="submit"
           id="submit"
@@ -69,7 +77,7 @@ const ApplicationFormModalInner: React.FC<ApplicationFormModalProps> = ({
           onClick={onSubmit}
         >
           {!application ? t("actions.create") : t("actions.save")}
-        </Button>,
+        </Button>
         <Button
           key="cancel"
           id="cancel"
@@ -79,10 +87,8 @@ const ApplicationFormModalInner: React.FC<ApplicationFormModalProps> = ({
           onClick={onClose}
         >
           {t("actions.cancel")}
-        </Button>,
-      ]}
-    >
-      <ApplicationForm application={application} form={form} data={data} />
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };

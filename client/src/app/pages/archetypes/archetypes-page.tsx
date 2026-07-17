@@ -8,13 +8,15 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -489,44 +491,50 @@ const Archetypes: React.FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newArchetype")}
         variant="medium"
         isOpen={openCreateArchetype}
         onClose={() => setOpenCreateArchetype(false)}
       >
-        <ArchetypeForm
-          key={openCreateArchetype ? 1 : 0}
-          onClose={() => setOpenCreateArchetype(false)}
-        />
+        <ModalHeader title={t("dialog.title.newArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={openCreateArchetype ? 1 : 0}
+            onClose={() => setOpenCreateArchetype(false)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updateArchetype")}
         variant="medium"
         isOpen={!!archetypeToEdit}
         onClose={() => setArchetypeToEdit(null)}
       >
-        <ArchetypeForm
-          key={archetypeToEdit?.id ?? -1}
-          archetype={archetypeToEdit}
-          onClose={() => setArchetypeToEdit(null)}
-        />
+        <ModalHeader title={t("dialog.title.updateArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={archetypeToEdit?.id ?? -1}
+            archetype={archetypeToEdit}
+            onClose={() => setArchetypeToEdit(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Duplicate modal */}
       <Modal
-        title={t("dialog.title.newArchetype")}
         variant="medium"
         isOpen={!!archetypeToDuplicate}
         onClose={() => setArchetypeToDuplicate(null)}
       >
-        <ArchetypeForm
-          key={archetypeToDuplicate?.id ?? -1}
-          archetype={archetypeToDuplicate}
-          isDuplicating
-          onClose={() => setArchetypeToDuplicate(null)}
-        />
+        <ModalHeader title={t("dialog.title.newArchetype")} />
+        <ModalBody>
+          <ArchetypeForm
+            key={archetypeToDuplicate?.id ?? -1}
+            archetype={archetypeToDuplicate}
+            isDuplicating
+            onClose={() => setArchetypeToDuplicate(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Confirm discard assessment modal */}

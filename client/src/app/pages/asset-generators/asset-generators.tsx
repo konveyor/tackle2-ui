@@ -8,13 +8,15 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -369,29 +371,33 @@ const AssetGenerators: FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newGenerator")}
         variant="medium"
         isOpen={openCreateGenerator}
         onClose={handleCloseCreateGenerator}
       >
-        <GeneratorForm
-          key={openCreateGenerator ? 1 : 0}
-          onClose={handleCloseCreateGenerator}
-        />
+        <ModalHeader title={t("dialog.title.newGenerator")} />
+        <ModalBody>
+          <GeneratorForm
+            key={openCreateGenerator ? 1 : 0}
+            onClose={handleCloseCreateGenerator}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updateGenerator")}
         variant="medium"
         isOpen={!!generatorToEdit}
         onClose={handleCloseEditGenerator}
       >
-        <GeneratorForm
-          key={generatorToEdit?.id ?? -1}
-          generator={generatorToEdit}
-          onClose={handleCloseEditGenerator}
-        />
+        <ModalHeader title={t("dialog.title.updateGenerator")} />
+        <ModalBody>
+          <GeneratorForm
+            key={generatorToEdit?.id ?? -1}
+            generator={generatorToEdit}
+            onClose={handleCloseEditGenerator}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Delete confirm modal */}
