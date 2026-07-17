@@ -42,9 +42,9 @@ export const RoleForm: FC<RoleFormProps> = ({ form }) => {
         renderInput={({ field: { value: chosenScopes, onChange } }) => {
           return (
             <DualListSelector
-              chosenOptions={chosenScopes}
+              chosenOptions={chosenScopes ?? []}
               onChange={onChange}
-              allOptions={allScopes.map((scope) => scope.name)}
+              allOptions={(allScopes ?? []).map((scope) => scope.name)}
               allOptionsTitle={t("terms.availableScopes")}
               chosenOptionsTitle={t("terms.chosenScopes")}
             />
