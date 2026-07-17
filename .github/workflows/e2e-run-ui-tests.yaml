@@ -131,89 +131,15 @@ jobs:
           echo "ingress is ready at: ${minikube_ip}"
           echo "UI_URL=https://${minikube_ip}" >>$GITHUB_ENV
 
-      - name: Expose metrics endpoint
-        run: |
-          # Wait for tackle-hub pod to be ready
-          echo "Waiting for tackle-hub pod to be ready..."
-          kubectl wait --for=condition=ready pod \
-            -n konveyor-tackle \
-            -l app.kubernetes.io/name=tackle-hub \
-            --timeout=600s
-
-          # Find the tackle-hub pod
-          HUB_POD=$(kubectl get pods -n konveyor-tackle -l app.kubernetes.io/name=tackle-hub -o jsonpath='{.items[0].metadata.name}')
-          echo "Hub pod: $HUB_POD"
-
-          # Verify metrics endpoint is available inside the pod first
-          echo "Checking if metrics endpoint is available inside the pod..."
-          for i in {1..30}; do
-            if kubectl exec -n konveyor-tackle "$HUB_POD" -- curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
-              echo "Metrics endpoint is available inside the pod"
-              break
-            fi
-            echo "Waiting for metrics endpoint to be available (attempt $i/30)..."
-            sleep 2
-          done
-
-          # Port-forward metrics endpoint in the background (persistent across steps)
-          nohup kubectl port-forward -n konveyor-tackle "$HUB_POD" 2112:2112 > /tmp/port-forward-metrics.log 2>&1 &
-          echo $! > /tmp/port-forward-metrics.pid
-          echo "Port-forward PID: $(cat /tmp/port-forward-metrics.pid)"
-
-          # Wait for port-forward to be ready with retry logic
-          echo "Waiting for port-forward to be ready..."
-          for i in {1..30}; do
-            if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
-              echo "Port-forward is ready and metrics endpoint is accessible"
-              break
-            fi
-            echo "Waiting for port-forward (attempt $i/30)..."
-            sleep 2
-          done
-
-          # Verify metrics endpoint is accessible
-          echo "Testing metrics endpoint..."
-          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
-            echo "Metrics endpoint test successful"
-          else
-            echo "Failed to access metrics endpoint"
-            kubectl logs -n konveyor-tackle "$HUB_POD" --tail=50
-            exit 1
-          fi
-
-          # Set metrics URL for Cypress tests
-          echo "METRICS_URL=http://localhost:2112/metrics" >>$GITHUB_ENV
-
       - name: "Checkout the repo (ref: ${{ inputs.test_ref }})"
         uses: actions/checkout@v7
         with:
           ref: ${{ inputs.test_ref }}
           path: tackle2-ui
 
-      - name: Verify metrics endpoint is still accessible
+      - name: Expose metrics endpoint
         run: |
-          echo "Verifying port-forward is still running..."
-          if [[ -f /tmp/port-forward-metrics.pid ]]; then
-            PID=$(cat /tmp/port-forward-metrics.pid)
-            if ps -p $PID > /dev/null 2>&1; then
-              echo "✓ Port-forward process is running (PID: $PID)"
-            else
-              echo "✗ Port-forward process is NOT running!"
-              exit 1
-            fi
-          else
-            echo "✗ Port-forward PID file not found!"
-            exit 1
-          fi
-
-          echo "Testing metrics endpoint accessibility..."
-          if curl -s http://localhost:2112/metrics > /dev/null 2>&1; then
-            echo "✓ Metrics endpoint is accessible"
-          else
-            echo "✗ Metrics endpoint is NOT accessible!"
-            cat /tmp/port-forward-metrics.log
-            exit 1
-          fi
+          tackle2-ui/hack/setup-metrics-endpoint.sh
 
       - name: "Run UI tests"
         uses: ./tackle2-ui/.github/actions/run-ui-tests
