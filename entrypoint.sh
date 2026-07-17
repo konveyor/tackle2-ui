@@ -23,11 +23,9 @@ if [[ $AUTH_REQUIRED != "false" ]]; then
   fi
 fi
 
-# Build a combined CA bundle for Node.js, which does not use the system trust store.
-# NODE_EXTRA_CA_CERTS adds CAs on top of Node's compiled-in Mozilla root CAs.
-# If NODE_EXTRA_CA_CERTS is already set to an existing file, it is treated as
-# an additional input source rather than the output path, so read-only mounts
-# (Secrets, ConfigMaps) are safe to use.
+# Nodejs does not use the system trust store by default. We build a combined CA
+# bundle from known sources and set NODE_EXTRA_CA_CERTS to point at it. This adds
+# CAs on top of Node's compiled-in Mozilla root CAs.
 ca_bundle="/tmp/node-ca-bundle.pem"
 
 ca_sources=(
@@ -39,12 +37,6 @@ ca_sources=(
   /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
 )
 
-# If the caller pre-set NODE_EXTRA_CA_CERTS to an existing file, include it.
-if [ -n "${NODE_EXTRA_CA_CERTS:-}" ] && [ -f "${NODE_EXTRA_CA_CERTS}" ]; then
-  ca_sources+=("${NODE_EXTRA_CA_CERTS}")
-fi
-
-# Pick up any certs dropped into the well-known drop-in directory.
 # Mount a ConfigMap or Secret to /opt/app-root/ca-certs.d/ with *.crt or *.pem
 # files and they will be included automatically without rebuilding the image.
 for f in /opt/app-root/ca-certs.d/*.crt /opt/app-root/ca-certs.d/*.pem; do
