@@ -26,8 +26,13 @@ FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:1783341337
 
 # Add ps package to allow liveness probe for k8s cluster
 # Add tar package to allow copying files with kubectl scp
+# Setup a directory to store the CA certificates to be given to nodejs in entrypoint.sh
 USER 0
-RUN microdnf -y install tar procps-ng && microdnf clean all
+RUN microdnf -y install tar procps-ng && \
+    microdnf clean all && \
+    mkdir -p /opt/app-root/ca-certs.d && \
+    chown 1001:0 /opt/app-root/ca-certs.d && \
+    chmod 775 /opt/app-root/ca-certs.d
 
 USER 1001
 
