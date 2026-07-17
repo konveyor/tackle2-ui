@@ -10,12 +10,14 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
@@ -360,23 +362,27 @@ export const Stakeholders: React.FC = () => {
 
       <Modal
         id="create-edit-stakeholder-modal"
-        title={
-          stakeholderToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.stakeholder").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.stakeholder").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <StakeholderForm
-          stakeholder={stakeholderToUpdate ? stakeholderToUpdate : undefined}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={
+            stakeholderToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.stakeholder").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.stakeholder").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <StakeholderForm
+            stakeholder={stakeholderToUpdate ? stakeholderToUpdate : undefined}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!stakeholderToDelete && (

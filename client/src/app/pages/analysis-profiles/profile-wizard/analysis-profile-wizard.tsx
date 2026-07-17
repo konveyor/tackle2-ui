@@ -1,7 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Icon, Wizard, WizardHeader, WizardStep } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
+import {
+  Icon,
+  Modal,
+  Wizard,
+  WizardHeader,
+  WizardStep,
+} from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
 
 import { AnalysisProfile } from "@app/api/models";
@@ -57,10 +62,9 @@ export const AnalysisProfileWizard: React.FC<AnalysisProfileWizardProps> = ({
     return (
       <Modal
         isOpen={isOpen}
-        showClose={false}
         aria-label="Analysis profile wizard modal"
         onEscapePress={onClose}
-        variant={ModalVariant.large}
+        variant="large"
       >
         <AppPlaceholder />
       </Modal>
@@ -130,11 +134,9 @@ const AnalysisProfileWizardReady: React.FC<AnalysisProfileWizardReadyProps> = ({
   return (
     <Modal
       isOpen={isOpen}
-      showClose={false}
       aria-label="Analysis profile wizard modal"
-      hasNoBodyWrapper
       onEscapePress={handleCancel}
-      variant={ModalVariant.large}
+      variant="large"
     >
       <Wizard
         data-testid="analysis-profile-wizard"

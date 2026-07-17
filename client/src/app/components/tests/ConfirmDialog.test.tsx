@@ -62,7 +62,7 @@ describe("ConfirmDialog", () => {
     );
 
     const confirmButton = screen.getByRole("button", {
-      name: /^Confirm\b/i,
+      name: /^Yes\b/i,
     });
     fireEvent.click(confirmButton);
     expect(onConfirmSpy).toHaveBeenCalledTimes(1);

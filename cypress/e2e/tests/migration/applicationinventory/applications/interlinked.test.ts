@@ -37,10 +37,8 @@ import {
   legacyPathfinder,
 } from "../../../../types/constants";
 import { businessColumnSelector } from "../../../../views/applicationinventory.view";
-import {
-  continueButton,
-  stakeholdersAndGroupsSelect,
-} from "../../../../views/assessment.view";
+import { stakeholdersAndGroupsSelect } from "../../../../views/assessment.view";
+import { confirmButton } from "../../../../views/common.view";
 import { navMenu } from "../../../../views/menu.view";
 
 let stakeholdersList: Array<Stakeholders> = [];
@@ -175,7 +173,7 @@ describe(
 
           cy.get(stakeholdersAndGroupsSelect).should("have.value", "");
           clickByText(button, "Cancel");
-          cy.get(continueButton).click();
+          cy.get(confirmButton).click();
         });
       });
     });

@@ -10,12 +10,14 @@ import {
   DescriptionListTerm,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import {
@@ -338,25 +340,29 @@ export const StakeholderGroups: React.FC = () => {
       </ConditionalRender>
       <Modal
         id="create-edit-stakeholder-group-modal"
-        title={
-          stakeholderGroupToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.stakeholderGroup").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.stakeholderGroup").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <StakeholderGroupForm
-          stakeholderGroup={
-            stakeholderGroupToUpdate ? stakeholderGroupToUpdate : undefined
+        <ModalHeader
+          title={
+            stakeholderGroupToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.stakeholderGroup").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.stakeholderGroup").toLowerCase(),
+                })
           }
-          onClose={closeCreateUpdateModal}
         />
+        <ModalBody>
+          <StakeholderGroupForm
+            stakeholderGroup={
+              stakeholderGroupToUpdate ? stakeholderGroupToUpdate : undefined
+            }
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
 
       {!!stakeholderGroupToDelete && (

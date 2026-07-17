@@ -7,13 +7,15 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon, TrashIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -340,26 +342,30 @@ export const JiraTrackers: React.FC = () => {
         </ConditionalRender>
       </PageSection>
       <Modal
-        title={
-          trackerToUpdate
-            ? t("dialog.title.update", {
-                what: t("terms.instance").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.instance").toLowerCase(),
-              })
-        }
         variant="medium"
         isOpen={isTrackerModalOpen}
         onClose={() => {
           setTrackerModalState(null);
         }}
       >
-        <TrackerForm
-          tracker={trackerToUpdate ? trackerToUpdate : undefined}
-          addUpdatingTrackerId={addUpdatingTrackerId}
-          onClose={() => setTrackerModalState(null)}
+        <ModalHeader
+          title={
+            trackerToUpdate
+              ? t("dialog.title.update", {
+                  what: t("terms.instance").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.instance").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <TrackerForm
+            tracker={trackerToUpdate ? trackerToUpdate : undefined}
+            addUpdatingTrackerId={addUpdatingTrackerId}
+            onClose={() => setTrackerModalState(null)}
+          />
+        </ModalBody>
       </Modal>
       {!!trackerToDelete && (
         <ConfirmDialog

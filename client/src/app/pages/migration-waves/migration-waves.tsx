@@ -12,13 +12,15 @@ import {
   EmptyStateBody,
   MenuToggle,
   MenuToggleElement,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 import {
   CubesIcon,
   EllipsisVIcon,
@@ -611,56 +613,68 @@ export const MigrationWaves: React.FC = () => {
             : (migrationWaveToEdit?.id ?? -1)
         }
         id="create-edit-migration-wave-modal"
-        title={
-          migrationWaveToEdit
-            ? t("dialog.title.update", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-            : t("dialog.title.new", {
-                what: t("terms.migrationWave").toLowerCase(),
-              })
-        }
-        variant={ModalVariant.medium}
+        variant="medium"
         isOpen={isWaveModalOpen}
         onClose={closeWaveModal}
       >
-        <WaveForm
-          migrationWave={migrationWaveToEdit ? migrationWaveToEdit : undefined}
-          onClose={closeWaveModal}
+        <ModalHeader
+          title={
+            migrationWaveToEdit
+              ? t("dialog.title.update", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+              : t("dialog.title.new", {
+                  what: t("terms.migrationWave").toLowerCase(),
+                })
+          }
         />
+        <ModalBody>
+          <WaveForm
+            migrationWave={
+              migrationWaveToEdit ? migrationWaveToEdit : undefined
+            }
+            onClose={closeWaveModal}
+          />
+        </ModalBody>
       </Modal>
 
       {applicationsToExport !== null && (
         <Modal
-          title={t("terms.exportToIssue")}
           variant="medium"
           isOpen={true}
           onClose={() => setApplicationsToExport(null)}
         >
-          <ExportForm
-            applications={applicationsToExport}
-            trackers={trackers}
-            onClose={() => setApplicationsToExport(null)}
-          />
+          <ModalHeader title={t("terms.exportToIssue")} />
+          <ModalBody>
+            <ExportForm
+              applications={applicationsToExport}
+              trackers={trackers}
+              onClose={() => setApplicationsToExport(null)}
+            />
+          </ModalBody>
         </Modal>
       )}
 
       <Modal
-        title={t("composed.manage", {
-          what: t("terms.applications").toLowerCase(),
-        })}
         variant="large"
         isOpen={!!waveToManageModalState}
         onClose={() => setWaveToManageModalState(null)}
       >
-        {waveToManageModalState && (
-          <ManageApplicationsForm
-            applications={applications}
-            migrationWave={waveToManageModalState}
-            migrationWaves={migrationWaves}
-            onClose={() => setWaveToManageModalState(null)}
-          />
-        )}
+        <ModalHeader
+          title={t("composed.manage", {
+            what: t("terms.applications").toLowerCase(),
+          })}
+        />
+        <ModalBody>
+          {waveToManageModalState && (
+            <ManageApplicationsForm
+              applications={applications}
+              migrationWave={waveToManageModalState}
+              migrationWaves={migrationWaves}
+              onClose={() => setWaveToManageModalState(null)}
+            />
+          )}
+        </ModalBody>
       </Modal>
 
       <ConfirmDeleteSingleMigrationWave

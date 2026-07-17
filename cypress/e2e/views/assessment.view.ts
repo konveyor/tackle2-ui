@@ -19,7 +19,6 @@ export const questionBlock = "div[cy-data='question']";
 export const assessmentBlock = "li.pf-v6-c-wizard__nav-item";
 export const radioInput = "input[type='radio']";
 export const assessmentColumnSelector = "td[data-label='Assessment']";
-export const continueButton = "button[aria-label=confirm]";
 export const closeModal = "[aria-label='Close']";
 export const stack = "div.pf-v6-l-stack";
 export const victoryContainer = '[id*="victory-container"]';

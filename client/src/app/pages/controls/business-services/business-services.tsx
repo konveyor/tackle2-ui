@@ -6,12 +6,14 @@ import {
   ButtonVariant,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -305,20 +307,26 @@ export const BusinessServices: React.FC = () => {
 
       <Modal
         id="create-edit-business-service-modal"
-        title={t(
-          businessServiceToUpdate ? "dialog.title.update" : "dialog.title.new",
-          {
-            what: t("terms.businessService").toLowerCase(),
-          }
-        )}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={closeCreateUpdateModal}
       >
-        <BusinessServiceForm
-          businessService={businessServiceToUpdate}
-          onClose={closeCreateUpdateModal}
+        <ModalHeader
+          title={t(
+            businessServiceToUpdate
+              ? "dialog.title.update"
+              : "dialog.title.new",
+            {
+              what: t("terms.businessService").toLowerCase(),
+            }
+          )}
         />
+        <ModalBody>
+          <BusinessServiceForm
+            businessService={businessServiceToUpdate}
+            onClose={closeCreateUpdateModal}
+          />
+        </ModalBody>
       </Modal>
       {isConfirmDialogOpen && (
         <ConfirmDialog
