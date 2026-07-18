@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
-  DualListSelector,
+  DualListSelector as PFDualListSelector,
   DualListSelectorControl,
   DualListSelectorControlsWrapper,
   DualListSelectorList,
@@ -30,16 +30,20 @@ const toggleSet = (
   setState(next);
 };
 
-export interface DualScopesListProps {
-  chosenScopes: string[];
-  onChange: (chosenScopes: string[]) => void;
-  allScopes: string[];
+export interface DualListSelectorProps {
+  chosenOptions: string[];
+  onChange: (chosenOptions: string[]) => void;
+  allOptions: string[];
+  allOptionsTitle: string;
+  chosenOptionsTitle: string;
 }
 
-export const DualScopesList: FC<DualScopesListProps> = ({
-  chosenScopes,
+export const DualListSelector: FC<DualListSelectorProps> = ({
+  chosenOptions,
   onChange,
-  allScopes,
+  allOptions,
+  allOptionsTitle,
+  chosenOptionsTitle,
 }) => {
   const { t } = useTranslation();
 
@@ -50,51 +54,52 @@ export const DualScopesList: FC<DualScopesListProps> = ({
   );
   const [chosenSelected, setChosenSelected] = useState<Set<string>>(new Set());
 
-  const matchesFilter = (scope: string, filter: string) =>
-    !filter || scope.toLowerCase().includes(filter.toLowerCase());
+  const matchesFilter = (option: string, filter: string) =>
+    !filter || option.toLowerCase().includes(filter.toLowerCase());
 
-  const availableScopes = allScopes.filter(
-    (scope) => !chosenScopes.includes(scope)
+  const availableOptions = allOptions.filter(
+    (option) => !chosenOptions.includes(option)
   );
 
   // show already selected to avoid silent modifications
-  const visibleAvailable = availableScopes.filter(
-    (scope) =>
-      matchesFilter(scope, availableFilter) || availableSelected.has(scope)
+  const visibleAvailable = availableOptions.filter(
+    (option) =>
+      matchesFilter(option, availableFilter) || availableSelected.has(option)
   );
-  const visibleChosen = chosenScopes.filter(
-    (scope) => matchesFilter(scope, chosenFilter) || chosenSelected.has(scope)
+  const visibleChosen = chosenOptions.filter(
+    (option) =>
+      matchesFilter(option, chosenFilter) || chosenSelected.has(option)
   );
 
   const moveToChosen = (items: string[]) => {
-    onChange([...chosenScopes, ...items]);
+    onChange([...chosenOptions, ...items]);
     setAvailableSelected(new Set());
   };
   const moveToAvailable = (items: string[]) => {
-    const removeScopes = new Set(items);
-    onChange(chosenScopes.filter((scope) => !removeScopes.has(scope)));
+    const removeOptions = new Set(items);
+    onChange(chosenOptions.filter((option) => !removeOptions.has(option)));
     setChosenSelected(new Set());
   };
   const moveAllVisibleToChosen = () => {
-    onChange([...chosenScopes, ...visibleAvailable]);
+    onChange([...chosenOptions, ...visibleAvailable]);
     setAvailableSelected(new Set());
   };
   const moveAllVisibleToAvailable = () => {
-    const removeScopes = new Set(visibleChosen);
-    onChange(chosenScopes.filter((scope) => !removeScopes.has(scope)));
+    const removeOptions = new Set(visibleChosen);
+    onChange(chosenOptions.filter((option) => !removeOptions.has(option)));
     setChosenSelected(new Set());
   };
-  const numAvailSel = visibleAvailable.filter((scope) =>
-    availableSelected.has(scope)
+  const numAvailSel = visibleAvailable.filter((option) =>
+    availableSelected.has(option)
   ).length;
-  const numChosenSel = visibleChosen.filter((scope) =>
-    chosenSelected.has(scope)
+  const numChosenSel = visibleChosen.filter((option) =>
+    chosenSelected.has(option)
   ).length;
 
   return (
-    <DualListSelector>
+    <PFDualListSelector>
       <DualListSelectorPane
-        title={t("terms.availableScopes")}
+        title={allOptionsTitle}
         status={t("message.selectedOptions", {
           count: numAvailSel,
           total: visibleAvailable.length,
@@ -104,7 +109,7 @@ export const DualScopesList: FC<DualScopesListProps> = ({
             value={availableFilter}
             onChange={(_event, value) => setAvailableFilter(value)}
             onClear={() => setAvailableFilter("")}
-            aria-label={t("message.searchAvailableScopes")}
+            aria-label={t("message.searchAvailableOptions")}
           />
         }
         listMinHeight="300px"
@@ -122,15 +127,15 @@ export const DualScopesList: FC<DualScopesListProps> = ({
         )}
 
         <DualListSelectorList>
-          {visibleAvailable.map((scope) => (
+          {visibleAvailable.map((option) => (
             <DualListSelectorListItem
-              key={scope}
-              isSelected={availableSelected.has(scope)}
+              key={option}
+              isSelected={availableSelected.has(option)}
               onOptionSelect={() =>
-                toggleSet(availableSelected, setAvailableSelected, scope)
+                toggleSet(availableSelected, setAvailableSelected, option)
               }
             >
-              {scope}
+              {option}
             </DualListSelectorListItem>
           ))}
         </DualListSelectorList>
@@ -141,7 +146,7 @@ export const DualScopesList: FC<DualScopesListProps> = ({
           isDisabled={numAvailSel === 0}
           onClick={() =>
             moveToChosen(
-              visibleAvailable.filter((scope) => availableSelected.has(scope))
+              visibleAvailable.filter((option) => availableSelected.has(option))
             )
           }
           aria-label={t("actions.addSelected")}
@@ -161,7 +166,7 @@ export const DualScopesList: FC<DualScopesListProps> = ({
           isDisabled={numChosenSel === 0}
           onClick={() =>
             moveToAvailable(
-              visibleChosen.filter((scope) => chosenSelected.has(scope))
+              visibleChosen.filter((option) => chosenSelected.has(option))
             )
           }
           aria-label={t("actions.removeSelected")}
@@ -180,7 +185,7 @@ export const DualScopesList: FC<DualScopesListProps> = ({
       </DualListSelectorControlsWrapper>
 
       <DualListSelectorPane
-        title={t("terms.chosenScopes")}
+        title={chosenOptionsTitle}
         status={t("message.selectedOptions", {
           count: numChosenSel,
           total: visibleChosen.length,
@@ -190,7 +195,7 @@ export const DualScopesList: FC<DualScopesListProps> = ({
             value={chosenFilter}
             onChange={(_event, value) => setChosenFilter(value)}
             onClear={() => setChosenFilter("")}
-            aria-label={t("message.searchChosenScopes")}
+            aria-label={t("message.searchChosenOptions")}
           />
         }
         listMinHeight="300px"
@@ -208,19 +213,19 @@ export const DualScopesList: FC<DualScopesListProps> = ({
           />
         )}
         <DualListSelectorList>
-          {visibleChosen.map((scope) => (
+          {visibleChosen.map((option) => (
             <DualListSelectorListItem
-              key={scope}
-              isSelected={chosenSelected.has(scope)}
+              key={option}
+              isSelected={chosenSelected.has(option)}
               onOptionSelect={() =>
-                toggleSet(chosenSelected, setChosenSelected, scope)
+                toggleSet(chosenSelected, setChosenSelected, option)
               }
             >
-              {scope}
+              {option}
             </DualListSelectorListItem>
           ))}
         </DualListSelectorList>
       </DualListSelectorPane>
-    </DualListSelector>
+    </PFDualListSelector>
   );
 };
