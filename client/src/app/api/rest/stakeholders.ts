@@ -12,7 +12,7 @@ export const createStakeholder = (obj: New<Stakeholder>) =>
   axios.post<Stakeholder>(STAKEHOLDERS, obj).then((response) => response.data);
 
 export const updateStakeholder = (obj: Stakeholder) =>
-  axios.put<void>(`${STAKEHOLDERS}/${obj.id}`, obj);
+  axios.put<void>(`${STAKEHOLDERS}/${obj.id}`, obj).then((r) => r.data);
 
 export const deleteStakeholder = (id: number) =>
-  axios.delete<void>(`${STAKEHOLDERS}/${id}`);
+  axios.delete<void>(`${STAKEHOLDERS}/${id}`).then((r) => r.data);
