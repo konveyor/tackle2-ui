@@ -16,10 +16,10 @@ export const createTag = (obj: New<Tag>) =>
   axios.post<Tag>(TAGS, obj).then((response) => response.data);
 
 export const updateTag = (obj: Tag) =>
-  axios.put<void>(`${TAGS}/${obj.id}`, obj).then((r) => r.data);
+  axios.put<void>(`${TAGS}/${obj.id}`, obj).then(() => undefined);
 
 export const deleteTag = (id: number) =>
-  axios.delete<void>(`${TAGS}/${id}`).then((r) => r.data);
+  axios.delete<void>(`${TAGS}/${id}`).then(() => undefined);
 
 export const getTagCategories = () =>
   axios.get<TagCategory[]>(TAG_CATEGORIES).then((response) => response.data);
@@ -35,7 +35,7 @@ export const createTagCategory = (obj: New<TagCategory>) =>
     .then((response) => response.data);
 
 export const updateTagCategory = (obj: TagCategory) =>
-  axios.put<void>(`${TAG_CATEGORIES}/${obj.id}`, obj).then((r) => r.data);
+  axios.put<void>(`${TAG_CATEGORIES}/${obj.id}`, obj).then(() => undefined);
 
 export const deleteTagCategory = (id: number) =>
-  axios.delete<void>(`${TAG_CATEGORIES}/${id}`).then((r) => r.data);
+  axios.delete<void>(`${TAG_CATEGORIES}/${id}`).then(() => undefined);
