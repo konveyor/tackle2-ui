@@ -15,7 +15,7 @@ export const createReview = (obj: New<Review>) =>
   axios.post<Review>(REVIEWS, obj).then((response) => response.data);
 
 export const updateReview = (obj: Review) =>
-  axios.put<void>(`${REVIEWS}/${obj.id}`, obj);
+  axios.put<void>(`${REVIEWS}/${obj.id}`, obj).then(() => {});
 
 export const deleteReview = (id: number) =>
-  axios.delete<void>(`${REVIEWS}/${id}`);
+  axios.delete<void>(`${REVIEWS}/${id}`).then(() => {});
