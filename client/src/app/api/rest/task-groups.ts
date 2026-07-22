@@ -9,10 +9,10 @@ export const createTaskgroup = (obj: New<Taskgroup>) =>
   axios.post<Taskgroup>(TASKGROUPS, obj).then((response) => response.data);
 
 export const submitTaskgroup = (obj: Taskgroup) =>
-  axios.put<void>(`${TASKGROUPS}/${obj.id}/submit`, obj);
+  axios.put<void>(`${TASKGROUPS}/${obj.id}/submit`, obj).then(() => {});
 
 export const deleteTaskgroup = (id: number) =>
-  axios.delete<void>(`${TASKGROUPS}/${id}`);
+  axios.delete<void>(`${TASKGROUPS}/${id}`).then(() => {});
 
 export const uploadFileTaskgroup = ({
   id,
@@ -27,7 +27,7 @@ export const uploadFileTaskgroup = ({
   formData.append("file", file);
   return axios.post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
     headers: HEADERS.form,
-  });
+  }).then(() => {});
 };
 
 export const removeFileTaskgroup = ({
@@ -36,4 +36,4 @@ export const removeFileTaskgroup = ({
 }: {
   id: number;
   path: string;
-}) => axios.delete<void>(`${TASKGROUPS}/${id}/bucket/${path}`);
+}) => axios.delete<void>(`${TASKGROUPS}/${id}/bucket/${path}`).then(() => {});
