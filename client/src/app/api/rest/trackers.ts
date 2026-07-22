@@ -19,10 +19,10 @@ export const createTracker = (obj: New<Tracker>) =>
   axios.post<Tracker>(TRACKERS, obj).then((response) => response.data);
 
 export const updateTracker = (obj: Tracker) =>
-  axios.put<void>(`${TRACKERS}/${obj.id}`, obj);
+  axios.put<void>(`${TRACKERS}/${obj.id}`, obj).then(() => {});
 
 export const deleteTracker = (id: number) =>
-  axios.delete<void>(`${TRACKERS}/${id}`);
+  axios.delete<void>(`${TRACKERS}/${id}`).then(() => {});
 
 export const getTrackerProjects = (id: number) =>
   axios
