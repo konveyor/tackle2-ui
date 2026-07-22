@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
-import { HubFile, Target } from "@app/api/models";
+import { HubFile, New, Target } from "@app/api/models";
 import {
   createFile,
   createTarget,
@@ -27,7 +27,7 @@ export const useFetchTargets = (
     refetch,
   } = useQuery<Target[]>({
     queryKey: [TargetsQueryKey],
-    queryFn: async () => await getTargets(),
+    queryFn: getTargets,
     onError: (err) => console.log(err),
     refetchInterval,
   });
@@ -67,14 +67,14 @@ export const useFetchTargets = (
 };
 
 export const useUpdateTargetMutation = (
-  onSuccess: (res: AxiosResponse<Target>) => void,
+  onSuccess: (target: Target) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isPending, mutate, error } = useMutation({
     mutationFn: updateTarget,
-    onSuccess: (res) => {
-      onSuccess(res);
+    onSuccess: (_, target) => {
+      onSuccess(target);
       queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
@@ -89,15 +89,15 @@ export const useUpdateTargetMutation = (
 };
 
 export const useDeleteTargetMutation = (
-  onSuccess: (res: Target, id: number) => void,
+  onSuccess: (id: number) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
 
   const { isPending, mutate, error } = useMutation({
     mutationFn: deleteTarget,
-    onSuccess: (res, id) => {
-      onSuccess(res, id);
+    onSuccess: (_, id) => {
+      onSuccess(id);
       queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
@@ -113,14 +113,14 @@ export const useDeleteTargetMutation = (
 };
 
 export const useCreateTargetMutation = (
-  onSuccess: (res: AxiosResponse<Target>) => void,
+  onSuccess: (target: Target) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   const { isPending, mutate, mutateAsync, error } = useMutation({
-    mutationFn: createTarget,
-    onSuccess: (res) => {
-      onSuccess(res);
+    mutationFn: (obj: New<Target>) => createTarget(obj),
+    onSuccess: (target) => {
+      onSuccess(target);
       queryClient.invalidateQueries({ queryKey: [TargetsQueryKey] });
     },
     onError: (err: AxiosError) => {
