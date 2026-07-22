@@ -11,12 +11,15 @@ import {
   DropdownItem,
   FormSelect,
   FormSelectOption,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import {
   PencilAltIcon,
   TagIcon,
@@ -1380,30 +1383,36 @@ export const ApplicationsTable: FC = () => {
       <Modal
         isOpen={isDependenciesModalOpen}
         variant="medium"
-        title={t("composed.manageDependenciesFor", {
-          what: applicationDependenciesToManage?.name,
-        })}
         onClose={() => setApplicationDependenciesToManage(null)}
       >
-        {applicationDependenciesToManage && (
-          <ApplicationDependenciesForm
-            application={applicationDependenciesToManage._}
-            onCancel={() => setApplicationDependenciesToManage(null)}
-          />
-        )}
+        <ModalHeader
+          title={t("composed.manageDependenciesFor", {
+            what: applicationDependenciesToManage?.name,
+          })}
+        />
+        <ModalBody>
+          {applicationDependenciesToManage && (
+            <ApplicationDependenciesForm
+              application={applicationDependenciesToManage._}
+              onCancel={() => setApplicationDependenciesToManage(null)}
+            />
+          )}
+        </ModalBody>
       </Modal>
 
       <Modal
         isOpen={isApplicationImportModalOpen}
         variant="medium"
-        title={t("dialog.title.importApplicationFile")}
         onClose={() => setIsApplicationImportModalOpen((current) => !current)}
       >
-        <ImportApplicationsForm
-          onSaved={() => {
-            setIsApplicationImportModalOpen(false);
-          }}
-        />
+        <ModalHeader title={t("dialog.title.importApplicationFile")} />
+        <ModalBody>
+          <ImportApplicationsForm
+            onSaved={() => {
+              setIsApplicationImportModalOpen(false);
+            }}
+          />
+        </ModalBody>
       </Modal>
 
       <ConfirmDialog
@@ -1632,38 +1641,42 @@ export const ApplicationsTable: FC = () => {
 
       <Modal
         variant="small"
-        title={t("actions.download", { what: "analysis details" })}
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
-        actions={[
+      >
+        <ModalHeader
+          title={t("actions.download", { what: "analysis details" })}
+        />
+        <ModalBody>
+          <Content>{"Select format"}</Content>
+          <FormSelect
+            value={selectedFormat}
+            onChange={onChange}
+            aria-label="FormSelect Input"
+            ouiaId="BasicFormSelect"
+          >
+            {formats.map((option, index) => (
+              <FormSelectOption
+                isDisabled={option.disabled}
+                key={index}
+                value={option.value}
+                label={option.label}
+              />
+            ))}
+          </FormSelect>
+        </ModalBody>
+        <ModalFooter>
           <Button key="confirm" variant="primary" onClick={handleDownload}>
             Download
-          </Button>,
+          </Button>
           <Button
             key="cancel"
             variant="link"
             onClick={() => setIsDownloadModalOpen(false)}
           >
             Cancel
-          </Button>,
-        ]}
-      >
-        <Content>{"Select format"}</Content>
-        <FormSelect
-          value={selectedFormat}
-          onChange={onChange}
-          aria-label="FormSelect Input"
-          ouiaId="BasicFormSelect"
-        >
-          {formats.map((option, index) => (
-            <FormSelectOption
-              isDisabled={option.disabled}
-              key={index}
-              value={option.value}
-              label={option.label}
-            />
-          ))}
-        </FormSelect>
+          </Button>
+        </ModalFooter>
       </Modal>
     </ConditionalRender>
   );

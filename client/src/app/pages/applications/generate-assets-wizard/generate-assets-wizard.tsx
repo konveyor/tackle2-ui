@@ -3,11 +3,14 @@ import { group } from "radash";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { NotificationsContext } from "@app/components/NotificationsContext";
 import { universalComparator } from "@app/utils/utils";
@@ -115,18 +118,14 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
 
   if (ready.length === 0) {
     return (
-      <Modal
-        isOpen={isOpen}
-        variant={ModalVariant.medium}
-        title={t("generateAssetsWizard.title")}
-        onClose={handleCancel}
-        actions={[
+      <Modal isOpen={isOpen} variant="medium" onClose={handleCancel}>
+        <ModalHeader title={t("generateAssetsWizard.title")} />
+        <ModalBody>{t("generateAssetsWizard.noApplicationsReady")}</ModalBody>
+        <ModalFooter>
           <Button key="cancel" variant="link" onClick={handleCancel}>
             {t("actions.cancel")}
-          </Button>,
-        ]}
-      >
-        {t("generateAssetsWizard.noApplicationsReady")}
+          </Button>
+        </ModalFooter>
       </Modal>
     );
   }
@@ -134,11 +133,9 @@ const GenerateAssetsWizardInner: React.FC<IGenerateAssetsWizard> = ({
   return (
     <Modal
       isOpen={isOpen}
-      variant={ModalVariant.large}
-      showClose={false}
-      hasNoBodyWrapper
+      variant="large"
       aria-label={t("generateAssetsWizard.title")}
-      onClose={handleCancel}
+      onEscapePress={handleCancel}
     >
       <Wizard
         onClose={handleCancel}

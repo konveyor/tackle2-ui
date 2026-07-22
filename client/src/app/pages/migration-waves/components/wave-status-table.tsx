@@ -5,12 +5,14 @@ import {
   Button,
   CodeBlock,
   CodeBlockCode,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { TrashIcon, UnlinkIcon } from "@patternfly/react-icons";
 import alignment from "@patternfly/react-styles/css/utilities/Alignment/alignment";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -215,16 +217,20 @@ export const WaveStatusTable: React.FC<IWaveStatusTableProps> = ({
         </ConditionalTableBody>
       </Table>
       <Modal
-        title={t("composed.error", {
-          what: t("terms.issue"),
-        })}
         variant="large"
         isOpen={!!codeModalState}
         onClose={() => setCodeModalState(null)}
       >
-        <CodeBlock>
-          <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
-        </CodeBlock>
+        <ModalHeader
+          title={t("composed.error", {
+            what: t("terms.issue"),
+          })}
+        />
+        <ModalBody>
+          <CodeBlock>
+            <CodeBlockCode id="code-content">{codeModalState}</CodeBlockCode>
+          </CodeBlock>
+        </ModalBody>
       </Modal>
     </>
   );

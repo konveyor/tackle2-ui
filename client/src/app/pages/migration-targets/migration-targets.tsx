@@ -22,13 +22,15 @@ import {
   Button,
   Content,
   Gallery,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import { Target } from "@app/api/models";
@@ -325,19 +327,26 @@ export const MigrationTargets: FC = () => {
 
       <Modal
         id="create-edit-custom-target-modal"
-        title={t(targetToUpdate ? "dialog.title.update" : "dialog.title.new", {
-          what: `${t("terms.customTarget")}`,
-        })}
         variant="medium"
         isOpen={isCreateUpdateModalOpen}
         onClose={() => setCreateUpdateModalState(null)}
       >
-        <CustomTargetForm
-          target={targetToUpdate}
-          targetOrder={targetOrderSetting.data ?? []}
-          onSaved={onCustomTargetModalSaved}
-          onCancel={() => setCreateUpdateModalState(null)}
+        <ModalHeader
+          title={t(
+            targetToUpdate ? "dialog.title.update" : "dialog.title.new",
+            {
+              what: `${t("terms.customTarget")}`,
+            }
+          )}
         />
+        <ModalBody>
+          <CustomTargetForm
+            target={targetToUpdate}
+            targetOrder={targetOrderSetting.data ?? []}
+            onSaved={onCustomTargetModalSaved}
+            onCancel={() => setCreateUpdateModalState(null)}
+          />
+        </ModalBody>
       </Modal>
     </>
   );

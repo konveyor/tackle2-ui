@@ -8,13 +8,15 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Modal,
+  ModalBody,
+  ModalHeader,
   PageSection,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { Modal } from "@patternfly/react-core/deprecated";
 import { CubesIcon, PencilAltIcon } from "@patternfly/react-icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 
@@ -345,26 +347,30 @@ export const SourcePlatforms: React.FC = () => {
 
       {/* Create modal */}
       <Modal
-        title={t("dialog.title.newPlatform")}
         variant="medium"
         isOpen={openCreatePlatform}
         onClose={() => setOpenCreatePlatform(false)}
       >
-        <PlatformForm onClose={() => setOpenCreatePlatform(false)} />
+        <ModalHeader title={t("dialog.title.newPlatform")} />
+        <ModalBody>
+          <PlatformForm onClose={() => setOpenCreatePlatform(false)} />
+        </ModalBody>
       </Modal>
 
       {/* Edit modal */}
       <Modal
-        title={t("dialog.title.updatePlatform")}
         variant="medium"
         isOpen={!!platformToEdit}
         onClose={() => setPlatformToEdit(null)}
       >
-        <PlatformForm
-          key={platformToEdit?.id ?? -1}
-          platform={platformToEdit}
-          onClose={() => setPlatformToEdit(null)}
-        />
+        <ModalHeader title={t("dialog.title.updatePlatform")} />
+        <ModalBody>
+          <PlatformForm
+            key={platformToEdit?.id ?? -1}
+            platform={platformToEdit}
+            onClose={() => setPlatformToEdit(null)}
+          />
+        </ModalBody>
       </Modal>
 
       {/* Platform Discover Import Wizard */}

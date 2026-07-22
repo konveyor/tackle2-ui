@@ -1,12 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Modal,
   Truncate,
   Wizard,
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
-import { Modal, ModalVariant } from "@patternfly/react-core/deprecated";
 
 import { Application } from "@app/api/models";
 import { AnalysisScope } from "@app/components/analysis/steps/analysis-scope";
@@ -111,11 +111,9 @@ export const AnalysisWizard: React.FC<IAnalysisWizard> = ({
   return (
     <Modal
       isOpen={isOpen}
-      showClose={false}
       aria-label="Application analysis wizard modal"
-      hasNoBodyWrapper
       onEscapePress={handleCancel}
-      variant={ModalVariant.large}
+      variant="large"
     >
       <Wizard
         data-testid="analysis-wizard"
