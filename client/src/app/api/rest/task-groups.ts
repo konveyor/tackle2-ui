@@ -25,9 +25,11 @@ export const uploadFileTaskgroup = ({
 }) => {
   const formData = new FormData();
   formData.append("file", file);
-  return axios.post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
-    headers: HEADERS.form,
-  }).then(() => {});
+  return axios
+    .post<void>(`${TASKGROUPS}/${id}/bucket/${path}`, formData, {
+      headers: HEADERS.form,
+    })
+    .then(() => {});
 };
 
 export const removeFileTaskgroup = ({
