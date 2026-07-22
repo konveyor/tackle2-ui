@@ -13,11 +13,19 @@ export const useFetchFacts = (
 ) => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [FactsQueryKey, applicationID],
-    queryFn: () => getFacts(applicationID),
+    queryFn: () => {
+      if (applicationID === undefined) {
+        return Promise.reject();
+      }
+      return getFacts(applicationID);
+    },
     enabled: !!applicationID,
-    onError: (error: AxiosError) => console.log("error, ", error),
+    onError: (error) => console.log("error, ", error),
     select: (facts): Fact[] =>
-      Object.keys(facts).map((fact) => ({ name: fact, data: facts[fact] })),
+      Object.keys(facts).map((fact) => ({
+        name: fact,
+        data: facts[fact],
+      })),
     refetchInterval,
   });
 
