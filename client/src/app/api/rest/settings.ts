@@ -11,7 +11,4 @@ export const getSettingById = <K extends keyof SettingTypes>(id: K) =>
     .then((response) => response.data);
 
 export const updateSetting = <K extends keyof SettingTypes>(obj: Setting<K>) =>
-  axios.put<void>(
-    `${SETTINGS}/${obj.key}`,
-    typeof obj.value == "boolean" ? obj.value.toString() : obj.value
-  );
+  axios.put<void>(`${SETTINGS}/${obj.key}`, obj.value).then(() => {});
