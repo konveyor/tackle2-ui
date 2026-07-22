@@ -5,22 +5,17 @@ import { hub } from "../rest";
 
 const REVIEWS = hub`/reviews`;
 
-export const getReviews = (): Promise<Review[]> => {
-  return axios.get(`${REVIEWS}`).then((response) => response.data);
-};
+export const getReviews = () =>
+  axios.get<Review[]>(REVIEWS).then((response) => response.data);
 
-export const getReviewById = (id: number | string): Promise<Review> => {
-  return axios.get(`${REVIEWS}/${id}`).then((response) => response.data);
-};
+export const getReviewById = (id: number | string) =>
+  axios.get<Review>(`${REVIEWS}/${id}`).then((response) => response.data);
 
-export const createReview = (obj: New<Review>): Promise<Review> => {
-  return axios.post(`${REVIEWS}`, obj);
-};
+export const createReview = (obj: New<Review>) =>
+  axios.post<Review>(REVIEWS, obj).then((response) => response.data);
 
-export const updateReview = (obj: Review): Promise<Review> => {
-  return axios.put(`${REVIEWS}/${obj.id}`, obj);
-};
+export const updateReview = (obj: Review) =>
+  axios.put<void>(`${REVIEWS}/${obj.id}`, obj).then(() => {});
 
-export const deleteReview = (id: number): Promise<Review> => {
-  return axios.delete(`${REVIEWS}/${id}`);
-};
+export const deleteReview = (id: number) =>
+  axios.delete<void>(`${REVIEWS}/${id}`).then(() => {});

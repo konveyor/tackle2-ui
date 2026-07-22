@@ -12,9 +12,9 @@ import {
 } from "@app/api/rest";
 
 import { ApplicationsQueryKey } from "./applications";
+import { ARCHETYPES_QUERY_KEY } from "./archetypes";
 
 const reviewQueryKey = "review";
-const reviewsByItemIdQueryKey = "reviewsByItemId";
 const reviewsQueryKey = "reviews";
 
 export const useFetchReviews = (
@@ -22,8 +22,8 @@ export const useFetchReviews = (
 ) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [reviewsQueryKey],
-    queryFn: () => getReviews(),
-    onError: (error) => console.log("error, ", error),
+    queryFn: getReviews,
+    onError: (error: AxiosError) => console.log("error, ", error),
     refetchInterval,
   });
   return {
@@ -42,13 +42,9 @@ export const useCreateReviewMutation = (
   return useMutation({
     mutationFn: (review: New<Review>) => createReview(review),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          reviewsByItemIdQueryKey,
-          res?.application?.id,
-          res?.archetype?.id,
-        ],
-      });
+      queryClient.invalidateQueries({ queryKey: [reviewsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
       onSuccess?.(res?.application?.name || "");
     },
     onError: (error) => {
@@ -66,13 +62,10 @@ export const useUpdateReviewMutation = (
   return useMutation({
     mutationFn: (review: Review) => updateReview(review),
     onSuccess: (_, args) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          reviewsByItemIdQueryKey,
-          _?.application?.id,
-          _.archetype?.id,
-        ],
-      });
+      queryClient.invalidateQueries({ queryKey: [reviewsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [reviewQueryKey, args.id] });
+      queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
       onSuccess?.(args?.application?.name || "");
     },
     onError: onError,
@@ -95,7 +88,9 @@ export const useDeleteReviewMutation = (
     onSuccess: (_, args) => {
       onSuccess?.(args.name);
       queryClient.invalidateQueries({ queryKey: [reviewsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [reviewQueryKey, args.id] });
       queryClient.invalidateQueries({ queryKey: [ApplicationsQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [ARCHETYPES_QUERY_KEY] });
     },
     onError,
   });
