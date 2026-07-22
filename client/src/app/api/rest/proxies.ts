@@ -9,4 +9,4 @@ export const getProxies = () =>
   axios.get<Proxy[]>(PROXIES).then((response) => response.data);
 
 export const updateProxy = (obj: Proxy) =>
-  axios.put<void>(`${PROXIES}/${obj.id}`, obj);
+  axios.put<void>(`${PROXIES}/${obj.id}`, obj).then(() => {});
