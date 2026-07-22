@@ -15,9 +15,9 @@ export const createTickets = (payload: New<Ticket>, applications: Ref[]) =>
         ...payload,
         application: { id: app.id, name: app.name },
       };
-      return axios.post<Ticket>(TICKETS, appPayload).then((r) => r.data);
+      return axios.post<Ticket>(TICKETS, appPayload).then(() => {});
     })
   );
 
 export const deleteTicket = (id: number) =>
-  axios.delete<void>(`${TICKETS}/${id}`);
+  axios.delete<void>(`${TICKETS}/${id}`).then(() => {});
