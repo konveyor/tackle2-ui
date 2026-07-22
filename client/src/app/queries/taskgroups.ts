@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError } from "axios";
 
 import { Taskgroup } from "@app/api/models";
 import {
@@ -37,13 +37,13 @@ export const useSubmitTaskgroupMutation = (
 };
 
 export const useRemoveTaskgroupFileMutation = (
-  successCallback?: (data: AxiosResponse<Taskgroup>) => void,
+  successCallback?: () => void,
   errorCallback?: (err: AxiosError) => void
 ) => {
   return useMutation({
     mutationFn: removeFileTaskgroup,
-    onSuccess: (data) => {
-      successCallback?.(data);
+    onSuccess: () => {
+      successCallback?.();
     },
     onError: (err: AxiosError) => {
       errorCallback?.(err);
@@ -52,10 +52,7 @@ export const useRemoveTaskgroupFileMutation = (
 };
 
 export const useUploadTaskgroupFileMutation = (
-  successCallback?: (
-    data: AxiosResponse<void>,
-    params: Parameters<typeof uploadFileTaskgroup>[0]
-  ) => void,
+  successCallback?: (params: Parameters<typeof uploadFileTaskgroup>[0]) => void,
   errorCallback?: (
     err: AxiosError,
     params: Parameters<typeof uploadFileTaskgroup>[0]
@@ -63,8 +60,8 @@ export const useUploadTaskgroupFileMutation = (
 ) => {
   return useMutation({
     mutationFn: uploadFileTaskgroup,
-    onSuccess: (response, params) => {
-      successCallback?.(response, params);
+    onSuccess: (_, params) => {
+      successCallback?.(params);
     },
     onError: (err: AxiosError, params) => {
       errorCallback?.(err, params);
