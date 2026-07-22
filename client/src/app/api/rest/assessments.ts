@@ -43,7 +43,7 @@ export const createAssessment = (
 };
 
 export const updateAssessment = (obj: Assessment) =>
-  axios.put<void>(`${ASSESSMENTS}/${obj.id}`, obj);
+  axios.put<void>(`${ASSESSMENTS}/${obj.id}`, obj).then(() => {});
 
 export const getAssessmentById = (id: number | string) =>
   axios
@@ -51,4 +51,4 @@ export const getAssessmentById = (id: number | string) =>
     .then((response) => response.data);
 
 export const deleteAssessment = (id: number) =>
-  axios.delete<void>(`${ASSESSMENTS}/${id}`);
+  axios.delete<void>(`${ASSESSMENTS}/${id}`).then(() => {});
