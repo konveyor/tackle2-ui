@@ -16,7 +16,7 @@ export const createStakeholderGroup = (obj: New<StakeholderGroup>) =>
     .then((response) => response.data);
 
 export const updateStakeholderGroup = (obj: StakeholderGroup) =>
-  axios.put<void>(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj);
+  axios.put<void>(`${STAKEHOLDER_GROUPS}/${obj.id}`, obj).then(() => {});
 
 export const deleteStakeholderGroup = (id: number) =>
-  axios.delete<void>(`${STAKEHOLDER_GROUPS}/${id}`);
+  axios.delete<void>(`${STAKEHOLDER_GROUPS}/${id}`).then(() => {});
