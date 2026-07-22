@@ -19,7 +19,7 @@ export const createQuestionnaire = (obj: Questionnaire) =>
     .then((response) => response.data);
 
 export const updateQuestionnaire = (obj: Questionnaire) =>
-  axios.put<void>(`${QUESTIONNAIRES}/${obj.id}`, obj);
+  axios.put<void>(`${QUESTIONNAIRES}/${obj.id}`, obj).then(() => {});
 
 export const deleteQuestionnaire = (id: number) =>
-  axios.delete<void>(`${QUESTIONNAIRES}/${id}`);
+  axios.delete<void>(`${QUESTIONNAIRES}/${id}`).then(() => {});
