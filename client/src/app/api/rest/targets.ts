@@ -12,7 +12,7 @@ export const createTarget = (obj: New<Target>) =>
   axios.post<Target>(TARGETS, obj).then((response) => response.data);
 
 export const updateTarget = (obj: Target) =>
-  axios.put<void>(`${TARGETS}/${obj.id}`, obj);
+  axios.put<void>(`${TARGETS}/${obj.id}`, obj).then(() => {});
 
 export const deleteTarget = (id: number) =>
-  axios.delete<void>(`${TARGETS}/${id}`);
+  axios.delete<void>(`${TARGETS}/${id}`).then(() => {});
