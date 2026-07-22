@@ -19,7 +19,7 @@ export const getApplicationImportSummaryById = (id: number | string) =>
     .then((response) => response.data);
 
 export const deleteApplicationImportSummary = (id: number) =>
-  axios.delete<void>(`${APP_IMPORTS_SUMMARY}/${id}`);
+  axios.delete<void>(`${APP_IMPORTS_SUMMARY}/${id}`).then(() => {});
 
 export const getApplicationImports = (
   importSummaryID: number,
