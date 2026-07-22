@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 
 import { DEFAULT_REFETCH_INTERVAL } from "@app/Constants";
-import { Tracker } from "@app/api/models";
+import { New, Tracker } from "@app/api/models";
 import {
   createTracker,
   deleteTracker,
@@ -44,7 +44,7 @@ export const useCreateTrackerMutation = (
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createTracker,
+    mutationFn: (obj: New<Tracker>) => createTracker(obj),
     onSuccess: (tracker) => {
       onSuccess(tracker);
       queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] });
@@ -54,14 +54,14 @@ export const useCreateTrackerMutation = (
 };
 
 export const useUpdateTrackerMutation = (
-  onSuccess: (response: unknown, tracker: Tracker) => void,
+  onSuccess: (tracker: Tracker) => void,
   onError: (err: AxiosError) => void
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateTracker,
-    onSuccess: (response, tracker) => {
-      onSuccess(response, tracker);
+    onSuccess: (_, tracker) => {
+      onSuccess(tracker);
       queryClient.invalidateQueries({ queryKey: [TrackersQueryKey] });
     },
     onError: onError,

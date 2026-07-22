@@ -19,7 +19,7 @@ import { QuestionCircleIcon } from "@patternfly/react-icons";
 import spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 import "./tracker-form.css";
-import { IdentityKind, IssueManagerKind, Tracker } from "@app/api/models";
+import { IdentityKind, IssueManagerKind, New, Tracker } from "@app/api/models";
 import { FilterSelectOptionProps } from "@app/components/FilterToolbar/FilterToolbar";
 import TypeaheadSelect from "@app/components/FilterToolbar/components/TypeaheadSelect";
 import {
@@ -48,7 +48,6 @@ const supportedIdentityKindByIssueManagerKind: Record<
 };
 
 interface FormValues {
-  id: number;
   name: string;
   url: string;
   kind?: IssueManagerKind;
@@ -87,7 +86,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     addUpdatingTrackerId(tracker.id);
   };
 
-  const onUpdateTrackerSuccess = (_response: unknown, tracker: Tracker) => {
+  const onUpdateTrackerSuccess = (tracker: Tracker) => {
     pushNotification({
       title: t("toastr.success.save", {
         type: t("terms.instance"),
@@ -117,10 +116,9 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       (identity) => formValues?.credentialName === identity.name
     );
 
-    const payload: Tracker = {
+    const payload: New<Tracker> = {
       name: formValues.name.trim(),
       url: formValues.url.trim(),
-      id: formValues.id,
       kind: formValues.kind!,
       message: "",
       connected: false,
@@ -130,9 +128,7 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
       insecure: formValues.insecure,
     };
     if (tracker) {
-      updateTracker({
-        ...payload,
-      });
+      updateTracker({ id: tracker.id, ...payload });
     } else {
       createTracker(payload);
     }
@@ -142,7 +138,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
   const standardStrictURL = new RegExp(standardStrictURLRegex);
 
   const validationSchema: yup.SchemaOf<FormValues> = yup.object().shape({
-    id: yup.number().defined(),
     name: yup
       .string()
       .min(3, t("validation.minLength", { length: 3 }))
@@ -175,7 +170,6 @@ export const TrackerForm: React.FC<TrackerFormProps> = ({
     defaultValues: {
       name: tracker?.name || "",
       url: tracker?.url || "",
-      id: tracker?.id || 0,
       kind: tracker?.kind,
       credentialName: tracker?.identity?.name || "",
       insecure: tracker?.insecure || false,
