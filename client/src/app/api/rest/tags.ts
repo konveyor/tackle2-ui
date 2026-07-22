@@ -6,32 +6,36 @@ import { hub } from "../rest";
 const TAGS = hub`/tags`;
 const TAG_CATEGORIES = hub`/tagcategories`;
 
-export const getTags = (): Promise<Tag[]> =>
-  axios.get(TAGS).then((response) => response.data);
+export const getTags = () =>
+  axios.get<Tag[]>(TAGS).then((response) => response.data);
 
-export const getTagById = (id: number | string): Promise<Tag> =>
-  axios.get(`${TAGS}/${id}`).then((response) => response.data);
+export const getTagById = (id: number | string) =>
+  axios.get<Tag>(`${TAGS}/${id}`).then((response) => response.data);
 
-export const createTag = (obj: New<Tag>): Promise<Tag> => axios.post(TAGS, obj);
+export const createTag = (obj: New<Tag>) =>
+  axios.post<Tag>(TAGS, obj).then((response) => response.data);
 
-export const deleteTag = (id: number): Promise<Tag> =>
-  axios.delete(`${TAGS}/${id}`);
+export const updateTag = (obj: Tag) =>
+  axios.put<void>(`${TAGS}/${obj.id}`, obj).then(() => undefined);
 
-export const updateTag = (obj: Tag): Promise<Tag> =>
-  axios.put(`${TAGS}/${obj.id}`, obj);
+export const deleteTag = (id: number) =>
+  axios.delete<void>(`${TAGS}/${id}`).then(() => undefined);
 
-export const getTagCategories = (): Promise<Array<TagCategory>> =>
-  axios.get(TAG_CATEGORIES).then((response) => response.data);
+export const getTagCategories = () =>
+  axios.get<TagCategory[]>(TAG_CATEGORIES).then((response) => response.data);
 
-export const getTagCategoryById = (id: number): Promise<TagCategory> =>
-  axios.get(`${TAG_CATEGORIES}/${id}`).then((response) => response.data);
+export const getTagCategoryById = (id: number) =>
+  axios
+    .get<TagCategory>(`${TAG_CATEGORIES}/${id}`)
+    .then((response) => response.data);
 
-export const deleteTagCategory = (id: number): Promise<TagCategory> =>
-  axios.delete(`${TAG_CATEGORIES}/${id}`);
+export const createTagCategory = (obj: New<TagCategory>) =>
+  axios
+    .post<TagCategory>(TAG_CATEGORIES, obj)
+    .then((response) => response.data);
 
-export const createTagCategory = (
-  obj: New<TagCategory>
-): Promise<TagCategory> => axios.post(TAG_CATEGORIES, obj);
+export const updateTagCategory = (obj: TagCategory) =>
+  axios.put<void>(`${TAG_CATEGORIES}/${obj.id}`, obj).then(() => undefined);
 
-export const updateTagCategory = (obj: TagCategory): Promise<TagCategory> =>
-  axios.put(`${TAG_CATEGORIES}/${obj.id}`, obj);
+export const deleteTagCategory = (id: number) =>
+  axios.delete<void>(`${TAG_CATEGORIES}/${id}`).then(() => undefined);
